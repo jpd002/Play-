@@ -178,6 +178,7 @@ uint32 CModload::GetModuleIdList(uint32 readBufPtr, uint32 readBufSize, uint32 m
 	{
 		(*moduleCount) = 0;
 	}
+	CLog::GetInstance().Warn(LOG_NAME, "Using " FUNCTION_GETMODULEIDLIST ", but it is not implemented.\r\n");
 	return 0;
 }
 

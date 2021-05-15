@@ -59,7 +59,6 @@ public:
 	    , m_structMax(structMax)
 	    , m_idBase(idBase)
 	{
-		assert(m_idBase != 0);
 	}
 
 	COsStructManager(const COsStructManager&) = delete;

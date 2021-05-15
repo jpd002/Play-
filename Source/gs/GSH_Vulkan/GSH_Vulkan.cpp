@@ -71,7 +71,7 @@ Framework::Vulkan::CInstance CGSH_Vulkan::CreateInstance(bool useValidationLayer
 	auto appInfo = Framework::Vulkan::ApplicationInfo();
 	appInfo.pApplicationName = "Play!";
 	appInfo.pEngineName = "Play!";
-	appInfo.apiVersion = VK_MAKE_VERSION(1, 1, 0);
+	appInfo.apiVersion = VK_API_VERSION_1_2;
 
 	instanceCreateInfo.pApplicationInfo = &appInfo;
 	instanceCreateInfo.enabledExtensionCount = extensions.size();
@@ -170,6 +170,7 @@ void CGSH_Vulkan::ReleaseImpl()
 	m_context->device.vkDestroyDescriptorPool(m_context->device, m_context->descriptorPool, nullptr);
 	m_context->clutBuffer.Reset();
 	m_context->memoryBuffer.Reset();
+	m_context->memoryBufferCopy.Reset();
 	m_context->commandBufferPool.Reset();
 	m_context->device.Reset();
 
@@ -360,9 +361,21 @@ void CGSH_Vulkan::CreateDevice(VkPhysicalDevice physicalDevice)
 	auto physicalDeviceFeatures2 = Framework::Vulkan::PhysicalDeviceFeatures2KHR();
 	physicalDeviceFeatures2.pNext = &physicalDeviceFeaturesInvocationInterlock;
 	physicalDeviceFeatures2.features.fragmentStoresAndAtomics = VK_TRUE;
+	physicalDeviceFeatures2.features.shaderInt16 = VK_TRUE;
+
+	auto physicalDeviceVulkan12features = Framework::Vulkan::PhysicalDeviceVulkan12Features();
+	physicalDeviceVulkan12features.pNext = &physicalDeviceFeatures2;
+	physicalDeviceVulkan12features.shaderInt8 = VK_TRUE;
+	physicalDeviceVulkan12features.storageBuffer8BitAccess = VK_TRUE;
+	physicalDeviceVulkan12features.uniformAndStorageBuffer8BitAccess = VK_TRUE;
+
+	auto physicalDevice16BitStorageFeatures = Framework::Vulkan::PhysicalDevice16BitStorageFeatures();
+	physicalDevice16BitStorageFeatures.pNext = &physicalDeviceVulkan12features;
+	physicalDevice16BitStorageFeatures.storageBuffer16BitAccess = VK_TRUE;
+	physicalDevice16BitStorageFeatures.uniformAndStorageBuffer16BitAccess = VK_TRUE;
 
 	auto deviceCreateInfo = Framework::Vulkan::DeviceCreateInfo();
-	deviceCreateInfo.pNext = &physicalDeviceFeatures2;
+	deviceCreateInfo.pNext = &physicalDevice16BitStorageFeatures;
 	deviceCreateInfo.flags = 0;
 	deviceCreateInfo.enabledLayerCount = static_cast<uint32>(enabledLayers.size());
 	deviceCreateInfo.ppEnabledLayerNames = enabledLayers.data();
@@ -424,6 +437,12 @@ void CGSH_Vulkan::CreateMemoryBuffer()
 
 	m_context->memoryBuffer.Write(m_context->queue, m_context->commandBufferPool,
 	                              m_context->physicalDeviceMemoryProperties, m_memoryCache);
+
+	m_context->memoryBufferCopy = Framework::Vulkan::CBuffer(m_context->device,
+	                                                         m_context->physicalDeviceMemoryProperties,
+	                                                         VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
+	                                                         VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+	                                                         RAMSIZE);
 }
 
 void CGSH_Vulkan::CreateClutBuffer()
@@ -667,6 +686,42 @@ void CGSH_Vulkan::SetRenderingContext(uint64 primReg)
 		assert(false);
 		break;
 	}
+
+	//Check if we need to save a copy of RAM because primitive writes to texture area
+	bool needsTextureCopy = false;
+	uint32 memoryCopyAddress = 0;
+	uint32 memoryCopySize = 0;
+	if((m_primitiveType == PRIM_SPRITE) && pipelineCaps.hasTexture)
+	{
+		uint32 texBufPtr = tex0.GetBufPtr();
+		uint32 frameBufPtr = frame.GetBasePtr();
+		uint32 depthBufPtr = zbuf.GetBasePtr();
+		bool isTexUpperBytePsm = CGsPixelFormats::IsPsmUpperByte(tex0.nPsm);
+		{
+			bool isFrame24Bits = CGsPixelFormats::IsPsm24Bits(frame.nPsm);
+			needsTextureCopy |= (texBufPtr == frameBufPtr) && !(isTexUpperBytePsm && isFrame24Bits);
+		}
+		if(pipelineCaps.writeDepth)
+		{
+			bool isDepth24Bits = CGsPixelFormats::IsPsm24Bits(zbuf.nPsm);
+			needsTextureCopy |= (texBufPtr == depthBufPtr) && !(isTexUpperBytePsm && isDepth24Bits);
+		}
+		if(needsTextureCopy)
+		{
+			CGsCachedArea textureArea;
+			textureArea.SetArea(tex0.nPsm, tex0.nBufPtr, tex0.GetBufWidth(), tex0.GetHeight());
+			memoryCopyAddress = texBufPtr;
+			memoryCopySize = textureArea.GetSize();
+			if((memoryCopyAddress + memoryCopySize) > RAMSIZE)
+			{
+				//Some games (Castlevania: Curse of Darkness) have a texture that goes beyond
+				//RAMSIZE, make sure we stay inside bounds.
+				memoryCopySize = RAMSIZE - memoryCopyAddress;
+			}
+			m_draw->SetMemoryCopyParams(memoryCopyAddress, memoryCopySize);
+		}
+	}
+	pipelineCaps.textureUseMemoryCopy = needsTextureCopy;
 
 	m_draw->SetPipelineCaps(pipelineCaps);
 	m_draw->SetFramebufferParams(frame.GetBasePtr(), frame.GetWidth(), fbWriteMask);

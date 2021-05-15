@@ -1134,7 +1134,10 @@ bool CIPU::CIDECCommand::Execute()
 			uint32 startCode = 0;
 			if(!m_IN_FIFO->TryPeekBits_MSBF(24, startCode))
 			{
-				return false;
+				//Not enough bits to get the full code, but we detected 8 zero bits
+				//in the previous state, we can assume we found a start code and bail
+				//Helps games like SMT: Nocturne which finishes a data packet with 8 zero bits
+				throw CStartCodeException();
 			}
 			if(startCode != 0x1)
 			{
@@ -1918,30 +1921,9 @@ bool CIPU::CCSCCommand::Execute()
 					float nG = nY - 0.34414f * (nCb - 128) - 0.71414f * (nCr - 128);
 					float nB = nY + 1.772f * (nCb - 128);
 
-					if(nR < 0)
-					{
-						nR = 0;
-					}
-					if(nR > 255)
-					{
-						nR = 255;
-					}
-					if(nG < 0)
-					{
-						nG = 0;
-					}
-					if(nG > 255)
-					{
-						nG = 255;
-					}
-					if(nB < 0)
-					{
-						nB = 0;
-					}
-					if(nB > 255)
-					{
-						nB = 255;
-					}
+					nR = std::clamp(nR, 0.f, 255.f);
+					nG = std::clamp(nG, 0.f, 255.f);
+					nB = std::clamp(nB, 0.f, 255.f);
 
 					uint8 a = 0;
 					uint32 rgb = (static_cast<uint8>(nB) << 16) | (static_cast<uint8>(nG) << 8) | (static_cast<uint8>(nR) << 0);
@@ -1966,7 +1948,27 @@ bool CIPU::CCSCCommand::Execute()
 				pPixel += 0x10;
 			}
 
-			m_OUT_FIFO->Write(nPixel, sizeof(uint32) * 0x100);
+			if(m_command.ofm == 1)
+			{
+				//RGBA16 output
+				uint16 cvtPixels[0x100];
+				for(uint32 i = 0; i < 0x100; i++)
+				{
+					uint32 pixel = nPixel[i];
+					uint16 result = 0;
+					result |= ((pixel & 0x000000F8) >> (0 + 3)) << 0;
+					result |= ((pixel & 0x0000F800) >> (8 + 3)) << 5;
+					result |= ((pixel & 0x00F80000) >> (16 + 3)) << 10;
+					result |= ((pixel & 0x80000000) >> 31) << 15;
+					cvtPixels[i] = result;
+				}
+				m_OUT_FIFO->Write(cvtPixels, sizeof(uint16) * 0x100);
+			}
+			else
+			{
+				//RGBA32 output
+				m_OUT_FIFO->Write(nPixel, sizeof(uint32) * 0x100);
+			}
 
 			m_mbCount--;
 			m_state = STATE_FLUSHBLOCK;

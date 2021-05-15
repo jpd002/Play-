@@ -8,6 +8,7 @@
 #include "vulkan/Buffer.h"
 #include "vulkan/Image.h"
 #include "Convertible.h"
+#include "../GsSpriteRegion.h"
 
 namespace GSH_Vulkan
 {
@@ -32,6 +33,7 @@ namespace GSH_Vulkan
 			uint32 primitiveType : 2;
 
 			uint32 hasTexture : 1;
+			uint32 textureUseMemoryCopy : 1;
 			uint32 textureHasAlpha : 1;
 			uint32 textureBlackIsTransparent : 1;
 			uint32 textureFunction : 2;
@@ -89,6 +91,7 @@ namespace GSH_Vulkan
 		void SetAlphaBlendingParams(uint32);
 		void SetAlphaTestParams(uint32);
 		void SetScissor(uint32, uint32, uint32, uint32);
+		void SetMemoryCopyParams(uint32, uint32);
 
 		void AddVertices(const PRIM_VERTEX*, const PRIM_VERTEX*);
 		void FlushVertices();
@@ -187,6 +190,10 @@ namespace GSH_Vulkan
 		uint32 m_scissorWidth = 0;
 		uint32 m_scissorHeight = 0;
 		uint32 m_clutBufferOffset = 0;
+		uint32 m_memoryCopyAddress = 0;
+		uint32 m_memoryCopySize = 0;
+
+		CGsSpriteRegion m_memoryCopyRegion;
 	};
 
 	typedef std::shared_ptr<CDraw> DrawPtr;

@@ -229,10 +229,9 @@ void BootableListDialog::on_awsS3Button_clicked()
 	m_statusBar->show();
 	auto getListFuture = std::async(std::launch::async, [this, bucketName]() {
 		m_s3_processing = true;
-		auto accessKeyId = CS3ObjectStream::CConfig::GetInstance().GetAccessKeyId();
-		auto secretAccessKey = CS3ObjectStream::CConfig::GetInstance().GetSecretAccessKey();
+		auto credentials = CS3ObjectStream::CConfig::GetInstance().GetCredentials();
 		AsyncUpdateStatus("Requesting S3 Bucket Content.");
-		auto result = AmazonS3Utils::GetListObjects(accessKeyId, secretAccessKey, bucketName);
+		auto result = AmazonS3Utils::GetListObjects(credentials, bucketName);
 		auto size = result.objects.size();
 		int i = 1;
 		bool new_entry = false;

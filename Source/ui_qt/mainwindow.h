@@ -5,7 +5,6 @@
 #include <QLabel>
 #include <QKeyEvent>
 #include <QDir>
-#include <QAbstractNativeEventFilter>
 
 #include "AppConfig.h"
 #include "PS2VM.h"

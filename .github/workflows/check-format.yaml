@@ -9,6 +9,7 @@ jobs:
     - uses: DoozyX/clang-format-lint-action@v0.11
       with:
         source: './Source ./tools'
+        exclude: './Source/ui_qt/win32/Resources'
         extensions: 'h,cpp,c,m,mm'
         clangFormatVersion: 6
         inplace: True

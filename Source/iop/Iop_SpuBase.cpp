@@ -499,7 +499,7 @@ void CSpuBase::SetReverbCurrentAddress(uint32 address)
 	m_reverbCurrAddr = address;
 }
 
-uint32 CSpuBase::ReceiveDma(uint8* buffer, uint32 blockSize, uint32 blockAmount)
+uint32 CSpuBase::ReceiveDma(uint8* buffer, uint32 blockSize, uint32 blockAmount, uint32 direction)
 {
 #ifdef _DEBUG
 	CLog::GetInstance().Print(LOG_NAME, "Receiving DMA transfer to 0x%08X. Size = 0x%08X bytes.\r\n",
@@ -516,6 +516,13 @@ uint32 CSpuBase::ReceiveDma(uint8* buffer, uint32 blockSize, uint32 blockAmount)
 		{
 			//- DMA reads need to be throttled to allow FFX IopSoundDriver to properly synchronize itself
 			blockAmount = std::min<uint32>(blockAmount, 0x10);
+			for(unsigned int i = 0; i < blockAmount; i++)
+			{
+				memcpy(buffer, m_ram + m_transferAddr, blockSize);
+				m_transferAddr += blockSize;
+				m_transferAddr &= m_ramSize - 1;
+				buffer += blockSize;
+			}
 			return blockAmount;
 		}
 		//- Tsugunai needs voice transfers to be throttled because it starts a DMA transfer

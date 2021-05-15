@@ -214,7 +214,7 @@ void CSio2::WriteRegister(uint32 address, uint32 value)
 #endif
 }
 
-uint32 CSio2::ReceiveDmaIn(uint8* buffer, uint32 blockSize, uint32 blockAmount)
+uint32 CSio2::ReceiveDmaIn(uint8* buffer, uint32 blockSize, uint32 blockAmount, uint32 direction)
 {
 	assert(m_currentRegIndex == 0);
 	for(uint32 i = 0; i < blockAmount; i++)
@@ -227,7 +227,7 @@ uint32 CSio2::ReceiveDmaIn(uint8* buffer, uint32 blockSize, uint32 blockAmount)
 	return blockAmount;
 }
 
-uint32 CSio2::ReceiveDmaOut(uint8* buffer, uint32 blockSize, uint32 blockAmount)
+uint32 CSio2::ReceiveDmaOut(uint8* buffer, uint32 blockSize, uint32 blockAmount, uint32 direction)
 {
 	assert(m_currentRegIndex == blockAmount);
 	for(uint32 i = 0; i < blockAmount; i++)

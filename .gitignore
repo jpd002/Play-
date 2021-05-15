@@ -35,3 +35,6 @@ ReleaseAot
 *.xcscmblueprint
 xcuserdata
 .DS_Store
+
+# PsfAot output files
+*.blockcache_*

@@ -129,6 +129,7 @@ private:
 	void PSRLVW();
 	void PMFHI();
 	void PMFLO();
+	void PINTH();
 	void PMULTW();
 	void PDIVW();
 	void PCPYLD();

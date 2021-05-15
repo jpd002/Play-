@@ -21,6 +21,7 @@ using namespace GSH_Vulkan;
 #define DESCRIPTOR_LOCATION_IMAGE_SWIZZLETABLE_TEX 2
 #define DESCRIPTOR_LOCATION_IMAGE_SWIZZLETABLE_FB 3
 #define DESCRIPTOR_LOCATION_IMAGE_SWIZZLETABLE_DEPTH 4
+#define DESCRIPTOR_LOCATION_BUFFER_MEMORY_COPY 5
 
 #define DRAW_AREA_SIZE 2048
 #define MAX_VERTEX_COUNT 1024 * 512
@@ -66,6 +67,10 @@ void CDraw::SetPipelineCaps(const PIPELINE_CAPS& caps)
 {
 	bool changed = static_cast<uint64>(caps) != static_cast<uint64>(m_pipelineCaps);
 	if(!changed) return;
+	if(caps.textureUseMemoryCopy)
+	{
+		FlushRenderPass();
+	}
 	FlushVertices();
 	m_pipelineCaps = caps;
 }
@@ -191,6 +196,17 @@ void CDraw::SetScissor(uint32 scissorX, uint32 scissorY, uint32 scissorWidth, ui
 	m_scissorHeight = scissorHeight;
 }
 
+void CDraw::SetMemoryCopyParams(uint32 memoryCopyAddress, uint32 memoryCopySize)
+{
+	bool changed =
+	    (memoryCopyAddress != m_memoryCopyAddress) ||
+	    (memoryCopySize != m_memoryCopySize);
+	if(!changed) return;
+	FlushRenderPass();
+	m_memoryCopyAddress = memoryCopyAddress;
+	m_memoryCopySize = memoryCopySize;
+}
+
 void CDraw::AddVertices(const PRIM_VERTEX* vertexBeginPtr, const PRIM_VERTEX* vertexEndPtr)
 {
 	auto amount = vertexEndPtr - vertexBeginPtr;
@@ -198,6 +214,26 @@ void CDraw::AddVertices(const PRIM_VERTEX* vertexBeginPtr, const PRIM_VERTEX* ve
 	{
 		m_frameCommandBuffer->Flush();
 		assert((m_passVertexEnd + amount) <= MAX_VERTEX_COUNT);
+	}
+	if(m_pipelineCaps.textureUseMemoryCopy)
+	{
+		//Check if sprite we are about to add overlaps with current region
+		//Some games use tiny sprites to do full screen effects that requires
+		//to keep a copy of RAM for texture sampling:
+		//- Metal Gear Solid 3
+		//- MK: Shaolin Monks
+		//- Tales of Legendia
+		const auto topLeftCorner = vertexBeginPtr;
+		const auto bottomRightCorner = vertexBeginPtr + 5;
+		CGsSpriteRect rect(topLeftCorner->x, topLeftCorner->y, bottomRightCorner->x, bottomRightCorner->y);
+		if(m_memoryCopyRegion.Intersects(rect))
+		{
+			FlushRenderPass();
+		}
+		else
+		{
+			m_memoryCopyRegion.Insert(rect);
+		}
 	}
 	auto& frame = m_frames[m_frameCommandBuffer->GetCurrentFrame()];
 	memcpy(frame.vertexBufferPtr + m_passVertexEnd, vertexBeginPtr, amount * sizeof(PRIM_VERTEX));
@@ -211,6 +247,21 @@ void CDraw::FlushVertices()
 
 	auto& frame = m_frames[m_frameCommandBuffer->GetCurrentFrame()];
 	auto commandBuffer = m_frameCommandBuffer->GetCommandBuffer();
+
+	if(m_pipelineCaps.textureUseMemoryCopy)
+	{
+		assert(!m_renderPassBegun);
+
+		//We need to keep a copy of the memory
+		VkBufferCopy bufferCopy = {};
+		bufferCopy.srcOffset = m_memoryCopyAddress;
+		bufferCopy.dstOffset = m_memoryCopyAddress;
+		bufferCopy.size = m_memoryCopySize;
+
+		m_context->device.vkCmdCopyBuffer(commandBuffer, m_context->memoryBuffer, m_context->memoryBufferCopy, 1, &bufferCopy);
+
+		m_memoryCopyRegion.Reset();
+	}
 
 	//Find pipeline and create it if we've never encountered it before
 	auto drawPipeline = m_pipelineCache.TryGetPipeline(m_pipelineCaps);
@@ -341,6 +392,10 @@ VkDescriptorSet CDraw::PrepareDescriptorSet(VkDescriptorSetLayout descriptorSetL
 		descriptorMemoryBufferInfo.buffer = m_context->memoryBuffer;
 		descriptorMemoryBufferInfo.range = VK_WHOLE_SIZE;
 
+		VkDescriptorBufferInfo descriptorMemoryCopyBufferInfo = {};
+		descriptorMemoryCopyBufferInfo.buffer = m_context->memoryBufferCopy;
+		descriptorMemoryCopyBufferInfo.range = VK_WHOLE_SIZE;
+
 		VkDescriptorBufferInfo descriptorClutBufferInfo = {};
 		descriptorClutBufferInfo.buffer = m_context->clutBuffer;
 		descriptorClutBufferInfo.range = VK_WHOLE_SIZE;
@@ -366,6 +421,16 @@ VkDescriptorSet CDraw::PrepareDescriptorSet(VkDescriptorSetLayout descriptorSetL
 			writeSet.descriptorCount = 1;
 			writeSet.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
 			writeSet.pBufferInfo = &descriptorMemoryBufferInfo;
+			writes.push_back(writeSet);
+		}
+
+		{
+			auto writeSet = Framework::Vulkan::WriteDescriptorSet();
+			writeSet.dstSet = descriptorSet;
+			writeSet.dstBinding = DESCRIPTOR_LOCATION_BUFFER_MEMORY_COPY;
+			writeSet.descriptorCount = 1;
+			writeSet.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+			writeSet.pBufferInfo = &descriptorMemoryCopyBufferInfo;
 			writes.push_back(writeSet);
 		}
 
@@ -497,6 +562,15 @@ PIPELINE CDraw::CreateDrawPipeline(const PIPELINE_CAPS& caps)
 		{
 			VkDescriptorSetLayoutBinding setLayoutBinding = {};
 			setLayoutBinding.binding = DESCRIPTOR_LOCATION_BUFFER_MEMORY;
+			setLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+			setLayoutBinding.descriptorCount = 1;
+			setLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+			setLayoutBindings.push_back(setLayoutBinding);
+		}
+
+		{
+			VkDescriptorSetLayoutBinding setLayoutBinding = {};
+			setLayoutBinding.binding = DESCRIPTOR_LOCATION_BUFFER_MEMORY_COPY;
 			setLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
 			setLayoutBinding.descriptorCount = 1;
 			setLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
@@ -1079,7 +1153,8 @@ Framework::Vulkan::CShaderModule CDraw::CreateFragmentShader(const PIPELINE_CAPS
 		//Outputs
 		auto outputColor = CFloat4Lvalue(b.CreateOutput(Nuanceur::SEMANTIC_SYSTEM_COLOR));
 
-		auto memoryBuffer = CArrayUintValue(b.CreateUniformArrayUint("memoryBuffer", DESCRIPTOR_LOCATION_BUFFER_MEMORY));
+		auto memoryBuffer = CArrayUintValue(b.CreateUniformArrayUint("memoryBuffer", DESCRIPTOR_LOCATION_BUFFER_MEMORY, Nuanceur::SYMBOL_ATTRIBUTE_COHERENT));
+		auto memoryBufferCopy = CArrayUintValue(b.CreateUniformArrayUint("memoryBufferCopy", DESCRIPTOR_LOCATION_BUFFER_MEMORY_COPY));
 		auto clutBuffer = CArrayUintValue(b.CreateUniformArrayUint("clutBuffer", DESCRIPTOR_LOCATION_IMAGE_CLUT));
 		auto texSwizzleTable = CImageUint2DValue(b.CreateImage2DUint(DESCRIPTOR_LOCATION_IMAGE_SWIZZLETABLE_TEX));
 		auto fbSwizzleTable = CImageUint2DValue(b.CreateImage2DUint(DESCRIPTOR_LOCATION_IMAGE_SWIZZLETABLE_FB));
@@ -1132,8 +1207,16 @@ Framework::Vulkan::CShaderModule CDraw::CreateFragmentShader(const PIPELINE_CAPS
 
 			auto getTextureColor =
 			    [&](CInt2Value textureIuv, CFloat4Lvalue& textureColor) {
-				    textureColor = GetTextureColor(b, caps.textureFormat, caps.clutFormat, textureIuv,
-				                                   memoryBuffer, clutBuffer, texSwizzleTable, texBufAddress, texBufWidth, texCsa);
+				    if(caps.textureUseMemoryCopy)
+				    {
+					    textureColor = GetTextureColor(b, caps.textureFormat, caps.clutFormat, textureIuv,
+					                                   memoryBufferCopy, clutBuffer, texSwizzleTable, texBufAddress, texBufWidth, texCsa);
+				    }
+				    else
+				    {
+					    textureColor = GetTextureColor(b, caps.textureFormat, caps.clutFormat, textureIuv,
+					                                   memoryBuffer, clutBuffer, texSwizzleTable, texBufAddress, texBufWidth, texCsa);
+				    }
 				    if(caps.textureHasAlpha)
 				    {
 					    ExpandAlpha(b, caps.textureFormat, caps.clutFormat, caps.textureBlackIsTransparent, textureColor, texA0, texA1);

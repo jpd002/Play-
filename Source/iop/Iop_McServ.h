@@ -105,6 +105,9 @@ namespace Iop
 		void Invoke(CMIPS&, unsigned int) override;
 		bool Invoke(uint32, uint32*, uint32, uint32*, uint32, uint8*) override;
 
+		void LoadState(Framework::CZipArchiveReader&) override;
+		void SaveState(Framework::CZipArchiveWriter&) const override;
+
 		void CountTicks(uint32, CSifMan*);
 
 	private:
@@ -134,7 +137,8 @@ namespace Iop
 
 		enum
 		{
-			MAX_FILES = 5
+			MAX_FILES = 5,
+			MAX_PORTS = 2,
 		};
 
 		class CPathFinder
@@ -174,6 +178,7 @@ namespace Iop
 		void GetEntSpace(uint32*, uint32, uint32*, uint32, uint8*);
 		void GetSlotMax(uint32*, uint32, uint32*, uint32, uint8*);
 		bool ReadFast(uint32*, uint32, uint32*, uint32, uint8*);
+		void WriteFast(uint32*, uint32, uint32*, uint32, uint8*);
 		void GetVersionInformation(uint32*, uint32, uint32*, uint32, uint8*);
 
 		void StartReadFast(CMIPS&);
@@ -198,6 +203,11 @@ namespace Iop
 		static const char* m_mcPathPreference[2];
 		std::string m_currentDirectory;
 		CPathFinder m_pathFinder;
+
+		// Keeps track, if the memory card in
+		// a given slot has already been read,
+		// or if it is a newly inserted card.
+		bool m_knownMemoryCards[MAX_PORTS];
 	};
 
 	typedef std::shared_ptr<CMcServ> McServPtr;

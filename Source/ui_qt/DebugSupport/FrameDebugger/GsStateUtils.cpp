@@ -384,6 +384,10 @@ std::string CGsStateUtils::GetContextState(CGSHandler* gs, unsigned int contextI
 		result += string_format("\tFunction: %s\r\n", g_alphaTestFunctionString[test.nAlphaMethod]);
 		result += string_format("\tRef Value: 0x%02X\r\n", test.nAlphaRef);
 		result += string_format("\tFail Op: %s\r\n", g_alphaTestFailOpString[test.nAlphaFail]);
+
+		result += string_format("Destination Alpha Testing:\r\n");
+		result += string_format("\tEnabled: %s\r\n", g_yesNoString[test.nDestAlphaEnabled]);
+		result += string_format("\tPassing Value: %d\r\n", test.nDestAlphaMode);
 	}
 
 	{

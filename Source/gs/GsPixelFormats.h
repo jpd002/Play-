@@ -262,6 +262,8 @@ public:
 	static bool IsPsmIDTEX(unsigned int);
 	static bool IsPsmIDTEX4(unsigned int);
 	static bool IsPsmIDTEX8(unsigned int);
+	static bool IsPsmUpperByte(unsigned int);
+	static bool IsPsm24Bits(unsigned int);
 
 	template <typename Storage>
 	class CPixelIndexor

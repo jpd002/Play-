@@ -1,6 +1,8 @@
 #include <assert.h>
 #include <stdio.h>
 #include <algorithm>
+#include <states/XmlStateFile.h>
+#include <xml/Utils.h>
 #include "../AppConfig.h"
 #include "../PS2VM_Preferences.h"
 #include "../Log.h"
@@ -32,6 +34,13 @@ using namespace Iop;
 
 #define CMD_DELAY_GETINFO 100000
 
+#define STATE_MEMCARDS_FILE ("iop_mcserv/memcards.xml")
+#define STATE_MEMCARDS_NODE "Memorycards"
+#define STATE_MEMCARDS_CARDNODE "Memorycard"
+
+#define STATE_MEMCARDS_CARDNODE_PORTATTRIBUTE ("Port")
+#define STATE_MEMCARDS_CARDNODE_KNOWNATTRIBUTE ("Known")
+
 // clang-format off
 const char* CMcServ::m_mcPathPreference[2] =
 {
@@ -50,6 +59,11 @@ CMcServ::CMcServ(CIopBios& bios, CSifMan& sifMan, CSifCmd& sifCmd, CSysmem& sysM
 	m_moduleDataAddr = m_sysMem.AllocateMemory(sizeof(MODULEDATA), 0, 0);
 	sifMan.RegisterModule(MODULE_ID, this);
 	BuildCustomCode();
+
+	for(bool& knownMemoryCard : m_knownMemoryCards)
+	{
+		knownMemoryCard = false;
+	}
 }
 
 const char* CMcServ::GetMcPathPreference(unsigned int port)
@@ -151,6 +165,9 @@ bool CMcServ::Invoke(uint32 method, uint32* args, uint32 argsSize, uint32* ret, 
 		break;
 	case 0x16:
 		return ReadFast(args, argsSize, ret, retSize, ram);
+		break;
+	case 0x1B:
+		WriteFast(args, argsSize, ret, retSize, ram);
 		break;
 	case 0xFE:
 	case 0x70:
@@ -265,12 +282,22 @@ void CMcServ::GetInfo(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize
 		retBuffer[0x24] = 1;
 	}
 
+	if(port >= MAX_PORTS)
+	{
+		assert(0);
+		ret[0] = -2;
+		return;
+	}
+
+	bool isKnownCard = m_knownMemoryCards[port];
+	m_knownMemoryCards[port] = true;
+
 	//Return values
 	//  0 if same card as previous call
 	//  -1 if new formatted card
 	//  -2 if new unformatted card
 	//> -2 on error
-	ret[0] = 0;
+	ret[0] = isKnownCard ? 0 : -1;
 
 	//Many games seem to be sensitive to the delay response of this function:
 	//- Nights Into Dreams (issues 2 Syncs very close to each other, infinite loop if GetInfo is instantenous)
@@ -292,7 +319,7 @@ void CMcServ::Open(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, u
 	CLog::GetInstance().Print(LOG_NAME, "Open(port = %i, slot = %i, flags = %i, name = '%s');\r\n",
 	                          cmd->port, cmd->slot, cmd->flags, cmd->name);
 
-	if(cmd->port > 1)
+	if(cmd->port >= MAX_PORTS)
 	{
 		assert(0);
 		ret[0] = -1;
@@ -581,7 +608,7 @@ void CMcServ::GetDir(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize,
 	CLog::GetInstance().Print(LOG_NAME, "GetDir(port = %i, slot = %i, flags = %i, maxEntries = %i, tableAddress = 0x%08X, name = '%s');\r\n",
 	                          cmd->port, cmd->slot, cmd->flags, cmd->maxEntries, cmd->tableAddress, cmd->name);
 
-	if(cmd->port > 1)
+	if(cmd->port >= MAX_PORTS)
 	{
 		assert(0);
 		ret[0] = -1;
@@ -726,6 +753,28 @@ bool CMcServ::ReadFast(uint32* args, uint32 argsSize, uint32* ret, uint32 retSiz
 	return false;
 }
 
+void CMcServ::WriteFast(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
+{
+	FILECMD* cmd = reinterpret_cast<FILECMD*>(args);
+
+	CLog::GetInstance().Print(LOG_NAME, "WriteFast(handle = %d, size = 0x%08X, bufferAddress = 0x%08X, paramAddress = 0x%08X);\r\n",
+	                          cmd->handle, cmd->size, cmd->bufferAddress, cmd->paramAddress);
+
+	auto file = GetFileFromHandle(cmd->handle);
+	if(file == nullptr)
+	{
+		ret[0] = RET_PERMISSION_DENIED;
+		assert(0);
+		return;
+	}
+
+	const void* dst = &ram[cmd->bufferAddress];
+	uint32 result = 0;
+
+	result += static_cast<uint32>(file->Write(dst, cmd->size));
+	ret[0] = result;
+}
+
 void CMcServ::GetVersionInformation(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
 {
 	assert(argsSize == 0x30);
@@ -734,6 +783,11 @@ void CMcServ::GetVersionInformation(uint32* args, uint32 argsSize, uint32* ret, 
 	ret[0] = 0x00000000;
 	ret[1] = 0x0000020A; //mcserv version
 	ret[2] = 0x0000020E; //mcman version
+
+	for(bool& knownMemoryCard : m_knownMemoryCards)
+	{
+		knownMemoryCard = false;
+	}
 
 	CLog::GetInstance().Print(LOG_NAME, "Init();\r\n");
 }
@@ -831,6 +885,37 @@ fs::path CMcServ::GetAbsoluteFilePath(unsigned int port, unsigned int slot, cons
 	{
 		return Iop::PathUtils::MakeHostPath(Iop::PathUtils::MakeHostPath(mcPath, m_currentDirectory.c_str()), name);
 	}
+}
+
+void CMcServ::LoadState(Framework::CZipArchiveReader& archive)
+{
+	auto stateFile = CXmlStateFile(*archive.BeginReadFile(STATE_MEMCARDS_FILE));
+	auto stateNode = stateFile.GetRoot();
+
+	auto cardNodes = stateNode->SelectNodes(STATE_MEMCARDS_NODE "/" STATE_MEMCARDS_CARDNODE);
+
+	int i = 0;
+	for(auto fileNode : cardNodes)
+	{
+		Framework::Xml::GetAttributeIntValue(fileNode, STATE_MEMCARDS_CARDNODE_PORTATTRIBUTE, &i);
+		Framework::Xml::GetAttributeBoolValue(fileNode, STATE_MEMCARDS_CARDNODE_KNOWNATTRIBUTE, &m_knownMemoryCards[i]);
+	}
+}
+
+void CMcServ::SaveState(Framework::CZipArchiveWriter& archive) const
+{
+	auto stateFile = new CXmlStateFile(STATE_MEMCARDS_FILE, STATE_MEMCARDS_NODE);
+	auto stateNode = stateFile->GetRoot();
+
+	for(unsigned int i = 0; i < MAX_PORTS; i++)
+	{
+		auto cardNode = new Framework::Xml::CNode(STATE_MEMCARDS_CARDNODE, true);
+		cardNode->InsertAttribute(Framework::Xml::CreateAttributeIntValue(STATE_MEMCARDS_CARDNODE_PORTATTRIBUTE, i));
+		cardNode->InsertAttribute(Framework::Xml::CreateAttributeBoolValue(STATE_MEMCARDS_CARDNODE_KNOWNATTRIBUTE, m_knownMemoryCards[i]));
+		stateNode->InsertNode(cardNode);
+	}
+
+	archive.InsertFile(stateFile);
 }
 
 /////////////////////////////////////////////

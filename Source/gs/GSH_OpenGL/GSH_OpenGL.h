@@ -72,12 +72,6 @@ protected:
 private:
 	typedef CGsTextureCache<Framework::OpenGl::CTexture> TextureCache;
 
-	enum class TECHNIQUE
-	{
-		STANDARD,
-		ALPHATEST_TWOPASS,
-	};
-
 	struct SHADERCAPS : public convertible<uint32>
 	{
 		unsigned int texFunction : 2; //0 - Modulate, 1 - Decal, 2 - Highlight, 3 - Hightlight2
@@ -91,8 +85,11 @@ private:
 		unsigned int hasFog : 1;
 		unsigned int hasAlphaTest : 1;
 		unsigned int alphaTestMethod : 3;
+		unsigned int hasDestAlphaTest : 1;
+		unsigned int destAlphaTestRef : 1;
 		unsigned int colorOutputWhite : 1;
-		unsigned int padding : 12;
+		unsigned int alphaFailMethod : 2;
+		unsigned int padding : 8;
 
 		bool isIndexedTextureSource() const
 		{
@@ -121,7 +118,6 @@ private:
 		uint64 fogColReg;
 
 		//Intermediate State
-		TECHNIQUE technique;
 		SHADERCAPS shaderCaps;
 
 		//OpenGL state
@@ -306,6 +302,7 @@ private:
 	void WriteRegisterImpl(uint8, uint64) override;
 
 	void InitializeRC();
+	void CheckExtensions();
 	void SetupTextureUpdaters();
 	virtual void PresentBackbuffer() = 0;
 	void MakeLinearZOrtho(float*, float, float, float, float);
@@ -320,7 +317,7 @@ private:
 	Framework::OpenGl::CShader GenerateVertexShader(const SHADERCAPS&);
 	Framework::OpenGl::CShader GenerateFragmentShader(const SHADERCAPS&);
 	std::string GenerateTexCoordClampingSection(TEXTURE_CLAMP_MODE, const char*);
-	std::string GenerateAlphaTestSection(ALPHA_TEST_METHOD);
+	std::string GenerateAlphaTestSection(ALPHA_TEST_METHOD, ALPHA_TEST_FAIL_METHOD);
 
 	Framework::OpenGl::ProgramPtr GeneratePresentProgram();
 	Framework::OpenGl::CBuffer GeneratePresentVertexBuffer();
@@ -355,7 +352,6 @@ private:
 	void FillShaderCapsFromTexture(SHADERCAPS&, const uint64&, const uint64&, const uint64&, const uint64&);
 	void FillShaderCapsFromTest(SHADERCAPS&, const uint64&);
 	void FillShaderCapsFromAlpha(SHADERCAPS&, bool, const uint64&);
-	TECHNIQUE GetTechniqueFromTest(const uint64&);
 
 	void SetupTexture(uint64, uint64, uint64, uint64, uint64);
 	static uint32 GetFramebufferBitDepth(uint32);
@@ -393,7 +389,6 @@ private:
 	bool m_forceBilinearTextures = false;
 	unsigned int m_fbScale = 1;
 	bool m_multisampleEnabled = false;
-	bool m_accurateAlphaTestEnabled = false;
 	bool m_depthTestingEnabled = true;
 	bool m_alphaBlendingEnabled = true;
 	bool m_alphaTestingEnabled = true;
@@ -466,4 +461,6 @@ private:
 	Framework::OpenGl::CBuffer m_vertexParamsBuffer;
 	Framework::OpenGl::CBuffer m_fragmentParamsBuffer;
 	VertexBuffer m_vertexBuffer;
+
+	bool m_hasFramebufferFetchExtension = false;
 };

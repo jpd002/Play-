@@ -64,6 +64,12 @@ void CMemoryUtils::Memory_Write24(Nuanceur::CShaderBuilder& b, Nuanceur::CArrayU
 	AtomicOr(memoryBuffer, wordAddress, value);
 }
 
+void CMemoryUtils::Memory_Write24(Nuanceur::CShaderBuilder& b, Nuanceur::CArrayUcharValue memoryBuffer8, Nuanceur::CArrayUshortValue memoryBuffer16, Nuanceur::CIntValue address, Nuanceur::CUintValue value)
+{
+	Store(memoryBuffer16, address / NewInt(b, 2), ToUshort(value));
+	Store(memoryBuffer8, address + NewInt(b, 2), ToUchar(value >> NewUint(b, 16)));
+}
+
 void CMemoryUtils::Memory_Write16(Nuanceur::CShaderBuilder& b, Nuanceur::CArrayUintValue memoryBuffer, Nuanceur::CIntValue address, Nuanceur::CUintValue value)
 {
 	auto wordAddress = address / NewInt(b, 4);
@@ -74,6 +80,11 @@ void CMemoryUtils::Memory_Write16(Nuanceur::CShaderBuilder& b, Nuanceur::CArrayU
 	AtomicOr(memoryBuffer, wordAddress, valueWord);
 }
 
+void CMemoryUtils::Memory_Write16(Nuanceur::CShaderBuilder& b, Nuanceur::CArrayUshortValue memoryBuffer, Nuanceur::CIntValue address, Nuanceur::CUintValue value)
+{
+	Store(memoryBuffer, address / NewInt(b, 2), ToUshort(value));
+}
+
 void CMemoryUtils::Memory_Write8(Nuanceur::CShaderBuilder& b, Nuanceur::CArrayUintValue memoryBuffer, Nuanceur::CIntValue address, Nuanceur::CUintValue value)
 {
 	auto wordAddress = address / NewInt(b, 4);
@@ -82,6 +93,11 @@ void CMemoryUtils::Memory_Write8(Nuanceur::CShaderBuilder& b, Nuanceur::CArrayUi
 	auto valueWord = value << shiftAmount;
 	AtomicAnd(memoryBuffer, wordAddress, mask);
 	AtomicOr(memoryBuffer, wordAddress, valueWord);
+}
+
+void CMemoryUtils::Memory_Write8(Nuanceur::CShaderBuilder& b, Nuanceur::CArrayUcharValue memoryBuffer, Nuanceur::CIntValue address, Nuanceur::CUintValue value)
+{
+	Store(memoryBuffer, address, ToUchar(value));
 }
 
 void CMemoryUtils::Memory_Write4(Nuanceur::CShaderBuilder& b, Nuanceur::CArrayUintValue memoryBuffer, Nuanceur::CIntValue nibAddress, Nuanceur::CUintValue value)
@@ -138,6 +154,6 @@ Nuanceur::CUintRvalue CMemoryUtils::Vec4ToPSM16(Nuanceur::CShaderBuilder& b, Nua
 	auto colorR = ToUint(inputColor->x() * NewFloat(b, 31.f)) << NewUint(b, 0);
 	auto colorG = ToUint(inputColor->y() * NewFloat(b, 31.f)) << NewUint(b, 5);
 	auto colorB = ToUint(inputColor->z() * NewFloat(b, 31.f)) << NewUint(b, 10);
-	auto colorA = ToUint(inputColor->w()) << NewUint(b, 15);
+	auto colorA = ToUint(inputColor->w() * NewFloat(b, 255.f)) >> NewUint(b, 7) << NewUint(b, 15);
 	return colorR | colorG | colorB | colorA;
 }

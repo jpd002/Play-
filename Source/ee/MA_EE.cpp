@@ -992,6 +992,44 @@ void CMA_EE::PMFLO()
 	}
 }
 
+//0A
+void CMA_EE::PINTH()
+{
+	if(m_nRD == 0) return;
+
+	uint8 tempRegIndex = 32;
+
+	for(unsigned int i = 0; i < 2; i++)
+	{
+		//B0/B2
+		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[i + 0]));
+		m_codeGen->PushCst(0xFFFF);
+		m_codeGen->And();
+
+		//A0/A2
+		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[i + 2]));
+		m_codeGen->Shl(16);
+
+		m_codeGen->Or();
+		m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2[tempRegIndex].nV[(i * 2) + 0]));
+
+		//B1/B3
+		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[i + 0]));
+		m_codeGen->Srl(16);
+
+		//A1/A3
+		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[i + 2]));
+		m_codeGen->PushCst(0xFFFF0000);
+		m_codeGen->And();
+
+		m_codeGen->Or();
+		m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2[tempRegIndex].nV[(i * 2) + 1]));
+	}
+
+	m_codeGen->MD_PushRel(offsetof(CMIPS, m_State.nCOP2[tempRegIndex]));
+	m_codeGen->MD_PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD]));
+}
+
 //0C
 void CMA_EE::PMULTW()
 {
@@ -1871,7 +1909,7 @@ CMA_EE::InstructionFuncConstant CMA_EE::m_pOpMmi2[0x20] =
 	//0x00
 	&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::PSLLVW,		&CMA_EE::PSRLVW,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,
 	//0x08
-	&CMA_EE::PMFHI,			&CMA_EE::PMFLO,			&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::PMULTW,		&CMA_EE::PDIVW,			&CMA_EE::PCPYLD,		&CMA_EE::Illegal,
+	&CMA_EE::PMFHI,			&CMA_EE::PMFLO,			&CMA_EE::PINTH,			&CMA_EE::Illegal,		&CMA_EE::PMULTW,		&CMA_EE::PDIVW,			&CMA_EE::PCPYLD,		&CMA_EE::Illegal,
 	//0x10
 	&CMA_EE::PMADDH,		&CMA_EE::PHMADH,		&CMA_EE::PAND,			&CMA_EE::PXOR,			&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,
 	//0x18
