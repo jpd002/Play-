@@ -30,6 +30,7 @@ namespace Iop
 			CMD_ID_WRITE = 0x06,
 			CMD_ID_CHDIR = 0x0C,
 			CMD_ID_GETDIR = 0x0D,
+			CMD_ID_SETFILEINFO = 0x0E,
 			CMD_ID_DELETE = 0x0F,
 		};
 
@@ -193,6 +194,7 @@ namespace Iop
 		void ChDir(uint32*, uint32, uint32*, uint32, uint8*);
 		void GetDir(uint32*, uint32, uint32*, uint32, uint8*);
 		void Delete(uint32*, uint32, uint32*, uint32, uint8*);
+		void SetFileInfo(uint32*, uint32, uint32*, uint32, uint8*);
 		void GetEntSpace(uint32*, uint32, uint32*, uint32, uint8*);
 		void GetSlotMax(uint32*, uint32, uint32*, uint32, uint8*);
 		bool ReadFast(uint32*, uint32, uint32*, uint32, uint8*);

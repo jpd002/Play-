@@ -155,6 +155,10 @@ bool CMcServ::Invoke(uint32 method, uint32* args, uint32 argsSize, uint32* ret, 
 	case 0x76: //Used by homebrew (ex.: ps2infones)
 		GetDir(args, argsSize, ret, retSize, ram);
 		break;
+	case CMD_ID_SETFILEINFO:
+	case 0x7C:
+		SetFileInfo(args, argsSize, ret, retSize, ram);
+		break;
 	case CMD_ID_DELETE:
 	case 0x79:
 		Delete(args, argsSize, ret, retSize, ram);
@@ -659,6 +663,46 @@ void CMcServ::GetDir(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize,
 	}
 
 	ret[0] = result;
+}
+
+void CMcServ::SetFileInfo(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
+{
+	auto cmd = reinterpret_cast<const CMD*>(args);
+	CLog::GetInstance().Print(LOG_NAME, "SetFileInfo(port = %i, slot = %i, flags = %i, name = '%s');\r\n", cmd->port, cmd->slot, cmd->flags, cmd->name);
+
+	auto entry = reinterpret_cast<ENTRY*>(ram + cmd->tableAddress);
+
+	auto flags = cmd->flags;
+
+	if(flags & MC_FILE_ATTR_FILE)
+	{
+		auto filePath1 = GetAbsoluteFilePath(cmd->port, cmd->slot, cmd->name);
+		auto filePath2 = GetAbsoluteFilePath(cmd->port, cmd->slot, cmd->name);
+		filePath2.replace_filename(reinterpret_cast<const char*>(entry->name));
+
+		if(filePath1 != filePath2)
+		{
+			try
+			{
+				fs::rename(filePath1, filePath2);
+			}
+			catch(...)
+			{
+				ret[0] = -1;
+				return;
+			}
+		}
+	}
+
+	flags &= ~MC_FILE_ATTR_FILE;
+
+	if(flags != 0)
+	{
+		// TODO: We only support file renaming for the moment
+		CLog::GetInstance().Warn(LOG_NAME, "Setting unknown file attribute flag %i\r\n", cmd->flags);
+	}
+
+	ret[0] = 0;
 }
 
 void CMcServ::Delete(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
