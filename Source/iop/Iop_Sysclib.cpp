@@ -101,6 +101,9 @@ std::string CSysclib::GetFunctionName(unsigned int functionId) const
 	case 36:
 		return "strtol";
 		break;
+	case 38:
+		return "strtoul";
+		break;
 	case 40:
 		return "wmemcopy";
 		break;
@@ -253,6 +256,12 @@ void CSysclib::Invoke(CMIPS& context, unsigned int functionId)
 		break;
 	case 36:
 		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(__strtol(
+		    context.m_State.nGPR[CMIPS::A0].nV0,
+		    context.m_State.nGPR[CMIPS::A1].nV0,
+		    context.m_State.nGPR[CMIPS::A2].nV0));
+		break;
+	case 38:
+		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(__strtoul(
 		    context.m_State.nGPR[CMIPS::A0].nV0,
 		    context.m_State.nGPR[CMIPS::A1].nV0,
 		    context.m_State.nGPR[CMIPS::A2].nV0));
@@ -533,6 +542,19 @@ uint32 CSysclib::__strtol(uint32 stringPtr, uint32 endPtrPtr, uint32 radix)
 	auto string = reinterpret_cast<const char*>(GetPtr(stringPtr, 0));
 	char* end = nullptr;
 	uint32 result = strtol(string, &end, radix);
+	if(endPtrPtr != 0)
+	{
+		auto endPtr = reinterpret_cast<uint32*>(GetPtr(endPtrPtr, 4));
+		(*endPtr) = static_cast<uint32>(end - string);
+	}
+	return result;
+}
+
+uint32 CSysclib::__strtoul(uint32 stringPtr, uint32 endPtrPtr, uint32 radix)
+{
+	auto string = reinterpret_cast<const char*>(GetPtr(stringPtr, 0));
+	char* end = nullptr;
+	uint32 result = strtoul(string, &end, radix);
 	if(endPtrPtr != 0)
 	{
 		auto endPtr = reinterpret_cast<uint32*>(GetPtr(endPtrPtr, 4));
