@@ -41,6 +41,8 @@ using namespace Iop;
 #define STATE_MEMCARDS_CARDNODE_PORTATTRIBUTE ("Port")
 #define STATE_MEMCARDS_CARDNODE_KNOWNATTRIBUTE ("Known")
 
+#define MC_FILE_ATTR_FOLDER (MC_FILE_0400 | MC_FILE_ATTR_EXISTS | MC_FILE_ATTR_SUBDIR | MC_FILE_ATTR_READABLE | MC_FILE_ATTR_WRITEABLE | MC_FILE_ATTR_EXECUTABLE)
+
 // clang-format off
 const char* CMcServ::m_mcPathPreference[2] =
 {
@@ -970,7 +972,7 @@ void CMcServ::CPathFinder::Search(const fs::path& basePath, const char* filter)
 		memset(&entry, 0, sizeof(entry));
 		strcpy(reinterpret_cast<char*>(entry.name), ".");
 		entry.size = 0;
-		entry.attributes = 0x8427;
+		entry.attributes = MC_FILE_ATTR_FOLDER;
 		m_entries.push_back(entry);
 	}
 
@@ -980,7 +982,7 @@ void CMcServ::CPathFinder::Search(const fs::path& basePath, const char* filter)
 		memset(&entry, 0, sizeof(entry));
 		strcpy(reinterpret_cast<char*>(entry.name), "..");
 		entry.size = 0;
-		entry.attributes = 0x8427;
+		entry.attributes = MC_FILE_ATTR_FOLDER;
 		m_entries.push_back(entry);
 	}
 
@@ -1030,12 +1032,12 @@ void CMcServ::CPathFinder::SearchRecurse(const fs::path& path)
 			if(fs::is_directory(*elementIterator))
 			{
 				entry.size = 0;
-				entry.attributes = 0x8427;
+				entry.attributes = MC_FILE_ATTR_FOLDER;
 			}
 			else
 			{
 				entry.size = static_cast<uint32>(fs::file_size(*elementIterator));
-				entry.attributes = 0x8497;
+				entry.attributes = MC_FILE_0400 | MC_FILE_ATTR_EXISTS | MC_FILE_ATTR_CLOSED | MC_FILE_ATTR_FILE | MC_FILE_ATTR_READABLE | MC_FILE_ATTR_WRITEABLE | MC_FILE_ATTR_EXECUTABLE;
 			}
 
 			//Fill in modification date info
