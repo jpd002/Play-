@@ -18,6 +18,12 @@ namespace Iop
 		void Invoke(CMIPS&, unsigned int) override;
 
 	private:
+		void DmacSetDpcr(CMIPS&, uint32);
+		uint32 DmacGetDpcr(CMIPS&);
+		void DmacSetDpcr2(CMIPS&, uint32);
+		uint32 DmacGetDpcr2(CMIPS&);
+		void DmacSetDpcr3(CMIPS&, uint32);
+		uint32 DmacGetDpcr3(CMIPS&);
 		uint32 DmacRequest(CMIPS&, uint32, uint32, uint32, uint32, uint32);
 		void DmacTransfer(CMIPS&, uint32);
 		void DmacChSetDpcr(CMIPS&, uint32, uint32);

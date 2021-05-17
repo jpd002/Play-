@@ -7,12 +7,24 @@
 
 using namespace Iop;
 
+#define FUNCTIONID_DMACSETDPCR 14
+#define FUNCTIONID_DMACGETDPCR 15
+#define FUNCTIONID_DMACSETDPCR2 16
+#define FUNCTIONID_DMACGETDPCR2 17
+#define FUNCTIONID_DMACSETDPCR3 18
+#define FUNCTIONID_DMACGETDPCR3 19
 #define FUNCTIONID_DMACREQUEST 28
 #define FUNCTIONID_DMACTRANSFER 32
 #define FUNCTIONID_DMACCHSETDPCR 33
 #define FUNCTIONID_DMACENABLE 34
 #define FUNCTIONID_DMACDISABLE 35
 
+#define FUNCTION_DMACSETDPCR "DmacSetDpcr"
+#define FUNCTION_DMACGETDPCR "DmacGetDpcr"
+#define FUNCTION_DMACSETDPCR2 "DmacSetDpcr2"
+#define FUNCTION_DMACGETDPCR2 "DmacGetDpcr2"
+#define FUNCTION_DMACSETDPCR3 "DmacSetDpcr3"
+#define FUNCTION_DMACGETDPCR3 "DmacGetDpcr3"
 #define FUNCTION_DMACREQUEST "DmacRequest"
 #define FUNCTION_DMACTRANSFER "DmacTransfer"
 #define FUNCTION_DMACCHSETDPCR "DmacChSetDpcr"
@@ -45,6 +57,18 @@ std::string CDmacman::GetFunctionName(unsigned int functionId) const
 {
 	switch(functionId)
 	{
+	case FUNCTIONID_DMACSETDPCR:
+		return FUNCTION_DMACSETDPCR;
+	case FUNCTIONID_DMACGETDPCR:
+		return FUNCTION_DMACGETDPCR;
+	case FUNCTIONID_DMACSETDPCR2:
+		return FUNCTION_DMACSETDPCR2;
+	case FUNCTIONID_DMACGETDPCR2:
+		return FUNCTION_DMACGETDPCR2;
+	case FUNCTIONID_DMACSETDPCR3:
+		return FUNCTION_DMACSETDPCR3;
+	case FUNCTIONID_DMACGETDPCR3:
+		return FUNCTION_DMACGETDPCR3;
 	case FUNCTIONID_DMACREQUEST:
 		return FUNCTION_DMACREQUEST;
 	case FUNCTIONID_DMACTRANSFER:
@@ -65,6 +89,33 @@ void CDmacman::Invoke(CMIPS& context, unsigned int functionId)
 {
 	switch(functionId)
 	{
+	case FUNCTIONID_DMACSETDPCR:
+		DmacSetDpcr(
+		    context,
+		    context.m_State.nGPR[CMIPS::A0].nV0);
+		break;
+	case FUNCTIONID_DMACGETDPCR:
+		context.m_State.nGPR[CMIPS::V0].nV0 = DmacGetDpcr(
+		    context);
+		break;
+	case FUNCTIONID_DMACSETDPCR2:
+		DmacSetDpcr2(
+		    context,
+		    context.m_State.nGPR[CMIPS::A0].nV0);
+		break;
+	case FUNCTIONID_DMACGETDPCR2:
+		context.m_State.nGPR[CMIPS::V0].nV0 = DmacGetDpcr2(
+		    context);
+		break;
+	case FUNCTIONID_DMACSETDPCR3:
+		DmacSetDpcr3(
+		    context,
+		    context.m_State.nGPR[CMIPS::A0].nV0);
+		break;
+	case FUNCTIONID_DMACGETDPCR3:
+		context.m_State.nGPR[CMIPS::V0].nV0 = DmacGetDpcr3(
+		    context);
+		break;
 	case FUNCTIONID_DMACREQUEST:
 		context.m_State.nGPR[CMIPS::V0].nV0 = DmacRequest(
 		    context,
@@ -97,6 +148,39 @@ void CDmacman::Invoke(CMIPS& context, unsigned int functionId)
 		CLog::GetInstance().Warn(LOGNAME, "%08X: Unknown function (%d) called.\r\n", context.m_State.nPC, functionId);
 		break;
 	}
+}
+
+void CDmacman::DmacSetDpcr(CMIPS& context, uint32 value)
+{
+	CLog::GetInstance().Print(LOGNAME, FUNCTION_DMACSETDPCR "(value = 0x%08X);\r\n", value);
+	context.m_pMemoryMap->SetWord(CDmac::DPCR, value);
+}
+
+uint32 CDmacman::DmacGetDpcr(CMIPS& context)
+{
+	return context.m_pMemoryMap->GetWord(CDmac::DPCR);
+}
+
+void CDmacman::DmacSetDpcr2(CMIPS& context, uint32 value)
+{
+	CLog::GetInstance().Print(LOGNAME, FUNCTION_DMACSETDPCR2 "(value = 0x%08X);\r\n", value);
+	context.m_pMemoryMap->SetWord(CDmac::DPCR2, value);
+}
+
+uint32 CDmacman::DmacGetDpcr2(CMIPS& context)
+{
+	return context.m_pMemoryMap->GetWord(CDmac::DPCR2);
+}
+
+void CDmacman::DmacSetDpcr3(CMIPS& context, uint32 value)
+{
+	CLog::GetInstance().Print(LOGNAME, FUNCTION_DMACSETDPCR3 "(value = 0x%08X);\r\n", value);
+	context.m_pMemoryMap->SetWord(CDmac::DPCR3, value);
+}
+
+uint32 CDmacman::DmacGetDpcr3(CMIPS& context)
+{
+	return context.m_pMemoryMap->GetWord(CDmac::DPCR3);
 }
 
 uint32 CDmacman::DmacRequest(CMIPS& context, uint32 channel, uint32 addr, uint32 size, uint32 count, uint32 dir)
@@ -188,10 +272,10 @@ uint32 CDmacman::GetDPCRAddr(uint32 channel)
 	{
 		return CDmac::DPCR2;
 	}
-	else
+	// 13 - 15 (i.Link)
+	else if(channel < 16)
 	{
-		// DPCR3?
-		assert(0);
+		return CDmac::DPCR3;
 	}
 	return 0;
 }
