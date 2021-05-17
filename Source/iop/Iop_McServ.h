@@ -30,6 +30,7 @@ namespace Iop
 			CMD_ID_WRITE = 0x06,
 			CMD_ID_CHDIR = 0x0C,
 			CMD_ID_GETDIR = 0x0D,
+			CMD_ID_SETFILEINFO = 0x0E,
 			CMD_ID_DELETE = 0x0F,
 		};
 
@@ -40,6 +41,24 @@ namespace Iop
 			OPEN_FLAG_RDWR = 0x00000003,
 			OPEN_FLAG_CREAT = 0x00000200,
 			OPEN_FLAG_TRUNC = 0x00000400,
+		};
+
+		enum FILE_ATTRIBUTE_FLAGS
+		{
+			MC_FILE_ATTR_READABLE = 0x01,
+			MC_FILE_ATTR_WRITEABLE = 0x02,
+			MC_FILE_ATTR_EXECUTABLE = 0x04,
+			MC_FILE_ATTR_DUP_PROHIBIT = 0x08,
+			MC_FILE_ATTR_FILE = 0x10,
+			MC_FILE_ATTR_SUBDIR = 0x20,
+			MC_FILE_CREATE_DIR = 0x0040,
+			MC_FILE_ATTR_CLOSED = 0x0080,
+			MC_FILE_CREATE_FILE = 0x0200,
+			MC_FILE_0400 = 0x0400,
+			MC_FILE_ATTR_PDAEXEC = 0x0800,
+			MC_FILE_ATTR_PS1 = 0x1000,
+			MC_FILE_ATTR_HIDDEN = 0x2000,
+			MC_FILE_ATTR_EXISTS = 0x8000,
 		};
 
 		enum RETURN_CODES
@@ -175,6 +194,7 @@ namespace Iop
 		void ChDir(uint32*, uint32, uint32*, uint32, uint8*);
 		void GetDir(uint32*, uint32, uint32*, uint32, uint8*);
 		void Delete(uint32*, uint32, uint32*, uint32, uint8*);
+		void SetFileInfo(uint32*, uint32, uint32*, uint32, uint8*);
 		void GetEntSpace(uint32*, uint32, uint32*, uint32, uint8*);
 		void GetSlotMax(uint32*, uint32, uint32*, uint32, uint8*);
 		bool ReadFast(uint32*, uint32, uint32*, uint32, uint8*);

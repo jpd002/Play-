@@ -41,6 +41,8 @@ using namespace Iop;
 #define STATE_MEMCARDS_CARDNODE_PORTATTRIBUTE ("Port")
 #define STATE_MEMCARDS_CARDNODE_KNOWNATTRIBUTE ("Known")
 
+#define MC_FILE_ATTR_FOLDER (MC_FILE_0400 | MC_FILE_ATTR_EXISTS | MC_FILE_ATTR_SUBDIR | MC_FILE_ATTR_READABLE | MC_FILE_ATTR_WRITEABLE | MC_FILE_ATTR_EXECUTABLE)
+
 // clang-format off
 const char* CMcServ::m_mcPathPreference[2] =
 {
@@ -152,6 +154,10 @@ bool CMcServ::Invoke(uint32 method, uint32* args, uint32 argsSize, uint32* ret, 
 	case CMD_ID_GETDIR:
 	case 0x76: //Used by homebrew (ex.: ps2infones)
 		GetDir(args, argsSize, ret, retSize, ram);
+		break;
+	case CMD_ID_SETFILEINFO:
+	case 0x7C:
+		SetFileInfo(args, argsSize, ret, retSize, ram);
 		break;
 	case CMD_ID_DELETE:
 	case 0x79:
@@ -659,6 +665,46 @@ void CMcServ::GetDir(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize,
 	ret[0] = result;
 }
 
+void CMcServ::SetFileInfo(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
+{
+	auto cmd = reinterpret_cast<const CMD*>(args);
+	CLog::GetInstance().Print(LOG_NAME, "SetFileInfo(port = %i, slot = %i, flags = %i, name = '%s');\r\n", cmd->port, cmd->slot, cmd->flags, cmd->name);
+
+	auto entry = reinterpret_cast<ENTRY*>(ram + cmd->tableAddress);
+
+	auto flags = cmd->flags;
+
+	if(flags & MC_FILE_ATTR_FILE)
+	{
+		auto filePath1 = GetAbsoluteFilePath(cmd->port, cmd->slot, cmd->name);
+		auto filePath2 = GetAbsoluteFilePath(cmd->port, cmd->slot, cmd->name);
+		filePath2.replace_filename(reinterpret_cast<const char*>(entry->name));
+
+		if(filePath1 != filePath2)
+		{
+			try
+			{
+				fs::rename(filePath1, filePath2);
+			}
+			catch(...)
+			{
+				ret[0] = -1;
+				return;
+			}
+		}
+	}
+
+	flags &= ~MC_FILE_ATTR_FILE;
+
+	if(flags != 0)
+	{
+		// TODO: We only support file renaming for the moment
+		CLog::GetInstance().Warn(LOG_NAME, "Setting unknown file attribute flag %i\r\n", cmd->flags);
+	}
+
+	ret[0] = 0;
+}
+
 void CMcServ::Delete(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
 {
 	auto cmd = reinterpret_cast<const CMD*>(args);
@@ -970,7 +1016,7 @@ void CMcServ::CPathFinder::Search(const fs::path& basePath, const char* filter)
 		memset(&entry, 0, sizeof(entry));
 		strcpy(reinterpret_cast<char*>(entry.name), ".");
 		entry.size = 0;
-		entry.attributes = 0x8427;
+		entry.attributes = MC_FILE_ATTR_FOLDER;
 		m_entries.push_back(entry);
 	}
 
@@ -980,7 +1026,7 @@ void CMcServ::CPathFinder::Search(const fs::path& basePath, const char* filter)
 		memset(&entry, 0, sizeof(entry));
 		strcpy(reinterpret_cast<char*>(entry.name), "..");
 		entry.size = 0;
-		entry.attributes = 0x8427;
+		entry.attributes = MC_FILE_ATTR_FOLDER;
 		m_entries.push_back(entry);
 	}
 
@@ -1030,12 +1076,12 @@ void CMcServ::CPathFinder::SearchRecurse(const fs::path& path)
 			if(fs::is_directory(*elementIterator))
 			{
 				entry.size = 0;
-				entry.attributes = 0x8427;
+				entry.attributes = MC_FILE_ATTR_FOLDER;
 			}
 			else
 			{
 				entry.size = static_cast<uint32>(fs::file_size(*elementIterator));
-				entry.attributes = 0x8497;
+				entry.attributes = MC_FILE_0400 | MC_FILE_ATTR_EXISTS | MC_FILE_ATTR_CLOSED | MC_FILE_ATTR_FILE | MC_FILE_ATTR_READABLE | MC_FILE_ATTR_WRITEABLE | MC_FILE_ATTR_EXECUTABLE;
 			}
 
 			//Fill in modification date info

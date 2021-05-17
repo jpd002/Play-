@@ -770,6 +770,13 @@ void CGSH_OpenGL::SetupBlendingFunction(uint64 alphaReg)
 		glBlendColor(0, 0, 0, static_cast<float>(alpha.nFix) / 128.0f);
 		glBlendFuncSeparate(GL_ONE_MINUS_CONSTANT_ALPHA, GL_CONSTANT_ALPHA, GL_ONE, GL_ZERO);
 	}
+	else if((alpha.nA == ALPHABLEND_ABD_CD) && (alpha.nB == ALPHABLEND_ABD_CS) && (alpha.nC == ALPHABLEND_C_FIX) && (alpha.nD == ALPHABLEND_ABD_CD))
+	{
+		//1021 -> (Cd - Cs) * FIX + Cd
+		nFunction = GL_FUNC_REVERSE_SUBTRACT;
+		glBlendColor(0.0f, 0.0f, 0.0f, (float)alpha.nFix / 128.0f);
+		glBlendFuncSeparate(GL_CONSTANT_ALPHA, GL_ONE, GL_ONE, GL_ZERO);
+	}
 	else if((alpha.nA == 1) && (alpha.nB == 0) && (alpha.nC == 2) && (alpha.nD == 2))
 	{
 		nFunction = GL_FUNC_REVERSE_SUBTRACT;
