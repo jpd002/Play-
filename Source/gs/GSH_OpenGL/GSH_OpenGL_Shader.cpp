@@ -219,7 +219,7 @@ Framework::OpenGl::CShader CGSH_OpenGL::GenerateFragmentShader(const SHADERCAPS&
 	shaderBuilder << "void main()" << std::endl;
 	shaderBuilder << "{" << std::endl;
 
-	if(useFramebufferFetch)
+	if(useFramebufferFetch && caps.hasDestAlphaTest)
 	{
 		switch(caps.destAlphaTestRef)
 		{
