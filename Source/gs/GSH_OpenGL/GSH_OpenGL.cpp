@@ -486,7 +486,7 @@ void CGSH_OpenGL::MakeLinearZOrtho(float* matrix, float left, float right, float
 
 Framework::OpenGl::ProgramPtr CGSH_OpenGL::GetShaderFromCaps(const SHADERCAPS& shaderCaps)
 {
-	auto shaderIterator = m_shaders.find(static_cast<uint32>(shaderCaps));
+	auto shaderIterator = m_shaders.find(shaderCaps);
 	if(shaderIterator == m_shaders.end())
 	{
 		auto shader = GenerateShader(shaderCaps);
@@ -520,8 +520,8 @@ Framework::OpenGl::ProgramPtr CGSH_OpenGL::GetShaderFromCaps(const SHADERCAPS& s
 
 		CHECKGLERROR();
 
-		m_shaders.insert(std::make_pair(static_cast<uint32>(shaderCaps), shader));
-		shaderIterator = m_shaders.find(static_cast<uint32>(shaderCaps));
+		m_shaders.insert(std::make_pair(shaderCaps, shader));
+		shaderIterator = m_shaders.find(shaderCaps);
 	}
 	return shaderIterator->second;
 }
@@ -581,8 +581,11 @@ void CGSH_OpenGL::SetRenderingContext(uint64 primReg)
 	   (m_renderState.primReg != primReg))
 	{
 		FlushVertexBuffer();
-		m_renderState.blendEnabled = ((prim.nAlpha != 0) && m_alphaBlendingEnabled) ? GL_TRUE : GL_FALSE;
-		m_validGlState &= ~GLSTATE_BLEND;
+		if(!m_hasFramebufferFetchExtension)
+		{
+			m_renderState.blendEnabled = ((prim.nAlpha != 0) && m_alphaBlendingEnabled) ? GL_TRUE : GL_FALSE;
+			m_validGlState &= ~GLSTATE_BLEND;
+		}
 	}
 
 	if(!m_renderState.isValid ||
@@ -667,9 +670,16 @@ void CGSH_OpenGL::SetRenderingContext(uint64 primReg)
 
 void CGSH_OpenGL::SetupBlendingFunction(uint64 alphaReg)
 {
-	int nFunction = GL_FUNC_ADD;
 	auto alpha = make_convertible<ALPHA>(alphaReg);
 
+	if(m_hasFramebufferFetchExtension)
+	{
+		m_fragmentParams.alphaFix = (static_cast<float>(alpha.nFix) / 255.f);
+		m_validGlState &= ~GLSTATE_FRAGMENT_PARAMS;
+		return;
+	}
+
+	int nFunction = GL_FUNC_ADD;
 	if((alpha.nA == alpha.nB) && (alpha.nD == ALPHABLEND_ABD_CS))
 	{
 		//ab*0 (when a == b) - Cs
@@ -1146,10 +1156,23 @@ void CGSH_OpenGL::FillShaderCapsFromTest(SHADERCAPS& shaderCaps, const uint64& t
 
 void CGSH_OpenGL::FillShaderCapsFromAlpha(SHADERCAPS& shaderCaps, bool alphaEnabled, const uint64& alphaReg)
 {
+	if(!alphaEnabled) return;
+
 	auto alpha = make_convertible<ALPHA>(alphaReg);
 
-	//If we don't use the source color at all, output white to support some blending modes (ex: ones that doubles dest color).
-	shaderCaps.colorOutputWhite = alphaEnabled && (alpha.nA != ALPHABLEND_ABD_CS) && (alpha.nB != ALPHABLEND_ABD_CS) && (alpha.nD != ALPHABLEND_ABD_CS);
+	if(m_hasFramebufferFetchExtension)
+	{
+		shaderCaps.hasAlphaBlend = alphaEnabled;
+		shaderCaps.alphaBlendA = alpha.nA;
+		shaderCaps.alphaBlendB = alpha.nB;
+		shaderCaps.alphaBlendC = alpha.nC;
+		shaderCaps.alphaBlendD = alpha.nD;
+	}
+	else
+	{
+		//If we don't use the source color at all, output white to support some blending modes (ex: ones that doubles dest color).
+		shaderCaps.colorOutputWhite = (alpha.nA != ALPHABLEND_ABD_CS) && (alpha.nB != ALPHABLEND_ABD_CS) && (alpha.nD != ALPHABLEND_ABD_CS);
+	}
 }
 
 void CGSH_OpenGL::SetupTexture(uint64 primReg, uint64 tex0Reg, uint64 tex1Reg, uint64 texAReg, uint64 clampReg)

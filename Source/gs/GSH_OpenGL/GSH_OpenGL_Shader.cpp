@@ -135,11 +135,9 @@ Framework::OpenGl::CShader CGSH_OpenGL::GenerateVertexShader(const SHADERCAPS& c
 
 Framework::OpenGl::CShader CGSH_OpenGL::GenerateFragmentShader(const SHADERCAPS& caps)
 {
+	bool useFramebufferFetch = (caps.hasAlphaBlend || caps.hasAlphaTest || caps.hasDestAlphaTest) && m_hasFramebufferFetchExtension;
+
 	std::stringstream shaderBuilder;
-
-	bool writeDestAlphaTest = caps.hasDestAlphaTest && m_hasFramebufferFetchExtension;
-	bool useFramebufferFetch = (caps.hasDestAlphaTest || caps.hasAlphaTest) && m_hasFramebufferFetchExtension;
-
 	shaderBuilder << GLSL_VERSION << std::endl;
 
 	if(useFramebufferFetch)
@@ -182,6 +180,7 @@ Framework::OpenGl::CShader CGSH_OpenGL::GenerateFragmentShader(const SHADERCAPS&
 	shaderBuilder << "	float g_texA0;" << std::endl;
 	shaderBuilder << "	float g_texA1;" << std::endl;
 	shaderBuilder << "	uint g_alphaRef;" << std::endl;
+	shaderBuilder << "	float g_alphaFix;" << std::endl;
 	shaderBuilder << "	vec3 g_fogColor;" << std::endl;
 	shaderBuilder << "};" << std::endl;
 
@@ -220,15 +219,15 @@ Framework::OpenGl::CShader CGSH_OpenGL::GenerateFragmentShader(const SHADERCAPS&
 	shaderBuilder << "void main()" << std::endl;
 	shaderBuilder << "{" << std::endl;
 
-	if(writeDestAlphaTest)
+	if(useFramebufferFetch)
 	{
 		switch(caps.destAlphaTestRef)
 		{
 		case 0:
-			shaderBuilder << "	if(fragColor.a >= 0.5) discard;";
+			shaderBuilder << "	if(fragColor.a >= 0.5) discard;" << std::endl;
 			break;
 		case 1:
-			shaderBuilder << "	if(fragColor.a < 0.5) discard;";
+			shaderBuilder << "	if(fragColor.a < 0.5) discard;" << std::endl;
 			break;
 		}
 	}
@@ -358,57 +357,61 @@ Framework::OpenGl::CShader CGSH_OpenGL::GenerateFragmentShader(const SHADERCAPS&
 	}
 
 	// ----------------------
-
-	if(useFramebufferFetch)
-	{
-		shaderBuilder << "	if(outputColor) {" << std::endl
-		              << "	";
-	}
+	// Prepare final color and alpha values before blending and writing
 
 	if(caps.hasFog)
 	{
-		shaderBuilder << "	fragColor.xyz = mix(textureColor.rgb, g_fogColor, v_fog);" << std::endl;
+		shaderBuilder << "	vec3 finalColor = mix(textureColor.rgb, g_fogColor, v_fog);" << std::endl;
 	}
 	else
 	{
-		shaderBuilder << "	fragColor.xyz = textureColor.xyz;" << std::endl;
-	}
-
-	if(useFramebufferFetch)
-	{
-		shaderBuilder << "	}" << std::endl;
-	}
-
-	// ----------------------
-
-	if(useFramebufferFetch)
-	{
-		shaderBuilder << "	if(outputAlpha) {" << std::endl
-		              << "	";
+		shaderBuilder << "	vec3 finalColor = textureColor.xyz;" << std::endl;
 	}
 
 	//For proper alpha blending, alpha has to be multiplied by 2 (0x80 -> 1.0)
 #ifdef USE_DUALSOURCE_BLENDING
-	shaderBuilder << "	fragColor.a = textureColor.a;" << std::endl;
-	if(useFramebufferFetch)
-	{
-		// format shader nicely
-		shaderBuilder << "	";
-	}
+	shaderBuilder << "	float finalAlpha = textureColor.a;" << std::endl;
 	shaderBuilder << "	blendColor.a = clamp(textureColor.a * 2.0, 0.0, 1.0);" << std::endl;
 #else
-	//This has the side effect of not writing a proper value in the framebuffer (should write alpha "as is")
-	shaderBuilder << "	fragColor.a = clamp(textureColor.a * 2.0, 0.0, 1.0);" << std::endl;
+	if(useFramebufferFetch)
+	{
+		shaderBuilder << "	float finalAlpha = textureColor.a;" << std::endl;
+	}
+	else
+	{
+		//This has the side effect of not writing a proper value in the framebuffer (should write alpha "as is")
+		shaderBuilder << "	float finalAlpha = clamp(textureColor.a * 2.0, 0.0, 1.0);" << std::endl;
+	}
 #endif
 
 	if(useFramebufferFetch)
 	{
+		if(caps.hasAlphaBlend)
+		{
+			shaderBuilder << GenerateAlphaBlendSection(
+			    static_cast<ALPHABLEND_ABD>(caps.alphaBlendA), static_cast<ALPHABLEND_ABD>(caps.alphaBlendB),
+			    static_cast<ALPHABLEND_C>(caps.alphaBlendC), static_cast<ALPHABLEND_ABD>(caps.alphaBlendD));
+		}
+
+		shaderBuilder << "	if(outputColor)" << std::endl;
+		shaderBuilder << "	{" << std::endl;
+		shaderBuilder << "		fragColor.xyz = finalColor;" << std::endl;
+		shaderBuilder << "	}" << std::endl;
+
+		shaderBuilder << "	if(outputAlpha)" << std::endl;
+		shaderBuilder << "	{" << std::endl;
+		shaderBuilder << "		fragColor.a = finalAlpha;" << std::endl;
 		shaderBuilder << "	}" << std::endl;
 	}
-
-	if(caps.colorOutputWhite)
+	else
 	{
-		shaderBuilder << "	fragColor.xyz = vec3(1, 1, 1);" << std::endl;
+		shaderBuilder << "	fragColor.xyz = finalColor;" << std::endl;
+		shaderBuilder << "	fragColor.a = finalAlpha;" << std::endl;
+
+		if(caps.colorOutputWhite)
+		{
+			shaderBuilder << "	fragColor.xyz = vec3(1, 1, 1);" << std::endl;
+		}
 	}
 
 	// ----------------------
@@ -463,69 +466,68 @@ std::string CGSH_OpenGL::GenerateAlphaTestSection(ALPHA_TEST_METHOD testMethod, 
 {
 	std::stringstream shaderBuilder;
 
-	const char* test = "if(false)";
+	const char* test = "	if(false)";
 
 	//testMethod is the condition to pass the test
 	switch(testMethod)
 	{
 	case ALPHA_TEST_NEVER:
-		test = "if(true)";
+		test = "	if(true)";
 		break;
 	case ALPHA_TEST_ALWAYS:
-		test = "if(false)";
+		test = "	if(false)";
 		break;
 	case ALPHA_TEST_LESS:
-		test = "if(textureColorAlphaInt >= g_alphaRef)";
+		test = "	if(textureColorAlphaInt >= g_alphaRef)";
 		break;
 	case ALPHA_TEST_LEQUAL:
-		test = "if(textureColorAlphaInt > g_alphaRef)";
+		test = "	if(textureColorAlphaInt > g_alphaRef)";
 		break;
 	case ALPHA_TEST_EQUAL:
-		test = "if(textureColorAlphaInt != g_alphaRef)";
+		test = "	if(textureColorAlphaInt != g_alphaRef)";
 		break;
 	case ALPHA_TEST_GEQUAL:
-		test = "if(textureColorAlphaInt < g_alphaRef)";
+		test = "	if(textureColorAlphaInt < g_alphaRef)";
 		break;
 	case ALPHA_TEST_GREATER:
-		test = "if(textureColorAlphaInt <= g_alphaRef)";
+		test = "	if(textureColorAlphaInt <= g_alphaRef)";
 		break;
 	case ALPHA_TEST_NOTEQUAL:
-		test = "if(textureColorAlphaInt == g_alphaRef)";
+		test = "	if(textureColorAlphaInt == g_alphaRef)";
 		break;
 	default:
 		assert(false);
 		break;
 	}
 
-	shaderBuilder << "uint textureColorAlphaInt = uint(textureColor.a * 255.0);" << std::endl;
+	shaderBuilder << "	uint textureColorAlphaInt = uint(textureColor.a * 255.0);" << std::endl;
 	shaderBuilder << test << std::endl;
-	shaderBuilder << "{" << std::endl;
+	shaderBuilder << "	{" << std::endl;
 
 	switch(failMethod)
 	{
 	case ALPHA_TEST_FAIL_KEEP:
 		// No write at all
-		shaderBuilder << "	discard;" << std::endl;
+		shaderBuilder << "		discard;" << std::endl;
 		break;
 	case ALPHA_TEST_FAIL_FBONLY:
 		// Only write color and alpha
 		// TODO: We cannot prevent depth from being written at the moment
-		assert(0);
 		// Failure note: We rather accept writing depth here, than discarding the
 		// whole pixel, as most games work better with this hack.
+		// Breaks foliage in some games (Grandia X/3, Naruto, etc.)
 		break;
 	case ALPHA_TEST_FAIL_ZBONLY:
 		// Only write depth
 		if(m_hasFramebufferFetchExtension)
 		{
-			shaderBuilder << "	outputColor = false;" << std::endl;
-			shaderBuilder << "	outputAlpha = false;" << std::endl;
+			shaderBuilder << "		outputColor = false;" << std::endl;
+			shaderBuilder << "		outputAlpha = false;" << std::endl;
 		}
 		else
 		{
 			// TODO: Prevent framebuffer writing without extension
-			assert(0);
-			shaderBuilder << "	discard;" << std::endl;
+			shaderBuilder << "		discard;" << std::endl;
 			// Failure note: This also discards depth
 		}
 		break;
@@ -533,27 +535,70 @@ std::string CGSH_OpenGL::GenerateAlphaTestSection(ALPHA_TEST_METHOD testMethod, 
 		// Only write color
 		if(m_hasFramebufferFetchExtension)
 		{
-			shaderBuilder << "	outputAlpha = false;" << std::endl;
+			shaderBuilder << "		outputAlpha = false;" << std::endl;
 
 			// TODO: Prevent depth writing
-			assert(0);
 			// Failure note: We rather accept writing depth here, than discarding the
 			// whole pixel, as most games work better with this hack.
 		}
 		else
 		{
 			// TODO: Prevent color and depth writing without extension
-			assert(0);
 			// Failure note: We are somewhat out of luck, and just draw the pixel as is.
 			// This is completely wrong, but nothing we can do about it at this point.
 		}
-
 		break;
 	}
 
-	shaderBuilder << "}" << std::endl;
+	shaderBuilder << "	}" << std::endl;
 
-	std::string shaderSource = shaderBuilder.str();
+	auto shaderSource = shaderBuilder.str();
+	return shaderSource;
+}
+
+std::string CGSH_OpenGL::GenerateAlphaBlendSection(ALPHABLEND_ABD factorA, ALPHABLEND_ABD factorB,
+                                                   ALPHABLEND_C factorC, ALPHABLEND_ABD factorD)
+{
+	static const auto getABDParam =
+	    [](unsigned int abd) {
+		    switch(abd)
+		    {
+		    default:
+			    assert(false);
+			    [[fallthrough]];
+		    case ALPHABLEND_ABD_CS:
+			    return "finalColor";
+		    case ALPHABLEND_ABD_CD:
+			    return "fragColor.xyz";
+		    case ALPHABLEND_ABD_ZERO:
+			    return "vec3(0, 0, 0)";
+		    }
+	    };
+	static const auto getCParam =
+	    [](unsigned int abd) {
+		    switch(abd)
+		    {
+		    default:
+			    assert(false);
+			    [[fallthrough]];
+		    case ALPHABLEND_C_AS:
+			    return "finalAlpha";
+		    case ALPHABLEND_C_AD:
+			    return "fragColor.a";
+		    case ALPHABLEND_C_FIX:
+			    return "g_alphaFix";
+		    }
+	    };
+
+	auto valueA = getABDParam(factorA);
+	auto valueB = getABDParam(factorB);
+	auto valueC = getCParam(factorC);
+	auto valueD = getABDParam(factorD);
+
+	std::stringstream shaderBuilder;
+	shaderBuilder << "	finalColor = (" << valueA << " - " << valueB << ") * (" << valueC << " * 2.0) + " << valueD << ";" << std::endl;
+
+	auto shaderSource = shaderBuilder.str();
 	return shaderSource;
 }
 

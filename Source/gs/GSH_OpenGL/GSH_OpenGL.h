@@ -71,8 +71,9 @@ protected:
 
 private:
 	typedef CGsTextureCache<Framework::OpenGl::CTexture> TextureCache;
+	typedef uint64 ShaderCapsInt;
 
-	struct SHADERCAPS : public convertible<uint32>
+	struct SHADERCAPS : public convertible<ShaderCapsInt>
 	{
 		unsigned int texFunction : 2; //0 - Modulate, 1 - Decal, 2 - Highlight, 3 - Hightlight2
 		unsigned int texClampS : 3;
@@ -83,20 +84,28 @@ private:
 		unsigned int texUseAlphaExpansion : 1;
 		unsigned int texBlackIsTransparent : 1;
 		unsigned int hasFog : 1;
+
+		//Alpha blending caps
+		unsigned int hasAlphaBlend : 1;
+		unsigned int alphaBlendA : 2;
+		unsigned int alphaBlendB : 2;
+		unsigned int alphaBlendC : 2;
+		unsigned int alphaBlendD : 2;
+		unsigned int colorOutputWhite : 1;
+
+		//Alpha testing caps
 		unsigned int hasAlphaTest : 1;
 		unsigned int alphaTestMethod : 3;
 		unsigned int hasDestAlphaTest : 1;
 		unsigned int destAlphaTestRef : 1;
-		unsigned int colorOutputWhite : 1;
 		unsigned int alphaFailMethod : 2;
-		unsigned int padding : 8;
 
 		bool isIndexedTextureSource() const
 		{
 			return texSourceMode == TEXTURE_SOURCE_MODE_IDX4 || texSourceMode == TEXTURE_SOURCE_MODE_IDX8;
 		}
 	};
-	static_assert(sizeof(SHADERCAPS) == sizeof(uint32), "SHADERCAPS structure size must be 4 bytes.");
+	static_assert(sizeof(SHADERCAPS) == sizeof(ShaderCapsInt), "SHADERCAPS too big for ShaderCapsInt.");
 
 	struct RENDERSTATE
 	{
@@ -162,7 +171,7 @@ private:
 		float texA0;
 		float texA1;
 		uint32 alphaRef;
-		float padding1;
+		float alphaFix;
 		float fogColor[3];
 		float padding2;
 	};
@@ -198,7 +207,7 @@ private:
 		TEXTURE_CLAMP_MODE_REGION_REPEAT_SIMPLE
 	};
 
-	typedef std::unordered_map<uint32, Framework::OpenGl::ProgramPtr> ShaderMap;
+	typedef std::unordered_map<ShaderCapsInt, Framework::OpenGl::ProgramPtr> ShaderMap;
 
 	class CPalette
 	{
@@ -318,6 +327,7 @@ private:
 	Framework::OpenGl::CShader GenerateFragmentShader(const SHADERCAPS&);
 	std::string GenerateTexCoordClampingSection(TEXTURE_CLAMP_MODE, const char*);
 	std::string GenerateAlphaTestSection(ALPHA_TEST_METHOD, ALPHA_TEST_FAIL_METHOD);
+	std::string GenerateAlphaBlendSection(ALPHABLEND_ABD, ALPHABLEND_ABD, ALPHABLEND_C, ALPHABLEND_ABD);
 
 	Framework::OpenGl::ProgramPtr GeneratePresentProgram();
 	Framework::OpenGl::CBuffer GeneratePresentVertexBuffer();
@@ -462,5 +472,7 @@ private:
 	Framework::OpenGl::CBuffer m_fragmentParamsBuffer;
 	VertexBuffer m_vertexBuffer;
 
+	//If GPU has framebuffer fetch extension, some things will be done
+	//within the shader, such alpha blending
 	bool m_hasFramebufferFetchExtension = false;
 };
