@@ -10,4 +10,20 @@
 	<Executable Name="SLES_501.76;1" Title="Oni" Region="EU">
 		<Patch Address="0x001cef7c" Value="0x00000000 // bc0f $001cef7c" Description="Fix hang by skip branch if copro 0 condition false." />
 	</Executable>
+	
+	<Executable Name="SLUS_211.80;1" Title="Onimusha: Dawn of Dreams - Disc 1" Region="US">
+	    <Patch Address="0x00104170" Value="0x00000000" Description="Fix crash after memory card checking." />
+	</Executable>
+	
+	<Executable Name="SLUS_213.62;1" Title="Onimusha: Dawn of Dreams - Disc 2" Region="US">
+	    <Patch Address="0x00104170" Value="0x00000000" Description="Fix crash after memory card checking." />
+	</Executable>
+	
+	<Executable Name="SLES_820.38;1" Title="Onimusha: Dawn of Dreams - Disc 1" Region="EU">
+	    <Patch Address="0x001885c4" Value="0x00000000" Description="Fix crash after memory card checking." />
+	</Executable>
+	
+	<Executable Name="SLES_820.39;1" Title="Onimusha: Dawn of Dreams - Disc 2" Region="EU">
+	    <Patch Address="0x001885c4" Value="0x00000000" Description="Fix crash after memory card checking." />
+	</Executable>
 </Patches>
