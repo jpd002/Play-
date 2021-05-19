@@ -147,6 +147,8 @@ private:
 	void VITOF12();
 	void VFTOI12();
 	void VMULAi();
+	void VADDAi();
+	void VSUBAi();
 	void VMULA();
 	void VOPMULA();
 	void VLQD();

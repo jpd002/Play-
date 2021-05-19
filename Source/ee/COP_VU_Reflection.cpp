@@ -375,8 +375,8 @@ INSTRUCTION CCOP_VU::m_cReflVX2[32] =
 	{	"VMULA",	NULL,			CopyMnemonic,		ReflOpAccFsFtBc,	NULL,				NULL			},
 	{	"VMULA",	NULL,			CopyMnemonic,		ReflOpAccFsI,		NULL,				NULL			},
 	//0x08
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
+	{	"VADDA",	NULL,			CopyMnemonic,		ReflOpAccFsI,		NULL,				NULL			},
+	{	"VSUBA",	NULL,			CopyMnemonic,		ReflOpAccFsI,		NULL,				NULL			},
 	{	"VMULA",	NULL,			CopyMnemonic,		ReflOpAccFsFt,		NULL,				NULL			},
 	{	"VOPMULA",	NULL,			CopyMnemonic,		ReflOpAccFsFt,		NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
