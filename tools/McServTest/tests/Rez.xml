@@ -1,0 +1,18 @@
+<Game>
+	<Environments>
+		<Environment Id="1">
+			<Directory Name="/BASLUS-20344REZ" />
+			<File Name="/BASLUS-20344REZ/BASLUS-20344REZ" Size="3072" />
+			<File Name="/BASLUS-20344REZ/icon.sys" Size="964" />
+			<File Name="/BASLUS-20344REZ/rez.ico" Size="46360" />
+		</Environment>
+	</Environments>
+	<Tests>
+		<Test Query="BASLUS-20344REZ" EnvironmentId="1" MaxEntries="1" Result="1">
+			<Entry Name="BASLUS-20344REZ" />
+		</Test>
+		<Test Query="icon.sys" CurrentDirectory="BASLUS-20344REZ" EnvironmentId="1" MaxEntries="1" Result="1">
+			<Entry Name="icon.sys" />
+		</Test>
+	</Tests>
+</Game>
