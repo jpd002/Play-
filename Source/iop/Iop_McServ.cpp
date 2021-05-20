@@ -1061,7 +1061,7 @@ void CMcServ::CPathFinder::SearchRecurse(const fs::path& path)
 		std::string relativePathString(relativePath.generic_string());
 
 		//"Extract" a more appropriate relative path from the memory card point of view
-		relativePathString.erase(0, m_basePath.string().size());
+		relativePathString.erase(0, m_basePath.generic_string().size());
 
 		//Attempt to match this against the filter
 		if(std::regex_match(relativePathString, m_filterExp))
