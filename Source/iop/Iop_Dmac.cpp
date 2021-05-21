@@ -88,7 +88,12 @@ void CDmac::ResumeDma(unsigned int channelIdx)
 {
 	auto channel = m_channel[channelIdx];
 	assert(channel != nullptr);
-	if(channel == nullptr) return;
+	if(channel == nullptr)
+	{
+		CLog::GetInstance().Warn(LOG_NAME, "Trying to resume DMA for channel %d, but the channel is not implemented.\r\n",
+		                         channelIdx);
+		return;
+	}
 	channel->ResumeDma();
 }
 
@@ -133,6 +138,11 @@ uint32 CDmac::ReadRegister(uint32 address)
 		{
 			return channel->ReadRegister(address);
 		}
+		else
+		{
+			CLog::GetInstance().Warn(LOG_NAME, "Unknown DMA channel register read at 0x%08X.\r\n",
+			                         address);
+		}
 	}
 	break;
 	}
@@ -166,6 +176,11 @@ uint32 CDmac::WriteRegister(uint32 address, uint32 value)
 		if(channel)
 		{
 			channel->WriteRegister(address, value);
+		}
+		else
+		{
+			CLog::GetInstance().Warn(LOG_NAME, "Unknown DMA channel register write at 0x%08X.\r\n",
+			                         address);
 		}
 	}
 	break;
