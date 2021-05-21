@@ -19,7 +19,7 @@ namespace Iop
 			CHANNEL_DEV9 = 9,
 			CHANNEL_SIO2in = 11,
 			CHANNEL_SIO2out = 12,
-			MAX_CHANNEL = 14,
+			MAX_CHANNEL = 16,
 		};
 
 		enum
@@ -67,6 +67,7 @@ namespace Iop
 		{
 			DPCR = 0x1F8010F0,
 			DPCR2 = 0x1F801570,
+			DPCR3 = 0x1F8015F0,
 			DICR = 0x1F8010F4
 		};
 
@@ -85,6 +86,7 @@ namespace Iop
 
 		uint32 m_DPCR;
 		uint32 m_DPCR2;
+		uint32 m_DPCR3;
 
 		uint32 m_DICR;
 		uint8* m_ram;

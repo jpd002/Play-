@@ -10,6 +10,7 @@
 #define STATE_REGS_XML ("iop_dmac/regs.xml")
 #define STATE_REGS_DPCR ("DPCR")
 #define STATE_REGS_DPCR2 ("DPCR2")
+#define STATE_REGS_DPCR3 ("DPCR3")
 #define STATE_REGS_DICR ("DICR")
 
 using namespace Iop;
@@ -38,6 +39,7 @@ void CDmac::Reset()
 {
 	m_DPCR = 0;
 	m_DPCR2 = 0;
+	m_DPCR3 = 0;
 	m_DICR = 0;
 
 	for(unsigned int i = 0; i < MAX_CHANNEL; i++)
@@ -118,6 +120,9 @@ uint32 CDmac::ReadRegister(uint32 address)
 	case DPCR2:
 		return m_DPCR2;
 		break;
+	case DPCR3:
+		return m_DPCR3;
+		break;
 	case DICR:
 		return m_DICR;
 		break;
@@ -147,6 +152,9 @@ uint32 CDmac::WriteRegister(uint32 address, uint32 value)
 	case DPCR2:
 		m_DPCR2 = value;
 		break;
+	case DPCR3:
+		m_DPCR3 = value;
+		break;
 	case DICR:
 		m_DICR &= 0xFF000000;
 		m_DICR |= value;
@@ -171,6 +179,7 @@ void CDmac::LoadState(Framework::CZipArchiveReader& archive)
 		auto registerFile = CRegisterStateFile(*archive.BeginReadFile(STATE_REGS_XML));
 		m_DPCR = registerFile.GetRegister32(STATE_REGS_DPCR);
 		m_DPCR2 = registerFile.GetRegister32(STATE_REGS_DPCR2);
+		m_DPCR3 = registerFile.GetRegister32(STATE_REGS_DPCR3);
 		m_DICR = registerFile.GetRegister32(STATE_REGS_DICR);
 	}
 
@@ -188,6 +197,7 @@ void CDmac::SaveState(Framework::CZipArchiveWriter& archive)
 		auto registerFile = new CRegisterStateFile(STATE_REGS_XML);
 		registerFile->SetRegister32(STATE_REGS_DPCR, m_DPCR);
 		registerFile->SetRegister32(STATE_REGS_DPCR2, m_DPCR2);
+		registerFile->SetRegister32(STATE_REGS_DPCR3, m_DPCR3);
 		registerFile->SetRegister32(STATE_REGS_DICR, m_DICR);
 		archive.InsertFile(registerFile);
 	}
@@ -206,6 +216,12 @@ void CDmac::LogRead(uint32 address)
 	{
 	case DPCR:
 		CLog::GetInstance().Print(LOG_NAME, "= DPCR.\r\n");
+		break;
+	case DPCR2:
+		CLog::GetInstance().Print(LOG_NAME, "= DPCR2.\r\n");
+		break;
+	case DPCR3:
+		CLog::GetInstance().Print(LOG_NAME, "= DPCR3.\r\n");
 		break;
 	case DICR:
 		CLog::GetInstance().Print(LOG_NAME, "= DICR.\r\n");
@@ -238,6 +254,12 @@ void CDmac::LogWrite(uint32 address, uint32 value)
 	{
 	case DPCR:
 		CLog::GetInstance().Print(LOG_NAME, "DPCR = 0x%08X.\r\n", value);
+		break;
+	case DPCR2:
+		CLog::GetInstance().Print(LOG_NAME, "DPCR2 = 0x%08X.\r\n", value);
+		break;
+	case DPCR3:
+		CLog::GetInstance().Print(LOG_NAME, "DPCR3 = 0x%08X.\r\n", value);
 		break;
 	case DICR:
 		CLog::GetInstance().Print(LOG_NAME, "DICR = 0x%08X.\r\n", value);
