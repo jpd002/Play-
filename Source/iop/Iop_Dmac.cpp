@@ -20,8 +20,8 @@ CDmac::CDmac(uint8* ram, CIntc& intc)
     : m_ram(ram)
     , m_intc(intc)
     , m_channelSpu0(CH4_BASE, CHANNEL_SPU0, Iop::CIntc::LINE_DMA4, *this)
-    , m_channelSpu1(CH8_BASE, CHANNEL_SPU1, Iop::CIntc::LINE_DMA8, *this)
-    , m_channelDev9(CH9_BASE, CHANNEL_DEV9, Iop::CIntc::LINE_DMA_DEV9, *this)
+    , m_channelSpu1(CH7_BASE, CHANNEL_SPU1, Iop::CIntc::LINE_DMA8, *this)
+    , m_channelDev9(CH8_BASE, CHANNEL_DEV9, Iop::CIntc::LINE_DMA_DEV9, *this)
     , m_channelSio2In(CH11_BASE, CHANNEL_SIO2in, Iop::CIntc::LINE_DMA11, *this)
     , m_channelSio2Out(CH12_BASE, CHANNEL_SIO2out, Iop::CIntc::LINE_DMA12, *this)
 {
@@ -67,7 +67,7 @@ unsigned int CDmac::GetChannelIdFromAddress(uint32 address)
 	if(address >= DMAC_ZONE2_START)
 	{
 		channelId = (address - DMAC_ZONE2_START) / 0x10;
-		channelId += 8;
+		channelId += 7;
 	}
 	else if(address >= CH0_BASE && address < DPCR)
 	{
