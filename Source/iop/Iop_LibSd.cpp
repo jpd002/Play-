@@ -15,6 +15,7 @@ using namespace Iop;
 #define FUNCTION_SETADDR "SetAddr"
 #define FUNCTION_GETADDR "GetAddr"
 #define FUNCTION_SETCOREATTR "SetCoreAttr"
+#define FUNCTION_PROCBATCH "ProcBatch"
 #define FUNCTION_VOICETRANS "VoiceTrans"
 #define FUNCTION_BLOCKTRANS "BlockTrans"
 #define FUNCTION_VOICETRANSSTATUS "VoiceTransStatus"
@@ -58,6 +59,9 @@ std::string CLibSd::GetFunctionName(unsigned int functionId) const
 		break;
 	case 11:
 		return FUNCTION_SETCOREATTR;
+		break;
+	case 15:
+		return FUNCTION_PROCBATCH;
 		break;
 	case 17:
 		return FUNCTION_VOICETRANS;
