@@ -49,7 +49,7 @@ namespace Iop
 			};
 			static_assert(sizeof(CHCR) == sizeof(uint32), "Size of CHCR struct must be 4 bytes.");
 
-			CChannel(uint32, unsigned int, CDmac&);
+			CChannel(uint32, unsigned int, unsigned int, CDmac&);
 			virtual ~CChannel() = default;
 
 			void SaveState(Framework::CZipArchiveWriter&);
@@ -64,6 +64,7 @@ namespace Iop
 		private:
 			ReceiveFunctionType m_receiveFunction;
 			unsigned int m_number;
+			unsigned int m_intrLine;
 			uint32 m_baseAddress;
 			uint32 m_MADR;
 			BCR m_BCR;

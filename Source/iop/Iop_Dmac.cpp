@@ -19,11 +19,11 @@ using namespace Iop::Dmac;
 CDmac::CDmac(uint8* ram, CIntc& intc)
     : m_ram(ram)
     , m_intc(intc)
-    , m_channelSpu0(CH4_BASE, CHANNEL_SPU0, *this)
-    , m_channelSpu1(CH8_BASE, CHANNEL_SPU1, *this)
-    , m_channelDev9(CH9_BASE, CHANNEL_DEV9, *this)
-    , m_channelSio2In(CH11_BASE, CHANNEL_SIO2in, *this)
-    , m_channelSio2Out(CH12_BASE, CHANNEL_SIO2out, *this)
+    , m_channelSpu0(CH4_BASE, CHANNEL_SPU0, Iop::CIntc::LINE_DMA4, *this)
+    , m_channelSpu1(CH8_BASE, CHANNEL_SPU1, Iop::CIntc::LINE_DMA8, *this)
+    , m_channelDev9(CH9_BASE, CHANNEL_DEV9, Iop::CIntc::LINE_DMA_DEV9, *this)
+    , m_channelSio2In(CH11_BASE, CHANNEL_SIO2in, Iop::CIntc::LINE_DMA11, *this)
+    , m_channelSio2Out(CH12_BASE, CHANNEL_SIO2out, Iop::CIntc::LINE_DMA12, *this)
 {
 	memset(m_channel, 0, sizeof(m_channel));
 	m_channel[CHANNEL_SPU0] = &m_channelSpu0;

@@ -2,6 +2,7 @@
 #include "string_format.h"
 #include "Iop_DmacChannel.h"
 #include "Iop_Dmac.h"
+#include "Iop_Intc.h"
 #include "../states/RegisterStateFile.h"
 
 using namespace Iop;
@@ -12,9 +13,10 @@ using namespace Iop::Dmac;
 #define STATE_REGS_BCR ("BCR")
 #define STATE_REGS_MADR ("MADR")
 
-CChannel::CChannel(uint32 baseAddress, unsigned int number, CDmac& dmac)
+CChannel::CChannel(uint32 baseAddress, unsigned int number, unsigned int intrLine, CDmac& dmac)
     : m_dmac(dmac)
     , m_number(number)
+    , m_intrLine(intrLine)
     , m_baseAddress(baseAddress)
 {
 	Reset();
@@ -66,7 +68,7 @@ void CChannel::ResumeDma()
 	{
 		//Trigger interrupt
 		m_CHCR.tr = 0;
-		m_dmac.AssertLine(m_number);
+		m_dmac.AssertLine(m_intrLine - CIntc::LINE_DMA_BASE);
 	}
 }
 
