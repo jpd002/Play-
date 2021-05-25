@@ -150,8 +150,8 @@ void CSysclib::Invoke(CMIPS& context, unsigned int functionId)
 	case 12:
 		context.m_State.nGPR[CMIPS::V0].nD0 = context.m_State.nGPR[CMIPS::A0].nD0;
 		__memcpy(
-		    &m_ram[context.m_State.nGPR[CMIPS::A0].nV0],
-		    &m_ram[context.m_State.nGPR[CMIPS::A1].nV0],
+		    context.m_State.nGPR[CMIPS::A0].nV0,
+		    context.m_State.nGPR[CMIPS::A1].nV0,
 		    context.m_State.nGPR[CMIPS::A2].nV0);
 		break;
 	case 13:
@@ -303,6 +303,9 @@ void CSysclib::Invoke(CMIPS& context, unsigned int functionId)
 
 uint8* CSysclib::GetPtr(uint32 ptr, uint32 size) const
 {
+	// Handle RAM mirroring
+	ptr = CMIPS::TranslateAddress64(nullptr, ptr);
+
 	assert(ptr != 0);
 	if(ptr >= PS2::IOP_SCRATCH_ADDR)
 	{
@@ -397,8 +400,10 @@ uint32 CSysclib::__memcmp(uint32 ptr1, uint32 ptr2, uint32 length)
 	return static_cast<uint32>(memcmp(mem1, mem2, length));
 }
 
-void CSysclib::__memcpy(void* dest, const void* src, unsigned int length)
+void CSysclib::__memcpy(uint32 destPtr, uint32 srcPtr, unsigned int length)
 {
+	auto dest = reinterpret_cast<uint8*>(GetPtr(destPtr, length));
+	auto src = reinterpret_cast<uint8*>(GetPtr(srcPtr, length));
 	memcpy(dest, src, length);
 }
 
