@@ -372,6 +372,12 @@ uint32 CCore::WriteRegisterChannel(unsigned int channelId, uint32 address, uint3
 	case VA_LSAX_LO:
 		channel.repeat = SetAddressLo(channel.repeat, static_cast<uint16>(value));
 		break;
+	case VA_NAX_HI:
+		channel.current = SetAddressHi(channel.current, static_cast<uint16>(value));
+		break;
+	case VA_NAX_LO:
+		channel.current = SetAddressLo(channel.current, static_cast<uint16>(value));
+		break;
 	}
 	return 0;
 }
@@ -529,6 +535,8 @@ void CCore::LogChannelWrite(unsigned int channelId, uint32 address, uint32 value
 		LOG_SET(VA_SSA_LO)
 		LOG_SET(VA_LSAX_HI)
 		LOG_SET(VA_LSAX_LO)
+		LOG_SET(VA_NAX_HI)
+		LOG_SET(VA_NAX_LO)
 
 	default:
 		CLog::GetInstance().Warn(logName, "ch%02d: Wrote %04X to an unknown register 0x%04X.\r\n",
