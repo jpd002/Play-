@@ -303,6 +303,9 @@ void CSysclib::Invoke(CMIPS& context, unsigned int functionId)
 
 uint8* CSysclib::GetPtr(uint32 ptr, uint32 size) const
 {
+	// Handle RAM mirroring
+	ptr = CMIPS::TranslateAddress64(nullptr, ptr);
+
 	assert(ptr != 0);
 	if(ptr >= PS2::IOP_SCRATCH_ADDR)
 	{
