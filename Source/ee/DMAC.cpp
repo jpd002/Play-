@@ -18,6 +18,16 @@
 #define STATE_REGS_RBSR ("D_RBSR")
 #define STATE_REGS_RBOR ("D_RBOR")
 #define STATE_REGS_STADR ("D_STADR")
+#define STATE_REGS_D3_CHCR ("D3_CHCR")
+#define STATE_REGS_D3_MADR ("D3_MADR")
+#define STATE_REGS_D3_QWC ("D3_QWC")
+#define STATE_REGS_D5_CHCR ("D5_CHCR")
+#define STATE_REGS_D5_MADR ("D5_MADR")
+#define STATE_REGS_D5_QWC ("D5_QWC")
+#define STATE_REGS_D6_CHCR ("D6_CHCR")
+#define STATE_REGS_D6_MADR ("D6_MADR")
+#define STATE_REGS_D6_QWC ("D6_QWC")
+#define STATE_REGS_D6_TADR ("D6_TADR")
 #define STATE_REGS_D8_SADR ("D8_SADR")
 #define STATE_REGS_D9_SADR ("D9_SADR")
 
@@ -947,6 +957,16 @@ void CDMAC::LoadState(Framework::CZipArchiveReader& archive)
 	m_D_RBSR = registerFile.GetRegister32(STATE_REGS_RBSR);
 	m_D_RBOR = registerFile.GetRegister32(STATE_REGS_RBOR);
 	m_D_STADR = registerFile.GetRegister32(STATE_REGS_STADR);
+	m_D3_CHCR = registerFile.GetRegister32(STATE_REGS_D3_CHCR);
+	m_D3_MADR = registerFile.GetRegister32(STATE_REGS_D3_MADR);
+	m_D3_QWC = registerFile.GetRegister32(STATE_REGS_D3_QWC);
+	m_D5_CHCR = registerFile.GetRegister32(STATE_REGS_D5_CHCR);
+	m_D5_MADR = registerFile.GetRegister32(STATE_REGS_D5_MADR);
+	m_D5_QWC = registerFile.GetRegister32(STATE_REGS_D5_QWC);
+	m_D6_CHCR = registerFile.GetRegister32(STATE_REGS_D6_CHCR);
+	m_D6_MADR = registerFile.GetRegister32(STATE_REGS_D6_MADR);
+	m_D6_QWC = registerFile.GetRegister32(STATE_REGS_D6_QWC);
+	m_D6_TADR = registerFile.GetRegister32(STATE_REGS_D6_TADR);
 	m_D8_SADR = registerFile.GetRegister32(STATE_REGS_D8_SADR);
 	m_D9_SADR = registerFile.GetRegister32(STATE_REGS_D9_SADR);
 
@@ -969,6 +989,16 @@ void CDMAC::SaveState(Framework::CZipArchiveWriter& archive)
 	registerFile->SetRegister32(STATE_REGS_RBSR, m_D_RBSR);
 	registerFile->SetRegister32(STATE_REGS_RBOR, m_D_RBOR);
 	registerFile->SetRegister32(STATE_REGS_STADR, m_D_STADR);
+	registerFile->SetRegister32(STATE_REGS_D3_CHCR, m_D3_CHCR);
+	registerFile->SetRegister32(STATE_REGS_D3_MADR, m_D3_MADR);
+	registerFile->SetRegister32(STATE_REGS_D3_QWC, m_D3_QWC);
+	registerFile->SetRegister32(STATE_REGS_D5_CHCR, m_D5_CHCR);
+	registerFile->SetRegister32(STATE_REGS_D5_MADR, m_D5_MADR);
+	registerFile->SetRegister32(STATE_REGS_D5_QWC, m_D5_QWC);
+	registerFile->SetRegister32(STATE_REGS_D6_CHCR, m_D6_CHCR);
+	registerFile->SetRegister32(STATE_REGS_D6_MADR, m_D6_MADR);
+	registerFile->SetRegister32(STATE_REGS_D6_QWC, m_D6_QWC);
+	registerFile->SetRegister32(STATE_REGS_D6_TADR, m_D6_TADR);
 	registerFile->SetRegister32(STATE_REGS_D8_SADR, m_D8_SADR);
 	registerFile->SetRegister32(STATE_REGS_D9_SADR, m_D9_SADR);
 	archive.InsertFile(registerFile);
