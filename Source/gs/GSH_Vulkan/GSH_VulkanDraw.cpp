@@ -870,8 +870,8 @@ static Nuanceur::CFloat4Rvalue GetClutColor(Nuanceur::CShaderBuilder& b,
 	case CGSHandler::PSMCT32:
 	case CGSHandler::PSMCT24:
 	{
-		auto clutIndexLo = clutIndex;
-		auto clutIndexHi = clutIndex + NewInt(b, 0x100);
+		auto clutIndexLo = (clutIndex & NewInt(b, 0xFF));
+		auto clutIndexHi = (clutIndex & NewInt(b, 0xFF)) + NewInt(b, 0x100);
 		auto clutPixelLo = Load(clutBuffer, clutIndexLo);
 		auto clutPixelHi = Load(clutBuffer, clutIndexHi);
 		auto clutPixel = clutPixelLo | (clutPixelHi << NewUint(b, 16));
