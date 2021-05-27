@@ -1,7 +1,7 @@
 #include <cassert>
 #include <cstring>
-#include <climits>
 #include <stdexcept>
+#include "static_loop.h"
 #include "string_format.h"
 #include "../Log.h"
 #include "../Ps2Const.h"
@@ -48,6 +48,15 @@ CVif::CVif(unsigned int number, CVpu& vpu, CINTC& intc, uint8* ram, uint8* spr)
     , m_vpu(vpu)
     , m_vifProfilerZone(CProfiler::GetInstance().RegisterZone(string_format("VIF%d", number).c_str()))
 {
+	static_loop<int, MAX_UNPACKERS>(
+	    [this](auto i) {
+		    constexpr uint8 dataType = (i & 0x0F);
+		    constexpr bool clGreaterEqualWl = (i & 0x10) ? true : false;
+		    constexpr bool useMask = (i & 0x20) ? true : false;
+		    constexpr uint8 mode = (i & 0xC0) >> 6;
+		    constexpr uint8 usn = (i & 0x100) >> 8;
+		    m_unpacker[i] = &CVif::Unpack<dataType, clGreaterEqualWl, useMask, mode, usn>;
+	    });
 }
 
 void CVif::Reset()
@@ -655,215 +664,19 @@ void CVif::Cmd_STMASK(StreamType& stream, CODE command)
 
 void CVif::Cmd_UNPACK(StreamType& stream, CODE nCommand, uint32 nDstAddr)
 {
-	assert((nCommand.nCMD & 0x60) == 0x60);
-
-	const auto vuMem = m_vpu.GetVuMemory();
-	const auto vuMemSize = m_vpu.GetVuMemorySize();
-	bool usn = (m_CODE.nIMM & 0x4000) != 0;
-	bool useMask = (nCommand.nCMD & 0x10) != 0;
 	uint32 cl = m_CYCLE.nCL;
 	uint32 wl = m_CYCLE.nWL;
 	if(wl == 0)
 	{
 		wl = UINT_MAX;
-		cl = 0;
+		cl = UINT_MAX;
 	}
-
-	if(m_NUM == nCommand.nNUM)
-	{
-		m_readTick = 0;
-		m_writeTick = 0;
-	}
-
-	uint32 currentNum = (m_NUM == 0) ? 256 : m_NUM;
-	uint32 codeNum = (m_CODE.nNUM == 0) ? 256 : m_CODE.nNUM;
-	uint32 transfered = codeNum - currentNum;
-
-	if(cl > wl)
-	{
-		nDstAddr += cl * (transfered / wl) + (transfered % wl);
-	}
-	else
-	{
-		nDstAddr += transfered;
-	}
-
-	nDstAddr *= 0x10;
-	assert(nDstAddr < vuMemSize);
-	nDstAddr &= (vuMemSize - 1);
-
-	while(currentNum != 0)
-	{
-		bool mustWrite = false;
-		uint128 writeValue;
-		memset(&writeValue, 0, sizeof(writeValue));
-
-		if(cl >= wl)
-		{
-			if(m_readTick < wl)
-			{
-				bool success = Unpack_ReadValue(nCommand, stream, writeValue, usn);
-				if(!success) break;
-				mustWrite = true;
-			}
-		}
-		else
-		{
-			if(m_writeTick < cl)
-			{
-				bool success = Unpack_ReadValue(nCommand, stream, writeValue, usn);
-				if(!success) break;
-			}
-
-			mustWrite = true;
-		}
-
-		if(mustWrite)
-		{
-			auto dst = reinterpret_cast<uint128*>(vuMem + nDstAddr);
-
-			for(unsigned int i = 0; i < 4; i++)
-			{
-				uint32 maskOp = useMask ? GetMaskOp(i, m_writeTick) : MASK_DATA;
-
-				if(maskOp == MASK_DATA)
-				{
-					if(m_MODE == MODE_OFFSET)
-					{
-						writeValue.nV[i] += m_R[i];
-					}
-					else if(m_MODE == MODE_DIFFERENCE)
-					{
-						writeValue.nV[i] += m_R[i];
-						m_R[i] = writeValue.nV[i];
-					}
-
-					dst->nV[i] = writeValue.nV[i];
-				}
-				else if(maskOp == MASK_ROW)
-				{
-					dst->nV[i] = m_R[i];
-				}
-				else if(maskOp == MASK_COL)
-				{
-					int index = (m_writeTick > 3) ? 3 : m_writeTick;
-					dst->nV[i] = m_C[index];
-				}
-				else if(maskOp == MASK_MASK)
-				{
-					//Don't write anything
-				}
-				else
-				{
-					assert(0);
-				}
-			}
-
-			currentNum--;
-		}
-
-		if(cl >= wl)
-		{
-			m_writeTick = std::min<uint32>(m_writeTick + 1, wl);
-			m_readTick = std::min<uint32>(m_readTick + 1, cl);
-
-			if(m_readTick == cl)
-			{
-				m_writeTick = 0;
-				m_readTick = 0;
-			}
-		}
-		else
-		{
-			m_writeTick = std::min<uint32>(m_writeTick + 1, wl);
-			m_readTick = std::min<uint32>(m_readTick + 1, cl);
-
-			if(m_writeTick == wl)
-			{
-				m_writeTick = 0;
-				m_readTick = 0;
-			}
-		}
-
-		nDstAddr += 0x10;
-		nDstAddr &= (vuMemSize - 1);
-	}
-
-	if(currentNum != 0)
-	{
-		m_STAT.nVPS = 1;
-	}
-	else
-	{
-		stream.Align32();
-		m_STAT.nVPS = 0;
-	}
-
-	m_NUM = static_cast<uint8>(currentNum);
-}
-
-bool CVif::Unpack_ReadValue(const CODE& nCommand, StreamType& stream, uint128& writeValue, bool usn)
-{
-	bool success = false;
-	switch(nCommand.nCMD & 0x0F)
-	{
-	case 0x00:
-		//S-32
-		success = Unpack_S32(stream, writeValue);
-		break;
-	case 0x01:
-		//S-16
-		success = Unpack_S16(stream, writeValue, usn);
-		break;
-	case 0x02:
-		//S-8
-		success = Unpack_S8(stream, writeValue, usn);
-		break;
-	case 0x04:
-		//V2-32
-		success = Unpack_V32(stream, writeValue, 2);
-		break;
-	case 0x05:
-		//V2-16
-		success = Unpack_V16(stream, writeValue, 2, usn);
-		break;
-	case 0x06:
-		//V2-8
-		success = Unpack_V8(stream, writeValue, 2, usn);
-		break;
-	case 0x08:
-		//V3-32
-		success = Unpack_V32(stream, writeValue, 3);
-		break;
-	case 0x09:
-		//V3-16
-		success = Unpack_V16(stream, writeValue, 3, usn);
-		break;
-	case 0x0A:
-		//V3-8
-		success = Unpack_V8(stream, writeValue, 3, usn);
-		break;
-	case 0x0C:
-		//V4-32
-		success = Unpack_V32(stream, writeValue, 4);
-		break;
-	case 0x0D:
-		//V4-16
-		success = Unpack_V16(stream, writeValue, 4, usn);
-		break;
-	case 0x0E:
-		//V4-8
-		success = Unpack_V8(stream, writeValue, 4, usn);
-		break;
-	case 0x0F:
-		//V4-5
-		success = Unpack_V45(stream, writeValue);
-		break;
-	default:
-		assert(0);
-		break;
-	}
-	return success;
+	bool clGreaterEqualWl = (cl >= wl);
+	bool useMask = (nCommand.nCMD & 0x10) != 0;
+	bool usn = (m_CODE.nIMM & 0x4000) != 0;
+	uint8 mode = m_MODE & 0x3;
+	auto unpackFct = m_unpacker[(nCommand.nCMD & 0x0F) | ((clGreaterEqualWl ? 1 : 0) << 4) | ((useMask ? 1 : 0) << 5) | (mode << 6) | (usn << 8)];
+	((*this).*(unpackFct))(stream, nCommand, nDstAddr);
 }
 
 bool CVif::Unpack_S32(StreamType& stream, uint128& result)
@@ -915,53 +728,6 @@ bool CVif::Unpack_S8(StreamType& stream, uint128& result, bool zeroExtend)
 	{
 		result.nV[i] = temp;
 	}
-
-	return true;
-}
-
-bool CVif::Unpack_V8(StreamType& stream, uint128& result, unsigned int fields, bool zeroExtend)
-{
-	if(stream.GetAvailableReadBytes() < (fields)) return false;
-
-	for(unsigned int i = 0; i < fields; i++)
-	{
-		uint32 temp = 0;
-		stream.Read(&temp, 1);
-		if(!zeroExtend)
-		{
-			temp = static_cast<int8>(temp);
-		}
-
-		result.nV[i] = temp;
-	}
-
-	return true;
-}
-
-bool CVif::Unpack_V16(StreamType& stream, uint128& result, unsigned int fields, bool zeroExtend)
-{
-	if(stream.GetAvailableReadBytes() < (fields * 2)) return false;
-
-	for(unsigned int i = 0; i < fields; i++)
-	{
-		uint32 temp = 0;
-		stream.Read(&temp, 2);
-		if(!zeroExtend)
-		{
-			temp = static_cast<int16>(temp);
-		}
-
-		result.nV[i] = temp;
-	}
-
-	return true;
-}
-
-bool CVif::Unpack_V32(StreamType& stream, uint128& result, unsigned int fields)
-{
-	if(stream.GetAvailableReadBytes() < (fields * 4)) return false;
-
-	stream.Read(&result, (fields * 4));
 
 	return true;
 }
@@ -1242,24 +1008,6 @@ void CVif::CFifoStream::Reset()
 	m_source = nullptr;
 }
 
-void CVif::CFifoStream::Read(void* buffer, uint32 size)
-{
-	assert(m_source != NULL);
-	uint8* readBuffer = reinterpret_cast<uint8*>(buffer);
-	while(size != 0)
-	{
-		SyncBuffer();
-		uint32 read = std::min<uint32>(size, BUFFERSIZE - m_bufferPosition);
-		if(readBuffer != NULL)
-		{
-			memcpy(readBuffer, reinterpret_cast<uint8*>(&m_buffer) + m_bufferPosition, read);
-			readBuffer += read;
-		}
-		m_bufferPosition += read;
-		size -= read;
-	}
-}
-
 void CVif::CFifoStream::Flush()
 {
 	m_bufferPosition = BUFFERSIZE;
@@ -1296,21 +1044,12 @@ void CVif::CFifoStream::SetFifoParams(uint8* source, uint32 size)
 	SyncBuffer();
 }
 
-uint32 CVif::CFifoStream::GetAvailableReadBytes() const
-{
-	return GetRemainingDmaTransferSize() + (BUFFERSIZE - m_bufferPosition);
-}
-
-uint32 CVif::CFifoStream::GetRemainingDmaTransferSize() const
-{
-	return m_endAddress - m_nextAddress;
-}
-
 void CVif::CFifoStream::Align32()
 {
 	unsigned int remainBytes = m_bufferPosition & 0x03;
 	if(remainBytes == 0) return;
-	Read(NULL, 4 - remainBytes);
+	uint32 dummy = 0;
+	Read(&dummy, 4 - remainBytes);
 	assert((m_bufferPosition & 0x03) == 0);
 }
 
@@ -1346,26 +1085,5 @@ void CVif::CFifoStream::Advance(uint32 size)
 		//Update buffer
 		assert((m_nextAddress - m_startAddress) >= 0x10);
 		m_buffer = *reinterpret_cast<uint128*>(&m_source[m_nextAddress - 0x10]);
-	}
-}
-
-void CVif::CFifoStream::SyncBuffer()
-{
-	assert(m_bufferPosition <= BUFFERSIZE);
-	if(m_bufferPosition >= BUFFERSIZE)
-	{
-		if(m_nextAddress >= m_endAddress)
-		{
-			throw std::exception();
-		}
-		m_buffer = *reinterpret_cast<uint128*>(&m_source[m_nextAddress]);
-		m_nextAddress += 0x10;
-		m_bufferPosition = 0;
-		if(m_tagIncluded)
-		{
-			//Skip next 8 bytes
-			m_tagIncluded = false;
-			m_bufferPosition += 8;
-		}
 	}
 }

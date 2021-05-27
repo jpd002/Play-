@@ -437,6 +437,7 @@ set(COMMON_SRC_FILES
 	states/StructFile.h
 	states/XmlStateFile.cpp
 	states/XmlStateFile.h
+	static_loop.h
 	uint128.h
 	VirtualPad.cpp
 	VirtualPad.h

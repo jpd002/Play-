@@ -1,13 +1,15 @@
 #pragma once
 
+#include <climits>
+#include <cstring>
 #include "Types.h"
 #include "Convertible.h"
+#include "Vpu.h"
 #include "../uint128.h"
 #include "../Profiler.h"
 #include "zip/ZipArchiveWriter.h"
 #include "zip/ZipArchiveReader.h"
 
-class CVpu;
 class CINTC;
 
 class CVif
@@ -101,11 +103,34 @@ protected:
 
 		void Reset();
 
-		uint32 GetAvailableReadBytes() const;
-		uint32 GetRemainingDmaTransferSize() const;
-		void Read(void*, uint32);
+		inline uint32 GetAvailableReadBytes() const
+		{
+			return GetRemainingDmaTransferSize() + (BUFFERSIZE - m_bufferPosition);
+		}
+
+		inline uint32 GetRemainingDmaTransferSize() const
+		{
+			return m_endAddress - m_nextAddress;
+		}
+
+		inline void Read(void* buffer, uint32 size)
+		{
+			assert(m_source != nullptr);
+			assert(buffer != nullptr);
+			uint8* readBuffer = reinterpret_cast<uint8*>(buffer);
+			while(size != 0)
+			{
+				SyncBuffer();
+				uint32 read = std::min<uint32>(size, BUFFERSIZE - m_bufferPosition);
+				memcpy(readBuffer, reinterpret_cast<uint8*>(&m_buffer) + m_bufferPosition, read);
+				readBuffer += read;
+				m_bufferPosition += read;
+				size -= read;
+			}
+		}
+
 		void Flush();
-		void Align32();
+		inline void Align32();
 		void SetDmaParams(uint32, uint32, bool);
 		void SetFifoParams(uint8*, uint32);
 
@@ -113,7 +138,26 @@ protected:
 		void Advance(uint32);
 
 	private:
-		void SyncBuffer();
+		inline void SyncBuffer()
+		{
+			assert(m_bufferPosition <= BUFFERSIZE);
+			if(m_bufferPosition >= BUFFERSIZE)
+			{
+				if(m_nextAddress >= m_endAddress)
+				{
+					throw std::exception();
+				}
+				m_buffer = *reinterpret_cast<uint128*>(&m_source[m_nextAddress]);
+				m_nextAddress += 0x10;
+				m_bufferPosition = 0;
+				if(m_tagIncluded)
+				{
+					//Skip next 8 bytes
+					m_tagIncluded = false;
+					m_bufferPosition += 8;
+				}
+			}
+		}
 
 		enum
 		{
@@ -206,16 +250,284 @@ protected:
 	void Cmd_STCOL(StreamType&, CODE);
 	void Cmd_STMASK(StreamType&, CODE);
 
-	bool Unpack_ReadValue(const CODE&, StreamType&, uint128&, bool);
-	bool Unpack_S32(StreamType&, uint128&);
-	bool Unpack_S16(StreamType&, uint128&, bool);
-	bool Unpack_S8(StreamType&, uint128&, bool);
-	bool Unpack_V16(StreamType&, uint128&, unsigned int, bool);
-	bool Unpack_V8(StreamType&, uint128&, unsigned int, bool);
-	bool Unpack_V32(StreamType&, uint128&, unsigned int);
-	bool Unpack_V45(StreamType&, uint128&);
+	inline uint32 GetMaskOp(unsigned int, unsigned int) const;
 
-	uint32 GetMaskOp(unsigned int, unsigned int) const;
+	inline bool Unpack_S32(StreamType&, uint128&);
+	inline bool Unpack_S16(StreamType&, uint128&, bool);
+	inline bool Unpack_S8(StreamType&, uint128&, bool);
+	inline bool Unpack_V45(StreamType&, uint128&);
+
+	template <unsigned int fields>
+	inline bool Unpack_V32(StreamType& stream, uint128& result)
+	{
+		if(stream.GetAvailableReadBytes() < (fields * 4)) return false;
+
+		stream.Read(&result, (fields * 4));
+
+		return true;
+	}
+
+	template <unsigned int fields, bool zeroExtend>
+	inline bool Unpack_V16(StreamType& stream, uint128& result)
+	{
+		if(stream.GetAvailableReadBytes() < (fields * 2)) return false;
+
+		uint16 values[fields];
+		stream.Read(values, fields * 2);
+
+		for(unsigned int i = 0; i < fields; i++)
+		{
+			uint32 temp = values[i];
+			if(!zeroExtend)
+			{
+				temp = static_cast<int16>(temp);
+			}
+
+			result.nV[i] = temp;
+		}
+
+		return true;
+	}
+
+	template <unsigned int fields, bool zeroExtend>
+	inline bool Unpack_V8(StreamType& stream, uint128& result)
+	{
+		if(stream.GetAvailableReadBytes() < (fields)) return false;
+
+		uint8 values[fields];
+		stream.Read(values, fields);
+
+		for(unsigned int i = 0; i < fields; i++)
+		{
+			uint32 temp = values[i];
+			if(!zeroExtend)
+			{
+				temp = static_cast<int8>(temp);
+			}
+
+			result.nV[i] = temp;
+		}
+
+		return true;
+	}
+
+	template <uint8 dataType, bool usn>
+	bool Unpack_ReadValue(StreamType& stream, uint128& writeValue)
+	{
+		bool success = false;
+		switch(dataType)
+		{
+		case 0x00:
+			//S-32
+			success = Unpack_S32(stream, writeValue);
+			break;
+		case 0x01:
+			//S-16
+			success = Unpack_S16(stream, writeValue, usn);
+			break;
+		case 0x02:
+			//S-8
+			success = Unpack_S8(stream, writeValue, usn);
+			break;
+		case 0x04:
+			//V2-32
+			success = Unpack_V32<2>(stream, writeValue);
+			break;
+		case 0x05:
+			//V2-16
+			success = Unpack_V16<2, usn>(stream, writeValue);
+			break;
+		case 0x06:
+			//V2-8
+			success = Unpack_V8<2, usn>(stream, writeValue);
+			break;
+		case 0x08:
+			//V3-32
+			success = Unpack_V32<3>(stream, writeValue);
+			break;
+		case 0x09:
+			//V3-16
+			success = Unpack_V16<3, usn>(stream, writeValue);
+			break;
+		case 0x0A:
+			//V3-8
+			success = Unpack_V8<3, usn>(stream, writeValue);
+			break;
+		case 0x0C:
+			//V4-32
+			success = Unpack_V32<4>(stream, writeValue);
+			break;
+		case 0x0D:
+			//V4-16
+			success = Unpack_V16<4, usn>(stream, writeValue);
+			break;
+		case 0x0E:
+			//V4-8
+			success = Unpack_V8<4, usn>(stream, writeValue);
+			break;
+		case 0x0F:
+			//V4-5
+			success = Unpack_V45(stream, writeValue);
+			break;
+		default:
+			assert(0);
+			break;
+		}
+		return success;
+	}
+
+	template <uint8 dataType, bool clGreaterEqualWl, bool useMask, uint8 mode, bool usn>
+	void Unpack(StreamType& stream, CODE nCommand, uint32 nDstAddr)
+	{
+		assert((nCommand.nCMD & 0x60) == 0x60);
+
+		const auto vuMem = m_vpu.GetVuMemory();
+		const auto vuMemSize = m_vpu.GetVuMemorySize();
+		uint32 cl = m_CYCLE.nCL;
+		uint32 wl = m_CYCLE.nWL;
+		if(wl == 0)
+		{
+			wl = UINT_MAX;
+			cl = UINT_MAX;
+		}
+
+		if(m_NUM == nCommand.nNUM)
+		{
+			m_readTick = 0;
+			m_writeTick = 0;
+		}
+
+		uint32 currentNum = (m_NUM == 0) ? 256 : m_NUM;
+		uint32 codeNum = (m_CODE.nNUM == 0) ? 256 : m_CODE.nNUM;
+		uint32 transfered = codeNum - currentNum;
+
+		if(cl > wl)
+		{
+			nDstAddr += cl * (transfered / wl) + (transfered % wl);
+		}
+		else
+		{
+			nDstAddr += transfered;
+		}
+
+		nDstAddr *= 0x10;
+
+		while(currentNum != 0)
+		{
+			bool mustWrite = false;
+			uint128 writeValue;
+			memset(&writeValue, 0, sizeof(writeValue));
+
+			if(clGreaterEqualWl)
+			{
+				if(m_readTick < wl || wl == 0)
+				{
+					bool success = Unpack_ReadValue<dataType, usn>(stream, writeValue);
+					if(!success) break;
+					mustWrite = true;
+				}
+			}
+			else
+			{
+				if(m_writeTick < cl)
+				{
+					bool success = Unpack_ReadValue<dataType, usn>(stream, writeValue);
+					if(!success) break;
+				}
+
+				mustWrite = true;
+			}
+
+			if(mustWrite)
+			{
+				auto dst = reinterpret_cast<uint128*>(vuMem + nDstAddr);
+
+				for(unsigned int i = 0; i < 4; i++)
+				{
+					uint32 maskOp = useMask ? GetMaskOp(i, m_writeTick) : MASK_DATA;
+
+					if(maskOp == MASK_DATA)
+					{
+						if(mode == MODE_OFFSET)
+						{
+							writeValue.nV[i] += m_R[i];
+						}
+						else if(mode == MODE_DIFFERENCE)
+						{
+							writeValue.nV[i] += m_R[i];
+							m_R[i] = writeValue.nV[i];
+						}
+
+						dst->nV[i] = writeValue.nV[i];
+					}
+					else if(maskOp == MASK_ROW)
+					{
+						dst->nV[i] = m_R[i];
+					}
+					else if(maskOp == MASK_COL)
+					{
+						int index = (m_writeTick > 3) ? 3 : m_writeTick;
+						dst->nV[i] = m_C[index];
+					}
+					else if(maskOp == MASK_MASK)
+					{
+						//Don't write anything
+					}
+					else
+					{
+						assert(0);
+					}
+				}
+
+				currentNum--;
+			}
+
+			if(clGreaterEqualWl)
+			{
+				m_writeTick = std::min<uint32>(m_writeTick + 1, wl);
+				m_readTick = std::min<uint32>(m_readTick + 1, cl);
+
+				if(m_readTick == cl)
+				{
+					m_writeTick = 0;
+					m_readTick = 0;
+				}
+			}
+			else
+			{
+				m_writeTick = std::min<uint32>(m_writeTick + 1, wl);
+				m_readTick = std::min<uint32>(m_readTick + 1, cl);
+
+				if(m_writeTick == wl)
+				{
+					m_writeTick = 0;
+					m_readTick = 0;
+				}
+			}
+
+			nDstAddr += 0x10;
+			nDstAddr &= (vuMemSize - 1);
+		}
+
+		if(currentNum != 0)
+		{
+			m_STAT.nVPS = 1;
+		}
+		else
+		{
+			stream.Align32();
+			m_STAT.nVPS = 0;
+		}
+
+		m_NUM = static_cast<uint8>(currentNum);
+	}
+
+	typedef void (CVif::*Unpacker)(StreamType&, CODE, uint32);
+
+	enum
+	{
+		MAX_UNPACKERS = 0x200
+	};
 
 	virtual void PrepareMicroProgram();
 	void StartMicroProgram(uint32);
@@ -232,6 +544,7 @@ protected:
 	uint8* m_ram = nullptr;
 	uint8* m_spr = nullptr;
 	CFifoStream m_stream;
+	Unpacker m_unpacker[MAX_UNPACKERS];
 
 	uint8 m_fifoBuffer[FIFO_SIZE];
 	uint32 m_fifoIndex = 0;
