@@ -420,6 +420,13 @@ set(COMMON_SRC_FILES
 	saves/SaveImporter.h
 	saves/XpsSaveImporter.cpp
 	saves/XpsSaveImporter.h
+	ScopedVmPauser.cpp
+	ScopedVmPauser.h
+	ScreenShotUtils.cpp
+	ScreenShotUtils.h
+	SifDefs.h
+	SifModule.h
+	SifModuleAdapter.h
 	states/MemoryStateFile.cpp
 	states/MemoryStateFile.h
 	states/RegisterStateFile.cpp
@@ -430,11 +437,7 @@ set(COMMON_SRC_FILES
 	states/StructFile.h
 	states/XmlStateFile.cpp
 	states/XmlStateFile.h
-	ScopedVmPauser.cpp
-	ScopedVmPauser.h
-	ScreenShotUtils.cpp
-	ScreenShotUtils.h
-	SifDefs.h
+	uint128.h
 	VirtualPad.cpp
 	VirtualPad.h
 	${AMAZON_S3_SRC}
