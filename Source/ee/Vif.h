@@ -388,7 +388,7 @@ protected:
 		if(wl == 0)
 		{
 			wl = UINT_MAX;
-			cl = UINT_MAX;
+			cl = 0;
 		}
 
 		if(m_NUM == nCommand.nNUM)
@@ -411,6 +411,8 @@ protected:
 		}
 
 		nDstAddr *= 0x10;
+		assert(nDstAddr < vuMemSize);
+		nDstAddr &= (vuMemSize - 1);
 
 		while(currentNum != 0)
 		{
@@ -420,7 +422,7 @@ protected:
 
 			if(clGreaterEqualWl)
 			{
-				if(m_readTick < wl || wl == 0)
+				if(m_readTick < wl)
 				{
 					bool success = Unpack_ReadValue<dataType, usn>(stream, writeValue);
 					if(!success) break;

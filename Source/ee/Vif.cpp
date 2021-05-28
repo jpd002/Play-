@@ -669,7 +669,7 @@ void CVif::Cmd_UNPACK(StreamType& stream, CODE nCommand, uint32 nDstAddr)
 	if(wl == 0)
 	{
 		wl = UINT_MAX;
-		cl = UINT_MAX;
+		cl = 0;
 	}
 	bool clGreaterEqualWl = (cl >= wl);
 	bool useMask = (nCommand.nCMD & 0x10) != 0;
