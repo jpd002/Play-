@@ -2,6 +2,8 @@ package com.virtualapplications.play;
 
 import android.app.Activity;
 import android.os.Build;
+
+import androidx.annotation.Nullable;
 import androidx.preference.PreferenceManager;
 import androidx.appcompat.widget.Toolbar;
 import android.util.TypedValue;
@@ -11,7 +13,7 @@ import static com.virtualapplications.play.Constants.PREF_UI_THEME_SELECTION;
 
 public class ThemeManager
 {
-	public static void applyTheme(Activity activity)
+	public static void applyTheme(Activity activity, final @Nullable Toolbar toolbar)
 	{
 		String positionString = PreferenceManager.getDefaultSharedPreferences(activity)
 				.getString(PREF_UI_THEME_SELECTION, "1");
@@ -43,7 +45,6 @@ public class ThemeManager
 			break;
 		}
 		activity.getTheme().applyStyle(theme, true);
-		Toolbar toolbar = (Toolbar)activity.findViewById(R.id.my_awesome_toolbar);
 		if(toolbar != null)
 		{
 			int color = getThemeColor(activity, R.attr.colorPrimary);

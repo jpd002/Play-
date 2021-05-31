@@ -51,6 +51,7 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 	private List<Bootable> currentGames = new ArrayList<>();
 	private int sortMethod = SORT_NONE;
 	private String navSubtitle;
+	private Toolbar toolbar;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -60,7 +61,7 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 
 		currentOrientation = getResources().getConfiguration().orientation;
 
-		ThemeManager.applyTheme(this);
+		ThemeManager.applyTheme(this, toolbar);
 		if(isAndroidTV(this))
 		{
 			setContentView(R.layout.tele);
@@ -73,7 +74,7 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 //		if (isAndroidTV(this)) {
 //			// Load the menus for Android TV
 //		} else {
-		Toolbar toolbar = (Toolbar)findViewById(R.id.my_awesome_toolbar);
+		toolbar = findViewById(R.id.main_toolbar);
 		setSupportActionBar(toolbar);
 		toolbar.bringToFront();
 		setUIcolor();
@@ -259,7 +260,7 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 	{
 		if(requestCode == 0)
 		{
-			ThemeManager.applyTheme(this);
+			ThemeManager.applyTheme(this, toolbar);
 			setUIcolor();
 		}
 

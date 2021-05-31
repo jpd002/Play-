@@ -38,7 +38,7 @@ public class EmulatorActivity extends Activity
 		super.onCreate(savedInstanceState);
 		//Log.w(Constants.TAG, "EmulatorActivity - onCreate");
 
-		ThemeManager.applyTheme(this);
+		ThemeManager.applyTheme(this, null);
 		setContentView(R.layout.emulator);
 
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);

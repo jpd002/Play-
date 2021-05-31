@@ -15,6 +15,7 @@ public class SettingsActivity extends AppCompatActivity
 		implements SharedPreferences.OnSharedPreferenceChangeListener
 {
 	private SharedPreferences prefs;
+	private Toolbar toolbar;
 
 	@Override
 	public void onCreate(final Bundle savedInstanceState)
@@ -25,7 +26,7 @@ public class SettingsActivity extends AppCompatActivity
 
 		setContentView(R.layout.activity_settings);
 
-		final Toolbar toolbar = findViewById(R.id.settings_toolbar);
+		toolbar = findViewById(R.id.settings_toolbar);
 		setSupportActionBar(toolbar);
 		toolbar.setNavigationOnClickListener(v -> onBackPressed());
 
@@ -68,7 +69,7 @@ public class SettingsActivity extends AppCompatActivity
 	protected void onResume()
 	{
 		super.onResume();
-		ThemeManager.applyTheme(this);
+		ThemeManager.applyTheme(this, toolbar);
 	}
 
 	@Override
@@ -76,7 +77,7 @@ public class SettingsActivity extends AppCompatActivity
 	{
 		if(key.equals(PREF_UI_THEME_SELECTION))
 		{
-			ThemeManager.applyTheme(this);
+			ThemeManager.applyTheme(this, toolbar);
 		}
 	}
 
