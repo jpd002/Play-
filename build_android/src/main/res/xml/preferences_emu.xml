@@ -5,14 +5,14 @@
         android:title="@string/pref_emu_general"
         app:iconSpaceReserved="false">
 
-        <CheckBoxPreference
+        <SwitchPreferenceCompat
             android:key="ui.showfps"
             android:persistent="false"
             android:summary="@string/pref_emu_general_fps_display_summary"
             android:title="@string/pref_emu_general_fps_display_title"
             app:iconSpaceReserved="false" />
 
-        <CheckBoxPreference
+        <SwitchPreferenceCompat
             android:key="ui.showvirtualpad"
             android:persistent="false"
             android:summary="@string/pref_emu_general_pad_display_summary"
@@ -24,14 +24,14 @@
         android:title="@string/pref_emu_video"
         app:iconSpaceReserved="false">
 
-        <CheckBoxPreference
+        <SwitchPreferenceCompat
             android:key="renderer.widescreen"
             android:persistent="false"
             android:summary="@string/pref_emu_video_widescreen_summary"
             android:title="@string/pref_emu_video_widescreen_title"
             app:iconSpaceReserved="false" />
 
-        <CheckBoxPreference
+        <SwitchPreferenceCompat
             android:key="renderer.opengl.forcebilineartextures"
             android:persistent="false"
             android:summary="@string/pref_emu_video_force_bilinear_summary"
@@ -63,7 +63,7 @@
         android:title="@string/pref_emu_audio"
         app:iconSpaceReserved="false">
 
-        <CheckBoxPreference
+        <SwitchPreferenceCompat
             android:key="audio.enableoutput"
             android:persistent="false"
             android:summary="@string/pref_emu_audio_enable_output_summary"

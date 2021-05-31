@@ -5,11 +5,11 @@ import android.os.Bundle;
 import com.virtualapplications.play.R;
 import com.virtualapplications.play.SettingsManager;
 
-import androidx.preference.CheckBoxPreference;
 import androidx.preference.ListPreference;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceGroup;
+import androidx.preference.SwitchPreferenceCompat;
 
 import static com.virtualapplications.play.Constants.PREF_EMU_AUDIO_BUFFERSIZE;
 import static com.virtualapplications.play.Constants.PREF_EMU_VIDEO_PRESENTATIONMODE;
@@ -61,9 +61,9 @@ public class EmulatorSettingsFragment extends PreferenceFragmentCompat
 		for(int i = 0; i < prefGroup.getPreferenceCount(); i++)
 		{
 			final Preference pref = prefGroup.getPreference(i);
-			if(pref instanceof CheckBoxPreference)
+			if(pref instanceof SwitchPreferenceCompat)
 			{
-				final CheckBoxPreference checkBoxPref = (CheckBoxPreference)pref;
+				final SwitchPreferenceCompat checkBoxPref = (SwitchPreferenceCompat)pref;
 				SettingsManager.setPreferenceBoolean(checkBoxPref.getKey(), checkBoxPref.isChecked());
 			}
 			else if(pref instanceof ListPreference)
@@ -84,9 +84,9 @@ public class EmulatorSettingsFragment extends PreferenceFragmentCompat
 		for(int i = 0; i < prefGroup.getPreferenceCount(); i++)
 		{
 			final Preference pref = prefGroup.getPreference(i);
-			if(pref instanceof CheckBoxPreference)
+			if(pref instanceof SwitchPreferenceCompat)
 			{
-				final CheckBoxPreference checkBoxPref = (CheckBoxPreference)pref;
+				final SwitchPreferenceCompat checkBoxPref = (SwitchPreferenceCompat)pref;
 				checkBoxPref.setChecked(SettingsManager.getPreferenceBoolean(checkBoxPref.getKey()));
 			}
 			else if(pref instanceof ListPreference)
