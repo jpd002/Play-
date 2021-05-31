@@ -2,7 +2,7 @@ package com.virtualapplications.play;
 
 import android.app.Activity;
 import android.os.Build;
-import android.preference.PreferenceManager;
+import androidx.preference.PreferenceManager;
 import androidx.appcompat.widget.Toolbar;
 import android.util.TypedValue;
 import android.view.WindowManager;

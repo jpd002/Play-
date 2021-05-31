@@ -1,60 +1,67 @@
 package com.virtualapplications.play;
 
 import android.content.SharedPreferences;
-import android.os.*;
-import android.preference.*;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.widget.*;
+import android.os.Bundle;
+import android.view.MenuItem;
 
-import java.util.*;
-
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.preference.PreferenceFragmentCompat;
+import androidx.preference.PreferenceManager;
 
 import static com.virtualapplications.play.Constants.PREF_UI_THEME_SELECTION;
 
-public class SettingsActivity extends PreferenceActivity
+public class SettingsActivity extends AppCompatActivity
 		implements SharedPreferences.OnSharedPreferenceChangeListener
 {
+	private SharedPreferences prefs;
 
 	@Override
-	public void onCreate(Bundle savedInstanceState)
+	public void onCreate(final Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
-		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+		prefs = PreferenceManager.getDefaultSharedPreferences(this);
 		prefs.registerOnSharedPreferenceChangeListener(this);
+
+		setContentView(R.layout.activity_settings);
+
+		final Toolbar toolbar = findViewById(R.id.settings_toolbar);
+		setSupportActionBar(toolbar);
+		toolbar.setNavigationOnClickListener(v -> onBackPressed());
+
+		if(savedInstanceState == null)
+		{
+			getSupportFragmentManager().beginTransaction()
+					.replace(R.id.settings_fragment_holder, new MainSettingsFragment())
+					.commit();
+		}
 	}
 
 	@Override
 	public void onDestroy()
 	{
-		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
 		prefs.unregisterOnSharedPreferenceChangeListener(this);
 		super.onDestroy();
 		SettingsManager.save();
 	}
 
 	@Override
-	public void onBuildHeaders(List<Header> target)
+	public boolean onOptionsItemSelected(final MenuItem item)
 	{
-		loadHeadersFromResource(R.xml.preferences, target);
-	}
-
-	@Override
-	protected void onPostCreate(Bundle savedInstanceState)
-	{
-		super.onPostCreate(savedInstanceState);
-		LinearLayout root = (LinearLayout)findViewById(android.R.id.list).getParent().getParent().getParent();
-		Toolbar bar = (Toolbar)LayoutInflater.from(this).inflate(R.layout.settings_toolbar, null, false);
-		bar.setNavigationOnClickListener(new View.OnClickListener()
+		final int id = item.getItemId();
+		if(id == android.R.id.home)
 		{
-			@Override
-			public void onClick(View v)
+			if(getSupportFragmentManager().getBackStackEntryCount() == 0)
 			{
-				onBackPressed();
+				finish();
 			}
-		});
-		root.addView(bar, 0);
+			else
+			{
+				getSupportFragmentManager().popBackStack();
+			}
+		}
+
+		return super.onOptionsItemSelected(item);
 	}
 
 	@Override
@@ -65,17 +72,20 @@ public class SettingsActivity extends PreferenceActivity
 	}
 
 	@Override
-	protected boolean isValidFragment(String fragmentName)
-	{
-		return true;
-	}
-
-	@Override
-	public void onSharedPreferenceChanged(SharedPreferences prefs, String key)
+	public void onSharedPreferenceChanged(final SharedPreferences prefs, final String key)
 	{
 		if(key.equals(PREF_UI_THEME_SELECTION))
 		{
 			ThemeManager.applyTheme(this);
+		}
+	}
+
+	public static class MainSettingsFragment extends PreferenceFragmentCompat
+	{
+		@Override
+		public void onCreatePreferences(final Bundle savedInstanceState, final String rootKey)
+		{
+			addPreferencesFromResource(R.xml.preferences);
 		}
 	}
 }

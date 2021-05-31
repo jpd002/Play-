@@ -1,65 +1,52 @@
 package com.virtualapplications.play.settings;
 
 import android.os.Bundle;
-import android.preference.CheckBoxPreference;
-import android.preference.ListPreference;
-import android.preference.Preference;
-import android.preference.PreferenceFragment;
-import android.preference.PreferenceGroup;
 
 import com.virtualapplications.play.R;
 import com.virtualapplications.play.SettingsManager;
+
+import androidx.preference.CheckBoxPreference;
+import androidx.preference.ListPreference;
+import androidx.preference.Preference;
+import androidx.preference.PreferenceFragmentCompat;
+import androidx.preference.PreferenceGroup;
 
 import static com.virtualapplications.play.Constants.PREF_EMU_AUDIO_BUFFERSIZE;
 import static com.virtualapplications.play.Constants.PREF_EMU_VIDEO_PRESENTATIONMODE;
 import static com.virtualapplications.play.Constants.PREF_EMU_VIDEO_RESFACTOR;
 
-public class EmulatorSettingsFragment extends PreferenceFragment
+public class EmulatorSettingsFragment extends PreferenceFragmentCompat
 {
 	@Override
-	public void onCreate(Bundle savedInstanceState)
+	public void onCreatePreferences(Bundle savedInstanceState, String rootKey)
 	{
-		super.onCreate(savedInstanceState);
 		addPreferencesFromResource(R.xml.preferences_emu);
 		writeToPreferences(getPreferenceScreen());
-		ListPreference pref = (ListPreference)findPreference(PREF_EMU_VIDEO_RESFACTOR);
-		pref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener()
-		{
-			@Override
-			public boolean onPreferenceChange(Preference preference, Object value)
-			{
-				String stringValue = value.toString();
-				ListPreference listBoxPref = (ListPreference)preference;
-				listBoxPref.setSummary(stringValue + "x");
-				return true;
-			}
-		});
-		pref.setSummary(pref.getEntry());
-		ListPreference presentationmode_pref = (ListPreference)findPreference(PREF_EMU_VIDEO_PRESENTATIONMODE);
-		presentationmode_pref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener()
-		{
-			@Override
-			public boolean onPreferenceChange(Preference preference, Object value)
-			{
-				int index = Integer.parseInt(value.toString());
-				ListPreference listBoxPref = (ListPreference)preference;
-				listBoxPref.setSummary(listBoxPref.getEntries()[index]);
-				return true;
-			}
-		});
-		presentationmode_pref.setSummary(presentationmode_pref.getEntry());
 
-		ListPreference spublockcount_pref = (ListPreference)findPreference(PREF_EMU_AUDIO_BUFFERSIZE);
-		spublockcount_pref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener()
-		{
-			@Override
-			public boolean onPreferenceChange(Preference preference, Object value)
-			{
-				preference.setSummary(value.toString());
-				return true;
-			}
+		final ListPreference resFactorPref = findPreference(PREF_EMU_VIDEO_RESFACTOR);
+		resFactorPref.setOnPreferenceChangeListener((preference, value) -> {
+			final String stringValue = value.toString();
+			final ListPreference listBoxPref = (ListPreference)preference;
+			listBoxPref.setSummary(stringValue + "x");
+			return true;
 		});
-		spublockcount_pref.setSummary(spublockcount_pref.getEntry());
+		resFactorPref.setSummary(resFactorPref.getEntry());
+
+		final ListPreference presentationModePref = findPreference(PREF_EMU_VIDEO_PRESENTATIONMODE);
+		presentationModePref.setOnPreferenceChangeListener((preference, value) -> {
+			final int index = Integer.parseInt(value.toString());
+			final ListPreference listBoxPref = (ListPreference)preference;
+			listBoxPref.setSummary(listBoxPref.getEntries()[index]);
+			return true;
+		});
+		presentationModePref.setSummary(presentationModePref.getEntry());
+
+		final ListPreference bufferSizePref = findPreference(PREF_EMU_AUDIO_BUFFERSIZE);
+		bufferSizePref.setOnPreferenceChangeListener((preference, value) -> {
+			preference.setSummary(value.toString());
+			return true;
+		});
+		bufferSizePref.setSummary(bufferSizePref.getEntry());
 	}
 
 	@Override
@@ -69,20 +56,20 @@ public class EmulatorSettingsFragment extends PreferenceFragment
 		super.onDestroy();
 	}
 
-	private void readFromPreferences(PreferenceGroup prefGroup)
+	private void readFromPreferences(final PreferenceGroup prefGroup)
 	{
 		for(int i = 0; i < prefGroup.getPreferenceCount(); i++)
 		{
-			Preference pref = prefGroup.getPreference(i);
+			final Preference pref = prefGroup.getPreference(i);
 			if(pref instanceof CheckBoxPreference)
 			{
-				CheckBoxPreference checkBoxPref = (CheckBoxPreference)pref;
+				final CheckBoxPreference checkBoxPref = (CheckBoxPreference)pref;
 				SettingsManager.setPreferenceBoolean(checkBoxPref.getKey(), checkBoxPref.isChecked());
 			}
 			else if(pref instanceof ListPreference)
 			{
-				ListPreference listBoxPref = (ListPreference)pref;
-				int val = Integer.parseInt(listBoxPref.getValue());
+				final ListPreference listBoxPref = (ListPreference)pref;
+				final int val = Integer.parseInt(listBoxPref.getValue());
 				SettingsManager.setPreferenceInteger(listBoxPref.getKey(), val);
 			}
 			else if(pref instanceof PreferenceGroup)
@@ -92,20 +79,20 @@ public class EmulatorSettingsFragment extends PreferenceFragment
 		}
 	}
 
-	private void writeToPreferences(PreferenceGroup prefGroup)
+	private void writeToPreferences(final PreferenceGroup prefGroup)
 	{
 		for(int i = 0; i < prefGroup.getPreferenceCount(); i++)
 		{
-			Preference pref = prefGroup.getPreference(i);
+			final Preference pref = prefGroup.getPreference(i);
 			if(pref instanceof CheckBoxPreference)
 			{
-				CheckBoxPreference checkBoxPref = (CheckBoxPreference)pref;
+				final CheckBoxPreference checkBoxPref = (CheckBoxPreference)pref;
 				checkBoxPref.setChecked(SettingsManager.getPreferenceBoolean(checkBoxPref.getKey()));
 			}
 			else if(pref instanceof ListPreference)
 			{
-				ListPreference listBoxPref = (ListPreference)pref;
-				String val = String.valueOf(SettingsManager.getPreferenceInteger(listBoxPref.getKey()));
+				final ListPreference listBoxPref = (ListPreference)pref;
+				final String val = String.valueOf(SettingsManager.getPreferenceInteger(listBoxPref.getKey()));
 				listBoxPref.setValue(val);
 			}
 			else if(pref instanceof PreferenceGroup)
@@ -115,4 +102,3 @@ public class EmulatorSettingsFragment extends PreferenceFragment
 		}
 	}
 }
-
