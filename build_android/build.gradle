@@ -5,7 +5,6 @@ buildscript {
 		google()
 		mavenCentral()
 		jcenter()
-		maven { url "https://maven.google.com" }
 	}
 
 	dependencies {
@@ -67,6 +66,7 @@ android {
 
 	dependencies {
 		api 'androidx.appcompat:appcompat:1.2.0'
+		api 'androidx.preference:preference:1.1.1'
 		api 'org.apache.commons:commons-lang3:3.4'
 		api 'commons-io:commons-io:2.5'
 	}
@@ -116,5 +116,11 @@ android {
 			path '../CMakeLists.txt'
 			version "3.10.2"
 		}
+	}
+
+	compileOptions {
+		encoding "UTF-8"
+		sourceCompatibility JavaVersion.VERSION_1_8
+		targetCompatibility JavaVersion.VERSION_1_8
 	}
 }

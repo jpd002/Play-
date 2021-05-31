@@ -1,0 +1,69 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory android:title="@string/pref_emu_general">
+
+        <CheckBoxPreference
+            android:key="ui.showfps"
+            android:persistent="false"
+            android:summary="@string/pref_emu_general_fps_display_summary"
+            android:title="@string/pref_emu_general_fps_display_title" />
+
+        <CheckBoxPreference
+            android:key="ui.showvirtualpad"
+            android:persistent="false"
+            android:summary="@string/pref_emu_general_pad_display_summary"
+            android:title="@string/pref_emu_general_pad_display_title" />
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="@string/pref_emu_video">
+
+        <CheckBoxPreference
+            android:key="renderer.widescreen"
+            android:persistent="false"
+            android:summary="@string/pref_emu_video_widescreen_summary"
+            android:title="@string/pref_emu_video_widescreen_title" />
+
+        <CheckBoxPreference
+            android:key="renderer.opengl.forcebilineartextures"
+            android:persistent="false"
+            android:summary="@string/pref_emu_video_force_bilinear_summary"
+            android:title="@string/pref_emu_video_force_bilinear_title" />
+
+        <ListPreference
+            android:defaultValue="1"
+            android:entries="@array/pref_emu_video_res_factor_entries"
+            android:entryValues="@array/pref_emu_video_res_factor_values"
+            android:key="renderer.opengl.resfactor"
+            android:negativeButtonText="@null"
+            android:positiveButtonText="@null"
+            android:title="@string/pref_emu_video_res_factor_title" />
+
+        <ListPreference
+            android:defaultValue="1"
+            android:entries="@array/pref_emu_video_presentation_mode_entries"
+            android:entryValues="@array/pref_emu_video_presentation_mode_values"
+            android:key="renderer.presentationmode"
+            android:negativeButtonText="@null"
+            android:positiveButtonText="@null"
+            android:title="@string/pref_emu_video_presentation_mode_title" />
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="@string/pref_emu_audio">
+
+        <CheckBoxPreference
+            android:key="audio.enableoutput"
+            android:persistent="false"
+            android:summary="@string/pref_emu_audio_enable_output_summary"
+            android:title="@string/pref_emu_audio_enable_output_title" />
+
+        <ListPreference
+            android:defaultValue="400"
+            android:entries="@array/pref_emu_audio_spublockcount_entries"
+            android:entryValues="@array/pref_emu_audio_spublockcount_values"
+            android:key="audio.spublockcount"
+            android:negativeButtonText="@null"
+            android:positiveButtonText="@null"
+            android:title="@string/pref_emu_audio_spublockcount_title" />
+
+    </PreferenceCategory>
+</PreferenceScreen>

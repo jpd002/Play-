@@ -7,13 +7,14 @@ import androidx.appcompat.widget.Toolbar;
 import android.util.TypedValue;
 import android.view.WindowManager;
 
+import static com.virtualapplications.play.Constants.PREF_UI_THEME_SELECTION;
+
 public class ThemeManager
 {
-	public static String THEME_SELECTION = "ui.theme_selection";
-
 	public static void applyTheme(Activity activity)
 	{
-		String positionString = PreferenceManager.getDefaultSharedPreferences(activity).getString(THEME_SELECTION, "1");
+		String positionString = PreferenceManager.getDefaultSharedPreferences(activity)
+				.getString(PREF_UI_THEME_SELECTION, "1");
 		int position = Integer.valueOf(positionString);
 		int theme;
 		switch(position)

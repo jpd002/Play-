@@ -39,6 +39,8 @@ import static com.virtualapplications.play.BootablesInterop.setLastBootedTime;
 import static com.virtualapplications.play.BootablesInterop.SORT_RECENT;
 import static com.virtualapplications.play.BootablesInterop.SORT_HOMEBREW;
 import static com.virtualapplications.play.BootablesInterop.SORT_NONE;
+import static com.virtualapplications.play.Constants.PREF_UI_CLEAR_UNAVAILABLE;
+import static com.virtualapplications.play.Constants.PREF_UI_RESCAN;
 import static com.virtualapplications.play.ThemeManager.getThemeColor;
 
 public class MainActivity extends AppCompatActivity implements NavigationDrawerFragment.NavigationDrawerCallbacks, SharedPreferences.OnSharedPreferenceChangeListener
@@ -384,19 +386,19 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 	@Override
 	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key)
 	{
-		if(key.equals(SettingsActivity.RESCAN))
+		if(key.equals(PREF_UI_RESCAN))
 		{
-			if(sharedPreferences.getBoolean(SettingsActivity.RESCAN, false))
+			if(sharedPreferences.getBoolean(PREF_UI_RESCAN, false))
 			{
-				sharedPreferences.edit().putBoolean(SettingsActivity.RESCAN, false).apply();
+				sharedPreferences.edit().putBoolean(PREF_UI_RESCAN, false).apply();
 				prepareFileListView(false, true);
 			}
 		}
-		else if(key.equals(SettingsActivity.CLEAR_UNAVAILABLE))
+		else if(key.equals(PREF_UI_CLEAR_UNAVAILABLE))
 		{
-			if(sharedPreferences.getBoolean(SettingsActivity.CLEAR_UNAVAILABLE, false))
+			if(sharedPreferences.getBoolean(PREF_UI_CLEAR_UNAVAILABLE, false))
 			{
-				sharedPreferences.edit().putBoolean(SettingsActivity.CLEAR_UNAVAILABLE, false).apply();
+				sharedPreferences.edit().putBoolean(PREF_UI_CLEAR_UNAVAILABLE, false).apply();
 
 				PurgeInexistingFiles();
 

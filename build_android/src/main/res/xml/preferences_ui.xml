@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory
+        android:key="ui.storage"
+        android:title="@string/preferences_ui">
+
+        <Preference
+            android:defaultValue="0"
+            android:key="ui.rescan"
+            android:persistent="false"
+            android:summary="@string/pref_ui_rescan_all_summary"
+            android:title="@string/pref_ui_rescan_all_title" />
+
+        <Preference
+            android:key="ui.clear_unavailable"
+            android:persistent="false"
+            android:summary="@string/pref_ui_clear_unavailable_summary"
+            android:title="@string/pref_ui_clear_unavailable_title" />
+
+        <Preference
+            android:key="ui.clearcache"
+            android:persistent="false"
+            android:summary="@string/pref_ui_reset_cache_summary"
+            android:title="@string/pref_ui_reset_cache_title" />
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="@string/preferences_theme">
+
+        <ListPreference
+            android:defaultValue="1"
+            android:entries="@array/pref_theme_selection_titles"
+            android:entryValues="@array/pref_theme_selection_values"
+            android:key="ui.theme_selection"
+            android:negativeButtonText="@null"
+            android:positiveButtonText="@null"
+            android:title="@string/pref_title_theme_selection" />
+
+    </PreferenceCategory>
+</PreferenceScreen>
