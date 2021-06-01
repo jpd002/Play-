@@ -80,7 +80,6 @@ void CSIF::Reset()
 	m_packetProcessed = true;
 
 	m_callReplies.clear();
-	m_bindReplies.clear();
 
 	DeleteModules();
 }
@@ -101,13 +100,6 @@ void CSIF::SetCmdBuffer(uint32 bufferAddress, uint32 size)
 void CSIF::RegisterModule(uint32 moduleId, CSifModule* module)
 {
 	m_modules[moduleId] = module;
-
-	auto replyIterator(m_bindReplies.find(moduleId));
-	if(replyIterator != m_bindReplies.end())
-	{
-		SendPacket(&(replyIterator->second), sizeof(SIFRPCREQUESTEND));
-		m_bindReplies.erase(replyIterator);
-	}
 }
 
 bool CSIF::IsModuleRegistered(uint32 moduleId) const
@@ -276,7 +268,6 @@ void CSIF::LoadState(Framework::CZipArchiveReader& archive)
 	m_packetQueue = LoadPacketQueue(archive);
 
 	m_callReplies = LoadCallReplies(archive);
-	m_bindReplies = LoadBindReplies(archive);
 }
 
 void CSIF::SaveState(Framework::CZipArchiveWriter& archive)
@@ -296,7 +287,6 @@ void CSIF::SaveState(Framework::CZipArchiveWriter& archive)
 	archive.InsertFile(new CMemoryStateFile(STATE_PACKETQUEUE, m_packetQueue.data(), m_packetQueue.size()));
 
 	SaveCallReplies(archive);
-	SaveBindReplies(archive);
 }
 
 void CSIF::SaveCallReplies(Framework::CZipArchiveWriter& archive)
@@ -314,22 +304,6 @@ void CSIF::SaveCallReplies(Framework::CZipArchiveWriter& archive)
 		callRepliesFile->InsertStruct(replyId.c_str(), replyStruct);
 	}
 	archive.InsertFile(callRepliesFile);
-}
-
-void CSIF::SaveBindReplies(Framework::CZipArchiveWriter& archive)
-{
-	auto bindRepliesFile = new CStructCollectionStateFile(STATE_BIND_REPLIES_XML);
-	for(const auto& bindReplyIterator : m_bindReplies)
-	{
-		const auto& bindReply(bindReplyIterator.second);
-		auto replyId = string_format("%08x", bindReplyIterator.first);
-		CStructFile replyStruct;
-		{
-			SaveState_RequestEnd(replyStruct, bindReply);
-		}
-		bindRepliesFile->InsertStruct(replyId.c_str(), replyStruct);
-	}
-	archive.InsertFile(bindRepliesFile);
 }
 
 CSIF::PacketQueue CSIF::LoadPacketQueue(Framework::CZipArchiveReader& archive)
@@ -361,21 +335,6 @@ CSIF::CallReplyMap CSIF::LoadCallReplies(Framework::CZipArchiveReader& archive)
 		callReplies[replyId] = callReply;
 	}
 	return callReplies;
-}
-
-CSIF::BindReplyMap CSIF::LoadBindReplies(Framework::CZipArchiveReader& archive)
-{
-	BindReplyMap bindReplies;
-	auto bindRepliesFile = CStructCollectionStateFile(*archive.BeginReadFile(STATE_BIND_REPLIES_XML));
-	for(const auto& structFilePair : bindRepliesFile)
-	{
-		const auto& structFile(structFilePair.second);
-		uint32 replyId = lexical_cast_hex<std::string>(structFilePair.first);
-		SIFRPCREQUESTEND bindReply;
-		LoadState_RequestEnd(structFile, bindReply);
-		bindReplies[replyId] = bindReply;
-	}
-	return bindReplies;
 }
 
 void CSIF::SaveState_Header(const std::string& prefix, CStructFile& file, const SIFCMDHEADER& packetHeader)
@@ -525,8 +484,9 @@ void CSIF::Cmd_Bind(const SIFCMDHEADER* hdr)
 	}
 	else
 	{
-		assert(m_bindReplies.find(bind->serverId) == m_bindReplies.end());
-		m_bindReplies[bind->serverId] = rend;
+		// Binding failed, as module was not loaded in time
+		rend.serverDataAddr = 0;
+		SendPacket(&rend, sizeof(SIFRPCREQUESTEND));
 	}
 }
 
