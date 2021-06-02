@@ -243,16 +243,19 @@ namespace VUShared
 
 	void ReflOpAffNone(VUINSTRUCTION*, CMIPS*, uint32, uint32, OPERANDSET&);
 
-	void ReflOpAffWrARdFsFt(VUINSTRUCTION*, CMIPS*, uint32, uint32, OPERANDSET&);
-	void ReflOpAffWrARdFsFtBc(VUINSTRUCTION*, CMIPS*, uint32, uint32, OPERANDSET&);
-	void ReflOpAffWrARdFsI(VUINSTRUCTION*, CMIPS*, uint32, uint32, OPERANDSET&);
-	void ReflOpAffWrARdFsQ(VUINSTRUCTION*, CMIPS*, uint32, uint32, OPERANDSET&);
+	void ReflOpAffWrAMfRdFsFt(VUINSTRUCTION*, CMIPS*, uint32, uint32, OPERANDSET&);
+	void ReflOpAffWrAMfRdFsFtBc(VUINSTRUCTION*, CMIPS*, uint32, uint32, OPERANDSET&);
+	void ReflOpAffWrAMfRdFsI(VUINSTRUCTION*, CMIPS*, uint32, uint32, OPERANDSET&);
+	void ReflOpAffWrAMfRdFsQ(VUINSTRUCTION*, CMIPS*, uint32, uint32, OPERANDSET&);
 
 	void ReflOpAffWrCfRdFsFt(VUINSTRUCTION*, CMIPS*, uint32, uint32, OPERANDSET&);
 
 	void ReflOpAffWrFdRdFsFt(VUINSTRUCTION*, CMIPS*, uint32, uint32, OPERANDSET&);
 	void ReflOpAffWrFdRdFsI(VUINSTRUCTION*, CMIPS*, uint32, uint32, OPERANDSET&);
-	void ReflOpAffWrFdRdFsQ(VUINSTRUCTION*, CMIPS*, uint32, uint32, OPERANDSET&);
+
+	void ReflOpAffWrFdMfRdFsFt(VUINSTRUCTION*, CMIPS*, uint32, uint32, OPERANDSET&);
+	void ReflOpAffWrFdMfRdFsI(VUINSTRUCTION*, CMIPS*, uint32, uint32, OPERANDSET&);
+	void ReflOpAffWrFdMfRdFsQ(VUINSTRUCTION*, CMIPS*, uint32, uint32, OPERANDSET&);
 
 	void ReflOpAffWrFtRdFs(VUINSTRUCTION*, CMIPS*, uint32, uint32, OPERANDSET&);
 
