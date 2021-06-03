@@ -115,6 +115,7 @@ void CGSH_OpenGL::ResetImpl()
 	PalCache_Flush();
 	m_framebuffers.clear();
 	m_depthbuffers.clear();
+	m_bitmaps.clear();
 	m_vertexBuffer.clear();
 	m_renderState.isValid = false;
 	m_validGlState = 0;
@@ -254,6 +255,7 @@ void CGSH_OpenGL::NotifyPreferencesChangedImpl()
 	PalCache_Flush();
 	m_framebuffers.clear();
 	m_depthbuffers.clear();
+	m_bitmaps.clear();
 	CGSHandler::NotifyPreferencesChangedImpl();
 }
 
@@ -1328,6 +1330,26 @@ CGSH_OpenGL::DepthbufferPtr CGSH_OpenGL::FindDepthbuffer(const ZBUF& zbuf, const
 	                                        });
 
 	return (depthbufferIterator != std::end(m_depthbuffers)) ? *(depthbufferIterator) : DepthbufferPtr();
+}
+
+CGSH_OpenGL::BitmapPtr CGSH_OpenGL::FindOrCreateBitmap(const FramebufferPtr& framebuffer, uint32 scale)
+{
+	auto bitmapIterator = std::find_if(std::begin(m_bitmaps), std::end(m_bitmaps),
+	                                   [&](const BitmapPtr& bitmap) {
+		                                   return (
+		                                       framebuffer->m_width * scale == bitmap->GetWidth() &&
+		                                       framebuffer->m_height * scale == bitmap->GetHeight() &&
+		                                       bitmap->GetBitsPerPixel() == 32);
+	                                   });
+	if(bitmapIterator != std::end(m_bitmaps))
+	{
+		return *bitmapIterator;
+	}
+
+	auto sharedPtr = std::make_shared<Framework::CBitmap>(framebuffer->m_width * scale, framebuffer->m_height * scale, 32);
+	m_bitmaps.push_back(sharedPtr);
+
+	return sharedPtr;
 }
 
 /////////////////////////////////////////////////////////////
