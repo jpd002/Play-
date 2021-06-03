@@ -1352,6 +1352,15 @@ CGSH_OpenGL::BitmapPtr CGSH_OpenGL::FindOrCreateBitmap(const FramebufferPtr& fra
 	return sharedPtr;
 }
 
+CGSH_OpenGL::FramebufferPtr CGSH_OpenGL::FindFramebufferAtPtr(uint32 ptr, uint32 psm) const
+{
+	auto framebufferIterator = std::find_if(m_framebuffers.begin(), m_framebuffers.end(),
+	                                        [ptr, psm](const FramebufferPtr& framebuffer) {
+		                                        return framebuffer->m_psm == psm && framebuffer->m_basePtr == ptr;
+	                                        });
+	return (framebufferIterator != std::end(m_framebuffers)) ? *(framebufferIterator) : FramebufferPtr();
+}
+
 /////////////////////////////////////////////////////////////
 // Individual Primitives Implementations
 /////////////////////////////////////////////////////////////
@@ -1672,6 +1681,15 @@ void CGSH_OpenGL::FlushVertexBuffer()
 	}
 	DoRenderPass();
 	m_vertexBuffer.clear();
+
+	auto handle = m_renderState.framebufferHandle;
+	auto framebufferIterator = std::find_if(m_framebuffers.begin(), m_framebuffers.end(),
+	                                        [handle](const FramebufferPtr& framebuffer) {
+		                                        return (framebuffer->m_framebuffer == handle);
+	                                        });
+	const auto& framebuffer = (*framebufferIterator);
+
+	framebuffer->copiedToRam = false;
 }
 
 void CGSH_OpenGL::DoRenderPass()
@@ -1924,6 +1942,90 @@ void CGSH_OpenGL::WriteRegisterImpl(uint8 nRegister, uint64 nData)
 		VertexKick(nRegister, nData);
 		break;
 	}
+}
+
+void CGSH_OpenGL::SyncCLUT(const TEX0& tex0)
+{
+	if(!ProcessCLD(tex0)) return;
+
+	// If we use a CLUT based texture, its possible that the memory
+	// referenced is inside a framebuffer. In that case, we need
+	// to persist the framebuffer content into the GS RAM.
+
+	if(CGsPixelFormats::IsPsmIDTEX(tex0.nPsm))
+	{
+		const uint32 ptr = tex0.GetCLUTPtr();
+
+		FramebufferPtr framebuffer = FindFramebufferAtPtr(ptr, PSMCT32);
+		if(framebuffer)
+		{
+			WriteFramebufferToMemory(framebuffer, true);
+		}
+	}
+
+	CGSHandler::SyncCLUT(tex0);
+}
+
+void CGSH_OpenGL::WriteFramebufferToMemory(const FramebufferPtr& framebuffer, bool downSample)
+{
+	// If the framebuffer has already been persisted to RAM,
+	// we don't need to do that again.
+	if(framebuffer->copiedToRam)
+	{
+		return;
+	}
+
+	FramebufferPtr targetFramebuffer = framebuffer;
+	uint32 scale = m_fbScale;
+
+	if(downSample && m_fbScale != 1)
+	{
+		auto dstFramebuffer = FramebufferPtr(new CFramebuffer(
+		    framebuffer->m_basePtr,
+		    framebuffer->m_width,
+		    framebuffer->m_height,
+		    framebuffer->m_psm,
+		    1,
+		    m_multisampleEnabled));
+		PopulateFramebuffer(dstFramebuffer);
+
+		glBindFramebuffer(GL_FRAMEBUFFER, dstFramebuffer->m_framebuffer);
+		glBindFramebuffer(GL_READ_FRAMEBUFFER, framebuffer->m_framebuffer);
+
+		//Copy buffers
+		glBlitFramebuffer(
+		    0, 0, framebuffer->m_width * m_fbScale, framebuffer->m_height * m_fbScale,
+		    0, 0, dstFramebuffer->m_width, dstFramebuffer->m_height,
+		    GL_COLOR_BUFFER_BIT, GL_NEAREST);
+		CHECKGLERROR();
+		glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+
+		targetFramebuffer = dstFramebuffer;
+		scale = 1;
+	}
+
+	glBindFramebuffer(GL_FRAMEBUFFER, targetFramebuffer->m_framebuffer);
+
+	// ----------------------
+
+	// Read data into ram
+
+	auto imgbuffer = FindOrCreateBitmap(targetFramebuffer, scale);
+	glReadPixels(0, 0, targetFramebuffer->m_width * scale, targetFramebuffer->m_height * scale, GL_RGBA, GL_UNSIGNED_BYTE, imgbuffer->GetPixels());
+
+	CGsPixelFormats::CPixelIndexorPSMCT32 indexor(m_pRAM, targetFramebuffer->m_basePtr, targetFramebuffer->m_width / 64);
+	for(uint32 y = 0; y < targetFramebuffer->m_height; y++)
+	{
+		for(uint32 x = 0; x < targetFramebuffer->m_width; x++)
+		{
+			auto pixel = imgbuffer->GetPixel(x * scale, y * scale);
+			indexor.SetPixel(x, y, MakeColor(pixel.r, pixel.g, pixel.b, pixel.a));
+		}
+	}
+
+	framebuffer->copiedToRam = true;
+
+	glBindFramebuffer(GL_FRAMEBUFFER, m_renderState.framebufferHandle);
 }
 
 void CGSH_OpenGL::VertexKick(uint8 nRegister, uint64 nValue)
