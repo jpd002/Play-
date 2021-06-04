@@ -10,7 +10,7 @@ import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.os.*;
-import android.preference.PreferenceManager;
+import androidx.preference.PreferenceManager;
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -39,6 +39,8 @@ import static com.virtualapplications.play.BootablesInterop.setLastBootedTime;
 import static com.virtualapplications.play.BootablesInterop.SORT_RECENT;
 import static com.virtualapplications.play.BootablesInterop.SORT_HOMEBREW;
 import static com.virtualapplications.play.BootablesInterop.SORT_NONE;
+import static com.virtualapplications.play.Constants.PREF_UI_CLEAR_UNAVAILABLE;
+import static com.virtualapplications.play.Constants.PREF_UI_RESCAN;
 import static com.virtualapplications.play.ThemeManager.getThemeColor;
 
 public class MainActivity extends AppCompatActivity implements NavigationDrawerFragment.NavigationDrawerCallbacks, SharedPreferences.OnSharedPreferenceChangeListener
@@ -49,6 +51,7 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 	private List<Bootable> currentGames = new ArrayList<>();
 	private int sortMethod = SORT_NONE;
 	private String navSubtitle;
+	private Toolbar toolbar;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -58,7 +61,7 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 
 		currentOrientation = getResources().getConfiguration().orientation;
 
-		ThemeManager.applyTheme(this);
+		ThemeManager.applyTheme(this, toolbar);
 		if(isAndroidTV(this))
 		{
 			setContentView(R.layout.tele);
@@ -71,7 +74,7 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 //		if (isAndroidTV(this)) {
 //			// Load the menus for Android TV
 //		} else {
-		Toolbar toolbar = (Toolbar)findViewById(R.id.my_awesome_toolbar);
+		toolbar = findViewById(R.id.main_toolbar);
 		setSupportActionBar(toolbar);
 		toolbar.bringToFront();
 		setUIcolor();
@@ -257,7 +260,7 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 	{
 		if(requestCode == 0)
 		{
-			ThemeManager.applyTheme(this);
+			ThemeManager.applyTheme(this, toolbar);
 			setUIcolor();
 		}
 
@@ -384,19 +387,19 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 	@Override
 	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key)
 	{
-		if(key.equals(SettingsActivity.RESCAN))
+		if(key.equals(PREF_UI_RESCAN))
 		{
-			if(sharedPreferences.getBoolean(SettingsActivity.RESCAN, false))
+			if(sharedPreferences.getBoolean(PREF_UI_RESCAN, false))
 			{
-				sharedPreferences.edit().putBoolean(SettingsActivity.RESCAN, false).apply();
+				sharedPreferences.edit().putBoolean(PREF_UI_RESCAN, false).apply();
 				prepareFileListView(false, true);
 			}
 		}
-		else if(key.equals(SettingsActivity.CLEAR_UNAVAILABLE))
+		else if(key.equals(PREF_UI_CLEAR_UNAVAILABLE))
 		{
-			if(sharedPreferences.getBoolean(SettingsActivity.CLEAR_UNAVAILABLE, false))
+			if(sharedPreferences.getBoolean(PREF_UI_CLEAR_UNAVAILABLE, false))
 			{
-				sharedPreferences.edit().putBoolean(SettingsActivity.CLEAR_UNAVAILABLE, false).apply();
+				sharedPreferences.edit().putBoolean(PREF_UI_CLEAR_UNAVAILABLE, false).apply();
 
 				PurgeInexistingFiles();
 

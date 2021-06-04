@@ -11,10 +11,11 @@ import android.widget.Toast;
 
 import java.util.*;
 
+import static com.virtualapplications.play.Constants.PREF_EMU_GENERAL_SHOWFPS;
+import static com.virtualapplications.play.Constants.PREF_EMU_GENERAL_SHOWVIRTUALPAD;
+
 public class EmulatorActivity extends Activity
 {
-	private static final String PREFERENCE_UI_SHOWFPS = "ui.showfps";
-	private static final String PREFERENCE_UI_SHOWVIRTUALPAD = "ui.showvirtualpad";
 	private SurfaceView _renderView;
 	private Timer _statsTimer = new Timer();
 	private Handler _statsTimerHandler;
@@ -27,8 +28,8 @@ public class EmulatorActivity extends Activity
 
 	public static void RegisterPreferences()
 	{
-		SettingsManager.registerPreferenceBoolean(PREFERENCE_UI_SHOWFPS, false);
-		SettingsManager.registerPreferenceBoolean(PREFERENCE_UI_SHOWVIRTUALPAD, true);
+		SettingsManager.registerPreferenceBoolean(PREF_EMU_GENERAL_SHOWFPS, false);
+		SettingsManager.registerPreferenceBoolean(PREF_EMU_GENERAL_SHOWVIRTUALPAD, true);
 	}
 
 	@Override
@@ -37,7 +38,7 @@ public class EmulatorActivity extends Activity
 		super.onCreate(savedInstanceState);
 		//Log.w(Constants.TAG, "EmulatorActivity - onCreate");
 
-		ThemeManager.applyTheme(this);
+		ThemeManager.applyTheme(this, null);
 		setContentView(R.layout.emulator);
 
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
@@ -115,14 +116,14 @@ public class EmulatorActivity extends Activity
 		_fpsTextView = (TextView)findViewById(R.id.emulator_fps);
 		_profileTextView = (TextView)findViewById(R.id.emulator_profile);
 
-		if(!SettingsManager.getPreferenceBoolean(PREFERENCE_UI_SHOWVIRTUALPAD))
+		if(!SettingsManager.getPreferenceBoolean(PREF_EMU_GENERAL_SHOWVIRTUALPAD))
 		{
 			View virtualPadView = (View)findViewById(R.id.emulator_virtualpad);
 			virtualPadView.setVisibility(View.GONE);
 		}
 
 		if(
-				SettingsManager.getPreferenceBoolean(PREFERENCE_UI_SHOWFPS) ||
+				SettingsManager.getPreferenceBoolean(PREF_EMU_GENERAL_SHOWFPS) ||
 						StatsManager.isProfiling()
 				)
 		{

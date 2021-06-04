@@ -1,262 +1,92 @@
 package com.virtualapplications.play;
 
 import android.content.SharedPreferences;
-import android.os.*;
-import android.preference.*;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.widget.*;
+import android.os.Bundle;
+import android.view.MenuItem;
 
-import java.io.File;
-import java.util.*;
-
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.preference.PreferenceFragmentCompat;
+import androidx.preference.PreferenceManager;
 
-public class SettingsActivity extends PreferenceActivity implements SharedPreferences.OnSharedPreferenceChangeListener
+import static com.virtualapplications.play.Constants.PREF_UI_THEME_SELECTION;
+
+public class SettingsActivity extends AppCompatActivity
+		implements SharedPreferences.OnSharedPreferenceChangeListener
 {
-	public static final String RESCAN = "ui.rescan";
-	public static final String CLEAR_UNAVAILABLE = "ui.clear_unavailable";
-	private static final String UI_STORAGE = "ui.storage";
-	private static final String CLEAR_CACHE = "ui.clearcache";
+	private SharedPreferences prefs;
+	private Toolbar toolbar;
 
 	@Override
-	public void onCreate(Bundle savedInstanceState)
+	public void onCreate(final Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
-		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+		prefs = PreferenceManager.getDefaultSharedPreferences(this);
 		prefs.registerOnSharedPreferenceChangeListener(this);
+
+		setContentView(R.layout.activity_settings);
+
+		toolbar = findViewById(R.id.settings_toolbar);
+		setSupportActionBar(toolbar);
+		toolbar.setNavigationOnClickListener(v -> onBackPressed());
+
+		if(savedInstanceState == null)
+		{
+			getSupportFragmentManager().beginTransaction()
+					.replace(R.id.settings_fragment_holder, new MainSettingsFragment())
+					.commit();
+		}
 	}
 
 	@Override
 	public void onDestroy()
 	{
-		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
 		prefs.unregisterOnSharedPreferenceChangeListener(this);
 		super.onDestroy();
 		SettingsManager.save();
 	}
 
 	@Override
-	public void onBuildHeaders(List<Header> target)
+	public boolean onOptionsItemSelected(final MenuItem item)
 	{
-		loadHeadersFromResource(R.xml.settings_headers, target);
-	}
-
-	@Override
-	protected void onPostCreate(Bundle savedInstanceState)
-	{
-		super.onPostCreate(savedInstanceState);
-		LinearLayout root = (LinearLayout)findViewById(android.R.id.list).getParent().getParent().getParent();
-		Toolbar bar = (Toolbar)LayoutInflater.from(this).inflate(R.layout.settings_toolbar, null, false);
-		bar.setNavigationOnClickListener(new View.OnClickListener()
+		final int id = item.getItemId();
+		if(id == android.R.id.home)
 		{
-			@Override
-			public void onClick(View v)
+			if(getSupportFragmentManager().getBackStackEntryCount() == 0)
 			{
-				onBackPressed();
+				finish();
 			}
-		});
-		root.addView(bar, 0);
+			else
+			{
+				getSupportFragmentManager().popBackStack();
+			}
+		}
+
+		return super.onOptionsItemSelected(item);
 	}
 
 	@Override
 	protected void onResume()
 	{
 		super.onResume();
-		ThemeManager.applyTheme(this);
+		ThemeManager.applyTheme(this, toolbar);
 	}
 
 	@Override
-	protected boolean isValidFragment(String fragmentName)
+	public void onSharedPreferenceChanged(final SharedPreferences prefs, final String key)
 	{
-		return true;
-	}
-
-	@Override
-	public void onSharedPreferenceChanged(SharedPreferences prefs, String key)
-	{
-		if(key.equals(ThemeManager.THEME_SELECTION))
+		if(key.equals(PREF_UI_THEME_SELECTION))
 		{
-			ThemeManager.applyTheme(this);
+			ThemeManager.applyTheme(this, toolbar);
 		}
 	}
 
-	public static class EmulatorSettingsFragment extends PreferenceFragment
+	public static class MainSettingsFragment extends PreferenceFragmentCompat
 	{
 		@Override
-		public void onCreate(Bundle savedInstanceState)
+		public void onCreatePreferences(final Bundle savedInstanceState, final String rootKey)
 		{
-			super.onCreate(savedInstanceState);
-			addPreferencesFromResource(R.xml.settings_emu_fragment);
-			writeToPreferences(getPreferenceScreen());
-			ListPreference pref = (ListPreference)findPreference("renderer.opengl.resfactor");
-			pref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener()
-			{
-				@Override
-				public boolean onPreferenceChange(Preference preference, Object value)
-				{
-					String stringValue = value.toString();
-					ListPreference listBoxPref = (ListPreference)preference;
-					listBoxPref.setSummary(stringValue + "x");
-					return true;
-				}
-			});
-			pref.setSummary(pref.getEntry());
-			ListPreference presentationmode_pref = (ListPreference)findPreference("renderer.presentationmode");
-			presentationmode_pref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener()
-			{
-				@Override
-				public boolean onPreferenceChange(Preference preference, Object value)
-				{
-					int index = Integer.parseInt(value.toString());
-					ListPreference listBoxPref = (ListPreference)preference;
-					listBoxPref.setSummary(listBoxPref.getEntries()[index]);
-					return true;
-				}
-			});
-			presentationmode_pref.setSummary(presentationmode_pref.getEntry());
-
-			ListPreference spublockcount_pref = (ListPreference)findPreference("audio.spublockcount");
-			spublockcount_pref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener()
-			{
-				@Override
-				public boolean onPreferenceChange(Preference preference, Object value)
-				{
-					preference.setSummary(value.toString());
-					return true;
-				}
-			});
-			spublockcount_pref.setSummary(spublockcount_pref.getEntry());
-		}
-
-		@Override
-		public void onDestroy()
-		{
-			readFromPreferences(getPreferenceScreen());
-			super.onDestroy();
-		}
-
-		private void readFromPreferences(PreferenceGroup prefGroup)
-		{
-			for(int i = 0; i < prefGroup.getPreferenceCount(); i++)
-			{
-				Preference pref = prefGroup.getPreference(i);
-				if(pref instanceof CheckBoxPreference)
-				{
-					CheckBoxPreference checkBoxPref = (CheckBoxPreference)pref;
-					SettingsManager.setPreferenceBoolean(checkBoxPref.getKey(), checkBoxPref.isChecked());
-				}
-				else if(pref instanceof ListPreference)
-				{
-					ListPreference listBoxPref = (ListPreference)pref;
-					int val = Integer.parseInt(listBoxPref.getValue());
-					SettingsManager.setPreferenceInteger(listBoxPref.getKey(), val);
-				}
-				else if(pref instanceof PreferenceGroup)
-				{
-					readFromPreferences((PreferenceGroup)pref);
-				}
-			}
-		}
-
-		private void writeToPreferences(PreferenceGroup prefGroup)
-		{
-			for(int i = 0; i < prefGroup.getPreferenceCount(); i++)
-			{
-				Preference pref = prefGroup.getPreference(i);
-				if(pref instanceof CheckBoxPreference)
-				{
-					CheckBoxPreference checkBoxPref = (CheckBoxPreference)pref;
-					checkBoxPref.setChecked(SettingsManager.getPreferenceBoolean(checkBoxPref.getKey()));
-				}
-				else if(pref instanceof ListPreference)
-				{
-					ListPreference listBoxPref = (ListPreference)pref;
-					String val = String.valueOf(SettingsManager.getPreferenceInteger(listBoxPref.getKey()));
-					listBoxPref.setValue(val);
-				}
-				else if(pref instanceof PreferenceGroup)
-				{
-					writeToPreferences((PreferenceGroup)pref);
-				}
-			}
-		}
-	}
-
-	public static class UISettingsFragment extends PreferenceFragment implements Preference.OnPreferenceClickListener
-	{
-		@Override
-		public void onCreate(Bundle savedInstanceState)
-		{
-			super.onCreate(savedInstanceState);
-
-			addPreferencesFromResource(R.xml.settings_ui_fragment);
-
-			getPreferenceManager().findPreference(RESCAN).setOnPreferenceClickListener(this);
-			getPreferenceManager().findPreference(CLEAR_UNAVAILABLE).setOnPreferenceClickListener(this);
-			getPreferenceManager().findPreference(CLEAR_CACHE).setOnPreferenceClickListener(this);
-			ListPreference pref = (ListPreference)findPreference("ui.theme_selection");
-			pref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener()
-			{
-				@Override
-				public boolean onPreferenceChange(Preference preference, Object value)
-				{
-					int index = Integer.parseInt(value.toString());
-					ListPreference listBoxPref = (ListPreference)preference;
-
-					listBoxPref.setSummary(listBoxPref.getEntries()[index]);
-					return true;
-				}
-			});
-			pref.setSummary(pref.getEntry());
-		}
-
-		@Override
-		public void onDestroy()
-		{
-			super.onDestroy();
-		}
-
-		private void clearCoverCache()
-		{
-			File dir = new File(getActivity().getExternalFilesDir(null), "covers");
-
-			File[] files = dir.listFiles();
-			if(files == null) return;
-
-			for(File file : files)
-			{
-				if(!file.isDirectory())
-				{
-					file.delete();
-				}
-			}
-		}
-
-		@Override
-		public boolean onPreferenceClick(Preference preference)
-		{
-			final PreferenceCategory preferenceCategory = (PreferenceCategory)findPreference(UI_STORAGE);
-			switch(preference.getKey())
-			{
-			case RESCAN:
-				preference.getEditor().putBoolean(RESCAN, true).apply();
-				preferenceCategory.removePreference(preference);
-				Toast.makeText(getActivity(), "Rescanning storage.", Toast.LENGTH_SHORT).show();
-				return true;
-			case CLEAR_UNAVAILABLE:
-				preference.getEditor().putBoolean(CLEAR_UNAVAILABLE, true).apply();
-				preferenceCategory.removePreference(preference);
-				Toast.makeText(getActivity(), "Removing unavailable games.", Toast.LENGTH_SHORT).show();
-				return true;
-			case CLEAR_CACHE:
-				clearCoverCache();
-				preferenceCategory.removePreference(preference);
-				Toast.makeText(getActivity(), "Clearing cover cache.", Toast.LENGTH_SHORT).show();
-				return true;
-			default:
-				return false;
-			}
+			addPreferencesFromResource(R.xml.preferences);
 		}
 	}
 }

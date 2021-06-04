@@ -1,0 +1,14 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <Preference
+        android:fragment="com.virtualapplications.play.settings.EmulatorSettingsFragment"
+        android:title="@string/preferences_screen_emu"
+        app:iconSpaceReserved="false" />
+
+    <Preference
+        android:fragment="com.virtualapplications.play.settings.UISettingsFragment"
+        android:title="@string/preferences_screen_ui"
+        app:iconSpaceReserved="false" />
+
+</PreferenceScreen>
