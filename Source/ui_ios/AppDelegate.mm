@@ -3,6 +3,8 @@
 #include "../gs/GSH_OpenGL/GSH_OpenGL.h"
 #include "DebuggerSimulator.h"
 
+@import AltKit;
+
 @interface AppDelegate ()
 
 @end
