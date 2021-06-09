@@ -327,8 +327,8 @@ void CSubSystem::CountTicks(int ticks)
 	m_dmaUpdateTicks += ticks;
 	if(m_dmaUpdateTicks >= g_dmaUpdateDelay)
 	{
-		m_dmac.ResumeDma(4);
-		m_dmac.ResumeDma(8);
+		m_dmac.ResumeDma(Iop::CDmac::CHANNEL_SPU0);
+		m_dmac.ResumeDma(Iop::CDmac::CHANNEL_SPU1);
 		m_dmaUpdateTicks -= g_dmaUpdateDelay;
 	}
 	m_spuIrqUpdateTicks += ticks;

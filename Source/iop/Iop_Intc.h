@@ -30,12 +30,14 @@ namespace Iop
 			LINE_USB = 0x16,
 			LINE_ILINK = 0x18,
 			LINE_DMA_BASE = 0x20,
-			LINE_DMA2 = 0x22,
-			LINE_DMA4 = 0x24, //spu2 core0
-			LINE_DMA8 = 0x28, //spu2 core1
+			LINE_DMA_SIF2 = 0x22,
+			LINE_DMA_SPU0 = 0x24,
+			LINE_DMA_SPU1 = 0x28,
 			LINE_DMA_DEV9 = 0x29,
-			LINE_DMA9 = 0x2A,  //sif0
-			LINE_DMA10 = 0x2B, //sif1
+			LINE_DMA_SIF0 = 0x2A,
+			LINE_DMA_SIF1 = 0x2B,
+			LINE_DMA_SIO2in = 0x2C,
+			LINE_DMA_SIO2out = 0x2D,
 			LINES_MAX
 		};
 

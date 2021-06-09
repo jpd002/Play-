@@ -43,6 +43,7 @@ static uint32 GetChannelBase(uint32 channel)
 	case CDmac::CHANNEL_SIO2out:
 		return CDmac::CH12_BASE;
 	default:
+		CLog::GetInstance().Warn(LOGNAME, "Unknown channel (%d).\r\n", channel);
 		assert(false);
 		return INVALID_CHANNEL_BASE;
 	}
@@ -191,7 +192,11 @@ uint32 CDmacman::DmacRequest(CMIPS& context, uint32 channel, uint32 addr, uint32
 	assert(count < 0x10000);
 
 	uint32 channelBase = GetChannelBase(channel);
-	if(channelBase == INVALID_CHANNEL_BASE) return 0;
+	if(channelBase == INVALID_CHANNEL_BASE)
+	{
+		CLog::GetInstance().Warn(LOGNAME, "Received " FUNCTION_DMACREQUEST " for invalid channel %d\r\n", channel);
+		return 0;
+	}
 
 	uint32 bcr = size | (count << 16);
 	context.m_pMemoryMap->SetWord(channelBase + Dmac::CChannel::REG_MADR, addr);
@@ -209,7 +214,11 @@ void CDmacman::DmacTransfer(CMIPS& context, uint32 channel)
 	chcr.dr = 1; //Direction?
 
 	uint32 channelBase = GetChannelBase(channel);
-	if(channelBase == INVALID_CHANNEL_BASE) return;
+	if(channelBase == INVALID_CHANNEL_BASE)
+	{
+		CLog::GetInstance().Warn(LOGNAME, "Received " FUNCTION_DMACTRANSFER " for invalid channel %d\r\n", channel);
+		return;
+	}
 
 	context.m_pMemoryMap->SetWord(channelBase + Dmac::CChannel::REG_CHCR, chcr);
 }
