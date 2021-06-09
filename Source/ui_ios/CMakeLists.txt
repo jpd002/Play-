@@ -73,8 +73,15 @@ if(NOT TARGET ui_shared)
 		${CMAKE_CURRENT_SOURCE_DIR}/../ui_shared
 		${CMAKE_CURRENT_BINARY_DIR}/ui_shared
 	)
-	endif()
+endif()
 list(APPEND PROJECT_LIBS ui_shared)
+
+if(NOT TARGET AltKit)
+	add_subdirectory(
+		${CMAKE_CURRENT_SOURCE_DIR}/../../deps/AltKit
+		${CMAKE_CURRENT_BINARY_DIR}/AltKit
+	)
+endif()
 
 find_library(UIKIT_LIBRARY NAMES UIKit)
 find_library(COREGRAPHICS_LIBRARY NAMES CoreGraphics)

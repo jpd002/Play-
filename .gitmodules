@@ -13,3 +13,6 @@
 [submodule "deps/libchdr"]
 	path = deps/libchdr
 	url = https://github.com/jpd002/libchdr.git
+[submodule "deps/AltKit"]
+	path = deps/AltKit
+	url = https://github.com/jpd002/AltKit.git
