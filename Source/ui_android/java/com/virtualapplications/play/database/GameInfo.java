@@ -11,7 +11,6 @@ import java.net.URLConnection;
 
 import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
@@ -303,33 +302,21 @@ public class GameInfo
 		{
 			public boolean onLongClick(View view)
 			{
-				final AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
-				builder.setCancelable(true);
-				builder.setTitle(gameFile.title);
-				builder.setMessage(gameFile.overview);
-				builder.setNegativeButton("Close",
-						new DialogInterface.OnClickListener()
-						{
-							public void onClick(DialogInterface dialog, int which)
+				new AlertDialog.Builder(mContext)
+						.setCancelable(true)
+						.setTitle(gameFile.title)
+						.setMessage(gameFile.overview)
+						.setNegativeButton(android.R.string.cancel, (dialog, which) ->
+								dialog.dismiss())
+						.setPositiveButton("Launch", (dialog, which) -> {
+							dialog.dismiss();
+							if(mContext instanceof MainActivity)
 							{
-								dialog.dismiss();
-								return;
+								((MainActivity)mContext).launchGame(gameFile);
 							}
-						});
-				builder.setPositiveButton("Launch",
-						new DialogInterface.OnClickListener()
-						{
-							public void onClick(DialogInterface dialog, int which)
-							{
-								dialog.dismiss();
-								if(mContext instanceof MainActivity)
-								{
-									((MainActivity)mContext).launchGame(gameFile);
-								}
-								return;
-							}
-						});
-				builder.create().show();
+						})
+						.create()
+						.show();
 				return true;
 			}
 		};

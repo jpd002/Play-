@@ -11,7 +11,6 @@ import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.os.*;
 import androidx.preference.PreferenceManager;
-import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.appcompat.app.*;
@@ -145,24 +144,14 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 			}
 			else
 			{
-				AlertDialog.Builder builder = new AlertDialog.Builder(this);
-
-				builder.setTitle("Permission Request");
-				builder.setMessage("Please Grant Permission,\nWithout Read/Write Permission, PLAY! wouldn't be able to find your games or save your progress.");
-
-				builder.setPositiveButton("OK",
-						new DialogInterface.OnClickListener()
-						{
-							@Override
-							public void onClick(DialogInterface dialog, int id)
-							{
-								finish();
-							}
-						}
-				);
-
-				AlertDialog dialog = builder.create();
-				dialog.show();
+				new AlertDialog.Builder(this)
+						.setTitle(R.string.permission_dialog_title)
+						.setMessage(R.string.permission_dialog_summary)
+						.setPositiveButton(android.R.string.ok, (dialog, id) ->
+								finish()
+						)
+						.create()
+						.show();
 			}
 			return;
 		}
@@ -197,57 +186,26 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 
 	private void displaySimpleMessage(String title, String message)
 	{
-		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-
-		builder.setTitle(title);
-		builder.setMessage(message);
-
-		builder.setPositiveButton("OK",
-				new DialogInterface.OnClickListener()
-				{
-					@Override
-					public void onClick(DialogInterface dialog, int id)
-					{
-
-					}
-				}
-		);
-
-		AlertDialog dialog = builder.create();
-		dialog.show();
+		new AlertDialog.Builder(this)
+				.setTitle(title)
+				.setMessage(message)
+				.setPositiveButton(android.R.string.ok, null)
+				.create()
+				.show();
 	}
 
 	private void displayGameNotFound(final Bootable game)
 	{
-		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-
-		builder.setTitle(R.string.not_found);
-		builder.setMessage(R.string.game_unavailable);
-
-		builder.setPositiveButton("Yes",
-				new DialogInterface.OnClickListener()
-				{
-					@Override
-					public void onClick(DialogInterface dialog, int id)
-					{
-						UnregisterBootable(game.path);
-						prepareFileListView(false);
-					}
-				}
-		);
-		builder.setNegativeButton("No",
-				new DialogInterface.OnClickListener()
-				{
-					@Override
-					public void onClick(DialogInterface dialog, int id)
-					{
-
-					}
-				}
-		);
-
-		AlertDialog dialog = builder.create();
-		dialog.show();
+		new AlertDialog.Builder(this)
+				.setTitle(R.string.not_found)
+				.setMessage(R.string.game_unavailable)
+				.setPositiveButton(android.R.string.ok, (dialog, id) -> {
+					UnregisterBootable(game.path);
+					prepareFileListView(false);
+				})
+				.setNegativeButton(android.R.string.cancel, null)
+				.create()
+				.show();
 	}
 
 	private void displaySettingsActivity()
