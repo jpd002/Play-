@@ -11,10 +11,6 @@ import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceGroup;
 import androidx.preference.SwitchPreferenceCompat;
 
-import static com.virtualapplications.play.Constants.PREF_EMU_AUDIO_BUFFERSIZE;
-import static com.virtualapplications.play.Constants.PREF_EMU_VIDEO_PRESENTATIONMODE;
-import static com.virtualapplications.play.Constants.PREF_EMU_VIDEO_RESFACTOR;
-
 public class EmulatorSettingsFragment extends PreferenceFragmentCompat
 {
 	@Override
@@ -22,31 +18,6 @@ public class EmulatorSettingsFragment extends PreferenceFragmentCompat
 	{
 		addPreferencesFromResource(R.xml.preferences_emu);
 		writeToPreferences(getPreferenceScreen());
-
-		final ListPreference resFactorPref = findPreference(PREF_EMU_VIDEO_RESFACTOR);
-		resFactorPref.setOnPreferenceChangeListener((preference, value) -> {
-			final String stringValue = value.toString();
-			final ListPreference listBoxPref = (ListPreference)preference;
-			listBoxPref.setSummary(stringValue + "x");
-			return true;
-		});
-		resFactorPref.setSummary(resFactorPref.getEntry());
-
-		final ListPreference presentationModePref = findPreference(PREF_EMU_VIDEO_PRESENTATIONMODE);
-		presentationModePref.setOnPreferenceChangeListener((preference, value) -> {
-			final int index = Integer.parseInt(value.toString());
-			final ListPreference listBoxPref = (ListPreference)preference;
-			listBoxPref.setSummary(listBoxPref.getEntries()[index]);
-			return true;
-		});
-		presentationModePref.setSummary(presentationModePref.getEntry());
-
-		final ListPreference bufferSizePref = findPreference(PREF_EMU_AUDIO_BUFFERSIZE);
-		bufferSizePref.setOnPreferenceChangeListener((preference, value) -> {
-			preference.setSummary(value.toString());
-			return true;
-		});
-		bufferSizePref.setSummary(bufferSizePref.getEntry());
 	}
 
 	@Override
@@ -63,8 +34,8 @@ public class EmulatorSettingsFragment extends PreferenceFragmentCompat
 			final Preference pref = prefGroup.getPreference(i);
 			if(pref instanceof SwitchPreferenceCompat)
 			{
-				final SwitchPreferenceCompat checkBoxPref = (SwitchPreferenceCompat)pref;
-				SettingsManager.setPreferenceBoolean(checkBoxPref.getKey(), checkBoxPref.isChecked());
+				final SwitchPreferenceCompat switchPref = (SwitchPreferenceCompat)pref;
+				SettingsManager.setPreferenceBoolean(switchPref.getKey(), switchPref.isChecked());
 			}
 			else if(pref instanceof ListPreference)
 			{
@@ -86,8 +57,8 @@ public class EmulatorSettingsFragment extends PreferenceFragmentCompat
 			final Preference pref = prefGroup.getPreference(i);
 			if(pref instanceof SwitchPreferenceCompat)
 			{
-				final SwitchPreferenceCompat checkBoxPref = (SwitchPreferenceCompat)pref;
-				checkBoxPref.setChecked(SettingsManager.getPreferenceBoolean(checkBoxPref.getKey()));
+				final SwitchPreferenceCompat switchPref = (SwitchPreferenceCompat)pref;
+				switchPref.setChecked(SettingsManager.getPreferenceBoolean(switchPref.getKey()));
 			}
 			else if(pref instanceof ListPreference)
 			{

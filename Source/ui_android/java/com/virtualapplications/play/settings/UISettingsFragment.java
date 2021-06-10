@@ -8,7 +8,6 @@ import com.virtualapplications.play.R;
 
 import java.io.File;
 
-import androidx.preference.ListPreference;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceCategory;
 import androidx.preference.PreferenceFragmentCompat;
@@ -18,7 +17,6 @@ import static com.virtualapplications.play.Constants.PREF_UI_CATEGORY_STORAGE;
 import static com.virtualapplications.play.Constants.PREF_UI_CLEAR_CACHE;
 import static com.virtualapplications.play.Constants.PREF_UI_CLEAR_UNAVAILABLE;
 import static com.virtualapplications.play.Constants.PREF_UI_RESCAN;
-import static com.virtualapplications.play.Constants.PREF_UI_THEME_SELECTION;
 
 public class UISettingsFragment extends PreferenceFragmentCompat
 		implements Preference.OnPreferenceClickListener
@@ -31,16 +29,6 @@ public class UISettingsFragment extends PreferenceFragmentCompat
 		findPreference(PREF_UI_RESCAN).setOnPreferenceClickListener(this);
 		findPreference(PREF_UI_CLEAR_UNAVAILABLE).setOnPreferenceClickListener(this);
 		findPreference(PREF_UI_CLEAR_CACHE).setOnPreferenceClickListener(this);
-
-		final ListPreference themeSelectionPref = findPreference(PREF_UI_THEME_SELECTION);
-		themeSelectionPref.setOnPreferenceChangeListener((preference, value) -> {
-			final int index = Integer.parseInt(value.toString());
-			final ListPreference listBoxPref = (ListPreference)preference;
-
-			listBoxPref.setSummary(listBoxPref.getEntries()[index]);
-			return true;
-		});
-		themeSelectionPref.setSummary(themeSelectionPref.getEntry());
 	}
 
 	private void clearCoverCache()

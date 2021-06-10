@@ -10,9 +10,6 @@ public class Constants
 	 */
 	public static final String PREF_EMU_GENERAL_SHOWFPS = "ui.showfps";
 	public static final String PREF_EMU_GENERAL_SHOWVIRTUALPAD = "ui.showvirtualpad";
-	public static final String PREF_EMU_VIDEO_RESFACTOR = "renderer.opengl.resfactor";
-	public static final String PREF_EMU_VIDEO_PRESENTATIONMODE = "renderer.presentationmode";
-	public static final String PREF_EMU_AUDIO_BUFFERSIZE = "audio.spublockcount";
 
 	public static final String PREF_UI_CATEGORY_STORAGE = "ui.storage";
 	public static final String PREF_UI_RESCAN = "ui.rescan";
