@@ -507,6 +507,8 @@ void CChannel::ExecuteDestinationChain()
 		m_dmac.m_D8_SADR += 0x10;
 
 		assert(tag.irq == 0);
+		assert(tag.pce == 0);
+		assert((tag.addr & 0x0F) == 0);
 		switch(tag.id)
 		{
 		case DMATAG_DST_CNT:
