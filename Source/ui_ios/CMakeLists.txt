@@ -104,7 +104,6 @@ set(OSX_SOURCES
 	SaveStateViewController.m
 	SettingsListSelectorViewController.mm
 	SettingsViewController.mm
-	SwiftSupport.swift
 	VirtualPadButton.mm
 	VirtualPadItem.mm
 	VirtualPadStick.mm
