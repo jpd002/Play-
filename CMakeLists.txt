@@ -42,7 +42,7 @@ include(PrecompiledHeader)
 
 if(BUILD_LIBRETRO_CORE)
 	if(NOT MSVC)
-		add_compile_options("-fPIC")
+		add_compile_options($<$<NOT:$<COMPILE_LANGUAGE:Swift>>:-fPIC>)
 	endif()
 	add_subdirectory(Source/ui_libretro)
 endif()
