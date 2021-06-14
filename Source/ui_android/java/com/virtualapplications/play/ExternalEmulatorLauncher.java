@@ -2,7 +2,6 @@ package com.virtualapplications.play;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
@@ -51,24 +50,14 @@ public class ExternalEmulatorLauncher extends Activity
 
 	private void displaySimpleMessage(String title, String message)
 	{
-		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-
-		builder.setTitle(title);
-		builder.setMessage(message);
-
-		builder.setPositiveButton("OK",
-				new DialogInterface.OnClickListener()
-				{
-					@Override
-					public void onClick(DialogInterface dialog, int id)
-					{
-						finish();
-					}
-				}
-		)
-				.setCancelable(false);
-
-		AlertDialog dialog = builder.create();
-		dialog.show();
+		new AlertDialog.Builder(this)
+				.setTitle(title)
+				.setMessage(message)
+				.setPositiveButton(android.R.string.ok, (dialog, id) ->
+						finish()
+				)
+				.setCancelable(false)
+				.create()
+				.show();
 	}
 }
