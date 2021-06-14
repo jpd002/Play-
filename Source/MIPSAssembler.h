@@ -2,6 +2,7 @@
 
 #include "Types.h"
 #include <map>
+#include <cstddef>
 
 class CMIPSAssembler
 {
