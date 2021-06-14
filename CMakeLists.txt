@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.15)
 
 # macOS deployment target needs to be set before 'project' to work
 if(APPLE AND NOT TARGET_IOS)

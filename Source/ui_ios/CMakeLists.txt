@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.15)
 
 set(CMAKE_MODULE_PATH
 	${CMAKE_CURRENT_SOURCE_DIR}/../../deps/Dependencies/cmake-modules
@@ -155,7 +155,7 @@ endif()
 
 # Add our Executable
 add_executable(Play MACOSX_BUNDLE ${OSX_SOURCES} ${OSX_HEADERS} ${OSX_RES})
-target_compile_options(Play PRIVATE $<$<COMPILE_LANGUAGE:CXX>:-x objective-c++ -fobjc-arc>)
+target_compile_options(Play PRIVATE $<$<NOT:$<COMPILE_LANGUAGE:Swift>>:-x objective-c++ -fobjc-arc>)
 
 # Probably a better way to set the framework link libraries.
 target_link_libraries(Play ${UIKIT_LIBRARY})
