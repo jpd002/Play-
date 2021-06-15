@@ -3,40 +3,47 @@
     <!-- colorPrimary is used for the default action bar background and to create background gradient -->
     <!-- colorPrimaryDark is used for the status bar and navigation drawer background -->
 
-    <style name="Purple" parent="Theme.AppCompat.NoActionBar">
+    <style name="BaseTheme" parent="Theme.AppCompat.NoActionBar" />
+
+    <style name="Purple" parent="BaseTheme">
         <item name="colorPrimary">#9C27B0</item>
         <item name="colorPrimaryDark">#7B1FA2</item>
+        <item name="colorAccent">#9C27B0</item>
     </style>
 
-    <style name="Pink" parent="Theme.AppCompat.NoActionBar">
+    <style name="Pink" parent="BaseTheme">
         <item name="colorPrimary">#E91E63</item>
         <item name="colorPrimaryDark">#C2185B</item>
+        <item name="colorAccent">#E91E63</item>
     </style>
 
-    <style name="Amber" parent="Theme.AppCompat.NoActionBar">
+    <style name="Amber" parent="BaseTheme">
         <item name="colorPrimary">#FFC107</item>
         <item name="colorPrimaryDark">#FFA000</item>
+        <item name="colorAccent">#FFC107</item>
     </style>
 
-
-    <style name="Blue" parent="Theme.AppCompat.NoActionBar">
+    <style name="Blue" parent="BaseTheme">
         <item name="colorPrimary">#2196f3</item>
         <item name="colorPrimaryDark">#1976d2</item>
+        <item name="colorAccent">#2196f3</item>
     </style>
 
-
-    <style name="Teal" parent="Theme.AppCompat.NoActionBar">
+    <style name="Teal" parent="BaseTheme">
         <item name="colorPrimary">#009688</item>
         <item name="colorPrimaryDark">#00796b</item>
-    </style>
-	
-	<style name="Dark_Purple" parent="Theme.AppCompat.NoActionBar">
-        <item name="colorPrimary">#673AB7</item>
-        <item name="colorPrimaryDark">#512DA8</item>
+        <item name="colorAccent">#009688</item>
     </style>
 
-    <style name="Green" parent="Theme.AppCompat.NoActionBar">
+    <style name="Dark_Purple" parent="BaseTheme">
+        <item name="colorPrimary">#673AB7</item>
+        <item name="colorPrimaryDark">#512DA8</item>
+        <item name="colorAccent">#673AB7</item>
+    </style>
+
+    <style name="Green" parent="BaseTheme">
         <item name="colorPrimary">#4CAF50</item>
         <item name="colorPrimaryDark">#388E3C</item>
+        <item name="colorAccent">#4CAF50</item>
     </style>
 </resources>

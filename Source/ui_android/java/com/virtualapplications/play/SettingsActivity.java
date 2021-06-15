@@ -6,6 +6,7 @@ import android.view.MenuItem;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceManager;
 
@@ -30,12 +31,20 @@ public class SettingsActivity extends AppCompatActivity
 		setSupportActionBar(toolbar);
 		toolbar.setNavigationOnClickListener(v -> onBackPressed());
 
+		setDefaultValues(R.xml.preferences_emu);
+		setDefaultValues(R.xml.preferences_ui);
+
 		if(savedInstanceState == null)
 		{
 			getSupportFragmentManager().beginTransaction()
 					.replace(R.id.settings_fragment_holder, new MainSettingsFragment())
 					.commit();
 		}
+	}
+
+	private void setDefaultValues(final int resId)
+	{
+		PreferenceManager.setDefaultValues(this, resId, true);
 	}
 
 	@Override
@@ -78,6 +87,7 @@ public class SettingsActivity extends AppCompatActivity
 		if(key.equals(PREF_UI_THEME_SELECTION))
 		{
 			ThemeManager.applyTheme(this, toolbar);
+			ActivityCompat.recreate(this);
 		}
 	}
 

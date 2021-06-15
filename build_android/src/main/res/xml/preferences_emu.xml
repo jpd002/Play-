@@ -24,6 +24,17 @@
         android:title="@string/pref_emu_video"
         app:iconSpaceReserved="false">
 
+        <ListPreference
+            android:defaultValue="1"
+            android:entries="@array/pref_emu_video_res_factor_entries"
+            android:entryValues="@array/pref_emu_video_res_factor_values"
+            android:key="renderer.opengl.resfactor"
+            android:negativeButtonText="@null"
+            android:positiveButtonText="@null"
+            android:title="@string/pref_emu_video_res_factor_title"
+            app:iconSpaceReserved="false"
+            app:useSimpleSummaryProvider="true" />
+
         <SwitchPreferenceCompat
             android:key="renderer.widescreen"
             android:persistent="false"
@@ -40,23 +51,14 @@
 
         <ListPreference
             android:defaultValue="1"
-            android:entries="@array/pref_emu_video_res_factor_entries"
-            android:entryValues="@array/pref_emu_video_res_factor_values"
-            android:key="renderer.opengl.resfactor"
-            android:negativeButtonText="@null"
-            android:positiveButtonText="@null"
-            android:title="@string/pref_emu_video_res_factor_title"
-            app:iconSpaceReserved="false" />
-
-        <ListPreference
-            android:defaultValue="1"
             android:entries="@array/pref_emu_video_presentation_mode_entries"
             android:entryValues="@array/pref_emu_video_presentation_mode_values"
             android:key="renderer.presentationmode"
             android:negativeButtonText="@null"
             android:positiveButtonText="@null"
             android:title="@string/pref_emu_video_presentation_mode_title"
-            app:iconSpaceReserved="false" />
+            app:iconSpaceReserved="false"
+            app:useSimpleSummaryProvider="true" />
     </PreferenceCategory>
 
     <PreferenceCategory
@@ -78,7 +80,7 @@
             android:negativeButtonText="@null"
             android:positiveButtonText="@null"
             android:title="@string/pref_emu_audio_spublockcount_title"
-            app:iconSpaceReserved="false" />
-
+            app:iconSpaceReserved="false"
+            app:useSimpleSummaryProvider="true" />
     </PreferenceCategory>
 </PreferenceScreen>
