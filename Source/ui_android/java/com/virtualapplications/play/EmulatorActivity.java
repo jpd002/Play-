@@ -148,6 +148,7 @@ public class EmulatorActivity extends Activity
 			updateOnScreenWidgets();
 			NativeInterop.notifyPreferencesChanged();
 		}
+		super.onActivityResult(requestCode, resultCode, data);
 	}
 
 	@Override
