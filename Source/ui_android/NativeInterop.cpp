@@ -184,6 +184,8 @@ extern "C" JNIEXPORT void JNICALL Java_com_virtualapplications_play_NativeIntero
 
 extern "C" JNIEXPORT void JNICALL Java_com_virtualapplications_play_NativeInterop_notifyPreferencesChanged(JNIEnv* env, jobject obj)
 {
+	SetupSoundHandler();
+	g_virtualMachine->ReloadSpuBlockCount();
 	auto gsHandler = g_virtualMachine->GetGSHandler();
 	if(gsHandler != nullptr)
 	{
