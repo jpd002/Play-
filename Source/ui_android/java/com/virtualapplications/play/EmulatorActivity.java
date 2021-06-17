@@ -146,6 +146,7 @@ public class EmulatorActivity extends Activity
 		if(requestCode == _settingsIntentRequestCode)
 		{
 			updateOnScreenWidgets();
+			NativeInterop.notifyPreferencesChanged();
 		}
 	}
 

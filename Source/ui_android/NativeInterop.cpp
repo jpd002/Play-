@@ -181,3 +181,12 @@ extern "C" JNIEXPORT void JNICALL Java_com_virtualapplications_play_NativeIntero
 		static_cast<CGSH_OpenGLAndroid*>(gsHandler)->SetWindow(nativeWindow);
 	}
 }
+
+extern "C" JNIEXPORT void JNICALL Java_com_virtualapplications_play_NativeInterop_notifyPreferencesChanged(JNIEnv* env, jobject obj)
+{
+	auto gsHandler = g_virtualMachine->GetGSHandler();
+	if(gsHandler != nullptr)
+	{
+		gsHandler->NotifyPreferencesChanged();
+	}
+}
