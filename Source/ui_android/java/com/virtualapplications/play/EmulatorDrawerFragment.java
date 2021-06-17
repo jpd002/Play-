@@ -28,6 +28,8 @@ public class EmulatorDrawerFragment extends Fragment
 		void onSaveStateSelected();
 
 		void onLoadStateSelected();
+
+		void onSettingsSelected();
 	}
 
 	public EmulatorDrawerFragment()
@@ -62,6 +64,7 @@ public class EmulatorDrawerFragment extends Fragment
 								{
 										getString(R.string.emulator_drawer_savestate),
 										getString(R.string.emulator_drawer_loadstate),
+										getString(R.string.main_menu_settings),
 										getString(R.string.emulator_drawer_exit),
 								}
 				)
@@ -117,6 +120,9 @@ public class EmulatorDrawerFragment extends Fragment
 			_eventListener.onLoadStateSelected();
 			break;
 		case 2:
+			_eventListener.onSettingsSelected();
+			break;
+		case 3:
 			_eventListener.onExitSelected();
 			break;
 		}
