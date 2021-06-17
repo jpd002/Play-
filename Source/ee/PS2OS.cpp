@@ -492,6 +492,7 @@ void CPS2OS::LoadExecutableInternal()
 	}
 
 	m_ee.m_State.nPC = header.nEntryPoint;
+	m_ee.m_State.nGPR[CMIPS::A0].nV[0] = header.nEntryPoint;
 
 #ifdef DEBUGGER_INCLUDED
 	std::pair<uint32, uint32> executableRange = GetExecutableRange();
