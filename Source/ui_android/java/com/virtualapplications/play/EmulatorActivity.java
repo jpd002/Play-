@@ -16,6 +16,7 @@ import static com.virtualapplications.play.Constants.PREF_EMU_GENERAL_SHOWVIRTUA
 
 public class EmulatorActivity extends Activity
 {
+	private static final int _settingsIntentRequestCode = 0xBEEF;
 	private final Handler _statsTimerHandler = new Handler();
 	private Runnable _statsTimerRunnable;
 	private TextView _fpsTextView;
@@ -99,7 +100,7 @@ public class EmulatorActivity extends Activity
 					public void onSettingsSelected()
 					{
 						Intent intent = new Intent(getApplicationContext(), SettingsActivity.class);
-						startActivityForResult(intent, 0);
+						startActivityForResult(intent, _settingsIntentRequestCode);
 					}
 				}
 		);
@@ -140,6 +141,15 @@ public class EmulatorActivity extends Activity
 	}
 
 	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data)
+	{
+		if(requestCode == _settingsIntentRequestCode)
+		{
+			updateOnScreenWidgets();
+		}
+	}
+
+	@Override
 	public void onPause()
 	{
 		super.onPause();
@@ -153,7 +163,6 @@ public class EmulatorActivity extends Activity
 		super.onResume();
 		_activityRunning = true;
 		updateVirtualMachineState();
-		updateOnScreenWidgets();
 	}
 
 	@Override
