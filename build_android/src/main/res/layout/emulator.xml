@@ -10,9 +10,7 @@
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
 		>
-		<FrameLayout 
-			xmlns:android="http://schemas.android.com/apk/res/android"
-			xmlns:tools="http://schemas.android.com/tools"
+		<FrameLayout
 			android:layout_width="match_parent"
 			android:layout_height="match_parent"
 			>
@@ -23,13 +21,13 @@
 				android:focusable="false"
 				android:focusableInTouchMode="false"
 			/>
+
 			<com.virtualapplications.play.VirtualPadView
 				android:id="@+id/emulator_virtualpad"
 				android:layout_width="match_parent"
 				android:layout_height="match_parent"
-				android:focusable="true"
-				android:focusableInTouchMode="true"
-			/>
+				android:focusable="false"
+				android:focusableInTouchMode="false" />
 			<TextView 
 				android:id="@+id/emulator_fps"
 				android:layout_width="wrap_content" 
