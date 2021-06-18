@@ -266,9 +266,13 @@ CPS2VM::ProfileFrameDoneSignal::Connection g_profileFrameDoneConnection;
 
 - (IBAction)onPauseButtonClick:(id)sender
 {
-	UIAlertController* alert = [UIAlertController alertControllerWithTitle:nil message:nil preferredStyle:UIAlertControllerStyleActionSheet];
-	alert.popoverPresentationController.sourceView = self.view;
-	alert.popoverPresentationController.sourceRect = CGRectMake(self.view.bounds.size.width / 2, self.view.bounds.size.height / 2, 0, 0);
+	UIAlertControllerStyle style = UIAlertControllerStyleAlert;
+	if([UIDevice currentDevice].userInterfaceIdiom == UIUserInterfaceIdiomPhone)
+	{
+		style = UIAlertControllerStyleActionSheet;
+	}
+
+	UIAlertController* alert = [UIAlertController alertControllerWithTitle:nil message:nil preferredStyle:style];
 
 	//Load State
 	{
