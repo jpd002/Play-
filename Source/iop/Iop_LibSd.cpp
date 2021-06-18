@@ -175,7 +175,7 @@ void CLibSd::TraceCall(CMIPS& context, unsigned int functionId)
 		CLog::GetInstance().Print(LOG_NAME, FUNCTION_VOICETRANS "(channel = 0x%04X, mode = 0x%04X, maddr = 0x%08X, saddr = 0x%08X, size = 0x%08X);\r\n",
 		                          context.m_State.nGPR[CMIPS::A0].nV0, context.m_State.nGPR[CMIPS::A1].nV0,
 		                          context.m_State.nGPR[CMIPS::A2].nV0, context.m_State.nGPR[CMIPS::A3].nV0,
-		                          context.m_State.nGPR[CMIPS::T0].nV0);
+		                          context.m_pMemoryMap->GetWord(context.m_State.nGPR[CMIPS::SP].nV0 + 0x10));
 		break;
 	case 18:
 		CLog::GetInstance().Print(LOG_NAME, FUNCTION_BLOCKTRANS "(channel = 0x%04X, mode = 0x%04X, maddr = 0x%08X, size = 0x%08X);\r\n",
