@@ -38,6 +38,11 @@
 	CAppConfig::GetInstance().SetPreferenceBoolean(PREFERENCE_AUDIO_ENABLEOUTPUT, enableAudioOutput.isOn);
 
 	CAppConfig::GetInstance().Save();
+
+	if(self.completionHandler)
+	{
+		self.completionHandler();
+	}
 }
 
 - (void)tableView:(UITableView*)tableView didSelectRowAtIndexPath:(NSIndexPath*)indexPath

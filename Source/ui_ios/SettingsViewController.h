@@ -14,6 +14,8 @@
 	IBOutlet UILabel* versionInfoLabel;
 }
 
+@property(copy, nonatomic) void (^completionHandler)();
+
 - (IBAction)returnToSettings:(UIStoryboardSegue*)segue;
 
 @end

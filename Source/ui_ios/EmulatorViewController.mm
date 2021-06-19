@@ -1,5 +1,6 @@
 #include "PathUtils.h"
 #import "EmulatorViewController.h"
+#import "SettingsViewController.h"
 #import "GlEsView.h"
 #include "../PS2VM.h"
 #include "../PS2VM_Preferences.h"
@@ -296,6 +297,17 @@ CPS2VM::ProfileFrameDoneSignal::Connection g_profileFrameDoneConnection;
 		[alert addAction:action];
 	}
 
+	//Settings
+	{
+		UIAlertAction* action = [UIAlertAction
+		    actionWithTitle:@"Settings"
+		              style:UIAlertActionStyleDefault
+		            handler:^(UIAlertAction*) {
+			          [self performSegueWithIdentifier:@"showSettings" sender:self];
+		            }];
+		[alert addAction:action];
+	}
+
 	//Resume
 	{
 		UIAlertAction* action = [UIAlertAction
@@ -327,6 +339,21 @@ CPS2VM::ProfileFrameDoneSignal::Connection g_profileFrameDoneConnection;
 - (UIInterfaceOrientationMask)supportedInterfaceOrientations
 {
 	return UIInterfaceOrientationMaskLandscape;
+}
+
+- (void)prepareForSegue:(UIStoryboardSegue*)segue sender:(id)sender
+{
+	if([segue.identifier isEqualToString:@"showSettings"])
+	{
+		SettingsViewController* settingsViewController = segue.destinationViewController;
+		settingsViewController.completionHandler = ^() {
+		  auto gsHandler = g_virtualMachine->GetGSHandler();
+		  if(gsHandler)
+		  {
+			  gsHandler->NotifyPreferencesChanged();
+		  }
+		};
+	}
 }
 
 - (void)dealloc
