@@ -77,25 +77,7 @@ CPS2VM::ProfileFrameDoneSignal::Connection g_profileFrameDoneConnection;
 		g_virtualMachine->CreateSoundHandler(&CSH_OpenAL::HandlerFactory);
 	}
 
-	auto screenBounds = [[UIScreen mainScreen] bounds];
-	if(@available(iOS 11, *))
-	{
-		UIEdgeInsets insets = self.view.safeAreaInsets;
-		screenBounds = UIEdgeInsetsInsetRect(screenBounds, insets);
-	}
-
-	if(CAppConfig::GetInstance().GetPreferenceBoolean(PREFERENCE_UI_SHOWVIRTUALPAD))
-	{
-		auto padHandler = static_cast<CPH_Generic*>(g_virtualMachine->GetPadHandler());
-		self.virtualPadView = [[VirtualPadView alloc] initWithFrame:screenBounds padHandler:padHandler];
-		[self.view addSubview:self.virtualPadView];
-		[self.view sendSubviewToBack:self.virtualPadView];
-	}
-
-	if(CAppConfig::GetInstance().GetPreferenceBoolean(PREFERENCE_UI_SHOWFPS))
-	{
-		[self setupFpsCounterWithBounds:screenBounds];
-	}
+	[self updateOnScreenWidgets];
 
 	g_virtualMachine->Pause();
 	g_virtualMachine->Reset();
@@ -117,8 +99,7 @@ CPS2VM::ProfileFrameDoneSignal::Connection g_profileFrameDoneConnection;
 
 - (void)viewDidDisappear:(BOOL)animated
 {
-	[self.fpsCounterTimer invalidate];
-	self.fpsCounterTimer = nil;
+	[self resetStatsTimer];
 	g_virtualMachine->Pause();
 	g_virtualMachine->Destroy();
 	delete g_virtualMachine;
@@ -209,6 +190,61 @@ CPS2VM::ProfileFrameDoneSignal::Connection g_profileFrameDoneConnection;
 	else
 	{
 		self.gController = nil;
+	}
+}
+
+- (void)resetStatsTimer
+{
+	if(self.fpsCounterTimer)
+	{
+		[self.fpsCounterTimer invalidate];
+		self.fpsCounterTimer = nil;
+	}
+}
+
+- (void)updateOnScreenWidgets
+{
+	auto screenBounds = [[UIScreen mainScreen] bounds];
+	if(@available(iOS 11, *))
+	{
+		UIEdgeInsets insets = self.view.safeAreaInsets;
+		screenBounds = UIEdgeInsetsInsetRect(screenBounds, insets);
+	}
+
+	//Remove previous widgets
+	if(self.virtualPadView)
+	{
+		[self.virtualPadView removeFromSuperview];
+		self.virtualPadView = nil;
+	}
+
+	if(self.fpsCounterLabel)
+	{
+		[self.fpsCounterLabel removeFromSuperview];
+		self.fpsCounterLabel = nil;
+	}
+
+#ifdef PROFILE
+	if(self.profilerStatsLabel)
+	{
+		[self.profilerStatsLabel removeFromSuperview];
+		self.profilerStatsLabel = nil;
+	}
+#endif
+
+	[self resetStatsTimer];
+
+	if(CAppConfig::GetInstance().GetPreferenceBoolean(PREFERENCE_UI_SHOWVIRTUALPAD))
+	{
+		auto padHandler = static_cast<CPH_Generic*>(g_virtualMachine->GetPadHandler());
+		self.virtualPadView = [[VirtualPadView alloc] initWithFrame:screenBounds padHandler:padHandler];
+		[self.view addSubview:self.virtualPadView];
+		[self.view sendSubviewToBack:self.virtualPadView];
+	}
+
+	if(CAppConfig::GetInstance().GetPreferenceBoolean(PREFERENCE_UI_SHOWFPS))
+	{
+		[self setupFpsCounterWithBounds:screenBounds];
 	}
 }
 
@@ -347,6 +383,7 @@ CPS2VM::ProfileFrameDoneSignal::Connection g_profileFrameDoneConnection;
 	{
 		SettingsViewController* settingsViewController = segue.destinationViewController;
 		settingsViewController.completionHandler = ^() {
+		  [self updateOnScreenWidgets];
 		  auto gsHandler = g_virtualMachine->GetGSHandler();
 		  if(gsHandler)
 		  {
