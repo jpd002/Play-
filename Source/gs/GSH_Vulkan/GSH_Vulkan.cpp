@@ -3,6 +3,7 @@
 #include "../../Log.h"
 #include "GSH_Vulkan.h"
 #include "GSH_VulkanDrawDesktop.h"
+#include "GSH_VulkanDrawMobile.h"
 #include "GSH_VulkanDeviceInfo.h"
 #include "vulkan/StructDefs.h"
 #include "vulkan/StructChain.h"
@@ -140,7 +141,7 @@ void CGSH_Vulkan::InitializeImpl()
 
 	m_frameCommandBuffer = std::make_shared<CFrameCommandBuffer>(m_context);
 	m_clutLoad = std::make_shared<CClutLoad>(m_context, m_frameCommandBuffer);
-	m_draw = std::make_shared<CDrawDesktop>(m_context, m_frameCommandBuffer);
+	m_draw = std::make_shared<CDrawMobile>(m_context, m_frameCommandBuffer);
 	if(m_context->surface)
 	{
 		m_present = std::make_shared<CPresent>(m_context);

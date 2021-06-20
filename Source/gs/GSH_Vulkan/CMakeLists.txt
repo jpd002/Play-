@@ -37,6 +37,8 @@ add_library(gsh_vulkan STATIC
 	GSH_VulkanDraw.h
 	GSH_VulkanDrawDesktop.cpp
 	GSH_VulkanDrawDesktop.h
+	GSH_VulkanDrawMobile.cpp
+	GSH_VulkanDrawMobile.h
 	GSH_VulkanDrawUtils.cpp
 	GSH_VulkanDrawUtils.h
 	GSH_VulkanFrameCommandBuffer.cpp
