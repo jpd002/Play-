@@ -133,6 +133,12 @@ namespace GSH_Vulkan
 
 		struct DRAW_PIPELINE_PUSHCONSTANTS
 		{
+			//fbDepthParams - Unused
+			uint32 fbBufAddr = 0;
+			uint32 fbBufWidth = 0;
+			uint32 depthBufAddr = 0;
+			uint32 depthBufWidth = 0;
+
 			//texParams0
 			uint32 texBufAddr = 0;
 			uint32 texBufWidth = 0;
@@ -171,14 +177,19 @@ namespace GSH_Vulkan
 		Framework::Vulkan::CShaderModule CreateDrawFragmentShader(const PIPELINE_CAPS&);
 
 		PIPELINE CreateLoadPipeline();
+		PIPELINE CreateStorePipeline();
 		Framework::Vulkan::CShaderModule CreateLoadStoreVertexShader();
 		Framework::Vulkan::CShaderModule CreateLoadFragmentShader();
+		Framework::Vulkan::CShaderModule CreateStoreFragmentShader();
 
 		ContextPtr m_context;
 		FrameCommandBufferPtr m_frameCommandBuffer;
 		
 		PipelineCache m_drawPipelineCache;
 		DescriptorSetCache m_drawDescriptorSetCache;
+
+		PIPELINE m_loadPipeline;
+		PIPELINE m_storePipeline;
 
 		VkRenderPass m_renderPass = VK_NULL_HANDLE;
 		VkFramebuffer m_framebuffer = VK_NULL_HANDLE;

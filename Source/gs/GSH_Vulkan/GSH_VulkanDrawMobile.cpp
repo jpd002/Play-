@@ -36,6 +36,8 @@ CDrawMobile::CDrawMobile(const ContextPtr& context, const FrameCommandBufferPtr&
 	CreateDrawImage();
 	CreateFramebuffer();
 
+	m_storePipeline = CreateStorePipeline();
+
 	for(auto& frame : m_frames)
 	{
 		frame.vertexBuffer = Framework::Vulkan::CBuffer(
@@ -197,7 +199,6 @@ void CDrawMobile::SetScissor(uint32 scissorX, uint32 scissorY, uint32 scissorWid
 
 void CDrawMobile::SetMemoryCopyParams(uint32 memoryCopyAddress, uint32 memoryCopySize)
 {
-	
 }
 
 void CDrawMobile::AddVertices(const PRIM_VERTEX* vertexBeginPtr, const PRIM_VERTEX* vertexEndPtr)
@@ -246,9 +247,9 @@ void CDrawMobile::FlushVertices()
 		m_context->device.vkCmdBeginRenderPass(commandBuffer, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
 
 		//TODO: Unswizzle
-		
+
 		m_context->device.vkCmdNextSubpass(commandBuffer, VK_SUBPASS_CONTENTS_INLINE);
-		
+
 		m_renderPassBegun = true;
 	}
 
@@ -298,7 +299,21 @@ void CDrawMobile::FlushRenderPass()
 	{
 		auto commandBuffer = m_frameCommandBuffer->GetCommandBuffer();
 		m_context->device.vkCmdNextSubpass(commandBuffer, VK_SUBPASS_CONTENTS_INLINE);
-		//TODO: Swizzle
+
+		//Store to memory
+		auto descriptorSetCaps = make_convertible<DESCRIPTORSET_CAPS>(0);
+		descriptorSetCaps.framebufferFormat = CGSHandler::PSMCT32;
+		descriptorSetCaps.depthbufferFormat = CGSHandler::PSMZ32;
+
+		auto descriptorSet = PrepareDescriptorSet(m_storePipeline.descriptorSetLayout, descriptorSetCaps);
+
+		m_context->device.vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_storePipeline.pipelineLayout,
+		                                          0, 1, &descriptorSet, 0, nullptr);
+		m_context->device.vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_storePipeline.pipeline);
+		m_context->device.vkCmdPushConstants(commandBuffer, m_storePipeline.pipelineLayout, VK_SHADER_STAGE_FRAGMENT_BIT,
+		                                     0, sizeof(LOAD_STORE_PIPELINE_PUSHCONSTANTS), &m_loadStorePushConstants);
+		m_context->device.vkCmdDraw(commandBuffer, 3, 1, 0, 0);
+
 		m_context->device.vkCmdEndRenderPass(commandBuffer);
 		m_renderPassBegun = false;
 	}
@@ -341,10 +356,6 @@ VkDescriptorSet CDrawMobile::PrepareDescriptorSet(VkDescriptorSetLayout descript
 		VkDescriptorBufferInfo descriptorMemoryBufferInfo = {};
 		descriptorMemoryBufferInfo.buffer = m_context->memoryBuffer;
 		descriptorMemoryBufferInfo.range = VK_WHOLE_SIZE;
-
-		VkDescriptorBufferInfo descriptorMemoryCopyBufferInfo = {};
-		descriptorMemoryCopyBufferInfo.buffer = m_context->memoryBufferCopy;
-		descriptorMemoryCopyBufferInfo.range = VK_WHOLE_SIZE;
 
 		VkDescriptorBufferInfo descriptorClutBufferInfo = {};
 		descriptorClutBufferInfo.buffer = m_context->clutBuffer;
@@ -454,7 +465,7 @@ void CDrawMobile::CreateRenderPass()
 	colorRef.layout = VK_IMAGE_LAYOUT_GENERAL;
 
 	std::vector<VkSubpassDescription> subpasses;
-	
+
 	//Unswizzle Subpass
 	{
 		VkSubpassDescription subpass = {};
@@ -474,7 +485,7 @@ void CDrawMobile::CreateRenderPass()
 		subpass.inputAttachmentCount = 1;
 		subpasses.push_back(subpass);
 	}
-	
+
 	//Swizzle pass
 	{
 		VkSubpassDescription subpass = {};
@@ -1194,8 +1205,8 @@ Framework::Vulkan::CShaderModule CDrawMobile::CreateDrawFragmentShader(const PIP
 
 			auto getTextureColor =
 			    [&](CInt2Value textureIuv, CFloat4Lvalue& textureColor) {
-					textureColor = GetTextureColor(b, caps.textureFormat, caps.clutFormat, textureIuv,
-												   memoryBuffer, clutBuffer, texSwizzleTable, texBufAddress, texBufWidth, texCsa);
+				    textureColor = GetTextureColor(b, caps.textureFormat, caps.clutFormat, textureIuv,
+				                                   memoryBuffer, clutBuffer, texSwizzleTable, texBufAddress, texBufWidth, texCsa);
 				    if(caps.textureHasAlpha)
 				    {
 					    ExpandAlpha(b, caps.textureFormat, caps.clutFormat, caps.textureBlackIsTransparent, textureColor, texA0, texA1);
@@ -1405,48 +1416,6 @@ Framework::Vulkan::CShaderModule CDrawMobile::CreateDrawFragmentShader(const PIP
 		break;
 		}
 
-		auto fbAddress = CIntLvalue(b.CreateTemporaryInt());
-		auto depthAddress = CIntLvalue(b.CreateTemporaryInt());
-
-		switch(caps.framebufferFormat)
-		{
-		default:
-			assert(false);
-		case CGSHandler::PSMCT32:
-		case CGSHandler::PSMCT24:
-		case CGSHandler::PSMZ24:
-			fbAddress = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT32>(
-			    b, fbSwizzleTable, fbBufAddress, fbBufWidth, screenPos);
-			break;
-		case CGSHandler::PSMCT16:
-		case CGSHandler::PSMCT16S:
-			fbAddress = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT16>(
-			    b, fbSwizzleTable, fbBufAddress, fbBufWidth, screenPos);
-			break;
-		}
-
-		switch(caps.depthbufferFormat)
-		{
-		default:
-			assert(false);
-		case CGSHandler::PSMZ32:
-		case CGSHandler::PSMZ24:
-			depthAddress = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMZ32>(
-			    b, depthSwizzleTable, depthBufAddress, depthBufWidth, screenPos);
-			break;
-		case CGSHandler::PSMZ16:
-		case CGSHandler::PSMZ16S:
-			//TODO: Use real swizzle table
-			depthAddress = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMZ16>(
-			    b, depthSwizzleTable, depthBufAddress, depthBufWidth, screenPos);
-			break;
-		}
-
-		//Prevent writing out of bounds (seems to cause wierd issues
-		//on Intel GPUs with games such as SNK vs. Capcom: SVC Chaos)
-		fbAddress = fbAddress & NewInt(b, CGSHandler::RAMSIZE - 1);
-		depthAddress = depthAddress & NewInt(b, CGSHandler::RAMSIZE - 1);
-
 		BeginInvocationInterlock(b);
 
 		auto dstPixel = CUintLvalue(b.CreateVariableUint("dstPixel"));
@@ -1455,8 +1424,10 @@ Framework::Vulkan::CShaderModule CDrawMobile::CreateDrawFragmentShader(const PIP
 		auto dstDepth = CUintLvalue(b.CreateVariableUint("dstDepth"));
 
 		bool needsDstColor = (caps.hasAlphaBlending != 0) || (caps.maskColor != 0) || canDiscardAlpha || (caps.hasDstAlphaTest != 0);
-		if(needsDstColor)
+		//		if(needsDstColor)
+		if(false)
 		{
+#if 0
 			switch(caps.framebufferFormat)
 			{
 			default:
@@ -1486,6 +1457,7 @@ Framework::Vulkan::CShaderModule CDrawMobile::CreateDrawFragmentShader(const PIP
 			{
 				dstAlpha = dstColor->wwww();
 			}
+#endif
 		}
 		else
 		{
@@ -1499,9 +1471,10 @@ Framework::Vulkan::CShaderModule CDrawMobile::CreateDrawFragmentShader(const PIP
 
 		bool needsDstDepth = (caps.depthTestFunction == CGSHandler::DEPTH_TEST_GEQUAL) ||
 		                     (caps.depthTestFunction == CGSHandler::DEPTH_TEST_GREATER);
-		if(needsDstDepth)
+		//if(needsDstDepth)
+		if(false)
 		{
-			dstDepth = GetDepth(b, caps.depthbufferFormat, depthAddress, memoryBuffer);
+			//dstDepth = GetDepth(b, caps.depthbufferFormat, depthAddress, memoryBuffer);
 		}
 
 		auto depthTestResult = CBoolLvalue(b.CreateTemporaryBool());
@@ -1550,21 +1523,6 @@ Framework::Vulkan::CShaderModule CDrawMobile::CreateDrawFragmentShader(const PIP
 			BeginIf(b, !writeAlpha);
 			{
 				dstColor = NewFloat4(dstColor->xyz(), dstAlpha->x());
-			}
-			EndIf(b);
-		}
-
-		BeginIf(b, writeColor);
-		{
-			WriteToFramebuffer(b, caps.framebufferFormat, memoryBuffer, fbAddress, fbWriteMask, dstPixel, dstColor);
-		}
-		EndIf(b);
-
-		if(caps.writeDepth)
-		{
-			BeginIf(b, writeDepth);
-			{
-				WriteToDepthbuffer(b, caps.depthbufferFormat, memoryBuffer, depthAddress, srcDepth);
 			}
 			EndIf(b);
 		}
@@ -1671,19 +1629,19 @@ PIPELINE CDrawMobile::CreateLoadPipeline()
 	multisampleStateInfo.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
 
 	static const VkDynamicState dynamicStates[] =
-		{
-			VK_DYNAMIC_STATE_VIEWPORT,
-			VK_DYNAMIC_STATE_SCISSOR,
-		};
+	    {
+	        VK_DYNAMIC_STATE_VIEWPORT,
+	        VK_DYNAMIC_STATE_SCISSOR,
+	    };
 	auto dynamicStateInfo = Framework::Vulkan::PipelineDynamicStateCreateInfo();
 	dynamicStateInfo.pDynamicStates = dynamicStates;
 	dynamicStateInfo.dynamicStateCount = sizeof(dynamicStates) / sizeof(dynamicStates[0]);
 
 	VkPipelineShaderStageCreateInfo shaderStages[2] =
-		{
-			{VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO},
-			{VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO},
-		};
+	    {
+	        {VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO},
+	        {VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO},
+	    };
 
 	shaderStages[0].stage = VK_SHADER_STAGE_VERTEX_BIT;
 	shaderStages[0].module = vertexShader;
@@ -1694,6 +1652,7 @@ PIPELINE CDrawMobile::CreateLoadPipeline()
 
 	auto pipelineCreateInfo = Framework::Vulkan::GraphicsPipelineCreateInfo();
 	pipelineCreateInfo.stageCount = 2;
+	pipelineCreateInfo.subpass = 0;
 	pipelineCreateInfo.pStages = shaderStages;
 	pipelineCreateInfo.pInputAssemblyState = &inputAssemblyInfo;
 	pipelineCreateInfo.pVertexInputState = &vertexInputInfo;
@@ -1712,6 +1671,139 @@ PIPELINE CDrawMobile::CreateLoadPipeline()
 	return loadPipeline;
 }
 
+PIPELINE CDrawMobile::CreateStorePipeline()
+{
+	PIPELINE storePipeline;
+
+	auto vertexShader = CreateLoadStoreVertexShader();
+	auto fragmentShader = CreateStoreFragmentShader();
+
+	auto result = VK_SUCCESS;
+
+	{
+		std::vector<VkDescriptorSetLayoutBinding> setLayoutBindings;
+
+		{
+			VkDescriptorSetLayoutBinding setLayoutBinding = {};
+			setLayoutBinding.binding = DESCRIPTOR_LOCATION_BUFFER_MEMORY;
+			setLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+			setLayoutBinding.descriptorCount = 1;
+			setLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+			setLayoutBindings.push_back(setLayoutBinding);
+		}
+
+		{
+			VkDescriptorSetLayoutBinding setLayoutBinding = {};
+			setLayoutBinding.binding = DESCRIPTOR_LOCATION_IMAGE_SWIZZLETABLE_FB;
+			setLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
+			setLayoutBinding.descriptorCount = 1;
+			setLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+			setLayoutBindings.push_back(setLayoutBinding);
+		}
+
+		{
+			VkDescriptorSetLayoutBinding setLayoutBinding = {};
+			setLayoutBinding.binding = DESCRIPTOR_LOCATION_IMAGE_SWIZZLETABLE_DEPTH;
+			setLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
+			setLayoutBinding.descriptorCount = 1;
+			setLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+			setLayoutBindings.push_back(setLayoutBinding);
+		}
+
+		auto setLayoutCreateInfo = Framework::Vulkan::DescriptorSetLayoutCreateInfo();
+		setLayoutCreateInfo.bindingCount = static_cast<uint32>(setLayoutBindings.size());
+		setLayoutCreateInfo.pBindings = setLayoutBindings.data();
+
+		result = m_context->device.vkCreateDescriptorSetLayout(m_context->device, &setLayoutCreateInfo, nullptr, &storePipeline.descriptorSetLayout);
+		CHECKVULKANERROR(result);
+	}
+
+	{
+		VkPushConstantRange pushConstantInfo = {};
+		pushConstantInfo.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+		pushConstantInfo.offset = 0;
+		pushConstantInfo.size = sizeof(LOAD_STORE_PIPELINE_PUSHCONSTANTS);
+
+		auto pipelineLayoutCreateInfo = Framework::Vulkan::PipelineLayoutCreateInfo();
+		pipelineLayoutCreateInfo.pushConstantRangeCount = 1;
+		pipelineLayoutCreateInfo.pPushConstantRanges = &pushConstantInfo;
+		pipelineLayoutCreateInfo.setLayoutCount = 1;
+		pipelineLayoutCreateInfo.pSetLayouts = &storePipeline.descriptorSetLayout;
+
+		result = m_context->device.vkCreatePipelineLayout(m_context->device, &pipelineLayoutCreateInfo, nullptr, &storePipeline.pipelineLayout);
+		CHECKVULKANERROR(result);
+	}
+
+	auto inputAssemblyInfo = Framework::Vulkan::PipelineInputAssemblyStateCreateInfo();
+	inputAssemblyInfo.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+
+	auto vertexInputInfo = Framework::Vulkan::PipelineVertexInputStateCreateInfo();
+
+	auto rasterStateInfo = Framework::Vulkan::PipelineRasterizationStateCreateInfo();
+	rasterStateInfo.polygonMode = VK_POLYGON_MODE_FILL;
+	rasterStateInfo.cullMode = VK_CULL_MODE_NONE;
+	rasterStateInfo.lineWidth = 1.0f;
+
+	// Our attachment will write to all color channels, but no blending is enabled.
+	VkPipelineColorBlendAttachmentState blendAttachment = {};
+	blendAttachment.colorWriteMask = 0xf;
+
+	auto colorBlendStateInfo = Framework::Vulkan::PipelineColorBlendStateCreateInfo();
+	colorBlendStateInfo.attachmentCount = 1;
+	colorBlendStateInfo.pAttachments = &blendAttachment;
+
+	auto viewportStateInfo = Framework::Vulkan::PipelineViewportStateCreateInfo();
+	viewportStateInfo.viewportCount = 1;
+	viewportStateInfo.scissorCount = 1;
+
+	auto depthStencilStateInfo = Framework::Vulkan::PipelineDepthStencilStateCreateInfo();
+
+	auto multisampleStateInfo = Framework::Vulkan::PipelineMultisampleStateCreateInfo();
+	multisampleStateInfo.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
+
+	static const VkDynamicState dynamicStates[] =
+	    {
+	        VK_DYNAMIC_STATE_VIEWPORT,
+	        VK_DYNAMIC_STATE_SCISSOR,
+	    };
+	auto dynamicStateInfo = Framework::Vulkan::PipelineDynamicStateCreateInfo();
+	dynamicStateInfo.pDynamicStates = dynamicStates;
+	dynamicStateInfo.dynamicStateCount = sizeof(dynamicStates) / sizeof(dynamicStates[0]);
+
+	VkPipelineShaderStageCreateInfo shaderStages[2] =
+	    {
+	        {VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO},
+	        {VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO},
+	    };
+
+	shaderStages[0].stage = VK_SHADER_STAGE_VERTEX_BIT;
+	shaderStages[0].module = vertexShader;
+	shaderStages[0].pName = "main";
+	shaderStages[1].stage = VK_SHADER_STAGE_FRAGMENT_BIT;
+	shaderStages[1].module = fragmentShader;
+	shaderStages[1].pName = "main";
+
+	auto pipelineCreateInfo = Framework::Vulkan::GraphicsPipelineCreateInfo();
+	pipelineCreateInfo.stageCount = 2;
+	pipelineCreateInfo.subpass = 2;
+	pipelineCreateInfo.pStages = shaderStages;
+	pipelineCreateInfo.pInputAssemblyState = &inputAssemblyInfo;
+	pipelineCreateInfo.pVertexInputState = &vertexInputInfo;
+	pipelineCreateInfo.pRasterizationState = &rasterStateInfo;
+	pipelineCreateInfo.pColorBlendState = &colorBlendStateInfo;
+	pipelineCreateInfo.pViewportState = &viewportStateInfo;
+	pipelineCreateInfo.pDepthStencilState = &depthStencilStateInfo;
+	pipelineCreateInfo.pMultisampleState = &multisampleStateInfo;
+	pipelineCreateInfo.pDynamicState = &dynamicStateInfo;
+	pipelineCreateInfo.renderPass = m_renderPass;
+	pipelineCreateInfo.layout = storePipeline.pipelineLayout;
+
+	result = m_context->device.vkCreateGraphicsPipelines(m_context->device, VK_NULL_HANDLE, 1, &pipelineCreateInfo, nullptr, &storePipeline.pipeline);
+	CHECKVULKANERROR(result);
+
+	return storePipeline;
+}
+
 Framework::Vulkan::CShaderModule CDrawMobile::CreateLoadStoreVertexShader()
 {
 	using namespace Nuanceur;
@@ -1720,14 +1812,19 @@ Framework::Vulkan::CShaderModule CDrawMobile::CreateLoadStoreVertexShader()
 
 	{
 		//Vertex Inputs
-		auto inputPosition = CFloat4Lvalue(b.CreateInput(Nuanceur::SEMANTIC_POSITION));
+		auto vertexIndex = CIntLvalue(b.CreateInputInt(Nuanceur::SEMANTIC_SYSTEM_VERTEXINDEX));
 
 		//Outputs
 		auto outputPosition = CFloat4Lvalue(b.CreateOutput(Nuanceur::SEMANTIC_SYSTEM_POSITION));
 
-		auto position = ((inputPosition->xy() + NewFloat2(b, 0.5f, 0.5f)) * NewFloat2(b, 2.f / DRAW_AREA_SIZE, 2.f / DRAW_AREA_SIZE) + NewFloat2(b, -1, -1));
-
-		outputPosition = NewFloat4(position, NewFloat2(b, 0.f, 1.f));
+		auto position = NewFloat2(
+		    ToFloat(vertexIndex << NewInt(b, 1) & NewInt(b, 2)),
+		    ToFloat(vertexIndex & NewInt(b, 2)));
+		outputPosition = NewFloat4(
+		    position->x() * NewFloat(b, 2) + NewFloat(b, -1),
+		    position->y() * NewFloat(b, 2) + NewFloat(b, -1),
+		    NewFloat(b, 0),
+		    NewFloat(b, 1));
 	}
 
 	Framework::CMemStream shaderStream;
@@ -1760,6 +1857,105 @@ Framework::Vulkan::CShaderModule CDrawMobile::CreateLoadFragmentShader()
 		auto fbBufWidth = fbDepthParams->y();
 		auto depthBufAddress = fbDepthParams->z();
 		auto depthBufWidth = fbDepthParams->w();
+
+		outputColor = NewFloat4(b, 1, 1, 0, 1);
+	}
+
+	Framework::CMemStream shaderStream;
+	Nuanceur::CSpirvShaderGenerator::Generate(shaderStream, b, Nuanceur::CSpirvShaderGenerator::SHADER_TYPE_FRAGMENT);
+	shaderStream.Seek(0, Framework::STREAM_SEEK_SET);
+	return Framework::Vulkan::CShaderModule(m_context->device, shaderStream);
+}
+
+Framework::Vulkan::CShaderModule CDrawMobile::CreateStoreFragmentShader()
+{
+	struct LOADSTORE_CAPS
+	{
+		uint32 framebufferFormat;
+		uint32 depthbufferFormat;
+	} caps;
+
+	caps.framebufferFormat = CGSHandler::PSMCT32;
+	caps.depthbufferFormat = CGSHandler::PSMZ32;
+
+	using namespace Nuanceur;
+
+	auto b = CShaderBuilder();
+
+	{
+		//Inputs
+		auto inputPosition = CFloat4Lvalue(b.CreateInput(Nuanceur::SEMANTIC_SYSTEM_POSITION));
+
+		//Outputs
+		auto outputColor = CFloat4Lvalue(b.CreateOutput(Nuanceur::SEMANTIC_SYSTEM_COLOR));
+
+		auto memoryBuffer = CArrayUintValue(b.CreateUniformArrayUint("memoryBuffer", DESCRIPTOR_LOCATION_BUFFER_MEMORY, Nuanceur::SYMBOL_ATTRIBUTE_COHERENT));
+		auto fbSwizzleTable = CImageUint2DValue(b.CreateImage2DUint(DESCRIPTOR_LOCATION_IMAGE_SWIZZLETABLE_FB));
+		auto depthSwizzleTable = CImageUint2DValue(b.CreateImage2DUint(DESCRIPTOR_LOCATION_IMAGE_SWIZZLETABLE_DEPTH));
+
+		//Push constants
+		auto fbDepthParams = CInt4Lvalue(b.CreateUniformInt4("fbDepthParams", Nuanceur::UNIFORM_UNIT_PUSHCONSTANT));
+
+		auto fbBufAddress = fbDepthParams->x();
+		auto fbBufWidth = fbDepthParams->y();
+		auto depthBufAddress = fbDepthParams->z();
+		auto depthBufWidth = fbDepthParams->w();
+
+		auto fbWriteMask = NewUint(b, 0xFFFFFFFF);
+		auto dstPixel = NewUint(b, 0xFFFFFFFF);
+		auto dstColor = NewFloat4(b, 0, 1, 0, 1);
+
+		auto fbAddress = CIntLvalue(b.CreateTemporaryInt());
+		auto depthAddress = CIntLvalue(b.CreateTemporaryInt());
+
+		auto screenPos = ToInt(inputPosition->xy());
+
+		switch(caps.framebufferFormat)
+		{
+		default:
+			assert(false);
+		case CGSHandler::PSMCT32:
+		case CGSHandler::PSMCT24:
+		case CGSHandler::PSMZ24:
+			fbAddress = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT32>(
+			    b, fbSwizzleTable, fbBufAddress, fbBufWidth, screenPos);
+			break;
+		case CGSHandler::PSMCT16:
+		case CGSHandler::PSMCT16S:
+			fbAddress = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT16>(
+			    b, fbSwizzleTable, fbBufAddress, fbBufWidth, screenPos);
+			break;
+		}
+
+		switch(caps.depthbufferFormat)
+		{
+		default:
+			assert(false);
+		case CGSHandler::PSMZ32:
+		case CGSHandler::PSMZ24:
+			depthAddress = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMZ32>(
+			    b, depthSwizzleTable, depthBufAddress, depthBufWidth, screenPos);
+			break;
+		case CGSHandler::PSMZ16:
+		case CGSHandler::PSMZ16S:
+			//TODO: Use real swizzle table
+			depthAddress = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMZ16>(
+			    b, depthSwizzleTable, depthBufAddress, depthBufWidth, screenPos);
+			break;
+		}
+
+		//Prevent writing out of bounds (seems to cause wierd issues
+		//on Intel GPUs with games such as SNK vs. Capcom: SVC Chaos)
+		fbAddress = fbAddress & NewInt(b, CGSHandler::RAMSIZE - 1);
+		depthAddress = depthAddress & NewInt(b, CGSHandler::RAMSIZE - 1);
+
+		WriteToFramebuffer(b, caps.framebufferFormat, memoryBuffer, fbAddress, fbWriteMask, dstPixel, dstColor);
+
+		//BeginIf(b, writeDepth);
+		//{
+		//	WriteToDepthbuffer(b, caps.depthbufferFormat, memoryBuffer, depthAddress, srcDepth);
+		//}
+		//EndIf(b);
 
 		outputColor = NewFloat4(b, 1, 1, 0, 1);
 	}
