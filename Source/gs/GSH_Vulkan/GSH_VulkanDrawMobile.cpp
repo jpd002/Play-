@@ -21,6 +21,7 @@ using namespace GSH_Vulkan;
 #define DESCRIPTOR_LOCATION_IMAGE_SWIZZLETABLE_TEX 2
 #define DESCRIPTOR_LOCATION_IMAGE_SWIZZLETABLE_FB 3
 #define DESCRIPTOR_LOCATION_IMAGE_SWIZZLETABLE_DEPTH 4
+#define DESCRIPTOR_LOCATION_IMAGE_INPUT_COLOR 5
 
 #define DRAW_AREA_SIZE 2048
 #define MAX_VERTEX_COUNT 1024 * 512
@@ -373,6 +374,10 @@ VkDescriptorSet CDrawMobile::PrepareDescriptorSet(VkDescriptorSetLayout descript
 		descriptorDepthSwizzleTableImageInfo.imageView = m_context->GetSwizzleTable(caps.depthbufferFormat);
 		descriptorDepthSwizzleTableImageInfo.imageLayout = VK_IMAGE_LAYOUT_GENERAL;
 
+		VkDescriptorImageInfo descriptorInputColorImageInfo = {};
+		descriptorInputColorImageInfo.imageLayout = VK_IMAGE_LAYOUT_GENERAL;
+		descriptorInputColorImageInfo.imageView = m_drawImageView;
+
 		std::vector<VkWriteDescriptorSet> writes;
 
 		{
@@ -427,6 +432,16 @@ VkDescriptorSet CDrawMobile::PrepareDescriptorSet(VkDescriptorSetLayout descript
 				writeSet.pBufferInfo = &descriptorClutBufferInfo;
 				writes.push_back(writeSet);
 			}
+		}
+
+		{
+			auto writeSet = Framework::Vulkan::WriteDescriptorSet();
+			writeSet.dstSet = descriptorSet;
+			writeSet.dstBinding = DESCRIPTOR_LOCATION_IMAGE_INPUT_COLOR;
+			writeSet.descriptorCount = 1;
+			writeSet.descriptorType = VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT;
+			writeSet.pImageInfo = &descriptorInputColorImageInfo;
+			writes.push_back(writeSet);
 		}
 
 		m_context->device.vkUpdateDescriptorSets(m_context->device, static_cast<uint32_t>(writes.size()), writes.data(), 0, nullptr);
@@ -613,6 +628,15 @@ PIPELINE CDrawMobile::CreateDrawPipeline(const PIPELINE_CAPS& caps)
 				setLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 				setLayoutBindings.push_back(setLayoutBinding);
 			}
+		}
+
+		{
+			VkDescriptorSetLayoutBinding setLayoutBinding = {};
+			setLayoutBinding.binding = DESCRIPTOR_LOCATION_IMAGE_INPUT_COLOR;
+			setLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT;
+			setLayoutBinding.descriptorCount = 1;
+			setLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+			setLayoutBindings.push_back(setLayoutBinding);
 		}
 
 		auto setLayoutCreateInfo = Framework::Vulkan::DescriptorSetLayoutCreateInfo();
@@ -1710,6 +1734,15 @@ PIPELINE CDrawMobile::CreateStorePipeline()
 			setLayoutBindings.push_back(setLayoutBinding);
 		}
 
+		{
+			VkDescriptorSetLayoutBinding setLayoutBinding = {};
+			setLayoutBinding.binding = DESCRIPTOR_LOCATION_IMAGE_INPUT_COLOR;
+			setLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT;
+			setLayoutBinding.descriptorCount = 1;
+			setLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+			setLayoutBindings.push_back(setLayoutBinding);
+		}
+
 		auto setLayoutCreateInfo = Framework::Vulkan::DescriptorSetLayoutCreateInfo();
 		setLayoutCreateInfo.bindingCount = static_cast<uint32>(setLayoutBindings.size());
 		setLayoutCreateInfo.pBindings = setLayoutBindings.data();
@@ -1885,6 +1918,7 @@ Framework::Vulkan::CShaderModule CDrawMobile::CreateStoreFragmentShader()
 	{
 		//Inputs
 		auto inputPosition = CFloat4Lvalue(b.CreateInput(Nuanceur::SEMANTIC_SYSTEM_POSITION));
+		auto subpassInput = CSubpassInputValue(b.CreateSubpassInput(DESCRIPTOR_LOCATION_IMAGE_INPUT_COLOR));
 
 		//Outputs
 		auto outputColor = CFloat4Lvalue(b.CreateOutput(Nuanceur::SEMANTIC_SYSTEM_COLOR));
@@ -1903,7 +1937,7 @@ Framework::Vulkan::CShaderModule CDrawMobile::CreateStoreFragmentShader()
 
 		auto fbWriteMask = NewUint(b, 0xFFFFFFFF);
 		auto dstPixel = NewUint(b, 0xFFFFFFFF);
-		auto dstColor = NewFloat4(b, 0, 1, 0, 1);
+		auto dstColor = Load(subpassInput, NewInt2(b, 0, 0));
 
 		auto fbAddress = CIntLvalue(b.CreateTemporaryInt());
 		auto depthAddress = CIntLvalue(b.CreateTemporaryInt());
