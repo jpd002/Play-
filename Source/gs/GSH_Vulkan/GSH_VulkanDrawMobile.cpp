@@ -451,7 +451,7 @@ void CDrawMobile::CreateRenderPass()
 
 	VkAttachmentReference colorRef = {};
 	colorRef.attachment = 0;
-	colorRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+	colorRef.layout = VK_IMAGE_LAYOUT_GENERAL;
 
 	std::vector<VkSubpassDescription> subpasses;
 	
@@ -484,14 +484,44 @@ void CDrawMobile::CreateRenderPass()
 		subpasses.push_back(subpass);
 	}
 
-	VkSubpassDependency subpassDependency = {};
-	subpassDependency.srcSubpass = 1;
-	subpassDependency.srcStageMask = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
-	subpassDependency.srcAccessMask = VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_SHADER_WRITE_BIT;
-	subpassDependency.dstSubpass = 1;
-	subpassDependency.dstStageMask = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
-	subpassDependency.dstAccessMask = VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_SHADER_WRITE_BIT;
-	subpassDependency.dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
+	std::vector<VkSubpassDependency> subpassDependencies;
+
+	{
+		VkSubpassDependency subpassDependency = {};
+		subpassDependency.srcSubpass = 0;
+		subpassDependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+		subpassDependency.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+		subpassDependency.dstSubpass = 1;
+		subpassDependency.dstStageMask = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+		subpassDependency.dstAccessMask = VK_ACCESS_INPUT_ATTACHMENT_READ_BIT;
+
+		subpassDependencies.push_back(subpassDependency);
+	}
+
+	{
+		VkSubpassDependency subpassDependency = {};
+		subpassDependency.srcSubpass = 1;
+		subpassDependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+		subpassDependency.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+		subpassDependency.dstSubpass = 1;
+		subpassDependency.dstStageMask = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+		subpassDependency.dstAccessMask = VK_ACCESS_INPUT_ATTACHMENT_READ_BIT;
+		subpassDependency.dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
+
+		subpassDependencies.push_back(subpassDependency);
+	}
+
+	{
+		VkSubpassDependency subpassDependency = {};
+		subpassDependency.srcSubpass = 1;
+		subpassDependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+		subpassDependency.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+		subpassDependency.dstSubpass = 2;
+		subpassDependency.dstStageMask = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+		subpassDependency.dstAccessMask = VK_ACCESS_INPUT_ATTACHMENT_READ_BIT;
+
+		subpassDependencies.push_back(subpassDependency);
+	}
 
 	VkAttachmentDescription colorAttachment = {};
 	colorAttachment.format = VK_FORMAT_R8G8B8A8_UNORM;
@@ -506,8 +536,8 @@ void CDrawMobile::CreateRenderPass()
 	renderPassCreateInfo.pSubpasses = subpasses.data();
 	renderPassCreateInfo.attachmentCount = 1;
 	renderPassCreateInfo.pAttachments = &colorAttachment;
-	renderPassCreateInfo.dependencyCount = 1;
-	renderPassCreateInfo.pDependencies = &subpassDependency;
+	renderPassCreateInfo.dependencyCount = subpassDependencies.size();
+	renderPassCreateInfo.pDependencies = subpassDependencies.data();
 
 	result = m_context->device.vkCreateRenderPass(m_context->device, &renderPassCreateInfo, nullptr, &m_renderPass);
 	CHECKVULKANERROR(result);
@@ -709,6 +739,7 @@ PIPELINE CDrawMobile::CreateDrawPipeline(const PIPELINE_CAPS& caps)
 
 	auto pipelineCreateInfo = Framework::Vulkan::GraphicsPipelineCreateInfo();
 	pipelineCreateInfo.stageCount = 2;
+	pipelineCreateInfo.subpass = 1;
 	pipelineCreateInfo.pStages = shaderStages;
 	pipelineCreateInfo.pInputAssemblyState = &inputAssemblyInfo;
 	pipelineCreateInfo.pVertexInputState = &vertexInputInfo;
@@ -1745,7 +1776,7 @@ void CDrawMobile::CreateDrawImage()
 	//that don't write to any color attachment
 
 	m_drawImage = Framework::Vulkan::CImage(m_context->device, m_context->physicalDeviceMemoryProperties,
-	                                        VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, VK_FORMAT_R8G8B8A8_UNORM, DRAW_AREA_SIZE, DRAW_AREA_SIZE);
+	                                        VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT, VK_FORMAT_R8G8B8A8_UNORM, DRAW_AREA_SIZE, DRAW_AREA_SIZE);
 
 	m_drawImage.SetLayout(m_context->queue, m_context->commandBufferPool,
 	                      VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT);
