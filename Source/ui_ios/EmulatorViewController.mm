@@ -72,11 +72,7 @@ CPS2VM::ProfileFrameDoneSignal::Connection g_profileFrameDoneConnection;
 
 	g_virtualMachine->CreatePadHandler(CPH_Generic::GetFactoryFunction());
 
-	if(CAppConfig::GetInstance().GetPreferenceBoolean(PREFERENCE_AUDIO_ENABLEOUTPUT))
-	{
-		g_virtualMachine->CreateSoundHandler(&CSH_OpenAL::HandlerFactory);
-	}
-
+	[self setupSoundHandler];
 	[self updateOnScreenWidgets];
 
 	g_virtualMachine->Pause();
@@ -248,6 +244,18 @@ CPS2VM::ProfileFrameDoneSignal::Connection g_profileFrameDoneConnection;
 	}
 }
 
+- (void)setupSoundHandler
+{
+	if(CAppConfig::GetInstance().GetPreferenceBoolean(PREFERENCE_AUDIO_ENABLEOUTPUT))
+	{
+		g_virtualMachine->CreateSoundHandler(&CSH_OpenAL::HandlerFactory);
+	}
+	else
+	{
+		g_virtualMachine->DestroySoundHandler();
+	}
+}
+
 - (void)setupFpsCounterWithBounds:(CGRect)screenBounds
 {
 	self.fpsCounterLabel = [[UILabel alloc] initWithFrame:screenBounds];
@@ -383,6 +391,7 @@ CPS2VM::ProfileFrameDoneSignal::Connection g_profileFrameDoneConnection;
 	{
 		SettingsViewController* settingsViewController = segue.destinationViewController;
 		settingsViewController.completionHandler = ^() {
+		  [self setupSoundHandler];
 		  [self updateOnScreenWidgets];
 		  auto gsHandler = g_virtualMachine->GetGSHandler();
 		  if(gsHandler)
