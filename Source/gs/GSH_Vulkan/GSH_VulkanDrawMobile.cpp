@@ -1181,6 +1181,7 @@ Framework::Vulkan::CShaderModule CDrawMobile::CreateDrawFragmentShader(const PIP
 		auto texSwizzleTable = CImageUint2DValue(b.CreateImage2DUint(DESCRIPTOR_LOCATION_IMAGE_SWIZZLETABLE_TEX));
 		auto fbSwizzleTable = CImageUint2DValue(b.CreateImage2DUint(DESCRIPTOR_LOCATION_IMAGE_SWIZZLETABLE_FB));
 		auto depthSwizzleTable = CImageUint2DValue(b.CreateImage2DUint(DESCRIPTOR_LOCATION_IMAGE_SWIZZLETABLE_DEPTH));
+		auto subpassColorInput = CSubpassInputValue(b.CreateSubpassInput(DESCRIPTOR_LOCATION_IMAGE_INPUT_COLOR));
 
 		//Push constants
 		auto fbDepthParams = CInt4Lvalue(b.CreateUniformInt4("fbDepthParams", Nuanceur::UNIFORM_UNIT_PUSHCONSTANT));
@@ -1440,7 +1441,7 @@ Framework::Vulkan::CShaderModule CDrawMobile::CreateDrawFragmentShader(const PIP
 		break;
 		}
 
-		BeginInvocationInterlock(b);
+		//BeginInvocationInterlock(b);
 
 		auto dstPixel = CUintLvalue(b.CreateVariableUint("dstPixel"));
 		auto dstColor = CFloat4Lvalue(b.CreateVariableFloat("dstColor"));
@@ -1486,7 +1487,7 @@ Framework::Vulkan::CShaderModule CDrawMobile::CreateDrawFragmentShader(const PIP
 		else
 		{
 			dstPixel = NewUint(b, 0);
-			dstColor = NewFloat4(b, 0, 0, 0, 0);
+			dstColor = Load(subpassColorInput, NewInt2(b, 0, 0));
 			dstAlpha = NewFloat4(b, 1, 1, 1, 1);
 		}
 
@@ -1553,7 +1554,7 @@ Framework::Vulkan::CShaderModule CDrawMobile::CreateDrawFragmentShader(const PIP
 			EndIf(b);
 		}
 
-		EndInvocationInterlock(b);
+		//EndInvocationInterlock(b);
 
 		outputColor = dstColor->xyzw();
 	}
@@ -1920,7 +1921,6 @@ Framework::Vulkan::CShaderModule CDrawMobile::CreateStoreFragmentShader()
 	{
 		//Inputs
 		auto inputPosition = CFloat4Lvalue(b.CreateInput(Nuanceur::SEMANTIC_SYSTEM_POSITION));
-		auto subpassInput = CSubpassInputValue(b.CreateSubpassInput(DESCRIPTOR_LOCATION_IMAGE_INPUT_COLOR));
 
 		//Outputs
 		auto outputColor = CFloat4Lvalue(b.CreateOutput(Nuanceur::SEMANTIC_SYSTEM_COLOR));
@@ -1928,6 +1928,7 @@ Framework::Vulkan::CShaderModule CDrawMobile::CreateStoreFragmentShader()
 		auto memoryBuffer = CArrayUintValue(b.CreateUniformArrayUint("memoryBuffer", DESCRIPTOR_LOCATION_BUFFER_MEMORY, Nuanceur::SYMBOL_ATTRIBUTE_COHERENT));
 		auto fbSwizzleTable = CImageUint2DValue(b.CreateImage2DUint(DESCRIPTOR_LOCATION_IMAGE_SWIZZLETABLE_FB));
 		auto depthSwizzleTable = CImageUint2DValue(b.CreateImage2DUint(DESCRIPTOR_LOCATION_IMAGE_SWIZZLETABLE_DEPTH));
+		auto subpassColorInput = CSubpassInputValue(b.CreateSubpassInput(DESCRIPTOR_LOCATION_IMAGE_INPUT_COLOR));
 
 		//Push constants
 		auto fbDepthParams = CInt4Lvalue(b.CreateUniformInt4("fbDepthParams", Nuanceur::UNIFORM_UNIT_PUSHCONSTANT));
@@ -1939,7 +1940,7 @@ Framework::Vulkan::CShaderModule CDrawMobile::CreateStoreFragmentShader()
 
 		auto fbWriteMask = NewUint(b, 0xFFFFFFFF);
 		auto dstPixel = NewUint(b, 0xFFFFFFFF);
-		auto dstColor = Load(subpassInput, NewInt2(b, 0, 0));
+		auto dstColor = Load(subpassColorInput, NewInt2(b, 0, 0));
 
 		auto fbAddress = CIntLvalue(b.CreateTemporaryInt());
 		auto depthAddress = CIntLvalue(b.CreateTemporaryInt());
