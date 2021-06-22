@@ -190,7 +190,7 @@ namespace GSH_Vulkan
 
 		ContextPtr m_context;
 		FrameCommandBufferPtr m_frameCommandBuffer;
-		
+
 		PipelineCache m_drawPipelineCache;
 		DescriptorSetCache m_drawDescriptorSetCache;
 
