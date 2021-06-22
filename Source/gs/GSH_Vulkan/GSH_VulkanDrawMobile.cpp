@@ -84,7 +84,7 @@ void CDrawMobile::SetFramebufferParams(uint32 addr, uint32 width, uint32 writeMa
 	    (m_loadStorePushConstants.fbBufWidth != width) ||
 	    (m_drawPushConstants.fbWriteMask != writeMask);
 	if(!changed) return;
-	FlushVertices();
+	FlushRenderPass();
 	m_loadStorePushConstants.fbBufAddr = addr;
 	m_loadStorePushConstants.fbBufWidth = width;
 	m_drawPushConstants.fbWriteMask = writeMask;
@@ -96,7 +96,7 @@ void CDrawMobile::SetDepthbufferParams(uint32 addr, uint32 width)
 	    (m_loadStorePushConstants.depthBufAddr != addr) ||
 	    (m_loadStorePushConstants.depthBufWidth != width);
 	if(!changed) return;
-	FlushVertices();
+	FlushRenderPass();
 	m_loadStorePushConstants.depthBufAddr = addr;
 	m_loadStorePushConstants.depthBufWidth = width;
 }
