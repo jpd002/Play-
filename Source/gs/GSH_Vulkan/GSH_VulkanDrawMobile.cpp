@@ -1503,13 +1503,19 @@ Framework::Vulkan::CShaderModule CDrawMobile::CreateDrawFragmentShader(const PIP
 			auto alphaD = GetAlphaABD(b, caps.alphaD, textureColor, dstColor);
 
 			auto blendedColor = ((alphaA - alphaB) * alphaC * NewFloat3(b, 2, 2, 2)) + alphaD;
-			auto finalColor = NewFloat4(blendedColor, textureColor->w());
-			dstColor = Clamp(finalColor, NewFloat4(b, 0, 0, 0, 0), NewFloat4(b, 1, 1, 1, 1));
+			finalColor = NewFloat4(blendedColor, textureColor->w());
+			finalColor = Clamp(finalColor, NewFloat4(b, 0, 0, 0, 0), NewFloat4(b, 1, 1, 1, 1));
 		}
 		else
 		{
-			dstColor = textureColor->xyzw();
+			finalColor = textureColor->xyzw();
 		}
+
+		BeginIf(b, !writeColor);
+		{
+			finalColor = dstColor->xyzw();
+		}
+		EndIf(b);
 
 		if(canDiscardAlpha)
 		{
@@ -1522,7 +1528,7 @@ Framework::Vulkan::CShaderModule CDrawMobile::CreateDrawFragmentShader(const PIP
 
 		//EndInvocationInterlock(b);
 
-		outputColor = dstColor->xyzw();
+		outputColor = finalColor->xyzw();
 	}
 
 	Framework::CMemStream shaderStream;
