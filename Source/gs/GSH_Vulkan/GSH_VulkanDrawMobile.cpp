@@ -23,7 +23,7 @@ using namespace GSH_Vulkan;
 #define DESCRIPTOR_LOCATION_IMAGE_SWIZZLETABLE_DEPTH 4
 #define DESCRIPTOR_LOCATION_IMAGE_INPUT_COLOR 5
 
-#define DRAW_AREA_SIZE 2048
+#define DRAW_AREA_SIZE 512
 #define MAX_VERTEX_COUNT 1024 * 512
 
 #define DEPTH_MAX (4294967296.0f)
@@ -37,6 +37,7 @@ CDrawMobile::CDrawMobile(const ContextPtr& context, const FrameCommandBufferPtr&
 	CreateDrawImage();
 	CreateFramebuffer();
 
+	m_loadPipeline = CreateLoadPipeline();
 	m_storePipeline = CreateStorePipeline();
 
 	for(auto& frame : m_frames)
@@ -247,7 +248,19 @@ void CDrawMobile::FlushVertices()
 		renderPassBeginInfo.framebuffer = m_framebuffer;
 		m_context->device.vkCmdBeginRenderPass(commandBuffer, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
 
-		//TODO: Unswizzle
+		//Load from memory
+		auto descriptorSetCaps = make_convertible<DESCRIPTORSET_CAPS>(0);
+		descriptorSetCaps.framebufferFormat = CGSHandler::PSMCT32;
+		descriptorSetCaps.depthbufferFormat = CGSHandler::PSMZ32;
+
+		auto descriptorSet = PrepareDescriptorSet(m_loadPipeline.descriptorSetLayout, descriptorSetCaps);
+
+		m_context->device.vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_loadPipeline.pipelineLayout,
+		                                          0, 1, &descriptorSet, 0, nullptr);
+		m_context->device.vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_loadPipeline.pipeline);
+		m_context->device.vkCmdPushConstants(commandBuffer, m_loadPipeline.pipelineLayout, VK_SHADER_STAGE_FRAGMENT_BIT,
+		                                     0, sizeof(LOAD_STORE_PIPELINE_PUSHCONSTANTS), &m_loadStorePushConstants);
+		m_context->device.vkCmdDraw(commandBuffer, 3, 1, 0, 0);
 
 		m_context->device.vkCmdNextSubpass(commandBuffer, VK_SUBPASS_CONTENTS_INLINE);
 
@@ -1448,60 +1461,13 @@ Framework::Vulkan::CShaderModule CDrawMobile::CreateDrawFragmentShader(const PIP
 		auto dstAlpha = CFloat4Lvalue(b.CreateVariableFloat("dstAlpha"));
 		auto dstDepth = CUintLvalue(b.CreateVariableUint("dstDepth"));
 
-		bool needsDstColor = (caps.hasAlphaBlending != 0) || (caps.maskColor != 0) || canDiscardAlpha || (caps.hasDstAlphaTest != 0);
-		//		if(needsDstColor)
-		if(false)
-		{
-#if 0
-			switch(caps.framebufferFormat)
-			{
-			default:
-				assert(false);
-			case CGSHandler::PSMCT32:
-			{
-				dstPixel = CMemoryUtils::Memory_Read32(b, memoryBuffer, fbAddress);
-				dstColor = CMemoryUtils::PSM32ToVec4(b, dstPixel);
-			}
-			break;
-			case CGSHandler::PSMCT24:
-			{
-				dstPixel = CMemoryUtils::Memory_Read24(b, memoryBuffer, fbAddress);
-				dstColor = CMemoryUtils::PSM32ToVec4(b, dstPixel);
-			}
-			break;
-			case CGSHandler::PSMCT16:
-			case CGSHandler::PSMCT16S:
-			{
-				dstPixel = CMemoryUtils::Memory_Read16(b, memoryBuffer, fbAddress);
-				dstColor = CMemoryUtils::PSM16ToVec4(b, dstPixel);
-			}
-			break;
-			}
-
-			if(canDiscardAlpha)
-			{
-				dstAlpha = dstColor->wwww();
-			}
-#endif
-		}
-		else
-		{
-			dstPixel = NewUint(b, 0);
-			dstColor = Load(subpassColorInput, NewInt2(b, 0, 0));
-			dstAlpha = NewFloat4(b, 1, 1, 1, 1);
-		}
+		dstPixel = NewUint(b, 0);
+		dstColor = Load(subpassColorInput, NewInt2(b, 0, 0));
+		dstAlpha = NewFloat4(b, 1, 1, 1, 1);
 
 		if(caps.hasDstAlphaTest)
 		{
 			DestinationAlphaTest(b, caps.framebufferFormat, caps.dstAlphaTestRef, dstPixel, writeColor, writeDepth);
-		}
-
-		bool needsDstDepth = (caps.depthTestFunction == CGSHandler::DEPTH_TEST_GEQUAL) ||
-		                     (caps.depthTestFunction == CGSHandler::DEPTH_TEST_GREATER);
-		//if(needsDstDepth)
-		if(false)
-		{
-			//dstDepth = GetDepth(b, caps.depthbufferFormat, depthAddress, memoryBuffer);
 		}
 
 		auto depthTestResult = CBoolLvalue(b.CreateTemporaryBool());
@@ -1599,6 +1565,15 @@ PIPELINE CDrawMobile::CreateLoadPipeline()
 			VkDescriptorSetLayoutBinding setLayoutBinding = {};
 			setLayoutBinding.binding = DESCRIPTOR_LOCATION_IMAGE_SWIZZLETABLE_DEPTH;
 			setLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
+			setLayoutBinding.descriptorCount = 1;
+			setLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+			setLayoutBindings.push_back(setLayoutBinding);
+		}
+
+		{
+			VkDescriptorSetLayoutBinding setLayoutBinding = {};
+			setLayoutBinding.binding = DESCRIPTOR_LOCATION_IMAGE_INPUT_COLOR;
+			setLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT;
 			setLayoutBinding.descriptorCount = 1;
 			setLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 			setLayoutBindings.push_back(setLayoutBinding);
@@ -1871,6 +1846,10 @@ Framework::Vulkan::CShaderModule CDrawMobile::CreateLoadStoreVertexShader()
 
 Framework::Vulkan::CShaderModule CDrawMobile::CreateLoadFragmentShader()
 {
+	LOADSTORE_CAPS caps;
+	caps.framebufferFormat = CGSHandler::PSMCT32;
+	caps.depthbufferFormat = CGSHandler::PSMZ32;
+
 	using namespace Nuanceur;
 
 	auto b = CShaderBuilder();
@@ -1894,7 +1873,80 @@ Framework::Vulkan::CShaderModule CDrawMobile::CreateLoadFragmentShader()
 		auto depthBufAddress = fbDepthParams->z();
 		auto depthBufWidth = fbDepthParams->w();
 
-		outputColor = NewFloat4(b, 1, 1, 0, 1);
+		auto dstPixel = CUintLvalue(b.CreateVariableUint("dstPixel"));
+		auto dstColor = CFloat4Lvalue(b.CreateVariableFloat("dstColor"));
+
+		auto fbAddress = CIntLvalue(b.CreateTemporaryInt());
+		auto depthAddress = CIntLvalue(b.CreateTemporaryInt());
+
+		auto screenPos = ToInt(inputPosition->xy());
+
+		switch(caps.framebufferFormat)
+		{
+		default:
+			assert(false);
+		case CGSHandler::PSMCT32:
+		case CGSHandler::PSMCT24:
+		case CGSHandler::PSMZ24:
+			fbAddress = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT32>(
+			    b, fbSwizzleTable, fbBufAddress, fbBufWidth, screenPos);
+			break;
+		case CGSHandler::PSMCT16:
+		case CGSHandler::PSMCT16S:
+			fbAddress = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT16>(
+			    b, fbSwizzleTable, fbBufAddress, fbBufWidth, screenPos);
+			break;
+		}
+
+		switch(caps.depthbufferFormat)
+		{
+		default:
+			assert(false);
+		case CGSHandler::PSMZ32:
+		case CGSHandler::PSMZ24:
+			depthAddress = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMZ32>(
+			    b, depthSwizzleTable, depthBufAddress, depthBufWidth, screenPos);
+			break;
+		case CGSHandler::PSMZ16:
+		case CGSHandler::PSMZ16S:
+			//TODO: Use real swizzle table
+			depthAddress = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMZ16>(
+			    b, depthSwizzleTable, depthBufAddress, depthBufWidth, screenPos);
+			break;
+		}
+
+		switch(caps.framebufferFormat)
+		{
+		default:
+			assert(false);
+		case CGSHandler::PSMCT32:
+		{
+			dstPixel = CMemoryUtils::Memory_Read32(b, memoryBuffer, fbAddress);
+			dstColor = CMemoryUtils::PSM32ToVec4(b, dstPixel);
+		}
+		break;
+		case CGSHandler::PSMCT24:
+		{
+			dstPixel = CMemoryUtils::Memory_Read24(b, memoryBuffer, fbAddress);
+			dstColor = CMemoryUtils::PSM32ToVec4(b, dstPixel);
+		}
+		break;
+		case CGSHandler::PSMCT16:
+		case CGSHandler::PSMCT16S:
+		{
+			dstPixel = CMemoryUtils::Memory_Read16(b, memoryBuffer, fbAddress);
+			dstColor = CMemoryUtils::PSM16ToVec4(b, dstPixel);
+		}
+		break;
+		}
+
+		//if(needsDstDepth)
+		if(false)
+		{
+			//dstDepth = GetDepth(b, caps.depthbufferFormat, depthAddress, memoryBuffer);
+		}
+
+		outputColor = dstColor->xyzw();
 	}
 
 	Framework::CMemStream shaderStream;
@@ -1905,12 +1957,7 @@ Framework::Vulkan::CShaderModule CDrawMobile::CreateLoadFragmentShader()
 
 Framework::Vulkan::CShaderModule CDrawMobile::CreateStoreFragmentShader()
 {
-	struct LOADSTORE_CAPS
-	{
-		uint32 framebufferFormat;
-		uint32 depthbufferFormat;
-	} caps;
-
+	LOADSTORE_CAPS caps;
 	caps.framebufferFormat = CGSHandler::PSMCT32;
 	caps.depthbufferFormat = CGSHandler::PSMZ32;
 

@@ -109,6 +109,12 @@ namespace GSH_Vulkan
 
 		typedef uint32 DescriptorSetCapsInt;
 
+		struct LOADSTORE_CAPS
+		{
+			uint32 framebufferFormat;
+			uint32 depthbufferFormat;
+		};
+
 		struct DESCRIPTORSET_CAPS : public convertible<DescriptorSetCapsInt>
 		{
 			uint32 hasTexture : 1;
