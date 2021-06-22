@@ -389,7 +389,8 @@ CPS2VM::ProfileFrameDoneSignal::Connection g_profileFrameDoneConnection;
 {
 	if([segue.identifier isEqualToString:@"showSettings"])
 	{
-		SettingsViewController* settingsViewController = segue.destinationViewController;
+		UINavigationController* navViewController = segue.destinationViewController;
+		SettingsViewController* settingsViewController = (SettingsViewController*)navViewController.visibleViewController;
 		settingsViewController.completionHandler = ^() {
 		  [self setupSoundHandler];
 		  [self updateOnScreenWidgets];

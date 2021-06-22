@@ -17,5 +17,6 @@
 @property(copy, nonatomic) void (^completionHandler)();
 
 - (IBAction)returnToSettings:(UIStoryboardSegue*)segue;
+- (IBAction)returnToParent;
 
 @end

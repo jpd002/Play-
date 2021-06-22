@@ -61,7 +61,7 @@
                         </barButtonItem>
                         <barButtonItem key="rightBarButtonItem" title="Settings" id="9Q0-TX-n2Y">
                             <connections>
-                                <segue destination="EKd-Wn-cXY" kind="show" id="5uA-1M-haI"/>
+                                <segue destination="qCJ-De-Dnr" kind="presentation" modalPresentationStyle="fullScreen" id="ire-iX-FYg"/>
                             </connections>
                         </barButtonItem>
                     </navigationItem>
@@ -263,7 +263,13 @@
                             <outlet property="delegate" destination="EKd-Wn-cXY" id="bT3-ke-uVL"/>
                         </connections>
                     </tableView>
-                    <navigationItem key="navigationItem" title="Settings" id="uG2-4L-hAD"/>
+                    <navigationItem key="navigationItem" title="Settings" id="uG2-4L-hAD">
+                        <barButtonItem key="leftBarButtonItem" title="Done" id="nfo-H6-iI3">
+                            <connections>
+                                <action selector="returnToParent" destination="EKd-Wn-cXY" id="R1k-To-SP1"/>
+                            </connections>
+                        </barButtonItem>
+                    </navigationItem>
                     <connections>
                         <outlet property="enableAudioOutput" destination="h83-A2-2Ax" id="B29-zr-Rdh"/>
                         <outlet property="forceBilinearFiltering" destination="RW9-T7-1NA" id="IOT-Cx-rrp"/>
@@ -276,7 +282,7 @@
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="DlU-rA-yok" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="2590" y="-330"/>
+            <point key="canvasLocation" x="3171" y="-330"/>
         </scene>
         <!--Emulator View Controller-->
         <scene sceneID="tne-QT-ifu">
@@ -307,12 +313,29 @@
                         </constraints>
                     </view>
                     <connections>
-                        <segue destination="EKd-Wn-cXY" kind="show" identifier="showSettings" id="N0c-IJ-1dL"/>
+                        <segue destination="qCJ-De-Dnr" kind="show" identifier="showSettings" id="l6E-7c-mqf"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1823" y="497"/>
+            <point key="canvasLocation" x="1583" y="492"/>
+        </scene>
+        <!--Navigation Controller-->
+        <scene sceneID="lUT-EM-yuz">
+            <objects>
+                <navigationController id="qCJ-De-Dnr" sceneMemberID="viewController">
+                    <navigationItem key="navigationItem" id="K8i-Bp-6QV"/>
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="EeV-hN-w9n">
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="56"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </navigationBar>
+                    <connections>
+                        <segue destination="EKd-Wn-cXY" kind="relationship" relationship="rootViewController" id="akV-Zc-pmN"/>
+                    </connections>
+                </navigationController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="8Vz-tE-ity" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="2362" y="-330"/>
         </scene>
         <!--Navigation Controller-->
         <scene sceneID="gLP-K1-Ezx">
@@ -432,11 +455,11 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Cdb-FD-cE2" userLabel="First Responder" sceneMemberID="firstResponder"/>
                 <exit id="AH3-X4-gIY" userLabel="Exit" sceneMemberID="exit"/>
             </objects>
-            <point key="canvasLocation" x="3246" y="-330"/>
+            <point key="canvasLocation" x="3977" y="-330"/>
         </scene>
     </scenes>
     <inferredMetricsTieBreakers>
-        <segue reference="N0c-IJ-1dL"/>
+        <segue reference="l6E-7c-mqf"/>
     </inferredMetricsTieBreakers>
     <resources>
         <systemColor name="groupTableViewBackgroundColor">

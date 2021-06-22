@@ -69,4 +69,9 @@
 	}
 }
 
+- (IBAction)returnToParent
+{
+	[self.presentingViewController dismissViewControllerAnimated: YES completion: nil];
+}
+
 @end
