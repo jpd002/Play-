@@ -1460,6 +1460,7 @@ Framework::Vulkan::CShaderModule CDrawMobile::CreateDrawFragmentShader(const PIP
 		auto dstColor = CFloat4Lvalue(b.CreateVariableFloat("dstColor"));
 		auto dstAlpha = CFloat4Lvalue(b.CreateVariableFloat("dstAlpha"));
 		auto dstDepth = CUintLvalue(b.CreateVariableUint("dstDepth"));
+		auto finalColor = CFloat4Lvalue(b.CreateVariableFloat("finalColor"));
 
 		dstPixel = NewUint(b, 0);
 		dstColor = Load(subpassColorInput, NewInt2(b, 0, 0));
