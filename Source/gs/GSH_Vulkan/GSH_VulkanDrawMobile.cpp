@@ -1486,6 +1486,8 @@ Framework::Vulkan::CShaderModule CDrawMobile::CreateDrawFragmentShader(const PIP
 		else
 		{
 			dstPixel = NewUint(b, 0);
+			dstColor = NewFloat4(b, 0, 0, 0, 0);
+			dstAlpha = NewFloat4(b, 1, 1, 1, 1);
 		}
 
 		if(caps.hasDstAlphaTest)
