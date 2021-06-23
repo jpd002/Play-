@@ -40,11 +40,11 @@ jobs:
         key: ${{ runner.os }}-QtARMCache
     - name: Download Qt ARM Library
       if: steps.cache-qt-arm.outputs.cache-hit != 'true'
-      run: curl -L --show-error --output qt-5.15.2.arm64_big_sur.bottle.tar.gz https://homebrew.bintray.com/bottles/qt-5.15.2.arm64_big_sur.bottle.tar.gz
+      run: curl -L --show-error --header Authorization:\ Bearer\ QQ== --output qt-5.15.2.arm64_big_sur.bottle.tar.gz https://ghcr.io/v2/homebrew/core/qt/5/blobs/sha256:ca6ad27d24c751b85f2b577df3773d52b48f0f286c5b1414ae8d1437ad72a3e4
     - name: Prepare Qt Universal Libs
       run: |
         tar xf qt-5.15.2.arm64_big_sur.bottle.tar.gz
-        python3 .github/CI_MISC/pre_qt_universal_build.py $Qt5_DIR/ `pwd`/qt/5.15.2/
+        python3 .github/CI_MISC/pre_qt_universal_build.py $Qt5_DIR/ `pwd`/qt@5/5.15.2/
     - name: Set SHORT_HASH
       run: echo "::set-output name=VALUE::${LONG_HASH:0:8}"
       id: short_hash
