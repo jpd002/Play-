@@ -176,7 +176,7 @@ namespace GSH_Vulkan
 
 		void CreateFramebuffer();
 		void CreateRenderPass();
-		void CreateDrawImage();
+		void CreateDrawImages();
 
 		PIPELINE CreateDrawPipeline(const PIPELINE_CAPS&);
 		Framework::Vulkan::CShaderModule CreateDrawVertexShader();
@@ -202,8 +202,11 @@ namespace GSH_Vulkan
 
 		FRAMECONTEXT m_frames[MAX_FRAMES];
 
-		Framework::Vulkan::CImage m_drawImage;
-		VkImageView m_drawImageView = VK_NULL_HANDLE;
+		Framework::Vulkan::CImage m_drawColorImage;
+		VkImageView m_drawColorImageView = VK_NULL_HANDLE;
+
+		Framework::Vulkan::CImage m_drawDepthImage;
+		VkImageView m_drawDepthImageView = VK_NULL_HANDLE;
 
 		uint32 m_passVertexStart = 0;
 		uint32 m_passVertexEnd = 0;
