@@ -8,6 +8,15 @@ include(Header)
 
 project(PlayUI)
 
+set(USE_GSH_VULKAN OFF)
+find_package(Vulkan)
+if(Vulkan_FOUND)
+	set(USE_GSH_VULKAN ON)
+	message("Building with Vulkan support.")
+else()
+	message("Building without Vulkan support. If you want to enable Vulkan, please make sure VULKAN_SDK is set and place its path inside CMAKE_PREFIX_PATH.")
+endif()
+
 if(NOT TARGET PlayCore)
 	add_subdirectory(
 		${CMAKE_CURRENT_SOURCE_DIR}/../
@@ -23,6 +32,16 @@ if(NOT TARGET gsh_opengl)
 	)
 endif()
 list(INSERT PROJECT_LIBS 0 gsh_opengl)
+
+if(USE_GSH_VULKAN)
+	if(NOT TARGET gsh_vulkan)
+		add_subdirectory(
+			${CMAKE_CURRENT_SOURCE_DIR}/../gs/GSH_Vulkan
+			${CMAKE_CURRENT_BINARY_DIR}/gs/GSH_Vulkan
+		)
+	endif()
+	list(INSERT PROJECT_LIBS 0 gsh_vulkan)
+endif()
 
 if(NOT TARGET sh_openal)
 	add_subdirectory(
@@ -115,6 +134,12 @@ set(OSX_RES
 	${CMAKE_CURRENT_SOURCE_DIR}/Resources/lr.png
 	${CMAKE_CURRENT_SOURCE_DIR}/Resources/analogstick.png
 )
+
+if(USE_GSH_VULKAN)
+	list(APPEND OSX_SOURCES GSH_VulkaniOS.cpp)
+	list(APPEND OSX_HEADERS GSH_VulkaniOS.h)
+	list(APPEND OSX_RES "$ENV{VULKAN_SDK}/../MoltenVK/dylib/iOS/libMoltenVK.dylib")
+endif()
 
 # Add our Executable
 add_executable(Play MACOSX_BUNDLE ${OSX_SOURCES} ${OSX_HEADERS} ${OSX_RES})

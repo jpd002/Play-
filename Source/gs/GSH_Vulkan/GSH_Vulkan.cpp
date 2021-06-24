@@ -54,7 +54,11 @@ Framework::Vulkan::CInstance CGSH_Vulkan::CreateInstance(bool useValidationLayer
 	extensions.push_back(VK_KHR_WIN32_SURFACE_EXTENSION_NAME);
 #endif
 #ifdef __APPLE__
-	extensions.push_back(VK_MVK_MACOS_SURFACE_EXTENSION_NAME);
+	#if TARGET_OS_IPHONE
+		extensions.push_back(VK_MVK_IOS_SURFACE_EXTENSION_NAME);
+	#else
+		extensions.push_back(VK_MVK_MACOS_SURFACE_EXTENSION_NAME);
+	#endif
 #endif
 #ifdef __linux__
 	extensions.push_back(VK_KHR_XCB_SURFACE_EXTENSION_NAME);
@@ -360,7 +364,10 @@ void CGSH_Vulkan::CreateDevice(VkPhysicalDevice physicalDevice)
 
 	auto physicalDeviceFeatures2 = Framework::Vulkan::PhysicalDeviceFeatures2KHR();
 	physicalDeviceFeatures2.pNext = &physicalDeviceFeaturesInvocationInterlock;
+#ifndef __APPLE__
+	//MoltenVK doesn't report this properly (probably due to mobile devices supporting buffer stores and not image stores)
 	physicalDeviceFeatures2.features.fragmentStoresAndAtomics = VK_TRUE;
+#endif
 	physicalDeviceFeatures2.features.shaderInt16 = VK_TRUE;
 
 	auto physicalDeviceVulkan12features = Framework::Vulkan::PhysicalDeviceVulkan12Features();
