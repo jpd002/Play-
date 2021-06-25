@@ -93,6 +93,7 @@ namespace Dmac
 			SCCTRL_INITXFER = 0x200,
 		};
 
+		void ExecuteSourceChainTransfer(bool);
 		void ClearSTR();
 
 		unsigned int m_number = 0;

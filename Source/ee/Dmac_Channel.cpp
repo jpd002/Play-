@@ -285,10 +285,7 @@ void CChannel::ExecuteSourceChain()
 	//Execute current
 	if(m_nQWC != 0)
 	{
-		uint32 nRecv = m_receive(m_nMADR, m_nQWC, CHCR_DIR_FROM, false);
-
-		m_nMADR += nRecv * 0x10;
-		m_nQWC -= nRecv;
+		ExecuteSourceChainTransfer(isMfifo);
 
 		if(m_nQWC != 0)
 		{
@@ -456,42 +453,7 @@ void CChannel::ExecuteSourceChain()
 			continue;
 		}
 
-		uint32 qwc = m_nQWC;
-		if((nID == DMATAG_SRC_CNT) && isMfifo)
-		{
-			//Adjust QWC in MFIFO mode
-			uint32 ringBufferAddr = m_nMADR - m_dmac.m_D_RBOR;
-			uint32 ringBufferSize = m_dmac.m_D_RBSR + 0x10;
-			assert(ringBufferAddr <= ringBufferSize);
-
-			qwc = std::min<int32>(m_nQWC, (ringBufferSize - ringBufferAddr) / 0x10);
-		}
-
-		if(qwc != 0)
-		{
-			uint32 nRecv = m_receive(m_nMADR, qwc, CHCR_DIR_FROM, false);
-
-			m_nMADR += nRecv * 0x10;
-			m_nQWC -= nRecv;
-		}
-
-		if(isMfifo)
-		{
-			if(nID == DMATAG_SRC_CNT)
-			{
-				//Loop MADR if needed
-				uint32 ringBufferSize = m_dmac.m_D_RBSR + 0x10;
-				if(m_nMADR == (m_dmac.m_D_RBOR + ringBufferSize))
-				{
-					m_nMADR = m_dmac.m_D_RBOR;
-				}
-			}
-
-			//Mask TADR because it's in the ring buffer zone
-			m_nTADR -= m_dmac.m_D_RBOR;
-			m_nTADR &= m_dmac.m_D_RBSR;
-			m_nTADR += m_dmac.m_D_RBOR;
-		}
+		ExecuteSourceChainTransfer(isMfifo);
 	}
 }
 
@@ -537,6 +499,48 @@ void CChannel::ExecuteDestinationChain()
 void CChannel::SetReceiveHandler(const DmaReceiveHandler& handler)
 {
 	m_receive = handler;
+}
+
+void CChannel::ExecuteSourceChainTransfer(bool isMfifo)
+{
+	uint32 nID = m_CHCR.nTAG >> 12;
+
+	uint32 qwc = m_nQWC;
+	if((nID == DMATAG_SRC_CNT) && isMfifo)
+	{
+		//Adjust QWC in MFIFO mode
+		uint32 ringBufferAddr = m_nMADR - m_dmac.m_D_RBOR;
+		uint32 ringBufferSize = m_dmac.m_D_RBSR + 0x10;
+		assert(ringBufferAddr <= ringBufferSize);
+
+		qwc = std::min<int32>(m_nQWC, (ringBufferSize - ringBufferAddr) / 0x10);
+	}
+
+	if(qwc != 0)
+	{
+		uint32 nRecv = m_receive(m_nMADR, qwc, CHCR_DIR_FROM, false);
+
+		m_nMADR += nRecv * 0x10;
+		m_nQWC -= nRecv;
+	}
+
+	if(isMfifo)
+	{
+		if(nID == DMATAG_SRC_CNT)
+		{
+			//Loop MADR if needed
+			uint32 ringBufferSize = m_dmac.m_D_RBSR + 0x10;
+			if(m_nMADR == (m_dmac.m_D_RBOR + ringBufferSize))
+			{
+				m_nMADR = m_dmac.m_D_RBOR;
+			}
+		}
+
+		//Mask TADR because it's in the ring buffer zone
+		m_nTADR -= m_dmac.m_D_RBOR;
+		m_nTADR &= m_dmac.m_D_RBSR;
+		m_nTADR += m_dmac.m_D_RBOR;
+	}
 }
 
 void CChannel::ClearSTR()
