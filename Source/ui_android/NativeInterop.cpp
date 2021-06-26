@@ -20,6 +20,7 @@
 #include "../gs/GSH_Null.h"
 #include "NativeShared.h"
 #include "GSH_OpenGLAndroid.h"
+#include "GSH_VulkanAndroid.h"
 #include "SH_OpenSL.h"
 #include "ui_shared/StatsManager.h"
 #include "com_virtualapplications_play_Bootable.h"
@@ -199,13 +200,14 @@ extern "C" JNIEXPORT void JNICALL Java_com_virtualapplications_play_NativeIntero
 	auto gsHandler = g_virtualMachine->GetGSHandler();
 	if(gsHandler == nullptr)
 	{
-		g_virtualMachine->CreateGSHandler(CGSH_OpenGLAndroid::GetFactoryFunction(nativeWindow));
+		//g_virtualMachine->CreateGSHandler(CGSH_OpenGLAndroid::GetFactoryFunction(nativeWindow));
+		g_virtualMachine->CreateGSHandler(CGSH_VulkanAndroid::GetFactoryFunction(nativeWindow));
 		g_OnNewFrameConnection = g_virtualMachine->m_ee->m_gs->OnNewFrame.Connect(
 		    std::bind(&CStatsManager::OnNewFrame, &CStatsManager::GetInstance(), std::placeholders::_1));
 	}
 	else
 	{
-		static_cast<CGSH_OpenGLAndroid*>(gsHandler)->SetWindow(nativeWindow);
+		//static_cast<CGSH_OpenGLAndroid*>(gsHandler)->SetWindow(nativeWindow);
 	}
 }
 
