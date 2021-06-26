@@ -61,7 +61,11 @@ Framework::Vulkan::CInstance CGSH_Vulkan::CreateInstance(bool useValidationLayer
 #endif
 #endif
 #ifdef __linux__
-	extensions.push_back(VK_KHR_XCB_SURFACE_EXTENSION_NAME);
+	#ifdef __ANDROID__
+		extensions.push_back(VK_KHR_ANDROID_SURFACE_EXTENSION_NAME);
+	#else
+		extensions.push_back(VK_KHR_XCB_SURFACE_EXTENSION_NAME);
+	#endif
 #endif
 
 	std::vector<const char*> layers;

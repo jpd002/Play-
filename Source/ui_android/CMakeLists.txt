@@ -24,6 +24,14 @@ if(NOT TARGET gsh_opengl)
 endif()
 list(INSERT PROJECT_LIBS 0 gsh_opengl)
 
+if(NOT TARGET gsh_vulkan)
+	add_subdirectory(
+		${CMAKE_CURRENT_SOURCE_DIR}/../gs/GSH_Vulkan
+		${CMAKE_CURRENT_BINARY_DIR}/gs/GSH_Vulkan
+	)
+endif()
+list(INSERT PROJECT_LIBS 0 gsh_vulkan)
+
 if(NOT TARGET ui_shared)
 	add_subdirectory(
 		${CMAKE_CURRENT_SOURCE_DIR}/../ui_shared
@@ -37,6 +45,9 @@ set(ANDROID_SRC_FILES
 	com_virtualapplications_play_Bootable.cpp
 	com_virtualapplications_play_Bootable.h
 	GSH_OpenGLAndroid.cpp
+	GSH_OpenGLAndroid.h
+	GSH_VulkanAndroid.cpp
+	GSH_VulkanAndroid.h
 	InputManager.cpp
 	NativeInterop.cpp
 	NativeShared.cpp
