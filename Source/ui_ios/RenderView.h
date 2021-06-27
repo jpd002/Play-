@@ -1,7 +1,6 @@
 #import <UIKit/UIKit.h>
-#include "opengl/OpenGlDef.h"
 
-@interface GlEsView : UIView
+@interface RenderView : UIView
 {
 @private
 	BOOL hasRetinaDisplay;

@@ -88,9 +88,10 @@ set(OSX_SOURCES
 	CoverViewController.mm
 	DebuggerSimulator.cpp
 	EmulatorViewController.mm
-	GlEsView.mm
 	GSH_OpenGLiOS.cpp
 	main.mm
+	PreferenceDefs.h
+	RenderView.mm
 	ResolutionFactorSelectorViewController.mm
 	SettingsViewController.mm
 	VirtualPadButton.mm
@@ -106,8 +107,8 @@ set(OSX_HEADERS
 	CoverViewController.h
 	DebuggerSimulator.h
 	EmulatorViewController.h
-	GlEsView.h
 	GSH_OpenGLiOS.h
+	RenderView.h
 	ResolutionFactorSelectorViewController.h
 	SettingsViewController.h
 	VirtualPadButton.h

@@ -1,12 +1,13 @@
 #include "PathUtils.h"
 #import "EmulatorViewController.h"
 #import "SettingsViewController.h"
-#import "GlEsView.h"
+#import "RenderView.h"
 #include "../PS2VM.h"
 #include "../PS2VM_Preferences.h"
 #include "../AppConfig.h"
 #include "PreferenceDefs.h"
 #include "GSH_OpenGLiOS.h"
+#include "GSH_VulkaniOS.h"
 #include "../ui_shared/BootablesProcesses.h"
 #include "PH_Generic.h"
 #include "../../tools/PsfPlayer/Source/SH_OpenAL.h"
@@ -29,6 +30,7 @@ CPS2VM::ProfileFrameDoneSignal::Connection g_profileFrameDoneConnection;
 	CAppConfig::GetInstance().RegisterPreferenceBoolean(PREFERENCE_UI_SHOWFPS, false);
 	CAppConfig::GetInstance().RegisterPreferenceBoolean(PREFERENCE_UI_SHOWVIRTUALPAD, true);
 	CAppConfig::GetInstance().RegisterPreferenceBoolean(PREFERENCE_AUDIO_ENABLEOUTPUT, true);
+	CAppConfig::GetInstance().RegisterPreferenceInteger(PREFERENCE_VIDEO_GS_HANDLER, PREFERENCE_VALUE_VIDEO_GS_HANDLER_OPENGL);
 }
 
 - (void)viewDidLoad
@@ -68,7 +70,19 @@ CPS2VM::ProfileFrameDoneSignal::Connection g_profileFrameDoneConnection;
 	assert(g_virtualMachine == nullptr);
 	g_virtualMachine = new CPS2VM();
 	g_virtualMachine->Initialize();
-	g_virtualMachine->CreateGSHandler(CGSH_OpenGLiOS::GetFactoryFunction((CAEAGLLayer*)self.view.layer));
+
+	auto gsHandlerId = CAppConfig::GetInstance().GetPreferenceInteger(PREFERENCE_VIDEO_GS_HANDLER);
+	switch(gsHandlerId)
+	{
+	default:
+		[[fallthrough]];
+	case PREFERENCE_VALUE_VIDEO_GS_HANDLER_OPENGL:
+		g_virtualMachine->CreateGSHandler(CGSH_OpenGLiOS::GetFactoryFunction((CAEAGLLayer*)self.view.layer));
+		break;
+	case PREFERENCE_VALUE_VIDEO_GS_HANDLER_VULKAN:
+		g_virtualMachine->CreateGSHandler(CGSH_VulkaniOS::GetFactoryFunction((CAMetalLayer*)self.view.layer));
+		break;
+	}
 
 	g_virtualMachine->CreatePadHandler(CPH_Generic::GetFactoryFunction());
 
