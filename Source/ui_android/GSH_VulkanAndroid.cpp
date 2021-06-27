@@ -13,11 +13,7 @@ CGSHandler::FactoryFunction CGSH_VulkanAndroid::GetFactoryFunction(ANativeWindow
 
 void CGSH_VulkanAndroid::InitializeImpl()
 {
-	VkInstanceCreateInfo info = {};
-	const char* extensions[] = { VK_KHR_SURFACE_EXTENSION_NAME, VK_KHR_ANDROID_SURFACE_EXTENSION_NAME };
-	info.enabledExtensionCount = 2;
-	info.ppEnabledExtensionNames = extensions;
-	m_instance = Framework::Vulkan::CInstance(info);
+	m_instance = CreateInstance(true);
 	
 	VkAndroidSurfaceCreateInfoKHR surfaceCreateInfo = {};
 	surfaceCreateInfo.window = m_window;
