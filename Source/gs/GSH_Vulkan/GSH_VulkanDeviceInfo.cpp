@@ -69,12 +69,12 @@ void CDeviceInfo::PopulateDevices()
 			result = instance.vkEnumerateDeviceExtensionProperties(physicalDevice, nullptr, &propertyCount, properties.data());
 			CHECKVULKANERROR(result);
 
-			auto propertyIterator = std::find_if(properties.begin(), properties.end(), [](const auto& property) { return (strcmp(property.extensionName, VK_EXT_FRAGMENT_SHADER_INTERLOCK_EXTENSION_NAME) == 0); });
-			if(propertyIterator == std::end(properties))
-			{
-				m_log += "Device not suitable: Doesn't support " VK_EXT_FRAGMENT_SHADER_INTERLOCK_EXTENSION_NAME ".";
-			}
-			else
+			//auto propertyIterator = std::find_if(properties.begin(), properties.end(), [](const auto& property) { return (strcmp(property.extensionName, VK_EXT_FRAGMENT_SHADER_INTERLOCK_EXTENSION_NAME) == 0); });
+			//if(propertyIterator == std::end(properties))
+			//{
+			//	m_log += "Device not suitable: Doesn't support " VK_EXT_FRAGMENT_SHADER_INTERLOCK_EXTENSION_NAME ".";
+			//}
+			//else
 			{
 				m_devices.push_back({physicalDeviceProperties.deviceName, physicalDeviceProperties.vendorID, physicalDeviceProperties.deviceID});
 			}

@@ -82,7 +82,7 @@ Framework::Vulkan::CInstance CGSH_Vulkan::CreateInstance(bool useValidationLayer
 	auto appInfo = Framework::Vulkan::ApplicationInfo();
 	appInfo.pApplicationName = "Play!";
 	appInfo.pEngineName = "Play!";
-	appInfo.apiVersion = VK_API_VERSION_1_2;
+	appInfo.apiVersion = VK_API_VERSION_1_0;
 
 	instanceCreateInfo.pApplicationInfo = &appInfo;
 	instanceCreateInfo.enabledExtensionCount = extensions.size();
@@ -366,7 +366,7 @@ void CGSH_Vulkan::CreateDevice(VkPhysicalDevice physicalDevice)
 
 	std::vector<const char*> enabledExtensions;
 	enabledExtensions.push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
-	enabledExtensions.push_back(VK_EXT_FRAGMENT_SHADER_INTERLOCK_EXTENSION_NAME);
+	//enabledExtensions.push_back(VK_EXT_FRAGMENT_SHADER_INTERLOCK_EXTENSION_NAME);
 
 	std::vector<const char*> enabledLayers;
 
