@@ -448,6 +448,13 @@ void CGSH_Vulkan::CreateDescriptorPool()
 		poolSizes.push_back(poolSize);
 	}
 
+	{
+		VkDescriptorPoolSize poolSize = {};
+		poolSize.type = VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT;
+		poolSize.descriptorCount = 0x800;
+		poolSizes.push_back(poolSize);
+	}
+
 	auto descriptorPoolCreateInfo = Framework::Vulkan::DescriptorPoolCreateInfo();
 	descriptorPoolCreateInfo.poolSizeCount = static_cast<uint32>(poolSizes.size());
 	descriptorPoolCreateInfo.pPoolSizes = poolSizes.data();
