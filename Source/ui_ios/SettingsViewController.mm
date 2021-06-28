@@ -67,6 +67,15 @@
 	[tableView deselectRowAtIndexPath:indexPath animated:YES];
 }
 
+- (BOOL)shouldPerformSegueWithIdentifier:(NSString*)identifier sender:(id)sender
+{
+	if([identifier isEqualToString:@"showGsHandlerSelector"])
+	{
+		//We can't change the GS handler if the emulator is running in the background
+		return (self.completionHandler == nil);
+	}
+}
+
 - (void)prepareForSegue:(UIStoryboardSegue*)segue sender:(id)sender
 {
 	if([segue.identifier isEqualToString:@"showResolutionFactorSelector"])
