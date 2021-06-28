@@ -114,6 +114,7 @@ VkDescriptorSet CTransferLocal::PrepareDescriptorSet(VkDescriptorSetLayout descr
 		}
 
 		//Memory Image Descriptor 8 bit
+		if(false)
 		{
 			auto writeSet = Framework::Vulkan::WriteDescriptorSet();
 			writeSet.dstSet = descriptorSet;
@@ -125,6 +126,7 @@ VkDescriptorSet CTransferLocal::PrepareDescriptorSet(VkDescriptorSetLayout descr
 		}
 
 		//Memory Image Descriptor 16 bit
+		if(false)
 		{
 			auto writeSet = Framework::Vulkan::WriteDescriptorSet();
 			writeSet.dstSet = descriptorSet;
@@ -177,8 +179,8 @@ Framework::Vulkan::CShaderModule CTransferLocal::CreateShader(const PIPELINE_CAP
 	{
 		auto inputInvocationId = CInt4Lvalue(b.CreateInputInt(Nuanceur::SEMANTIC_SYSTEM_GIID));
 		auto memoryBuffer = CArrayUintValue(b.CreateUniformArrayUint("memoryBuffer", DESCRIPTOR_LOCATION_MEMORY));
-		auto memoryBuffer8 = CArrayUcharValue(b.CreateUniformArrayUchar("memoryBuffer8", DESCRIPTOR_LOCATION_MEMORY_8BIT));
-		auto memoryBuffer16 = CArrayUshortValue(b.CreateUniformArrayUshort("memoryBuffer16", DESCRIPTOR_LOCATION_MEMORY_16BIT));
+		//auto memoryBuffer8 = CArrayUcharValue(b.CreateUniformArrayUchar("memoryBuffer8", DESCRIPTOR_LOCATION_MEMORY_8BIT));
+		//auto memoryBuffer16 = CArrayUshortValue(b.CreateUniformArrayUshort("memoryBuffer16", DESCRIPTOR_LOCATION_MEMORY_16BIT));
 		auto srcSwizzleTable = CImageUint2DValue(b.CreateImage2DUint(DESCRIPTOR_LOCATION_SWIZZLETABLE_SRC));
 		auto dstSwizzleTable = CImageUint2DValue(b.CreateImage2DUint(DESCRIPTOR_LOCATION_SWIZZLETABLE_DST));
 
@@ -269,14 +271,14 @@ Framework::Vulkan::CShaderModule CTransferLocal::CreateShader(const PIPELINE_CAP
 		{
 			auto address = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT16>(
 			    b, dstSwizzleTable, dstBufAddress, dstBufWidth, dstPos);
-			CMemoryUtils::Memory_Write16(b, memoryBuffer16, address, pixel);
+			CMemoryUtils::Memory_Write16(b, memoryBuffer, address, pixel);
 		}
 		break;
 		case CGSHandler::PSMT8:
 		{
 			auto address = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMT8>(
 			    b, dstSwizzleTable, dstBufAddress, dstBufWidth, dstPos);
-			CMemoryUtils::Memory_Write8(b, memoryBuffer8, address, pixel);
+			CMemoryUtils::Memory_Write8(b, memoryBuffer, address, pixel);
 		}
 		break;
 		case CGSHandler::PSMT4HL:
@@ -321,6 +323,7 @@ PIPELINE CTransferLocal::CreatePipeline(const PIPELINE_CAPS& caps)
 		}
 
 		//GS memory 8 bit
+		if(false)
 		{
 			VkDescriptorSetLayoutBinding binding = {};
 			binding.binding = DESCRIPTOR_LOCATION_MEMORY_8BIT;
@@ -331,6 +334,7 @@ PIPELINE CTransferLocal::CreatePipeline(const PIPELINE_CAPS& caps)
 		}
 
 		//GS memory 16 bit
+		if(false)
 		{
 			VkDescriptorSetLayoutBinding binding = {};
 			binding.binding = DESCRIPTOR_LOCATION_MEMORY_16BIT;
