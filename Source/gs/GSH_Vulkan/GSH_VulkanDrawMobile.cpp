@@ -2017,6 +2017,11 @@ Framework::Vulkan::CShaderModule CDrawMobile::CreateLoadFragmentShader()
 			break;
 		}
 
+		//Prevent writing out of bounds (seems to cause wierd issues
+		//on Intel GPUs with games such as SNK vs. Capcom: SVC Chaos)
+		fbAddress = fbAddress & NewInt(b, CGSHandler::RAMSIZE - 1);
+		depthAddress = depthAddress & NewInt(b, CGSHandler::RAMSIZE - 1);
+
 		switch(caps.framebufferFormat)
 		{
 		default:
