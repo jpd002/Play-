@@ -14,11 +14,7 @@ CGSHandler::FactoryFunction CGSH_VulkaniOS::GetFactoryFunction(CAMetalLayer* lay
 
 void CGSH_VulkaniOS::InitializeImpl()
 {
-	VkInstanceCreateInfo info = {};
-	const char* extensions[] = { VK_KHR_SURFACE_EXTENSION_NAME, VK_MVK_IOS_SURFACE_EXTENSION_NAME };
-	info.enabledExtensionCount = 2;
-	info.ppEnabledExtensionNames = extensions;
-	m_instance = Framework::Vulkan::CInstance(info);
+	m_instance = CreateInstance(true);
 	
 	VkIOSSurfaceCreateInfoMVK surfaceCreateInfo = {};
 	surfaceCreateInfo.pView = (__bridge void*)m_layer;
