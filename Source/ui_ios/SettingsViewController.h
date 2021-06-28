@@ -5,6 +5,7 @@
 	IBOutlet UISwitch* showFpsSwitch;
 	IBOutlet UISwitch* showVirtualPadSwitch;
 
+	IBOutlet UILabel* gsHandlerName;
 	IBOutlet UILabel* resolutionFactor;
 	IBOutlet UISwitch* resizeOutputToWidescreen;
 	IBOutlet UISwitch* forceBilinearFiltering;
@@ -16,7 +17,8 @@
 
 @property(copy, nonatomic) void (^completionHandler)();
 
-- (IBAction)returnToSettings:(UIStoryboardSegue*)segue;
+- (IBAction)selectedGsHandler:(UIStoryboardSegue*)segue;
+- (IBAction)selectedResolutionFactor:(UIStoryboardSegue*)segue;
 - (IBAction)returnToParent;
 
 @end

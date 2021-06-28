@@ -92,7 +92,7 @@ set(OSX_SOURCES
 	main.mm
 	PreferenceDefs.h
 	RenderView.mm
-	ResolutionFactorSelectorViewController.mm
+	SettingsListSelectorViewController.mm
 	SettingsViewController.mm
 	VirtualPadButton.mm
 	VirtualPadItem.mm
@@ -109,7 +109,7 @@ set(OSX_HEADERS
 	EmulatorViewController.h
 	GSH_OpenGLiOS.h
 	RenderView.h
-	ResolutionFactorSelectorViewController.h
+	SettingsListSelectorViewController.h
 	SettingsViewController.h
 	VirtualPadButton.h
 	VirtualPadItem.h

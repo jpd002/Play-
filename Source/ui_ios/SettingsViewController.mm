@@ -1,10 +1,26 @@
 #import "SettingsViewController.h"
-#import "ResolutionFactorSelectorViewController.h"
+#import "SettingsListSelectorViewController.h"
 #include "../AppConfig.h"
 #include "PreferenceDefs.h"
 #include "../gs/GSH_OpenGL/GSH_OpenGL.h"
 
 @implementation SettingsViewController
+
+- (void)updateGsHandlerNameLabel
+{
+	int gsHandlerId = CAppConfig::GetInstance().GetPreferenceInteger(PREFERENCE_VIDEO_GS_HANDLER);
+	switch(gsHandlerId)
+	{
+	default:
+		[[fallthrough]];
+	case PREFERENCE_VALUE_VIDEO_GS_HANDLER_OPENGL:
+		[gsHandlerName setText: @"OpenGL"];
+		break;
+	case PREFERENCE_VALUE_VIDEO_GS_HANDLER_VULKAN:
+		[gsHandlerName setText: @"Vulkan"];
+		break;
+	}
+}
 
 - (void)updateResolutionFactorLabel
 {
@@ -17,6 +33,7 @@
 	[showFpsSwitch setOn:CAppConfig::GetInstance().GetPreferenceBoolean(PREFERENCE_UI_SHOWFPS)];
 	[showVirtualPadSwitch setOn:CAppConfig::GetInstance().GetPreferenceBoolean(PREFERENCE_UI_SHOWVIRTUALPAD)];
 
+	[self updateGsHandlerNameLabel];
 	[self updateResolutionFactorLabel];
 	[resizeOutputToWidescreen setOn:CAppConfig::GetInstance().GetPreferenceBoolean(PREF_CGSHANDLER_WIDESCREEN)];
 	[forceBilinearFiltering setOn:CAppConfig::GetInstance().GetPreferenceBoolean(PREF_CGSH_OPENGL_FORCEBILINEARTEXTURES)];
@@ -52,21 +69,32 @@
 
 - (void)prepareForSegue:(UIStoryboardSegue*)segue sender:(id)sender
 {
-	if([segue.destinationViewController isKindOfClass:[ResolutionFactorSelectorViewController class]])
+	if([segue.identifier isEqualToString:@"showResolutionFactorSelector"])
 	{
-		ResolutionFactorSelectorViewController* selector = (ResolutionFactorSelectorViewController*)segue.destinationViewController;
-		selector.factor = CAppConfig::GetInstance().GetPreferenceInteger(PREF_CGSH_OPENGL_RESOLUTION_FACTOR);
+		SettingsListSelectorViewController* selector = (SettingsListSelectorViewController*)segue.destinationViewController;
+		int factor = CAppConfig::GetInstance().GetPreferenceInteger(PREF_CGSH_OPENGL_RESOLUTION_FACTOR);
+		selector.value = log2(factor);
+	}
+	else if([segue.identifier isEqualToString:@"showGsHandlerSelector"])
+	{
+		SettingsListSelectorViewController* selector = (SettingsListSelectorViewController*)segue.destinationViewController;
+		selector.value = CAppConfig::GetInstance().GetPreferenceInteger(PREFERENCE_VIDEO_GS_HANDLER);
 	}
 }
 
-- (IBAction)returnToSettings:(UIStoryboardSegue*)segue
+- (IBAction)selectedGsHandler:(UIStoryboardSegue*)segue
 {
-	if([segue.sourceViewController isKindOfClass:[ResolutionFactorSelectorViewController class]])
-	{
-		ResolutionFactorSelectorViewController* selector = (ResolutionFactorSelectorViewController*)segue.sourceViewController;
-		CAppConfig::GetInstance().SetPreferenceInteger(PREF_CGSH_OPENGL_RESOLUTION_FACTOR, selector.factor);
-		[self updateResolutionFactorLabel];
-	}
+	SettingsListSelectorViewController* selector = (SettingsListSelectorViewController*)segue.sourceViewController;
+	CAppConfig::GetInstance().SetPreferenceInteger(PREFERENCE_VIDEO_GS_HANDLER, selector.value);
+	[self updateGsHandlerNameLabel];
+}
+
+- (IBAction)selectedResolutionFactor:(UIStoryboardSegue*)segue
+{
+	SettingsListSelectorViewController* selector = (SettingsListSelectorViewController*)segue.sourceViewController;
+	int factor = 1 << selector.value;
+	CAppConfig::GetInstance().SetPreferenceInteger(PREF_CGSH_OPENGL_RESOLUTION_FACTOR, factor);
+	[self updateResolutionFactorLabel];
 }
 
 - (IBAction)returnToParent
