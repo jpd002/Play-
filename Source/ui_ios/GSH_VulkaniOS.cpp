@@ -3,7 +3,7 @@
 #include "vulkan/Loader.h"
 
 CGSH_VulkaniOS::CGSH_VulkaniOS(CAMetalLayer* layer)
-	: m_layer(layer)
+    : m_layer(layer)
 {
 }
 
@@ -15,14 +15,14 @@ CGSHandler::FactoryFunction CGSH_VulkaniOS::GetFactoryFunction(CAMetalLayer* lay
 void CGSH_VulkaniOS::InitializeImpl()
 {
 	m_instance = CreateInstance(true);
-	
+
 	VkIOSSurfaceCreateInfoMVK surfaceCreateInfo = {};
 	surfaceCreateInfo.pView = (__bridge void*)m_layer;
 	auto result = m_instance.vkCreateIOSSurfaceMVK(m_instance, &surfaceCreateInfo, nullptr, &m_context->surface);
 	CHECKVULKANERROR(result);
 
 	CGSH_Vulkan::InitializeImpl();
-	
+
 	{
 		CGSize drawableSize = m_layer.drawableSize;
 
@@ -37,5 +37,4 @@ void CGSH_VulkaniOS::InitializeImpl()
 
 void CGSH_VulkaniOS::PresentBackbuffer()
 {
-	
 }

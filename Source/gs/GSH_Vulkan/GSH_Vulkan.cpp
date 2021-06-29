@@ -54,11 +54,11 @@ Framework::Vulkan::CInstance CGSH_Vulkan::CreateInstance(bool useValidationLayer
 	extensions.push_back(VK_KHR_WIN32_SURFACE_EXTENSION_NAME);
 #endif
 #ifdef __APPLE__
-	#if TARGET_OS_IPHONE
-		extensions.push_back(VK_MVK_IOS_SURFACE_EXTENSION_NAME);
-	#else
-		extensions.push_back(VK_MVK_MACOS_SURFACE_EXTENSION_NAME);
-	#endif
+#if TARGET_OS_IPHONE
+	extensions.push_back(VK_MVK_IOS_SURFACE_EXTENSION_NAME);
+#else
+	extensions.push_back(VK_MVK_MACOS_SURFACE_EXTENSION_NAME);
+#endif
 #endif
 #ifdef __linux__
 	extensions.push_back(VK_KHR_XCB_SURFACE_EXTENSION_NAME);

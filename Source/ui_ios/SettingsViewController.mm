@@ -14,10 +14,10 @@
 	default:
 		[[fallthrough]];
 	case PREFERENCE_VALUE_VIDEO_GS_HANDLER_OPENGL:
-		[gsHandlerName setText: @"OpenGL"];
+		[gsHandlerName setText:@"OpenGL"];
 		break;
 	case PREFERENCE_VALUE_VIDEO_GS_HANDLER_VULKAN:
-		[gsHandlerName setText: @"Vulkan"];
+		[gsHandlerName setText:@"Vulkan"];
 		break;
 	}
 }

@@ -34,17 +34,17 @@
 			}
 		}
 	}
-	
+
 	self.layer.opaque = TRUE;
-	
+
 	auto gsHandlerId = CAppConfig::GetInstance().GetPreferenceInteger(PREFERENCE_VIDEO_GS_HANDLER);
 	if(gsHandlerId == PREFERENCE_VALUE_VIDEO_GS_HANDLER_OPENGL)
 	{
 		CAEAGLLayer* layer = (CAEAGLLayer*)self.layer;
 		layer.drawableProperties = [NSDictionary dictionaryWithObjectsAndKeys:
-										[NSNumber numberWithBool: FALSE], kEAGLDrawablePropertyRetainedBacking,
-										kEAGLColorFormatRGBA8, kEAGLDrawablePropertyColorFormat,
-										nil];
+		                                             [NSNumber numberWithBool:FALSE], kEAGLDrawablePropertyRetainedBacking,
+		                                             kEAGLColorFormatRGBA8, kEAGLDrawablePropertyColorFormat,
+		                                             nil];
 	}
 }
 
