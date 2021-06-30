@@ -2158,7 +2158,7 @@ void CDrawMobile::CreateDrawImages()
 {
 	m_drawColorImage = Framework::Vulkan::CImage(m_context->device, m_context->physicalDeviceMemoryProperties,
 	                                             VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT,
-	                                             VK_FORMAT_R8G8B8A8_UNORM, DRAW_AREA_SIZE, DRAW_AREA_SIZE, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT | VK_MEMORY_PROPERTY_LAZILY_ALLOCATED_BIT);
+	                                             VK_FORMAT_R8G8B8A8_UNORM, DRAW_AREA_SIZE, DRAW_AREA_SIZE, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
 	m_drawColorImage.SetLayout(m_context->queue, m_context->commandBufferPool,
 	                           VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT, VK_IMAGE_ASPECT_COLOR_BIT);
@@ -2167,7 +2167,7 @@ void CDrawMobile::CreateDrawImages()
 
 	m_drawDepthImage = Framework::Vulkan::CImage(m_context->device, m_context->physicalDeviceMemoryProperties,
 	                                             VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT | VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT,
-	                                             VK_FORMAT_D32_SFLOAT, DRAW_AREA_SIZE, DRAW_AREA_SIZE, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT | VK_MEMORY_PROPERTY_LAZILY_ALLOCATED_BIT);
+	                                             VK_FORMAT_D32_SFLOAT, DRAW_AREA_SIZE, DRAW_AREA_SIZE, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
 	m_drawDepthImage.SetLayout(m_context->queue, m_context->commandBufferPool,
 	                           VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT, VK_IMAGE_ASPECT_DEPTH_BIT);
