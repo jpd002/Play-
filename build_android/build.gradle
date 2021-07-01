@@ -16,7 +16,7 @@ buildscript {
 project.ext {
 	keyStorePropFile = rootProject.file('keystore.properties')
 	signingEnabled = keyStorePropFile.exists()
-	git = org.ajoberstar.grgit.Grgit.open()
+	git = org.ajoberstar.grgit.Grgit.open(currentDir: project.rootDir)
 	gitVersionCode = git.tag.list().size()
 	gitVersionName = "${git.describe()}"
 }
