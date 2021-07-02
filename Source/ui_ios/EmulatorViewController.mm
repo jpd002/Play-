@@ -13,14 +13,16 @@
 #include "../../tools/PsfPlayer/Source/SH_OpenAL.h"
 #include "../ui_shared/StatsManager.h"
 
+#import "Play-Swift.h"
+
 CPS2VM* g_virtualMachine = nullptr;
 CGSHandler::NewFrameEvent::Connection g_newFrameConnection;
 #ifdef PROFILE
 CPS2VM::ProfileFrameDoneSignal::Connection g_profileFrameDoneConnection;
 #endif
 
-@interface EmulatorViewController ()
-
+@interface EmulatorViewController ()<SaveStateDelegate>
+@property(nonatomic, strong) SaveStateController *saveStateController;
 @end
 
 @implementation EmulatorViewController
@@ -63,6 +65,18 @@ CPS2VM::ProfileFrameDoneSignal::Connection g_profileFrameDoneConnection;
 	[self.view addSubview:self.iCadeReader];
 	self.iCadeReader.delegate = self;
 	self.iCadeReader.active = YES;
+    
+    self.saveStateController = [[SaveStateController alloc] init];
+    self.saveStateController.delegate = self;
+    [self addChildViewController:self.saveStateController];
+    [self.saveStateController didMoveToParentViewController:self];
+    [self.view addSubview:self.saveStateController.view];
+    self.saveStateController.view.hidden = YES;
+    self.saveStateController.view.translatesAutoresizingMaskIntoConstraints = false;
+    [[self.saveStateController.view.topAnchor constraintEqualToAnchor:self.view.topAnchor] setActive:YES];
+    [[self.saveStateController.view.bottomAnchor constraintEqualToAnchor:self.view.bottomAnchor] setActive:YES];
+    [[self.saveStateController.view.leadingAnchor constraintEqualToAnchor:self.view.leadingAnchor] setActive:YES];
+    [[self.saveStateController.view.trailingAnchor constraintEqualToAnchor:self.view.trailingAnchor] setActive:YES];
 }
 
 - (void)viewDidAppear:(BOOL)animated
@@ -306,17 +320,28 @@ CPS2VM::ProfileFrameDoneSignal::Connection g_profileFrameDoneConnection;
 
 - (void)onLoadStateButtonClick
 {
-	auto statePath = g_virtualMachine->GenerateStatePath(0);
-	g_virtualMachine->LoadState(statePath);
-	NSLog(@"Loaded state from '%s'.", statePath.string().c_str());
+    self.saveStateController.action = SaveStateActionLoad;
+    self.saveStateController.view.hidden = false;
 }
 
 - (void)onSaveStateButtonClick
 {
-	auto statePath = g_virtualMachine->GenerateStatePath(0);
-	g_virtualMachine->SaveState(statePath);
-	NSLog(@"Saved state to '%s'.", statePath.string().c_str());
+    self.saveStateController.action = SaveStateActionSave;
+    self.saveStateController.view.hidden = false;
 }
+
+- (void) saveStateWithPosition:(uint32_t)position {
+    auto statePath = g_virtualMachine->GenerateStatePath(position);
+    g_virtualMachine->SaveState(statePath);
+    NSLog(@"Saved state to '%s'.", statePath.string().c_str());
+}
+
+- (void) loadStateWithPosition:(uint32_t)position {
+    auto statePath = g_virtualMachine->GenerateStatePath(position);
+    g_virtualMachine->LoadState(statePath);
+    NSLog(@"Loaded state from '%s'.", statePath.string().c_str());
+}
+
 
 - (void)onExitButtonClick
 {
