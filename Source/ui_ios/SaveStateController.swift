@@ -55,7 +55,6 @@ import UIKit
         super.viewDidLoad()
         setupView()
         setupConstraints()
-        segmentedControl.addTarget(self, action: #selector(didSelectStateSlot(_:)), for: .valueChanged)
         update()
     }
     
@@ -63,6 +62,9 @@ import UIKit
         view.backgroundColor = UIColor.black.withAlphaComponent(0.8)
         view.addSubview(label)
         view.addSubview(segmentedControl)
+        segmentedControl.addTarget(self, action: #selector(didSelectStateSlot(_:)), for: .valueChanged)
+        let tap = UITapGestureRecognizer(target: self, action: #selector(didTapOutside(_:)))
+        view.addGestureRecognizer(tap)
     }
     
     func setupConstraints() {
@@ -96,6 +98,10 @@ import UIKit
         case .load:
             delegate?.loadState(position: slot)
         }
+        view.isHidden = true
+    }
+    
+    @objc private func didTapOutside(_ sender: UITapGestureRecognizer) {
         view.isHidden = true
     }
 }
