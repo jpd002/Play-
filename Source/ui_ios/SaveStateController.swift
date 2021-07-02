@@ -72,6 +72,7 @@ import UIKit
         view.addSubview(label)
         view.addSubview(segmentedControl)
         view.addSubview(actionButton)
+        label.textColor = .white
         let tap = UITapGestureRecognizer(target: self, action: #selector(didTapOutside(_:)))
         view.addGestureRecognizer(tap)
         actionButton.addTarget(self, action: #selector(didTapButton(_:)), for: .touchUpInside)
