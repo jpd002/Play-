@@ -33,6 +33,7 @@ import UIKit
             update()
         }
     }
+    private var selectedSaveSlot = 0
     
     let label = UILabel()
     
@@ -41,6 +42,14 @@ import UIKit
             "0", "1", "2", "3", "4","5", "6", "7", "8", "9", "10"
         ])
         return control
+    }()
+    
+    let actionButton: UIButton = {
+        let button = UIButton(type: .custom)
+        button.layer.borderWidth = 1
+        button.layer.borderColor = UIColor.white.cgColor
+        button.contentEdgeInsets = UIEdgeInsets(top: 10, left: 10, bottom: 10, right: 10)
+        return button
     }()
     
     init() {
@@ -62,36 +71,34 @@ import UIKit
         view.backgroundColor = UIColor.black.withAlphaComponent(0.8)
         view.addSubview(label)
         view.addSubview(segmentedControl)
-        segmentedControl.addTarget(self, action: #selector(didSelectStateSlot(_:)), for: .valueChanged)
+        view.addSubview(actionButton)
         let tap = UITapGestureRecognizer(target: self, action: #selector(didTapOutside(_:)))
         view.addGestureRecognizer(tap)
+        actionButton.addTarget(self, action: #selector(didTapButton(_:)), for: .touchUpInside)
     }
     
     func setupConstraints() {
         label.translatesAutoresizingMaskIntoConstraints = false
         segmentedControl.translatesAutoresizingMaskIntoConstraints = false
+        actionButton.translatesAutoresizingMaskIntoConstraints = false
         let constraints = [
             label.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            label.centerYAnchor.constraint(equalTo: view.centerYAnchor, constant: -20),
+            label.centerYAnchor.constraint(equalTo: view.centerYAnchor, constant: -40),
             segmentedControl.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            segmentedControl.centerYAnchor.constraint(equalTo: view.centerYAnchor, constant: 20)
+            segmentedControl.centerYAnchor.constraint(equalTo: view.centerYAnchor, constant: 20),
+            actionButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            actionButton.centerYAnchor.constraint(equalTo: view.centerYAnchor, constant: 40),
         ]
         NSLayoutConstraint.activate(constraints)
     }
     
     private func update() {
-        label.text = {
-            switch action {
-            case .save:
-                return "Select a state to save:"
-            case .load:
-                return "Select a state to load:"
-            }
-        }()
+        label.text = "Select a state to \(action.name):"
+        actionButton.setTitle("\(action.name)", for: .normal)
     }
     
-    @objc private func didSelectStateSlot(_ sender: UISegmentedControl) {
-        let slot = UInt32(sender.selectedSegmentIndex)
+    @objc func didTapButton(_ sender: UIButton) {
+        let slot = UInt32(segmentedControl.selectedSegmentIndex)
         switch action {
         case .save:
             delegate?.saveState(position: slot)
