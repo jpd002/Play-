@@ -1774,11 +1774,15 @@ void VUShared::ResetFlagPipeline(const FLAG_PIPEINFO& pipeInfo, CMipsJitter* cod
 
 	for(uint32 i = 0; i < FLAG_PIPELINE_SLOTS; i++)
 	{
+		codeGen->PushRelAddrRef(pipeInfo.timeArray);
+		codeGen->PushCst(i * 4);
 		codeGen->PushCst(0);
-		codeGen->PullRel(pipeInfo.timeArray + (i * 4));
+		codeGen->StoreAtRefIdx();
 
+		codeGen->PushRelAddrRef(pipeInfo.valueArray);
+		codeGen->PushCst(i * 4);
 		codeGen->PushCursor(valueCursor);
-		codeGen->PullRel(pipeInfo.valueArray + (i * 4));
+		codeGen->StoreAtRefIdx();
 	}
 
 	assert(codeGen->GetTopCursor() == valueCursor);
