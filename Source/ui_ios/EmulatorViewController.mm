@@ -330,19 +330,6 @@ CPS2VM::ProfileFrameDoneSignal::Connection g_profileFrameDoneConnection;
     self.saveStateController.view.hidden = false;
 }
 
-- (void) saveStateWithPosition:(uint32_t)position {
-    auto statePath = g_virtualMachine->GenerateStatePath(position);
-    g_virtualMachine->SaveState(statePath);
-    NSLog(@"Saved state to '%s'.", statePath.string().c_str());
-}
-
-- (void) loadStateWithPosition:(uint32_t)position {
-    auto statePath = g_virtualMachine->GenerateStatePath(position);
-    g_virtualMachine->LoadState(statePath);
-    NSLog(@"Loaded state from '%s'.", statePath.string().c_str());
-}
-
-
 - (void)onExitButtonClick
 {
 	[self dismissViewControllerAnimated:YES completion:nil];
@@ -441,6 +428,21 @@ CPS2VM::ProfileFrameDoneSignal::Connection g_profileFrameDoneConnection;
 		};
 	}
 }
+
+# pragma mark -
+# pragma mark SaveStateDelegate
+- (void) saveStateWithPosition:(uint32_t)position {
+    auto statePath = g_virtualMachine->GenerateStatePath(position);
+    g_virtualMachine->SaveState(statePath);
+    NSLog(@"Saved state to '%s'.", statePath.string().c_str());
+}
+
+- (void) loadStateWithPosition:(uint32_t)position {
+    auto statePath = g_virtualMachine->GenerateStatePath(position);
+    g_virtualMachine->LoadState(statePath);
+    NSLog(@"Loaded state from '%s'.", statePath.string().c_str());
+}
+
 
 - (void)dealloc
 {
