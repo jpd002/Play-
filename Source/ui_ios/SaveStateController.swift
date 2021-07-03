@@ -41,6 +41,7 @@ import UIKit
         let control = UISegmentedControl(items: [
             "0", "1", "2", "3", "4","5", "6", "7", "8", "9", "10"
         ])
+        control.selectedSegmentIndex = 0
         return control
     }()
     
@@ -49,6 +50,7 @@ import UIKit
         button.layer.borderWidth = 1
         button.layer.borderColor = UIColor.white.cgColor
         button.contentEdgeInsets = UIEdgeInsets(top: 10, left: 10, bottom: 10, right: 10)
+        button.setTitleColor(.white, for: .normal)
         return button
     }()
     
@@ -84,9 +86,9 @@ import UIKit
         actionButton.translatesAutoresizingMaskIntoConstraints = false
         let constraints = [
             label.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            label.centerYAnchor.constraint(equalTo: view.centerYAnchor, constant: -40),
+            label.centerYAnchor.constraint(equalTo: view.centerYAnchor, constant: -60),
             segmentedControl.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            segmentedControl.centerYAnchor.constraint(equalTo: view.centerYAnchor, constant: 20),
+            segmentedControl.centerYAnchor.constraint(equalTo: view.centerYAnchor, constant: -20),
             actionButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             actionButton.centerYAnchor.constraint(equalTo: view.centerYAnchor, constant: 40),
         ]
