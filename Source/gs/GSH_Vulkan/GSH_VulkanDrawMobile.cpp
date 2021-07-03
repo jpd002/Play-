@@ -1253,7 +1253,7 @@ Framework::Vulkan::CShaderModule CDrawMobile::CreateDrawFragmentShader(const PIP
 		auto fbSwizzleTable = CImageUint2DValue(b.CreateImage2DUint(DESCRIPTOR_LOCATION_IMAGE_SWIZZLETABLE_FB));
 		auto depthSwizzleTable = CImageUint2DValue(b.CreateImage2DUint(DESCRIPTOR_LOCATION_IMAGE_SWIZZLETABLE_DEPTH));
 		auto subpassColorInput = CSubpassInputValue(b.CreateSubpassInput(DESCRIPTOR_LOCATION_IMAGE_INPUT_COLOR));
-		auto subpassDepthInput = CSubpassInputValue(b.CreateSubpassInput(DESCRIPTOR_LOCATION_IMAGE_INPUT_DEPTH));
+		//auto subpassDepthInput = CSubpassInputValue(b.CreateSubpassInput(DESCRIPTOR_LOCATION_IMAGE_INPUT_DEPTH));
 
 		//Push constants
 		auto fbDepthParams = CInt4Lvalue(b.CreateUniformInt4("fbDepthParams", Nuanceur::UNIFORM_UNIT_PUSHCONSTANT));
@@ -1525,7 +1525,9 @@ Framework::Vulkan::CShaderModule CDrawMobile::CreateDrawFragmentShader(const PIP
 
 		dstPixel = NewUint(b, 0);
 		dstColor = Load(subpassColorInput, NewInt2(b, 0, 0));
-		dstDepth = Load(subpassDepthInput, NewInt2(b, 0, 0))->x();
+		//dstDepth = Load(subpassDepthInput, NewInt2(b, 0, 0))->x();
+		//dstColor = NewFloat4(b, 0, 0, 0, 0);
+		dstDepth = NewFloat(b, 0);
 		dstAlpha = NewFloat4(b, 1, 1, 1, 1);
 
 		if(caps.hasDstAlphaTest)
@@ -2083,7 +2085,7 @@ Framework::Vulkan::CShaderModule CDrawMobile::CreateStoreFragmentShader()
 		auto fbSwizzleTable = CImageUint2DValue(b.CreateImage2DUint(DESCRIPTOR_LOCATION_IMAGE_SWIZZLETABLE_FB));
 		auto depthSwizzleTable = CImageUint2DValue(b.CreateImage2DUint(DESCRIPTOR_LOCATION_IMAGE_SWIZZLETABLE_DEPTH));
 		auto subpassColorInput = CSubpassInputValue(b.CreateSubpassInput(DESCRIPTOR_LOCATION_IMAGE_INPUT_COLOR));
-		auto subpassDepthInput = CSubpassInputValue(b.CreateSubpassInput(DESCRIPTOR_LOCATION_IMAGE_INPUT_DEPTH));
+		//auto subpassDepthInput = CSubpassInputValue(b.CreateSubpassInput(DESCRIPTOR_LOCATION_IMAGE_INPUT_DEPTH));
 
 		//Push constants
 		auto fbDepthParams = CInt4Lvalue(b.CreateUniformInt4("fbDepthParams", Nuanceur::UNIFORM_UNIT_PUSHCONSTANT));
@@ -2096,7 +2098,8 @@ Framework::Vulkan::CShaderModule CDrawMobile::CreateStoreFragmentShader()
 		auto fbWriteMask = NewUint(b, 0xFFFFFFFF);
 		auto dstPixel = NewUint(b, 0xFFFFFFFF);
 		auto dstColor = Load(subpassColorInput, NewInt2(b, 0, 0));
-		auto dstDepth = ToUint(Load(subpassDepthInput, NewInt2(b, 0, 0))->x() * NewFloat(b, DEPTH_MAX));
+		//auto dstDepth = ToUint(Load(subpassDepthInput, NewInt2(b, 0, 0))->x() * NewFloat(b, DEPTH_MAX));
+		auto dstDepth = NewFloat(b, 0);
 
 		auto fbAddress = CIntLvalue(b.CreateTemporaryInt());
 		auto depthAddress = CIntLvalue(b.CreateTemporaryInt());
