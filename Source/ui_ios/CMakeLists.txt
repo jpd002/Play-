@@ -92,6 +92,7 @@ set(OSX_SOURCES
 	main.mm
 	PreferenceDefs.h
 	RenderView.mm
+	SaveStateViewController.m
 	SettingsListSelectorViewController.mm
 	SettingsViewController.mm
 	VirtualPadButton.mm
@@ -109,6 +110,7 @@ set(OSX_HEADERS
 	EmulatorViewController.h
 	GSH_OpenGLiOS.h
 	RenderView.h
+	SaveStateViewController.h
 	SettingsListSelectorViewController.h
 	SettingsViewController.h
 	VirtualPadButton.h

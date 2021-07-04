@@ -345,6 +345,76 @@
             </objects>
             <point key="canvasLocation" x="1583" y="492"/>
         </scene>
+        <!--Save State View Controller-->
+        <scene sceneID="wKR-VO-HbS">
+            <objects>
+                <viewController storyboardIdentifier="SaveStateViewController" id="znq-0Z-t2w" customClass="SaveStateViewController" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="LTL-nO-soj">
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="0" translatesAutoresizingMaskIntoConstraints="NO" id="zhy-3r-xSP">
+                                <rect key="frame" x="20.5" y="437.5" width="373" height="32"/>
+                                <segments>
+                                    <segment title="0"/>
+                                    <segment title="1"/>
+                                    <segment title="2"/>
+                                    <segment title="3"/>
+                                    <segment title="4"/>
+                                    <segment title="5"/>
+                                    <segment title="6"/>
+                                    <segment title="7"/>
+                                    <segment title="8"/>
+                                    <segment title="9"/>
+                                    <segment title="10"/>
+                                </segments>
+                            </segmentedControl>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Select a State:" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="bie-L6-phR">
+                                <rect key="frame" x="152" y="396.5" width="110.5" height="21"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="h9K-Rf-w52">
+                                <rect key="frame" x="174" y="488.5" width="66" height="38"/>
+                                <inset key="contentEdgeInsets" minX="10" minY="10" maxX="10" maxY="10"/>
+                                <state key="normal" title="Button">
+                                    <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                </state>
+                                <userDefinedRuntimeAttributes>
+                                    <userDefinedRuntimeAttribute type="number" keyPath="layer.borderWidth">
+                                        <integer key="value" value="1"/>
+                                    </userDefinedRuntimeAttribute>
+                                    <userDefinedRuntimeAttribute type="color" keyPath="layer.borderColor">
+                                        <color key="value" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                    </userDefinedRuntimeAttribute>
+                                </userDefinedRuntimeAttributes>
+                                <connections>
+                                    <action selector="didTapButton:" destination="znq-0Z-t2w" eventType="touchUpInside" id="vcA-fk-Eg0"/>
+                                </connections>
+                            </button>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="Rb2-L8-ebL"/>
+                        <color key="backgroundColor" white="0.0" alpha="0.79906904778512966" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <constraints>
+                            <constraint firstItem="zhy-3r-xSP" firstAttribute="centerY" secondItem="Rb2-L8-ebL" secondAttribute="centerY" id="AnQ-Wr-ulO"/>
+                            <constraint firstItem="h9K-Rf-w52" firstAttribute="top" secondItem="zhy-3r-xSP" secondAttribute="bottom" constant="20" id="ETM-lI-PFR"/>
+                            <constraint firstItem="h9K-Rf-w52" firstAttribute="centerX" secondItem="Rb2-L8-ebL" secondAttribute="centerX" id="Pgp-Mq-4cB"/>
+                            <constraint firstItem="zhy-3r-xSP" firstAttribute="centerX" secondItem="Rb2-L8-ebL" secondAttribute="centerX" id="mxM-wd-zjd"/>
+                            <constraint firstItem="zhy-3r-xSP" firstAttribute="top" secondItem="bie-L6-phR" secondAttribute="bottom" constant="20" id="qn0-ue-V81"/>
+                            <constraint firstItem="bie-L6-phR" firstAttribute="centerX" secondItem="Rb2-L8-ebL" secondAttribute="centerX" id="tcz-uZ-sT3"/>
+                        </constraints>
+                    </view>
+                    <connections>
+                        <outlet property="button" destination="h9K-Rf-w52" id="sYv-Si-UnG"/>
+                        <outlet property="label" destination="bie-L6-phR" id="F9k-K7-MWt"/>
+                        <outlet property="saveSlotSegmentedControl" destination="zhy-3r-xSP" id="Xah-fK-Hf0"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="3BR-4I-XMw" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="2390" y="492"/>
+        </scene>
         <!--Navigation Controller-->
         <scene sceneID="lUT-EM-yuz">
             <objects>
