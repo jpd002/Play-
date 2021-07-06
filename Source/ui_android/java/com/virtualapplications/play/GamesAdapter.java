@@ -18,28 +18,22 @@ import java.util.List;
 public class GamesAdapter extends ArrayAdapter<Bootable>
 {
 	private final int layoutid;
-	private List<Bootable> games;
-	private GameInfo gameInfo;
+	private final List<Bootable> games;
+	private final GameInfo gameInfo;
 	private final WeakReference<AppCompatActivity> _activity;
 
-	private final View.OnLongClickListener no_long_click = new View.OnLongClickListener()
-
-	{
-		@Override
-		public boolean onLongClick (View view)
-		{
-			Toast.makeText(GamesAdapter.this._activity.get(), "No data to display.", Toast.LENGTH_SHORT).show();
-			return true;
-		}
+	private final View.OnLongClickListener no_long_click = view -> {
+		Toast.makeText(GamesAdapter.this._activity.get(), "No data to display.", Toast.LENGTH_SHORT).show();
+		return true;
 	};
 	public static class CoverViewHolder
 	{
 		CoverViewHolder(View v)
 		{
 			this.childview = v;
-			this.gameImageView = (ImageView)v.findViewById(R.id.game_icon);
-			this.gameTextView = (TextView)v.findViewById(R.id.game_text);
-			this.currentPositionView = (TextView)v.findViewById(R.id.currentPosition);
+			this.gameImageView = v.findViewById(R.id.game_icon);
+			this.gameTextView = v.findViewById(R.id.game_text);
+			this.currentPositionView = v.findViewById(R.id.currentPosition);
 		}
 
 		public View childview;
@@ -54,7 +48,7 @@ public class GamesAdapter extends ArrayAdapter<Bootable>
 		this.games = images;
 		this.layoutid = ResourceId;
 		this.gameInfo = gameInfo;
-		this._activity = new WeakReference<AppCompatActivity>(activity);
+		this._activity = new WeakReference<>(activity);
 	}
 
 	public int getCount()
@@ -120,18 +114,13 @@ public class GamesAdapter extends ArrayAdapter<Bootable>
 			gameInfo.setCoverImage(game.discId, viewHolder, game.coverUrl, pos);
 		}
 
-		viewHolder.childview.setOnClickListener(new View.OnClickListener()
-		{
-			public void onClick(View view)
+		viewHolder.childview.setOnClickListener(view -> {
+			if(_activity.get() != null)
 			{
-				if(_activity.get() != null)
+				if(_activity.get() instanceof MainActivity)
 				{
-					if(_activity.get() instanceof MainActivity)
-					{
-						((MainActivity)_activity.get()).launchGame(game);
-					}
+					((MainActivity)_activity.get()).launchGame(game);
 				}
-				return;
 			}
 		});
 	}

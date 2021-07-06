@@ -20,8 +20,8 @@ import org.xml.sax.InputSource;
 
 public class VirtualPadView extends SurfaceView
 {
-	private ArrayList<VirtualPadItem> _items = new ArrayList<VirtualPadItem>();
-	private HashMap<String, Bitmap> _itemBitmaps = new HashMap<String, Bitmap>();
+	private final ArrayList<VirtualPadItem> _items = new ArrayList<>();
+	private final HashMap<String, Bitmap> _itemBitmaps = new HashMap<>();
 
 	public VirtualPadView(Context context, AttributeSet attribs)
 	{
@@ -174,4 +174,4 @@ public class VirtualPadView extends SurfaceView
 		}
 		return true;
 	}
-};
+}

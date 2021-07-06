@@ -50,7 +50,7 @@ public class ImageUtils
 						byteArrayInputStream.close();
 					}
 				}
-				catch(Exception e)
+				catch(Exception ignored)
 				{
 
 				}
