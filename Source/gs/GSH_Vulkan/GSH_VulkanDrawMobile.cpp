@@ -547,6 +547,8 @@ void CDrawMobile::CreateRenderPass()
 	{
 		VkSubpassDescription subpass = {};
 		subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+		subpass.pColorAttachments = &colorRef;
+		subpass.colorAttachmentCount = 1;
 		subpass.pInputAttachments = inputAttachmentRefs.data();
 		subpass.inputAttachmentCount = inputAttachmentRefs.size();
 		subpasses.push_back(subpass);
