@@ -143,17 +143,11 @@
                                                     <nil key="textColor"/>
                                                     <nil key="highlightedColor"/>
                                                 </label>
-                                                <slider opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" value="0.5" minValue="0.10000000000000001" maxValue="1" translatesAutoresizingMaskIntoConstraints="NO" id="0UW-7S-cud">
-                                                    <rect key="frame" x="252" y="7" width="154" height="31"/>
-                                                    <constraints>
-                                                        <constraint firstAttribute="width" constant="150" id="U76-Cw-a8S"/>
-                                                    </constraints>
+                                                <slider opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" value="0.5" minValue="0.10000000000000001" maxValue="1" translatesAutoresizingMaskIntoConstraints="NO" id="0UW-7S-cud">
+                                                    <rect key="frame" x="250" y="6" width="150" height="31"/>
+                                                    <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
                                                 </slider>
                                             </subviews>
-                                            <constraints>
-                                                <constraint firstAttribute="trailing" secondItem="0UW-7S-cud" secondAttribute="trailing" constant="10" id="IQO-DZ-Man"/>
-                                                <constraint firstItem="0UW-7S-cud" firstAttribute="centerY" secondItem="WgC-iP-76Q" secondAttribute="centerY" id="rnV-GD-piL"/>
-                                            </constraints>
                                         </tableViewCellContentView>
                                         <color key="backgroundColor" systemColor="tableCellGroupedBackgroundColor"/>
                                     </tableViewCell>
@@ -171,14 +165,11 @@
                                                     <nil key="textColor"/>
                                                     <nil key="highlightedColor"/>
                                                 </label>
-                                                <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="fu4-Lk-Wep">
-                                                    <rect key="frame" x="355" y="6.5" width="51" height="31"/>
+                                                <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="fu4-Lk-Wep">
+                                                    <rect key="frame" x="354" y="6" width="51" height="31"/>
+                                                    <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
                                                 </switch>
                                             </subviews>
-                                            <constraints>
-                                                <constraint firstAttribute="trailing" secondItem="fu4-Lk-Wep" secondAttribute="trailing" constant="10" id="3nv-9c-cOO"/>
-                                                <constraint firstItem="fu4-Lk-Wep" firstAttribute="centerY" secondItem="M7q-nh-nJU" secondAttribute="centerY" id="IPa-Dr-kqW"/>
-                                            </constraints>
                                         </tableViewCellContentView>
                                         <color key="backgroundColor" systemColor="tableCellGroupedBackgroundColor"/>
                                     </tableViewCell>
