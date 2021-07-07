@@ -461,10 +461,21 @@ void CChannel::ExecuteDestinationChain()
 {
 	assert(m_number == CDMAC::CHANNEL_ID_FROM_SPR);
 
+	if(m_nQWC != 0)
+	{
+		assert(m_CHCR.nSTR == 1);
+
+		uint32 recv = m_receive(m_nMADR, m_nQWC, m_CHCR.nDIR, false);
+		assert(recv == m_nQWC);
+
+		m_nMADR += recv * 0x10;
+		m_nQWC -= recv;
+
+		ClearSTR();
+	}
+
 	while(m_CHCR.nSTR == 1)
 	{
-		assert(m_nQWC == 0);
-
 		auto tag = make_convertible<DMAtag>(m_dmac.FetchDMATag(m_dmac.m_D8_SADR | 0x80000000));
 		m_dmac.m_D8_SADR += 0x10;
 
