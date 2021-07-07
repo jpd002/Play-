@@ -4,7 +4,7 @@
 #include "../VirtualPad.h"
 
 @interface VirtualPadView ()
-@property (strong, nonatomic) UISelectionFeedbackGenerator* selectionFeedback;
+@property(strong, nonatomic) UISelectionFeedbackGenerator* selectionFeedback;
 @end
 
 @implementation VirtualPadView
@@ -28,7 +28,7 @@
 		[itemImages setObject:[UIImage imageNamed:@"lr.png"] forKey:@"lr"];
 		[itemImages setObject:[UIImage imageNamed:@"analogstick.png"] forKey:@"analogStick"];
 		self.itemImages = itemImages;
-        _selectionFeedback = [[UISelectionFeedbackGenerator alloc] init];
+		_selectionFeedback = [[UISelectionFeedbackGenerator alloc] init];
 		self.opaque = NO;
 		self.multipleTouchEnabled = YES;
 		_padHandler = padHandler;
@@ -92,7 +92,7 @@
 			{
 				item.touch = touch;
 				[item onPointerDown:touchPos];
-                [self.selectionFeedback selectionChanged];
+				[self.selectionFeedback selectionChanged];
 				[self setNeedsDisplay];
 				break;
 			}
