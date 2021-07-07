@@ -32,8 +32,8 @@ CPS2VM::ProfileFrameDoneSignal::Connection g_profileFrameDoneConnection;
 	CAppConfig::GetInstance().RegisterPreferenceBoolean(PREFERENCE_UI_SHOWVIRTUALPAD, true);
 	CAppConfig::GetInstance().RegisterPreferenceBoolean(PREFERENCE_AUDIO_ENABLEOUTPUT, true);
 	CAppConfig::GetInstance().RegisterPreferenceInteger(PREFERENCE_VIDEO_GS_HANDLER, PREFERENCE_VALUE_VIDEO_GS_HANDLER_OPENGL);
-    CAppConfig::GetInstance().RegisterPreferenceInteger(PREFERENCE_UI_VIRTUALPADOPACITY, 100);
-    CAppConfig::GetInstance().RegisterPreferenceBoolean(PREFERENCE_UI_HIDEVIRTUALPAD_CONTROLLER_CONNECTED, true);
+	CAppConfig::GetInstance().RegisterPreferenceInteger(PREFERENCE_UI_VIRTUALPADOPACITY, 100);
+	CAppConfig::GetInstance().RegisterPreferenceBoolean(PREFERENCE_UI_HIDEVIRTUALPAD_CONTROLLER_CONNECTED, true);
 }
 
 - (void)viewDidLoad
@@ -180,22 +180,22 @@ CPS2VM::ProfileFrameDoneSignal::Connection g_profileFrameDoneConnection;
 					                                    padHandler->SetAxisState(PS2::CControllerInfo::ANALOG_RIGHT_Y, -gamepad.rightThumbstick.yAxis.value);
 				                                    }
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 120100
-                                                    if (@available(iOS 12.1, *))
-                                                    {
-                                                        if(element == gamepad.leftThumbstickButton)
-                                                            padHandler->SetButtonState(PS2::CControllerInfo::L3, gamepad.leftThumbstickButton.pressed);
-                                                        else if(element == gamepad.rightThumbstickButton)
-                                                            padHandler->SetButtonState(PS2::CControllerInfo::R3, gamepad.rightThumbstickButton.pressed);
-                                                    }
+				                                    if(@available(iOS 12.1, *))
+				                                    {
+					                                    if(element == gamepad.leftThumbstickButton)
+						                                    padHandler->SetButtonState(PS2::CControllerInfo::L3, gamepad.leftThumbstickButton.pressed);
+					                                    else if(element == gamepad.rightThumbstickButton)
+						                                    padHandler->SetButtonState(PS2::CControllerInfo::R3, gamepad.rightThumbstickButton.pressed);
+				                                    }
 #endif
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
-                                                    if (@available(iOS 13.0, *))
-                                                    {
-                                                        if(element == gamepad.buttonOptions)
-                                                            padHandler->SetButtonState(PS2::CControllerInfo::SELECT, gamepad.buttonOptions.pressed);
-                                                        else if(element == gamepad.buttonMenu)
-                                                            padHandler->SetButtonState(PS2::CControllerInfo::START, gamepad.buttonMenu.pressed);
-                                                    }
+				                                    if(@available(iOS 13.0, *))
+				                                    {
+					                                    if(element == gamepad.buttonOptions)
+						                                    padHandler->SetButtonState(PS2::CControllerInfo::SELECT, gamepad.buttonOptions.pressed);
+					                                    else if(element == gamepad.buttonMenu)
+						                                    padHandler->SetButtonState(PS2::CControllerInfo::START, gamepad.buttonMenu.pressed);
+				                                    }
 #endif
 			                                      }];
 		}
@@ -204,7 +204,7 @@ CPS2VM::ProfileFrameDoneSignal::Connection g_profileFrameDoneConnection;
 	{
 		self.gController = nil;
 	}
-    [self updateOnScreenWidgets];
+	[self updateOnScreenWidgets];
 }
 
 - (void)resetStatsTimer
@@ -249,14 +249,14 @@ CPS2VM::ProfileFrameDoneSignal::Connection g_profileFrameDoneConnection;
 	[self resetStatsTimer];
 
 	if(CAppConfig::GetInstance().GetPreferenceBoolean(PREFERENCE_UI_SHOWVIRTUALPAD) &&
-       !(self.gController && CAppConfig::GetInstance().GetPreferenceBoolean(PREFERENCE_UI_HIDEVIRTUALPAD_CONTROLLER_CONNECTED)))
+	   !(self.gController && CAppConfig::GetInstance().GetPreferenceBoolean(PREFERENCE_UI_HIDEVIRTUALPAD_CONTROLLER_CONNECTED)))
 	{
 		auto padHandler = static_cast<CPH_Generic*>(g_virtualMachine->GetPadHandler());
 		self.virtualPadView = [[VirtualPadView alloc] initWithFrame:screenBounds padHandler:padHandler];
 		[self.view addSubview:self.virtualPadView];
 		[self.view sendSubviewToBack:self.virtualPadView];
-        int prefTransparency = CAppConfig::GetInstance().GetPreferenceInteger(PREFERENCE_UI_VIRTUALPADOPACITY);
-        self.virtualPadView.alpha = CGFloat(prefTransparency / 100.0);
+		int prefTransparency = CAppConfig::GetInstance().GetPreferenceInteger(PREFERENCE_UI_VIRTUALPADOPACITY);
+		self.virtualPadView.alpha = CGFloat(prefTransparency / 100.0);
 	}
 
 	if(CAppConfig::GetInstance().GetPreferenceBoolean(PREFERENCE_UI_SHOWFPS))

@@ -4,8 +4,8 @@
 {
 	IBOutlet UISwitch* showFpsSwitch;
 	IBOutlet UISwitch* showVirtualPadSwitch;
-    IBOutlet UISlider* virtualPadOpacitySlider;
-    IBOutlet UISwitch* hideVirtualPadWhenControllerConnected;
+	IBOutlet UISlider* virtualPadOpacitySlider;
+	IBOutlet UISwitch* hideVirtualPadWhenControllerConnected;
 
 	IBOutlet UILabel* gsHandlerName;
 	IBOutlet UILabel* resolutionFactor;
