@@ -34,6 +34,7 @@ CPS2VM::ProfileFrameDoneSignal::Connection g_profileFrameDoneConnection;
 	CAppConfig::GetInstance().RegisterPreferenceInteger(PREFERENCE_VIDEO_GS_HANDLER, PREFERENCE_VALUE_VIDEO_GS_HANDLER_OPENGL);
 	CAppConfig::GetInstance().RegisterPreferenceInteger(PREFERENCE_UI_VIRTUALPADOPACITY, 100);
 	CAppConfig::GetInstance().RegisterPreferenceBoolean(PREFERENCE_UI_HIDEVIRTUALPAD_CONTROLLER_CONNECTED, true);
+    CAppConfig::GetInstance().RegisterPreferenceBoolean(PREFERENCE_UI_VIRTUALPAD_HAPTICFEEDBACK, true);
 }
 
 - (void)viewDidLoad

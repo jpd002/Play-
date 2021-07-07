@@ -6,6 +6,7 @@
 	IBOutlet UISwitch* showVirtualPadSwitch;
 	IBOutlet UISlider* virtualPadOpacitySlider;
 	IBOutlet UISwitch* hideVirtualPadWhenControllerConnected;
+    IBOutlet UISwitch* virtualPadHapticFeedbackSwitch;
 
 	IBOutlet UILabel* gsHandlerName;
 	IBOutlet UILabel* resolutionFactor;

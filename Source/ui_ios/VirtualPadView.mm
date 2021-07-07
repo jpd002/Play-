@@ -1,3 +1,5 @@
+#import "../AppConfig.h"
+#import "PreferenceDefs.h"
 #import "VirtualPadView.h"
 #import "VirtualPadButton.h"
 #import "VirtualPadStick.h"
@@ -92,7 +94,8 @@
 			{
 				item.touch = touch;
 				[item onPointerDown:touchPos];
-				[self.selectionFeedback selectionChanged];
+                if (CAppConfig::GetInstance().GetPreferenceBoolean(PREFERENCE_UI_VIRTUALPAD_HAPTICFEEDBACK))
+                    [self.selectionFeedback selectionChanged];
 				[self setNeedsDisplay];
 				break;
 			}
