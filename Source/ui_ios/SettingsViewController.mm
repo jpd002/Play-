@@ -34,7 +34,7 @@
 	[showVirtualPadSwitch setOn:CAppConfig::GetInstance().GetPreferenceBoolean(PREFERENCE_UI_SHOWVIRTUALPAD)];
 	[virtualPadOpacitySlider setValue:float(CAppConfig::GetInstance().GetPreferenceInteger(PREFERENCE_UI_VIRTUALPADOPACITY) / 100.0)];
 	[hideVirtualPadWhenControllerConnected setOn:CAppConfig::GetInstance().GetPreferenceBoolean(PREFERENCE_UI_HIDEVIRTUALPAD_CONTROLLER_CONNECTED)];
-    [virtualPadHapticFeedbackSwitch setOn:CAppConfig::GetInstance().GetPreferenceBoolean(PREFERENCE_UI_VIRTUALPAD_HAPTICFEEDBACK)];
+	[virtualPadHapticFeedbackSwitch setOn:CAppConfig::GetInstance().GetPreferenceBoolean(PREFERENCE_UI_VIRTUALPAD_HAPTICFEEDBACK)];
 
 	[self updateGsHandlerNameLabel];
 	[self updateResolutionFactorLabel];
@@ -54,7 +54,7 @@
 	CAppConfig::GetInstance().SetPreferenceBoolean(PREFERENCE_UI_HIDEVIRTUALPAD_CONTROLLER_CONNECTED, showVirtualPadSwitch.isOn);
 	int prefValue = int(virtualPadOpacitySlider.value * 100.0);
 	CAppConfig::GetInstance().SetPreferenceInteger(PREFERENCE_UI_VIRTUALPADOPACITY, prefValue);
-    CAppConfig::GetInstance().SetPreferenceBoolean(PREFERENCE_UI_VIRTUALPAD_HAPTICFEEDBACK, virtualPadHapticFeedbackSwitch.isOn);
+	CAppConfig::GetInstance().SetPreferenceBoolean(PREFERENCE_UI_VIRTUALPAD_HAPTICFEEDBACK, virtualPadHapticFeedbackSwitch.isOn);
 
 	CAppConfig::GetInstance().SetPreferenceBoolean(PREF_CGSHANDLER_WIDESCREEN, resizeOutputToWidescreen.isOn);
 	CAppConfig::GetInstance().SetPreferenceBoolean(PREF_CGSH_OPENGL_FORCEBILINEARTEXTURES, forceBilinearFiltering.isOn);

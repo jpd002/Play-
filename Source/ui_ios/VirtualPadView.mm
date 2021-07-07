@@ -94,8 +94,8 @@
 			{
 				item.touch = touch;
 				[item onPointerDown:touchPos];
-                if (CAppConfig::GetInstance().GetPreferenceBoolean(PREFERENCE_UI_VIRTUALPAD_HAPTICFEEDBACK))
-                    [self.selectionFeedback selectionChanged];
+				if(CAppConfig::GetInstance().GetPreferenceBoolean(PREFERENCE_UI_VIRTUALPAD_HAPTICFEEDBACK))
+					[self.selectionFeedback selectionChanged];
 				[self setNeedsDisplay];
 				break;
 			}
