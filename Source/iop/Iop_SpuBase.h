@@ -199,6 +199,9 @@ namespace Iop
 		void SetChannelOnLo(uint16);
 		void SetChannelOnHi(uint16);
 
+		void SetChannelNoiseLo(uint16);
+		void SetChannelNoiseHi(uint16);
+
 		UNION32_16 GetChannelReverb() const;
 		void SetChannelReverbLo(uint16);
 		void SetChannelReverbHi(uint16);
@@ -341,6 +344,7 @@ namespace Iop
 		uint32 m_transferAddr;
 		uint32 m_core0OutputOffset;
 		UNION32_16 m_channelOn;
+		UNION32_16 m_channelNoise;
 		UNION32_16 m_channelReverb;
 		uint32 m_reverbWorkAddrStart;
 		uint32 m_reverbWorkAddrEnd;

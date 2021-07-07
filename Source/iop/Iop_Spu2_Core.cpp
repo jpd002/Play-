@@ -213,6 +213,12 @@ uint32 CCore::WriteRegisterCore(unsigned int channelId, uint32 address, uint32 v
 		case A_TS_MODE:
 			m_spuBase.SetTransferMode(static_cast<uint16>(value));
 			break;
+		case S_NON_HI:
+			m_spuBase.SetChannelNoiseLo(static_cast<uint16>(value));
+			break;
+		case S_NON_LO:
+			m_spuBase.SetChannelNoiseHi(static_cast<uint16>(value));
+			break;
 		case S_VMIXER_HI:
 			m_spuBase.SetChannelReverbLo(static_cast<uint16>(value));
 			break;

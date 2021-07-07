@@ -22,6 +22,7 @@ using namespace Iop;
 #define STATE_REGS_TRANSFERMODE ("TRANSFERMODE")
 #define STATE_REGS_CORE0OUTPUTOFFSET ("CORE0OUTPUTOFFSET")
 #define STATE_REGS_CHANNELON ("CHANNELON")
+#define STATE_REGS_CHANNELNOISE ("CHANNELNOISE")
 #define STATE_REGS_CHANNELREVERB ("CHANNELREVERB")
 #define STATE_REGS_REVERBWORKADDRSTART ("REVERBWORKADDRSTART")
 #define STATE_REGS_REVERBWORKADDREND ("REVERBWORKADDREND")
@@ -172,6 +173,7 @@ void CSpuBase::Reset()
 	m_volumeAdjust = 1.0f;
 
 	m_channelOn.f = 0;
+	m_channelNoise.f = 0;
 	m_channelReverb.f = 0;
 	m_reverbTicks = 0;
 	m_irqAddr = INVALID_ADDRESS;
@@ -211,6 +213,7 @@ void CSpuBase::LoadState(Framework::CZipArchiveReader& archive)
 	m_transferAddr = registerFile.GetRegister32(STATE_REGS_TRANSFERADDR);
 	m_core0OutputOffset = registerFile.GetRegister32(STATE_REGS_CORE0OUTPUTOFFSET);
 	m_channelOn.f = registerFile.GetRegister32(STATE_REGS_CHANNELON);
+	m_channelNoise.f = registerFile.GetRegister32(STATE_REGS_CHANNELNOISE);
 	m_channelReverb.f = registerFile.GetRegister32(STATE_REGS_CHANNELREVERB);
 	m_reverbWorkAddrStart = registerFile.GetRegister32(STATE_REGS_REVERBWORKADDRSTART);
 	m_reverbWorkAddrEnd = registerFile.GetRegister32(STATE_REGS_REVERBWORKADDREND);
@@ -255,6 +258,7 @@ void CSpuBase::SaveState(Framework::CZipArchiveWriter& archive)
 	registerFile->SetRegister32(STATE_REGS_TRANSFERADDR, m_transferAddr);
 	registerFile->SetRegister32(STATE_REGS_CORE0OUTPUTOFFSET, m_core0OutputOffset);
 	registerFile->SetRegister32(STATE_REGS_CHANNELON, m_channelOn.f);
+	registerFile->SetRegister32(STATE_REGS_CHANNELNOISE, m_channelNoise.f);
 	registerFile->SetRegister32(STATE_REGS_CHANNELREVERB, m_channelReverb.f);
 	registerFile->SetRegister32(STATE_REGS_REVERBWORKADDRSTART, m_reverbWorkAddrStart);
 	registerFile->SetRegister32(STATE_REGS_REVERBWORKADDREND, m_reverbWorkAddrEnd);
@@ -377,6 +381,16 @@ void CSpuBase::SetChannelOnLo(uint16 value)
 void CSpuBase::SetChannelOnHi(uint16 value)
 {
 	m_channelOn.h1 = value;
+}
+
+void CSpuBase::SetChannelNoiseLo(uint16 value)
+{
+	m_channelNoise.h0 = value;
+}
+
+void CSpuBase::SetChannelNoiseHi(uint16 value)
+{
+	m_channelNoise.h1 = value;
 }
 
 UNION32_16 CSpuBase::GetChannelReverb() const
