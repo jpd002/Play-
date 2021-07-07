@@ -166,10 +166,11 @@ void VUShared::ClampVector(CMipsJitter* codeGen)
 	//This will transform any NaN/INF (exponent == 0xFF) into a number with exponent == 0xFE
 	//and will leave all other numbers intact
 	static const uint32 exponentMask = 0x7F800000;
+	uint32 valueToClamp = codeGen->GetTopCursor();
+	codeGen->MD_PushCstExpand(exponentMask);
 	codeGen->PushTop();
-	codeGen->MD_PushCstExpand(exponentMask);
+	codeGen->PushCursor(valueToClamp);
 	codeGen->MD_And();
-	codeGen->MD_PushCstExpand(exponentMask);
 	codeGen->MD_CmpEqW();
 	codeGen->MD_SrlW(31);
 	codeGen->MD_SllW(23);
