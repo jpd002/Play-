@@ -81,6 +81,16 @@ CSubSystem::CSubSystem(bool ps2Mode)
 	m_dmac.SetReceiveFunction(CDmac::CHANNEL_SIO2in, std::bind(&CSio2::ReceiveDmaIn, &m_sio2, PLACEHOLDER_1, PLACEHOLDER_2, PLACEHOLDER_3, PLACEHOLDER_4));
 	m_dmac.SetReceiveFunction(CDmac::CHANNEL_SIO2out, std::bind(&CSio2::ReceiveDmaOut, &m_sio2, PLACEHOLDER_1, PLACEHOLDER_2, PLACEHOLDER_3, PLACEHOLDER_4));
 
+	m_spuCore1.OnNoiseStatusChanged =
+	    [&](uint32 value) {
+		    m_spuCore0.SetMeasureMode(value != 0);
+	    };
+	m_spuCore1.OnReadTransfer =
+	    [&] {
+		    m_spuCore0.AdjustBlockBufferSize();
+		    m_dmac.ResumeDma(Iop::CDmac::CHANNEL_SPU0);
+	    };
+
 	SetupPageTable();
 }
 

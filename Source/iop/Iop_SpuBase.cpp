@@ -200,6 +200,10 @@ void CSpuBase::Reset()
 	m_blockReader.Reset();
 	m_soundInputDataAddr = (m_spuNumber == 0) ? SOUND_INPUT_DATA_CORE0_BASE : SOUND_INPUT_DATA_CORE1_BASE;
 	m_blockWritePtr = 0;
+
+	m_measureMode = false;
+	m_noiseValue = 0;
+	m_noiseUpdateTime = 0;
 }
 
 void CSpuBase::LoadState(Framework::CZipArchiveReader& archive)
@@ -385,12 +389,30 @@ void CSpuBase::SetChannelOnHi(uint16 value)
 
 void CSpuBase::SetChannelNoiseLo(uint16 value)
 {
+	uint32 prevValue = m_channelNoise.f;
 	m_channelNoise.h0 = value;
+	if(prevValue != m_channelNoise.f)
+	{
+		if(OnNoiseStatusChanged)
+		{
+			OnNoiseStatusChanged(m_channelNoise.f);
+		}
+	}
+	m_noiseValue = 0;
+	m_noiseUpdateTime = 0;
 }
 
 void CSpuBase::SetChannelNoiseHi(uint16 value)
 {
+	uint32 prevValue = m_channelNoise.f;
 	m_channelNoise.h1 = value;
+	if(prevValue != m_channelNoise.f)
+	{
+		if(OnNoiseStatusChanged)
+		{
+			OnNoiseStatusChanged(m_channelNoise.f);
+		}
+	}
 }
 
 UNION32_16 CSpuBase::GetChannelReverb() const
@@ -529,13 +551,23 @@ uint32 CSpuBase::ReceiveDma(uint8* buffer, uint32 blockSize, uint32 blockAmount,
 		if((m_ctrl & CONTROL_DMA) == CONTROL_DMA_READ)
 		{
 			//- DMA reads need to be throttled to allow FFX IopSoundDriver to properly synchronize itself
+			if((m_noiseUpdateTime % 5) == 0)
+			{
+				m_noiseValue++;
+			}
+			m_noiseUpdateTime++;
 			blockAmount = std::min<uint32>(blockAmount, 0x10);
 			for(unsigned int i = 0; i < blockAmount; i++)
 			{
 				memcpy(buffer, m_ram + m_transferAddr, blockSize);
+				buffer[0] = m_noiseValue;
 				m_transferAddr += blockSize;
 				m_transferAddr &= m_ramSize - 1;
 				buffer += blockSize;
+			}
+			if(OnReadTransfer)
+			{
+				OnReadTransfer();
 			}
 			return blockAmount;
 		}
@@ -578,6 +610,27 @@ uint32 CSpuBase::ReceiveDma(uint8* buffer, uint32 blockSize, uint32 blockAmount,
 	else
 	{
 		return 1;
+	}
+}
+
+void CSpuBase::AdjustBlockBufferSize()
+{
+	if(m_blockWritePtr == SOUND_INPUT_DATA_SIZE)
+	{
+		m_blockWritePtr = 0x200;
+	}
+}
+
+void CSpuBase::SetMeasureMode(bool measureMode)
+{
+	m_measureMode = measureMode;
+	if(m_measureMode)
+	{
+		m_blockWritePtr = SOUND_INPUT_DATA_SIZE;
+	}
+	else
+	{
+		m_blockWritePtr = 0;
 	}
 }
 
@@ -713,21 +766,24 @@ void CSpuBase::Render(int16* samples, unsigned int sampleCount, unsigned int sam
 			}
 		}
 
-		if(!m_blockReader.CanReadSamples() && (m_blockWritePtr == SOUND_INPUT_DATA_SIZE))
+		if(!m_measureMode)
 		{
-			//We're ready to consume some data
-			m_blockReader.FillBlock(m_ram + m_soundInputDataAddr);
-			m_blockWritePtr = 0;
-		}
+			if(!m_blockReader.CanReadSamples() && (m_blockWritePtr == SOUND_INPUT_DATA_SIZE))
+			{
+				//We're ready to consume some data
+				m_blockReader.FillBlock(m_ram + m_soundInputDataAddr);
+				m_blockWritePtr = 0;
+			}
 
-		if(m_blockReader.CanReadSamples())
-		{
-			int16 sampleL = 0;
-			int16 sampleR = 0;
-			m_blockReader.GetSamples(sampleL, sampleR, sampleRate);
+			if(m_blockReader.CanReadSamples())
+			{
+				int16 sampleL = 0;
+				int16 sampleR = 0;
+				m_blockReader.GetSamples(sampleL, sampleR, sampleRate);
 
-			MixSamples(sampleL, 0x3FFF, samples + 0);
-			MixSamples(sampleR, 0x3FFF, samples + 1);
+				MixSamples(sampleL, 0x3FFF, samples + 0);
+				MixSamples(sampleR, 0x3FFF, samples + 1);
+			}
 		}
 
 		//Simulate SPU CORE0 writing its output in RAM and check for potential interrupts

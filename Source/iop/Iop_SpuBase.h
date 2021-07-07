@@ -222,6 +222,11 @@ namespace Iop
 
 		static bool g_reverbParamIsAddress[REVERB_PARAM_COUNT];
 
+		std::function<void(uint32)> OnNoiseStatusChanged;
+		std::function<void()> OnReadTransfer;
+		void SetMeasureMode(bool);
+		void AdjustBlockBufferSize();
+
 	private:
 		enum
 		{
@@ -357,6 +362,10 @@ namespace Iop
 		uint32 m_adsrLogTable[160];
 		bool m_reverbEnabled;
 		float m_volumeAdjust;
+
+		bool m_measureMode = false;
+		uint32 m_noiseValue = 0;
+		uint32 m_noiseUpdateTime = 0;
 
 		CBlockSampleReader m_blockReader;
 		uint32 m_soundInputDataAddr = 0;
