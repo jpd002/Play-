@@ -25,4 +25,4 @@ public class InputManagerConstants
 	public static final int BUTTON_R2 = 18;
 	public static final int BUTTON_R3 = 19;
 	public static final int MAX = 20;
-};
+}

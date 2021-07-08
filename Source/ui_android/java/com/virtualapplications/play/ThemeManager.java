@@ -17,7 +17,7 @@ public class ThemeManager
 	{
 		String positionString = PreferenceManager.getDefaultSharedPreferences(activity)
 				.getString(PREF_UI_THEME_SELECTION, "1");
-		int position = Integer.valueOf(positionString);
+		int position = Integer.parseInt(positionString);
 		int theme;
 		switch(position)
 		{
@@ -62,7 +62,6 @@ public class ThemeManager
 	{
 		TypedValue typedValue = new TypedValue();
 		activity.getTheme().resolveAttribute(attribute, typedValue, true);
-		int color = typedValue.data;
-		return color;
+		return typedValue.data;
 	}
 }

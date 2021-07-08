@@ -5,9 +5,9 @@ import android.text.*;
 
 class VirtualPadButton extends VirtualPadItem
 {
-	private int _value;
-	private Bitmap _bitmap;
-	private String _caption;
+	private final int _value;
+	private final Bitmap _bitmap;
+	private final String _caption;
 	private boolean _pressed = false;
 
 	public VirtualPadButton(RectF bounds, int value, Bitmap bitmap, String caption)
@@ -55,4 +55,4 @@ class VirtualPadButton extends VirtualPadItem
 			canvas.drawText(_caption, _bounds.centerX(), _bounds.centerY() - textOffset, paint);
 		}
 	}
-};
+}

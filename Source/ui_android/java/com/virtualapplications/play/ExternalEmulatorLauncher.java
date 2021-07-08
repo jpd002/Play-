@@ -5,17 +5,11 @@ import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
-import android.util.Log;
-import android.view.ContextThemeWrapper;
 
 import java.io.File;
 
 public class ExternalEmulatorLauncher extends Activity
 {
-	public ExternalEmulatorLauncher()
-	{
-	}
-
 	@Override
 	public void onCreate(Bundle savedInstanceState)
 	{
@@ -42,16 +36,16 @@ public class ExternalEmulatorLauncher extends Activity
 				}
 				catch(Exception e)
 				{
-					displaySimpleMessage("Error", e.getMessage());
+					displaySimpleMessage(e.getMessage());
 				}
 			}
 		}
 	}
 
-	private void displaySimpleMessage(String title, String message)
+	private void displaySimpleMessage(String message)
 	{
 		new AlertDialog.Builder(this)
-				.setTitle(title)
+				.setTitle("Error")
 				.setMessage(message)
 				.setPositiveButton(android.R.string.ok, (dialog, id) ->
 						finish()

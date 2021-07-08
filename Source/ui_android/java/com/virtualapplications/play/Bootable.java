@@ -9,4 +9,4 @@ public class Bootable
 	String coverUrl;
 	int lastBootedTime;
 	public String overview;
-};
+}

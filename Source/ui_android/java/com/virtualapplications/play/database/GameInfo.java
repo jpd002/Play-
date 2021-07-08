@@ -1,7 +1,6 @@
 package com.virtualapplications.play.database;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -16,7 +15,6 @@ import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.util.LruCache;
 import android.view.View;
 import android.view.View.OnLongClickListener;
@@ -40,14 +38,11 @@ public class GameInfo
 		{
 			return mMobile.isAvailable() || mWifi.isAvailable();
 		}
-		else
-		{
-			return activeNetworkInfo != null && activeNetworkInfo.isConnected();
-		}
+		return activeNetworkInfo != null && activeNetworkInfo.isConnected();
 	}
 
-	private Context mContext;
-	private LruCache<String, Bitmap> mMemoryCache;
+	private final Context mContext;
+	private final LruCache<String, Bitmap> mMemoryCache;
 	final int maxMemory = (int)(Runtime.getRuntime().maxMemory() / 1024);
 	final int cacheSize = maxMemory / 4;
 
@@ -59,21 +54,14 @@ public class GameInfo
 			@Override
 			protected int sizeOf(String key, Bitmap bitmap)
 			{
-				if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR1)
-				{
-					return bitmap.getByteCount() / 1024;
-				}
-				else
-				{
-					return (bitmap.getRowBytes() * bitmap.getHeight()) / 1000;
-				}
+				return bitmap.getByteCount() / 1024;
 			}
 		};
 	}
 
 	public void addBitmapToMemoryCache(String key, Bitmap bitmap)
 	{
-		if(key != null && !key.equals(null) && bitmap != null)
+		if(key != null && bitmap != null)
 		{
 			if(getBitmapFromMemCache(key) == null)
 			{
@@ -87,9 +75,9 @@ public class GameInfo
 		return mMemoryCache.get(key);
 	}
 
-	public Bitmap removeBitmapFromMemCache(String key)
+	public void removeBitmapFromMemCache(String key)
 	{
-		return mMemoryCache.remove(key);
+		mMemoryCache.remove(key);
 	}
 
 	private void setImageViewCover(GamesAdapter.CoverViewHolder viewHolder, Bitmap bitmap, int pos)
@@ -131,10 +119,6 @@ public class GameInfo
 			image.compress(Bitmap.CompressFormat.JPEG, 85, fOut); // saving the Bitmap to a file compressed as a JPEG with 85% compression rate
 			fOut.flush();
 		}
-		catch(FileNotFoundException e)
-		{
-			e.printStackTrace();
-		}
 		catch(IOException e)
 		{
 			e.printStackTrace();
@@ -145,7 +129,7 @@ public class GameInfo
 			{
 				fOut.close();
 			}
-			catch(IOException ex)
+			catch(IOException ignored)
 			{
 			}
 		}
@@ -184,7 +168,7 @@ public class GameInfo
 		if(file.exists())
 		{
 			final File finalFile = file;
-			(new AsyncTask<Integer, Integer, Bitmap>()
+			new AsyncTask<Integer, Integer, Bitmap>()
 			{
 				@Override
 				protected Bitmap doInBackground(Integer... integers)
@@ -201,7 +185,7 @@ public class GameInfo
 				{
 					setImageViewCover(viewHolder, bitmap, pos);
 				}
-			}).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+			}.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 		}
 		else
 		{
@@ -211,10 +195,9 @@ public class GameInfo
 
 	public class GameImage extends AsyncTask<String, Integer, Bitmap>
 	{
-		private GamesAdapter.CoverViewHolder viewHolder;
-		private String key;
-		private String boxart;
-		private int pos;
+		private final GamesAdapter.CoverViewHolder viewHolder;
+		private final String boxart;
+		private final int pos;
 
 		public GameImage(GamesAdapter.CoverViewHolder viewHolder, String boxart, int pos)
 		{
@@ -227,25 +210,26 @@ public class GameInfo
 		protected Bitmap doInBackground(String... params)
 		{
 			String path = mContext.getExternalFilesDir(null) + "/covers/";
-			key = params[0];
+			String key = params[0];
 			File file = new File(path, key + ".jpg");
 			if(!file.exists())
 			{
 				if(isNetworkAvailable(mContext) && boxart != null)
 				{
-					String api = null;
+					String api;
 					if(boxart.equals("200") || boxart.equals("404"))
 					{
 						//200 boxart has no link associated with it and was set by the user
 						return null;
 					}
-					else if(!boxart.startsWith("https://cdn.thegamesdb.net/images/original/"))
+
+					if(boxart.startsWith("https://cdn.thegamesdb.net/images/original/"))
 					{
-						api = boxart;
+						api = "https://cdn.thegamesdb.net/images/original/" + boxart;
 					}
 					else
 					{
-						api = "https://cdn.thegamesdb.net/images/original/" + boxart;
+						api = boxart;
 					}
 					InputStream im = null;
 					try
@@ -259,7 +243,7 @@ public class GameInfo
 						saveImage(key, bitmap);
 						return bitmap;
 					}
-					catch(IOException e)
+					catch(IOException ignored)
 					{
 
 					}
@@ -271,9 +255,8 @@ public class GameInfo
 							{
 								im.close();
 							}
-							im = null;
 						}
-						catch(IOException ex)
+						catch(IOException ignored)
 						{
 						}
 					}
@@ -298,27 +281,23 @@ public class GameInfo
 
 	public OnLongClickListener configureLongClick(final Bootable gameFile)
 	{
-		return new OnLongClickListener()
-		{
-			public boolean onLongClick(View view)
-			{
-				new AlertDialog.Builder(mContext)
-						.setCancelable(true)
-						.setTitle(gameFile.title)
-						.setMessage(gameFile.overview)
-						.setNegativeButton(android.R.string.cancel, (dialog, which) ->
-								dialog.dismiss())
-						.setPositiveButton("Launch", (dialog, which) -> {
-							dialog.dismiss();
-							if(mContext instanceof MainActivity)
-							{
-								((MainActivity)mContext).launchGame(gameFile);
-							}
-						})
-						.create()
-						.show();
-				return true;
-			}
+		return view -> {
+			new AlertDialog.Builder(mContext)
+					.setCancelable(true)
+					.setTitle(gameFile.title)
+					.setMessage(gameFile.overview)
+					.setNegativeButton(android.R.string.cancel, (dialog, which) ->
+							dialog.dismiss())
+					.setPositiveButton("Launch", (dialog, which) -> {
+						dialog.dismiss();
+						if(mContext instanceof MainActivity)
+						{
+							((MainActivity)mContext).launchGame(gameFile);
+						}
+					})
+					.create()
+					.show();
+			return true;
 		};
 	}
 }

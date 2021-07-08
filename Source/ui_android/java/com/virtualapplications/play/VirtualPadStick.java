@@ -4,9 +4,9 @@ import android.graphics.*;
 
 class VirtualPadStick extends VirtualPadItem
 {
-	private int _valueAxisX;
-	private int _valueAxisY;
-	private Bitmap _bitmap;
+	private final int _valueAxisX;
+	private final int _valueAxisY;
+	private final Bitmap _bitmap;
 	private PointF _pressPosition = new PointF();
 	private PointF _offset = new PointF();
 
@@ -57,4 +57,4 @@ class VirtualPadStick extends VirtualPadItem
 		paint.setAntiAlias(true);
 		canvas.drawBitmap(_bitmap, null, offsetRect, paint);
 	}
-};
+}

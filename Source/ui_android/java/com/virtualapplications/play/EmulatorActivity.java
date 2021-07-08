@@ -99,17 +99,17 @@ public class EmulatorActivity extends Activity
 		);
 
 		View fragmentView = findViewById(R.id.emulator_drawer);
-		DrawerLayout drawerLayout = (DrawerLayout)findViewById(R.id.emulator_drawer_layout);
+		DrawerLayout drawerLayout = findViewById(R.id.emulator_drawer_layout);
 		_drawerFragment.setUp(fragmentView, drawerLayout);
 
-		_fpsTextView = (TextView)findViewById(R.id.emulator_fps);
-		_profileTextView = (TextView)findViewById(R.id.emulator_profile);
+		_fpsTextView = findViewById(R.id.emulator_fps);
+		_profileTextView = findViewById(R.id.emulator_profile);
 
 		_statsTimerRunnable =
 				() -> {
 					int frames = StatsManager.getFrames();
 					int drawCalls = StatsManager.getDrawCalls();
-					int dcpf = (frames != 0) ? (drawCalls / frames) : 0;
+					int dcpf = frames != 0 ? drawCalls / frames : 0;
 					_fpsTextView.setText(String.format("%d f/s, %d dc/f", frames, dcpf));
 					if(StatsManager.isProfiling())
 					{
@@ -126,7 +126,7 @@ public class EmulatorActivity extends Activity
 	{
 		super.onPostCreate(savedInstanceState);
 
-		SurfaceView renderView = (SurfaceView)findViewById(R.id.emulator_view);
+		SurfaceView renderView = findViewById(R.id.emulator_view);
 		SurfaceHolder holder = renderView.getHolder();
 		holder.addCallback(new SurfaceCallback());
 
@@ -185,9 +185,9 @@ public class EmulatorActivity extends Activity
 			return super.dispatchKeyEvent(event);
 		}
 		int action = event.getAction();
-		if((action == KeyEvent.ACTION_DOWN) || (action == KeyEvent.ACTION_UP))
+		if(action == KeyEvent.ACTION_DOWN || action == KeyEvent.ACTION_UP)
 		{
-			boolean pressed = (action == KeyEvent.ACTION_DOWN);
+			boolean pressed = action == KeyEvent.ACTION_DOWN;
 			switch(event.getKeyCode())
 			{
 			case KeyEvent.KEYCODE_DPAD_UP:
@@ -307,7 +307,7 @@ public class EmulatorActivity extends Activity
 
 	private void updateOnScreenWidgets()
 	{
-		View virtualPadView = (View)findViewById(R.id.emulator_virtualpad);
+		View virtualPadView = findViewById(R.id.emulator_virtualpad);
 		virtualPadView.setVisibility(SettingsManager.getPreferenceBoolean(PREF_EMU_GENERAL_SHOWVIRTUALPAD) ? View.VISIBLE : View.GONE);
 
 		boolean fpsVisible = SettingsManager.getPreferenceBoolean(PREF_EMU_GENERAL_SHOWFPS) || StatsManager.isProfiling();
