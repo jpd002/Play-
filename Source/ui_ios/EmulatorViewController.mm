@@ -36,6 +36,20 @@ CPS2VM::ProfileFrameDoneSignal::Connection g_profileFrameDoneConnection;
 
 - (void)viewDidLoad
 {
+	[[NSNotificationCenter defaultCenter] addObserverForName:UIApplicationWillResignActiveNotification
+	                                                  object:nil
+	                                                   queue:[NSOperationQueue mainQueue]
+	                                              usingBlock:^(NSNotification* note) {
+		                                            [self appResignedActive];
+	                                              }];
+
+	[[NSNotificationCenter defaultCenter] addObserverForName:UIApplicationDidBecomeActiveNotification
+	                                                  object:nil
+	                                                   queue:[NSOperationQueue mainQueue]
+	                                              usingBlock:^(NSNotification* note) {
+		                                            [self appBecameActive];
+	                                              }];
+
 	self.connectObserver = [[NSNotificationCenter defaultCenter] addObserverForName:GCControllerDidConnectNotification
 	                                                                         object:nil
 	                                                                          queue:[NSOperationQueue mainQueue]
@@ -131,6 +145,22 @@ CPS2VM::ProfileFrameDoneSignal::Connection g_profileFrameDoneConnection;
 #ifdef PROFILE
 	g_profileFrameDoneConnection.reset();
 #endif
+}
+
+- (void)appResignedActive
+{
+	if(g_virtualMachine)
+	{
+		g_virtualMachine->Pause();
+	}
+}
+
+- (void)appBecameActive
+{
+	if(g_virtualMachine)
+	{
+		g_virtualMachine->Resume();
+	}
 }
 
 - (void)toggleHardwareController:(BOOL)useHardware
