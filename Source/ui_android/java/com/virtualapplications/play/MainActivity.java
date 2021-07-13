@@ -10,6 +10,8 @@ import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.os.*;
+
+import androidx.annotation.NonNull;
 import androidx.preference.PreferenceManager;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -20,9 +22,7 @@ import androidx.appcompat.widget.Toolbar;
 import android.view.*;
 import android.view.View;
 import android.widget.*;
-import android.widget.AdapterView.OnItemClickListener;
 import android.widget.GridView;
-import androidx.drawerlayout.widget.DrawerLayout;
 
 import java.io.File;
 import java.text.*;
@@ -84,7 +84,7 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 		// Set up the drawer.
 		mNavigationDrawerFragment.setUp(
 				R.id.navigation_drawer,
-				(DrawerLayout)findViewById(R.id.drawer_layout));
+				findViewById(R.id.drawer_layout));
 
 		int attributeResourceId = getThemeColor(this, R.attr.colorPrimaryDark);
 		findViewById(R.id.navigation_drawer).setBackgroundColor(Color.parseColor(
@@ -131,13 +131,10 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 	}
 
 	@Override
-	public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults)
+	public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults)
 	{
-		switch(requestCode)
-		{
-		case Constants.READ_WRITE_PERMISSION:
-		{
-			// If request is cancelled, the result arrays are empty.
+		if(requestCode == Constants.READ_WRITE_PERMISSION)
+		{// If request is cancelled, the result arrays are empty.
 			if(grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)
 			{
 				Startup();
@@ -153,8 +150,6 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 						.create()
 						.show();
 			}
-			return;
-		}
 		}
 	}
 
@@ -216,6 +211,7 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 
 	protected void onActivityResult(int requestCode, int resultCode, Intent data)
 	{
+		super.onActivityResult(requestCode, resultCode, data);
 		if(requestCode == 0)
 		{
 			ThemeManager.applyTheme(this, toolbar);
@@ -236,14 +232,14 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 	{
 		Date buildDate = BuildConfig.buildTime;
 		String buildDateString = new SimpleDateFormat("yyyy/MM/dd K:mm a", Locale.getDefault()).format(buildDate);
-		String timestamp = buildDateString.substring(11, buildDateString.length()).startsWith("0:")
+		String timestamp = buildDateString.substring(11).startsWith("0:")
 				? buildDateString.replace("0:", "12:") : buildDateString;
 		String aboutMessage = String.format("Version: %s Date: %s", BuildConfig.VERSION_NAME, timestamp);
 		displaySimpleMessage("About Play!", aboutMessage);
 	}
 
 	@Override
-	public void onConfigurationChanged(Configuration newConfig)
+	public void onConfigurationChanged(@NonNull Configuration newConfig)
 	{
 		super.onConfigurationChanged(newConfig);
 		mNavigationDrawerFragment.onConfigurationChanged(newConfig);
@@ -251,14 +247,7 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 		{
 			currentOrientation = newConfig.orientation;
 			setUIcolor();
-			if(currentGames != null && !currentGames.isEmpty())
-			{
-				prepareFileListView(true);
-			}
-			else
-			{
-				prepareFileListView(false);
-			}
+			prepareFileListView(currentGames != null && !currentGames.isEmpty());
 		}
 	}
 
@@ -310,7 +299,7 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 
 	public void restoreActionBar()
 	{
-		androidx.appcompat.app.ActionBar actionBar = getSupportActionBar();
+		ActionBar actionBar = getSupportActionBar();
 		actionBar.setDisplayShowTitleEnabled(true);
 		actionBar.setTitle(R.string.app_name);
 		actionBar.setSubtitle("Games - " + navSubtitle);
@@ -333,9 +322,9 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 	@Override
 	public void onBackPressed()
 	{
-		if(mNavigationDrawerFragment.mDrawerLayout != null && mNavigationDrawerFragment.isDrawerOpen())
+		if(NavigationDrawerFragment.mDrawerLayout != null && mNavigationDrawerFragment.isDrawerOpen())
 		{
-			mNavigationDrawerFragment.mDrawerLayout.closeDrawer(NavigationDrawerFragment.mFragmentContainerView);
+			NavigationDrawerFragment.mDrawerLayout.closeDrawer(NavigationDrawerFragment.mFragmentContainerView);
 			return;
 		}
 		super.onBackPressed();
@@ -413,19 +402,13 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 
 	private void populateImages(List<Bootable> images)
 	{
-		GridView gameGrid = (GridView)findViewById(R.id.game_grid);
+		GridView gameGrid = findViewById(R.id.game_grid);
 		if(gameGrid != null)
 		{
 			gameGrid.setAdapter(null);
 			if(isAndroidTV(this))
 			{
-				gameGrid.setOnItemClickListener(new OnItemClickListener()
-				{
-					public void onItemClick(AdapterView<?> parent, View v, int position, long id)
-					{
-						v.performClick();
-					}
-				});
+				gameGrid.setOnItemClickListener((parent, v, position, id) -> v.performClick());
 			}
 			if(images == null || images.isEmpty())
 			{
@@ -472,16 +455,9 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 
 	private boolean isAndroidTV(Context context)
 	{
-		if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH)
-		{
-			UiModeManager uiModeManager = (UiModeManager)
-					context.getSystemService(Context.UI_MODE_SERVICE);
-			if(uiModeManager.getCurrentModeType() == Configuration.UI_MODE_TYPE_TELEVISION)
-			{
-				return true;
-			}
-		}
-		return false;
+		UiModeManager uiModeManager = (UiModeManager)
+				context.getSystemService(Context.UI_MODE_SERVICE);
+		return uiModeManager.getCurrentModeType() == Configuration.UI_MODE_TYPE_TELEVISION;
 	}
 
 	public void prepareFileListView(boolean retainList)

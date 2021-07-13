@@ -18,7 +18,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -56,10 +55,6 @@ public class NavigationDrawerFragment extends Fragment
 	private boolean mFromSavedInstanceState;
 	private boolean mUserLearnedDrawer;
 	private ListView mDrawerListView_bottom;
-
-	public NavigationDrawerFragment()
-	{
-	}
 
 	@Override
 	public void onCreate(Bundle savedInstanceState)
@@ -101,13 +96,9 @@ public class NavigationDrawerFragment extends Fragment
 				}));
 		//Thunder07: Using 'post' might seem weird, but thats the only way I found for setting the selection
 		//highlight on startup, every other way returns null.
-		mDrawerListView.post(new Runnable()
-		{
-			public void run()
-			{
-				int attributeResourceId = getThemeColor(getActivity(), R.attr.colorPrimaryDark);
-				mDrawerListView.getChildAt(mCurrentSelectedPosition).setBackgroundColor(attributeResourceId);
-			}
+		mDrawerListView.post(() -> {
+			int attributeResourceId = getThemeColor(getActivity(), R.attr.colorPrimaryDark);
+			mDrawerListView.getChildAt(mCurrentSelectedPosition).setBackgroundColor(attributeResourceId);
 		});
 
 		mDrawerListView_bottom.setAdapter(new ArrayAdapter<>(
@@ -127,25 +118,13 @@ public class NavigationDrawerFragment extends Fragment
 
 		LinearLayout mDrawerRelativeLayout = (LinearLayout)inflater.inflate(
 				R.layout.fragment_navigation_drawer, container, false);
-		mDrawerListView = (ListView)mDrawerRelativeLayout.findViewById(R.id.nav_listview);
-		mDrawerListView.setOnItemClickListener(new AdapterView.OnItemClickListener()
-		{
-			@Override
-			public void onItemClick(AdapterView<?> parent, View view, int position, long id)
-			{
-				selectItem(position);
-			}
-		});
+		mDrawerListView = mDrawerRelativeLayout.findViewById(R.id.nav_listview);
+		mDrawerListView.setOnItemClickListener((parent, view, position, id) ->
+				selectItem(position));
 
-		mDrawerListView_bottom = (ListView)mDrawerRelativeLayout.findViewById(R.id.nav_listview_bottom);
-		mDrawerListView_bottom.setOnItemClickListener(new AdapterView.OnItemClickListener()
-		{
-			@Override
-			public void onItemClick(AdapterView<?> parent, View view, int position, long id)
-			{
-				selectBottomItem(position);
-			}
-		});
+		mDrawerListView_bottom = mDrawerRelativeLayout.findViewById(R.id.nav_listview_bottom);
+		mDrawerListView_bottom.setOnItemClickListener((parent, view, position, id) ->
+				selectBottomItem(position));
 		return mDrawerRelativeLayout;
 	}
 
@@ -168,7 +147,7 @@ public class NavigationDrawerFragment extends Fragment
 		mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
 		// set up the drawer's list view with items and click listener
 
-		androidx.appcompat.app.ActionBar actionBar = ((AppCompatActivity)getActivity()).getSupportActionBar();
+		ActionBar actionBar = ((AppCompatActivity)getActivity()).getSupportActionBar();
 		actionBar.setDisplayHomeAsUpEnabled(true);
 		actionBar.setHomeButtonEnabled(true);
 
@@ -177,7 +156,7 @@ public class NavigationDrawerFragment extends Fragment
 		// between the navigation drawer and the action bar app icon.
 
 		mDrawerToggle = new ActionBarDrawerToggle(
-				(AppCompatActivity)getActivity(),                    /* host Activity */
+				getActivity(),                    /* host Activity */
 				mDrawerLayout,                    /* DrawerLayout object */
 				R.string.navigation_drawer_open,  /* "open drawer" description for accessibility */
 				R.string.navigation_drawer_close  /* "close drawer" description for accessibility */
@@ -226,14 +205,7 @@ public class NavigationDrawerFragment extends Fragment
 		mDrawerLayout.setDrawerListener(mDrawerToggle);
 
 		// Defer code dependent on restoration of previous instance state.
-		mDrawerLayout.post(new Runnable()
-		{
-			@Override
-			public void run()
-			{
-				mDrawerToggle.syncState();
-			}
-		});
+		mDrawerLayout.post(() -> mDrawerToggle.syncState());
 	}
 
 	private void selectItem(int position)
@@ -363,15 +335,10 @@ public class NavigationDrawerFragment extends Fragment
 	 */
 	private void showGlobalContextActionBar()
 	{
-		androidx.appcompat.app.ActionBar actionBar = ((AppCompatActivity)getActivity()).getSupportActionBar();
+		ActionBar actionBar = ((AppCompatActivity)getActivity()).getSupportActionBar();
 		actionBar.setDisplayShowTitleEnabled(true);
 		actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
 		actionBar.setSubtitle("Navigation");
-	}
-
-	private android.app.ActionBar getActionBar()
-	{
-		return getActivity().getActionBar();
 	}
 
 	/**

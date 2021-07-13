@@ -16,11 +16,11 @@ public class GameIndexer
 {
 	private static HashSet<String> getExternalMounts()
 	{
-		final HashSet<String> out = new HashSet<String>();
+		final HashSet<String> out = new HashSet<>();
 		String reg = "(?i).*(//|vold).*(vfat|ntfs|exfat|fat32|ext3|ext4|fuse|sdfat|cifs).*rw.*";
 		try
 		{
-			final java.lang.Process process = new ProcessBuilder().command("mount")
+			final Process process = new ProcessBuilder().command("mount")
 					.redirectErrorStream(true).start();
 			InputStream is = process.getInputStream();
 			byte[] contents = IOUtils.toByteArray(is);
@@ -74,7 +74,7 @@ public class GameIndexer
 	public static void startupScan()
 	{
 		HashSet<String> scanDirs = getScanDirectories();
-		scanBootables(scanDirs.toArray(new String[scanDirs.size()]));
+		scanBootables(scanDirs.toArray(new String[0]));
 	}
 
 	public static void fullScan()
@@ -82,7 +82,7 @@ public class GameIndexer
 		HashSet<String> scanDirs = getScanDirectories();
 		if(!scanDirs.isEmpty())
 		{
-			fullScanBootables(scanDirs.toArray(new String[scanDirs.size()]));
+			fullScanBootables(scanDirs.toArray(new String[0]));
 		}
 	}
 
