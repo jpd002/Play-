@@ -515,9 +515,9 @@ void CDrawMobile::CreateRenderPass()
 	depthRef.attachment = 1;
 	depthRef.layout = VK_IMAGE_LAYOUT_GENERAL;
 
-	std::vector<VkAttachmentReference> inputAttachmentRefs;
-	inputAttachmentRefs.push_back(colorRef);
-	inputAttachmentRefs.push_back(depthRef);
+	std::vector<VkAttachmentReference> attachmentRefs;
+	attachmentRefs.push_back(colorRef);
+	attachmentRefs.push_back(depthRef);
 
 	std::vector<VkSubpassDescription> subpasses;
 
@@ -525,9 +525,8 @@ void CDrawMobile::CreateRenderPass()
 	{
 		VkSubpassDescription subpass = {};
 		subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
-		subpass.pColorAttachments = &colorRef;
-		subpass.colorAttachmentCount = 1;
-		subpass.pDepthStencilAttachment = &depthRef;
+		subpass.pColorAttachments = attachmentRefs.data();
+		subpass.colorAttachmentCount = attachmentRefs.size();
 		subpasses.push_back(subpass);
 	}
 
@@ -535,11 +534,10 @@ void CDrawMobile::CreateRenderPass()
 	{
 		VkSubpassDescription subpass = {};
 		subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
-		subpass.pColorAttachments = &colorRef;
-		subpass.colorAttachmentCount = 1;
-		subpass.pDepthStencilAttachment = &depthRef;
-		subpass.pInputAttachments = inputAttachmentRefs.data();
-		subpass.inputAttachmentCount = inputAttachmentRefs.size();
+		subpass.pColorAttachments = attachmentRefs.data();
+		subpass.colorAttachmentCount = attachmentRefs.size();
+		subpass.pInputAttachments = attachmentRefs.data();
+		subpass.inputAttachmentCount = attachmentRefs.size();
 		subpasses.push_back(subpass);
 	}
 
@@ -547,10 +545,10 @@ void CDrawMobile::CreateRenderPass()
 	{
 		VkSubpassDescription subpass = {};
 		subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
-		subpass.pColorAttachments = &colorRef;
-		subpass.colorAttachmentCount = 1;
-		subpass.pInputAttachments = inputAttachmentRefs.data();
-		subpass.inputAttachmentCount = inputAttachmentRefs.size();
+		subpass.pColorAttachments = attachmentRefs.data();
+		subpass.colorAttachmentCount = attachmentRefs.size();
+		subpass.pInputAttachments = attachmentRefs.data();
+		subpass.inputAttachmentCount = attachmentRefs.size();
 		subpasses.push_back(subpass);
 	}
 
@@ -608,12 +606,12 @@ void CDrawMobile::CreateRenderPass()
 
 	{
 		VkAttachmentDescription attachment = {};
-		attachment.format = VK_FORMAT_D32_SFLOAT;
+		attachment.format = VK_FORMAT_R32_UINT;
 		attachment.samples = VK_SAMPLE_COUNT_1_BIT;
 		attachment.loadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
 		attachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-		attachment.initialLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-		attachment.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+		attachment.initialLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+		attachment.finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 		attachments.push_back(attachment);
 	}
 
@@ -803,21 +801,23 @@ PIPELINE CDrawMobile::CreateDrawPipeline(const PIPELINE_CAPS& caps)
 	rasterStateInfo.lineWidth = 1.0f;
 
 	// Our attachment will write to all color channels, but no blending is enabled.
-	VkPipelineColorBlendAttachmentState blendAttachment = {};
-	blendAttachment.colorWriteMask = 0xf;
+	std::vector<VkPipelineColorBlendAttachmentState> blendAttachmentStates;
+	for(uint32 i = 0; i < 2; i++)
+	{
+		VkPipelineColorBlendAttachmentState blendAttachmentState = {};
+		blendAttachmentState.colorWriteMask = 0xf;
+		blendAttachmentStates.push_back(blendAttachmentState);
+	}
 
 	auto colorBlendStateInfo = Framework::Vulkan::PipelineColorBlendStateCreateInfo();
-	colorBlendStateInfo.attachmentCount = 1;
-	colorBlendStateInfo.pAttachments = &blendAttachment;
+	colorBlendStateInfo.attachmentCount = blendAttachmentStates.size();
+	colorBlendStateInfo.pAttachments = blendAttachmentStates.data();
 
 	auto viewportStateInfo = Framework::Vulkan::PipelineViewportStateCreateInfo();
 	viewportStateInfo.viewportCount = 1;
 	viewportStateInfo.scissorCount = 1;
 
 	auto depthStencilStateInfo = Framework::Vulkan::PipelineDepthStencilStateCreateInfo();
-	depthStencilStateInfo.depthTestEnable = 1;
-	depthStencilStateInfo.depthCompareOp = VK_COMPARE_OP_ALWAYS;
-	depthStencilStateInfo.depthWriteEnable = 1;
 
 	auto multisampleStateInfo = Framework::Vulkan::PipelineMultisampleStateCreateInfo();
 	multisampleStateInfo.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
@@ -1246,16 +1246,16 @@ Framework::Vulkan::CShaderModule CDrawMobile::CreateDrawFragmentShader(const PIP
 		auto inputFog = CFloat4Lvalue(b.CreateInput(Nuanceur::SEMANTIC_TEXCOORD, 4));
 
 		//Outputs
-		auto outputColor = CFloat4Lvalue(b.CreateOutput(Nuanceur::SEMANTIC_SYSTEM_COLOR));
-		auto outputDepth = CFloatLvalue(b.CreateOutput(Nuanceur::SEMANTIC_SYSTEM_DEPTH));
+		auto outputColor = CFloat4Lvalue(b.CreateOutput(Nuanceur::SEMANTIC_SYSTEM_COLOR, 0));
+		auto outputDepth = CUintLvalue(b.CreateOutputUint(Nuanceur::SEMANTIC_SYSTEM_COLOR, 1));
 
 		auto memoryBuffer = CArrayUintValue(b.CreateUniformArrayUint("memoryBuffer", DESCRIPTOR_LOCATION_BUFFER_MEMORY, Nuanceur::SYMBOL_ATTRIBUTE_COHERENT));
 		auto clutBuffer = CArrayUintValue(b.CreateUniformArrayUint("clutBuffer", DESCRIPTOR_LOCATION_IMAGE_CLUT));
 		auto texSwizzleTable = CImageUint2DValue(b.CreateImage2DUint(DESCRIPTOR_LOCATION_IMAGE_SWIZZLETABLE_TEX));
 		auto fbSwizzleTable = CImageUint2DValue(b.CreateImage2DUint(DESCRIPTOR_LOCATION_IMAGE_SWIZZLETABLE_FB));
 		auto depthSwizzleTable = CImageUint2DValue(b.CreateImage2DUint(DESCRIPTOR_LOCATION_IMAGE_SWIZZLETABLE_DEPTH));
-		auto subpassColorInput = CSubpassInputValue(b.CreateSubpassInput(DESCRIPTOR_LOCATION_IMAGE_INPUT_COLOR));
-		//auto subpassDepthInput = CSubpassInputValue(b.CreateSubpassInput(DESCRIPTOR_LOCATION_IMAGE_INPUT_DEPTH));
+		auto subpassColorInput = CSubpassInputValue(b.CreateSubpassInput(DESCRIPTOR_LOCATION_IMAGE_INPUT_COLOR, 0));
+		auto subpassDepthInput = CSubpassInputUintValue(b.CreateSubpassInputUint(DESCRIPTOR_LOCATION_IMAGE_INPUT_DEPTH, 1));
 
 		//Push constants
 		auto fbDepthParams = CInt4Lvalue(b.CreateUniformInt4("fbDepthParams", Nuanceur::UNIFORM_UNIT_PUSHCONSTANT));
@@ -1285,7 +1285,7 @@ Framework::Vulkan::CShaderModule CDrawMobile::CreateDrawFragmentShader(const PIP
 		auto alphaFix = ToFloat(alphaFbParams->y()) / NewFloat(b, 255.f);
 		auto alphaRef = ToUint(alphaFbParams->z());
 
-		auto srcDepth = inputDepth->x();
+		auto srcDepth = ToUint(inputDepth->x() * NewFloat(b, DEPTH_MAX));
 
 		//TODO: Try vectorized shift
 		//auto imageColor = ToUint(inputColor * NewFloat4(b, 255.f, 255.f, 255.f, 255.f));
@@ -1520,16 +1520,15 @@ Framework::Vulkan::CShaderModule CDrawMobile::CreateDrawFragmentShader(const PIP
 		auto dstPixel = CUintLvalue(b.CreateVariableUint("dstPixel"));
 		auto dstColor = CFloat4Lvalue(b.CreateVariableFloat("dstColor"));
 		auto dstAlpha = CFloat4Lvalue(b.CreateVariableFloat("dstAlpha"));
-		auto dstDepth = CFloatLvalue(b.CreateVariableFloat("dstDepth"));
+		auto dstDepth = CUintLvalue(b.CreateVariableUint("dstDepth"));
 
 		auto finalColor = CFloat4Lvalue(b.CreateVariableFloat("finalColor"));
-		auto finalDepth = CFloatLvalue(b.CreateVariableFloat("finalDepth"));
+		auto finalDepth = CUintLvalue(b.CreateVariableUint("finalDepth"));
 
 		dstPixel = NewUint(b, 0);
 		dstColor = Load(subpassColorInput, NewInt2(b, 0, 0));
-		//dstDepth = Load(subpassDepthInput, NewInt2(b, 0, 0))->x();
+		dstDepth = Load(subpassDepthInput, NewInt2(b, 0, 0))->x();
 		//dstColor = NewFloat4(b, 0, 0, 0, 0);
-		dstDepth = NewFloat(b, 0);
 		dstAlpha = NewFloat4(b, 1, 1, 1, 1);
 
 		if(caps.hasDstAlphaTest)
@@ -1578,7 +1577,7 @@ Framework::Vulkan::CShaderModule CDrawMobile::CreateDrawFragmentShader(const PIP
 			finalColor = textureColor->xyzw();
 		}
 
-		finalDepth = srcDepth->x();
+		finalDepth = srcDepth;
 
 		BeginIf(b, !writeColor);
 		{
@@ -1705,12 +1704,17 @@ PIPELINE CDrawMobile::CreateLoadPipeline()
 	rasterStateInfo.lineWidth = 1.0f;
 
 	// Our attachment will write to all color channels, but no blending is enabled.
-	VkPipelineColorBlendAttachmentState blendAttachment = {};
-	blendAttachment.colorWriteMask = 0xf;
+	std::vector<VkPipelineColorBlendAttachmentState> blendAttachmentStates;
+	for(uint32 i = 0; i < 2; i++)
+	{
+		VkPipelineColorBlendAttachmentState blendAttachmentState = {};
+		blendAttachmentState.colorWriteMask = 0xf;
+		blendAttachmentStates.push_back(blendAttachmentState);
+	}
 
 	auto colorBlendStateInfo = Framework::Vulkan::PipelineColorBlendStateCreateInfo();
-	colorBlendStateInfo.attachmentCount = 1;
-	colorBlendStateInfo.pAttachments = &blendAttachment;
+	colorBlendStateInfo.attachmentCount = blendAttachmentStates.size();
+	colorBlendStateInfo.pAttachments = blendAttachmentStates.data();
 
 	auto viewportStateInfo = Framework::Vulkan::PipelineViewportStateCreateInfo();
 	viewportStateInfo.viewportCount = 1;
@@ -1859,12 +1863,17 @@ PIPELINE CDrawMobile::CreateStorePipeline()
 	rasterStateInfo.lineWidth = 1.0f;
 
 	// Our attachment will write to all color channels, but no blending is enabled.
-	VkPipelineColorBlendAttachmentState blendAttachment = {};
-	blendAttachment.colorWriteMask = 0xf;
+	std::vector<VkPipelineColorBlendAttachmentState> blendAttachmentStates;
+	for(uint32 i = 0; i < 2; i++)
+	{
+		VkPipelineColorBlendAttachmentState blendAttachmentState = {};
+		blendAttachmentState.colorWriteMask = 0xf;
+		blendAttachmentStates.push_back(blendAttachmentState);
+	}
 
 	auto colorBlendStateInfo = Framework::Vulkan::PipelineColorBlendStateCreateInfo();
-	colorBlendStateInfo.attachmentCount = 1;
-	colorBlendStateInfo.pAttachments = &blendAttachment;
+	colorBlendStateInfo.attachmentCount = blendAttachmentStates.size();
+	colorBlendStateInfo.pAttachments = blendAttachmentStates.data();
 
 	auto viewportStateInfo = Framework::Vulkan::PipelineViewportStateCreateInfo();
 	viewportStateInfo.viewportCount = 1;
@@ -1965,7 +1974,8 @@ Framework::Vulkan::CShaderModule CDrawMobile::CreateLoadFragmentShader()
 		auto inputPosition = CFloat4Lvalue(b.CreateInput(Nuanceur::SEMANTIC_SYSTEM_POSITION));
 
 		//Outputs
-		auto outputColor = CFloat4Lvalue(b.CreateOutput(Nuanceur::SEMANTIC_SYSTEM_COLOR));
+		auto outputColor = CFloat4Lvalue(b.CreateOutput(Nuanceur::SEMANTIC_SYSTEM_COLOR, 0));
+		auto outputDepth = CUintLvalue(b.CreateOutputUint(Nuanceur::SEMANTIC_SYSTEM_COLOR, 1));
 
 		auto memoryBuffer = CArrayUintValue(b.CreateUniformArrayUint("memoryBuffer", DESCRIPTOR_LOCATION_BUFFER_MEMORY, Nuanceur::SYMBOL_ATTRIBUTE_COHERENT));
 		auto fbSwizzleTable = CImageUint2DValue(b.CreateImage2DUint(DESCRIPTOR_LOCATION_IMAGE_SWIZZLETABLE_FB));
@@ -1981,6 +1991,7 @@ Framework::Vulkan::CShaderModule CDrawMobile::CreateLoadFragmentShader()
 
 		auto dstPixel = CUintLvalue(b.CreateVariableUint("dstPixel"));
 		auto dstColor = CFloat4Lvalue(b.CreateVariableFloat("dstColor"));
+		auto dstDepth = CUintLvalue(b.CreateVariableUint("dstDepth"));
 
 		auto fbAddress = CIntLvalue(b.CreateTemporaryInt());
 		auto depthAddress = CIntLvalue(b.CreateTemporaryInt());
@@ -2051,13 +2062,10 @@ Framework::Vulkan::CShaderModule CDrawMobile::CreateLoadFragmentShader()
 		break;
 		}
 
-		//if(needsDstDepth)
-		if(false)
-		{
-			//dstDepth = GetDepth(b, caps.depthbufferFormat, depthAddress, memoryBuffer);
-		}
+		dstDepth = GetDepth(b, caps.depthbufferFormat, depthAddress, memoryBuffer);
 
 		outputColor = dstColor->xyzw();
+		outputDepth = dstDepth->x();
 	}
 
 	Framework::CMemStream shaderStream;
@@ -2081,13 +2089,14 @@ Framework::Vulkan::CShaderModule CDrawMobile::CreateStoreFragmentShader()
 		auto inputPosition = CFloat4Lvalue(b.CreateInput(Nuanceur::SEMANTIC_SYSTEM_POSITION));
 
 		//Outputs
-		auto outputColor = CFloat4Lvalue(b.CreateOutput(Nuanceur::SEMANTIC_SYSTEM_COLOR));
+		auto outputColor = CFloat4Lvalue(b.CreateOutput(Nuanceur::SEMANTIC_SYSTEM_COLOR, 0));
+		auto outputDepth = CUintLvalue(b.CreateOutputUint(Nuanceur::SEMANTIC_SYSTEM_COLOR, 1));
 
 		auto memoryBuffer = CArrayUintValue(b.CreateUniformArrayUint("memoryBuffer", DESCRIPTOR_LOCATION_BUFFER_MEMORY, Nuanceur::SYMBOL_ATTRIBUTE_COHERENT));
 		auto fbSwizzleTable = CImageUint2DValue(b.CreateImage2DUint(DESCRIPTOR_LOCATION_IMAGE_SWIZZLETABLE_FB));
 		auto depthSwizzleTable = CImageUint2DValue(b.CreateImage2DUint(DESCRIPTOR_LOCATION_IMAGE_SWIZZLETABLE_DEPTH));
-		auto subpassColorInput = CSubpassInputValue(b.CreateSubpassInput(DESCRIPTOR_LOCATION_IMAGE_INPUT_COLOR));
-		//auto subpassDepthInput = CSubpassInputValue(b.CreateSubpassInput(DESCRIPTOR_LOCATION_IMAGE_INPUT_DEPTH));
+		auto subpassColorInput = CSubpassInputValue(b.CreateSubpassInput(DESCRIPTOR_LOCATION_IMAGE_INPUT_COLOR, 0));
+		auto subpassDepthInput = CSubpassInputUintValue(b.CreateSubpassInputUint(DESCRIPTOR_LOCATION_IMAGE_INPUT_DEPTH, 1));
 
 		//Push constants
 		auto fbDepthParams = CInt4Lvalue(b.CreateUniformInt4("fbDepthParams", Nuanceur::UNIFORM_UNIT_PUSHCONSTANT));
@@ -2100,8 +2109,7 @@ Framework::Vulkan::CShaderModule CDrawMobile::CreateStoreFragmentShader()
 		auto fbWriteMask = NewUint(b, 0xFFFFFFFF);
 		auto dstPixel = NewUint(b, 0xFFFFFFFF);
 		auto dstColor = Load(subpassColorInput, NewInt2(b, 0, 0));
-		//auto dstDepth = ToUint(Load(subpassDepthInput, NewInt2(b, 0, 0))->x() * NewFloat(b, DEPTH_MAX));
-		auto dstDepth = NewFloat(b, 0);
+		auto dstDepth = Load(subpassDepthInput, NewInt2(b, 0, 0))->x();
 
 		auto fbAddress = CIntLvalue(b.CreateTemporaryInt());
 		auto depthAddress = CIntLvalue(b.CreateTemporaryInt());
@@ -2148,7 +2156,7 @@ Framework::Vulkan::CShaderModule CDrawMobile::CreateStoreFragmentShader()
 		depthAddress = depthAddress & NewInt(b, CGSHandler::RAMSIZE - 1);
 
 		WriteToFramebuffer(b, caps.framebufferFormat, memoryBuffer, fbAddress, fbWriteMask, dstPixel, dstColor);
-		//WriteToDepthbuffer(b, caps.depthbufferFormat, memoryBuffer, depthAddress, dstDepth);
+		WriteToDepthbuffer(b, caps.depthbufferFormat, memoryBuffer, depthAddress, dstDepth);
 
 		outputColor = NewFloat4(b, 1, 1, 0, 1);
 	}
@@ -2171,11 +2179,11 @@ void CDrawMobile::CreateDrawImages()
 	m_drawColorImageView = m_drawColorImage.CreateImageView(VK_IMAGE_ASPECT_COLOR_BIT);
 
 	m_drawDepthImage = Framework::Vulkan::CImage(m_context->device, m_context->physicalDeviceMemoryProperties,
-	                                             VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT | VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT,
-	                                             VK_FORMAT_D32_SFLOAT, DRAW_AREA_SIZE, DRAW_AREA_SIZE, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+	                                             VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT,
+	                                             VK_FORMAT_R32_UINT, DRAW_AREA_SIZE, DRAW_AREA_SIZE, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
 	m_drawDepthImage.SetLayout(m_context->queue, m_context->commandBufferPool,
-	                           VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT, VK_IMAGE_ASPECT_DEPTH_BIT);
+	                           VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT, VK_IMAGE_ASPECT_COLOR_BIT);
 
-	m_drawDepthImageView = m_drawDepthImage.CreateImageView(VK_IMAGE_ASPECT_DEPTH_BIT);
+	m_drawDepthImageView = m_drawDepthImage.CreateImageView(VK_IMAGE_ASPECT_COLOR_BIT);
 }
