@@ -53,30 +53,6 @@ CPS2VM::ProfileFrameDoneSignal::Connection g_profileFrameDoneConnection;
 		                                            [self appBecameActive];
 	                                              }];
 
-	self.connectObserver = [[NSNotificationCenter defaultCenter] addObserverForName:GCControllerDidConnectNotification
-	                                                                         object:nil
-	                                                                          queue:[NSOperationQueue mainQueue]
-	                                                                     usingBlock:^(NSNotification* note) {
-		                                                                   if([[GCController controllers] count] == 1)
-		                                                                   {
-			                                                                   [self toggleHardwareController:YES];
-		                                                                   }
-	                                                                     }];
-	self.disconnectObserver = [[NSNotificationCenter defaultCenter] addObserverForName:GCControllerDidDisconnectNotification
-	                                                                            object:nil
-	                                                                             queue:[NSOperationQueue mainQueue]
-	                                                                        usingBlock:^(NSNotification* note) {
-		                                                                      if(![[GCController controllers] count])
-		                                                                      {
-			                                                                      [self toggleHardwareController:NO];
-		                                                                      }
-	                                                                        }];
-
-	if([[GCController controllers] count])
-	{
-		[self toggleHardwareController:YES];
-	}
-
 	self.iCadeReader = [[iCadeReaderView alloc] init];
 	[self.view addSubview:self.iCadeReader];
 	self.iCadeReader.delegate = self;
@@ -112,6 +88,30 @@ CPS2VM::ProfileFrameDoneSignal::Connection g_profileFrameDoneConnection;
 	case PREFERENCE_VALUE_VIDEO_GS_HANDLER_VULKAN:
 		g_virtualMachine->CreateGSHandler(CGSH_VulkaniOS::GetFactoryFunction((CAMetalLayer*)self.view.layer));
 		break;
+	}
+
+	self.connectObserver = [[NSNotificationCenter defaultCenter] addObserverForName:GCControllerDidConnectNotification
+	                                                                         object:nil
+	                                                                          queue:[NSOperationQueue mainQueue]
+	                                                                     usingBlock:^(NSNotification* note) {
+		                                                                   if([[GCController controllers] count] == 1)
+		                                                                   {
+			                                                                   [self toggleHardwareController:YES];
+		                                                                   }
+	                                                                     }];
+	self.disconnectObserver = [[NSNotificationCenter defaultCenter] addObserverForName:GCControllerDidDisconnectNotification
+	                                                                            object:nil
+	                                                                             queue:[NSOperationQueue mainQueue]
+	                                                                        usingBlock:^(NSNotification* note) {
+		                                                                      if(![[GCController controllers] count])
+		                                                                      {
+			                                                                      [self toggleHardwareController:NO];
+		                                                                      }
+	                                                                        }];
+
+	if([[GCController controllers] count])
+	{
+		[self toggleHardwareController:YES];
 	}
 
 	g_virtualMachine->CreatePadHandler(CPH_Generic::GetFactoryFunction());
