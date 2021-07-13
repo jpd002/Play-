@@ -36,5 +36,4 @@ void CGSH_VulkanAndroid::InitializeImpl()
 
 void CGSH_VulkanAndroid::PresentBackbuffer()
 {
-
 }
