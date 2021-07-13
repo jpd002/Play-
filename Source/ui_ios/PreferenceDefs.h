@@ -2,6 +2,9 @@
 
 #define PREFERENCE_UI_SHOWFPS "ui.showfps"
 #define PREFERENCE_UI_SHOWVIRTUALPAD "ui.showvirtualpad"
+#define PREFERENCE_UI_VIRTUALPADOPACITY "ui.virtualpadopacity"
+#define PREFERENCE_UI_HIDEVIRTUALPAD_CONTROLLER_CONNECTED "ui.virtualpad.hide.when.controller.connected"
+#define PREFERENCE_UI_VIRTUALPAD_HAPTICFEEDBACK "ui.virtualpad.hapticfeedback"
 
 #define PREFERENCE_AUDIO_ENABLEOUTPUT "audio.enableoutput"
 

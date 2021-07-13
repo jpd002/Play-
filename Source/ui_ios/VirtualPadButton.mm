@@ -1,6 +1,24 @@
+#import "../AppConfig.h"
+#import "PreferenceDefs.h"
 #import "VirtualPadButton.h"
 
+@interface VirtualPadButton ()
+@property(strong, nonatomic) UIImpactFeedbackGenerator* impactFeedback;
+@property(strong, nonatomic) UISelectionFeedbackGenerator* selectionFeedback;
+@end
+
 @implementation VirtualPadButton
+
+- (id)init
+{
+	self = [super init];
+	if(self)
+	{
+		_impactFeedback = [[UIImpactFeedbackGenerator alloc] initWithStyle:UIImpactFeedbackStyleLight];
+		_selectionFeedback = [[UISelectionFeedbackGenerator alloc] init];
+	}
+	return self;
+}
 
 - (void)draw:(CGContextRef)context
 {
@@ -34,6 +52,30 @@
 {
 	self.pressed = YES;
 	self.padHandler->SetButtonState(self.code, true);
+	if(CAppConfig::GetInstance().GetPreferenceBoolean(PREFERENCE_UI_VIRTUALPAD_HAPTICFEEDBACK))
+	{
+		switch(self.code)
+		{
+		case PS2::CControllerInfo::BUTTON::START:
+		case PS2::CControllerInfo::BUTTON::SELECT:
+		case PS2::CControllerInfo::BUTTON::SQUARE:
+		case PS2::CControllerInfo::BUTTON::TRIANGLE:
+		case PS2::CControllerInfo::BUTTON::CROSS:
+		case PS2::CControllerInfo::BUTTON::CIRCLE:
+		case PS2::CControllerInfo::BUTTON::L1:
+		case PS2::CControllerInfo::BUTTON::L2:
+		case PS2::CControllerInfo::BUTTON::L3:
+		case PS2::CControllerInfo::BUTTON::R1:
+		case PS2::CControllerInfo::BUTTON::R2:
+		case PS2::CControllerInfo::BUTTON::R3:
+			[self.impactFeedback impactOccurred];
+			break;
+
+		default:
+			[self.selectionFeedback selectionChanged];
+			break;
+		}
+	}
 	[super onPointerDown:position];
 }
 
