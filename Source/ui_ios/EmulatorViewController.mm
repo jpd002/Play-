@@ -139,6 +139,10 @@ CPS2VM::ProfileFrameDoneSignal::Connection g_profileFrameDoneConnection;
 
 - (void)viewDidDisappear:(BOOL)animated
 {
+	[[NSNotificationCenter defaultCenter] removeObserver:self.connectObserver];
+	[[NSNotificationCenter defaultCenter] removeObserver:self.disconnectObserver];
+	[self toggleHardwareController:NO];
+
 	[self resetStatsTimer];
 	g_virtualMachine->Pause();
 	g_virtualMachine->Destroy();
@@ -173,66 +177,73 @@ CPS2VM::ProfileFrameDoneSignal::Connection g_profileFrameDoneConnection;
 		self.gController = [GCController controllers][0];
 		if(self.gController.extendedGamepad)
 		{
-			[self.gController.extendedGamepad setValueChangedHandler:
-			                                      ^(GCExtendedGamepad* gamepad, GCControllerElement* element) {
-				                                    auto padHandler = static_cast<CPH_Generic*>(g_virtualMachine->GetPadHandler());
-				                                    if(!padHandler) return;
-				                                    if(element == gamepad.buttonA)
-					                                    padHandler->SetButtonState(PS2::CControllerInfo::CROSS, gamepad.buttonA.pressed);
-				                                    else if(element == gamepad.buttonB)
-					                                    padHandler->SetButtonState(PS2::CControllerInfo::CIRCLE, gamepad.buttonB.pressed);
-				                                    else if(element == gamepad.buttonX)
-					                                    padHandler->SetButtonState(PS2::CControllerInfo::SQUARE, gamepad.buttonX.pressed);
-				                                    else if(element == gamepad.buttonY)
-					                                    padHandler->SetButtonState(PS2::CControllerInfo::TRIANGLE, gamepad.buttonY.pressed);
-				                                    else if(element == gamepad.leftShoulder)
-					                                    padHandler->SetButtonState(PS2::CControllerInfo::L1, gamepad.leftShoulder.pressed);
-				                                    else if(element == gamepad.rightShoulder)
-					                                    padHandler->SetButtonState(PS2::CControllerInfo::R1, gamepad.rightShoulder.pressed);
-				                                    else if(element == gamepad.leftTrigger)
-					                                    padHandler->SetButtonState(PS2::CControllerInfo::L2, gamepad.leftTrigger.pressed);
-				                                    else if(element == gamepad.rightTrigger)
-					                                    padHandler->SetButtonState(PS2::CControllerInfo::R2, gamepad.rightTrigger.pressed);
-				                                    else if(element == gamepad.dpad)
-				                                    {
-					                                    padHandler->SetButtonState(PS2::CControllerInfo::DPAD_UP, gamepad.dpad.up.pressed);
-					                                    padHandler->SetButtonState(PS2::CControllerInfo::DPAD_DOWN, gamepad.dpad.down.pressed);
-					                                    padHandler->SetButtonState(PS2::CControllerInfo::DPAD_LEFT, gamepad.dpad.left.pressed);
-					                                    padHandler->SetButtonState(PS2::CControllerInfo::DPAD_RIGHT, gamepad.dpad.right.pressed);
-				                                    }
-				                                    else if(element == gamepad.leftThumbstick)
-				                                    {
-					                                    padHandler->SetAxisState(PS2::CControllerInfo::ANALOG_LEFT_X, gamepad.leftThumbstick.xAxis.value);
-					                                    padHandler->SetAxisState(PS2::CControllerInfo::ANALOG_LEFT_Y, -gamepad.leftThumbstick.yAxis.value);
-				                                    }
-				                                    else if(element == gamepad.rightThumbstick)
-				                                    {
-					                                    padHandler->SetAxisState(PS2::CControllerInfo::ANALOG_RIGHT_X, gamepad.rightThumbstick.xAxis.value);
-					                                    padHandler->SetAxisState(PS2::CControllerInfo::ANALOG_RIGHT_Y, -gamepad.rightThumbstick.yAxis.value);
-				                                    }
+			self.gController.extendedGamepad.valueChangedHandler =
+			    ^(GCExtendedGamepad* gamepad, GCControllerElement* element) {
+				  auto padHandler = static_cast<CPH_Generic*>(g_virtualMachine->GetPadHandler());
+				  if(!padHandler) return;
+				  if(element == gamepad.buttonA)
+					  padHandler->SetButtonState(PS2::CControllerInfo::CROSS, gamepad.buttonA.pressed);
+				  else if(element == gamepad.buttonB)
+					  padHandler->SetButtonState(PS2::CControllerInfo::CIRCLE, gamepad.buttonB.pressed);
+				  else if(element == gamepad.buttonX)
+					  padHandler->SetButtonState(PS2::CControllerInfo::SQUARE, gamepad.buttonX.pressed);
+				  else if(element == gamepad.buttonY)
+					  padHandler->SetButtonState(PS2::CControllerInfo::TRIANGLE, gamepad.buttonY.pressed);
+				  else if(element == gamepad.leftShoulder)
+					  padHandler->SetButtonState(PS2::CControllerInfo::L1, gamepad.leftShoulder.pressed);
+				  else if(element == gamepad.rightShoulder)
+					  padHandler->SetButtonState(PS2::CControllerInfo::R1, gamepad.rightShoulder.pressed);
+				  else if(element == gamepad.leftTrigger)
+					  padHandler->SetButtonState(PS2::CControllerInfo::L2, gamepad.leftTrigger.pressed);
+				  else if(element == gamepad.rightTrigger)
+					  padHandler->SetButtonState(PS2::CControllerInfo::R2, gamepad.rightTrigger.pressed);
+				  else if(element == gamepad.dpad)
+				  {
+					  padHandler->SetButtonState(PS2::CControllerInfo::DPAD_UP, gamepad.dpad.up.pressed);
+					  padHandler->SetButtonState(PS2::CControllerInfo::DPAD_DOWN, gamepad.dpad.down.pressed);
+					  padHandler->SetButtonState(PS2::CControllerInfo::DPAD_LEFT, gamepad.dpad.left.pressed);
+					  padHandler->SetButtonState(PS2::CControllerInfo::DPAD_RIGHT, gamepad.dpad.right.pressed);
+				  }
+				  else if(element == gamepad.leftThumbstick)
+				  {
+					  padHandler->SetAxisState(PS2::CControllerInfo::ANALOG_LEFT_X, gamepad.leftThumbstick.xAxis.value);
+					  padHandler->SetAxisState(PS2::CControllerInfo::ANALOG_LEFT_Y, -gamepad.leftThumbstick.yAxis.value);
+				  }
+				  else if(element == gamepad.rightThumbstick)
+				  {
+					  padHandler->SetAxisState(PS2::CControllerInfo::ANALOG_RIGHT_X, gamepad.rightThumbstick.xAxis.value);
+					  padHandler->SetAxisState(PS2::CControllerInfo::ANALOG_RIGHT_Y, -gamepad.rightThumbstick.yAxis.value);
+				  }
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 120100
-				                                    if(@available(iOS 12.1, *))
-				                                    {
-					                                    if(element == gamepad.leftThumbstickButton)
-						                                    padHandler->SetButtonState(PS2::CControllerInfo::L3, gamepad.leftThumbstickButton.pressed);
-					                                    else if(element == gamepad.rightThumbstickButton)
-						                                    padHandler->SetButtonState(PS2::CControllerInfo::R3, gamepad.rightThumbstickButton.pressed);
-				                                    }
+				  if(@available(iOS 12.1, *))
+				  {
+					  if(element == gamepad.leftThumbstickButton)
+						  padHandler->SetButtonState(PS2::CControllerInfo::L3, gamepad.leftThumbstickButton.pressed);
+					  else if(element == gamepad.rightThumbstickButton)
+						  padHandler->SetButtonState(PS2::CControllerInfo::R3, gamepad.rightThumbstickButton.pressed);
+				  }
 #endif
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
-				                                    if(@available(iOS 13.0, *))
-				                                    {
-					                                    if(element == gamepad.buttonOptions)
-						                                    padHandler->SetButtonState(PS2::CControllerInfo::SELECT, gamepad.buttonOptions.pressed);
-					                                    else if(element == gamepad.buttonMenu)
-						                                    padHandler->SetButtonState(PS2::CControllerInfo::START, gamepad.buttonMenu.pressed);
-				                                    }
+				  if(@available(iOS 13.0, *))
+				  {
+					  if(element == gamepad.buttonOptions)
+						  padHandler->SetButtonState(PS2::CControllerInfo::SELECT, gamepad.buttonOptions.pressed);
+					  else if(element == gamepad.buttonMenu)
+						  padHandler->SetButtonState(PS2::CControllerInfo::START, gamepad.buttonMenu.pressed);
+				  }
 #endif
-			                                      }];
+			    };
 		}
 	}
 	else
 	{
+		if(self.gController)
+		{
+			if(self.gController.extendedGamepad)
+			{
+				self.gController.extendedGamepad.valueChangedHandler = nil;
+			}
+		}
 		self.gController = nil;
 	}
 	[self updateOnScreenWidgets];
@@ -467,12 +478,6 @@ CPS2VM::ProfileFrameDoneSignal::Connection g_profileFrameDoneConnection;
 	auto statePath = g_virtualMachine->GenerateStatePath(position);
 	g_virtualMachine->LoadState(statePath);
 	NSLog(@"Loaded state from '%s'.", statePath.string().c_str());
-}
-
-- (void)dealloc
-{
-	[[NSNotificationCenter defaultCenter] removeObserver:self.connectObserver];
-	[[NSNotificationCenter defaultCenter] removeObserver:self.disconnectObserver];
 }
 
 @end
