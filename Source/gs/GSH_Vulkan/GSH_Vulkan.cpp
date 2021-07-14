@@ -521,12 +521,10 @@ void CGSH_Vulkan::VertexKick(uint8 registerId, uint64 data)
 
 		switch(m_primitiveType)
 		{
-#if 0
 		case PRIM_POINT:
-			if(nDrawingKick) Prim_Point();
-			m_nVtxCount = 1;
+			if(drawingKick) Prim_Point();
+			m_vtxCount = 1;
 			break;
-#endif
 		case PRIM_LINE:
 			if(drawingKick) Prim_Line();
 			m_vtxCount = 2;
@@ -600,6 +598,7 @@ void CGSH_Vulkan::SetRenderingContext(uint64 primReg)
 	{
 	default:
 		assert(false);
+		[[fallthrough]];
 	case PRIM_TRIANGLE:
 	case PRIM_TRIANGLEFAN:
 	case PRIM_TRIANGLESTRIP:
@@ -609,6 +608,9 @@ void CGSH_Vulkan::SetRenderingContext(uint64 primReg)
 	case PRIM_LINE:
 	case PRIM_LINESTRIP:
 		pipelineCaps.primitiveType = CDraw::PIPELINE_PRIMITIVE_LINE;
+		break;
+	case PRIM_POINT:
+		pipelineCaps.primitiveType = CDraw::PIPELINE_PRIMITIVE_POINT;
 		break;
 	}
 
@@ -765,6 +767,33 @@ void CGSH_Vulkan::SetRenderingContext(uint64 primReg)
 
 	m_texWidth = tex0.GetWidth();
 	m_texHeight = tex0.GetHeight();
+}
+
+void CGSH_Vulkan::Prim_Point()
+{
+	auto xyz = make_convertible<XYZ>(m_vtxBuffer[0].position);
+	auto rgbaq = make_convertible<RGBAQ>(m_vtxBuffer[0].rgbaq);
+
+	float x = xyz.GetX();
+	float y = xyz.GetY();
+	uint32 z = xyz.nZ;
+
+	x -= m_primOfsX;
+	y -= m_primOfsY;
+
+	auto color = MakeColor(
+	    rgbaq.nR, rgbaq.nG,
+	    rgbaq.nB, rgbaq.nA);
+
+	// clang-format off
+	CDraw::PRIM_VERTEX vertex =
+	{
+		//x, y, z, color, s, t, q, f
+		  x, y, z, color, 0, 0, 1, 0,
+	};
+	// clang-format on
+
+	m_draw->AddVertices(&vertex, &vertex + 1);
 }
 
 void CGSH_Vulkan::Prim_Line()
