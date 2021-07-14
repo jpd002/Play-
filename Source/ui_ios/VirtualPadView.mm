@@ -1,7 +1,13 @@
+#import "../AppConfig.h"
+#import "PreferenceDefs.h"
 #import "VirtualPadView.h"
 #import "VirtualPadButton.h"
 #import "VirtualPadStick.h"
 #include "../VirtualPad.h"
+
+@interface VirtualPadView ()
+@property(strong, nonatomic) UISelectionFeedbackGenerator* selectionFeedback;
+@end
 
 @implementation VirtualPadView
 
@@ -24,7 +30,7 @@
 		[itemImages setObject:[UIImage imageNamed:@"lr.png"] forKey:@"lr"];
 		[itemImages setObject:[UIImage imageNamed:@"analogstick.png"] forKey:@"analogStick"];
 		self.itemImages = itemImages;
-
+		_selectionFeedback = [[UISelectionFeedbackGenerator alloc] init];
 		self.opaque = NO;
 		self.multipleTouchEnabled = YES;
 		_padHandler = padHandler;
@@ -88,6 +94,8 @@
 			{
 				item.touch = touch;
 				[item onPointerDown:touchPos];
+				if(CAppConfig::GetInstance().GetPreferenceBoolean(PREFERENCE_UI_VIRTUALPAD_HAPTICFEEDBACK))
+					[self.selectionFeedback selectionChanged];
 				[self setNeedsDisplay];
 				break;
 			}

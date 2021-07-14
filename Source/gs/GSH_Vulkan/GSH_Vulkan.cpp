@@ -61,7 +61,11 @@ Framework::Vulkan::CInstance CGSH_Vulkan::CreateInstance(bool useValidationLayer
 #endif
 #endif
 #ifdef __linux__
+#ifdef __ANDROID__
+	extensions.push_back(VK_KHR_ANDROID_SURFACE_EXTENSION_NAME);
+#else
 	extensions.push_back(VK_KHR_XCB_SURFACE_EXTENSION_NAME);
+#endif
 #endif
 
 	std::vector<const char*> layers;
@@ -408,6 +412,13 @@ void CGSH_Vulkan::CreateDescriptorPool()
 	{
 		VkDescriptorPoolSize poolSize = {};
 		poolSize.type = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+		poolSize.descriptorCount = 0x800;
+		poolSizes.push_back(poolSize);
+	}
+
+	{
+		VkDescriptorPoolSize poolSize = {};
+		poolSize.type = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC;
 		poolSize.descriptorCount = 0x800;
 		poolSizes.push_back(poolSize);
 	}
