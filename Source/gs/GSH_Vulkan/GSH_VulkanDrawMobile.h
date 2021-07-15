@@ -26,6 +26,7 @@ namespace GSH_Vulkan
 		{
 			PIPELINE_PRIMITIVE_TRIANGLE = 0,
 			PIPELINE_PRIMITIVE_LINE = 1,
+			PIPELINE_PRIMITIVE_POINT = 2,
 		};
 
 		struct PIPELINE_CAPS : public convertible<PipelineCapsInt>

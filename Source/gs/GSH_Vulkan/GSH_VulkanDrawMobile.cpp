@@ -2174,16 +2174,16 @@ void CDrawMobile::CreateDrawImages()
 	                                             VK_FORMAT_R8G8B8A8_UNORM, DRAW_AREA_SIZE, DRAW_AREA_SIZE, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
 	m_drawColorImage.SetLayout(m_context->queue, m_context->commandBufferPool,
-	                           VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT, VK_IMAGE_ASPECT_COLOR_BIT);
+	                           VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT);
 
-	m_drawColorImageView = m_drawColorImage.CreateImageView(VK_IMAGE_ASPECT_COLOR_BIT);
+	m_drawColorImageView = m_drawColorImage.CreateImageView();
 
 	m_drawDepthImage = Framework::Vulkan::CImage(m_context->device, m_context->physicalDeviceMemoryProperties,
 	                                             VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT,
 	                                             VK_FORMAT_R32_UINT, DRAW_AREA_SIZE, DRAW_AREA_SIZE, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
 	m_drawDepthImage.SetLayout(m_context->queue, m_context->commandBufferPool,
-	                           VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT, VK_IMAGE_ASPECT_COLOR_BIT);
+	                           VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT);
 
-	m_drawDepthImageView = m_drawDepthImage.CreateImageView(VK_IMAGE_ASPECT_COLOR_BIT);
+	m_drawDepthImageView = m_drawDepthImage.CreateImageView();
 }
