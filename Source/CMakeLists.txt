@@ -444,6 +444,10 @@ set(COMMON_SRC_FILES
 	${AMAZON_S3_SRC}
 )
 
+if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+	add_compile_options("-fbracket-depth=512")
+endif()
+
 if(TARGET_PLATFORM_WIN32)
 	set(PLATFORM_SPECIFIC_SRC_FILES VolumeStream.cpp)
 	list(APPEND PROJECT_LIBS winmm)
