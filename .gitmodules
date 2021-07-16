@@ -10,3 +10,6 @@
 [submodule "deps/Nuanceur"]
 	path = deps/Nuanceur
 	url = https://github.com/jpd002/Nuanceur.git
+[submodule "deps/libchdr"]
+	path = deps/libchdr
+	url = https://github.com/jpd002/libchdr.git

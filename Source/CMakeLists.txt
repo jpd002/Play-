@@ -102,6 +102,14 @@ if(ICUUC_FOUND)
 	list(APPEND PROJECT_LIBS ${ICUUC_LIBRARIES})
 endif()
 
+if(NOT TARGET libchdr)
+	add_subdirectory(
+		${CMAKE_CURRENT_SOURCE_DIR}/../deps/libchdr/
+		${CMAKE_CURRENT_BINARY_DIR}/libchdr
+	)
+endif()
+list(APPEND PROJECT_LIBS chdr-static)
+
 if(NOT (TARGET_PLATFORM_ANDROID OR TARGET_PLATFORM_IOS))
 	set(THREADS_PREFER_PTHREAD_FLAG ON)
 	find_package(Threads REQUIRED)
