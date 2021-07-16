@@ -4,6 +4,7 @@
 #include "make_unique.h"
 #include "stricmp.h"
 #include "DiskUtils.h"
+#include "discimages/ChdImageStream.h"
 #include "discimages/CsoImageStream.h"
 #include "discimages/CueSheet.h"
 #include "discimages/IszImageStream.h"
@@ -90,7 +91,7 @@ static DiskUtils::OpticalMediaPtr CreateOpticalMediaFromMds(const fs::path& imag
 
 const DiskUtils::ExtensionList& DiskUtils::GetSupportedExtensions()
 {
-	static auto extensionList = ExtensionList{".iso", ".mds", ".isz", ".cso", ".cue"};
+	static auto extensionList = ExtensionList{".iso", ".mds", ".isz", ".cso", ".cue", ".chd"};
 	return extensionList;
 }
 
@@ -105,6 +106,10 @@ DiskUtils::OpticalMediaPtr DiskUtils::CreateOpticalMediaFromPath(const fs::path&
 	if(!stricmp(extension.c_str(), ".isz"))
 	{
 		stream = std::make_shared<CIszImageStream>(CreateImageStream(imagePath));
+	}
+	else if(!stricmp(extension.c_str(), ".chd"))
+	{
+		stream = std::make_shared<CChdImageStream>(CreateImageStream(imagePath));
 	}
 	else if(!stricmp(extension.c_str(), ".cso"))
 	{

@@ -131,6 +131,9 @@ set(COMMON_SRC_FILES
 	COP_SCU.cpp
 	COP_SCU.h
 	COP_SCU_Reflection.cpp
+	discimages/ChdImageStream.cpp
+	discimages/ChdImageStream.h
+	discimages/ChdStreamSupport.cpp
 	discimages/CsoImageStream.cpp
 	discimages/CsoImageStream.h
 	discimages/CueSheet.cpp
