@@ -1,5 +1,8 @@
 #include "ChdImageStream.h"
 #include "libchdr/chd.h"
+#include <cstring>
+#include <cassert>
+#include <stdexcept>
 
 CChdImageStream::CChdImageStream(Framework::CStream* baseStream)
     : m_baseStream(baseStream)

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Stream.h"
+#include <vector>
 
 typedef struct _chd_file chd_file;
 
@@ -25,5 +26,5 @@ private:
 	uint32 m_hunkSize = 0;
 	uint64 m_position = 0;
 	std::vector<uint8> m_hunkBuffer;
-	uint32 m_hunkBufferIdx = ~0UL;
+	uint32 m_hunkBufferIdx = ~0U;
 };
