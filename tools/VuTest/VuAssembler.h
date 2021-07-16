@@ -1,6 +1,8 @@
 #pragma once
 
+#include <cstddef>
 #include <map>
+
 #include "Types.h"
 
 class CVuAssembler
