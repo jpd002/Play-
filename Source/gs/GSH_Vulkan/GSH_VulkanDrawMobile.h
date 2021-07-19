@@ -110,12 +110,6 @@ namespace GSH_Vulkan
 
 		typedef uint32 DescriptorSetCapsInt;
 
-		struct LOADSTORE_CAPS
-		{
-			uint32 framebufferFormat;
-			uint32 depthbufferFormat;
-		};
-
 		struct DESCRIPTORSET_CAPS : public convertible<DescriptorSetCapsInt>
 		{
 			uint32 hasTexture : 1;
@@ -183,20 +177,19 @@ namespace GSH_Vulkan
 		Framework::Vulkan::CShaderModule CreateDrawVertexShader();
 		Framework::Vulkan::CShaderModule CreateDrawFragmentShader(const PIPELINE_CAPS&);
 
-		PIPELINE CreateLoadPipeline();
-		PIPELINE CreateStorePipeline();
+		PIPELINE CreateLoadPipeline(const PIPELINE_CAPS&);
+		PIPELINE CreateStorePipeline(const PIPELINE_CAPS&);
 		Framework::Vulkan::CShaderModule CreateLoadStoreVertexShader();
-		Framework::Vulkan::CShaderModule CreateLoadFragmentShader();
-		Framework::Vulkan::CShaderModule CreateStoreFragmentShader();
+		Framework::Vulkan::CShaderModule CreateLoadFragmentShader(const PIPELINE_CAPS&);
+		Framework::Vulkan::CShaderModule CreateStoreFragmentShader(const PIPELINE_CAPS&);
 
 		ContextPtr m_context;
 		FrameCommandBufferPtr m_frameCommandBuffer;
 
 		PipelineCache m_drawPipelineCache;
+		PipelineCache m_loadPipelineCache;
+		PipelineCache m_storePipelineCache;
 		DescriptorSetCache m_drawDescriptorSetCache;
-
-		PIPELINE m_loadPipeline;
-		PIPELINE m_storePipeline;
 
 		VkRenderPass m_renderPass = VK_NULL_HANDLE;
 		VkFramebuffer m_framebuffer = VK_NULL_HANDLE;

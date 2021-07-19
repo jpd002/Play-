@@ -32,14 +32,13 @@ using namespace GSH_Vulkan;
 CDrawMobile::CDrawMobile(const ContextPtr& context, const FrameCommandBufferPtr& frameCommandBuffer)
     : m_context(context)
     , m_frameCommandBuffer(frameCommandBuffer)
+    , m_loadPipelineCache(context->device)
+    , m_storePipelineCache(context->device)
     , m_drawPipelineCache(context->device)
 {
 	CreateRenderPass();
 	CreateDrawImages();
 	CreateFramebuffer();
-
-	m_loadPipeline = CreateLoadPipeline();
-	m_storePipeline = CreateStorePipeline();
 
 	for(auto& frame : m_frames)
 	{
@@ -250,16 +249,28 @@ void CDrawMobile::FlushVertices()
 		m_context->device.vkCmdBeginRenderPass(commandBuffer, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
 
 		//Load from memory
+
+		//Find pipeline and create it if we've never encountered it before
+		auto strippedCaps = make_convertible<PIPELINE_CAPS>(0);
+		strippedCaps.framebufferFormat = m_pipelineCaps.framebufferFormat;
+		strippedCaps.depthbufferFormat = m_pipelineCaps.depthbufferFormat;
+
+		auto loadPipeline = m_loadPipelineCache.TryGetPipeline(strippedCaps);
+		if(!loadPipeline)
+		{
+			loadPipeline = m_loadPipelineCache.RegisterPipeline(strippedCaps, CreateLoadPipeline(strippedCaps));
+		}
+
 		auto descriptorSetCaps = make_convertible<DESCRIPTORSET_CAPS>(0);
-		descriptorSetCaps.framebufferFormat = CGSHandler::PSMCT32;
-		descriptorSetCaps.depthbufferFormat = CGSHandler::PSMZ32;
+		descriptorSetCaps.framebufferFormat = m_pipelineCaps.framebufferFormat;
+		descriptorSetCaps.depthbufferFormat = m_pipelineCaps.depthbufferFormat;
 
-		auto descriptorSet = PrepareDescriptorSet(m_loadPipeline.descriptorSetLayout, descriptorSetCaps);
+		auto descriptorSet = PrepareDescriptorSet(loadPipeline->descriptorSetLayout, descriptorSetCaps);
 
-		m_context->device.vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_loadPipeline.pipelineLayout,
+		m_context->device.vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, loadPipeline->pipelineLayout,
 		                                          0, 1, &descriptorSet, 0, nullptr);
-		m_context->device.vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_loadPipeline.pipeline);
-		m_context->device.vkCmdPushConstants(commandBuffer, m_loadPipeline.pipelineLayout, VK_SHADER_STAGE_FRAGMENT_BIT,
+		m_context->device.vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, loadPipeline->pipeline);
+		m_context->device.vkCmdPushConstants(commandBuffer, loadPipeline->pipelineLayout, VK_SHADER_STAGE_FRAGMENT_BIT,
 		                                     0, sizeof(LOAD_STORE_PIPELINE_PUSHCONSTANTS), &m_loadStorePushConstants);
 		m_context->device.vkCmdDraw(commandBuffer, 3, 1, 0, 0);
 
@@ -316,16 +327,28 @@ void CDrawMobile::FlushRenderPass()
 		m_context->device.vkCmdNextSubpass(commandBuffer, VK_SUBPASS_CONTENTS_INLINE);
 
 		//Store to memory
+
+		//Find pipeline and create it if we've never encountered it before
+		auto strippedCaps = make_convertible<PIPELINE_CAPS>(0);
+		strippedCaps.framebufferFormat = m_pipelineCaps.framebufferFormat;
+		strippedCaps.depthbufferFormat = m_pipelineCaps.depthbufferFormat;
+
+		auto storePipeline = m_storePipelineCache.TryGetPipeline(strippedCaps);
+		if(!storePipeline)
+		{
+			storePipeline = m_storePipelineCache.RegisterPipeline(strippedCaps, CreateStorePipeline(strippedCaps));
+		}
+
 		auto descriptorSetCaps = make_convertible<DESCRIPTORSET_CAPS>(0);
-		descriptorSetCaps.framebufferFormat = CGSHandler::PSMCT32;
-		descriptorSetCaps.depthbufferFormat = CGSHandler::PSMZ32;
+		descriptorSetCaps.framebufferFormat = m_pipelineCaps.framebufferFormat;
+		descriptorSetCaps.depthbufferFormat = m_pipelineCaps.depthbufferFormat;
 
-		auto descriptorSet = PrepareDescriptorSet(m_storePipeline.descriptorSetLayout, descriptorSetCaps);
+		auto descriptorSet = PrepareDescriptorSet(storePipeline->descriptorSetLayout, descriptorSetCaps);
 
-		m_context->device.vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_storePipeline.pipelineLayout,
+		m_context->device.vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, storePipeline->pipelineLayout,
 		                                          0, 1, &descriptorSet, 0, nullptr);
-		m_context->device.vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_storePipeline.pipeline);
-		m_context->device.vkCmdPushConstants(commandBuffer, m_storePipeline.pipelineLayout, VK_SHADER_STAGE_FRAGMENT_BIT,
+		m_context->device.vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, storePipeline->pipeline);
+		m_context->device.vkCmdPushConstants(commandBuffer, storePipeline->pipelineLayout, VK_SHADER_STAGE_FRAGMENT_BIT,
 		                                     0, sizeof(LOAD_STORE_PIPELINE_PUSHCONSTANTS), &m_loadStorePushConstants);
 		m_context->device.vkCmdDraw(commandBuffer, 3, 1, 0, 0);
 
@@ -1612,12 +1635,12 @@ Framework::Vulkan::CShaderModule CDrawMobile::CreateDrawFragmentShader(const PIP
 	return Framework::Vulkan::CShaderModule(m_context->device, shaderStream);
 }
 
-PIPELINE CDrawMobile::CreateLoadPipeline()
+PIPELINE CDrawMobile::CreateLoadPipeline(const PIPELINE_CAPS& caps)
 {
 	PIPELINE loadPipeline;
 
 	auto vertexShader = CreateLoadStoreVertexShader();
-	auto fragmentShader = CreateLoadFragmentShader();
+	auto fragmentShader = CreateLoadFragmentShader(caps);
 
 	auto result = VK_SUCCESS;
 
@@ -1771,12 +1794,12 @@ PIPELINE CDrawMobile::CreateLoadPipeline()
 	return loadPipeline;
 }
 
-PIPELINE CDrawMobile::CreateStorePipeline()
+PIPELINE CDrawMobile::CreateStorePipeline(const PIPELINE_CAPS& caps)
 {
 	PIPELINE storePipeline;
 
 	auto vertexShader = CreateLoadStoreVertexShader();
-	auto fragmentShader = CreateStoreFragmentShader();
+	auto fragmentShader = CreateStoreFragmentShader(caps);
 
 	auto result = VK_SUCCESS;
 
@@ -1959,12 +1982,8 @@ Framework::Vulkan::CShaderModule CDrawMobile::CreateLoadStoreVertexShader()
 	return Framework::Vulkan::CShaderModule(m_context->device, shaderStream);
 }
 
-Framework::Vulkan::CShaderModule CDrawMobile::CreateLoadFragmentShader()
+Framework::Vulkan::CShaderModule CDrawMobile::CreateLoadFragmentShader(const PIPELINE_CAPS& caps)
 {
-	LOADSTORE_CAPS caps;
-	caps.framebufferFormat = CGSHandler::PSMCT32;
-	caps.depthbufferFormat = CGSHandler::PSMZ32;
-
 	using namespace Nuanceur;
 
 	auto b = CShaderBuilder();
@@ -2074,12 +2093,8 @@ Framework::Vulkan::CShaderModule CDrawMobile::CreateLoadFragmentShader()
 	return Framework::Vulkan::CShaderModule(m_context->device, shaderStream);
 }
 
-Framework::Vulkan::CShaderModule CDrawMobile::CreateStoreFragmentShader()
+Framework::Vulkan::CShaderModule CDrawMobile::CreateStoreFragmentShader(const PIPELINE_CAPS& caps)
 {
-	LOADSTORE_CAPS caps;
-	caps.framebufferFormat = CGSHandler::PSMCT32;
-	caps.depthbufferFormat = CGSHandler::PSMZ32;
-
 	using namespace Nuanceur;
 
 	auto b = CShaderBuilder();
