@@ -89,6 +89,19 @@ static DiskUtils::OpticalMediaPtr CreateOpticalMediaFromMds(const fs::path& imag
 	return COpticalMedia::CreateDvd(imageDataStream, discImage.IsDualLayer(), discImage.GetLayerBreak());
 }
 
+static DiskUtils::OpticalMediaPtr CreateOpticalMediaFromChd(const fs::path& imagePath)
+{
+	//Some notes about CHD support:
+	//- We don't support multi track CDs
+	//- CHD doesn't seem to differentiate CDs from DVDs, we can't really guess with
+	//  the info we have in the file, probably more a problem with the creation tool (chdman)
+	//  than a problem with the format itself.
+	//- We're going to assume that we're creating a DVD, but this might break things in some particular cases
+	auto imageStream = std::make_shared<CChdImageStream>(CreateImageStream(imagePath));
+	auto blockProvider = std::make_shared<ISO9660::CBlockProviderCustom<0x990, 0>>(imageStream);
+	return COpticalMedia::CreateCustomSingleTrack(blockProvider);
+}
+
 const DiskUtils::ExtensionList& DiskUtils::GetSupportedExtensions()
 {
 	static auto extensionList = ExtensionList{".iso", ".mds", ".isz", ".cso", ".cue", ".chd"};
@@ -109,7 +122,7 @@ DiskUtils::OpticalMediaPtr DiskUtils::CreateOpticalMediaFromPath(const fs::path&
 	}
 	else if(!stricmp(extension.c_str(), ".chd"))
 	{
-		stream = std::make_shared<CChdImageStream>(CreateImageStream(imagePath));
+		return CreateOpticalMediaFromChd(imagePath);
 	}
 	else if(!stricmp(extension.c_str(), ".cso"))
 	{

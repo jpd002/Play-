@@ -54,6 +54,15 @@ std::unique_ptr<COpticalMedia> COpticalMedia::CreateDvd(StreamPtr& stream, bool 
 	return result;
 }
 
+std::unique_ptr<COpticalMedia> COpticalMedia::CreateCustomSingleTrack(BlockProviderPtr blockProvider)
+{
+	auto result = std::make_unique<COpticalMedia>();
+	result->m_fileSystem = std::make_unique<CISO9660>(blockProvider);
+	result->m_track0DataType = TRACK_DATA_TYPE_MODE1_2048;
+	result->m_track0BlockProvider = blockProvider;
+	return result;
+}
+
 COpticalMedia::TRACK_DATA_TYPE COpticalMedia::GetTrackDataType(uint32 trackIndex) const
 {
 	assert(trackIndex == 0);

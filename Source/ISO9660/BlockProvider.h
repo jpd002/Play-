@@ -61,12 +61,13 @@ namespace ISO9660
 		uint32 m_offset = 0;
 	};
 
-	class CBlockProviderCDROMXA : public CBlockProvider
+	template<uint64 INTERNAL_BLOCKSIZE, uint64 BLOCKHEADER_SIZE>
+	class CBlockProviderCustom : public CBlockProvider
 	{
 	public:
 		typedef std::shared_ptr<Framework::CStream> StreamPtr;
 
-		CBlockProviderCDROMXA(const StreamPtr& stream)
+		CBlockProviderCustom(const StreamPtr& stream)
 		    : m_stream(stream)
 		{
 		}
@@ -96,12 +97,8 @@ namespace ISO9660
 		}
 
 	private:
-		enum
-		{
-			INTERNAL_BLOCKSIZE = 0x930ULL,
-			BLOCKHEADER_SIZE = 0x18ULL
-		};
-
 		StreamPtr m_stream;
 	};
+
+	typedef CBlockProviderCustom<0x930ULL, 0x18ULL> CBlockProviderCDROMXA;
 }

@@ -11,6 +11,8 @@ namespace ISO9660
 class COpticalMedia
 {
 public:
+	typedef std::shared_ptr<ISO9660::CBlockProvider> BlockProviderPtr;
+
 	COpticalMedia() = default;
 
 	enum CREATE_FLAGS
@@ -29,6 +31,7 @@ public:
 
 	static std::unique_ptr<COpticalMedia> CreateAuto(StreamPtr&, uint32 = 0);
 	static std::unique_ptr<COpticalMedia> CreateDvd(StreamPtr&, bool = false, uint32 = 0);
+	static std::unique_ptr<COpticalMedia> CreateCustomSingleTrack(BlockProviderPtr);
 
 	//TODO: Get Track Count
 	TRACK_DATA_TYPE GetTrackDataType(uint32) const;
@@ -43,7 +46,6 @@ public:
 
 private:
 	typedef std::unique_ptr<CISO9660> Iso9660Ptr;
-	typedef std::shared_ptr<ISO9660::CBlockProvider> BlockProviderPtr;
 
 	void CheckDualLayerDvd(const StreamPtr&);
 	void SetupSecondLayer(const StreamPtr&);
