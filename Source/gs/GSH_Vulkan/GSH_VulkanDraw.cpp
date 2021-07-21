@@ -551,7 +551,7 @@ PIPELINE CDraw::CreateDrawPipeline(const PIPELINE_CAPS& caps)
 {
 	PIPELINE drawPipeline;
 
-	auto vertexShader = CreateVertexShader();
+	auto vertexShader = CreateVertexShader(caps);
 	auto fragmentShader = CreateFragmentShader(caps);
 
 	auto result = VK_SUCCESS;
@@ -651,6 +651,9 @@ PIPELINE CDraw::CreateDrawPipeline(const PIPELINE_CAPS& caps)
 		break;
 	case PIPELINE_PRIMITIVE_LINE:
 		inputAssemblyInfo.topology = VK_PRIMITIVE_TOPOLOGY_LINE_LIST;
+		break;
+	case PIPELINE_PRIMITIVE_POINT:
+		inputAssemblyInfo.topology = VK_PRIMITIVE_TOPOLOGY_POINT_LIST;
 		break;
 	}
 
@@ -770,7 +773,7 @@ PIPELINE CDraw::CreateDrawPipeline(const PIPELINE_CAPS& caps)
 	return drawPipeline;
 }
 
-Framework::Vulkan::CShaderModule CDraw::CreateVertexShader()
+Framework::Vulkan::CShaderModule CDraw::CreateVertexShader(const PIPELINE_CAPS& caps)
 {
 	using namespace Nuanceur;
 
@@ -786,6 +789,7 @@ Framework::Vulkan::CShaderModule CDraw::CreateVertexShader()
 
 		//Outputs
 		auto outputPosition = CFloat4Lvalue(b.CreateOutput(Nuanceur::SEMANTIC_SYSTEM_POSITION));
+		auto outputPointSize = CFloatLvalue(b.CreateOutput(Nuanceur::SEMANTIC_SYSTEM_POINTSIZE));
 		auto outputDepth = CFloat4Lvalue(b.CreateOutput(Nuanceur::SEMANTIC_TEXCOORD, 1));
 		auto outputColor = CFloat4Lvalue(b.CreateOutput(Nuanceur::SEMANTIC_TEXCOORD, 2));
 		auto outputTexCoord = CFloat4Lvalue(b.CreateOutput(Nuanceur::SEMANTIC_TEXCOORD, 3));
@@ -794,6 +798,10 @@ Framework::Vulkan::CShaderModule CDraw::CreateVertexShader()
 		auto position = ((inputPosition->xy() + NewFloat2(b, 0.5f, 0.5f)) * NewFloat2(b, 2.f / DRAW_AREA_SIZE, 2.f / DRAW_AREA_SIZE) + NewFloat2(b, -1, -1));
 
 		outputPosition = NewFloat4(position, NewFloat2(b, 0.f, 1.f));
+		if(caps.primitiveType == PIPELINE_PRIMITIVE_POINT)
+		{
+			outputPointSize = NewFloat(b, 1.0f);
+		}
 		outputDepth = ToFloat(inputDepth) / NewFloat4(b, DEPTH_MAX, DEPTH_MAX, DEPTH_MAX, DEPTH_MAX);
 		outputColor = inputColor->xyzw();
 		outputTexCoord = inputTexCoord->xyzw();

@@ -1394,6 +1394,41 @@ void CGSH_OpenGL::Prim_Line()
 	float nT[2] = {0, 0};
 	float nQ[2] = {1, 1};
 
+	if(m_PrimitiveMode.nTexture)
+	{
+		if(m_PrimitiveMode.nUseUV)
+		{
+			UV uv[2];
+			uv[0] <<= m_VtxBuffer[1].nUV;
+			uv[1] <<= m_VtxBuffer[0].nUV;
+
+			nS[0] = uv[0].GetU() / static_cast<float>(m_nTexWidth);
+			nS[1] = uv[1].GetU() / static_cast<float>(m_nTexWidth);
+
+			nT[0] = uv[0].GetV() / static_cast<float>(m_nTexHeight);
+			nT[1] = uv[1].GetV() / static_cast<float>(m_nTexHeight);
+		}
+		else
+		{
+			ST st[2];
+			st[0] <<= m_VtxBuffer[1].nST;
+			st[1] <<= m_VtxBuffer[0].nST;
+
+			nS[0] = st[0].nS;
+			nS[1] = st[1].nS;
+			nT[0] = st[0].nT;
+			nT[1] = st[1].nT;
+
+			bool isQ0Neg = (rgbaq[0].nQ < 0);
+			bool isQ1Neg = (rgbaq[1].nQ < 0);
+
+			assert(isQ0Neg == isQ1Neg);
+
+			nQ[0] = rgbaq[0].nQ;
+			nQ[1] = rgbaq[1].nQ;
+		}
+	}
+
 	auto color1 = MakeColor(
 	    rgbaq[0].nR, rgbaq[0].nG,
 	    rgbaq[0].nB, rgbaq[0].nA);

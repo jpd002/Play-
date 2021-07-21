@@ -26,6 +26,7 @@ namespace GSH_Vulkan
 		{
 			PIPELINE_PRIMITIVE_TRIANGLE = 0,
 			PIPELINE_PRIMITIVE_LINE = 1,
+			PIPELINE_PRIMITIVE_POINT = 2,
 		};
 
 		struct PIPELINE_CAPS : public convertible<PipelineCapsInt>
@@ -163,7 +164,7 @@ namespace GSH_Vulkan
 		void CreateDrawImage();
 
 		PIPELINE CreateDrawPipeline(const PIPELINE_CAPS&);
-		Framework::Vulkan::CShaderModule CreateVertexShader();
+		Framework::Vulkan::CShaderModule CreateVertexShader(const PIPELINE_CAPS&);
 		Framework::Vulkan::CShaderModule CreateFragmentShader(const PIPELINE_CAPS&);
 
 		ContextPtr m_context;

@@ -95,6 +95,7 @@ private:
 	void VertexKick(uint8, uint64);
 	void SetRenderingContext(uint64);
 
+	void Prim_Point();
 	void Prim_Line();
 	void Prim_Triangle();
 	void Prim_Sprite();
