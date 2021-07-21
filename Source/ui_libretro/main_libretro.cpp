@@ -3,6 +3,7 @@
 #include "Log.h"
 #include "AppConfig.h"
 #include "PS2VM.h"
+#include "DiskUtils.h"
 
 #include "PS2VM_Preferences.h"
 #include "GSH_OpenGL_Libretro.h"
@@ -173,7 +174,7 @@ void retro_get_system_info(struct retro_system_info* info)
 	info->library_name = "Play!";
 	info->library_version = PLAY_VERSION;
 	info->need_fullpath = true;
-	info->valid_extensions = "elf|iso|cso|isz|bin";
+	info->valid_extensions = "elf|iso|cso|isz|cue|chd";
 }
 
 void retro_get_system_av_info(struct retro_system_av_info* info)
@@ -481,12 +482,11 @@ bool IsBootableExecutablePath(const fs::path& filePath)
 
 bool IsBootableDiscImagePath(const fs::path& filePath)
 {
+	const auto& supportedExtensions = DiskUtils::GetSupportedExtensions();
 	auto extension = filePath.extension().string();
 	std::transform(extension.begin(), extension.end(), extension.begin(), ::tolower);
-	return (extension == ".iso") ||
-	       (extension == ".isz") ||
-	       (extension == ".cso") ||
-	       (extension == ".bin");
+	auto extensionIterator = supportedExtensions.find(extension);
+	return extensionIterator != std::end(supportedExtensions);
 }
 
 bool retro_load_game(const retro_game_info* info)
