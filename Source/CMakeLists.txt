@@ -102,12 +102,6 @@ if(ICUUC_FOUND)
 	list(APPEND PROJECT_LIBS ${ICUUC_LIBRARIES})
 endif()
 
-# Create a small library to make libchdr find our custom file handling routines on GCC
-add_library(ChdStreamSupport STATIC discimages/ChdStreamSupport.cpp)
-target_link_libraries(ChdStreamSupport PRIVATE Framework)
-target_include_directories(ChdStreamSupport PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../deps/libchdr/include)
-list(APPEND PROJECT_LIBS ChdStreamSupport)
-
 if(NOT TARGET libchdr)
 	add_subdirectory(
 		${CMAKE_CURRENT_SOURCE_DIR}/../deps/libchdr/
@@ -139,6 +133,8 @@ set(COMMON_SRC_FILES
 	COP_SCU_Reflection.cpp
 	discimages/ChdImageStream.cpp
 	discimages/ChdImageStream.h
+	discimages/ChdStreamSupport.cpp
+	discimages/ChdStreamSupport.h
 	discimages/CsoImageStream.cpp
 	discimages/CsoImageStream.h
 	discimages/CueSheet.cpp

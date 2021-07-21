@@ -4,6 +4,7 @@
 #include <vector>
 
 typedef struct _chd_file chd_file;
+typedef struct _core_file core_file;
 
 class CChdImageStream : public Framework::CStream
 {
@@ -21,6 +22,7 @@ private:
 	uint64 GetTotalSize() const;
 
 	Framework::CStream* m_baseStream = nullptr;
+	core_file* m_file = nullptr;
 	chd_file* m_chd = nullptr;
 	uint32 m_hunkCount = 0;
 	uint32 m_hunkSize = 0;

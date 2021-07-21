@@ -1,32 +1,31 @@
-#include <cassert>
-#include "libchdr/chd.h"
+#include "ChdStreamSupport.h"
+#include <libchdr/chd.h>
 #include "Stream.h"
 
-extern "C" core_file* core_fopen(const char*)
-{
-	assert(false);
-	return nullptr;
-}
-
-extern "C" void core_fclose(core_file*)
-{
-	assert(false);
-}
-
-extern "C" UINT64 core_fread(core_file* file, void* buffer, UINT64 size)
+static UINT64 stream_core_fread(void* file, void* buffer, UINT64 size)
 {
 	auto stream = reinterpret_cast<Framework::CStream*>(file);
 	return stream->Read(buffer, size);
 }
 
-extern "C" void core_fseek(core_file* file, INT64 position, int whence)
+static void stream_core_fseek(void* file, INT64 position, int whence)
 {
 	auto stream = reinterpret_cast<Framework::CStream*>(file);
 	stream->Seek(position, static_cast<Framework::STREAM_SEEK_DIRECTION>(whence));
 }
 
-extern "C" UINT64 core_ftell(core_file* file)
+static UINT64 stream_core_ftell(void* file)
 {
 	auto stream = reinterpret_cast<Framework::CStream*>(file);
 	return stream->Tell();
+}
+
+core_file* ChdStreamSupport::CreateFileFromStream(Framework::CStream* stream)
+{
+	auto result = core_falloc();
+	result->user_data = stream;
+	result->read_function = &stream_core_fread;
+	result->tell_function = &stream_core_ftell;
+	result->seek_function = &stream_core_fseek;
+	return result;
 }

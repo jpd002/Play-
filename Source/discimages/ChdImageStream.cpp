@@ -1,15 +1,18 @@
 #include "ChdImageStream.h"
-#include "libchdr/chd.h"
+#include <libchdr/chd.h>
 #include <cstring>
 #include <cassert>
 #include <stdexcept>
+#include "ChdStreamSupport.h"
 
 CChdImageStream::CChdImageStream(Framework::CStream* baseStream)
     : m_baseStream(baseStream)
 {
-	chd_error result = chd_open_file(baseStream, CHD_OPEN_READ, nullptr, &m_chd);
+	m_file = ChdStreamSupport::CreateFileFromStream(baseStream);
+	chd_error result = chd_open_file(m_file, CHD_OPEN_READ, nullptr, &m_chd);
 	if(result != CHDERR_NONE)
 	{
+		core_ffree(m_file);
 		throw std::runtime_error("Failed to open CHD file.");
 	}
 	auto header = chd_get_header(m_chd);
@@ -21,6 +24,7 @@ CChdImageStream::CChdImageStream(Framework::CStream* baseStream)
 CChdImageStream::~CChdImageStream()
 {
 	chd_close(m_chd);
+	core_ffree(m_file);
 }
 
 void CChdImageStream::Seek(int64 position, Framework::STREAM_SEEK_DIRECTION origin)
