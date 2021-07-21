@@ -61,7 +61,7 @@ namespace ISO9660
 		uint32 m_offset = 0;
 	};
 
-	template<uint64 INTERNAL_BLOCKSIZE, uint64 BLOCKHEADER_SIZE>
+	template <uint64 INTERNAL_BLOCKSIZE, uint64 BLOCKHEADER_SIZE>
 	class CBlockProviderCustom : public CBlockProvider
 	{
 	public:
