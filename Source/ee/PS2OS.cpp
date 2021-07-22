@@ -1267,52 +1267,67 @@ void CPS2OS::CheckLivingThreads()
 	}
 }
 
-bool CPS2OS::SemaReleaseSingleThread(uint32 semaId, bool cancelled)
+void CPS2OS::SemaLinkThread(uint32 semaId, uint32 threadId)
+{
+	auto thread = m_threads[threadId];
+	auto sema = m_semaphores[semaId];
+
+	assert(sema);
+	assert(sema->waitCount != 0);
+
+	assert(thread);
+	assert(thread->semaWait == semaId);
+	assert(thread->nextId == 0);
+
+	uint32* waitNextId = &sema->waitNextId;
+	while((*waitNextId) != 0)
+	{
+		auto waitThread = m_threads[*waitNextId];
+		waitNextId = &waitThread->nextId;
+	}
+
+	(*waitNextId) = threadId;
+}
+
+void CPS2OS::SemaReleaseSingleThread(uint32 semaId, bool cancelled)
 {
 	//Releases a single thread from a semaphore's queue
-	//TODO: Implement an actual queue
 
 	auto sema = m_semaphores[semaId];
 	assert(sema);
 	assert(sema->waitCount != 0);
+	assert(sema->waitNextId != 0);
 
-	uint32 returnValue = cancelled ? -1 : semaId;
-	bool changed = false;
-	for(auto threadIterator = std::begin(m_threads); threadIterator != std::end(m_threads); threadIterator++)
-	{
-		auto thread = *threadIterator;
-		if(!thread) continue;
-		if((thread->status != THREAD_WAITING) && (thread->status != THREAD_SUSPENDED_WAITING)) continue;
-		if(thread->semaWait != semaId) continue;
+	uint32 threadId = sema->waitNextId;
+	
+	auto thread = m_threads[threadId];
+	assert(thread);
+	assert(thread->semaWait == semaId);
+
+	//Unlink thread
+	sema->waitNextId = thread->nextId;
+	thread->nextId = 0;
 
 		switch(thread->status)
 		{
 		case THREAD_WAITING:
 			thread->status = THREAD_RUNNING;
-			LinkThread(threadIterator);
+		LinkThread(threadId);
 			break;
 		case THREAD_SUSPENDED_WAITING:
 			thread->status = THREAD_SUSPENDED;
 			break;
 		default:
+		//Invalid thread state
 			assert(0);
 			break;
 		}
 
+	uint32 returnValue = cancelled ? -1 : semaId;
 		auto context = reinterpret_cast<THREADCONTEXT*>(GetStructPtr(thread->contextPtr));
 		context->gpr[SC_RETURN].nD0 = static_cast<int32>(returnValue);
 
 		sema->waitCount--;
-		changed = true;
-		break;
-	}
-
-	//Something went wrong if nothing changed
-	if(!changed)
-	{
-		CLog::GetInstance().Warn(LOG_NAME, "SemaReleaseSingleThread: Had to release a single thread but it was not possible. Something could be in a wrong state.\r\n");
-	}
-	return changed;
 }
 
 void CPS2OS::CreateIdleThread()
@@ -2595,6 +2610,7 @@ void CPS2OS::sc_CreateSema()
 	sema->maxCount = semaParam->maxCount;
 	sema->option = semaParam->option;
 	sema->waitCount = 0;
+	sema->waitNextId = 0;
 
 	assert(sema->count <= sema->maxCount);
 
@@ -2621,8 +2637,7 @@ void CPS2OS::sc_DeleteSema()
 	{
 		while(sema->waitCount != 0)
 		{
-			bool succeeded = SemaReleaseSingleThread(id, true);
-			if(!succeeded) break;
+			SemaReleaseSingleThread(id, true);
 		}
 		ThreadShakeAndBake();
 	}
@@ -2688,6 +2703,7 @@ void CPS2OS::sc_WaitSema()
 		thread->semaWait = id;
 
 		UnlinkThread(m_currentThreadId);
+		SemaLinkThread(id, m_currentThreadId);
 		ThreadShakeAndBake();
 
 		return;

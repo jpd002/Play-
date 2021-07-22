@@ -106,6 +106,7 @@ private:
 		uint32 count;
 		uint32 maxCount;
 		uint32 waitCount;
+		uint32 waitNextId;
 		uint32 option;
 	};
 
@@ -317,7 +318,8 @@ private:
 	void ThreadReset(uint32);
 	void CheckLivingThreads();
 
-	bool SemaReleaseSingleThread(uint32, bool);
+	void SemaLinkThread(uint32, uint32);
+	void SemaReleaseSingleThread(uint32, bool);
 
 	std::pair<uint32, uint32> GetVsyncFlagPtrs() const;
 	void SetVsyncFlagPtrs(uint32, uint32);
