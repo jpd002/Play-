@@ -319,6 +319,7 @@ private:
 	void CheckLivingThreads();
 
 	void SemaLinkThread(uint32, uint32);
+	void SemaUnlinkThread(uint32, uint32);
 	void SemaReleaseSingleThread(uint32, bool);
 
 	std::pair<uint32, uint32> GetVsyncFlagPtrs() const;

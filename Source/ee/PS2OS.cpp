@@ -1273,10 +1273,9 @@ void CPS2OS::SemaLinkThread(uint32 semaId, uint32 threadId)
 	auto sema = m_semaphores[semaId];
 
 	assert(sema);
-	assert(sema->waitCount != 0);
 
 	assert(thread);
-	assert(thread->semaWait == semaId);
+	assert(thread->semaWait == 0);
 	assert(thread->nextId == 0);
 
 	uint32* waitNextId = &sema->waitNextId;
@@ -1287,6 +1286,40 @@ void CPS2OS::SemaLinkThread(uint32 semaId, uint32 threadId)
 	}
 
 	(*waitNextId) = threadId;
+	thread->semaWait = semaId;
+
+	sema->waitCount++;
+}
+
+void CPS2OS::SemaUnlinkThread(uint32 semaId, uint32 threadId)
+{
+	auto thread = m_threads[threadId];
+	auto sema = m_semaphores[semaId];
+
+	assert(sema);
+	assert(sema->waitCount != 0);
+	assert(sema->waitNextId != 0);
+
+	assert(thread);
+	assert(thread->semaWait == semaId);
+
+	uint32* waitNextId = &sema->waitNextId;
+	while((*waitNextId) != 0)
+	{
+		if((*waitNextId) == threadId)
+		{
+			break;
+		}
+		auto waitThread = m_threads[*waitNextId];
+		waitNextId = &waitThread->nextId;
+	}
+
+	assert((*waitNextId) != 0);
+	(*waitNextId) = thread->nextId;
+	thread->nextId = 0;
+	thread->semaWait = 0;
+
+	sema->waitCount--;
 }
 
 void CPS2OS::SemaReleaseSingleThread(uint32 semaId, bool cancelled)
@@ -1307,6 +1340,7 @@ void CPS2OS::SemaReleaseSingleThread(uint32 semaId, bool cancelled)
 	//Unlink thread
 	sema->waitNextId = thread->nextId;
 	thread->nextId = 0;
+	thread->semaWait = 0;
 
 		switch(thread->status)
 		{
@@ -2095,8 +2129,26 @@ void CPS2OS::sc_TerminateThread()
 		return;
 	}
 
-	thread->status = THREAD_ZOMBIE;
+	switch(thread->status)
+	{
+	case THREAD_RUNNING:
 	UnlinkThread(id);
+		break;
+	case THREAD_WAITING:
+	case THREAD_SUSPENDED_WAITING:
+		SemaUnlinkThread(thread->semaWait, id);
+		break;
+	default:
+		assert(0);
+		[[fallthrough]];
+	case THREAD_SLEEPING:
+	case THREAD_SUSPENDED:
+	case THREAD_SUSPENDED_SLEEPING:
+		//Nothing to do
+		break;
+	}
+
+	thread->status = THREAD_ZOMBIE;
 	ThreadReset(id);
 
 	m_ee.m_State.nGPR[SC_RETURN].nD0 = static_cast<int32>(id);
@@ -2695,12 +2747,9 @@ void CPS2OS::sc_WaitSema()
 	if(sema->count == 0)
 	{
 		//Put this thread in sleep mode and reschedule...
-		sema->waitCount++;
-
 		auto thread = m_threads[m_currentThreadId];
 		assert(thread->status == THREAD_RUNNING);
 		thread->status = THREAD_WAITING;
-		thread->semaWait = id;
 
 		UnlinkThread(m_currentThreadId);
 		SemaLinkThread(id, m_currentThreadId);
