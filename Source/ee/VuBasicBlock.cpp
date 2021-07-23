@@ -85,6 +85,9 @@ void CVuBasicBlock::CompileRange(CMipsJitter* jitter)
 			VUShared::FlushPipeline(VUShared::g_pipeInfoP, jitter);
 		}
 
+		auto fmacStallDelay = fmacPipelineInfo.stallDelays[instructionIndex];
+		relativePipeTime += fmacStallDelay;
+
 		if(hiOps.readQ)
 		{
 			VUShared::CheckPipeline(VUShared::g_pipeInfoQ, jitter, relativePipeTime);
@@ -115,9 +118,6 @@ void CVuBasicBlock::CompileRange(CMipsJitter* jitter)
 			jitter->PushRel(offsetof(CMIPS, m_State.nCOP2VI[integerBranchDelayInfo.regIndex]));
 			jitter->PullRel(offsetof(CMIPS, m_State.savedIntReg));
 		}
-
-		auto fmacStallDelay = fmacPipelineInfo.stallDelays[instructionIndex];
-		relativePipeTime += fmacStallDelay;
 
 		uint32 compileHints = hints[instructionIndex];
 		arch->SetRelativePipeTime(relativePipeTime, compileHints);
