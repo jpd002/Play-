@@ -1332,7 +1332,7 @@ void CPS2OS::SemaReleaseSingleThread(uint32 semaId, bool cancelled)
 	assert(sema->waitNextId != 0);
 
 	uint32 threadId = sema->waitNextId;
-	
+
 	auto thread = m_threads[threadId];
 	assert(thread);
 	assert(thread->semaWait == semaId);
@@ -1342,26 +1342,26 @@ void CPS2OS::SemaReleaseSingleThread(uint32 semaId, bool cancelled)
 	thread->nextId = 0;
 	thread->semaWait = 0;
 
-		switch(thread->status)
-		{
-		case THREAD_WAITING:
-			thread->status = THREAD_RUNNING;
+	switch(thread->status)
+	{
+	case THREAD_WAITING:
+		thread->status = THREAD_RUNNING;
 		LinkThread(threadId);
-			break;
-		case THREAD_SUSPENDED_WAITING:
-			thread->status = THREAD_SUSPENDED;
-			break;
-		default:
+		break;
+	case THREAD_SUSPENDED_WAITING:
+		thread->status = THREAD_SUSPENDED;
+		break;
+	default:
 		//Invalid thread state
-			assert(0);
-			break;
-		}
+		assert(0);
+		break;
+	}
 
 	uint32 returnValue = cancelled ? -1 : semaId;
-		auto context = reinterpret_cast<THREADCONTEXT*>(GetStructPtr(thread->contextPtr));
-		context->gpr[SC_RETURN].nD0 = static_cast<int32>(returnValue);
+	auto context = reinterpret_cast<THREADCONTEXT*>(GetStructPtr(thread->contextPtr));
+	context->gpr[SC_RETURN].nD0 = static_cast<int32>(returnValue);
 
-		sema->waitCount--;
+	sema->waitCount--;
 }
 
 void CPS2OS::CreateIdleThread()
@@ -2132,7 +2132,7 @@ void CPS2OS::sc_TerminateThread()
 	switch(thread->status)
 	{
 	case THREAD_RUNNING:
-	UnlinkThread(id);
+		UnlinkThread(id);
 		break;
 	case THREAD_WAITING:
 	case THREAD_SUSPENDED_WAITING:
