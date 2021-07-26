@@ -129,6 +129,31 @@ namespace GSH_Vulkan
 			uint32 fbBufWidth = 0;
 			uint32 depthBufAddr = 0;
 			uint32 depthBufWidth = 0;
+
+			//texParams0 - Unused
+			uint32 texBufAddr = 0;
+			uint32 texBufWidth = 0;
+			uint32 texWidth = 0;
+			uint32 texHeight = 0;
+
+			//texParams1 - Unused
+			uint32 texCsa = 0;
+			uint32 texA0 = 0;
+			uint32 texA1 = 0;
+			uint32 texParams1Reserved = 0;
+
+			//texParams2 - Unused
+			uint32 clampMin[2];
+			uint32 clampMax[2];
+
+			//alphaFbParams - Unused
+			uint32 fbWriteMask = 0;
+			uint32 alphaFix = 0;
+			uint32 alphaRef = 0;
+			uint32 alphaFbParamsReserved = 0;
+
+			//fogColor - Unused
+			float fogColor[4];
 		};
 		static_assert(sizeof(LOAD_STORE_PIPELINE_PUSHCONSTANTS) <= 128, "Push constants size can't exceed 128 bytes.");
 

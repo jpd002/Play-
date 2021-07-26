@@ -83,12 +83,12 @@ void CDrawMobile::SetFramebufferParams(uint32 addr, uint32 width, uint32 writeMa
 	bool changed =
 	    (m_loadStorePushConstants.fbBufAddr != addr) ||
 	    (m_loadStorePushConstants.fbBufWidth != width) ||
-	    (m_drawPushConstants.fbWriteMask != writeMask);
+	    (m_loadStorePushConstants.fbWriteMask != writeMask);
 	if(!changed) return;
 	FlushRenderPass();
 	m_loadStorePushConstants.fbBufAddr = addr;
 	m_loadStorePushConstants.fbBufWidth = width;
-	m_drawPushConstants.fbWriteMask = writeMask;
+	m_loadStorePushConstants.fbWriteMask = writeMask;
 }
 
 void CDrawMobile::SetDepthbufferParams(uint32 addr, uint32 width)
@@ -332,6 +332,7 @@ void CDrawMobile::FlushRenderPass()
 		auto strippedCaps = make_convertible<PIPELINE_CAPS>(0);
 		strippedCaps.framebufferFormat = m_pipelineCaps.framebufferFormat;
 		strippedCaps.depthbufferFormat = m_pipelineCaps.depthbufferFormat;
+		strippedCaps.writeDepth = m_pipelineCaps.writeDepth;
 
 		auto storePipeline = m_storePipelineCache.TryGetPipeline(strippedCaps);
 		if(!storePipeline)
@@ -1304,7 +1305,6 @@ Framework::Vulkan::CShaderModule CDrawMobile::CreateDrawFragmentShader(const PIP
 		auto clampMin = texParams2->xy();
 		auto clampMax = texParams2->zw();
 
-		auto fbWriteMask = ToUint(alphaFbParams->x());
 		auto alphaFix = ToFloat(alphaFbParams->y()) / NewFloat(b, 255.f);
 		auto alphaRef = ToUint(alphaFbParams->z());
 
@@ -1614,6 +1614,11 @@ Framework::Vulkan::CShaderModule CDrawMobile::CreateDrawFragmentShader(const PIP
 		}
 		EndIf(b);
 
+		if(!caps.writeDepth)
+		{
+			finalDepth = dstDepth->x();
+		}
+		
 		if(canDiscardAlpha)
 		{
 			BeginIf(b, !writeAlpha);
@@ -2115,14 +2120,19 @@ Framework::Vulkan::CShaderModule CDrawMobile::CreateStoreFragmentShader(const PI
 
 		//Push constants
 		auto fbDepthParams = CInt4Lvalue(b.CreateUniformInt4("fbDepthParams", Nuanceur::UNIFORM_UNIT_PUSHCONSTANT));
+		auto texParams0 = CInt4Lvalue(b.CreateUniformInt4("texParams0", Nuanceur::UNIFORM_UNIT_PUSHCONSTANT));
+		auto texParams1 = CInt4Lvalue(b.CreateUniformInt4("texParams1", Nuanceur::UNIFORM_UNIT_PUSHCONSTANT));
+		auto texParams2 = CInt4Lvalue(b.CreateUniformInt4("texParams2", Nuanceur::UNIFORM_UNIT_PUSHCONSTANT));
+		auto alphaFbParams = CInt4Lvalue(b.CreateUniformInt4("alphaFbParams", Nuanceur::UNIFORM_UNIT_PUSHCONSTANT));
+		auto fogColor = CFloat4Lvalue(b.CreateUniformFloat4("fogColor", Nuanceur::UNIFORM_UNIT_PUSHCONSTANT));
 
 		auto fbBufAddress = fbDepthParams->x();
 		auto fbBufWidth = fbDepthParams->y();
 		auto depthBufAddress = fbDepthParams->z();
 		auto depthBufWidth = fbDepthParams->w();
 
-		auto fbWriteMask = NewUint(b, 0xFFFFFFFF);
-		auto dstPixel = NewUint(b, 0xFFFFFFFF);
+		auto fbWriteMask = ToUint(alphaFbParams->x());
+		auto dstPixel = CUintLvalue(b.CreateVariableUint("dstPixel"));
 		auto dstColor = Load(subpassColorInput, NewInt2(b, 0, 0));
 		auto dstDepth = Load(subpassDepthInput, NewInt2(b, 0, 0))->x();
 
@@ -2170,8 +2180,33 @@ Framework::Vulkan::CShaderModule CDrawMobile::CreateStoreFragmentShader(const PI
 		fbAddress = fbAddress & NewInt(b, CGSHandler::RAMSIZE - 1);
 		depthAddress = depthAddress & NewInt(b, CGSHandler::RAMSIZE - 1);
 
+		switch(caps.framebufferFormat)
+		{
+		default:
+			assert(false);
+		case CGSHandler::PSMCT32:
+		{
+			dstPixel = CMemoryUtils::Memory_Read32(b, memoryBuffer, fbAddress);
+		}
+		break;
+		case CGSHandler::PSMCT24:
+		{
+			dstPixel = CMemoryUtils::Memory_Read24(b, memoryBuffer, fbAddress);
+		}
+		break;
+		case CGSHandler::PSMCT16:
+		case CGSHandler::PSMCT16S:
+		{
+			dstPixel = CMemoryUtils::Memory_Read16(b, memoryBuffer, fbAddress);
+		}
+		break;
+		}
+
 		WriteToFramebuffer(b, caps.framebufferFormat, memoryBuffer, fbAddress, fbWriteMask, dstPixel, dstColor);
-		WriteToDepthbuffer(b, caps.depthbufferFormat, memoryBuffer, depthAddress, dstDepth);
+		if(caps.writeDepth)
+		{
+			WriteToDepthbuffer(b, caps.depthbufferFormat, memoryBuffer, depthAddress, dstDepth);
+		}
 
 		outputColor = NewFloat4(b, 1, 1, 0, 1);
 	}
