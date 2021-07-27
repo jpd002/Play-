@@ -70,7 +70,9 @@ void CDrawMobile::SetPipelineCaps(const PIPELINE_CAPS& caps)
 {
 	bool changed = static_cast<uint64>(caps) != static_cast<uint64>(m_pipelineCaps);
 	if(!changed) return;
-	if(caps.textureUseMemoryCopy)
+	auto prevLoadStoreCaps = MakeLoadStorePipelineCaps(m_pipelineCaps);
+	auto nextLoadStoreCaps = MakeLoadStorePipelineCaps(caps);
+	if(static_cast<uint64>(prevLoadStoreCaps) != static_cast<uint64>(nextLoadStoreCaps))
 	{
 		FlushRenderPass();
 	}
@@ -251,10 +253,7 @@ void CDrawMobile::FlushVertices()
 		//Load from memory
 
 		//Find pipeline and create it if we've never encountered it before
-		auto strippedCaps = make_convertible<PIPELINE_CAPS>(0);
-		strippedCaps.framebufferFormat = m_pipelineCaps.framebufferFormat;
-		strippedCaps.depthbufferFormat = m_pipelineCaps.depthbufferFormat;
-
+		auto strippedCaps = MakeLoadStorePipelineCaps(m_pipelineCaps);
 		auto loadPipeline = m_loadPipelineCache.TryGetPipeline(strippedCaps);
 		if(!loadPipeline)
 		{
@@ -329,11 +328,7 @@ void CDrawMobile::FlushRenderPass()
 		//Store to memory
 
 		//Find pipeline and create it if we've never encountered it before
-		auto strippedCaps = make_convertible<PIPELINE_CAPS>(0);
-		strippedCaps.framebufferFormat = m_pipelineCaps.framebufferFormat;
-		strippedCaps.depthbufferFormat = m_pipelineCaps.depthbufferFormat;
-		strippedCaps.writeDepth = m_pipelineCaps.writeDepth;
-
+		auto strippedCaps = MakeLoadStorePipelineCaps(m_pipelineCaps);
 		auto storePipeline = m_storePipelineCache.TryGetPipeline(strippedCaps);
 		if(!storePipeline)
 		{
@@ -1638,6 +1633,15 @@ Framework::Vulkan::CShaderModule CDrawMobile::CreateDrawFragmentShader(const PIP
 	Nuanceur::CSpirvShaderGenerator::Generate(shaderStream, b, Nuanceur::CSpirvShaderGenerator::SHADER_TYPE_FRAGMENT);
 	shaderStream.Seek(0, Framework::STREAM_SEEK_SET);
 	return Framework::Vulkan::CShaderModule(m_context->device, shaderStream);
+}
+
+CDrawMobile::PIPELINE_CAPS CDrawMobile::MakeLoadStorePipelineCaps(const PIPELINE_CAPS& caps)
+{
+	auto strippedCaps = make_convertible<PIPELINE_CAPS>(0);
+	strippedCaps.framebufferFormat = caps.framebufferFormat;
+	strippedCaps.depthbufferFormat = caps.depthbufferFormat;
+	strippedCaps.writeDepth = caps.writeDepth;
+	return strippedCaps;
 }
 
 PIPELINE CDrawMobile::CreateLoadPipeline(const PIPELINE_CAPS& caps)

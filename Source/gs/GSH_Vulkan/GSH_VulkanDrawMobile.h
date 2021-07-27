@@ -202,6 +202,8 @@ namespace GSH_Vulkan
 		Framework::Vulkan::CShaderModule CreateDrawVertexShader();
 		Framework::Vulkan::CShaderModule CreateDrawFragmentShader(const PIPELINE_CAPS&);
 
+		static PIPELINE_CAPS MakeLoadStorePipelineCaps(const PIPELINE_CAPS&);
+
 		PIPELINE CreateLoadPipeline(const PIPELINE_CAPS&);
 		PIPELINE CreateStorePipeline(const PIPELINE_CAPS&);
 		Framework::Vulkan::CShaderModule CreateLoadStoreVertexShader();
