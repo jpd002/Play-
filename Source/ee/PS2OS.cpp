@@ -2611,7 +2611,9 @@ void CPS2OS::sc_SetupThread()
 	LinkThread(threadId);
 	m_currentThreadId = threadId;
 
-	m_ee.m_State.nGPR[SC_RETURN].nV[0] = stackAddr;
+	uint32 stackPtr = stackAddr - STACKRES;
+
+	m_ee.m_State.nGPR[SC_RETURN].nV[0] = stackPtr;
 	m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0;
 }
 
