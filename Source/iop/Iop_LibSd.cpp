@@ -97,6 +97,25 @@ void CLibSd::Invoke(CMIPS&, unsigned int)
 {
 }
 
+std::string DecodeParam(uint16 paramId)
+{
+	std::string result;
+	switch(paramId >> 8)
+	{
+	case 0x06:
+		result = "VOLXL";
+		break;
+	case 0x07:
+		result = "VOLXR";
+		break;
+	default:
+		result = string_format("unknown (0x%02X)", paramId >> 8);
+		break;
+	}
+	result += string_format(", CORE%d, VOICE%d", paramId & 1, (paramId & 0x3E) >> 1);
+	return result;
+}
+
 std::string DecodeSwitch(uint16 switchId)
 {
 	std::string result;
@@ -143,12 +162,14 @@ void CLibSd::TraceCall(CMIPS& context, unsigned int functionId)
 		                          context.m_State.nGPR[CMIPS::A0].nV0);
 		break;
 	case 5:
-		CLog::GetInstance().Print(LOG_NAME, FUNCTION_SETPARAM "(entry = 0x%04X, value = 0x%04X);\r\n",
-		                          context.m_State.nGPR[CMIPS::A0].nV0, context.m_State.nGPR[CMIPS::A1].nV0);
+		CLog::GetInstance().Print(LOG_NAME, FUNCTION_SETPARAM "(entry = 0x%04X, value = 0x%04X); //(%s)\r\n",
+		                          context.m_State.nGPR[CMIPS::A0].nV0, context.m_State.nGPR[CMIPS::A1].nV0,
+		                          DecodeParam(static_cast<uint16>(context.m_State.nGPR[CMIPS::A0].nV0)).c_str());
 		break;
 	case 6:
-		CLog::GetInstance().Print(LOG_NAME, FUNCTION_GETPARAM "(entry = 0x%04X);\r\n",
-		                          context.m_State.nGPR[CMIPS::A0].nV0);
+		CLog::GetInstance().Print(LOG_NAME, FUNCTION_GETPARAM "(entry = 0x%04X); //(%s)\r\n",
+		                          context.m_State.nGPR[CMIPS::A0].nV0,
+		                          DecodeParam(static_cast<uint16>(context.m_State.nGPR[CMIPS::A0].nV0)).c_str());
 		break;
 	case 7:
 		CLog::GetInstance().Print(LOG_NAME, FUNCTION_SETSWITCH "(entry = 0x%04X, value = 0x%08X); //(%s)\r\n",
