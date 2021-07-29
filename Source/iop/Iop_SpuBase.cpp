@@ -593,16 +593,16 @@ int32 CSpuBase::ComputeChannelVolume(const CHANNEL_VOLUME& volume, int32 current
 	{
 		assert(volume.sweep.phase == 0);
 		assert(volume.sweep.slope == 0);
-		if(volume.sweep.decrease)
-		{
-			uint32 sweepDelta = g_linearDecreaseSweepDeltas[volume.sweep.volume];
-			volumeLevel = currentVolume - sweepDelta;
-		}
-		else
-		{
-			uint32 sweepDelta = g_linearIncreaseSweepDeltas[volume.sweep.volume];
-			volumeLevel = currentVolume + sweepDelta;
-		}
+			if(volume.sweep.decrease)
+			{
+				uint32 sweepDelta = g_linearDecreaseSweepDeltas[volume.sweep.volume];
+				volumeLevel = currentVolume - sweepDelta;
+			}
+			else
+			{
+				uint32 sweepDelta = g_linearIncreaseSweepDeltas[volume.sweep.volume];
+				volumeLevel = currentVolume + sweepDelta;
+			}
 		volumeLevel = std::max<int32>(volumeLevel, 0x00000000);
 		volumeLevel = std::min<int32>(volumeLevel, 0x7FFFFFFF);
 	}
@@ -635,7 +635,8 @@ void CSpuBase::Render(int16* samples, unsigned int sampleCount, unsigned int sam
 		for(unsigned int i = 0; i < 24; i++)
 		{
 			auto& channel(m_channel[i]);
-			if((channel.status == STOPPED) && !checkIrqs) continue;
+			bool hasDynamicVolume = (channel.volumeLeft.mode.mode != 0) || (channel.volumeRight.mode.mode != 0);
+			if((channel.status == STOPPED) && !checkIrqs && !hasDynamicVolume) continue;
 			auto& reader(m_reader[i]);
 			reader.SetIrqAddress(m_irqAddr);
 			if(channel.status == KEY_ON)
