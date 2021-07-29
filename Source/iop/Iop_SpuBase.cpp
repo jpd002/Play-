@@ -592,7 +592,9 @@ int32 CSpuBase::ComputeChannelVolume(const CHANNEL_VOLUME& volume, int32 current
 	else
 	{
 		assert(volume.sweep.phase == 0);
-		assert(volume.sweep.slope == 0);
+		if(volume.sweep.slope == 0)
+		{
+			//Linear increase/decrease
 			if(volume.sweep.decrease)
 			{
 				uint32 sweepDelta = g_linearDecreaseSweepDeltas[volume.sweep.volume];
@@ -603,6 +605,21 @@ int32 CSpuBase::ComputeChannelVolume(const CHANNEL_VOLUME& volume, int32 current
 				uint32 sweepDelta = g_linearIncreaseSweepDeltas[volume.sweep.volume];
 				volumeLevel = currentVolume + sweepDelta;
 			}
+		}
+		else
+		{
+			//Exponential increase/decrease
+			if(volume.sweep.decrease)
+			{
+				uint32 sweepDelta = std::max<uint32>(currentVolume * volume.sweep.volume / 0x7F, 1);
+				volumeLevel = currentVolume - sweepDelta;
+			}
+			else
+			{
+				//Not supported
+				assert(false);
+			}
+		}
 		volumeLevel = std::max<int32>(volumeLevel, 0x00000000);
 		volumeLevel = std::min<int32>(volumeLevel, 0x7FFFFFFF);
 	}
