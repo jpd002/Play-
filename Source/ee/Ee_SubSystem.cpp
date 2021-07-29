@@ -660,8 +660,11 @@ void CSubSystem::CopyVuState(CMIPS& dst, const CMIPS& src)
 	memcpy(&dst.m_State.nCOP2, &src.m_State.nCOP2, sizeof(dst.m_State.nCOP2));
 	memcpy(&dst.m_State.nCOP2A, &src.m_State.nCOP2A, sizeof(dst.m_State.nCOP2A));
 	memcpy(&dst.m_State.nCOP2VI, &src.m_State.nCOP2VI, sizeof(dst.m_State.nCOP2VI));
+	dst.m_State.nCOP2Q = src.m_State.nCOP2Q;
 	dst.m_State.nCOP2SF = src.m_State.nCOP2SF;
 	dst.m_State.nCOP2CF = src.m_State.nCOP2CF;
+	dst.m_State.pipeQ.counter = 0;
+	dst.m_State.pipeQ.heldValue = src.m_State.nCOP2Q;
 	for(unsigned int i = 0; i < FLAG_PIPELINE_SLOTS; i++)
 	{
 		dst.m_State.pipeClip.pipeTimes[i] = 0;
