@@ -13,7 +13,6 @@
 #include "iop/Iop_SifManPs2.h"
 #include "StdStream.h"
 #include "StdStreamUtils.h"
-#include "GZipStream.h"
 #include "states/MemoryStateFile.h"
 #include "zip/ZipArchiveWriter.h"
 #include "zip/ZipArchiveReader.h"
@@ -27,7 +26,6 @@
 #include "iop/ioman/OpticalMediaDevice.h"
 #include "iop/ioman/PreferenceDirectoryDevice.h"
 #include "Log.h"
-#include "ISO9660/BlockProvider.h"
 #include "DiskUtils.h"
 #ifdef __ANDROID__
 #include "android/JavaVM.h"
