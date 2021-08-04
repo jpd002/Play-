@@ -1,6 +1,7 @@
-#include <stdio.h>
+#include <cstdio>
 #include <exception>
 #include <memory>
+#include <climits>
 #include <fenv.h>
 #include "FpUtils.h"
 #include "make_unique.h"
