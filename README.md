@@ -47,7 +47,7 @@ There are two ways to generate a build for macOS. Either by using Makefiles, or 
  ```
  ```
  # Not specifying -G will automatically pick Makefiles
- cmake .. -G Xcode -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=~/Qt/5.1.0/clang_64/
+ cmake .. -G Xcode -DCMAKE_PREFIX_PATH=~/Qt/5.1.0/clang_64/
  cmake --build . --config Release
  # OR
  cmake .. -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=~/Qt/5.1.0/clang_64/
@@ -66,6 +66,17 @@ Example:
  ```
 
 Note: iOS builds generated with Makefiles will not be FAT binaries.
+
+To test your iOS builds on a device, you will need to setup code signing:
+- Set `CODE_SIGNING_ALLOWED` to `YES` on the `Play` target.
+- Set your code signing parameters in Signing & Capabilities tab in Xcode.
+
+To build with Vulkan on macOS, just make sure the `$VULKAN_SDK` environment variable is set with the proper path.
+
+On iOS, you will need to add this to your CMake command line:
+ ```bash
+ -DCMAKE_PREFIX_PATH=$VULKAN_SDK
+ ```
 
 ### Building for UNIX ###
 if you don't have Cmake or OpenAL lib installed, you'll also require Qt. (preferably version 5.6)
