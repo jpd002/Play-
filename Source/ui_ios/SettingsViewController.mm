@@ -78,8 +78,12 @@
 {
 	if([identifier isEqualToString:@"showGsHandlerSelector"])
 	{
+#ifdef HAS_GSH_VULKAN
 		//We can't change the GS handler if the emulator is running in the background
 		return (self.completionHandler == nil);
+#else
+		return FALSE;
+#endif
 	}
 }
 

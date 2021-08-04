@@ -41,6 +41,7 @@ if(USE_GSH_VULKAN)
 		)
 	endif()
 	list(INSERT PROJECT_LIBS 0 gsh_vulkan)
+	list(APPEND DEFINITIONS_LIST HAS_GSH_VULKAN=1)
 endif()
 
 if(NOT TARGET sh_openal)
@@ -155,6 +156,8 @@ target_link_libraries(Play ${GAMECONTROLLER_LIBRARY})
 target_link_libraries(Play ${QUARTZCORE_LIBRARY})
 target_link_libraries(Play ${IMAGEIO_LIBRARY})
 target_link_libraries(Play ${PROJECT_LIBS} "-ObjC -lsqlite3 -framework OpenAL")
+
+target_compile_definitions(Play PRIVATE ${DEFINITIONS_LIST})
 
 # Set a custom plist file for the app bundle
 # NOTE: for these values to be used Info.plist has to be edited

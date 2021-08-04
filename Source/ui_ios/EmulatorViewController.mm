@@ -8,7 +8,9 @@
 #include "../AppConfig.h"
 #include "PreferenceDefs.h"
 #include "GSH_OpenGLiOS.h"
+#ifdef HAS_GSH_VULKAN
 #include "GSH_VulkaniOS.h"
+#endif
 #include "../ui_shared/BootablesProcesses.h"
 #include "PH_Generic.h"
 #include "../../tools/PsfPlayer/Source/SH_OpenAL.h"
@@ -85,9 +87,11 @@ CPS2VM::ProfileFrameDoneSignal::Connection g_profileFrameDoneConnection;
 	case PREFERENCE_VALUE_VIDEO_GS_HANDLER_OPENGL:
 		g_virtualMachine->CreateGSHandler(CGSH_OpenGLiOS::GetFactoryFunction((CAEAGLLayer*)self.view.layer));
 		break;
+#ifdef HAS_GSH_VULKAN
 	case PREFERENCE_VALUE_VIDEO_GS_HANDLER_VULKAN:
 		g_virtualMachine->CreateGSHandler(CGSH_VulkaniOS::GetFactoryFunction((CAMetalLayer*)self.view.layer));
 		break;
+#endif
 	}
 
 	self.connectObserver = [[NSNotificationCenter defaultCenter] addObserverForName:GCControllerDidConnectNotification
