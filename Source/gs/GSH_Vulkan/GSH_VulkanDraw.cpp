@@ -1012,8 +1012,8 @@ static void ExpandAlpha(Nuanceur::CShaderBuilder& b, uint32 textureFormat, uint3
 	}
 }
 
-static Nuanceur::CFloat3Rvalue GetAlphaABD(Nuanceur::CShaderBuilder& b, uint32 alphaABD,
-                                           Nuanceur::CFloat4Value srcColor, Nuanceur::CFloat4Value dstColor)
+static Nuanceur::CUint3Rvalue GetAlphaABD(Nuanceur::CShaderBuilder& b, uint32 alphaABD,
+                                          Nuanceur::CUint4Value srcColor, Nuanceur::CUint4Value dstColor)
 {
 	switch(alphaABD)
 	{
@@ -1024,12 +1024,12 @@ static Nuanceur::CFloat3Rvalue GetAlphaABD(Nuanceur::CShaderBuilder& b, uint32 a
 	case CGSHandler::ALPHABLEND_ABD_CD:
 		return dstColor->xyz();
 	case CGSHandler::ALPHABLEND_ABD_ZERO:
-		return NewFloat3(b, 0, 0, 0);
+		return NewUint3(b, 0, 0, 0);
 	}
 }
 
-static Nuanceur::CFloat3Rvalue GetAlphaC(Nuanceur::CShaderBuilder& b, uint32 alphaC,
-                                         Nuanceur::CFloat4Value srcColor, Nuanceur::CFloat4Value dstColor, Nuanceur::CFloatValue alphaFix)
+static Nuanceur::CUint3Rvalue GetAlphaC(Nuanceur::CShaderBuilder& b, uint32 alphaC,
+                                        Nuanceur::CUint4Value srcColor, Nuanceur::CUint4Value dstColor, Nuanceur::CUintValue alphaFix)
 {
 	switch(alphaC)
 	{
@@ -1193,7 +1193,7 @@ Framework::Vulkan::CShaderModule CDraw::CreateFragmentShader(const PIPELINE_CAPS
 		auto clampMax = texParams2->zw();
 
 		auto fbWriteMask = ToUint(alphaFbParams->x());
-		auto alphaFix = ToFloat(alphaFbParams->y()) / NewFloat(b, 255.f);
+		auto alphaFix = ToUint(alphaFbParams->y());
 		auto alphaRef = ToUint(alphaFbParams->z());
 
 		auto srcDepth = ToUint(inputDepth->x() * NewFloat(b, DEPTH_MAX));
@@ -1347,6 +1347,8 @@ Framework::Vulkan::CShaderModule CDraw::CreateFragmentShader(const PIPELINE_CAPS
 		bool canDiscardAlpha =
 		    (caps.alphaTestFunction != CGSHandler::ALPHA_TEST_ALWAYS) &&
 		    (caps.alphaTestFailAction == CGSHandler::ALPHA_TEST_FAIL_RGBONLY);
+		//Use Uint
+		//CreateTemporaryBool with a name
 		auto alphaUint = ToUint(textureColor->w() * NewFloat(b, 255.f));
 		auto alphaTestResult = CBoolLvalue(b.CreateTemporaryBool());
 		switch(caps.alphaTestFunction)
@@ -1559,22 +1561,29 @@ Framework::Vulkan::CShaderModule CDraw::CreateFragmentShader(const PIPELINE_CAPS
 		}
 		EndIf(b);
 
+		auto srcUColor = CUint4Lvalue(b.CreateVariableUint("srcUColor"));
+		auto dstUColor = CUint4Lvalue(b.CreateVariableUint("dstUColor"));
+		srcUColor = ToUint(textureColor->xyzw() * NewFloat4(b, 255.f, 255.f, 255.f, 255.f));
+		dstUColor = ToUint(dstColor->xyzw() * NewFloat4(b, 255.f, 255.f, 255.f, 255.f));
+
 		if(caps.hasAlphaBlending)
 		{
 			//Blend
-			auto alphaA = GetAlphaABD(b, caps.alphaA, textureColor, dstColor);
-			auto alphaB = GetAlphaABD(b, caps.alphaB, textureColor, dstColor);
-			auto alphaC = GetAlphaC(b, caps.alphaC, textureColor, dstColor, alphaFix);
-			auto alphaD = GetAlphaABD(b, caps.alphaD, textureColor, dstColor);
+			auto alphaA = GetAlphaABD(b, caps.alphaA, srcUColor, dstUColor);
+			auto alphaB = GetAlphaABD(b, caps.alphaB, srcUColor, dstUColor);
+			auto alphaC = GetAlphaC(b, caps.alphaC, srcUColor, dstUColor, alphaFix);
+			auto alphaD = GetAlphaABD(b, caps.alphaD, srcUColor, dstUColor);
 
-			auto blendedColor = ((alphaA - alphaB) * alphaC * NewFloat3(b, 2, 2, 2)) + alphaD;
-			auto finalColor = NewFloat4(blendedColor, textureColor->w());
-			dstColor = Clamp(finalColor, NewFloat4(b, 0, 0, 0, 0), NewFloat4(b, 1, 1, 1, 1));
+			auto blendedUColor = ((alphaA - alphaB) * alphaC >> NewUint3(b, 7, 7, 7)) + alphaD;
+			auto finalUColor = NewUint4(blendedUColor, srcUColor->w());
+			dstUColor = Min(finalUColor, NewUint4(b, 255, 255, 255, 255));
 		}
 		else
 		{
-			dstColor = textureColor->xyzw();
+			dstUColor = srcUColor->xyzw();
 		}
+
+		dstColor = ToFloat(dstUColor) / NewFloat4(b, 255.f, 255.f, 255.f, 255.f);
 
 		if(canDiscardAlpha)
 		{
