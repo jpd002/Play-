@@ -17,6 +17,8 @@ public class ExternalEmulatorLauncher extends Activity
 		// TODO: This method is called when the BroadcastReceiver is receiving
 		// an Intent broadcast.
 		NativeInterop.setFilesDirPath(Environment.getExternalStorageDirectory().getAbsolutePath());
+		NativeInterop.setCacheDirPath(getApplicationContext().getCacheDir().getAbsolutePath());
+		NativeInterop.setAssetManager(getAssets());
 
 		EmulatorActivity.RegisterPreferences();
 

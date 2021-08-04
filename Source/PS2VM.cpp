@@ -29,6 +29,9 @@
 #include "Log.h"
 #include "ISO9660/BlockProvider.h"
 #include "DiskUtils.h"
+#ifdef __ANDROID__
+#include "android/JavaVM.h"
+#endif
 
 #define LOG_NAME ("ps2vm")
 
@@ -793,6 +796,10 @@ void CPS2VM::EmuThread()
 	fesetround(FE_TOWARDZERO);
 	FpUtils::SetDenormalHandlingMode();
 	CProfiler::GetInstance().SetWorkThread();
+#ifdef __ANDROID__
+	JNIEnv* env = nullptr;
+	Framework::CJavaVM::AttachCurrentThread(&env);
+#endif
 #ifdef PROFILE
 	CProfilerZone profilerZone(m_otherProfilerZone);
 #endif
@@ -893,4 +900,7 @@ void CPS2VM::EmuThread()
 		}
 	}
 	static_cast<CEeExecutor*>(m_ee->m_EE.m_executor.get())->RemoveExceptionHandler();
+#ifdef __ANDROID__
+	Framework::CJavaVM::DetachCurrentThread();
+#endif
 }

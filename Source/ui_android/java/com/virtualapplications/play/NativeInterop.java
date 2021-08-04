@@ -12,6 +12,8 @@ public class NativeInterop
 
 	public static native void setFilesDirPath(String dirPath);
 
+	public static native void setCacheDirPath(String dirPath);
+
 	public static native void setAssetManager(AssetManager assetManager);
 
 	public static native void createVirtualMachine();

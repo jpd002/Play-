@@ -4,6 +4,9 @@
 #include <android/native_window_jni.h>
 #include "android/AssetManager.h"
 #include "android/JavaVM.h"
+#include "android/java_security_MessageDigest.h"
+#include "android/javax_crypto_Mac.h"
+#include "android/javax_crypto_spec_SecretKeySpec.h"
 #include "PathUtils.h"
 #include "../AppConfig.h"
 #include "../DiskUtils.h"
@@ -57,6 +60,9 @@ extern "C" JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void* aReserved)
 	java::net::HttpURLConnection_ClassInfo::GetInstance().PrepareClassInfo();
 	java::io::InputStream_ClassInfo::GetInstance().PrepareClassInfo();
 	java::io::OutputStream_ClassInfo::GetInstance().PrepareClassInfo();
+	java::security::MessageDigest_ClassInfo::GetInstance().PrepareClassInfo();
+	javax::crypto::Mac_ClassInfo::GetInstance().PrepareClassInfo();
+	javax::crypto::spec::SecretKeySpec_ClassInfo::GetInstance().PrepareClassInfo();
 	com::virtualapplications::play::Bootable_ClassInfo::GetInstance().PrepareClassInfo();
 	return JNI_VERSION_1_6;
 }
@@ -65,6 +71,13 @@ extern "C" JNIEXPORT void JNICALL Java_com_virtualapplications_play_NativeIntero
 {
 	auto dirPath = env->GetStringUTFChars(dirPathString, 0);
 	Framework::PathUtils::SetFilesDirPath(dirPath);
+	env->ReleaseStringUTFChars(dirPathString, dirPath);
+}
+
+extern "C" JNIEXPORT void JNICALL Java_com_virtualapplications_play_NativeInterop_setCacheDirPath(JNIEnv* env, jobject obj, jstring dirPathString)
+{
+	auto dirPath = env->GetStringUTFChars(dirPathString, 0);
+	Framework::PathUtils::SetCacheDirPath(dirPath);
 	env->ReleaseStringUTFChars(dirPathString, dirPath);
 }
 
