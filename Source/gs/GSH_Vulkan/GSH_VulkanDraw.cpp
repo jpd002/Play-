@@ -1441,6 +1441,7 @@ Framework::Vulkan::CShaderModule CDraw::CreateFragmentShader(const PIPELINE_CAPS
 		{
 		default:
 			assert(false);
+			[[fallthrough]];
 		case CGSHandler::PSMCT32:
 		case CGSHandler::PSMCT24:
 		case CGSHandler::PSMZ24:
@@ -1458,6 +1459,7 @@ Framework::Vulkan::CShaderModule CDraw::CreateFragmentShader(const PIPELINE_CAPS
 		{
 		default:
 			assert(false);
+			[[fallthrough]];
 		case CGSHandler::PSMZ32:
 		case CGSHandler::PSMZ24:
 			depthAddress = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMZ32>(
