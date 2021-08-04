@@ -6,8 +6,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
 
-import java.io.File;
-
 public class ExternalEmulatorLauncher extends Activity
 {
 	@Override
@@ -33,7 +31,7 @@ public class ExternalEmulatorLauncher extends Activity
 			{
 				try
 				{
-					VirtualMachineManager.launchDisk(this, new File(intent.getData().getPath()));
+					VirtualMachineManager.launchDisk(this, intent.getData().getPath());
 					finish();
 				}
 				catch(Exception e)

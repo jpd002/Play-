@@ -90,6 +90,18 @@ extern "C" JNIEXPORT void Java_com_virtualapplications_play_BootablesInterop_set
 	BootablesDb::CClient::GetInstance().SetLastBootedTime(bootablePath, lastBootedTime);
 }
 
+extern "C" JNIEXPORT jboolean Java_com_virtualapplications_play_BootablesInterop_IsBootableExecutablePath(JNIEnv* env, jobject obj, jstring bootablePathString)
+{
+	auto bootablePath = fs::path(GetStringFromJstring(env, bootablePathString));
+	return IsBootableExecutablePath(bootablePath);
+}
+
+extern "C" JNIEXPORT jboolean Java_com_virtualapplications_play_BootablesInterop_DoesBootableExist(JNIEnv* env, jobject obj, jstring bootablePathString)
+{
+	auto bootablePath = fs::path(GetStringFromJstring(env, bootablePathString));
+	return DoesBootableExist(bootablePath);
+}
+
 extern "C" JNIEXPORT void Java_com_virtualapplications_play_BootablesInterop_UnregisterBootable(JNIEnv* env, jobject obj, jstring bootablePathString)
 {
 	auto bootablePath = fs::path(GetStringFromJstring(env, bootablePathString));

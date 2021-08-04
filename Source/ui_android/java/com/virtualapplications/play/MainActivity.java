@@ -435,13 +435,12 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 
 	public void launchGame(Bootable game)
 	{
-		File disc = new File(game.path);
-		if(disc.exists())
+		if(BootablesInterop.DoesBootableExist(game.path))
 		{
 			setLastBootedTime(game.path, System.currentTimeMillis());
 			try
 			{
-				VirtualMachineManager.launchDisk(this, disc);
+				VirtualMachineManager.launchDisk(this, game.path);
 			}
 			catch(Exception e)
 			{

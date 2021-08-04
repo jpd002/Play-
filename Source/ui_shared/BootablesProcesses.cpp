@@ -50,6 +50,11 @@ bool IsBootableDiscImagePath(const fs::path& filePath)
 	return extensionIterator != std::end(supportedExtensions);
 }
 
+bool DoesBootableExist(const fs::path& filePath)
+{
+	return fs::exists(filePath);
+}
+
 bool TryRegisterBootable(const fs::path& path)
 {
 	try
@@ -147,7 +152,7 @@ void PurgeInexistingFiles()
 	auto bootables = BootablesDb::CClient::GetInstance().GetBootables();
 	for(const auto& bootable : bootables)
 	{
-		if(fs::exists(bootable.path)) continue;
+		if(DoesBootableExist(bootable.path)) continue;
 		BootablesDb::CClient::GetInstance().UnregisterBootable(bootable.path);
 	}
 }
