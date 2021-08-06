@@ -1044,6 +1044,70 @@ static Nuanceur::CInt3Rvalue GetAlphaC(Nuanceur::CShaderBuilder& b, uint32 alpha
 	}
 }
 
+static void AlphaTest(Nuanceur::CShaderBuilder& b,
+                      uint32 alphaTestFunction, uint32 alphaTestFailAction,
+                      Nuanceur::CInt4Value srcIColor, Nuanceur::CIntValue alphaRef,
+                      Nuanceur::CBoolLvalue writeColor, Nuanceur::CBoolLvalue writeDepth, Nuanceur::CBoolLvalue writeAlpha)
+{
+	using namespace Nuanceur;
+
+	auto srcAlpha = srcIColor->w();
+	auto alphaTestResult = CBoolLvalue(b.CreateVariableBool("alphaTestResult"));
+	switch(alphaTestFunction)
+	{
+	default:
+		assert(false);
+	case CGSHandler::ALPHA_TEST_ALWAYS:
+		alphaTestResult = NewBool(b, true);
+		break;
+	case CGSHandler::ALPHA_TEST_NEVER:
+		alphaTestResult = NewBool(b, false);
+		break;
+	case CGSHandler::ALPHA_TEST_LESS:
+		alphaTestResult = srcAlpha < alphaRef;
+		break;
+	case CGSHandler::ALPHA_TEST_LEQUAL:
+		alphaTestResult = srcAlpha <= alphaRef;
+		break;
+	case CGSHandler::ALPHA_TEST_EQUAL:
+		alphaTestResult = srcAlpha == alphaRef;
+		break;
+	case CGSHandler::ALPHA_TEST_GEQUAL:
+		alphaTestResult = srcAlpha >= alphaRef;
+		break;
+	case CGSHandler::ALPHA_TEST_GREATER:
+		alphaTestResult = srcAlpha > alphaRef;
+		break;
+	case CGSHandler::ALPHA_TEST_NOTEQUAL:
+		alphaTestResult = srcAlpha != alphaRef;
+		break;
+	}
+
+	BeginIf(b, !alphaTestResult);
+	{
+		switch(alphaTestFailAction)
+		{
+		default:
+			assert(false);
+		case CGSHandler::ALPHA_TEST_FAIL_KEEP:
+			writeColor = NewBool(b, false);
+			writeDepth = NewBool(b, false);
+			break;
+		case CGSHandler::ALPHA_TEST_FAIL_FBONLY:
+			writeDepth = NewBool(b, false);
+			break;
+		case CGSHandler::ALPHA_TEST_FAIL_ZBONLY:
+			writeColor = NewBool(b, false);
+			break;
+		case CGSHandler::ALPHA_TEST_FAIL_RGBONLY:
+			writeDepth = NewBool(b, false);
+			writeAlpha = NewBool(b, false);
+			break;
+		}
+	}
+	EndIf(b);
+}
+
 static void DestinationAlphaTest(Nuanceur::CShaderBuilder& b, uint32 framebufferFormat,
                                  uint32 dstAlphaTestRef, Nuanceur::CUintValue dstPixel,
                                  Nuanceur::CBoolLvalue writeColor, Nuanceur::CBoolLvalue writeDepth)
@@ -1194,7 +1258,7 @@ Framework::Vulkan::CShaderModule CDraw::CreateFragmentShader(const PIPELINE_CAPS
 
 		auto fbWriteMask = ToUint(alphaFbParams->x());
 		auto alphaFix = alphaFbParams->y();
-		auto alphaRef = ToUint(alphaFbParams->z());
+		auto alphaRef = alphaFbParams->z();
 
 		auto srcDepth = ToUint(inputDepth->x() * NewFloat(b, DEPTH_MAX));
 
@@ -1333,6 +1397,12 @@ Framework::Vulkan::CShaderModule CDraw::CreateFragmentShader(const PIPELINE_CAPS
 			textureColor = inputColor->xyzw();
 		}
 
+		if(caps.hasFog)
+		{
+			auto fogMixColor = Mix(textureColor->xyz(), fogColor->xyz(), inputFog->xxx());
+			textureColor = NewFloat4(fogMixColor, textureColor->w());
+		}
+
 		auto writeColor = CBoolLvalue(b.CreateVariableBool("writeColor"));
 		auto writeDepth = CBoolLvalue(b.CreateVariableBool("writeDepth"));
 		auto writeAlpha = CBoolLvalue(b.CreateVariableBool("writeAlpha"));
@@ -1340,74 +1410,6 @@ Framework::Vulkan::CShaderModule CDraw::CreateFragmentShader(const PIPELINE_CAPS
 		writeColor = NewBool(b, true);
 		writeDepth = NewBool(b, true);
 		writeAlpha = NewBool(b, true);
-
-		//---------------------------------------------------------------------------
-		//Alpha Test
-
-		bool canDiscardAlpha =
-		    (caps.alphaTestFunction != CGSHandler::ALPHA_TEST_ALWAYS) &&
-		    (caps.alphaTestFailAction == CGSHandler::ALPHA_TEST_FAIL_RGBONLY);
-		auto alphaUint = ToUint(textureColor->w() * NewFloat(b, 255.f));
-		auto alphaTestResult = CBoolLvalue(b.CreateVariableBool("alphaTestResult"));
-		switch(caps.alphaTestFunction)
-		{
-		default:
-			assert(false);
-		case CGSHandler::ALPHA_TEST_ALWAYS:
-			alphaTestResult = NewBool(b, true);
-			break;
-		case CGSHandler::ALPHA_TEST_NEVER:
-			alphaTestResult = NewBool(b, false);
-			break;
-		case CGSHandler::ALPHA_TEST_LESS:
-			alphaTestResult = alphaUint < alphaRef;
-			break;
-		case CGSHandler::ALPHA_TEST_LEQUAL:
-			alphaTestResult = alphaUint <= alphaRef;
-			break;
-		case CGSHandler::ALPHA_TEST_EQUAL:
-			alphaTestResult = alphaUint == alphaRef;
-			break;
-		case CGSHandler::ALPHA_TEST_GEQUAL:
-			alphaTestResult = alphaUint >= alphaRef;
-			break;
-		case CGSHandler::ALPHA_TEST_GREATER:
-			alphaTestResult = alphaUint > alphaRef;
-			break;
-		case CGSHandler::ALPHA_TEST_NOTEQUAL:
-			alphaTestResult = alphaUint != alphaRef;
-			break;
-		}
-
-		BeginIf(b, !alphaTestResult);
-		{
-			switch(caps.alphaTestFailAction)
-			{
-			default:
-				assert(false);
-			case CGSHandler::ALPHA_TEST_FAIL_KEEP:
-				writeColor = NewBool(b, false);
-				writeDepth = NewBool(b, false);
-				break;
-			case CGSHandler::ALPHA_TEST_FAIL_FBONLY:
-				writeDepth = NewBool(b, false);
-				break;
-			case CGSHandler::ALPHA_TEST_FAIL_ZBONLY:
-				writeColor = NewBool(b, false);
-				break;
-			case CGSHandler::ALPHA_TEST_FAIL_RGBONLY:
-				writeDepth = NewBool(b, false);
-				writeAlpha = NewBool(b, false);
-				break;
-			}
-		}
-		EndIf(b);
-
-		if(caps.hasFog)
-		{
-			auto fogMixColor = Mix(textureColor->xyz(), fogColor->xyz(), inputFog->xxx());
-			textureColor = NewFloat4(fogMixColor, textureColor->w());
-		}
 
 		auto screenPos = ToInt(inputPosition->xy());
 
@@ -1478,13 +1480,23 @@ Framework::Vulkan::CShaderModule CDraw::CreateFragmentShader(const PIPELINE_CAPS
 		fbAddress = fbAddress & NewInt(b, CGSHandler::RAMSIZE - 1);
 		depthAddress = depthAddress & NewInt(b, CGSHandler::RAMSIZE - 1);
 
+		auto srcIColor = CInt4Lvalue(b.CreateVariableInt("srcIColor"));
+		srcIColor = ToInt(textureColor->xyzw() * NewFloat4(b, 255.f, 255.f, 255.f, 255.f));
+
+		AlphaTest(b, caps.alphaTestFunction, caps.alphaTestFailAction, srcIColor, alphaRef,
+		          writeColor, writeDepth, writeAlpha);
+
 		BeginInvocationInterlock(b);
 
 		auto dstPixel = CUintLvalue(b.CreateVariableUint("dstPixel"));
 		auto dstColor = CFloat4Lvalue(b.CreateVariableFloat("dstColor"));
 		auto dstAlpha = CFloat4Lvalue(b.CreateVariableFloat("dstAlpha"));
 		auto dstDepth = CUintLvalue(b.CreateVariableUint("dstDepth"));
+		auto dstIColor = CInt4Lvalue(b.CreateVariableInt("dstIColor"));
 
+		bool canDiscardAlpha =
+		    (caps.alphaTestFunction != CGSHandler::ALPHA_TEST_ALWAYS) &&
+		    (caps.alphaTestFailAction == CGSHandler::ALPHA_TEST_FAIL_RGBONLY);
 		bool needsDstColor = (caps.hasAlphaBlending != 0) || (caps.maskColor != 0) || canDiscardAlpha || (caps.hasDstAlphaTest != 0);
 		if(needsDstColor)
 		{
@@ -1513,6 +1525,8 @@ Framework::Vulkan::CShaderModule CDraw::CreateFragmentShader(const PIPELINE_CAPS
 			break;
 			}
 
+			dstIColor = ToInt(dstColor->xyzw() * NewFloat4(b, 255.f, 255.f, 255.f, 255.f));
+
 			if(canDiscardAlpha)
 			{
 				dstAlpha = dstColor->wwww();
@@ -1521,6 +1535,7 @@ Framework::Vulkan::CShaderModule CDraw::CreateFragmentShader(const PIPELINE_CAPS
 		else
 		{
 			dstPixel = NewUint(b, 0);
+			dstIColor = NewInt4(b, 0, 0, 0, 0);
 		}
 
 		if(caps.hasDstAlphaTest)
@@ -1559,36 +1574,31 @@ Framework::Vulkan::CShaderModule CDraw::CreateFragmentShader(const PIPELINE_CAPS
 		}
 		EndIf(b);
 
-		auto srcUColor = CInt4Lvalue(b.CreateVariableInt("srcUColor"));
-		auto dstUColor = CInt4Lvalue(b.CreateVariableInt("dstUColor"));
-		srcUColor = ToInt(textureColor->xyzw() * NewFloat4(b, 255.f, 255.f, 255.f, 255.f));
-		dstUColor = ToInt(dstColor->xyzw() * NewFloat4(b, 255.f, 255.f, 255.f, 255.f));
-
 		if(caps.hasAlphaBlending)
 		{
 			//Blend
-			auto alphaA = GetAlphaABD(b, caps.alphaA, srcUColor, dstUColor);
-			auto alphaB = GetAlphaABD(b, caps.alphaB, srcUColor, dstUColor);
-			auto alphaC = GetAlphaC(b, caps.alphaC, srcUColor, dstUColor, alphaFix);
-			auto alphaD = GetAlphaABD(b, caps.alphaD, srcUColor, dstUColor);
+			auto alphaA = GetAlphaABD(b, caps.alphaA, srcIColor, dstIColor);
+			auto alphaB = GetAlphaABD(b, caps.alphaB, srcIColor, dstIColor);
+			auto alphaC = GetAlphaC(b, caps.alphaC, srcIColor, dstIColor, alphaFix);
+			auto alphaD = GetAlphaABD(b, caps.alphaD, srcIColor, dstIColor);
 
-			auto blendedUColor = ShiftRightArithmetic((alphaA - alphaB) * alphaC, NewInt3(b, 7, 7, 7)) + alphaD;
-			auto finalUColor = NewInt4(blendedUColor, srcUColor->w());
+			auto blendedRGB = ShiftRightArithmetic((alphaA - alphaB) * alphaC, NewInt3(b, 7, 7, 7)) + alphaD;
+			auto blendedIColor = NewInt4(blendedRGB, srcIColor->w());
 			if(caps.colClamp)
 			{
-				dstUColor = Clamp(finalUColor, NewInt4(b, 0, 0, 0, 0), NewInt4(b, 255, 255, 255, 255));
+				dstIColor = Clamp(blendedIColor, NewInt4(b, 0, 0, 0, 0), NewInt4(b, 255, 255, 255, 255));
 			}
 			else
 			{
-				dstUColor = finalUColor & NewInt4(b, 255, 255, 255, 255);
+				dstIColor = blendedIColor & NewInt4(b, 255, 255, 255, 255);
 			}
 		}
 		else
 		{
-			dstUColor = srcUColor->xyzw();
+			dstIColor = srcIColor->xyzw();
 		}
 
-		dstColor = ToFloat(dstUColor) / NewFloat4(b, 255.f, 255.f, 255.f, 255.f);
+		dstColor = ToFloat(dstIColor) / NewFloat4(b, 255.f, 255.f, 255.f, 255.f);
 
 		if(canDiscardAlpha)
 		{
