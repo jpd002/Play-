@@ -1065,7 +1065,7 @@ static void DestinationAlphaTest(Nuanceur::CShaderBuilder& b, uint32 framebuffer
 		break;
 	}
 
-	auto dstAlphaTestResult = CBoolLvalue(b.CreateTemporaryBool());
+	auto dstAlphaTestResult = CBoolLvalue(b.CreateVariableBool("dstAlphaTestResult"));
 	if(dstAlphaTestRef)
 	{
 		//Pixels with alpha bit set pass
@@ -1434,8 +1434,8 @@ Framework::Vulkan::CShaderModule CDraw::CreateFragmentShader(const PIPELINE_CAPS
 		break;
 		}
 
-		auto fbAddress = CIntLvalue(b.CreateTemporaryInt());
-		auto depthAddress = CIntLvalue(b.CreateTemporaryInt());
+		auto fbAddress = CIntLvalue(b.CreateVariableInt("fbAddress"));
+		auto depthAddress = CIntLvalue(b.CreateVariableInt("depthAddress"));
 
 		switch(caps.framebufferFormat)
 		{
