@@ -54,6 +54,7 @@ namespace GSH_Vulkan
 			uint32 alphaB : 2;
 			uint32 alphaC : 2;
 			uint32 alphaD : 2;
+			uint32 colClamp : 1;
 
 			uint32 depthTestFunction : 2;
 			uint32 alphaTestFunction : 3;
