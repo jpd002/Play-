@@ -157,3 +157,51 @@ Nuanceur::CUintRvalue CMemoryUtils::Vec4ToPSM16(Nuanceur::CShaderBuilder& b, Nua
 	auto colorA = ToUint(inputColor->w() * NewFloat(b, 255.f)) >> NewUint(b, 7) << NewUint(b, 15);
 	return colorR | colorG | colorB | colorA;
 }
+
+Nuanceur::CInt4Rvalue CMemoryUtils::PSM32ToIVec4(Nuanceur::CShaderBuilder& b, Nuanceur::CUintValue inputColor)
+{
+	auto colorR = (inputColor >> NewUint(b, 0)) & NewUint(b, 0xFF);
+	auto colorG = (inputColor >> NewUint(b, 8)) & NewUint(b, 0xFF);
+	auto colorB = (inputColor >> NewUint(b, 16)) & NewUint(b, 0xFF);
+	auto colorA = (inputColor >> NewUint(b, 24)) & NewUint(b, 0xFF);
+
+	auto colorFloatR = ToInt(colorR);
+	auto colorFloatG = ToInt(colorG);
+	auto colorFloatB = ToInt(colorB);
+	auto colorFloatA = ToInt(colorA);
+
+	return NewInt4(colorFloatR, colorFloatG, colorFloatB, colorFloatA);
+}
+
+Nuanceur::CInt4Rvalue CMemoryUtils::PSM16ToIVec4(Nuanceur::CShaderBuilder& b, Nuanceur::CUintValue inputColor)
+{
+	auto colorR = (inputColor >> NewUint(b, 0)) & NewUint(b, 0x1F);
+	auto colorG = (inputColor >> NewUint(b, 5)) & NewUint(b, 0x1F);
+	auto colorB = (inputColor >> NewUint(b, 10)) & NewUint(b, 0x1F);
+	auto colorA = (inputColor >> NewUint(b, 15)) & NewUint(b, 0x1);
+
+	auto colorFloatR = ToInt(colorR) * NewInt(b, 8);
+	auto colorFloatG = ToInt(colorG) * NewInt(b, 8);
+	auto colorFloatB = ToInt(colorB) * NewInt(b, 8);
+	auto colorFloatA = ToInt(colorA) * NewInt(b, 128);
+
+	return NewInt4(colorFloatR, colorFloatG, colorFloatB, colorFloatA);
+}
+
+Nuanceur::CUintRvalue CMemoryUtils::IVec4ToPSM32(Nuanceur::CShaderBuilder& b, Nuanceur::CInt4Value inputColor)
+{
+	auto colorR = ToUint(inputColor->x()) << NewUint(b, 0);
+	auto colorG = ToUint(inputColor->y()) << NewUint(b, 8);
+	auto colorB = ToUint(inputColor->z()) << NewUint(b, 16);
+	auto colorA = ToUint(inputColor->w()) << NewUint(b, 24);
+	return colorR | colorG | colorB | colorA;
+}
+
+Nuanceur::CUintRvalue CMemoryUtils::IVec4ToPSM16(Nuanceur::CShaderBuilder& b, Nuanceur::CInt4Value inputColor)
+{
+	auto colorR = ToUint(inputColor->x()) >> NewUint(b, 3) << NewUint(b, 0);
+	auto colorG = ToUint(inputColor->y()) >> NewUint(b, 3) << NewUint(b, 5);
+	auto colorB = ToUint(inputColor->z()) >> NewUint(b, 3) << NewUint(b, 10);
+	auto colorA = ToUint(inputColor->w()) >> NewUint(b, 7) << NewUint(b, 15);
+	return colorR | colorG | colorB | colorA;
+}

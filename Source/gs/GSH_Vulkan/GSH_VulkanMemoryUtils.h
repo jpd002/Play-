@@ -43,5 +43,11 @@ namespace GSH_Vulkan
 
 		static Nuanceur::CUintRvalue Vec4ToPSM32(Nuanceur::CShaderBuilder&, Nuanceur::CFloat4Value);
 		static Nuanceur::CUintRvalue Vec4ToPSM16(Nuanceur::CShaderBuilder&, Nuanceur::CFloat4Value);
+
+		static Nuanceur::CInt4Rvalue PSM32ToIVec4(Nuanceur::CShaderBuilder&, Nuanceur::CUintValue);
+		static Nuanceur::CInt4Rvalue PSM16ToIVec4(Nuanceur::CShaderBuilder&, Nuanceur::CUintValue);
+
+		static Nuanceur::CUintRvalue IVec4ToPSM32(Nuanceur::CShaderBuilder&, Nuanceur::CInt4Value);
+		static Nuanceur::CUintRvalue IVec4ToPSM16(Nuanceur::CShaderBuilder&, Nuanceur::CInt4Value);
 	};
 }

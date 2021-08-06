@@ -1149,30 +1149,29 @@ static void DestinationAlphaTest(Nuanceur::CShaderBuilder& b, uint32 framebuffer
 }
 
 static void WriteToFramebuffer(Nuanceur::CShaderBuilder& b, uint32 framebufferFormat,
-                               Nuanceur::CArrayUintValue memoryBuffer, Nuanceur::CIntValue fbAddress,
-                               Nuanceur::CUintValue fbWriteMask, Nuanceur::CUintValue dstPixel, Nuanceur::CFloat4Value dstColor)
+                               Nuanceur::CArrayUintValue memoryBuffer, Nuanceur::CIntValue fbAddress, Nuanceur::CUintValue srcPixel)
 {
 	switch(framebufferFormat)
 	{
 	default:
 		assert(false);
+		[[fallthrough]];
 	case CGSHandler::PSMCT32:
 	{
-		dstPixel = (CMemoryUtils::Vec4ToPSM32(b, dstColor) & fbWriteMask) | (dstPixel & ~fbWriteMask);
-		CMemoryUtils::Memory_Write32(b, memoryBuffer, fbAddress, dstPixel);
+		CMemoryUtils::Memory_Write32(b, memoryBuffer, fbAddress, srcPixel);
 	}
 	break;
 	case CGSHandler::PSMCT24:
 	case CGSHandler::PSMZ24:
 	{
-		dstPixel = (CMemoryUtils::Vec4ToPSM32(b, dstColor) & fbWriteMask) | (dstPixel & ~fbWriteMask);
+		auto dstPixel = srcPixel & NewUint(b, 0xFFFFFF);
 		CMemoryUtils::Memory_Write24(b, memoryBuffer, fbAddress, dstPixel);
 	}
 	break;
 	case CGSHandler::PSMCT16:
 	case CGSHandler::PSMCT16S:
 	{
-		dstPixel = (CMemoryUtils::Vec4ToPSM16(b, dstColor) & fbWriteMask) | (dstPixel & ~fbWriteMask);
+		auto dstPixel = srcPixel & NewUint(b, 0xFFFF);
 		CMemoryUtils::Memory_Write16(b, memoryBuffer, fbAddress, dstPixel);
 	}
 	break;
@@ -1489,10 +1488,11 @@ Framework::Vulkan::CShaderModule CDraw::CreateFragmentShader(const PIPELINE_CAPS
 		BeginInvocationInterlock(b);
 
 		auto dstPixel = CUintLvalue(b.CreateVariableUint("dstPixel"));
-		auto dstColor = CFloat4Lvalue(b.CreateVariableFloat("dstColor"));
-		auto dstAlpha = CFloat4Lvalue(b.CreateVariableFloat("dstAlpha"));
 		auto dstDepth = CUintLvalue(b.CreateVariableUint("dstDepth"));
 		auto dstIColor = CInt4Lvalue(b.CreateVariableInt("dstIColor"));
+
+		auto finalPixel = CUintLvalue(b.CreateVariableUint("finalPixel"));
+		auto finalIColor = CInt4Lvalue(b.CreateVariableInt("finalIColor"));
 
 		bool canDiscardAlpha =
 		    (caps.alphaTestFunction != CGSHandler::ALPHA_TEST_ALWAYS) &&
@@ -1504,32 +1504,26 @@ Framework::Vulkan::CShaderModule CDraw::CreateFragmentShader(const PIPELINE_CAPS
 			{
 			default:
 				assert(false);
+				[[fallthrough]];
 			case CGSHandler::PSMCT32:
 			{
 				dstPixel = CMemoryUtils::Memory_Read32(b, memoryBuffer, fbAddress);
-				dstColor = CMemoryUtils::PSM32ToVec4(b, dstPixel);
+				dstIColor = CMemoryUtils::PSM32ToIVec4(b, dstPixel);
 			}
 			break;
 			case CGSHandler::PSMCT24:
 			{
 				dstPixel = CMemoryUtils::Memory_Read24(b, memoryBuffer, fbAddress);
-				dstColor = CMemoryUtils::PSM32ToVec4(b, dstPixel);
+				dstIColor = CMemoryUtils::PSM32ToIVec4(b, dstPixel);
 			}
 			break;
 			case CGSHandler::PSMCT16:
 			case CGSHandler::PSMCT16S:
 			{
 				dstPixel = CMemoryUtils::Memory_Read16(b, memoryBuffer, fbAddress);
-				dstColor = CMemoryUtils::PSM16ToVec4(b, dstPixel);
+				dstIColor = CMemoryUtils::PSM16ToIVec4(b, dstPixel);
 			}
 			break;
-			}
-
-			dstIColor = ToInt(dstColor->xyzw() * NewFloat4(b, 255.f, 255.f, 255.f, 255.f));
-
-			if(canDiscardAlpha)
-			{
-				dstAlpha = dstColor->wwww();
 			}
 		}
 		else
@@ -1586,32 +1580,51 @@ Framework::Vulkan::CShaderModule CDraw::CreateFragmentShader(const PIPELINE_CAPS
 			auto blendedIColor = NewInt4(blendedRGB, srcIColor->w());
 			if(caps.colClamp)
 			{
-				dstIColor = Clamp(blendedIColor, NewInt4(b, 0, 0, 0, 0), NewInt4(b, 255, 255, 255, 255));
+				finalIColor = Clamp(blendedIColor, NewInt4(b, 0, 0, 0, 0), NewInt4(b, 255, 255, 255, 255));
 			}
 			else
 			{
-				dstIColor = blendedIColor & NewInt4(b, 255, 255, 255, 255);
+				finalIColor = blendedIColor & NewInt4(b, 255, 255, 255, 255);
 			}
 		}
 		else
 		{
-			dstIColor = srcIColor->xyzw();
+			finalIColor = srcIColor->xyzw();
 		}
-
-		dstColor = ToFloat(dstIColor) / NewFloat4(b, 255.f, 255.f, 255.f, 255.f);
 
 		if(canDiscardAlpha)
 		{
 			BeginIf(b, !writeAlpha);
 			{
-				dstColor = NewFloat4(dstColor->xyz(), dstAlpha->x());
+				finalIColor = NewInt4(finalIColor->xyz(), dstIColor->x());
 			}
 			EndIf(b);
 		}
 
 		BeginIf(b, writeColor);
 		{
-			WriteToFramebuffer(b, caps.framebufferFormat, memoryBuffer, fbAddress, fbWriteMask, dstPixel, dstColor);
+			switch(caps.framebufferFormat)
+			{
+			default:
+				assert(false);
+				[[fallthrough]];
+			case CGSHandler::PSMCT32:
+			case CGSHandler::PSMCT24:
+			{
+				finalPixel = CMemoryUtils::IVec4ToPSM32(b, finalIColor);
+			}
+			break;
+			case CGSHandler::PSMCT16:
+			case CGSHandler::PSMCT16S:
+			{
+				finalPixel = CMemoryUtils::IVec4ToPSM16(b, finalIColor);
+			}
+			break;
+			}
+
+			finalPixel = (finalPixel & fbWriteMask) | (dstPixel & ~fbWriteMask);
+
+			WriteToFramebuffer(b, caps.framebufferFormat, memoryBuffer, fbAddress, finalPixel);
 		}
 		EndIf(b);
 
@@ -1626,7 +1639,7 @@ Framework::Vulkan::CShaderModule CDraw::CreateFragmentShader(const PIPELINE_CAPS
 
 		EndInvocationInterlock(b);
 
-		outputColor = dstColor->xyzw();
+		outputColor = ToFloat(finalIColor) / NewFloat4(b, 255.f, 255.f, 255.f, 255.f);
 	}
 
 	Framework::CMemStream shaderStream;
