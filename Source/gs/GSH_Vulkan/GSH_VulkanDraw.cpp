@@ -1347,10 +1347,8 @@ Framework::Vulkan::CShaderModule CDraw::CreateFragmentShader(const PIPELINE_CAPS
 		bool canDiscardAlpha =
 		    (caps.alphaTestFunction != CGSHandler::ALPHA_TEST_ALWAYS) &&
 		    (caps.alphaTestFailAction == CGSHandler::ALPHA_TEST_FAIL_RGBONLY);
-		//Use Uint
-		//CreateTemporaryBool with a name
 		auto alphaUint = ToUint(textureColor->w() * NewFloat(b, 255.f));
-		auto alphaTestResult = CBoolLvalue(b.CreateTemporaryBool());
+		auto alphaTestResult = CBoolLvalue(b.CreateVariableBool("alphaTestResult"));
 		switch(caps.alphaTestFunction)
 		{
 		default:
@@ -1537,7 +1535,7 @@ Framework::Vulkan::CShaderModule CDraw::CreateFragmentShader(const PIPELINE_CAPS
 			dstDepth = GetDepth(b, caps.depthbufferFormat, depthAddress, memoryBuffer);
 		}
 
-		auto depthTestResult = CBoolLvalue(b.CreateTemporaryBool());
+		auto depthTestResult = CBoolLvalue(b.CreateVariableBool("depthTestResult"));
 		switch(caps.depthTestFunction)
 		{
 		case CGSHandler::DEPTH_TEST_ALWAYS:
