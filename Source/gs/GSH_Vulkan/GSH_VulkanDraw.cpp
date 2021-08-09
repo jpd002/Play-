@@ -1592,6 +1592,11 @@ Framework::Vulkan::CShaderModule CDraw::CreateFragmentShader(const PIPELINE_CAPS
 			finalIColor = srcIColor->xyzw();
 		}
 
+		if(caps.fba)
+		{
+			finalIColor = NewInt4(finalIColor->xyz(), finalIColor->w() | NewInt(b, 0x80));
+		}
+		
 		if(canDiscardAlpha)
 		{
 			BeginIf(b, !writeAlpha);
