@@ -52,6 +52,10 @@ bool IsBootableDiscImagePath(const fs::path& filePath)
 
 bool DoesBootableExist(const fs::path& filePath)
 {
+	//TODO: Properly support S3 paths. Also, beware when implementing this because Android
+	//      might complain about network access being done on the main thread.
+	static const char* s3ImagePathPrefix = "//s3/";
+	if(filePath.string().find(s3ImagePathPrefix) == 0) return true;
 	return fs::exists(filePath);
 }
 
