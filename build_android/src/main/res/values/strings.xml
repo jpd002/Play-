@@ -13,6 +13,9 @@
 	<string name="search_games_msg">Please wait&#8230;</string>
 	<string name="updating_db">Updating collection&#8230;</string>
 
+	<string name="launch_game">Launching game&#8230;</string>
+	<string name="launch_game_msg">Please wait&#8230;</string>
+
 	<string name="navigation_drawer_open">Navigation drawer open</string>
 	<string name="navigation_drawer_close">Navigation drawer closed</string>
 

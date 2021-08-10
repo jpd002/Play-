@@ -1,21 +1,83 @@
 package com.virtualapplications.play;
 
+import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.os.AsyncTask;
 
 public class VirtualMachineManager
 {
-	public static void launchDisk(Context mContext, String bootablePath) throws Exception
+	private static final class GameLauncher extends AsyncTask<Void, Void, Void>
 	{
-		if(BootablesInterop.IsBootableExecutablePath(bootablePath))
+		private ProgressDialog progDialog;
+		final Context _ctx;
+		final String _bootablePath;
+		Exception _exception;
+
+		public GameLauncher(Context ctx, String bootablePath)
 		{
-			NativeInterop.loadElf(bootablePath);
+			_bootablePath = bootablePath;
+			_ctx = ctx;
 		}
-		else
+
+		protected void onPreExecute()
 		{
-			NativeInterop.bootDiskImage(bootablePath);
+			progDialog = ProgressDialog.show(_ctx,
+					_ctx.getString(R.string.launch_game),
+					_ctx.getString(R.string.launch_game_msg), true);
 		}
-		Intent intent = new Intent(mContext, EmulatorActivity.class);
-		mContext.startActivity(intent);
+
+		@Override
+		protected Void doInBackground(Void... params)
+		{
+			try
+			{
+				if(BootablesInterop.IsBootableExecutablePath(_bootablePath))
+				{
+					NativeInterop.loadElf(_bootablePath);
+				}
+				else
+				{
+					NativeInterop.bootDiskImage(_bootablePath);
+				}
+				Intent intent = new Intent(_ctx, EmulatorActivity.class);
+				_ctx.startActivity(intent);
+			}
+			catch(Exception e)
+			{
+				_exception = e;
+			}
+			return null;
+		}
+
+		@Override
+		protected void onPostExecute(Void result)
+		{
+			if(progDialog != null && progDialog.isShowing())
+			{
+				progDialog.dismiss();
+			}
+			if(_exception != null)
+			{
+				displaySimpleMessage("Error", _exception.getMessage());
+			}
+		}
+
+		private void displaySimpleMessage(String title, String message)
+		{
+			new AlertDialog.Builder(_ctx)
+					.setTitle(title)
+					.setMessage(message)
+					.setPositiveButton(android.R.string.ok, null)
+					.create()
+					.show();
+		}
+	}
+
+	public static void launchGame(Context ctx, String bootablePath)
+	{
+		GameLauncher launcher = new GameLauncher(ctx, bootablePath);
+		launcher.execute();
 	}
 }

@@ -440,7 +440,7 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 			setLastBootedTime(game.path, System.currentTimeMillis());
 			try
 			{
-				VirtualMachineManager.launchDisk(this, game.path);
+				VirtualMachineManager.launchGame(this, game.path);
 			}
 			catch(Exception e)
 			{

@@ -31,7 +31,7 @@ public class ExternalEmulatorLauncher extends Activity
 			{
 				try
 				{
-					VirtualMachineManager.launchDisk(this, intent.getData().getPath());
+					VirtualMachineManager.launchGame(this, intent.getData().getPath());
 					finish();
 				}
 				catch(Exception e)

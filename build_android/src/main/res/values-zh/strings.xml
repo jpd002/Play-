@@ -13,6 +13,9 @@
 	<string name="search_games_msg">请稍候&#8230;</string>
 	<string name="updating_db">更新收藏&#8230;</string>
 
+	<string name="launch_game">Launching game&#8230;</string>
+	<string name="launch_game_msg">请稍候&#8230;</string>
+
 	<string name="navigation_drawer_open">导航栏打开</string>
 	<string name="navigation_drawer_close">导航栏关闭</string>
 

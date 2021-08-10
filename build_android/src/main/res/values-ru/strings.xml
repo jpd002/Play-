@@ -13,6 +13,9 @@
 	<string name="search_games_msg">Пожалуйста, подождите&#8230;</string>
 	<string name="updating_db">Обновление коллекции&#8230;</string>
 
+	<string name="launch_game">Launching game&#8230;</string>
+	<string name="launch_game_msg">Пожалуйста, подождите&#8230;</string>
+
 	<string name="navigation_drawer_open">Navigation drawer открыт</string>
 	<string name="navigation_drawer_close">Navigation drawer закрыт</string>
 
