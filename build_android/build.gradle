@@ -8,7 +8,7 @@ buildscript {
 	}
 
 	dependencies {
-		classpath 'com.android.tools.build:gradle:4.2.1'
+		classpath 'com.android.tools.build:gradle:7.0.0'
 		classpath 'org.ajoberstar.grgit:grgit-gradle:4.1.0'
 	}
 }
@@ -107,8 +107,7 @@ android {
 
 	sourceSets.main {
 		java.srcDirs = [ '../Source/ui_android/java' ]
-		jni.srcDirs = []
-		jniLibs.srcDir 'src/main/libs'
+        jniLibs.srcDir 'src/main/libs'
 	}
 
 	externalNativeBuild {
