@@ -52,6 +52,8 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 	private String navSubtitle;
 	private Toolbar toolbar;
 
+	static final int g_settingsRequestCode = 0xDEAD;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
@@ -207,13 +209,13 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 	private void displaySettingsActivity()
 	{
 		Intent intent = new Intent(getApplicationContext(), SettingsActivity.class);
-		startActivityForResult(intent, 0);
+		startActivityForResult(intent, g_settingsRequestCode);
 	}
 
 	protected void onActivityResult(int requestCode, int resultCode, Intent data)
 	{
 		super.onActivityResult(requestCode, resultCode, data);
-		if(requestCode == 0)
+		if(requestCode == g_settingsRequestCode)
 		{
 			ThemeManager.applyTheme(this, toolbar);
 			setUIcolor();
