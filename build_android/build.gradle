@@ -42,13 +42,13 @@ android {
 		mavenCentral()
 	}
 
-	compileSdkVersion 'android-29'
+	compileSdkVersion 'android-30'
 
 	defaultConfig {
 		versionCode (100 + gitVersionCode)
 		versionName gitVersionName
 		minSdkVersion 19
-		targetSdkVersion 29
+		targetSdkVersion 30
 		externalNativeBuild {
 			cmake {
 				arguments "-DANDROID_ARM_NEON=TRUE", "-DANDROID_TOOLCHAIN=clang",
