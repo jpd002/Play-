@@ -1,5 +1,6 @@
 package com.virtualapplications.play;
 
+import android.content.ContentResolver;
 import android.content.res.AssetManager;
 import android.view.Surface;
 
@@ -13,6 +14,8 @@ public class NativeInterop
 	public static native void setFilesDirPath(String dirPath);
 
 	public static native void setCacheDirPath(String dirPath);
+
+	public static native void setContentResolver(ContentResolver contentResolver);
 
 	public static native void setAssetManager(AssetManager assetManager);
 

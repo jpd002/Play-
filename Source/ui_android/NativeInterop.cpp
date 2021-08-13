@@ -3,7 +3,10 @@
 #include <android/native_window.h>
 #include <android/native_window_jni.h>
 #include "android/AssetManager.h"
+#include "android/ContentResolver.h"
 #include "android/JavaVM.h"
+#include "android/android_net_Uri.h"
+#include "android/android_os_ParcelFileDescriptor.h"
 #include "android/java_security_MessageDigest.h"
 #include "android/javax_crypto_Mac.h"
 #include "android/javax_crypto_spec_SecretKeySpec.h"
@@ -63,6 +66,9 @@ extern "C" JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void* aReserved)
 	java::security::MessageDigest_ClassInfo::GetInstance().PrepareClassInfo();
 	javax::crypto::Mac_ClassInfo::GetInstance().PrepareClassInfo();
 	javax::crypto::spec::SecretKeySpec_ClassInfo::GetInstance().PrepareClassInfo();
+	android::content::ContentResolver_ClassInfo::GetInstance().PrepareClassInfo();
+	android::net::Uri_ClassInfo::GetInstance().PrepareClassInfo();
+	android::os::ParcelFileDescriptor_ClassInfo::GetInstance().PrepareClassInfo();
 	com::virtualapplications::play::Bootable_ClassInfo::GetInstance().PrepareClassInfo();
 	return JNI_VERSION_1_6;
 }
@@ -86,6 +92,12 @@ extern "C" JNIEXPORT void JNICALL Java_com_virtualapplications_play_NativeIntero
 	auto assetManager = AAssetManager_fromJava(env, assetManagerJava);
 	assert(assetManager != nullptr);
 	Framework::Android::CAssetManager::GetInstance().SetAssetManager(assetManager);
+}
+
+extern "C" JNIEXPORT void JNICALL Java_com_virtualapplications_play_NativeInterop_setContentResolver(JNIEnv* env, jclass clazz, jobject contentResolverJava)
+{
+	auto contentResolver = Framework::CJavaObject::CastTo<android::content::ContentResolver>(contentResolverJava);
+	Framework::Android::CContentResolver::GetInstance().SetContentResolver(std::move(contentResolver));
 }
 
 extern "C" JNIEXPORT void JNICALL Java_com_virtualapplications_play_NativeInterop_createVirtualMachine(JNIEnv* env, jobject obj)

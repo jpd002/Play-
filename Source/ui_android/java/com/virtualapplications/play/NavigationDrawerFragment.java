@@ -107,6 +107,7 @@ public class NavigationDrawerFragment extends Fragment
 				android.R.id.text1,
 				new String[]{
 						getString(R.string.main_menu_settings),
+						getString(R.string.main_menu_addfolder),
 						getString(R.string.main_menu_about),
 				}));
 	}

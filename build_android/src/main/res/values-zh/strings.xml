@@ -4,6 +4,7 @@
 	<!-- Application Navigation -->
 
 	<string name="main_menu_settings">设置</string>
+	<string name="main_menu_addfolder">Add Folder</string>
 	<string name="main_menu_about">关于</string>
 	<string name="main_menu_exit">退出</string>
 

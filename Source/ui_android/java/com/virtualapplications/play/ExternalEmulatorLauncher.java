@@ -17,6 +17,7 @@ public class ExternalEmulatorLauncher extends Activity
 		NativeInterop.setFilesDirPath(Environment.getExternalStorageDirectory().getAbsolutePath());
 		NativeInterop.setCacheDirPath(getApplicationContext().getCacheDir().getAbsolutePath());
 		NativeInterop.setAssetManager(getAssets());
+		NativeInterop.setContentResolver(getApplicationContext().getContentResolver());
 
 		EmulatorActivity.RegisterPreferences();
 

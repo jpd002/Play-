@@ -4,6 +4,7 @@
 	<!-- Application Navigation -->
 
 	<string name="main_menu_settings">Настройки</string>
+	<string name="main_menu_addfolder">Add Folder</string>
 	<string name="main_menu_about">О приложении</string>
 	<string name="main_menu_exit">Выход</string>
 

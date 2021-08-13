@@ -9,9 +9,11 @@ import android.content.pm.*;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
+import android.net.Uri;
 import android.os.*;
 
 import androidx.annotation.NonNull;
+import androidx.documentfile.provider.DocumentFile;
 import androidx.preference.PreferenceManager;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -24,7 +26,6 @@ import android.view.View;
 import android.widget.*;
 import android.widget.GridView;
 
-import java.io.File;
 import java.text.*;
 import java.util.*;
 
@@ -53,6 +54,7 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 	private Toolbar toolbar;
 
 	static final int g_settingsRequestCode = 0xDEAD;
+	static final int g_folderPickerRequestCode = 0xBEEF;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -117,6 +119,7 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 		NativeInterop.setFilesDirPath(Environment.getExternalStorageDirectory().getAbsolutePath());
 		NativeInterop.setCacheDirPath(getApplicationContext().getCacheDir().getAbsolutePath());
 		NativeInterop.setAssetManager(getAssets());
+		NativeInterop.setContentResolver(getApplicationContext().getContentResolver());
 
 		EmulatorActivity.RegisterPreferences();
 
@@ -212,6 +215,12 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 		startActivityForResult(intent, g_settingsRequestCode);
 	}
 
+	private void displayFolderPicker()
+	{
+		Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
+		startActivityForResult(intent, g_folderPickerRequestCode);
+	}
+
 	protected void onActivityResult(int requestCode, int resultCode, Intent data)
 	{
 		super.onActivityResult(requestCode, resultCode, data);
@@ -228,6 +237,13 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 				gameInfo.removeBitmapFromMemCache(data.getStringExtra("indexid"));
 			}
 			prepareFileListView(false);
+		}
+
+		if(requestCode == g_folderPickerRequestCode && resultCode == RESULT_OK)
+		{
+			Uri folderUri = data.getData();
+			getContentResolver().takePersistableUriPermission(folderUri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
+			processFolder(data.getData());
 		}
 	}
 
@@ -295,6 +311,9 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 			displaySettingsActivity();
 			break;
 		case 1:
+			displayFolderPicker();
+			break;
+		case 2:
 			displayAboutDialog();
 			break;
 		}
@@ -356,6 +375,18 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 				prepareFileListView(false);
 			}
 		}
+	}
+
+	private void processFolder(Uri folderUri)
+	{
+		ContentResolver res = getApplicationContext().getContentResolver();
+		DocumentFile folderDoc = DocumentFile.fromTreeUri(this, folderUri);
+		for(DocumentFile fileDoc : folderDoc.listFiles())
+		{
+			String docUriString = fileDoc.getUri().toString();
+			BootablesInterop.tryRegisterBootable(docUriString);
+		}
+		prepareFileListView(false);
 	}
 
 	private final class ImageFinder extends AsyncTask<String, Integer, List<Bootable>>
