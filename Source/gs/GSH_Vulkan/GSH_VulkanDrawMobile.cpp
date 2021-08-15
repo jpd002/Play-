@@ -85,12 +85,12 @@ void CDrawMobile::SetFramebufferParams(uint32 addr, uint32 width, uint32 writeMa
 	bool changed =
 	    (m_loadStorePushConstants.fbBufAddr != addr) ||
 	    (m_loadStorePushConstants.fbBufWidth != width) ||
-	    (m_loadStorePushConstants.fbWriteMask != writeMask);
+	    (m_drawPushConstants.fbWriteMask != writeMask);
 	if(!changed) return;
 	FlushRenderPass();
 	m_loadStorePushConstants.fbBufAddr = addr;
 	m_loadStorePushConstants.fbBufWidth = width;
-	m_loadStorePushConstants.fbWriteMask = writeMask;
+	m_drawPushConstants.fbWriteMask = writeMask;
 }
 
 void CDrawMobile::SetDepthbufferParams(uint32 addr, uint32 width)
@@ -614,7 +614,7 @@ void CDrawMobile::CreateRenderPass()
 
 	{
 		VkAttachmentDescription attachment = {};
-		attachment.format = VK_FORMAT_R8G8B8A8_UNORM;
+		attachment.format = VK_FORMAT_R32_UINT;
 		attachment.samples = VK_SAMPLE_COUNT_1_BIT;
 		attachment.loadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
 		attachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
@@ -1118,8 +1118,8 @@ static void ExpandAlpha(Nuanceur::CShaderBuilder& b, uint32 textureFormat, uint3
 	}
 }
 
-static Nuanceur::CFloat3Rvalue GetAlphaABD(Nuanceur::CShaderBuilder& b, uint32 alphaABD,
-                                           Nuanceur::CFloat4Value srcColor, Nuanceur::CFloat4Value dstColor)
+static Nuanceur::CInt3Rvalue GetAlphaABD(Nuanceur::CShaderBuilder& b, uint32 alphaABD,
+										 Nuanceur::CInt4Value srcColor, Nuanceur::CInt4Value dstColor)
 {
 	switch(alphaABD)
 	{
@@ -1130,12 +1130,12 @@ static Nuanceur::CFloat3Rvalue GetAlphaABD(Nuanceur::CShaderBuilder& b, uint32 a
 	case CGSHandler::ALPHABLEND_ABD_CD:
 		return dstColor->xyz();
 	case CGSHandler::ALPHABLEND_ABD_ZERO:
-		return NewFloat3(b, 0, 0, 0);
+		return NewInt3(b, 0, 0, 0);
 	}
 }
 
-static Nuanceur::CFloat3Rvalue GetAlphaC(Nuanceur::CShaderBuilder& b, uint32 alphaC,
-                                         Nuanceur::CFloat4Value srcColor, Nuanceur::CFloat4Value dstColor, Nuanceur::CFloatValue alphaFix)
+static Nuanceur::CInt3Rvalue GetAlphaC(Nuanceur::CShaderBuilder& b, uint32 alphaC,
+									   Nuanceur::CInt4Value srcColor, Nuanceur::CInt4Value dstColor, Nuanceur::CIntValue alphaFix)
 {
 	switch(alphaC)
 	{
@@ -1148,6 +1148,70 @@ static Nuanceur::CFloat3Rvalue GetAlphaC(Nuanceur::CShaderBuilder& b, uint32 alp
 	case CGSHandler::ALPHABLEND_C_FIX:
 		return alphaFix->xxx();
 	}
+}
+
+static void AlphaTest(Nuanceur::CShaderBuilder& b,
+					  uint32 alphaTestFunction, uint32 alphaTestFailAction,
+					  Nuanceur::CInt4Value srcIColor, Nuanceur::CIntValue alphaRef,
+					  Nuanceur::CBoolLvalue writeColor, Nuanceur::CBoolLvalue writeDepth, Nuanceur::CBoolLvalue writeAlpha)
+{
+	using namespace Nuanceur;
+
+	auto srcAlpha = srcIColor->w();
+	auto alphaTestResult = CBoolLvalue(b.CreateVariableBool("alphaTestResult"));
+	switch(alphaTestFunction)
+	{
+	default:
+		assert(false);
+	case CGSHandler::ALPHA_TEST_ALWAYS:
+		alphaTestResult = NewBool(b, true);
+		break;
+	case CGSHandler::ALPHA_TEST_NEVER:
+		alphaTestResult = NewBool(b, false);
+		break;
+	case CGSHandler::ALPHA_TEST_LESS:
+		alphaTestResult = srcAlpha < alphaRef;
+		break;
+	case CGSHandler::ALPHA_TEST_LEQUAL:
+		alphaTestResult = srcAlpha <= alphaRef;
+		break;
+	case CGSHandler::ALPHA_TEST_EQUAL:
+		alphaTestResult = srcAlpha == alphaRef;
+		break;
+	case CGSHandler::ALPHA_TEST_GEQUAL:
+		alphaTestResult = srcAlpha >= alphaRef;
+		break;
+	case CGSHandler::ALPHA_TEST_GREATER:
+		alphaTestResult = srcAlpha > alphaRef;
+		break;
+	case CGSHandler::ALPHA_TEST_NOTEQUAL:
+		alphaTestResult = srcAlpha != alphaRef;
+		break;
+	}
+
+	BeginIf(b, !alphaTestResult);
+	{
+		switch(alphaTestFailAction)
+		{
+		default:
+			assert(false);
+		case CGSHandler::ALPHA_TEST_FAIL_KEEP:
+			writeColor = NewBool(b, false);
+			writeDepth = NewBool(b, false);
+			break;
+		case CGSHandler::ALPHA_TEST_FAIL_FBONLY:
+			writeDepth = NewBool(b, false);
+			break;
+		case CGSHandler::ALPHA_TEST_FAIL_ZBONLY:
+			writeColor = NewBool(b, false);
+			break;
+		case CGSHandler::ALPHA_TEST_FAIL_RGBONLY:
+			writeDepth = NewBool(b, false);
+			writeAlpha = NewBool(b, false);
+			break;
+		}
+	}
+	EndIf(b);
 }
 
 static void DestinationAlphaTest(Nuanceur::CShaderBuilder& b, uint32 framebufferFormat,
@@ -1191,30 +1255,29 @@ static void DestinationAlphaTest(Nuanceur::CShaderBuilder& b, uint32 framebuffer
 }
 
 static void WriteToFramebuffer(Nuanceur::CShaderBuilder& b, uint32 framebufferFormat,
-                               Nuanceur::CArrayUintValue memoryBuffer, Nuanceur::CIntValue fbAddress,
-                               Nuanceur::CUintValue fbWriteMask, Nuanceur::CUintValue dstPixel, Nuanceur::CFloat4Value dstColor)
+							   Nuanceur::CArrayUintValue memoryBuffer, Nuanceur::CIntValue fbAddress, Nuanceur::CUintValue srcPixel)
 {
 	switch(framebufferFormat)
 	{
 	default:
 		assert(false);
+		[[fallthrough]];
 	case CGSHandler::PSMCT32:
 	{
-		dstPixel = (CMemoryUtils::Vec4ToPSM32(b, dstColor) & fbWriteMask) | (dstPixel & ~fbWriteMask);
-		CMemoryUtils::Memory_Write32(b, memoryBuffer, fbAddress, dstPixel);
+		CMemoryUtils::Memory_Write32(b, memoryBuffer, fbAddress, srcPixel);
 	}
 	break;
 	case CGSHandler::PSMCT24:
 	case CGSHandler::PSMZ24:
 	{
-		dstPixel = (CMemoryUtils::Vec4ToPSM32(b, dstColor) & fbWriteMask) | (dstPixel & ~fbWriteMask);
+		auto dstPixel = srcPixel & NewUint(b, 0xFFFFFF);
 		CMemoryUtils::Memory_Write24(b, memoryBuffer, fbAddress, dstPixel);
 	}
 	break;
 	case CGSHandler::PSMCT16:
 	case CGSHandler::PSMCT16S:
 	{
-		dstPixel = (CMemoryUtils::Vec4ToPSM16(b, dstColor) & fbWriteMask) | (dstPixel & ~fbWriteMask);
+		auto dstPixel = srcPixel & NewUint(b, 0xFFFF);
 		CMemoryUtils::Memory_Write16(b, memoryBuffer, fbAddress, dstPixel);
 	}
 	break;
@@ -1265,7 +1328,7 @@ Framework::Vulkan::CShaderModule CDrawMobile::CreateDrawFragmentShader(const PIP
 		auto inputFog = CFloat4Lvalue(b.CreateInput(Nuanceur::SEMANTIC_TEXCOORD, 4));
 
 		//Outputs
-		auto outputColor = CFloat4Lvalue(b.CreateOutput(Nuanceur::SEMANTIC_SYSTEM_COLOR, 0));
+		auto outputColor = CUintLvalue(b.CreateOutputUint(Nuanceur::SEMANTIC_SYSTEM_COLOR, 0));
 		auto outputDepth = CUintLvalue(b.CreateOutputUint(Nuanceur::SEMANTIC_SYSTEM_COLOR, 1));
 
 		auto memoryBuffer = CArrayUintValue(b.CreateUniformArrayUint("memoryBuffer", DESCRIPTOR_LOCATION_BUFFER_MEMORY, Nuanceur::SYMBOL_ATTRIBUTE_COHERENT));
@@ -1273,7 +1336,7 @@ Framework::Vulkan::CShaderModule CDrawMobile::CreateDrawFragmentShader(const PIP
 		auto texSwizzleTable = CImageUint2DValue(b.CreateImage2DUint(DESCRIPTOR_LOCATION_IMAGE_SWIZZLETABLE_TEX));
 		auto fbSwizzleTable = CImageUint2DValue(b.CreateImage2DUint(DESCRIPTOR_LOCATION_IMAGE_SWIZZLETABLE_FB));
 		auto depthSwizzleTable = CImageUint2DValue(b.CreateImage2DUint(DESCRIPTOR_LOCATION_IMAGE_SWIZZLETABLE_DEPTH));
-		auto subpassColorInput = CSubpassInputValue(b.CreateSubpassInput(DESCRIPTOR_LOCATION_IMAGE_INPUT_COLOR, 0));
+		auto subpassColorInput = CSubpassInputUintValue(b.CreateSubpassInputUint(DESCRIPTOR_LOCATION_IMAGE_INPUT_COLOR, 0));
 		auto subpassDepthInput = CSubpassInputUintValue(b.CreateSubpassInputUint(DESCRIPTOR_LOCATION_IMAGE_INPUT_DEPTH, 1));
 
 		//Push constants
@@ -1300,8 +1363,9 @@ Framework::Vulkan::CShaderModule CDrawMobile::CreateDrawFragmentShader(const PIP
 		auto clampMin = texParams2->xy();
 		auto clampMax = texParams2->zw();
 
-		auto alphaFix = ToFloat(alphaFbParams->y()) / NewFloat(b, 255.f);
-		auto alphaRef = ToUint(alphaFbParams->z());
+		auto fbWriteMask = ToUint(alphaFbParams->x());
+		auto alphaFix = alphaFbParams->y();
+		auto alphaRef = alphaFbParams->z();
 
 		auto srcDepth = ToUint(inputDepth->x() * NewFloat(b, DEPTH_MAX));
 
@@ -1440,68 +1504,6 @@ Framework::Vulkan::CShaderModule CDrawMobile::CreateDrawFragmentShader(const PIP
 		writeDepth = NewBool(b, true);
 		writeAlpha = NewBool(b, true);
 
-		//---------------------------------------------------------------------------
-		//Alpha Test
-
-		bool canDiscardAlpha =
-		    (caps.alphaTestFunction != CGSHandler::ALPHA_TEST_ALWAYS) &&
-		    (caps.alphaTestFailAction == CGSHandler::ALPHA_TEST_FAIL_RGBONLY);
-		auto alphaUint = ToUint(textureColor->w() * NewFloat(b, 255.f));
-		auto alphaTestResult = CBoolLvalue(b.CreateTemporaryBool());
-		switch(caps.alphaTestFunction)
-		{
-		default:
-			assert(false);
-		case CGSHandler::ALPHA_TEST_ALWAYS:
-			alphaTestResult = NewBool(b, true);
-			break;
-		case CGSHandler::ALPHA_TEST_NEVER:
-			alphaTestResult = NewBool(b, false);
-			break;
-		case CGSHandler::ALPHA_TEST_LESS:
-			alphaTestResult = alphaUint < alphaRef;
-			break;
-		case CGSHandler::ALPHA_TEST_LEQUAL:
-			alphaTestResult = alphaUint <= alphaRef;
-			break;
-		case CGSHandler::ALPHA_TEST_EQUAL:
-			alphaTestResult = alphaUint == alphaRef;
-			break;
-		case CGSHandler::ALPHA_TEST_GEQUAL:
-			alphaTestResult = alphaUint >= alphaRef;
-			break;
-		case CGSHandler::ALPHA_TEST_GREATER:
-			alphaTestResult = alphaUint > alphaRef;
-			break;
-		case CGSHandler::ALPHA_TEST_NOTEQUAL:
-			alphaTestResult = alphaUint != alphaRef;
-			break;
-		}
-
-		BeginIf(b, !alphaTestResult);
-		{
-			switch(caps.alphaTestFailAction)
-			{
-			default:
-				assert(false);
-			case CGSHandler::ALPHA_TEST_FAIL_KEEP:
-				writeColor = NewBool(b, false);
-				writeDepth = NewBool(b, false);
-				break;
-			case CGSHandler::ALPHA_TEST_FAIL_FBONLY:
-				writeDepth = NewBool(b, false);
-				break;
-			case CGSHandler::ALPHA_TEST_FAIL_ZBONLY:
-				writeColor = NewBool(b, false);
-				break;
-			case CGSHandler::ALPHA_TEST_FAIL_RGBONLY:
-				writeDepth = NewBool(b, false);
-				writeAlpha = NewBool(b, false);
-				break;
-			}
-		}
-		EndIf(b);
-
 		if(caps.hasFog)
 		{
 			auto fogMixColor = Mix(textureColor->xyz(), fogColor->xyz(), inputFog->xxx());
@@ -1533,28 +1535,58 @@ Framework::Vulkan::CShaderModule CDrawMobile::CreateDrawFragmentShader(const PIP
 		break;
 		}
 
+		auto srcIColor = CInt4Lvalue(b.CreateVariableInt("srcIColor"));
+		srcIColor = ToInt(textureColor->xyzw() * NewFloat4(b, 255.f, 255.f, 255.f, 255.f));
+
+		AlphaTest(b, caps.alphaTestFunction, caps.alphaTestFailAction, srcIColor, alphaRef,
+				  writeColor, writeDepth, writeAlpha);
+
+		bool canDiscardAlpha =
+			(caps.alphaTestFunction != CGSHandler::ALPHA_TEST_ALWAYS) &&
+			(caps.alphaTestFailAction == CGSHandler::ALPHA_TEST_FAIL_RGBONLY);
+
 		//BeginInvocationInterlock(b);
 
 		auto dstPixel = CUintLvalue(b.CreateVariableUint("dstPixel"));
-		auto dstColor = CFloat4Lvalue(b.CreateVariableFloat("dstColor"));
-		auto dstAlpha = CFloat4Lvalue(b.CreateVariableFloat("dstAlpha"));
 		auto dstDepth = CUintLvalue(b.CreateVariableUint("dstDepth"));
+		auto dstIColor = CInt4Lvalue(b.CreateVariableInt("dstIColor"));
 
-		auto finalColor = CFloat4Lvalue(b.CreateVariableFloat("finalColor"));
+		auto finalPixel = CUintLvalue(b.CreateVariableUint("finalPixel"));
 		auto finalDepth = CUintLvalue(b.CreateVariableUint("finalDepth"));
+		auto finalIColor = CInt4Lvalue(b.CreateVariableInt("finalIColor"));
 
-		dstPixel = NewUint(b, 0);
-		dstColor = Load(subpassColorInput, NewInt2(b, 0, 0));
+		dstPixel = Load(subpassColorInput, NewInt2(b, 0, 0))->x();
 		dstDepth = Load(subpassDepthInput, NewInt2(b, 0, 0))->x();
-		//dstColor = NewFloat4(b, 0, 0, 0, 0);
-		dstAlpha = NewFloat4(b, 1, 1, 1, 1);
+
+		switch(caps.framebufferFormat)
+		{
+		default:
+			assert(false);
+			[[fallthrough]];
+		case CGSHandler::PSMCT32:
+		{
+			dstIColor = CMemoryUtils::PSM32ToIVec4(b, dstPixel);
+		}
+		break;
+		case CGSHandler::PSMCT24:
+		{
+			dstIColor = CMemoryUtils::PSM32ToIVec4(b, dstPixel);
+		}
+		break;
+		case CGSHandler::PSMCT16:
+		case CGSHandler::PSMCT16S:
+		{
+			dstIColor = CMemoryUtils::PSM16ToIVec4(b, dstPixel);
+		}
+		break;
+		}
 
 		if(caps.hasDstAlphaTest)
 		{
 			DestinationAlphaTest(b, caps.framebufferFormat, caps.dstAlphaTestRef, dstPixel, writeColor, writeDepth);
 		}
 
-		auto depthTestResult = CBoolLvalue(b.CreateTemporaryBool());
+		auto depthTestResult = CBoolLvalue(b.CreateVariableBool("depthTestResult"));
 		switch(caps.depthTestFunction)
 		{
 		case CGSHandler::DEPTH_TEST_ALWAYS:
@@ -1581,28 +1613,69 @@ Framework::Vulkan::CShaderModule CDrawMobile::CreateDrawFragmentShader(const PIP
 		if(caps.hasAlphaBlending)
 		{
 			//Blend
-			auto alphaA = GetAlphaABD(b, caps.alphaA, textureColor, dstColor);
-			auto alphaB = GetAlphaABD(b, caps.alphaB, textureColor, dstColor);
-			auto alphaC = GetAlphaC(b, caps.alphaC, textureColor, dstColor, alphaFix);
-			auto alphaD = GetAlphaABD(b, caps.alphaD, textureColor, dstColor);
+			auto alphaA = GetAlphaABD(b, caps.alphaA, srcIColor, dstIColor);
+			auto alphaB = GetAlphaABD(b, caps.alphaB, srcIColor, dstIColor);
+			auto alphaC = GetAlphaC(b, caps.alphaC, srcIColor, dstIColor, alphaFix);
+			auto alphaD = GetAlphaABD(b, caps.alphaD, srcIColor, dstIColor);
 
-			auto blendedColor = ((alphaA - alphaB) * alphaC * NewFloat3(b, 2, 2, 2)) + alphaD;
-			finalColor = NewFloat4(blendedColor, textureColor->w());
-			finalColor = Clamp(finalColor, NewFloat4(b, 0, 0, 0, 0), NewFloat4(b, 1, 1, 1, 1));
+			auto blendedRGB = ShiftRightArithmetic((alphaA - alphaB) * alphaC, NewInt3(b, 7, 7, 7)) + alphaD;
+			auto blendedIColor = NewInt4(blendedRGB, srcIColor->w());
+			if(caps.colClamp)
+			{
+				finalIColor = Clamp(blendedIColor, NewInt4(b, 0, 0, 0, 0), NewInt4(b, 255, 255, 255, 255));
+			}
+			else
+			{
+				finalIColor = blendedIColor & NewInt4(b, 255, 255, 255, 255);
+			}
 		}
 		else
 		{
-			finalColor = textureColor->xyzw();
+			finalIColor = srcIColor->xyzw();
 		}
 
-		finalDepth = srcDepth;
+		if(caps.fba)
+		{
+			finalIColor = NewInt4(finalIColor->xyz(), finalIColor->w() | NewInt(b, 0x80));
+		}
+
+		if(canDiscardAlpha)
+		{
+			BeginIf(b, !writeAlpha);
+			{
+				finalIColor = NewInt4(finalIColor->xyz(), dstIColor->w());
+			}
+			EndIf(b);
+		}
+
+		switch(caps.framebufferFormat)
+		{
+		default:
+			assert(false);
+			[[fallthrough]];
+		case CGSHandler::PSMCT32:
+		case CGSHandler::PSMCT24:
+		{
+			finalPixel = CMemoryUtils::IVec4ToPSM32(b, finalIColor);
+		}
+		break;
+		case CGSHandler::PSMCT16:
+		case CGSHandler::PSMCT16S:
+		{
+			finalPixel = CMemoryUtils::IVec4ToPSM16(b, finalIColor);
+		}
+		break;
+		}
+
+		finalPixel = (finalPixel & fbWriteMask) | (dstPixel & ~fbWriteMask);
 
 		BeginIf(b, !writeColor);
 		{
-			finalColor = dstColor->xyzw();
+			finalPixel = dstPixel->x();
 		}
 		EndIf(b);
 
+		finalDepth = srcDepth->x();
 		BeginIf(b, !writeDepth);
 		{
 			finalDepth = dstDepth->x();
@@ -1614,18 +1687,9 @@ Framework::Vulkan::CShaderModule CDrawMobile::CreateDrawFragmentShader(const PIP
 			finalDepth = dstDepth->x();
 		}
 		
-		if(canDiscardAlpha)
-		{
-			BeginIf(b, !writeAlpha);
-			{
-				dstColor = NewFloat4(dstColor->xyz(), dstAlpha->x());
-			}
-			EndIf(b);
-		}
-
 		//EndInvocationInterlock(b);
 
-		outputColor = finalColor->xyzw();
+		outputColor = finalPixel->x();
 		outputDepth = finalDepth->x();
 	}
 
@@ -2002,7 +2066,7 @@ Framework::Vulkan::CShaderModule CDrawMobile::CreateLoadFragmentShader(const PIP
 		auto inputPosition = CFloat4Lvalue(b.CreateInput(Nuanceur::SEMANTIC_SYSTEM_POSITION));
 
 		//Outputs
-		auto outputColor = CFloat4Lvalue(b.CreateOutput(Nuanceur::SEMANTIC_SYSTEM_COLOR, 0));
+		auto outputColor = CUintLvalue(b.CreateOutputUint(Nuanceur::SEMANTIC_SYSTEM_COLOR, 0));
 		auto outputDepth = CUintLvalue(b.CreateOutputUint(Nuanceur::SEMANTIC_SYSTEM_COLOR, 1));
 
 		auto memoryBuffer = CArrayUintValue(b.CreateUniformArrayUint("memoryBuffer", DESCRIPTOR_LOCATION_BUFFER_MEMORY, Nuanceur::SYMBOL_ATTRIBUTE_COHERENT));
@@ -2018,7 +2082,6 @@ Framework::Vulkan::CShaderModule CDrawMobile::CreateLoadFragmentShader(const PIP
 		auto depthBufWidth = fbDepthParams->w();
 
 		auto dstPixel = CUintLvalue(b.CreateVariableUint("dstPixel"));
-		auto dstColor = CFloat4Lvalue(b.CreateVariableFloat("dstColor"));
 		auto dstDepth = CUintLvalue(b.CreateVariableUint("dstDepth"));
 
 		auto fbAddress = CIntLvalue(b.CreateTemporaryInt());
@@ -2072,27 +2135,24 @@ Framework::Vulkan::CShaderModule CDrawMobile::CreateLoadFragmentShader(const PIP
 		case CGSHandler::PSMCT32:
 		{
 			dstPixel = CMemoryUtils::Memory_Read32(b, memoryBuffer, fbAddress);
-			dstColor = CMemoryUtils::PSM32ToVec4(b, dstPixel);
 		}
 		break;
 		case CGSHandler::PSMCT24:
 		{
 			dstPixel = CMemoryUtils::Memory_Read24(b, memoryBuffer, fbAddress);
-			dstColor = CMemoryUtils::PSM32ToVec4(b, dstPixel);
 		}
 		break;
 		case CGSHandler::PSMCT16:
 		case CGSHandler::PSMCT16S:
 		{
 			dstPixel = CMemoryUtils::Memory_Read16(b, memoryBuffer, fbAddress);
-			dstColor = CMemoryUtils::PSM16ToVec4(b, dstPixel);
 		}
 		break;
 		}
 
 		dstDepth = GetDepth(b, caps.depthbufferFormat, depthAddress, memoryBuffer);
 
-		outputColor = dstColor->xyzw();
+		outputColor = dstPixel->x();
 		outputDepth = dstDepth->x();
 	}
 
@@ -2113,13 +2173,13 @@ Framework::Vulkan::CShaderModule CDrawMobile::CreateStoreFragmentShader(const PI
 		auto inputPosition = CFloat4Lvalue(b.CreateInput(Nuanceur::SEMANTIC_SYSTEM_POSITION));
 
 		//Outputs
-		auto outputColor = CFloat4Lvalue(b.CreateOutput(Nuanceur::SEMANTIC_SYSTEM_COLOR, 0));
+		auto outputColor = CUintLvalue(b.CreateOutputUint(Nuanceur::SEMANTIC_SYSTEM_COLOR, 0));
 		auto outputDepth = CUintLvalue(b.CreateOutputUint(Nuanceur::SEMANTIC_SYSTEM_COLOR, 1));
 
 		auto memoryBuffer = CArrayUintValue(b.CreateUniformArrayUint("memoryBuffer", DESCRIPTOR_LOCATION_BUFFER_MEMORY, Nuanceur::SYMBOL_ATTRIBUTE_COHERENT));
 		auto fbSwizzleTable = CImageUint2DValue(b.CreateImage2DUint(DESCRIPTOR_LOCATION_IMAGE_SWIZZLETABLE_FB));
 		auto depthSwizzleTable = CImageUint2DValue(b.CreateImage2DUint(DESCRIPTOR_LOCATION_IMAGE_SWIZZLETABLE_DEPTH));
-		auto subpassColorInput = CSubpassInputValue(b.CreateSubpassInput(DESCRIPTOR_LOCATION_IMAGE_INPUT_COLOR, 0));
+		auto subpassColorInput = CSubpassInputUintValue(b.CreateSubpassInputUint(DESCRIPTOR_LOCATION_IMAGE_INPUT_COLOR, 0));
 		auto subpassDepthInput = CSubpassInputUintValue(b.CreateSubpassInputUint(DESCRIPTOR_LOCATION_IMAGE_INPUT_DEPTH, 1));
 
 		//Push constants
@@ -2135,10 +2195,11 @@ Framework::Vulkan::CShaderModule CDrawMobile::CreateStoreFragmentShader(const PI
 		auto depthBufAddress = fbDepthParams->z();
 		auto depthBufWidth = fbDepthParams->w();
 
-		auto fbWriteMask = ToUint(alphaFbParams->x());
 		auto dstPixel = CUintLvalue(b.CreateVariableUint("dstPixel"));
-		auto dstColor = Load(subpassColorInput, NewInt2(b, 0, 0));
-		auto dstDepth = Load(subpassDepthInput, NewInt2(b, 0, 0))->x();
+		auto dstDepth = CUintLvalue(b.CreateVariableUint("dstDepth"));
+		
+		dstPixel = Load(subpassColorInput, NewInt2(b, 0, 0))->x();
+		dstDepth = Load(subpassDepthInput, NewInt2(b, 0, 0))->x();
 
 		auto fbAddress = CIntLvalue(b.CreateTemporaryInt());
 		auto depthAddress = CIntLvalue(b.CreateTemporaryInt());
@@ -2184,35 +2245,13 @@ Framework::Vulkan::CShaderModule CDrawMobile::CreateStoreFragmentShader(const PI
 		fbAddress = fbAddress & NewInt(b, CGSHandler::RAMSIZE - 1);
 		depthAddress = depthAddress & NewInt(b, CGSHandler::RAMSIZE - 1);
 
-		switch(caps.framebufferFormat)
-		{
-		default:
-			assert(false);
-		case CGSHandler::PSMCT32:
-		{
-			dstPixel = CMemoryUtils::Memory_Read32(b, memoryBuffer, fbAddress);
-		}
-		break;
-		case CGSHandler::PSMCT24:
-		{
-			dstPixel = CMemoryUtils::Memory_Read24(b, memoryBuffer, fbAddress);
-		}
-		break;
-		case CGSHandler::PSMCT16:
-		case CGSHandler::PSMCT16S:
-		{
-			dstPixel = CMemoryUtils::Memory_Read16(b, memoryBuffer, fbAddress);
-		}
-		break;
-		}
-
-		WriteToFramebuffer(b, caps.framebufferFormat, memoryBuffer, fbAddress, fbWriteMask, dstPixel, dstColor);
+		WriteToFramebuffer(b, caps.framebufferFormat, memoryBuffer, fbAddress, dstPixel);
 		if(caps.writeDepth)
 		{
 			WriteToDepthbuffer(b, caps.depthbufferFormat, memoryBuffer, depthAddress, dstDepth);
 		}
 
-		outputColor = NewFloat4(b, 1, 1, 0, 1);
+		outputColor = dstPixel->x();
 	}
 
 	Framework::CMemStream shaderStream;
@@ -2225,7 +2264,7 @@ void CDrawMobile::CreateDrawImages()
 {
 	m_drawColorImage = Framework::Vulkan::CImage(m_context->device, m_context->physicalDeviceMemoryProperties,
 	                                             VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT,
-	                                             VK_FORMAT_R8G8B8A8_UNORM, DRAW_AREA_SIZE, DRAW_AREA_SIZE, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+												 VK_FORMAT_R32_UINT, DRAW_AREA_SIZE, DRAW_AREA_SIZE, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
 	m_drawColorImage.SetLayout(m_context->queue, m_context->commandBufferPool,
 	                           VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT);
