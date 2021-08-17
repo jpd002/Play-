@@ -56,7 +56,7 @@ bool DoesBootableExist(const fs::path& filePath)
 	//      might complain about network access being done on the main thread.
 	static const char* s3ImagePathPrefix = "//s3/";
 	if(filePath.string().find(s3ImagePathPrefix) == 0) return true;
-	//TODO: Also support Android content URIs
+		//TODO: Also support Android content URIs
 #ifdef __ANDROID__
 	if(filePath.string().find("content:/") == 0) return true;
 #endif
