@@ -69,6 +69,8 @@ set(SRC_FILES
 	${SRC_ROOT}/FrameDebugger/GsStateUtils.h
 	${SRC_ROOT}/FrameDebugger/PixelBufferView.cpp
 	${SRC_ROOT}/FrameDebugger/PixelBufferView.h
+	${SRC_ROOT}/FrameDebugger/QtFramedebugger.cpp
+	${SRC_ROOT}/FrameDebugger/QtFramedebugger.h
 	${SRC_ROOT}/FrameDebugger/Vu1ProgramView.cpp
 	${SRC_ROOT}/FrameDebugger/Vu1ProgramView.h
 	${SRC_ROOT}/FrameDebugger/Vu1Vm.cpp
@@ -98,9 +100,6 @@ set(SRC_FILES
 	${SRC_ROOT}/QtGenericTableModel.cpp
 	${SRC_ROOT}/QtDebugger.cpp
 	${SRC_ROOT}/QtDialogListWidget.cpp
-
-	${SRC_ROOT}/FrameDebugger/QtFramedebugger.cpp
-
 )
 
 set(QT_DEBUGGER_MOC_HEADERS
@@ -112,8 +111,8 @@ set(QT_DEBUGGER_MOC_HEADERS
 	${SRC_ROOT}/QtDebugger.h
 	${SRC_ROOT}/QtDialogListWidget.h
 	${SRC_ROOT}/QtMemoryViewModel.h
-	${SRC_ROOT}/FrameDebugger/QtFramedebugger.h
 	${SRC_ROOT}/FrameDebugger/GsPacketListModel.h
+	${SRC_ROOT}/FrameDebugger/QtFramedebugger.h
 	${SRC_ROOT}/FrameDebugger/Vu1ProgramView.h
 )
 

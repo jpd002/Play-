@@ -27,7 +27,6 @@ QtFramedebugger::QtFramedebugger()
 	QFont fixedFont = QFont(DEBUGGER_DEFAULT_MONOSPACE_FONT_FACE_NAME, DEBUGGER_DEFAULT_MONOSPACE_FONT_SIZE);
 	ui->inputStateTextEdit->setFont(fixedFont);
 
-	OpenGLWindow openglpanel;
 	QOffscreenSurface* surface = new QOffscreenSurface();
 	surface->setFormat(OpenGLWindow::GetSurfaceFormat());
 	surface->create();
