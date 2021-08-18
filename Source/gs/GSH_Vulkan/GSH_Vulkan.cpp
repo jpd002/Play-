@@ -105,9 +105,12 @@ void CGSH_Vulkan::InitializeImpl()
 
 	m_instance.vkGetPhysicalDeviceMemoryProperties(m_context->physicalDevice, &m_context->physicalDeviceMemoryProperties);
 
-	auto surfaceFormats = GetDeviceSurfaceFormats(m_context->physicalDevice);
-	assert(surfaceFormats.size() > 0);
-	m_context->surfaceFormat = surfaceFormats[0];
+	if(m_context->surface)
+	{
+		auto surfaceFormats = GetDeviceSurfaceFormats(m_context->physicalDevice);
+		assert(surfaceFormats.size() > 0);
+		m_context->surfaceFormat = surfaceFormats[0];
+	}
 
 	CreateDevice(m_context->physicalDevice);
 	m_context->device.vkGetDeviceQueue(m_context->device, renderQueueFamily, 0, &m_context->queue);
@@ -136,7 +139,10 @@ void CGSH_Vulkan::InitializeImpl()
 	m_frameCommandBuffer = std::make_shared<CFrameCommandBuffer>(m_context);
 	m_clutLoad = std::make_shared<CClutLoad>(m_context, m_frameCommandBuffer);
 	m_draw = std::make_shared<CDraw>(m_context, m_frameCommandBuffer);
-	m_present = std::make_shared<CPresent>(m_context);
+	if(m_context->surface)
+	{
+		m_present = std::make_shared<CPresent>(m_context);
+	}
 	m_transferHost = std::make_shared<CTransferHost>(m_context, m_frameCommandBuffer);
 	m_transferLocal = std::make_shared<CTransferLocal>(m_context, m_frameCommandBuffer);
 
@@ -220,8 +226,11 @@ void CGSH_Vulkan::FlipImpl()
 	bool halfHeight = GetCrtIsInterlaced() && GetCrtIsFrameMode();
 	if(halfHeight) dispHeight /= 2;
 
-	m_present->SetPresentationViewport(GetPresentationViewport());
-	m_present->DoPresent(fb.nPSM, fb.GetBufPtr(), fb.GetBufWidth(), dispWidth, dispHeight);
+	if(m_present)
+	{
+		m_present->SetPresentationViewport(GetPresentationViewport());
+		m_present->DoPresent(fb.nPSM, fb.GetBufPtr(), fb.GetBufWidth(), dispWidth, dispHeight);
+	}
 
 	PresentBackbuffer();
 	CGSHandler::FlipImpl();
@@ -263,8 +272,6 @@ uint32 CGSH_Vulkan::GetPhysicalDeviceIndex(const std::vector<VkPhysicalDevice>& 
 
 std::vector<uint32_t> CGSH_Vulkan::GetRenderQueueFamilies(VkPhysicalDevice physicalDevice)
 {
-	assert(m_context->surface != VK_NULL_HANDLE);
-
 	auto result = VK_SUCCESS;
 	std::vector<uint32_t> renderQueueFamilies;
 
@@ -304,12 +311,15 @@ std::vector<uint32_t> CGSH_Vulkan::GetRenderQueueFamilies(VkPhysicalDevice physi
 		}
 
 		VkBool32 surfaceSupported = VK_FALSE;
-		result = m_instance.vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice, queueFamilyIndex, m_context->surface, &surfaceSupported);
-		CHECKVULKANERROR(result);
+		if(m_context->surface)
+		{
+			result = m_instance.vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice, queueFamilyIndex, m_context->surface, &surfaceSupported);
+			CHECKVULKANERROR(result);
 
-		CLog::GetInstance().Print(LOG_NAME, "Supports surface: %d\r\n", surfaceSupported);
+			CLog::GetInstance().Print(LOG_NAME, "Supports surface: %d\r\n", surfaceSupported);
+		}
 
-		if(graphicsSupported && surfaceSupported)
+		if(graphicsSupported && (!m_context->surface || surfaceSupported))
 		{
 			renderQueueFamilies.push_back(queueFamilyIndex);
 		}
