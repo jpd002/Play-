@@ -61,6 +61,8 @@ QtFramedebugger::QtFramedebugger()
 
 QtFramedebugger::~QtFramedebugger()
 {
+	m_gs->Release();
+	m_gs.reset();
 	delete ui;
 }
 
