@@ -776,7 +776,10 @@ public:
 	virtual void LoadState(Framework::CZipArchiveReader&);
 	void Copy(CGSHandler*);
 
-	void SetFrameDump(CFrameDump*);
+	void BeginFrameDump(CFrameDump*);
+	void EndFrameDump();
+
+	void InitFromFrameDump(CFrameDump*);
 
 	bool GetDrawEnabled() const;
 	void SetDrawEnabled(bool);

@@ -204,8 +204,8 @@ void CGSH_Vulkan::MarkNewFrame()
 	m_drawCallCount = m_frameCommandBuffer->GetFlushCount();
 	m_frameCommandBuffer->ResetFlushCount();
 	m_frameCommandBuffer->EndFrame();
-	CGSHandler::MarkNewFrame();
 	m_frameCommandBuffer->BeginFrame();
+	CGSHandler::MarkNewFrame();
 }
 
 void CGSH_Vulkan::FlipImpl()

@@ -100,12 +100,7 @@ void QtFramedebugger::LoadFrameDump(std::string path)
 void QtFramedebugger::UpdateDisplay(int32 targetCmdIndex)
 {
 	m_gs->Reset();
-
-	uint8* gsRam = m_gs->GetRam();
-	uint64* gsRegisters = m_gs->GetRegisters();
-	memcpy(gsRam, m_frameDump.GetInitialGsRam(), CGSHandler::RAMSIZE);
-	memcpy(gsRegisters, m_frameDump.GetInitialGsRegisters(), CGSHandler::REGISTER_MAX * sizeof(uint64));
-	m_gs->SetSMODE2(m_frameDump.GetInitialSMODE2());
+	m_gs->InitFromFrameDump(&m_frameDump);
 
 	int32 cmdIndex = 0;
 	for(const auto& packet : m_frameDump.GetPackets())

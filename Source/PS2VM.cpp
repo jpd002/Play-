@@ -604,7 +604,7 @@ void CPS2VM::OnGsNewFrame()
 	std::unique_lock<std::mutex> dumpFrameCallbackMutexLock(m_frameDumpCallbackMutex);
 	if(m_dumpingFrame && !m_frameDump.GetPackets().empty())
 	{
-		m_ee->m_gs->SetFrameDump(nullptr);
+		m_ee->m_gs->EndFrameDump();
 		m_frameDumpCallback(m_frameDump);
 		m_dumpingFrame = false;
 		m_frameDumpCallback = FrameDumpCallback();
@@ -612,10 +612,7 @@ void CPS2VM::OnGsNewFrame()
 	else if(m_frameDumpCallback)
 	{
 		m_frameDump.Reset();
-		memcpy(m_frameDump.GetInitialGsRam(), m_ee->m_gs->GetRam(), CGSHandler::RAMSIZE);
-		memcpy(m_frameDump.GetInitialGsRegisters(), m_ee->m_gs->GetRegisters(), CGSHandler::REGISTER_MAX * sizeof(uint64));
-		m_frameDump.SetInitialSMODE2(m_ee->m_gs->GetSMODE2());
-		m_ee->m_gs->SetFrameDump(&m_frameDump);
+		m_ee->m_gs->BeginFrameDump(&m_frameDump);
 		m_dumpingFrame = true;
 	}
 #endif

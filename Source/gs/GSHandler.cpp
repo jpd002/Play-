@@ -322,9 +322,33 @@ void CGSHandler::Copy(CGSHandler* source)
 	SendGSCall([&]() { WriteBackMemoryCache(); });
 }
 
-void CGSHandler::SetFrameDump(CFrameDump* frameDump)
+void CGSHandler::BeginFrameDump(CFrameDump* frameDump)
 {
 	m_frameDump = frameDump;
+
+	//This is expected to be called from the GS thread
+	SyncMemoryCache();
+
+	memcpy(m_frameDump->GetInitialGsRam(), GetRam(), RAMSIZE);
+	memcpy(m_frameDump->GetInitialGsRegisters(), GetRegisters(), CGSHandler::REGISTER_MAX * sizeof(uint64));
+	m_frameDump->SetInitialSMODE2(GetSMODE2());
+}
+
+void CGSHandler::EndFrameDump()
+{
+	assert(m_frameDump);
+	m_frameDump = nullptr;
+}
+
+void CGSHandler::InitFromFrameDump(CFrameDump* frameDump)
+{
+	//This is expected to be called from outside the GS thread
+
+	memcpy(GetRam(), frameDump->GetInitialGsRam(), RAMSIZE);
+	memcpy(GetRegisters(), frameDump->GetInitialGsRegisters(), CGSHandler::REGISTER_MAX * sizeof(uint64));
+	SetSMODE2(frameDump->GetInitialSMODE2());
+
+	SendGSCall([&]() { WriteBackMemoryCache(); });
 }
 
 bool CGSHandler::GetDrawEnabled() const
