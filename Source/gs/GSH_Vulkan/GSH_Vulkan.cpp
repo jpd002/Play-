@@ -1352,14 +1352,14 @@ Framework::CBitmap CGSH_Vulkan::GetFramebufferImpl(uint64 frameReg)
 	break;
 	case PSMCT16:
 	{
-		bitmap = ReadImage16<CGsPixelFormats::CPixelIndexorPSMCT16>(GetRam(), frame.GetBasePtr(), 
-			frame.nWidth, frameWidth, frameHeight);
+		bitmap = ReadImage16<CGsPixelFormats::CPixelIndexorPSMCT16>(GetRam(), frame.GetBasePtr(),
+		                                                            frame.nWidth, frameWidth, frameHeight);
 	}
 	break;
 	case PSMCT16S:
 	{
-		bitmap = ReadImage16<CGsPixelFormats::CPixelIndexorPSMCT16S>(GetRam(), frame.GetBasePtr(), 
-			frame.nWidth, frameWidth, frameHeight);
+		bitmap = ReadImage16<CGsPixelFormats::CPixelIndexorPSMCT16S>(GetRam(), frame.GetBasePtr(),
+		                                                             frame.nWidth, frameWidth, frameHeight);
 	}
 	break;
 	default:

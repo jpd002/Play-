@@ -15,7 +15,7 @@ namespace GSH_Vulkan
 		VkPhysicalDevice physicalDevice;
 		Framework::Vulkan::CDevice device;
 		VkSurfaceKHR surface = VK_NULL_HANDLE;
-		VkSurfaceFormatKHR surfaceFormat = { VK_FORMAT_UNDEFINED, VK_COLOR_SPACE_SRGB_NONLINEAR_KHR };
+		VkSurfaceFormatKHR surfaceFormat = {VK_FORMAT_UNDEFINED, VK_COLOR_SPACE_SRGB_NONLINEAR_KHR};
 		Framework::Vulkan::CCommandBufferPool commandBufferPool;
 		VkQueue queue = VK_NULL_HANDLE;
 		VkDescriptorPool descriptorPool = VK_NULL_HANDLE;
