@@ -14,15 +14,6 @@
 class CGSH_Direct3D9 : public CGSHandler
 {
 public:
-	struct VERTEX
-	{
-		uint64 nPosition;
-		uint64 nRGBAQ;
-		uint64 nUV;
-		uint64 nST;
-		uint8 nFog;
-	};
-
 	CGSH_Direct3D9(Framework::Win32::CWindow*);
 	virtual ~CGSH_Direct3D9() = default;
 

@@ -22,14 +22,6 @@
 class CGSH_OpenGL : public CGSHandler
 {
 public:
-	struct VERTEX
-	{
-		uint64 nPosition;
-		uint64 nRGBAQ;
-		uint64 nUV;
-		uint64 nST;
-		uint8 nFog;
-	};
 	CGSH_OpenGL(bool = true);
 	virtual ~CGSH_OpenGL();
 

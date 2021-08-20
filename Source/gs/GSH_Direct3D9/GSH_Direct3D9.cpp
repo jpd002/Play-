@@ -57,7 +57,7 @@ Framework::CBitmap CGSH_Direct3D9::GetTexture(uint64 tex0Reg, uint32 maxMip, uin
 	return result;
 }
 
-const CGSH_Direct3D9::VERTEX* CGSH_Direct3D9::GetInputVertices() const
+const CGSHandler::VERTEX* CGSH_Direct3D9::GetInputVertices() const
 {
 	return m_vtxBuffer;
 }
@@ -725,16 +725,16 @@ void CGSH_Direct3D9::Prim_Line()
 	float nF1 = 0, nF2 = 0;
 
 	XYZ vertex[2];
-	vertex[0] <<= m_vtxBuffer[1].nPosition;
-	vertex[1] <<= m_vtxBuffer[0].nPosition;
+	vertex[0] <<= m_vtxBuffer[1].position;
+	vertex[1] <<= m_vtxBuffer[0].position;
 
 	float nX1 = vertex[0].GetX(), nX2 = vertex[1].GetX();
 	float nY1 = vertex[0].GetY(), nY2 = vertex[1].GetY();
 	float nZ1 = vertex[0].GetZ(), nZ2 = vertex[1].GetZ();
 
 	RGBAQ rgbaq[2];
-	rgbaq[0] <<= m_vtxBuffer[1].nRGBAQ;
-	rgbaq[1] <<= m_vtxBuffer[0].nRGBAQ;
+	rgbaq[0] <<= m_vtxBuffer[1].rgbaq;
+	rgbaq[1] <<= m_vtxBuffer[0].rgbaq;
 
 	nX1 -= m_nPrimOfsX;
 	nX2 -= m_nPrimOfsX;
@@ -749,8 +749,8 @@ void CGSH_Direct3D9::Prim_Line()
 	{
 		//glEnable(GL_FOG);
 
-		nF1 = (float)(0xFF - m_vtxBuffer[1].nFog) / 255.0f;
-		nF2 = (float)(0xFF - m_vtxBuffer[0].nFog) / 255.0f;
+		nF1 = (float)(0xFF - m_vtxBuffer[1].fog) / 255.0f;
+		nF2 = (float)(0xFF - m_vtxBuffer[0].fog) / 255.0f;
 	}
 	else
 	{
@@ -763,8 +763,8 @@ void CGSH_Direct3D9::Prim_Line()
 		if(m_primitiveMode.nUseUV)
 		{
 			UV uv[2];
-			uv[0] <<= m_vtxBuffer[1].nUV;
-			uv[1] <<= m_vtxBuffer[0].nUV;
+			uv[0] <<= m_vtxBuffer[1].uv;
+			uv[1] <<= m_vtxBuffer[0].uv;
 
 			nU1 = uv[0].GetU() / static_cast<float>(m_currentTextureWidth);
 			nU2 = uv[1].GetU() / static_cast<float>(m_currentTextureWidth);
@@ -775,8 +775,8 @@ void CGSH_Direct3D9::Prim_Line()
 		else
 		{
 			ST st[2];
-			st[0] <<= m_vtxBuffer[1].nST;
-			st[1] <<= m_vtxBuffer[0].nST;
+			st[0] <<= m_vtxBuffer[1].st;
+			st[1] <<= m_vtxBuffer[0].st;
 
 			nU1 = st[0].nS, nU2 = st[1].nS;
 			nV1 = st[0].nT, nV2 = st[1].nT;
@@ -834,18 +834,18 @@ void CGSH_Direct3D9::Prim_Triangle()
 	float nF1 = 0, nF2 = 0, nF3 = 0;
 
 	XYZ vertex[3];
-	vertex[0] <<= m_vtxBuffer[2].nPosition;
-	vertex[1] <<= m_vtxBuffer[1].nPosition;
-	vertex[2] <<= m_vtxBuffer[0].nPosition;
+	vertex[0] <<= m_vtxBuffer[2].position;
+	vertex[1] <<= m_vtxBuffer[1].position;
+	vertex[2] <<= m_vtxBuffer[0].position;
 
 	float nX1 = vertex[0].GetX(), nX2 = vertex[1].GetX(), nX3 = vertex[2].GetX();
 	float nY1 = vertex[0].GetY(), nY2 = vertex[1].GetY(), nY3 = vertex[2].GetY();
 	float nZ1 = vertex[0].GetZ(), nZ2 = vertex[1].GetZ(), nZ3 = vertex[2].GetZ();
 
 	RGBAQ rgbaq[3];
-	rgbaq[0] <<= m_vtxBuffer[2].nRGBAQ;
-	rgbaq[1] <<= m_vtxBuffer[1].nRGBAQ;
-	rgbaq[2] <<= m_vtxBuffer[0].nRGBAQ;
+	rgbaq[0] <<= m_vtxBuffer[2].rgbaq;
+	rgbaq[1] <<= m_vtxBuffer[1].rgbaq;
+	rgbaq[2] <<= m_vtxBuffer[0].rgbaq;
 
 	nX1 -= m_nPrimOfsX;
 	nX2 -= m_nPrimOfsX;
@@ -863,9 +863,9 @@ void CGSH_Direct3D9::Prim_Triangle()
 	{
 		//glEnable(GL_FOG);
 
-		nF1 = (float)(0xFF - m_vtxBuffer[2].nFog) / 255.0f;
-		nF2 = (float)(0xFF - m_vtxBuffer[1].nFog) / 255.0f;
-		nF3 = (float)(0xFF - m_vtxBuffer[0].nFog) / 255.0f;
+		nF1 = (float)(0xFF - m_vtxBuffer[2].fog) / 255.0f;
+		nF2 = (float)(0xFF - m_vtxBuffer[1].fog) / 255.0f;
+		nF3 = (float)(0xFF - m_vtxBuffer[0].fog) / 255.0f;
 	}
 	else
 	{
@@ -878,9 +878,9 @@ void CGSH_Direct3D9::Prim_Triangle()
 		if(m_primitiveMode.nUseUV)
 		{
 			UV uv[3];
-			uv[0] <<= m_vtxBuffer[2].nUV;
-			uv[1] <<= m_vtxBuffer[1].nUV;
-			uv[2] <<= m_vtxBuffer[0].nUV;
+			uv[0] <<= m_vtxBuffer[2].uv;
+			uv[1] <<= m_vtxBuffer[1].uv;
+			uv[2] <<= m_vtxBuffer[0].uv;
 
 			nU1 = uv[0].GetU() / static_cast<float>(m_currentTextureWidth);
 			nU2 = uv[1].GetU() / static_cast<float>(m_currentTextureWidth);
@@ -893,9 +893,9 @@ void CGSH_Direct3D9::Prim_Triangle()
 		else
 		{
 			ST st[3];
-			st[0] <<= m_vtxBuffer[2].nST;
-			st[1] <<= m_vtxBuffer[1].nST;
-			st[2] <<= m_vtxBuffer[0].nST;
+			st[0] <<= m_vtxBuffer[2].st;
+			st[1] <<= m_vtxBuffer[1].st;
+			st[2] <<= m_vtxBuffer[0].st;
 
 			nU1 = st[0].nS, nU2 = st[1].nS, nU3 = st[2].nS;
 			nV1 = st[0].nT, nV2 = st[1].nT, nV3 = st[2].nT;
@@ -960,15 +960,15 @@ void CGSH_Direct3D9::Prim_Sprite()
 	float nF1 = 0, nF2 = 0;
 
 	XYZ vertex[2];
-	vertex[0] <<= m_vtxBuffer[1].nPosition;
-	vertex[1] <<= m_vtxBuffer[0].nPosition;
+	vertex[0] <<= m_vtxBuffer[1].position;
+	vertex[1] <<= m_vtxBuffer[0].position;
 
 	float nX1 = vertex[0].GetX(), nY1 = vertex[0].GetY();
 	float nX2 = vertex[1].GetX(), nY2 = vertex[1].GetY(), nZ = vertex[1].GetZ();
 
 	RGBAQ rgbaq[2];
-	rgbaq[0] <<= m_vtxBuffer[1].nRGBAQ;
-	rgbaq[1] <<= m_vtxBuffer[0].nRGBAQ;
+	rgbaq[0] <<= m_vtxBuffer[1].rgbaq;
+	rgbaq[1] <<= m_vtxBuffer[0].rgbaq;
 
 	nX1 -= m_nPrimOfsX;
 	nX2 -= m_nPrimOfsX;
@@ -984,8 +984,8 @@ void CGSH_Direct3D9::Prim_Sprite()
 		if(m_primitiveMode.nUseUV)
 		{
 			UV uv[2];
-			uv[0] <<= m_vtxBuffer[1].nUV;
-			uv[1] <<= m_vtxBuffer[0].nUV;
+			uv[0] <<= m_vtxBuffer[1].uv;
+			uv[1] <<= m_vtxBuffer[0].uv;
 
 			nU1 = uv[0].GetU() / static_cast<float>(m_currentTextureWidth);
 			nU2 = uv[1].GetU() / static_cast<float>(m_currentTextureWidth);
@@ -996,8 +996,8 @@ void CGSH_Direct3D9::Prim_Sprite()
 		else
 		{
 			ST st[2];
-			st[0] <<= m_vtxBuffer[1].nST;
-			st[1] <<= m_vtxBuffer[0].nST;
+			st[0] <<= m_vtxBuffer[1].st;
+			st[1] <<= m_vtxBuffer[0].st;
 
 			float q1 = rgbaq[1].nQ;
 			float q2 = rgbaq[0].nQ;
@@ -1658,19 +1658,19 @@ void CGSH_Direct3D9::VertexKick(uint8 nRegister, uint64 nValue)
 
 	if(fog)
 	{
-		m_vtxBuffer[m_vtxCount - 1].nPosition = nValue & 0x00FFFFFFFFFFFFFFULL;
-		m_vtxBuffer[m_vtxCount - 1].nRGBAQ = m_nReg[GS_REG_RGBAQ];
-		m_vtxBuffer[m_vtxCount - 1].nUV = m_nReg[GS_REG_UV];
-		m_vtxBuffer[m_vtxCount - 1].nST = m_nReg[GS_REG_ST];
-		m_vtxBuffer[m_vtxCount - 1].nFog = (uint8)(nValue >> 56);
+		m_vtxBuffer[m_vtxCount - 1].position = nValue & 0x00FFFFFFFFFFFFFFULL;
+		m_vtxBuffer[m_vtxCount - 1].rgbaq = m_nReg[GS_REG_RGBAQ];
+		m_vtxBuffer[m_vtxCount - 1].uv = m_nReg[GS_REG_UV];
+		m_vtxBuffer[m_vtxCount - 1].st = m_nReg[GS_REG_ST];
+		m_vtxBuffer[m_vtxCount - 1].fog = (uint8)(nValue >> 56);
 	}
 	else
 	{
-		m_vtxBuffer[m_vtxCount - 1].nPosition = nValue;
-		m_vtxBuffer[m_vtxCount - 1].nRGBAQ = m_nReg[GS_REG_RGBAQ];
-		m_vtxBuffer[m_vtxCount - 1].nUV = m_nReg[GS_REG_UV];
-		m_vtxBuffer[m_vtxCount - 1].nST = m_nReg[GS_REG_ST];
-		m_vtxBuffer[m_vtxCount - 1].nFog = (uint8)(m_nReg[GS_REG_FOG] >> 56);
+		m_vtxBuffer[m_vtxCount - 1].position = nValue;
+		m_vtxBuffer[m_vtxCount - 1].rgbaq = m_nReg[GS_REG_RGBAQ];
+		m_vtxBuffer[m_vtxCount - 1].uv = m_nReg[GS_REG_UV];
+		m_vtxBuffer[m_vtxCount - 1].st = m_nReg[GS_REG_ST];
+		m_vtxBuffer[m_vtxCount - 1].fog = (uint8)(m_nReg[GS_REG_FOG] >> 56);
 	}
 
 	m_vtxCount--;

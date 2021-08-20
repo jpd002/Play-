@@ -244,9 +244,9 @@ std::string CGsStateUtils::GetInputState(CGSHandler* gs)
 	for(unsigned int i = 0; i < 3; i++)
 	{
 		auto vertex = vertices[i];
-		float posX = static_cast<float>((vertex.nPosition >> 0) & 0xFFFF) / 16;
-		float posY = static_cast<float>((vertex.nPosition >> 16) & 0xFFFF) / 16;
-		uint32 posZ = static_cast<uint32>(vertex.nPosition >> 32);
+		float posX = static_cast<float>((vertex.position >> 0) & 0xFFFF) / 16;
+		float posY = static_cast<float>((vertex.position >> 16) & 0xFFFF) / 16;
+		uint32 posZ = static_cast<uint32>(vertex.position >> 32);
 		result += string_format("\tVertex %i:  %+10.4f  %+10.4f  0x%08X  %+10.4f  %+10.4f\r\n",
 		                        i, posX, posY, posZ, posX - xyOffset.GetX(), posY - xyOffset.GetY());
 	}
@@ -258,9 +258,9 @@ std::string CGsStateUtils::GetInputState(CGSHandler* gs)
 	for(unsigned int i = 0; i < 3; i++)
 	{
 		auto vertex = vertices[i];
-		auto st = make_convertible<CGSHandler::ST>(vertex.nST);
-		auto rgbaq = make_convertible<CGSHandler::RGBAQ>(vertex.nRGBAQ);
-		auto uv = make_convertible<CGSHandler::UV>(vertex.nUV);
+		auto st = make_convertible<CGSHandler::ST>(vertex.st);
+		auto rgbaq = make_convertible<CGSHandler::RGBAQ>(vertex.rgbaq);
+		auto uv = make_convertible<CGSHandler::UV>(vertex.uv);
 		result += string_format("\tVertex %i:  %+10.4f  %+10.4f  %+10.4f  %+10.4f  %+10.4f\r\n",
 		                        i, st.nS, st.nT, rgbaq.nQ, uv.GetU(), uv.GetV());
 	}
@@ -270,7 +270,7 @@ std::string CGsStateUtils::GetInputState(CGSHandler* gs)
 	for(unsigned int i = 0; i < 3; i++)
 	{
 		auto vertex = vertices[i];
-		auto rgbaq = make_convertible<CGSHandler::RGBAQ>(vertex.nRGBAQ);
+		auto rgbaq = make_convertible<CGSHandler::RGBAQ>(vertex.rgbaq);
 		result += string_format("\tVertex %i:        0x%02X        0x%02X        0x%02X        0x%02X\r\n",
 		                        i, rgbaq.nR, rgbaq.nG, rgbaq.nB, rgbaq.nA);
 	}
@@ -281,7 +281,7 @@ std::string CGsStateUtils::GetInputState(CGSHandler* gs)
 	{
 		auto vertex = vertices[i];
 		result += string_format("\tVertex %i:        0x%02X\r\n",
-		                        i, vertex.nFog);
+		                        i, vertex.fog);
 	}
 
 	result += "\r\n";

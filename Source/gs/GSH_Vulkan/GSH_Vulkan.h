@@ -52,15 +52,6 @@ protected:
 	GSH_Vulkan::ContextPtr m_context;
 
 private:
-	struct VERTEX
-	{
-		uint64 position;
-		uint64 rgbaq;
-		uint64 uv;
-		uint64 st;
-		uint8 fog;
-	};
-
 	struct CLUTKEY : public convertible<uint64>
 	{
 		uint32 idx4 : 1;

@@ -122,6 +122,15 @@ public:
 		CSR_FIFO_FULL = 0x8000
 	};
 
+	struct VERTEX
+	{
+		uint64 position;
+		uint64 rgbaq;
+		uint64 uv;
+		uint64 st;
+		uint8 fog;
+	};
+
 	struct PRESENTATION_PARAMS
 	{
 		uint32 windowWidth;
