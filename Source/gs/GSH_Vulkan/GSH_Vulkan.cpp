@@ -1098,7 +1098,7 @@ void CGSH_Vulkan::WriteRegisterImpl(uint8 registerId, uint64 data)
 {
 	//Some games such as Silent Hill 2 don't finish their transfers
 	//completely: make sure we push the data to the GS's RAM nevertheless.
-	if(!m_xferBuffer.empty())
+	if(!m_xferBuffer.empty() && (registerId != GS_REG_HWREG))
 	{
 		ProcessHostToLocalTransfer();
 	}
