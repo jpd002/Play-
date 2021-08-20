@@ -13,6 +13,8 @@ namespace Ui
 	class QtFramedebugger;
 }
 
+class QOffscreenSurface;
+
 class QtFramedebugger : public QMainWindow
 {
 	Q_OBJECT
@@ -31,9 +33,10 @@ private slots:
 	void on_actionAlpha_Blend_Enabled_triggered(bool);
 	void on_actionDepth_Test_Enabled_triggered(bool);
 	void on_actionAlpha_Test_Enabled_triggered(bool);
+	void on_actionGsHandlerOpenGL_triggered(bool);
+	void on_actionGsHandlerVulkan_triggered(bool);
 	void on_actionLoad_Dump_triggered();
 	void on_actionStep_VU1_triggered();
-
 	void on_context0Buffer_currentIndexChanged(int index);
 	void on_context0Source_currentIndexChanged(int index);
 
@@ -46,6 +49,15 @@ private slots:
 	void on_nextKickButton_clicked();
 
 private:
+	enum GS_HANDLERS
+	{
+		OPENGL,
+#if HAS_GSH_VULKAN
+		VULKAN,
+#endif
+		MAX_HANDLER
+	};
+
 	void selectionChanged();
 	void ShowContextMenu(const QPoint&);
 
@@ -55,12 +67,14 @@ private:
 
 	void LoadFrameDump(std::string);
 
+	void CreateGsHandler();
+	void ReleaseGsHandler();
 	void SetFbDisplayMode(CGsContextView::FB_DISPLAY_MODE);
 	void StepVu1();
 	void Redraw();
 
 	Ui::QtFramedebugger* ui;
-	QWindow* m_openglpanel = nullptr;
+	QOffscreenSurface* m_offscreenSurface = nullptr;
 
 	std::unique_ptr<CGSHandler> m_gs;
 	CGsPacketMetadata m_currentMetadata;

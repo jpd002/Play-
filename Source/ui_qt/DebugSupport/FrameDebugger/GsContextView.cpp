@@ -18,7 +18,7 @@ enum TAB_IDS
 	TAB_ID_TEXTURE_MIP6
 };
 
-CGsContextView::CGsContextView(QWidget* parent, QComboBox* contextBuffer, QPushButton* fitButton, QPushButton* saveButton, CGSHandler* gs, unsigned int contextId)
+CGsContextView::CGsContextView(QWidget* parent, QComboBox* contextBuffer, QPushButton* fitButton, QPushButton* saveButton, const GsHandlerPtr& gs, unsigned int contextId)
     : QWidget(parent)
     , m_contextId(contextId)
     , m_gs(gs)
@@ -43,9 +43,8 @@ void CGsContextView::SetFbDisplayMode(FB_DISPLAY_MODE fbDisplayMode)
 	UpdateBufferView();
 }
 
-void CGsContextView::UpdateState(CGSHandler* gs, CGsPacketMetadata*, DRAWINGKICK_INFO* drawingKick)
+void CGsContextView::UpdateState(CGsPacketMetadata*, DRAWINGKICK_INFO* drawingKick)
 {
-	assert(gs == m_gs);
 	m_drawingKick = (*drawingKick);
 	UpdateBufferView();
 }
@@ -84,7 +83,7 @@ void CGsContextView::UpdateBufferView()
 
 		if(mipLevel <= tex1.nMaxMip)
 		{
-			if(auto debuggerInterface = dynamic_cast<CGsDebuggerInterface*>(m_gs))
+			if(auto debuggerInterface = dynamic_cast<CGsDebuggerInterface*>(m_gs.get()))
 			{
 				texture = debuggerInterface->GetTexture(tex0Reg, tex1.nMaxMip, miptbp1Reg, miptbp2Reg, mipLevel);
 			}
@@ -137,7 +136,7 @@ void CGsContextView::UpdateFramebufferView()
 
 	Framework::CBitmap framebuffer;
 	int fbScale = 1;
-	if(auto debuggerInterface = dynamic_cast<CGsDebuggerInterface*>(m_gs))
+	if(auto debuggerInterface = dynamic_cast<CGsDebuggerInterface*>(m_gs.get()))
 	{
 		framebuffer = debuggerInterface->GetFramebuffer(frame);
 		fbScale = debuggerInterface->GetFramebufferScale();
@@ -196,7 +195,7 @@ void CGsContextView::RenderDrawKick(Framework::CBitmap& bitmap)
 	if(m_drawingKick.context != m_contextId) return;
 
 	int fbScale = 1;
-	if(auto debuggerInterface = dynamic_cast<CGsDebuggerInterface*>(m_gs))
+	if(auto debuggerInterface = dynamic_cast<CGsDebuggerInterface*>(m_gs.get()))
 	{
 		fbScale = debuggerInterface->GetFramebufferScale();
 	}

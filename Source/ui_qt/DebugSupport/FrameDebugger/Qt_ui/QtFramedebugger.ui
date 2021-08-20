@@ -381,10 +381,18 @@
      <addaction name="action640x448_Non_Interlaced"/>
      <addaction name="action640x448_Interlaced"/>
     </widget>
+    <widget class="QMenu" name="menuGS_Handler">
+     <property name="title">
+      <string>GS Handler</string>
+     </property>
+     <addaction name="actionGsHandlerOpenGL"/>
+     <addaction name="actionGsHandlerVulkan"/>
+    </widget>
     <addaction name="actionAlpha_Test_Enabled"/>
     <addaction name="actionDepth_Test_Enabled"/>
     <addaction name="actionAlpha_Blend_Enabled"/>
     <addaction name="menuFramebuffer_Display_Mode"/>
+    <addaction name="menuGS_Handler"/>
    </widget>
    <widget class="QMenu" name="menuVirtual_Machine">
     <property name="title">
@@ -456,6 +464,22 @@
    </property>
    <property name="shortcut">
     <string>F10</string>
+   </property>
+  </action>
+  <action name="actionGsHandlerOpenGL">
+    <property name="checkable">
+      <bool>true</bool>
+    </property>
+    <property name="text">
+    <string>OpenGL</string>
+   </property>
+  </action>
+  <action name="actionGsHandlerVulkan">
+    <property name="checkable">
+      <bool>true</bool>
+    </property>
+    <property name="text">
+    <string>Vulkan</string>
    </property>
   </action>
  </widget>

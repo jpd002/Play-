@@ -12,6 +12,8 @@
 class CGsContextView : public QWidget
 {
 public:
+	typedef std::unique_ptr<CGSHandler> GsHandlerPtr;
+
 	enum FB_DISPLAY_MODE
 	{
 		FB_DISPLAY_MODE_RAW,
@@ -19,12 +21,12 @@ public:
 		FB_DISPLAY_MODE_448I
 	};
 
-	CGsContextView(QWidget*, QComboBox*, QPushButton*, QPushButton*, CGSHandler*, unsigned int);
+	CGsContextView(QWidget*, QComboBox*, QPushButton*, QPushButton*, const GsHandlerPtr&, unsigned int);
 	virtual ~CGsContextView() = default;
 
 	void SetFbDisplayMode(FB_DISPLAY_MODE);
 
-	void UpdateState(CGSHandler*, CGsPacketMetadata*, DRAWINGKICK_INFO*);
+	void UpdateState(CGsPacketMetadata*, DRAWINGKICK_INFO*);
 	void SetSelection(int);
 
 private:
@@ -41,7 +43,7 @@ private:
 
 	unsigned int m_contextId = 0;
 	std::unique_ptr<CPixelBufferView> m_bufferView;
-	CGSHandler* m_gs = nullptr;
+	const GsHandlerPtr& m_gs;
 	FB_DISPLAY_MODE m_fbDisplayMode = FB_DISPLAY_MODE_RAW;
 	DRAWINGKICK_INFO m_drawingKick;
 	int m_selected = 0;

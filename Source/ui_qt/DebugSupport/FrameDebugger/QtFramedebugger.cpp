@@ -24,6 +24,7 @@
 #include <QApplication>
 
 #define PREF_FRAMEDEBUGGER_FRAMEBUFFER_DISPLAYMODE "framedebugger.framebuffer.displaymode"
+#define PREF_FRAMEDEBUGGER_GS_HANDLER "framedebugger.gshandler"
 
 QtFramedebugger::QtFramedebugger()
     : ui(new Ui::QtFramedebugger)
@@ -31,30 +32,17 @@ QtFramedebugger::QtFramedebugger()
 	ui->setupUi(this);
 
 	CAppConfig::GetInstance().RegisterPreferenceInteger(PREF_FRAMEDEBUGGER_FRAMEBUFFER_DISPLAYMODE, CGsContextView::FB_DISPLAY_MODE_RAW);
+	CAppConfig::GetInstance().RegisterPreferenceInteger(PREF_FRAMEDEBUGGER_GS_HANDLER, GS_HANDLERS::OPENGL);
+
 	m_fbDisplayMode = static_cast<CGsContextView::FB_DISPLAY_MODE>(CAppConfig::GetInstance().GetPreferenceInteger(PREF_FRAMEDEBUGGER_FRAMEBUFFER_DISPLAYMODE));
 
 	QFont fixedFont = QFont(DEBUGGER_DEFAULT_MONOSPACE_FONT_FACE_NAME, DEBUGGER_DEFAULT_MONOSPACE_FONT_SIZE);
 	ui->inputStateTextEdit->setFont(fixedFont);
 
-	if(true)
-	{
-		QOffscreenSurface* surface = new QOffscreenSurface(nullptr, this);
-		surface->setFormat(OpenGLWindow::GetSurfaceFormat());
-		surface->create();
-		m_gs = std::make_unique<CGSH_OpenGLQt>(surface);
-	}
-	else
-	{
-#if HAS_GSH_VULKAN
-		m_gs = std::make_unique<CGSH_VulkanOffscreen>();
-#endif
-	}
-	m_gs->SetLoggingEnabled(false);
-	m_gs->Initialize();
-	m_gs->Reset();
+	CreateGsHandler();
 
-	m_gsContextView0 = std::make_unique<CGsContextView>(this, ui->context0Buffer, ui->fitContext1Button, ui->saveContext1, m_gs.get(), 0);
-	m_gsContextView1 = std::make_unique<CGsContextView>(this, ui->context1Buffer, ui->fitContext2Button, ui->saveContext2, m_gs.get(), 1);
+	m_gsContextView0 = std::make_unique<CGsContextView>(this, ui->context0Buffer, ui->fitContext1Button, ui->saveContext1, m_gs, 0);
+	m_gsContextView1 = std::make_unique<CGsContextView>(this, ui->context1Buffer, ui->fitContext2Button, ui->saveContext2, m_gs, 1);
 
 	m_vu1ProgramView = std::make_unique<CVu1ProgramView>(this, m_vu1vm);
 
@@ -69,10 +57,19 @@ QtFramedebugger::QtFramedebugger()
 	ui->actionDepth_Test_Enabled->setChecked(true);
 	ui->actionAlpha_Blend_Enabled->setChecked(true);
 
-	auto alignmentGroup = new QActionGroup(this);
-	alignmentGroup->addAction(ui->actionRaw);
-	alignmentGroup->addAction(ui->action640x448_Non_Interlaced);
-	alignmentGroup->addAction(ui->action640x448_Interlaced);
+	{
+		auto alignmentGroup = new QActionGroup(this);
+		alignmentGroup->addAction(ui->actionRaw);
+		alignmentGroup->addAction(ui->action640x448_Non_Interlaced);
+		alignmentGroup->addAction(ui->action640x448_Interlaced);
+	}
+
+	{
+		auto alignmentGroup = new QActionGroup(this);
+		alignmentGroup->addAction(ui->actionGsHandlerOpenGL);
+		alignmentGroup->addAction(ui->actionGsHandlerVulkan);
+	}
+
 	switch(m_fbDisplayMode)
 	{
 	default:
@@ -88,18 +85,77 @@ QtFramedebugger::QtFramedebugger()
 		ui->action640x448_Interlaced->setChecked(true);
 		break;
 	}
+
+	{
+		uint32 gsHandlerId = CAppConfig::GetInstance().GetPreferenceInteger(PREF_FRAMEDEBUGGER_GS_HANDLER);
+		switch(gsHandlerId)
+		{
+		case GS_HANDLERS::OPENGL:
+			ui->actionGsHandlerOpenGL->setChecked(true);
+			break;
+		case GS_HANDLERS::VULKAN:
+			ui->actionGsHandlerVulkan->setChecked(true);
+			break;
+		}
+
+		if(!HAS_GSH_VULKAN)
+		{
+			ui->actionGsHandlerVulkan->setVisible(false);
+		}
+	}
 }
 
 QtFramedebugger::~QtFramedebugger()
 {
-	m_gs->Release();
-	m_gs.reset();
+	ReleaseGsHandler();
 	delete ui;
 }
 
 void QtFramedebugger::showEvent(QShowEvent* event)
 {
 	QMainWindow::showEvent(event);
+}
+
+void QtFramedebugger::CreateGsHandler()
+{
+	assert(!m_gs);
+
+	uint32 gsHandlerId = CAppConfig::GetInstance().GetPreferenceInteger(PREF_FRAMEDEBUGGER_GS_HANDLER);
+	switch(gsHandlerId)
+	{
+	default:
+		assert(false);
+		[[fallthrough]];
+	case GS_HANDLERS::OPENGL:
+	{
+		m_offscreenSurface = new QOffscreenSurface(nullptr);
+		m_offscreenSurface->setFormat(OpenGLWindow::GetSurfaceFormat());
+		m_offscreenSurface->create();
+		m_gs = std::make_unique<CGSH_OpenGLQt>(m_offscreenSurface);
+	}
+	break;
+#if HAS_GSH_VULKAN
+	case GS_HANDLERS::VULKAN:
+		m_gs = std::make_unique<CGSH_VulkanOffscreen>();
+		break;
+#endif
+	}
+	m_gs->SetLoggingEnabled(false);
+	m_gs->Initialize();
+	m_gs->Reset();
+}
+
+void QtFramedebugger::ReleaseGsHandler()
+{
+	if(m_offscreenSurface)
+	{
+		m_offscreenSurface->destroy();
+		delete m_offscreenSurface;
+		m_offscreenSurface = nullptr;
+	}
+
+	m_gs->Release();
+	m_gs.reset();
 }
 
 void QtFramedebugger::LoadFrameDump(std::string path)
@@ -315,14 +371,14 @@ void QtFramedebugger::UpdateCurrentTab()
 	{
 	case 0:
 	{
-		m_gsContextView0->UpdateState(m_gs.get(), &m_currentMetadata, &m_currentDrawingKick);
+		m_gsContextView0->UpdateState(&m_currentMetadata, &m_currentDrawingKick);
 		std::string result = CGsStateUtils::GetContextState(m_gs.get(), 0);
 		ui->contextState0->setText(result.c_str());
 	}
 	break;
 	case 1:
 	{
-		m_gsContextView1->UpdateState(m_gs.get(), &m_currentMetadata, &m_currentDrawingKick);
+		m_gsContextView1->UpdateState(&m_currentMetadata, &m_currentDrawingKick);
 		std::string result = CGsStateUtils::GetContextState(m_gs.get(), 1);
 		ui->contextState1->setText(result.c_str());
 	}
@@ -360,23 +416,23 @@ int QtFramedebugger::GetCurrentCmdIndex()
 void QtFramedebugger::on_context0Source_currentIndexChanged(int index)
 {
 	m_gsContextView0->SetSelection(index);
-	m_gsContextView0->UpdateState(m_gs.get(), &m_currentMetadata, &m_currentDrawingKick);
+	m_gsContextView0->UpdateState(&m_currentMetadata, &m_currentDrawingKick);
 }
 
 void QtFramedebugger::on_context0Buffer_currentIndexChanged(int index)
 {
-	m_gsContextView0->UpdateState(m_gs.get(), &m_currentMetadata, &m_currentDrawingKick);
+	m_gsContextView0->UpdateState(&m_currentMetadata, &m_currentDrawingKick);
 }
 
 void QtFramedebugger::on_context1Source_currentIndexChanged(int index)
 {
 	m_gsContextView1->SetSelection(index);
-	m_gsContextView1->UpdateState(m_gs.get(), &m_currentMetadata, &m_currentDrawingKick);
+	m_gsContextView1->UpdateState(&m_currentMetadata, &m_currentDrawingKick);
 }
 
 void QtFramedebugger::on_context1Buffer_currentIndexChanged(int index)
 {
-	m_gsContextView1->UpdateState(m_gs.get(), &m_currentMetadata, &m_currentDrawingKick);
+	m_gsContextView1->UpdateState(&m_currentMetadata, &m_currentDrawingKick);
 }
 
 void QtFramedebugger::on_actionLoad_Dump_triggered()
@@ -439,6 +495,24 @@ void QtFramedebugger::on_action640x448_Interlaced_triggered(bool value)
 {
 	ui->action640x448_Interlaced->setChecked(value);
 	SetFbDisplayMode(CGsContextView::FB_DISPLAY_MODE_448I);
+	Redraw();
+}
+
+void QtFramedebugger::on_actionGsHandlerOpenGL_triggered(bool value)
+{
+	ReleaseGsHandler();
+	CAppConfig::GetInstance().SetPreferenceInteger(PREF_FRAMEDEBUGGER_GS_HANDLER, GS_HANDLERS::OPENGL);
+	ui->actionGsHandlerOpenGL->setChecked(value);
+	CreateGsHandler();
+	Redraw();
+}
+
+void QtFramedebugger::on_actionGsHandlerVulkan_triggered(bool value)
+{
+	ReleaseGsHandler();
+	CAppConfig::GetInstance().SetPreferenceInteger(PREF_FRAMEDEBUGGER_GS_HANDLER, GS_HANDLERS::VULKAN);
+	ui->actionGsHandlerVulkan->setChecked(value);
+	CreateGsHandler();
 	Redraw();
 }
 
