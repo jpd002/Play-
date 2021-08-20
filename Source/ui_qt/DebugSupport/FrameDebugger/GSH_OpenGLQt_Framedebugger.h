@@ -1,6 +1,10 @@
 #pragma once
 
-#include "gs/GSH_OpenGL/GSH_OpenGL.h"
+#include "bitmap/Bitmap.h"
+#include "opengl/OpenGlDef.h"
+#include "opengl/Program.h"
+#include "opengl/Shader.h"
+#include "opengl/Resource.h"
 
 class QWindow;
 class QOpenGLContext;
