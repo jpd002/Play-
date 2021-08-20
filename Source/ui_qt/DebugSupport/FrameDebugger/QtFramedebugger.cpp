@@ -1,7 +1,6 @@
 #include "ui_QtFramedebugger.h"
 #include "QtFramedebugger.h"
 
-#include "../../openglwindow.h"
 #include "filesystem_def.h"
 #include "AppConfig.h"
 #include "StdStreamUtils.h"
@@ -11,6 +10,9 @@
 #include "GsPacketListModel.h"
 #include "GsStateUtils.h"
 #include "DebuggerDefaults.h"
+
+#include "../../GSH_OpenGLQt.h"
+#include "../../openglwindow.h"
 
 #include <QMessageBox>
 #include <QFileDialog>
@@ -362,23 +364,32 @@ void QtFramedebugger::on_actionLoad_Dump_triggered()
 
 void QtFramedebugger::on_actionAlpha_Test_Enabled_triggered(bool value)
 {
-	m_gs->SetAlphaTestingEnabled(value);
-	ui->actionAlpha_Test_Enabled->setChecked(value);
-	Redraw();
+	if(auto debuggerInterface = dynamic_cast<CGsDebuggerInterface*>(m_gs.get()))
+	{
+		debuggerInterface->SetAlphaTestingEnabled(value);
+		ui->actionAlpha_Blend_Enabled->setChecked(value);
+		Redraw();
+	}
 }
 
 void QtFramedebugger::on_actionDepth_Test_Enabled_triggered(bool value)
 {
-	m_gs->SetDepthTestingEnabled(value);
-	ui->actionDepth_Test_Enabled->setChecked(value);
-	Redraw();
+	if(auto debuggerInterface = dynamic_cast<CGsDebuggerInterface*>(m_gs.get()))
+	{
+		debuggerInterface->SetDepthTestingEnabled(value);
+		ui->actionAlpha_Blend_Enabled->setChecked(value);
+		Redraw();
+	}
 }
 
 void QtFramedebugger::on_actionAlpha_Blend_Enabled_triggered(bool value)
 {
-	m_gs->SetAlphaBlendingEnabled(value);
-	ui->actionAlpha_Blend_Enabled->setChecked(value);
-	Redraw();
+	if(auto debuggerInterface = dynamic_cast<CGsDebuggerInterface*>(m_gs.get()))
+	{
+		debuggerInterface->SetAlphaBlendingEnabled(value);
+		ui->actionAlpha_Blend_Enabled->setChecked(value);
+		Redraw();
+	}
 }
 
 void QtFramedebugger::on_actionRaw_triggered(bool value)

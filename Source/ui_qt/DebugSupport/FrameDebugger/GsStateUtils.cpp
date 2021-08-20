@@ -1,6 +1,6 @@
 #include "GsStateUtils.h"
 #include "string_format.h"
-#include "gs/GSH_OpenGL/GSH_OpenGL.h"
+#include "gs/GsDebuggerInterface.h"
 
 // clang-format off
 static const char* g_yesNoString[2] =
@@ -237,7 +237,11 @@ std::string CGsStateUtils::GetInputState(CGSHandler* gs)
 
 	result += "\r\n";
 
-	auto vertices = static_cast<CGSH_OpenGL*>(gs)->GetInputVertices();
+	CGSHandler::VERTEX vertices[3] = {};
+	if(auto debuggerInterface = dynamic_cast<CGsDebuggerInterface*>(gs))
+	{
+		memcpy(&vertices, debuggerInterface->GetInputVertices(), sizeof(vertices));
+	}
 
 	result += string_format("Positions:\r\n");
 	result += string_format("\t                 PosX        PosY        PosZ        OfsX        OfsY\r\n");

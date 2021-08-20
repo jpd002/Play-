@@ -2,7 +2,7 @@
 
 #include <QMainWindow>
 
-#include "../../GSH_OpenGLQt.h"
+#include "gs/GSHandler.h"
 #include "GsContextView.h"
 #include "FrameDump.h"
 #include "Vu1Vm.h"
@@ -62,7 +62,7 @@ private:
 	Ui::QtFramedebugger* ui;
 	QWindow* m_openglpanel = nullptr;
 
-	std::unique_ptr<CGSH_OpenGLQt> m_gs;
+	std::unique_ptr<CGSHandler> m_gs;
 	CGsPacketMetadata m_currentMetadata;
 	DRAWINGKICK_INFO m_currentDrawingKick;
 	CGsContextView::FB_DISPLAY_MODE m_fbDisplayMode = CGsContextView::FB_DISPLAY_MODE_RAW;

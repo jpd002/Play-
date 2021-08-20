@@ -227,6 +227,7 @@ set(COMMON_SRC_FILES
 	GenericMipsExecutor.h
 	gs/GsCachedArea.cpp
 	gs/GsCachedArea.h
+	gs/GsDebuggerInterface.h
 	gs/GSH_Null.cpp
 	gs/GSH_Null.h
 	gs/GSHandler.cpp

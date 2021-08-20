@@ -3,6 +3,7 @@
 #include <list>
 #include <unordered_map>
 #include "../GSHandler.h"
+#include "../GsDebuggerInterface.h"
 #include "../GsCachedArea.h"
 #include "../GsTextureCache.h"
 #include "opengl/OpenGlDef.h"
@@ -19,7 +20,7 @@
 #define USE_DUALSOURCE_BLENDING
 #endif
 
-class CGSH_OpenGL : public CGSHandler
+class CGSH_OpenGL : public CGSHandler, public CGsDebuggerInterface
 {
 public:
 	CGSH_OpenGL(bool = true);
@@ -34,20 +35,21 @@ public:
 	void ProcessLocalToLocalTransfer() override;
 	void ProcessClutTransfer(uint32, uint32) override;
 
-	bool GetDepthTestingEnabled() const;
-	void SetDepthTestingEnabled(bool);
-
-	bool GetAlphaBlendingEnabled() const;
-	void SetAlphaBlendingEnabled(bool);
-
-	bool GetAlphaTestingEnabled() const;
-	void SetAlphaTestingEnabled(bool);
-
-	Framework::CBitmap GetFramebuffer(uint64);
-	Framework::CBitmap GetTexture(uint64, uint32, uint64, uint64, uint32);
-	const VERTEX* GetInputVertices() const;
-
 	Framework::CBitmap GetScreenshot() override;
+
+	//Debugger Interface
+	bool GetDepthTestingEnabled() const override;
+	void SetDepthTestingEnabled(bool) override;
+
+	bool GetAlphaBlendingEnabled() const override;
+	void SetAlphaBlendingEnabled(bool) override;
+
+	bool GetAlphaTestingEnabled() const override;
+	void SetAlphaTestingEnabled(bool) override;
+
+	Framework::CBitmap GetFramebuffer(uint64) override;
+	Framework::CBitmap GetTexture(uint64, uint32, uint64, uint64, uint32) override;
+	const VERTEX* GetInputVertices() const override;
 
 protected:
 	void PalCache_Flush();

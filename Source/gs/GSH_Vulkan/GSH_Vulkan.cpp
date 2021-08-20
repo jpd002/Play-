@@ -1273,3 +1273,103 @@ Framework::CBitmap CGSH_Vulkan::GetScreenshot()
 {
 	return Framework::CBitmap();
 }
+
+bool CGSH_Vulkan::GetDepthTestingEnabled() const
+{
+	return m_depthTestingEnabled;
+}
+
+void CGSH_Vulkan::SetDepthTestingEnabled(bool depthTestingEnabled)
+{
+	m_depthTestingEnabled = depthTestingEnabled;
+}
+
+bool CGSH_Vulkan::GetAlphaBlendingEnabled() const
+{
+	return m_alphaBlendingEnabled;
+}
+
+void CGSH_Vulkan::SetAlphaBlendingEnabled(bool alphaBlendingEnabled)
+{
+	m_alphaBlendingEnabled = alphaBlendingEnabled;
+}
+
+bool CGSH_Vulkan::GetAlphaTestingEnabled() const
+{
+	return m_alphaTestingEnabled;
+}
+
+void CGSH_Vulkan::SetAlphaTestingEnabled(bool alphaTestingEnabled)
+{
+	m_alphaTestingEnabled = alphaTestingEnabled;
+}
+
+Framework::CBitmap CGSH_Vulkan::GetFramebuffer(uint64 frameReg)
+{
+	Framework::CBitmap result;
+	SendGSCall([&]() { result = GetFramebufferImpl(frameReg); }, true);
+	return result;
+}
+
+Framework::CBitmap CGSH_Vulkan::GetFramebufferImpl(uint64 frameReg)
+{
+	auto frame = make_convertible<FRAME>(frameReg);
+
+	SyncMemoryCache();
+
+	uint32 frameWidth = frame.GetWidth();
+	uint32 frameHeight = 1024;
+	Framework::CBitmap bitmap;
+
+	switch(frame.nPsm)
+	{
+	case PSMCT32:
+	case PSMCT24:
+	{
+		bitmap = Framework::CBitmap(frameWidth, frameHeight, 32);
+		auto bitmapPixels = reinterpret_cast<uint32*>(bitmap.GetPixels());
+		uint32 mask = (frame.nPsm == PSMCT32) ? 0xFFFFFFFF : 0xFFFFFF;
+		CGsPixelFormats::CPixelIndexorPSMCT32 indexor(GetRam(), frame.GetBasePtr(), frame.nWidth);
+		for(unsigned int y = 0; y < frameHeight; y++)
+		{
+			for(unsigned int x = 0; x < frameWidth; x++)
+			{
+				uint32 pixel = indexor.GetPixel(x, y) & mask;
+				uint32 r = (pixel & 0x000000FF) >> 0;
+				uint32 g = (pixel & 0x0000FF00) >> 8;
+				uint32 b = (pixel & 0x00FF0000) >> 16;
+				uint32 a = (pixel & 0xFF000000) >> 24;
+				(*bitmapPixels) = b | (g << 8) | (r << 16) | (a << 24);
+				bitmapPixels++;
+			}
+		}
+	}
+	break;
+	case PSMCT16:
+	{
+		bitmap = ReadImage16<CGsPixelFormats::CPixelIndexorPSMCT16>(GetRam(), frame.GetBasePtr(), 
+			frame.nWidth, frameWidth, frameHeight);
+	}
+	break;
+	case PSMCT16S:
+	{
+		bitmap = ReadImage16<CGsPixelFormats::CPixelIndexorPSMCT16S>(GetRam(), frame.GetBasePtr(), 
+			frame.nWidth, frameWidth, frameHeight);
+	}
+	break;
+	default:
+		assert(false);
+		break;
+	}
+	return bitmap;
+}
+
+Framework::CBitmap CGSH_Vulkan::GetTexture(uint64 tex0Reg, uint32 maxMip, uint64 miptbp1Reg, uint64 miptbp2Reg, uint32 mipLevel)
+{
+	return Framework::CBitmap();
+}
+
+const CGSHandler::VERTEX* CGSH_Vulkan::GetInputVertices() const
+{
+	return m_vtxBuffer;
+}

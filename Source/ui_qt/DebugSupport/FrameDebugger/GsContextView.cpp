@@ -1,7 +1,7 @@
 #include "GsContextView.h"
 #include "GsStateUtils.h"
+#include "gs/GsDebuggerInterface.h"
 #include "gs/GsPixelFormats.h"
-#include "gs/GSH_OpenGL/GSH_OpenGL.h"
 #include "../../../AppConfig.h"
 
 #include <QVBoxLayout>
@@ -84,7 +84,10 @@ void CGsContextView::UpdateBufferView()
 
 		if(mipLevel <= tex1.nMaxMip)
 		{
-			texture = static_cast<CGSH_OpenGL*>(m_gs)->GetTexture(tex0Reg, tex1.nMaxMip, miptbp1Reg, miptbp2Reg, mipLevel);
+			if(auto debuggerInterface = dynamic_cast<CGsDebuggerInterface*>(m_gs))
+			{
+				texture = debuggerInterface->GetTexture(tex0Reg, tex1.nMaxMip, miptbp1Reg, miptbp2Reg, mipLevel);
+			}
 		}
 
 		if(!texture.IsEmpty() && CGsPixelFormats::IsPsmIDTEX(tex0.nPsm))
@@ -132,7 +135,11 @@ void CGsContextView::UpdateFramebufferView()
 	uint64 frameReg = m_gs->GetRegisters()[GS_REG_FRAME_1 + m_contextId];
 	auto frame = make_convertible<CGSHandler::FRAME>(frameReg);
 
-	auto framebuffer = static_cast<CGSH_OpenGL*>(m_gs)->GetFramebuffer(frame);
+	Framework::CBitmap framebuffer;
+	if(auto debuggerInterface = dynamic_cast<CGsDebuggerInterface*>(m_gs))
+	{
+		framebuffer = debuggerInterface->GetFramebuffer(frame);
+	}
 	if(framebuffer.IsEmpty())
 	{
 		m_bufferView->SetPixelBuffers(CPixelBufferView::PixelBufferArray());

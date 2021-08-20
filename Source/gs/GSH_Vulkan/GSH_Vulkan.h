@@ -12,10 +12,11 @@
 #include "GSH_VulkanTransferLocal.h"
 #include <vector>
 #include "../GSHandler.h"
+#include "../GsDebuggerInterface.h"
 #include "../GsCachedArea.h"
 #include "../GsTextureCache.h"
 
-class CGSH_Vulkan : public CGSHandler
+class CGSH_Vulkan : public CGSHandler, public CGsDebuggerInterface
 {
 public:
 	CGSH_Vulkan();
@@ -33,6 +34,20 @@ public:
 	uint8* GetRam() const override;
 
 	Framework::CBitmap GetScreenshot() override;
+
+	//Debugger Interface
+	bool GetDepthTestingEnabled() const override;
+	void SetDepthTestingEnabled(bool) override;
+
+	bool GetAlphaBlendingEnabled() const override;
+	void SetAlphaBlendingEnabled(bool) override;
+
+	bool GetAlphaTestingEnabled() const override;
+	void SetAlphaTestingEnabled(bool) override;
+
+	Framework::CBitmap GetFramebuffer(uint64) override;
+	Framework::CBitmap GetTexture(uint64, uint32, uint64, uint64, uint32) override;
+	const VERTEX* GetInputVertices() const override;
 
 protected:
 	void WriteRegisterImpl(uint8, uint64) override;
@@ -93,6 +108,29 @@ private:
 	int32 FindCachedClut(const CLUTKEY&) const;
 	static CLUTKEY MakeCachedClutKey(const TEX0&, const TEXCLUT&);
 
+	Framework::CBitmap GetFramebufferImpl(uint64);
+	template <typename PixelIndexor>
+	static Framework::CBitmap ReadImage16(uint8* ram, uint32 bufferPtr, uint32 bufferWidth, uint32 width, uint32 height)
+	{
+		auto bitmap = Framework::CBitmap(width, height, 32);
+		auto bitmapPixels = reinterpret_cast<uint32*>(bitmap.GetPixels());
+		typename PixelIndexor indexor(ram, bufferPtr, bufferWidth);
+		for(unsigned int y = 0; y < height; y++)
+		{
+			for(unsigned int x = 0; x < width; x++)
+			{
+				uint16 pixel = indexor.GetPixel(x, y);
+				uint32 r = ((pixel & 0x001F) >> 0) << 3;
+				uint32 g = ((pixel & 0x03E0) >> 5) << 3;
+				uint32 b = ((pixel & 0x7C00) >> 10) << 3;
+				uint32 a = (((pixel & 0x8000) >> 15) != 0) ? 0xFF : 0;
+				(*bitmapPixels) = b | (g << 8) | (r << 16) | (a << 24);
+				bitmapPixels++;
+			}
+		}
+		return bitmap;
+	}
+
 	GSH_Vulkan::FrameCommandBufferPtr m_frameCommandBuffer;
 	GSH_Vulkan::ClutLoadPtr m_clutLoad;
 	GSH_Vulkan::DrawPtr m_draw;
@@ -114,6 +152,10 @@ private:
 	CLUTKEY m_clutStates[CLUT_CACHE_SIZE];
 	uint32 m_nextClutCacheIndex = 0;
 	std::vector<uint8> m_xferBuffer;
+
+	bool m_depthTestingEnabled = true;
+	bool m_alphaBlendingEnabled = true;
+	bool m_alphaTestingEnabled = true;
 
 	Framework::Vulkan::CImage m_swizzleTablePSMCT32;
 	Framework::Vulkan::CImage m_swizzleTablePSMCT16;
