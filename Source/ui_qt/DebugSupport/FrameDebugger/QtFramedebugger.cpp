@@ -30,6 +30,9 @@ QtFramedebugger::QtFramedebugger()
 {
 	ui->setupUi(this);
 
+	CAppConfig::GetInstance().RegisterPreferenceInteger(PREF_FRAMEDEBUGGER_FRAMEBUFFER_DISPLAYMODE, CGsContextView::FB_DISPLAY_MODE_RAW);
+	m_fbDisplayMode = static_cast<CGsContextView::FB_DISPLAY_MODE>(CAppConfig::GetInstance().GetPreferenceInteger(PREF_FRAMEDEBUGGER_FRAMEBUFFER_DISPLAYMODE));
+
 	QFont fixedFont = QFont(DEBUGGER_DEFAULT_MONOSPACE_FONT_FACE_NAME, DEBUGGER_DEFAULT_MONOSPACE_FONT_SIZE);
 	ui->inputStateTextEdit->setFont(fixedFont);
 
@@ -70,7 +73,21 @@ QtFramedebugger::QtFramedebugger()
 	alignmentGroup->addAction(ui->actionRaw);
 	alignmentGroup->addAction(ui->action640x448_Non_Interlaced);
 	alignmentGroup->addAction(ui->action640x448_Interlaced);
-	ui->actionRaw->setChecked(true);
+	switch(m_fbDisplayMode)
+	{
+	default:
+		assert(false);
+		[[fallthrough]];
+	case CGsContextView::FB_DISPLAY_MODE_RAW:
+		ui->actionRaw->setChecked(true);
+		break;
+	case CGsContextView::FB_DISPLAY_MODE_448P:
+		ui->action640x448_Non_Interlaced->setChecked(true);
+		break;
+	case CGsContextView::FB_DISPLAY_MODE_448I:
+		ui->action640x448_Interlaced->setChecked(true);
+		break;
+	}
 }
 
 QtFramedebugger::~QtFramedebugger()
