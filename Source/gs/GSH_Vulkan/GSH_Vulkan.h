@@ -111,6 +111,8 @@ private:
 	static CLUTKEY MakeCachedClutKey(const TEX0&, const TEXCLUT&);
 
 	Framework::CBitmap GetFramebufferImpl(uint64);
+	Framework::CBitmap GetTextureImpl(uint64, uint32, uint64, uint64, uint32);
+
 	template <typename PixelIndexor>
 	static Framework::CBitmap ReadImage16(uint8* ram, uint32 bufferPtr, uint32 bufferWidth, uint32 width, uint32 height)
 	{

@@ -1311,9 +1311,21 @@ Framework::CBitmap CGSH_Vulkan::GetFramebuffer(uint64 frameReg)
 	return result;
 }
 
+Framework::CBitmap CGSH_Vulkan::GetTexture(uint64 tex0Reg, uint32 maxMip, uint64 miptbp1Reg, uint64 miptbp2Reg, uint32 mipLevel)
+{
+	Framework::CBitmap result;
+	SendGSCall([&]() { result = GetTextureImpl(tex0Reg, maxMip, miptbp1Reg, miptbp2Reg, mipLevel); }, true);
+	return result;
+}
+
 int CGSH_Vulkan::GetFramebufferScale()
 {
 	return 1;
+}
+
+const CGSHandler::VERTEX* CGSH_Vulkan::GetInputVertices() const
+{
+	return m_vtxBuffer;
 }
 
 Framework::CBitmap CGSH_Vulkan::GetFramebufferImpl(uint64 frameReg)
@@ -1369,12 +1381,35 @@ Framework::CBitmap CGSH_Vulkan::GetFramebufferImpl(uint64 frameReg)
 	return bitmap;
 }
 
-Framework::CBitmap CGSH_Vulkan::GetTexture(uint64 tex0Reg, uint32 maxMip, uint64 miptbp1Reg, uint64 miptbp2Reg, uint32 mipLevel)
+Framework::CBitmap CGSH_Vulkan::GetTextureImpl(uint64 tex0Reg, uint32 maxMip, uint64 miptbp1Reg, uint64 miptbp2Reg, uint32 mipLevel)
 {
-	return Framework::CBitmap();
-}
+	auto tex0 = make_convertible<TEX0>(tex0Reg);
+	auto width = std::max<uint32>(tex0.GetWidth() >> mipLevel, 1);
+	auto height = std::max<uint32>(tex0.GetHeight() >> mipLevel, 1);
 
-const CGSHandler::VERTEX* CGSH_Vulkan::GetInputVertices() const
-{
-	return m_vtxBuffer;
+	SyncMemoryCache();
+
+	Framework::CBitmap bitmap;
+
+	switch(tex0.nPsm)
+	{
+	case PSMT8:
+	{
+		bitmap = Framework::CBitmap(tex0.GetWidth(), tex0.GetHeight(), 8);
+		auto bitmapPixels = reinterpret_cast<uint8*>(bitmap.GetPixels());
+		CGsPixelFormats::CPixelIndexorPSMT8 indexor(GetRam(), tex0.GetBufPtr(), tex0.nBufWidth);
+		for(unsigned int y = 0; y < height; y++)
+		{
+			for(unsigned int x = 0; x < width; x++)
+			{
+				uint8 pixel = indexor.GetPixel(x, y);
+				(*bitmapPixels) = pixel;
+				bitmapPixels++;
+			}
+		}
+	}
+	break;
+	}
+
+	return bitmap;
 }
