@@ -116,7 +116,7 @@ private:
 	{
 		auto bitmap = Framework::CBitmap(width, height, 32);
 		auto bitmapPixels = reinterpret_cast<uint32*>(bitmap.GetPixels());
-		typename PixelIndexor indexor(ram, bufferPtr, bufferWidth);
+		PixelIndexor indexor(ram, bufferPtr, bufferWidth);
 		for(unsigned int y = 0; y < height; y++)
 		{
 			for(unsigned int x = 0; x < width; x++)
