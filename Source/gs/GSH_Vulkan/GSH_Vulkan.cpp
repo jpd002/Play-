@@ -1264,10 +1264,6 @@ void CGSH_Vulkan::SyncCLUT(const TEX0& tex0)
 	m_draw->SetClutBufferOffset(clutBufferOffset);
 }
 
-void CGSH_Vulkan::ReadFramebuffer(uint32 width, uint32 height, void* buffer)
-{
-}
-
 uint8* CGSH_Vulkan::GetRam() const
 {
 	return m_memoryCache;

@@ -825,7 +825,6 @@ public:
 	virtual void ProcessClutTransfer(uint32, uint32) = 0;
 	void Flip(bool = false);
 	void Finish();
-	virtual void ReadFramebuffer(uint32, uint32, void*) = 0;
 
 	void MakeLinearCLUT(const TEX0&, std::array<uint32, 256>&) const;
 

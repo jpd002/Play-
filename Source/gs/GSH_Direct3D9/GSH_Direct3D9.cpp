@@ -164,10 +164,6 @@ void CGSH_Direct3D9::ProcessClutTransfer(uint32, uint32)
 	m_renderState.isValid = false;
 }
 
-void CGSH_Direct3D9::ReadFramebuffer(uint32, uint32, void*)
-{
-}
-
 bool CGSH_Direct3D9::GetDepthTestingEnabled() const
 {
 	return m_depthTestingEnabled;

@@ -32,10 +32,6 @@ void CGSH_Null::ProcessClutTransfer(uint32, uint32)
 {
 }
 
-void CGSH_Null::ReadFramebuffer(uint32, uint32, void*)
-{
-}
-
 CGSHandler::FactoryFunction CGSH_Null::GetFactoryFunction()
 {
 	return std::bind(&CGSH_Null::GSHandlerFactory);

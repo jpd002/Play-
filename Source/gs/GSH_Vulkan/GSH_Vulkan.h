@@ -29,7 +29,6 @@ public:
 	void ProcessLocalToHostTransfer() override;
 	void ProcessLocalToLocalTransfer() override;
 	void ProcessClutTransfer(uint32, uint32) override;
-	void ReadFramebuffer(uint32, uint32, void*) override;
 
 	uint8* GetRam() const override;
 
