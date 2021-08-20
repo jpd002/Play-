@@ -14,6 +14,10 @@
 #include "../../GSH_OpenGLQt.h"
 #include "../../openglwindow.h"
 
+#if HAS_GSH_VULKAN
+#include "gs/GSH_Vulkan/GSH_VulkanOffscreen.h"
+#endif
+
 #include <QMessageBox>
 #include <QFileDialog>
 #include <QOffscreenSurface>

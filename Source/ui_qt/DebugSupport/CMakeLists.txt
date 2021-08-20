@@ -6,6 +6,7 @@ if(CMAKE_VERSION VERSION_LESS "3.7.0")
 endif()
 
 find_package(Qt5 COMPONENTS Core Widgets REQUIRED)
+list(APPEND PLAYDEBUGSUPPORT_LIBS Qt5::Core Qt5::Widgets)
 
 set(CMAKE_MODULE_PATH
 	${CMAKE_CURRENT_SOURCE_DIR}/../../../deps/Dependencies/cmake-modules
@@ -26,6 +27,19 @@ if(NOT TARGET Framework_OpenGl)
 		${CMAKE_CURRENT_SOURCE_DIR}/../../../deps/Framework/build_cmake/FrameworkOpenGl
 		${CMAKE_CURRENT_BINARY_DIR}/FrameworkOpenGl
 	)
+endif()
+list(APPEND PLAYDEBUGSUPPORT_LIBS Framework_OpenGl)
+
+# We expect USE_GSH_VULKAN to be set by the parent project
+if(USE_GSH_VULKAN)
+	if(NOT TARGET gsh_vulkan)
+		add_subdirectory(
+			${CMAKE_CURRENT_SOURCE_DIR}/../gs/GSH_Vulkan
+			${CMAKE_CURRENT_BINARY_DIR}/gs/GSH_Vulkan
+		)
+	endif()
+	list(APPEND PLAYDEBUGSUPPORT_LIBS gsh_vulkan)
+	list(APPEND PLAYDEBUGSUPPORT_DEFS HAS_GSH_VULKAN=1)
 endif()
 
 set(SRC_ROOT ${CMAKE_CURRENT_SOURCE_DIR})
@@ -134,6 +148,6 @@ QT5_WRAP_UI(QT_DEBUGGER_UI_HEADERS ${QT_DEBUGGER_UI})
 QT5_WRAP_CPP(QT_DEBUGGER_MOC_SRCS ${QT_DEBUGGER_MOC_HEADERS})
 
 add_library(PlayDebugSupport STATIC ${SRC_FILES} ${QT_DEBUGGER_UI_HEADERS} ${QT_DEBUGGER_MOC_SRCS} ${QT_RES_SOURCES})
-target_link_libraries(PlayDebugSupport PlayCore Framework_OpenGl Qt5::Core Qt5::Widgets)
-target_compile_definitions(PlayDebugSupport PRIVATE NOMINMAX)
+target_link_libraries(PlayDebugSupport PlayCore ${PLAYDEBUGSUPPORT_LIBS} Framework_OpenGl Qt5::Core Qt5::Widgets)
+target_compile_definitions(PlayDebugSupport PRIVATE NOMINMAX ${PLAYDEBUGSUPPORT_DEFS})
 target_include_directories(PlayDebugSupport PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} ../../${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR})
