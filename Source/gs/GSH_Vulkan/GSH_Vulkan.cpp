@@ -1311,6 +1311,11 @@ Framework::CBitmap CGSH_Vulkan::GetFramebuffer(uint64 frameReg)
 	return result;
 }
 
+int CGSH_Vulkan::GetFramebufferScale()
+{
+	return 1;
+}
+
 Framework::CBitmap CGSH_Vulkan::GetFramebufferImpl(uint64 frameReg)
 {
 	auto frame = make_convertible<FRAME>(frameReg);

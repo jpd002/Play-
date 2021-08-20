@@ -57,6 +57,11 @@ Framework::CBitmap CGSH_Direct3D9::GetTexture(uint64 tex0Reg, uint32 maxMip, uin
 	return result;
 }
 
+int CGSH_Direct3D9::GetFramebufferScale()
+{
+	return 1;
+}
+
 const CGSHandler::VERTEX* CGSH_Direct3D9::GetInputVertices() const
 {
 	return m_vtxBuffer;

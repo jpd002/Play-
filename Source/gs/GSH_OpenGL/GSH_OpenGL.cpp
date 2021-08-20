@@ -2285,6 +2285,11 @@ Framework::CBitmap CGSH_OpenGL::GetTextureImpl(uint64 tex0Reg, uint32 maxMip, ui
 #endif
 }
 
+int CGSH_OpenGL::GetFramebufferScale()
+{
+	return m_fbScale;
+}
+
 const CGSHandler::VERTEX* CGSH_OpenGL::GetInputVertices() const
 {
 	return m_VtxBuffer;

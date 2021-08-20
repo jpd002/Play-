@@ -35,6 +35,8 @@ public:
 
 	Framework::CBitmap GetFramebuffer(uint64) override;
 	Framework::CBitmap GetTexture(uint64, uint32, uint64, uint64, uint32) override;
+	int GetFramebufferScale() override;
+
 	const VERTEX* GetInputVertices() const override;
 
 	static uint32 Color_Ps2ToDx9(uint32);
