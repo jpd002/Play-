@@ -33,14 +33,22 @@ QtFramedebugger::QtFramedebugger()
 	QFont fixedFont = QFont(DEBUGGER_DEFAULT_MONOSPACE_FONT_FACE_NAME, DEBUGGER_DEFAULT_MONOSPACE_FONT_SIZE);
 	ui->inputStateTextEdit->setFont(fixedFont);
 
-	QOffscreenSurface* surface = new QOffscreenSurface();
-	surface->setFormat(OpenGLWindow::GetSurfaceFormat());
-	surface->create();
-	m_gs = std::make_unique<CGSH_OpenGLQt>(surface);
+	if(true)
+	{
+		QOffscreenSurface* surface = new QOffscreenSurface(nullptr, this);
+		surface->setFormat(OpenGLWindow::GetSurfaceFormat());
+		surface->create();
+		m_gs = std::make_unique<CGSH_OpenGLQt>(surface);
+	}
+	else
+	{
+#if HAS_GSH_VULKAN
+		m_gs = std::make_unique<CGSH_VulkanOffscreen>();
+#endif
+	}
 	m_gs->SetLoggingEnabled(false);
 	m_gs->Initialize();
 	m_gs->Reset();
-	// CHECKGLERROR();
 
 	m_gsContextView0 = std::make_unique<CGsContextView>(this, ui->context0Buffer, ui->fitContext1Button, ui->saveContext1, m_gs.get(), 0);
 	m_gsContextView1 = std::make_unique<CGsContextView>(this, ui->context1Buffer, ui->fitContext2Button, ui->saveContext2, m_gs.get(), 1);
