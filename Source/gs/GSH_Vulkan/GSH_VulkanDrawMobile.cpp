@@ -194,7 +194,7 @@ void CDrawMobile::SetScissor(uint32 scissorX, uint32 scissorY, uint32 scissorWid
 	    (m_scissorWidth != scissorWidth) ||
 	    (m_scissorHeight != scissorHeight);
 	if(!changed) return;
-	FlushVertices();
+	FlushRenderPass();
 	m_scissorX = scissorX;
 	m_scissorY = scissorY;
 	m_scissorWidth = scissorWidth;
