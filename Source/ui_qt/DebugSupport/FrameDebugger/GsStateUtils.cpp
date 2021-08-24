@@ -404,6 +404,13 @@ std::string CGsStateUtils::GetContextState(CGSHandler* gs, unsigned int contextI
 		result += string_format("\tFixed Value: 0x%02X\r\n", alpha.nFix);
 	}
 
+	{
+		auto scissor = make_convertible<CGSHandler::SCISSOR>(gs->GetRegisters()[GS_REG_SCISSOR_1 + contextId]);
+		result += string_format("Scissor:\r\n");
+		result += string_format("\tTop: %d, %d\r\n", scissor.scax0, scissor.scay0);
+		result += string_format("\tBottom: %d, %d\r\n", scissor.scax1, scissor.scay1);
+	}
+
 	result += "\r\n";
 
 	return result;
