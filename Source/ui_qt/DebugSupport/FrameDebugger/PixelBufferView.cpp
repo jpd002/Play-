@@ -108,6 +108,9 @@ void CPixelBufferView::Refresh()
 void CPixelBufferView::DrawCheckerboard()
 {
 	auto clientRect = m_openglpanel->size();
+#if QT_VERSION >= QT_VERSION_CHECK(5, 6, 0)
+	clientRect *= devicePixelRatioF();
+#endif
 	float screenSizeVector[2] =
 	    {
 	        static_cast<float>(clientRect.width()),
