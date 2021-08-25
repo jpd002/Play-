@@ -30,7 +30,7 @@
 
 	<string name="game_unavailable">游戏不可用。\n您要将其从列表中删除吗？</string>
 	<string name="not_found">未找到</string>
-	<string name="no_game_found_adapter">没有找到 PS2 游戏, 请添加您的游戏到您的设备, 然后关闭并打开这个应用程序。</string>
+	<string name="no_game_found_adapter">No game found.\n\nPlease open the menu and select \'Add Folder\' to add games.</string>
 
 	<!-- Application Preferences -->
 

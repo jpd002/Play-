@@ -30,7 +30,7 @@
 
 	<string name="game_unavailable">Игра недоступна.\nУдалить её из списка?</string>
 	<string name="not_found">Не найдено</string>
-	<string name="no_game_found_adapter">Игры PS2 не найдены. Пожалуйста, переместите игры на устройство и перезапустите приложение.</string>
+	<string name="no_game_found_adapter">No game found.\n\nPlease open the menu and select \'Add Folder\' to add games.</string>
 
 	<!-- Application Preferences -->
 

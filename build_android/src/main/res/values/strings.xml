@@ -30,7 +30,7 @@
 
 	<string name="game_unavailable">Game is unavailable.\nWould you like to remove it from the list?</string>
 	<string name="not_found">Not Found</string>
-	<string name="no_game_found_adapter">No PS2 Game(s) Found, Please add your games to your device, then close and open this app.</string>
+	<string name="no_game_found_adapter">No game found.\n\nPlease open the menu and select \'Add Folder\' to add games.</string>
 
 	<!-- Application Preferences -->
 
