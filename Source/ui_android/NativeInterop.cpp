@@ -5,6 +5,7 @@
 #include "android/AssetManager.h"
 #include "android/ContentResolver.h"
 #include "android/JavaVM.h"
+#include "android/android_database_Cursor.h"
 #include "android/android_net_Uri.h"
 #include "android/android_os_ParcelFileDescriptor.h"
 #include "android/java_security_MessageDigest.h"
@@ -67,6 +68,7 @@ extern "C" JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void* aReserved)
 	javax::crypto::Mac_ClassInfo::GetInstance().PrepareClassInfo();
 	javax::crypto::spec::SecretKeySpec_ClassInfo::GetInstance().PrepareClassInfo();
 	android::content::ContentResolver_ClassInfo::GetInstance().PrepareClassInfo();
+	android::database::Cursor_ClassInfo::GetInstance().PrepareClassInfo();
 	android::net::Uri_ClassInfo::GetInstance().PrepareClassInfo();
 	android::os::ParcelFileDescriptor_ClassInfo::GetInstance().PrepareClassInfo();
 	com::virtualapplications::play::Bootable_ClassInfo::GetInstance().PrepareClassInfo();

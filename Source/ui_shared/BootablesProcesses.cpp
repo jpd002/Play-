@@ -8,6 +8,9 @@
 #include "string_format.h"
 #include "StdStreamUtils.h"
 #include "http/HttpClientFactory.h"
+#ifdef __ANDROID__
+#include "android/ContentUtils.h"
+#endif
 
 //Jobs
 // Scan for new games (from input directory)
@@ -56,9 +59,11 @@ bool DoesBootableExist(const fs::path& filePath)
 	//      might complain about network access being done on the main thread.
 	static const char* s3ImagePathPrefix = "//s3/";
 	if(filePath.string().find(s3ImagePathPrefix) == 0) return true;
-		//TODO: Also support Android content URIs
 #ifdef __ANDROID__
-	if(filePath.string().find("content:/") == 0) return true;
+	if(Framework::Android::CContentUtils::IsContentPath(filePath))
+	{
+		return Framework::Android::CContentUtils::DoesFileExist(filePath);
+	}
 #endif
 	return fs::exists(filePath);
 }
