@@ -22,6 +22,7 @@
 #ifdef __ANDROID__
 #include "PosixFileStream.h"
 #include "android/ContentStream.h"
+#include "Url.h"
 #endif
 #ifdef __APPLE__
 #include "TargetConditionals.h"
@@ -50,10 +51,14 @@ static Framework::CStream* CreateImageStream(const fs::path& imagePath)
 #ifdef __ANDROID__
 	if(imagePathString.find("content:/") == 0)
 	{
-		//TODO: Check for paths that are constructed by fs::path (ex.: in CCueSheet)
-		//Fix URI mangled by fs::path
-		imagePathString.insert(imagePathString.begin() + 9, '/');
-		return new Framework::Android::CContentStream(imagePathString.c_str(), "r");
+		//Rebuild proper content URI from fs::path
+		auto uriPath = Framework::UrlEncode(imagePathString.substr(9));
+		//Encode the last slash
+		auto lastSlashPos = uriPath.rfind('/');
+		assert(lastSlashPos != std::string::npos);
+		uriPath.replace(lastSlashPos, 1, "%2F");
+		auto uri = "content://" + uriPath;
+		return new Framework::Android::CContentStream(uri.c_str(), "r");
 	}
 	else
 	{

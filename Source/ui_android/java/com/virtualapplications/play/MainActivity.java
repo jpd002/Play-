@@ -26,6 +26,8 @@ import android.view.View;
 import android.widget.*;
 import android.widget.GridView;
 
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.text.*;
 import java.util.*;
 
@@ -383,8 +385,16 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 		DocumentFile folderDoc = DocumentFile.fromTreeUri(this, folderUri);
 		for(DocumentFile fileDoc : folderDoc.listFiles())
 		{
-			String docUriString = fileDoc.getUri().toString();
-			BootablesInterop.tryRegisterBootable(docUriString);
+			try
+			{
+				String docUriString = fileDoc.getUri().toString();
+				String decodedUriString = URLDecoder.decode(docUriString, StandardCharsets.UTF_8.name());
+				BootablesInterop.tryRegisterBootable(decodedUriString);
+			}
+			catch(Exception ex)
+			{
+
+			}
 		}
 		prepareFileListView(false);
 	}
