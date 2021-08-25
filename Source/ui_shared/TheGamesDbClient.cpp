@@ -5,6 +5,7 @@
 #include "TheGamesDbClient.h"
 #include "string_format.h"
 #include "http/HttpClientFactory.h"
+#include "Url.h"
 
 using namespace TheGamesDb;
 
@@ -80,7 +81,7 @@ Game CClient::GetGame(uint32 id)
 
 GamesList CClient::GetGamesList(const std::string& platformID, const std::string& name)
 {
-	auto encodedName = Framework::Http::CHttpClient::UrlEncode(name);
+	auto encodedName = Framework::UrlEncode(name);
 
 	auto url = string_format(g_getGamesListUrl, platformID.c_str(), encodedName.c_str());
 	auto requestResult =
