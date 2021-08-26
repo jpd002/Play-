@@ -226,6 +226,14 @@ void CDrawMobile::FlushVertices()
 	auto& frame = m_frames[m_frameCommandBuffer->GetCurrentFrame()];
 	auto commandBuffer = m_frameCommandBuffer->GetCommandBuffer();
 
+	for(auto vertex = frame.vertexBufferPtr + m_passVertexStart; vertex != frame.vertexBufferPtr + m_passVertexEnd; vertex++)
+	{
+		m_renderPassMinX = std::min(vertex->x, m_renderPassMinX);
+		m_renderPassMinY = std::min(vertex->y, m_renderPassMinY);
+		m_renderPassMaxX = std::max(vertex->x, m_renderPassMaxX);
+		m_renderPassMaxY = std::max(vertex->y, m_renderPassMaxY);
+	}
+
 	{
 		VkViewport viewport = {};
 		viewport.width = DRAW_AREA_SIZE;
@@ -327,6 +335,18 @@ void CDrawMobile::FlushRenderPass()
 
 		//Store to memory
 
+		int32 clippedX0 = std::clamp<int32>(m_renderPassMinX, m_scissorX, m_scissorX + m_scissorWidth);
+		int32 clippedX1 = std::clamp<int32>(m_renderPassMaxX, m_scissorX, m_scissorX + m_scissorWidth);
+		int32 clippedY0 = std::clamp<int32>(m_renderPassMinY, m_scissorY, m_scissorY + m_scissorHeight);
+		int32 clippedY1 = std::clamp<int32>(m_renderPassMaxY, m_scissorY, m_scissorY + m_scissorHeight);
+		
+		VkRect2D scissor = {};
+		scissor.offset.x = clippedX0;
+		scissor.offset.y = clippedY0;
+		scissor.extent.width = clippedX1 - clippedX0;
+		scissor.extent.height = clippedY1 - clippedY0;
+		m_context->device.vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
+
 		//Find pipeline and create it if we've never encountered it before
 		auto strippedCaps = MakeLoadStorePipelineCaps(m_pipelineCaps);
 		auto storePipeline = m_storePipelineCache.TryGetPipeline(strippedCaps);
@@ -351,6 +371,10 @@ void CDrawMobile::FlushRenderPass()
 		m_context->device.vkCmdEndRenderPass(commandBuffer);
 		m_renderPassBegun = false;
 	}
+	m_renderPassMinX = FLT_MAX;
+	m_renderPassMinY = FLT_MAX;
+	m_renderPassMaxX = -FLT_MAX;
+	m_renderPassMaxY = -FLT_MAX;
 }
 
 void CDrawMobile::PreFlushFrameCommandBuffer()
