@@ -76,6 +76,10 @@ void CDrawMobile::SetPipelineCaps(const PIPELINE_CAPS& caps)
 	{
 		FlushRenderPass();
 	}
+	if(caps.textureUseMemoryCopy)
+	{
+		FlushRenderPass();
+	}
 	FlushVertices();
 	m_pipelineCaps = caps;
 }
@@ -203,6 +207,13 @@ void CDrawMobile::SetScissor(uint32 scissorX, uint32 scissorY, uint32 scissorWid
 
 void CDrawMobile::SetMemoryCopyParams(uint32 memoryCopyAddress, uint32 memoryCopySize)
 {
+	bool changed =
+		(memoryCopyAddress != m_memoryCopyAddress) ||
+		(memoryCopySize != m_memoryCopySize);
+	if(!changed) return;
+	FlushRenderPass();
+	m_memoryCopyAddress = memoryCopyAddress;
+	m_memoryCopySize = memoryCopySize;
 }
 
 void CDrawMobile::AddVertices(const PRIM_VERTEX* vertexBeginPtr, const PRIM_VERTEX* vertexEndPtr)
@@ -212,6 +223,26 @@ void CDrawMobile::AddVertices(const PRIM_VERTEX* vertexBeginPtr, const PRIM_VERT
 	{
 		m_frameCommandBuffer->Flush();
 		assert((m_passVertexEnd + amount) <= MAX_VERTEX_COUNT);
+	}
+	if(m_pipelineCaps.textureUseMemoryCopy)
+	{
+		//Check if sprite we are about to add overlaps with current region
+		//Some games use tiny sprites to do full screen effects that requires
+		//to keep a copy of RAM for texture sampling:
+		//- Metal Gear Solid 3
+		//- MK: Shaolin Monks
+		//- Tales of Legendia
+		const auto topLeftCorner = vertexBeginPtr;
+		const auto bottomRightCorner = vertexBeginPtr + 5;
+		CGsSpriteRect rect(topLeftCorner->x, topLeftCorner->y, bottomRightCorner->x, bottomRightCorner->y);
+		if(m_memoryCopyRegion.Intersects(rect))
+		{
+			FlushRenderPass();
+		}
+		else
+		{
+			m_memoryCopyRegion.Insert(rect);
+		}
 	}
 	auto& frame = m_frames[m_frameCommandBuffer->GetCurrentFrame()];
 	memcpy(frame.vertexBufferPtr + m_passVertexEnd, vertexBeginPtr, amount * sizeof(PRIM_VERTEX));
@@ -234,6 +265,12 @@ void CDrawMobile::FlushVertices()
 		m_renderPassMaxY = std::max(vertex->y, m_renderPassMaxY);
 	}
 
+	if(m_pipelineCaps.textureUseMemoryCopy)
+	{
+		assert(!m_renderPassBegun);
+		m_memoryCopyRegion.Reset();
+	}
+	
 	{
 		VkViewport viewport = {};
 		viewport.width = DRAW_AREA_SIZE;

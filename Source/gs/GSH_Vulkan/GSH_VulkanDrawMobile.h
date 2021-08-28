@@ -244,11 +244,15 @@ namespace GSH_Vulkan
 		uint32 m_scissorWidth = 0;
 		uint32 m_scissorHeight = 0;
 		uint32 m_clutBufferOffset = 0;
+		uint32 m_memoryCopyAddress = 0;
+		uint32 m_memoryCopySize = 0;
 		
 		float m_renderPassMinX = FLT_MAX;
 		float m_renderPassMinY = FLT_MAX;
 		float m_renderPassMaxX = -FLT_MAX;
 		float m_renderPassMaxY = -FLT_MAX;
+		
+		CGsSpriteRegion m_memoryCopyRegion;
 	};
 
 	typedef std::shared_ptr<CDrawMobile> DrawPtr;
