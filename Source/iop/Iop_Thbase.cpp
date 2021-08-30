@@ -32,6 +32,7 @@ using namespace Iop;
 #define FUNCTION_USECTOSYSCLOCK "USecToSysClock"
 #define FUNCTION_SYSCLOCKTOUSEC "SysClockToUSec"
 #define FUNCTION_GETCURRENTTHREADPRIORITY "GetCurrentThreadPriority"
+#define FUNCTION_GETTHREADMANIDLIST "GetThreadManIdList"
 
 CThbase::CThbase(CIopBios& bios, uint8* ram)
     : m_ram(ram)
@@ -125,6 +126,9 @@ std::string CThbase::GetFunctionName(unsigned int functionId) const
 		break;
 	case 43:
 		return FUNCTION_GETSYSTEMTIMELOW;
+		break;
+	case 47:
+		return FUNCTION_GETTHREADMANIDLIST;
 		break;
 	default:
 		return "unknown";
@@ -246,6 +250,13 @@ void CThbase::Invoke(CMIPS& context, unsigned int functionId)
 		break;
 	case 43:
 		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(GetSystemTimeLow());
+		break;
+	case 47:
+		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(GetThreadmanIdList(
+		    context.m_State.nGPR[CMIPS::A0].nV0,
+		    context.m_State.nGPR[CMIPS::A1].nV0,
+		    context.m_State.nGPR[CMIPS::A2].nV0,
+		    context.m_State.nGPR[CMIPS::A3].nV0));
 		break;
 	default:
 		CLog::GetInstance().Warn(LOG_NAME, "Unknown function (%d) called at (%08X).\r\n", functionId, context.m_State.nPC);
@@ -439,4 +450,18 @@ uint32 CThbase::GetCurrentThreadPriority()
 	CIopBios::THREAD* currentThread = m_bios.GetThread(m_bios.GetCurrentThreadIdRaw());
 	if(currentThread == NULL) return -1;
 	return currentThread->priority;
+}
+
+int32 CThbase::GetThreadmanIdList(uint32 type, uint32 bufferPtr, uint32 bufferSize, uint32 countPtr)
+{
+#ifdef _DEBUG
+	CLog::GetInstance().Print(LOG_NAME, "%d : " FUNCTION_GETTHREADMANIDLIST "(type = %d, bufferPtr = 0x%08X, bufferSize = %d, countPtr = 0x%08X);\r\n",
+	                          m_bios.GetCurrentThreadIdRaw(), type, bufferPtr, bufferSize, countPtr);
+#endif
+	CLog::GetInstance().Warn(LOG_NAME, "Using GetThreadmanIdList which is not fully implemented.\r\n");
+	if(countPtr != 0)
+	{
+		*reinterpret_cast<uint32*>(m_ram + countPtr) = 0;
+	}
+	return 0;
 }

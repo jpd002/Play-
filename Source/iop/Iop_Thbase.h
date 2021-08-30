@@ -52,6 +52,7 @@ namespace Iop
 		void USecToSysClock(uint32, uint32);
 		void SysClockToUSec(uint32, uint32, uint32);
 		uint32 GetCurrentThreadPriority();
+		int32 GetThreadmanIdList(uint32, uint32, uint32, uint32);
 
 		uint8* m_ram;
 		CIopBios& m_bios;
