@@ -137,7 +137,7 @@ bool CSysmem::Invoke(uint32 method, uint32* args, uint32 argsSize, uint32* ret, 
 		ret[0] = QueryTotalFreeMemSize();
 		break;
 	default:
-		CLog::GetInstance().Print(LOG_NAME, "Unknown method invoked (0x%08X).\r\n", method);
+		CLog::GetInstance().Warn(LOG_NAME, "Unknown method invoked (0x%08X).\r\n", method);
 		break;
 	}
 	return true;
@@ -169,6 +169,7 @@ uint32 CSysmem::QueryMaxFreeMemSize()
 	while(nextBlock != nullptr)
 	{
 		uint32 end = nextBlock->address;
+		assert(end >= begin);
 		if((end - begin) >= maxSize)
 		{
 			maxSize = end - begin;
@@ -177,6 +178,7 @@ uint32 CSysmem::QueryMaxFreeMemSize()
 		nextBlockId = &nextBlock->nextBlockId;
 		nextBlock = m_blocks[*nextBlockId];
 	}
+	assert(maxSize <= m_memorySize);
 	return maxSize;
 }
 
@@ -309,6 +311,21 @@ uint32 CSysmem::FreeMemory(uint32 address)
 		CLog::GetInstance().Warn(LOG_NAME, "%s: Trying to unallocate an unexisting memory block (0x%08X).\r\n", __FUNCTION__, address);
 	}
 	return 0;
+}
+
+void CSysmem::DumpAllocList()
+{
+	auto nextBlockId = &m_headBlockId;
+	auto nextBlock = m_blocks[*nextBlockId];
+	CLog::GetInstance().Print(LOG_NAME, "Alloc List\r\n");
+	CLog::GetInstance().Print(LOG_NAME, "------------------------------\r\n");
+	while(nextBlock != nullptr)
+	{
+		CLog::GetInstance().Print(LOG_NAME, "addr: %08X, size: %08X\r\n", nextBlock->address, nextBlock->size);
+		nextBlockId = &nextBlock->nextBlockId;
+		nextBlock = m_blocks[*nextBlockId];
+	}
+	CLog::GetInstance().Print(LOG_NAME, "------------------------------\r\n");
 }
 
 uint32 CSysmem::SifAllocate(uint32 nSize)

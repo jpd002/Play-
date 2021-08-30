@@ -41,6 +41,8 @@ namespace Iop
 		uint32 QueryMaxFreeMemSize();
 		uint32 QueryTotalFreeMemSize();
 
+		void DumpAllocList();
+
 		uint8* m_iopRam = nullptr;
 		BlockListType& m_blocks;
 		uint32 m_memoryBegin;
