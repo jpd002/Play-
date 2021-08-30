@@ -249,6 +249,7 @@ uint32 CSysmem::AllocateMemory(uint32 size, uint32 flags, uint32 wantedAddress)
 			}
 			if(
 			    (begin <= wantedAddress) &&
+			    (wantedAddress < end) &&
 			    ((end - begin) >= size))
 			{
 				break;
