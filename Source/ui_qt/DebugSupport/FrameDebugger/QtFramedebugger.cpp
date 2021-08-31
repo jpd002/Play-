@@ -452,7 +452,7 @@ void QtFramedebugger::on_actionAlpha_Test_Enabled_triggered(bool value)
 	if(auto debuggerInterface = dynamic_cast<CGsDebuggerInterface*>(m_gs.get()))
 	{
 		debuggerInterface->SetAlphaTestingEnabled(value);
-		ui->actionAlpha_Blend_Enabled->setChecked(value);
+		ui->actionAlpha_Test_Enabled->setChecked(value);
 		Redraw();
 	}
 }
@@ -462,7 +462,7 @@ void QtFramedebugger::on_actionDepth_Test_Enabled_triggered(bool value)
 	if(auto debuggerInterface = dynamic_cast<CGsDebuggerInterface*>(m_gs.get()))
 	{
 		debuggerInterface->SetDepthTestingEnabled(value);
-		ui->actionAlpha_Blend_Enabled->setChecked(value);
+		ui->actionDepth_Test_Enabled->setChecked(value);
 		Redraw();
 	}
 }
