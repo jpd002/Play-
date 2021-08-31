@@ -597,7 +597,7 @@ void CGSH_Vulkan::SetRenderingContext(uint64 primReg)
 	pipelineCaps.texClampV = clamp.nWMT;
 	pipelineCaps.hasFog = prim.nFog;
 	pipelineCaps.scanMask = scanMask;
-	pipelineCaps.hasAlphaBlending = prim.nAlpha;
+	pipelineCaps.hasAlphaBlending = prim.nAlpha && m_alphaBlendingEnabled;
 	pipelineCaps.colClamp = colClamp;
 	pipelineCaps.fba = fba;
 	pipelineCaps.hasDstAlphaTest = test.nDestAlphaEnabled;
@@ -671,14 +671,14 @@ void CGSH_Vulkan::SetRenderingContext(uint64 primReg)
 	}
 
 	pipelineCaps.depthTestFunction = test.nDepthMethod;
-	if(!test.nDepthEnabled)
+	if(!test.nDepthEnabled || !m_depthTestingEnabled)
 	{
 		pipelineCaps.depthTestFunction = CGSHandler::DEPTH_TEST_ALWAYS;
 	}
 
 	pipelineCaps.alphaTestFunction = test.nAlphaMethod;
 	pipelineCaps.alphaTestFailAction = test.nAlphaFail;
-	if(!test.nAlphaEnabled)
+	if(!test.nAlphaEnabled || !m_alphaTestingEnabled)
 	{
 		pipelineCaps.alphaTestFunction = CGSHandler::ALPHA_TEST_ALWAYS;
 	}
