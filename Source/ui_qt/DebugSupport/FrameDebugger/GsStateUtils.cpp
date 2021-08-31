@@ -217,16 +217,26 @@ std::string CGsStateUtils::GetInputState(CGSHandler* gs)
 {
 	std::string result;
 
-	auto prim = make_convertible<CGSHandler::PRIM>(gs->GetRegisters()[GS_REG_PRIM]);
-	auto xyOffset = make_convertible<CGSHandler::XYOFFSET>(gs->GetRegisters()[GS_REG_XYOFFSET_1 + prim.nContext]);
-
 	bool usePrmode = (gs->GetRegisters()[GS_REG_PRMODECONT] & 1) == 0;
+
+	auto prim = make_convertible<CGSHandler::PRMODE>(0);
+	if(usePrmode)
+	{
+		prim <<= gs->GetRegisters()[GS_REG_PRMODE];
+	}
+	else
+	{
+		prim <<= gs->GetRegisters()[GS_REG_PRIM];
+	}
+
+	auto primitiveType = gs->GetRegisters()[GS_REG_PRIM] & 0x07;
+	auto xyOffset = make_convertible<CGSHandler::XYOFFSET>(gs->GetRegisters()[GS_REG_XYOFFSET_1 + prim.nContext]);
 
 	result += string_format("Use PRMODE: %s\r\n", g_yesNoString[usePrmode]);
 
 	result += string_format("Primitive:\r\n");
 	result += string_format("\tContext: %d\r\n", prim.nContext + 1);
-	result += string_format("\tType: %s\r\n", g_primitiveTypeString[prim.nType]);
+	result += string_format("\tType: %s\r\n", g_primitiveTypeString[primitiveType]);
 	result += string_format("\tUse Gouraud: %s\r\n", g_yesNoString[prim.nShading]);
 	result += string_format("\tUse Texture: %s\r\n", g_yesNoString[prim.nTexture]);
 	result += string_format("\tUse Fog: %s\r\n", g_yesNoString[prim.nFog]);
