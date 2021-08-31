@@ -113,6 +113,28 @@ private:
 	Framework::CBitmap GetFramebufferImpl(uint64);
 	Framework::CBitmap GetTextureImpl(uint64, uint32, uint64, uint64, uint32);
 
+	template <typename PixelIndexor, uint32 mask = ~0U>
+	static Framework::CBitmap ReadImage32(uint8* ram, uint32 bufferPtr, uint32 bufferWidth, uint32 width, uint32 height)
+	{
+		auto bitmap = Framework::CBitmap(width, height, 32);
+		auto bitmapPixels = reinterpret_cast<uint32*>(bitmap.GetPixels());
+		PixelIndexor indexor(ram, bufferPtr, bufferWidth);
+		for(unsigned int y = 0; y < height; y++)
+		{
+			for(unsigned int x = 0; x < width; x++)
+			{
+				uint32 pixel = indexor.GetPixel(x, y) & mask;
+				uint32 r = (pixel & 0x000000FF) >> 0;
+				uint32 g = (pixel & 0x0000FF00) >> 8;
+				uint32 b = (pixel & 0x00FF0000) >> 16;
+				uint32 a = (pixel & 0xFF000000) >> 24;
+				(*bitmapPixels) = b | (g << 8) | (r << 16) | (a << 24);
+				bitmapPixels++;
+			}
+		}
+		return bitmap;
+	}
+
 	template <typename PixelIndexor>
 	static Framework::CBitmap ReadImage16(uint8* ram, uint32 bufferPtr, uint32 bufferWidth, uint32 width, uint32 height)
 	{

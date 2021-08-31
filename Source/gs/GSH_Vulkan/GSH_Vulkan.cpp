@@ -1341,25 +1341,15 @@ Framework::CBitmap CGSH_Vulkan::GetFramebufferImpl(uint64 frameReg)
 	switch(frame.nPsm)
 	{
 	case PSMCT32:
+	{
+		bitmap = ReadImage32<CGsPixelFormats::CPixelIndexorPSMCT32>(GetRam(), frame.GetBasePtr(),
+		                                                            frame.nWidth, frameWidth, frameHeight);
+	}
+	break;
 	case PSMCT24:
 	{
-		bitmap = Framework::CBitmap(frameWidth, frameHeight, 32);
-		auto bitmapPixels = reinterpret_cast<uint32*>(bitmap.GetPixels());
-		uint32 mask = (frame.nPsm == PSMCT32) ? 0xFFFFFFFF : 0xFFFFFF;
-		CGsPixelFormats::CPixelIndexorPSMCT32 indexor(GetRam(), frame.GetBasePtr(), frame.nWidth);
-		for(unsigned int y = 0; y < frameHeight; y++)
-		{
-			for(unsigned int x = 0; x < frameWidth; x++)
-			{
-				uint32 pixel = indexor.GetPixel(x, y) & mask;
-				uint32 r = (pixel & 0x000000FF) >> 0;
-				uint32 g = (pixel & 0x0000FF00) >> 8;
-				uint32 b = (pixel & 0x00FF0000) >> 16;
-				uint32 a = (pixel & 0xFF000000) >> 24;
-				(*bitmapPixels) = b | (g << 8) | (r << 16) | (a << 24);
-				bitmapPixels++;
-			}
-		}
+		bitmap = ReadImage32<CGsPixelFormats::CPixelIndexorPSMCT32, 0x00FFFFFF>(GetRam(), frame.GetBasePtr(),
+		                                                                        frame.nWidth, frameWidth, frameHeight);
 	}
 	break;
 	case PSMCT16:
@@ -1393,6 +1383,12 @@ Framework::CBitmap CGSH_Vulkan::GetTextureImpl(uint64 tex0Reg, uint32 maxMip, ui
 
 	switch(tex0.nPsm)
 	{
+	case PSMCT32:
+	{
+		bitmap = ReadImage32<CGsPixelFormats::CPixelIndexorPSMCT32>(GetRam(), tex0.GetBufPtr(),
+		                                                            tex0.nBufWidth, tex0.GetWidth(), tex0.GetHeight());
+	}
+	break;
 	case PSMT8:
 	{
 		bitmap = Framework::CBitmap(tex0.GetWidth(), tex0.GetHeight(), 8);
