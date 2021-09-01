@@ -1255,6 +1255,31 @@ std::pair<uint64, uint64> CGSHandler::GetCurrentDisplayInfo()
 	}
 }
 
+std::pair<uint32, uint32> CGSHandler::GetDisplayBounds(uint64 displayReg) const
+{
+	auto d = make_convertible<DISPLAY>(displayReg);
+
+	uint32 dispWidth = (d.nW + 1) / (d.nMagX + 1);
+	uint32 dispHeight = (d.nH + 1);
+
+	//Some games provide a huge height but seem to only need a fraction
+	//of what they need:
+	//- Silent Hill 3
+	//- Metal Slug 4
+	//- Shooting Love: Trizeal
+	//- And many others...
+	//Does the PCRTC clamp the values?
+	if(dispHeight > 640)
+	{
+		dispHeight /= 2;
+	}
+
+	bool halfHeight = GetCrtIsInterlaced() && GetCrtIsFrameMode();
+	if(halfHeight) dispHeight /= 2;
+
+	return std::make_pair(dispWidth, dispHeight);
+}
+
 unsigned int CGSHandler::GetCurrentReadCircuit()
 {
 	uint32 rcMode = m_nPMODE & 0x03;

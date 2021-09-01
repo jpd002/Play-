@@ -845,6 +845,7 @@ public:
 	uint32 GetCrtHSyncFrequency() const;
 	bool GetCrtIsInterlaced() const;
 	bool GetCrtIsFrameMode() const;
+	std::pair<uint32, uint32> GetDisplayBounds(uint64) const;
 	std::pair<uint64, uint64> GetCurrentDisplayInfo();
 	unsigned int GetCurrentReadCircuit();
 
