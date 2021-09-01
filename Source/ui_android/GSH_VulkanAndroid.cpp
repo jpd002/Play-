@@ -17,23 +17,46 @@ void CGSH_VulkanAndroid::InitializeImpl()
 {
 	m_instance = CreateInstance(true);
 
-	auto surfaceCreateInfo = Framework::Vulkan::AndroidSurfaceCreateInfoKHR();
-	surfaceCreateInfo.window = m_window;
-	auto result = m_instance.vkCreateAndroidSurfaceKHR(m_instance, &surfaceCreateInfo, nullptr, &m_context->surface);
-	CHECKVULKANERROR(result);
-
+	CreateSurface();
 	CGSH_Vulkan::InitializeImpl();
-
-	{
-		PRESENTATION_PARAMS presentationParams;
-		presentationParams.mode = PRESENTATION_MODE_FIT;
-		presentationParams.windowWidth = ANativeWindow_getWidth(m_window);
-		presentationParams.windowHeight = ANativeWindow_getHeight(m_window);
-
-		SetPresentationParams(presentationParams);
-	}
+	UpdateViewport();
 }
 
 void CGSH_VulkanAndroid::PresentBackbuffer()
 {
+}
+
+void CGSH_VulkanAndroid::SetWindow(ANativeWindow* window)
+{
+	m_window = window;
+	SendGSCall(
+			[this]() {
+				CreateSurface();
+				UpdateViewport();
+			},
+			true);
+}
+
+void CGSH_VulkanAndroid::CreateSurface()
+{
+	if(m_context->surface != VK_NULL_HANDLE)
+	{
+		m_instance.vkDestroySurfaceKHR(m_instance, m_context->surface, nullptr);
+		m_context->surface = VK_NULL_HANDLE;
+	}
+
+	auto surfaceCreateInfo = Framework::Vulkan::AndroidSurfaceCreateInfoKHR();
+	surfaceCreateInfo.window = m_window;
+	auto result = m_instance.vkCreateAndroidSurfaceKHR(m_instance, &surfaceCreateInfo, nullptr, &m_context->surface);
+	CHECKVULKANERROR(result);
+}
+
+void CGSH_VulkanAndroid::UpdateViewport()
+{
+	PRESENTATION_PARAMS presentationParams;
+	presentationParams.mode = PRESENTATION_MODE_FIT;
+	presentationParams.windowWidth = ANativeWindow_getWidth(m_window);
+	presentationParams.windowHeight = ANativeWindow_getHeight(m_window);
+
+	SetPresentationParams(presentationParams);
 }

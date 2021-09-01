@@ -16,7 +16,8 @@ public:
 	void PresentBackbuffer() override;
 
 private:
-	void SetupContext();
+	void CreateSurface();
+	void UpdateViewport();
 
 	ANativeWindow* m_window = nullptr;
 };

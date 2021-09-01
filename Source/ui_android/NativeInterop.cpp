@@ -207,7 +207,7 @@ extern "C" JNIEXPORT void JNICALL Java_com_virtualapplications_play_NativeIntero
 	}
 	else
 	{
-		//static_cast<CGSH_OpenGLAndroid*>(gsHandler)->SetWindow(nativeWindow);
+		static_cast<CGSH_VulkanAndroid*>(gsHandler)->SetWindow(nativeWindow);
 	}
 }
 
