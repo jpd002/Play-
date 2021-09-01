@@ -218,18 +218,12 @@ void CGSH_Vulkan::FlipImpl()
 {
 	auto dispInfo = GetCurrentDisplayInfo();
 	auto fb = make_convertible<DISPFB>(dispInfo.first);
-	auto d = make_convertible<DISPLAY>(dispInfo.second);
-
-	unsigned int dispWidth = (d.nW + 1) / (d.nMagX + 1);
-	unsigned int dispHeight = (d.nH + 1);
-
-	bool halfHeight = GetCrtIsInterlaced() && GetCrtIsFrameMode();
-	if(halfHeight) dispHeight /= 2;
+	auto dispBounds = GetDisplayBounds(dispInfo.second);
 
 	if(m_present)
 	{
 		m_present->SetPresentationViewport(GetPresentationViewport());
-		m_present->DoPresent(fb.nPSM, fb.GetBufPtr(), fb.GetBufWidth(), dispWidth, dispHeight);
+		m_present->DoPresent(fb.nPSM, fb.GetBufPtr(), fb.GetBufWidth(), dispBounds.first, dispBounds.second);
 	}
 
 	PresentBackbuffer();

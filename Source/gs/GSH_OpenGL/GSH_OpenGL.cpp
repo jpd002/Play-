@@ -130,13 +130,7 @@ void CGSH_OpenGL::FlipImpl()
 
 	auto dispInfo = GetCurrentDisplayInfo();
 	auto fb = make_convertible<DISPFB>(dispInfo.first);
-	auto d = make_convertible<DISPLAY>(dispInfo.second);
-
-	unsigned int dispWidth = (d.nW + 1) / (d.nMagX + 1);
-	unsigned int dispHeight = (d.nH + 1);
-
-	bool halfHeight = GetCrtIsInterlaced() && GetCrtIsFrameMode();
-	if(halfHeight) dispHeight /= 2;
+	auto dispBounds = GetDisplayBounds(dispInfo.second);
 
 	FramebufferPtr framebuffer;
 	for(const auto& candidateFramebuffer : m_framebuffers)
@@ -161,7 +155,7 @@ void CGSH_OpenGL::FlipImpl()
 
 	if(framebuffer)
 	{
-		CommitFramebufferDirtyPages(framebuffer, 0, dispHeight);
+		CommitFramebufferDirtyPages(framebuffer, 0, dispBounds.second);
 		if(m_multisampleEnabled)
 		{
 			ResolveFramebufferMultisample(framebuffer, m_fbScale);
@@ -185,8 +179,8 @@ void CGSH_OpenGL::FlipImpl()
 
 	if(framebuffer)
 	{
-		float u1 = static_cast<float>(dispWidth) / static_cast<float>(framebuffer->m_width);
-		float v1 = static_cast<float>(dispHeight) / static_cast<float>(framebuffer->m_height);
+		float u1 = static_cast<float>(dispBounds.first) / static_cast<float>(framebuffer->m_width);
+		float v1 = static_cast<float>(dispBounds.second) / static_cast<float>(framebuffer->m_height);
 
 		glDisable(GL_BLEND);
 		glDisable(GL_DEPTH_TEST);

@@ -437,29 +437,10 @@ void CGSH_Direct3D9::DrawActiveFramebuffer()
 	HRESULT result = S_OK;
 
 	m_renderState.isValid = false;
-	DISPLAY d;
-	DISPFB fb;
-	{
-		std::lock_guard<std::recursive_mutex> registerMutexLock(m_registerMutex);
-		unsigned int readCircuit = GetCurrentReadCircuit();
-		switch(readCircuit)
-		{
-		case 0:
-			d <<= m_nDISPLAY1.value.q;
-			fb <<= m_nDISPFB1.value.q;
-			break;
-		case 1:
-			d <<= m_nDISPLAY2.value.q;
-			fb <<= m_nDISPFB2.value.q;
-			break;
-		}
-	}
 
-	unsigned int dispWidth = (d.nW + 1) / (d.nMagX + 1);
-	unsigned int dispHeight = (d.nH + 1);
-
-	bool halfHeight = GetCrtIsInterlaced() && GetCrtIsFrameMode();
-	if(halfHeight) dispHeight /= 2;
+	auto dispInfo = GetCurrentDisplayInfo();
+	auto fb = make_convertible<DISPFB>(dispInfo.first);
+	auto dispBounds = GetDisplayBounds(dispInfo.second);
 
 	FramebufferPtr framebuffer;
 	for(const auto& candidateFramebuffer : m_framebuffers)
@@ -510,8 +491,8 @@ void CGSH_Direct3D9::DrawActiveFramebuffer()
 
 	if(framebuffer)
 	{
-		float u1 = static_cast<float>(dispWidth) / static_cast<float>(framebuffer->m_width);
-		float v1 = static_cast<float>(dispHeight) / static_cast<float>(framebuffer->m_height);
+		float u1 = static_cast<float>(dispBounds.first) / static_cast<float>(framebuffer->m_width);
+		float v1 = static_cast<float>(dispBounds.second) / static_cast<float>(framebuffer->m_height);
 
 		auto textureMatrix = CMatrix4::MakeScale(u1, v1, 1);
 		m_device->SetTransform(D3DTS_TEXTURE0, reinterpret_cast<D3DMATRIX*>(&textureMatrix));
