@@ -28,6 +28,10 @@ else()
 		add_subdirectory(Source/ios_ui/)
 	endif(TARGET_PLATFORM_IOS)
 
+	if(TARGET_PLATFORM_JS)
+		add_subdirectory(Source/js_ui/)
+	endif()
+	
 	if(USE_QT)
 		add_subdirectory(Source/unix_ui/)
 	endif(USE_QT)
