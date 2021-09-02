@@ -86,12 +86,20 @@ void CDrawMobile::SetPipelineCaps(const PIPELINE_CAPS& caps)
 
 void CDrawMobile::SetFramebufferParams(uint32 addr, uint32 width, uint32 writeMask)
 {
-	bool changed =
+	bool storeChanged =
 	    (m_loadStorePushConstants.fbBufAddr != addr) ||
-	    (m_loadStorePushConstants.fbBufWidth != width) ||
+	    (m_loadStorePushConstants.fbBufWidth != width);
+	bool drawChanged =
 	    (m_drawPushConstants.fbWriteMask != writeMask);
-	if(!changed) return;
-	FlushRenderPass();
+	if(!storeChanged && !drawChanged) return;
+	if(storeChanged)
+	{
+		FlushRenderPass();
+	}
+	if(drawChanged)
+	{
+		FlushVertices();
+	}
 	m_loadStorePushConstants.fbBufAddr = addr;
 	m_loadStorePushConstants.fbBufWidth = width;
 	m_drawPushConstants.fbWriteMask = writeMask;
