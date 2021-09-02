@@ -21,6 +21,7 @@ public:
 
 	void Reset();
 	void Step();
+	void StepSync();
 	void SetSpuHandler(const SpuHandlerFactory&);
 
 	void SetReverbEnabled(bool);
@@ -46,7 +47,8 @@ public:
 
 	NewFrameEvent OnNewFrame;
 
-private:
+//private:
+public:
 	void ThreadProc();
 
 	void SetReverbEnabledImpl(bool);

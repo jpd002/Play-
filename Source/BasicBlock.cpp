@@ -261,7 +261,7 @@ void CBasicBlock::CompileEpilog(CMipsJitter* jitter)
 		jitter->PushCst(MIPS_INVALID_PC);
 		jitter->PullRel(offsetof(CMIPS, m_State.nDelayedJumpAddr));
 
-#ifndef AOT_BUILD_CACHE
+#if !defined(AOT_BUILD_CACHE) && !defined(__EMSCRIPTEN__)
 		jitter->PushRel(offsetof(CMIPS, m_State.nHasException));
 		jitter->PushCst(0);
 		jitter->BeginIf(Jitter::CONDITION_EQ);
@@ -276,7 +276,7 @@ void CBasicBlock::CompileEpilog(CMipsJitter* jitter)
 		jitter->PushCst(m_end + 4);
 		jitter->PullRel(offsetof(CMIPS, m_State.nPC));
 
-#ifndef AOT_BUILD_CACHE
+#if !defined(AOT_BUILD_CACHE) && !defined(__EMSCRIPTEN__)
 		jitter->PushRel(offsetof(CMIPS, m_State.nHasException));
 		jitter->PushCst(0);
 		jitter->BeginIf(Jitter::CONDITION_EQ);
@@ -354,7 +354,7 @@ void CBasicBlock::SetOutLink(LINK_SLOT linkSlot, BlockOutLinkPointer link)
 
 void CBasicBlock::LinkBlock(LINK_SLOT linkSlot, CBasicBlock* otherBlock)
 {
-#ifndef AOT_ENABLED
+#if !defined(AOT_ENABLED) && !defined(__EMSCRIPTEN__) 
 	assert(!IsEmpty());
 	assert(!otherBlock->IsEmpty());
 	assert(linkSlot < LINK_SLOT_MAX);
@@ -368,12 +368,12 @@ void CBasicBlock::LinkBlock(LINK_SLOT linkSlot, CBasicBlock* otherBlock)
 	m_function.BeginModify();
 	*reinterpret_cast<uintptr_t*>(code + m_linkBlockTrampolineOffset[linkSlot]) = patchValue;
 	m_function.EndModify();
-#endif //!AOT_ENABLED
+#endif //!AOT_ENABLED && !__EMSCRIPTEN__
 }
 
 void CBasicBlock::UnlinkBlock(LINK_SLOT linkSlot)
 {
-#ifndef AOT_ENABLED
+#if !defined(AOT_ENABLED) && !defined(__EMSCRIPTEN__) 
 	assert(!IsEmpty());
 	assert(linkSlot < LINK_SLOT_MAX);
 	assert(m_linkBlockTrampolineOffset[linkSlot] != INVALID_LINK_SLOT);
@@ -386,7 +386,7 @@ void CBasicBlock::UnlinkBlock(LINK_SLOT linkSlot)
 	m_function.BeginModify();
 	*reinterpret_cast<uintptr_t*>(code + m_linkBlockTrampolineOffset[linkSlot]) = patchValue;
 	m_function.EndModify();
-#endif //!AOT_ENABLED
+#endif //!AOT_ENABLED && !__EMSCRIPTEN__
 }
 
 void CBasicBlock::HandleExternalFunctionReference(uintptr_t symbol, uint32 offset, Jitter::CCodeGen::SYMBOL_REF_TYPE refType)

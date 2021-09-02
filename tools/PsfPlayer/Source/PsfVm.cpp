@@ -17,7 +17,7 @@ CPsfVm::CPsfVm()
     , m_soundHandler(NULL)
 {
 	m_isThreadOver = false;
-	m_thread = std::thread([&]() { ThreadProc(); });
+	//m_thread = std::thread([&]() { ThreadProc(); });
 }
 
 CPsfVm::~CPsfVm()
@@ -156,6 +156,11 @@ void CPsfVm::Step()
 	m_singleStep = true;
 	m_status = RUNNING;
 	OnRunningStateChange();
+}
+
+void CPsfVm::StepSync()
+{
+	m_subSystem->Update(false, m_soundHandler);
 }
 
 void CPsfVm::SetSpuHandler(const SpuHandlerFactory& factory)
