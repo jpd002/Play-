@@ -338,6 +338,15 @@ void CDrawMobile::FlushVertices()
 		drawPipeline = m_drawPipelineCache.RegisterPipeline(m_pipelineCaps, CreateDrawPipeline(m_pipelineCaps));
 	}
 
+	{
+		auto memoryBarrier = Framework::Vulkan::MemoryBarrier();
+		memoryBarrier.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+		memoryBarrier.dstAccessMask = VK_ACCESS_INPUT_ATTACHMENT_READ_BIT;
+
+		m_context->device.vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
+											   VK_DEPENDENCY_BY_REGION_BIT, 1, &memoryBarrier, 0, nullptr, 0, nullptr);
+	}
+
 	auto descriptorSetCaps = make_convertible<DESCRIPTORSET_CAPS>(0);
 	descriptorSetCaps.hasTexture = m_pipelineCaps.hasTexture;
 	descriptorSetCaps.framebufferFormat = m_pipelineCaps.framebufferFormat;
