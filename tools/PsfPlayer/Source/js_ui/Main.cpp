@@ -7,6 +7,7 @@
 #include "BasicBlock.h"
 #include "MemoryUtils.h"
 #include "SH_FileOutput.h"
+#include <emscripten/bind.h>
 
 CPsfVm* g_virtualMachine = nullptr;
 
@@ -37,16 +38,14 @@ extern "C" void initVm()
 	}
 }
 
-extern "C" void loadPsf()
+extern "C" void loadPsf(const char* archivePath, const char* psfPath)
 {
+	printf("Loading '%s' from '%s.\r\n", psfPath, archivePath);
 	try
 	{
-		fs::path archivePath("work/Final Fantasy VII (EMU).zophar.zip");
-		auto archive = std::unique_ptr<CPsfArchive>(CPsfArchive::CreateFromPath(archivePath));
-		auto files = archive->GetFiles();
-		auto fileToken = CArchivePsfStreamProvider::GetPathTokenFromFilePath(files.begin()->name);
+		assert(g_virtualMachine);
+		auto fileToken = CArchivePsfStreamProvider::GetPathTokenFromFilePath(psfPath);
 		CPsfLoader::LoadPsf(*g_virtualMachine, fileToken, archivePath);
-		printf("Loaded archive from '%s'\r\n", archivePath.string().c_str());
 	}
 	catch(const std::exception& ex)
 	{
@@ -64,4 +63,33 @@ extern "C" void step()
 	{
 		printf("Exception: %s\r\n", ex.what());
 	}
+}
+
+std::vector<std::string> getPsfArchiveFileList(std::string rawArchivePath)
+{
+	std::vector<std::string> result;
+	try
+	{
+		fs::path archivePath(rawArchivePath);
+		auto archive = std::unique_ptr<CPsfArchive>(CPsfArchive::CreateFromPath(archivePath));
+		auto files = archive->GetFiles();
+		for(const auto& file : files)
+		{
+			result.push_back(file.name);
+		}
+	}
+	catch(const std::exception& ex)
+	{
+		printf("Exception: %s\r\n", ex.what());
+	}
+	return result;
+}
+
+EMSCRIPTEN_BINDINGS(PsfPlayer)
+{
+	using namespace emscripten;
+
+	register_vector<std::string>("StringList");
+
+	function("getPsfArchiveFileList", &getPsfArchiveFileList);
 }
