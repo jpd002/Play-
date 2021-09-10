@@ -216,8 +216,8 @@ void CDrawMobile::SetScissor(uint32 scissorX, uint32 scissorY, uint32 scissorWid
 void CDrawMobile::SetMemoryCopyParams(uint32 memoryCopyAddress, uint32 memoryCopySize)
 {
 	bool changed =
-		(memoryCopyAddress != m_memoryCopyAddress) ||
-		(memoryCopySize != m_memoryCopySize);
+	    (memoryCopyAddress != m_memoryCopyAddress) ||
+	    (memoryCopySize != m_memoryCopySize);
 	if(!changed) return;
 	FlushRenderPass();
 	m_memoryCopyAddress = memoryCopyAddress;
@@ -278,7 +278,7 @@ void CDrawMobile::FlushVertices()
 		assert(!m_renderPassBegun);
 		m_memoryCopyRegion.Reset();
 	}
-	
+
 	{
 		VkViewport viewport = {};
 		viewport.width = DRAW_AREA_SIZE;
@@ -344,7 +344,7 @@ void CDrawMobile::FlushVertices()
 		memoryBarrier.dstAccessMask = VK_ACCESS_INPUT_ATTACHMENT_READ_BIT;
 
 		m_context->device.vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
-											   VK_DEPENDENCY_BY_REGION_BIT, 1, &memoryBarrier, 0, nullptr, 0, nullptr);
+		                                       VK_DEPENDENCY_BY_REGION_BIT, 1, &memoryBarrier, 0, nullptr, 0, nullptr);
 	}
 
 	auto descriptorSetCaps = make_convertible<DESCRIPTORSET_CAPS>(0);
@@ -393,7 +393,7 @@ void CDrawMobile::FlushRenderPass()
 		int32 clippedX1 = std::clamp<int32>(m_renderPassMaxX, m_scissorX, m_scissorX + m_scissorWidth);
 		int32 clippedY0 = std::clamp<int32>(m_renderPassMinY, m_scissorY, m_scissorY + m_scissorHeight);
 		int32 clippedY1 = std::clamp<int32>(m_renderPassMaxY, m_scissorY, m_scissorY + m_scissorHeight);
-		
+
 		VkRect2D scissor = {};
 		scissor.offset.x = clippedX0;
 		scissor.offset.y = clippedY0;
@@ -1221,7 +1221,7 @@ static void ExpandAlpha(Nuanceur::CShaderBuilder& b, uint32 textureFormat, uint3
 }
 
 static Nuanceur::CInt3Rvalue GetAlphaABD(Nuanceur::CShaderBuilder& b, uint32 alphaABD,
-										 Nuanceur::CInt4Value srcColor, Nuanceur::CInt4Value dstColor)
+                                         Nuanceur::CInt4Value srcColor, Nuanceur::CInt4Value dstColor)
 {
 	switch(alphaABD)
 	{
@@ -1237,7 +1237,7 @@ static Nuanceur::CInt3Rvalue GetAlphaABD(Nuanceur::CShaderBuilder& b, uint32 alp
 }
 
 static Nuanceur::CInt3Rvalue GetAlphaC(Nuanceur::CShaderBuilder& b, uint32 alphaC,
-									   Nuanceur::CInt4Value srcColor, Nuanceur::CInt4Value dstColor, Nuanceur::CIntValue alphaFix)
+                                       Nuanceur::CInt4Value srcColor, Nuanceur::CInt4Value dstColor, Nuanceur::CIntValue alphaFix)
 {
 	switch(alphaC)
 	{
@@ -1253,9 +1253,9 @@ static Nuanceur::CInt3Rvalue GetAlphaC(Nuanceur::CShaderBuilder& b, uint32 alpha
 }
 
 static void AlphaTest(Nuanceur::CShaderBuilder& b,
-					  uint32 alphaTestFunction, uint32 alphaTestFailAction,
-					  Nuanceur::CInt4Value srcIColor, Nuanceur::CIntValue alphaRef,
-					  Nuanceur::CBoolLvalue writeColor, Nuanceur::CBoolLvalue writeDepth, Nuanceur::CBoolLvalue writeAlpha)
+                      uint32 alphaTestFunction, uint32 alphaTestFailAction,
+                      Nuanceur::CInt4Value srcIColor, Nuanceur::CIntValue alphaRef,
+                      Nuanceur::CBoolLvalue writeColor, Nuanceur::CBoolLvalue writeDepth, Nuanceur::CBoolLvalue writeAlpha)
 {
 	using namespace Nuanceur;
 
@@ -1357,7 +1357,7 @@ static void DestinationAlphaTest(Nuanceur::CShaderBuilder& b, uint32 framebuffer
 }
 
 static void WriteToFramebuffer(Nuanceur::CShaderBuilder& b, uint32 framebufferFormat,
-							   Nuanceur::CArrayUintValue memoryBuffer, Nuanceur::CIntValue fbAddress, Nuanceur::CUintValue srcPixel)
+                               Nuanceur::CArrayUintValue memoryBuffer, Nuanceur::CIntValue fbAddress, Nuanceur::CUintValue srcPixel)
 {
 	switch(framebufferFormat)
 	{
@@ -1641,11 +1641,11 @@ Framework::Vulkan::CShaderModule CDrawMobile::CreateDrawFragmentShader(const PIP
 		srcIColor = ToInt(textureColor->xyzw() * NewFloat4(b, 255.f, 255.f, 255.f, 255.f));
 
 		AlphaTest(b, caps.alphaTestFunction, caps.alphaTestFailAction, srcIColor, alphaRef,
-				  writeColor, writeDepth, writeAlpha);
+		          writeColor, writeDepth, writeAlpha);
 
 		bool canDiscardAlpha =
-			(caps.alphaTestFunction != CGSHandler::ALPHA_TEST_ALWAYS) &&
-			(caps.alphaTestFailAction == CGSHandler::ALPHA_TEST_FAIL_RGBONLY);
+		    (caps.alphaTestFunction != CGSHandler::ALPHA_TEST_ALWAYS) &&
+		    (caps.alphaTestFailAction == CGSHandler::ALPHA_TEST_FAIL_RGBONLY);
 
 		//BeginInvocationInterlock(b);
 
@@ -1788,7 +1788,7 @@ Framework::Vulkan::CShaderModule CDrawMobile::CreateDrawFragmentShader(const PIP
 		{
 			finalDepth = dstDepth->x();
 		}
-		
+
 		//EndInvocationInterlock(b);
 
 		outputColor = finalPixel->x();
@@ -2299,7 +2299,7 @@ Framework::Vulkan::CShaderModule CDrawMobile::CreateStoreFragmentShader(const PI
 
 		auto dstPixel = CUintLvalue(b.CreateVariableUint("dstPixel"));
 		auto dstDepth = CUintLvalue(b.CreateVariableUint("dstDepth"));
-		
+
 		dstPixel = Load(subpassColorInput, NewInt2(b, 0, 0))->x();
 		dstDepth = Load(subpassDepthInput, NewInt2(b, 0, 0))->x();
 
@@ -2366,7 +2366,7 @@ void CDrawMobile::CreateDrawImages()
 {
 	m_drawColorImage = Framework::Vulkan::CImage(m_context->device, m_context->physicalDeviceMemoryProperties,
 	                                             VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT,
-												 VK_FORMAT_R32_UINT, DRAW_AREA_SIZE, DRAW_AREA_SIZE, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+	                                             VK_FORMAT_R32_UINT, DRAW_AREA_SIZE, DRAW_AREA_SIZE, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
 	m_drawColorImage.SetLayout(m_context->queue, m_context->commandBufferPool,
 	                           VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT);

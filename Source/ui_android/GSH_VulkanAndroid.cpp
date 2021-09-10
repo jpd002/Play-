@@ -30,11 +30,11 @@ void CGSH_VulkanAndroid::SetWindow(ANativeWindow* window)
 {
 	m_window = window;
 	SendGSCall(
-			[this]() {
-				CreateSurface();
-				UpdateViewport();
-			},
-			true);
+	    [this]() {
+		    CreateSurface();
+		    UpdateViewport();
+	    },
+	    true);
 }
 
 void CGSH_VulkanAndroid::CreateSurface()
