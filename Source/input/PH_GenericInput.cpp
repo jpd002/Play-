@@ -12,14 +12,13 @@ void CPH_GenericInput::Update(uint8* ram)
 				const auto& binding = m_bindingManager.GetBinding(pad, button);
 				if(!binding) continue;
 				uint32 value = binding->GetValue();
-				auto currentButtonId = static_cast<PS2::CControllerInfo::BUTTON>(buttonIdx);
-				if(PS2::CControllerInfo::IsAxis(currentButtonId))
+				if(PS2::CControllerInfo::IsAxis(button))
 				{
-					listener->SetAxisState(pad, currentButtonId, value & 0xFF, ram);
+					listener->SetAxisState(pad, button, value & 0xFF, ram);
 				}
 				else
 				{
-					listener->SetButtonState(pad, currentButtonId, value != 0, ram);
+					listener->SetButtonState(pad, button, value != 0, ram);
 				}
 			}
 		}
