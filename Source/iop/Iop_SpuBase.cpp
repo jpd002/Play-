@@ -2,6 +2,7 @@
 #include <cstring>
 #include <cmath>
 #include <climits>
+#include <algorithm>
 #include "string_format.h"
 #include "../Log.h"
 #include "../states/RegisterStateFile.h"
