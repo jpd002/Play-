@@ -611,8 +611,10 @@ int32 CSpuBase::ComputeChannelVolume(const CHANNEL_VOLUME& volume, int32 current
 			//Exponential increase/decrease
 			if(volume.sweep.decrease)
 			{
-				uint32 sweepDelta = std::max<uint32>(currentVolume * volume.sweep.volume / 0x7F, 1);
-				volumeLevel = currentVolume - sweepDelta;
+				int64 sweepDelta = static_cast<int64>(currentVolume) * static_cast<int64>(volume.sweep.volume) / 0x7F;
+				assert(sweepDelta >= 0);
+				uint32 sweepDeltaClamped = std::clamp<int64>(sweepDelta, 1, currentVolume);
+				volumeLevel = currentVolume - sweepDeltaClamped;
 			}
 			else
 			{
