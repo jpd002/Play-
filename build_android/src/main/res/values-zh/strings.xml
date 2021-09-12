@@ -4,7 +4,7 @@
 	<!-- Application Navigation -->
 
 	<string name="main_menu_settings">设置</string>
-	<string name="main_menu_addfolder">Add Folder</string>
+	<string name="main_menu_addfolder">添加文件夹</string>
 	<string name="main_menu_about">关于</string>
 	<string name="main_menu_exit">退出</string>
 
@@ -30,7 +30,7 @@
 
 	<string name="game_unavailable">游戏不可用。\n您要将其从列表中删除吗？</string>
 	<string name="not_found">未找到</string>
-	<string name="no_game_found_adapter">No game found.\n\nPlease open the menu and select \'Add Folder\' to add games.</string>
+	<string name="no_game_found_adapter">没有找到游戏。\n\n请打开菜单并选择 \'添加文件夹\' 来添加游戏.</string>
 
 	<!-- Application Preferences -->
 
@@ -48,12 +48,12 @@
 
 	<string name="pref_emu_video">视频设置</string>
 
-	<string name="pref_emu_video_res_factor_title">Set Resolution Factor</string>
+	<string name="pref_emu_video_res_factor_title">设置分辨率</string>
 
 	<string name="pref_emu_video_force_bilinear_title">强制双线性过滤</string>
 	<string name="pref_emu_video_force_bilinear_summary">强制在所有纹理上使用双线性过滤。</string>
 
-	<string name="pref_emu_video_presentation_mode_title">Presentation Mode</string>
+	<string name="pref_emu_video_presentation_mode_title">呈现模式</string>
 
 	<string name="pref_emu_audio">音频设置</string>
 
