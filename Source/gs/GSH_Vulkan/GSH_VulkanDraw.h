@@ -97,13 +97,18 @@ namespace GSH_Vulkan
 		void SetMemoryCopyParams(uint32, uint32);
 
 		void AddVertices(const PRIM_VERTEX*, const PRIM_VERTEX*);
-		void FlushVertices();
-		void FlushRenderPass();
+		virtual void FlushVertices() = 0;
+		virtual void FlushRenderPass() = 0;
 
 		void PreFlushFrameCommandBuffer() override;
 		void PostFlushFrameCommandBuffer() override;
 
-	private:
+	protected:
+		enum
+		{
+			DRAW_AREA_SIZE = 2048
+		};
+		
 		struct FRAMECONTEXT
 		{
 			Framework::Vulkan::CBuffer vertexBuffer;
@@ -159,28 +164,17 @@ namespace GSH_Vulkan
 		};
 		static_assert(sizeof(DRAW_PIPELINE_PUSHCONSTANTS) <= 128, "Push constants size can't exceed 128 bytes.");
 
-		VkDescriptorSet PrepareDescriptorSet(VkDescriptorSetLayout, const DESCRIPTORSET_CAPS&);
-
-		void CreateFramebuffer();
-		void CreateRenderPass();
-		void CreateDrawImage();
-
-		PIPELINE CreateDrawPipeline(const PIPELINE_CAPS&);
+		static std::vector<VkVertexInputAttributeDescription> GetVertexAttributes();
 		Framework::Vulkan::CShaderModule CreateVertexShader(const PIPELINE_CAPS&);
-		Framework::Vulkan::CShaderModule CreateFragmentShader(const PIPELINE_CAPS&);
+
+		static constexpr float DEPTH_MAX = 4294967296.0f;
 
 		ContextPtr m_context;
 		FrameCommandBufferPtr m_frameCommandBuffer;
 		PipelineCache m_pipelineCache;
 		DescriptorSetCache m_descriptorSetCache;
 
-		VkRenderPass m_renderPass = VK_NULL_HANDLE;
-		VkFramebuffer m_framebuffer = VK_NULL_HANDLE;
-
 		FRAMECONTEXT m_frames[MAX_FRAMES];
-
-		Framework::Vulkan::CImage m_drawImage;
-		VkImageView m_drawImageView = VK_NULL_HANDLE;
 
 		uint32 m_passVertexStart = 0;
 		uint32 m_passVertexEnd = 0;
