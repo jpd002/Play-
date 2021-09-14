@@ -16,6 +16,14 @@ if(NOT TARGET PsfCore)
 endif()
 list(APPEND PROJECT_LIBS PsfCore)
 
+if(NOT TARGET SH_OpenAL)
+	add_subdirectory(
+		${CMAKE_CURRENT_SOURCE_DIR}/../SH_OpenAL
+		${CMAKE_CURRENT_BINARY_DIR}/SH_OpenAL
+	)
+endif()
+list(APPEND PROJECT_LIBS sh_openal)
+
 add_executable(PsfPlayer 
 	Main.cpp
 	SH_FileOutput.cpp

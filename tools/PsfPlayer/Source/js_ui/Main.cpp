@@ -7,6 +7,7 @@
 #include "BasicBlock.h"
 #include "MemoryUtils.h"
 #include "SH_FileOutput.h"
+#include "../SH_OpenAL.h"
 #include <emscripten/bind.h>
 
 CPsfVm* g_virtualMachine = nullptr;
