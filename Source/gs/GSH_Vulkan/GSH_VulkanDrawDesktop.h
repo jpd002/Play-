@@ -9,10 +9,10 @@ namespace GSH_Vulkan
 	public:
 		CDrawDesktop(const ContextPtr&, const FrameCommandBufferPtr&);
 		virtual ~CDrawDesktop();
-		
+
 		void FlushVertices() override;
 		void FlushRenderPass() override;
-		
+
 	private:
 		void CreateRenderPass();
 		void CreateFramebuffer();
@@ -24,7 +24,7 @@ namespace GSH_Vulkan
 
 		VkRenderPass m_renderPass = VK_NULL_HANDLE;
 		VkFramebuffer m_framebuffer = VK_NULL_HANDLE;
-		
+
 		Framework::Vulkan::CImage m_drawImage;
 		VkImageView m_drawImageView = VK_NULL_HANDLE;
 	};

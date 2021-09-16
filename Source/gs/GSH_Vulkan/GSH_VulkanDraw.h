@@ -108,7 +108,7 @@ namespace GSH_Vulkan
 		{
 			DRAW_AREA_SIZE = 2048
 		};
-		
+
 		struct FRAMECONTEXT
 		{
 			Framework::Vulkan::CBuffer vertexBuffer;

@@ -5,7 +5,7 @@
 using namespace GSH_Vulkan;
 
 Nuanceur::CUintRvalue CDrawUtils::GetDepth(Nuanceur::CShaderBuilder& b, uint32 depthFormat,
-									  Nuanceur::CIntValue depthAddress, Nuanceur::CArrayUintValue memoryBuffer)
+                                           Nuanceur::CIntValue depthAddress, Nuanceur::CArrayUintValue memoryBuffer)
 {
 	switch(depthFormat)
 	{
@@ -22,7 +22,7 @@ Nuanceur::CUintRvalue CDrawUtils::GetDepth(Nuanceur::CShaderBuilder& b, uint32 d
 }
 
 Nuanceur::CIntRvalue CDrawUtils::ClampTexCoord(Nuanceur::CShaderBuilder& b, uint32 clampMode, Nuanceur::CIntValue texCoord, Nuanceur::CIntValue texSize,
-										  Nuanceur::CIntValue clampMin, Nuanceur::CIntValue clampMax)
+                                               Nuanceur::CIntValue clampMin, Nuanceur::CIntValue clampMax)
 {
 	using namespace Nuanceur;
 
@@ -42,8 +42,8 @@ Nuanceur::CIntRvalue CDrawUtils::ClampTexCoord(Nuanceur::CShaderBuilder& b, uint
 };
 
 static Nuanceur::CFloat4Rvalue GetClutColor(Nuanceur::CShaderBuilder& b,
-											uint32 textureFormat, uint32 clutFormat, Nuanceur::CUintValue texPixel,
-											Nuanceur::CArrayUintValue clutBuffer, Nuanceur::CIntValue texCsa)
+                                            uint32 textureFormat, uint32 clutFormat, Nuanceur::CUintValue texPixel,
+                                            Nuanceur::CArrayUintValue clutBuffer, Nuanceur::CIntValue texCsa)
 {
 	using namespace Nuanceur;
 
@@ -84,9 +84,9 @@ static Nuanceur::CFloat4Rvalue GetClutColor(Nuanceur::CShaderBuilder& b,
 }
 
 Nuanceur::CFloat4Rvalue CDrawUtils::GetTextureColor(Nuanceur::CShaderBuilder& b, uint32 textureFormat, uint32 clutFormat,
-											   Nuanceur::CInt2Value texelPos, Nuanceur::CArrayUintValue memoryBuffer, Nuanceur::CArrayUintValue clutBuffer,
-											   Nuanceur::CImageUint2DValue texSwizzleTable, Nuanceur::CIntValue texBufAddress, Nuanceur::CIntValue texBufWidth,
-											   Nuanceur::CIntValue texCsa)
+                                                    Nuanceur::CInt2Value texelPos, Nuanceur::CArrayUintValue memoryBuffer, Nuanceur::CArrayUintValue clutBuffer,
+                                                    Nuanceur::CImageUint2DValue texSwizzleTable, Nuanceur::CIntValue texBufAddress, Nuanceur::CIntValue texBufWidth,
+                                                    Nuanceur::CIntValue texCsa)
 {
 	using namespace Nuanceur;
 
@@ -98,7 +98,7 @@ Nuanceur::CFloat4Rvalue CDrawUtils::GetTextureColor(Nuanceur::CShaderBuilder& b,
 	case CGSHandler::PSMZ32:
 	{
 		auto texAddress = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT32>(
-			b, texSwizzleTable, texBufAddress, texBufWidth, texelPos);
+		    b, texSwizzleTable, texBufAddress, texBufWidth, texelPos);
 		auto texPixel = CMemoryUtils::Memory_Read32(b, memoryBuffer, texAddress);
 		return CMemoryUtils::PSM32ToVec4(b, texPixel);
 	}
@@ -107,7 +107,7 @@ Nuanceur::CFloat4Rvalue CDrawUtils::GetTextureColor(Nuanceur::CShaderBuilder& b,
 	case CGSHandler::PSMZ24:
 	{
 		auto texAddress = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT32>(
-			b, texSwizzleTable, texBufAddress, texBufWidth, texelPos);
+		    b, texSwizzleTable, texBufAddress, texBufWidth, texelPos);
 		auto texPixel = CMemoryUtils::Memory_Read24(b, memoryBuffer, texAddress);
 		return CMemoryUtils::PSM32ToVec4(b, texPixel);
 	}
@@ -116,35 +116,35 @@ Nuanceur::CFloat4Rvalue CDrawUtils::GetTextureColor(Nuanceur::CShaderBuilder& b,
 	case CGSHandler::PSMZ16:
 	{
 		auto texAddress = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT16>(
-			b, texSwizzleTable, texBufAddress, texBufWidth, texelPos);
+		    b, texSwizzleTable, texBufAddress, texBufWidth, texelPos);
 		auto texPixel = CMemoryUtils::Memory_Read16(b, memoryBuffer, texAddress);
 		return CMemoryUtils::PSM16ToVec4(b, texPixel);
 	}
 	case CGSHandler::PSMT8:
 	{
 		auto texAddress = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMT8>(
-			b, texSwizzleTable, texBufAddress, texBufWidth, texelPos);
+		    b, texSwizzleTable, texBufAddress, texBufWidth, texelPos);
 		auto texPixel = CMemoryUtils::Memory_Read8(b, memoryBuffer, texAddress);
 		return GetClutColor(b, textureFormat, clutFormat, texPixel, clutBuffer, texCsa);
 	}
 	case CGSHandler::PSMT4:
 	{
 		auto texAddress = CMemoryUtils::GetPixelAddress_PSMT4(
-			b, texSwizzleTable, texBufAddress, texBufWidth, texelPos);
+		    b, texSwizzleTable, texBufAddress, texBufWidth, texelPos);
 		auto texPixel = CMemoryUtils::Memory_Read4(b, memoryBuffer, texAddress);
 		return GetClutColor(b, textureFormat, clutFormat, texPixel, clutBuffer, texCsa);
 	}
 	case CGSHandler::PSMT8H:
 	{
 		auto texAddress = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT32>(
-			b, texSwizzleTable, texBufAddress, texBufWidth, texelPos);
+		    b, texSwizzleTable, texBufAddress, texBufWidth, texelPos);
 		auto texPixel = CMemoryUtils::Memory_Read8(b, memoryBuffer, texAddress + NewInt(b, 3));
 		return GetClutColor(b, textureFormat, clutFormat, texPixel, clutBuffer, texCsa);
 	}
 	case CGSHandler::PSMT4HL:
 	{
 		auto texAddress = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT32>(
-			b, texSwizzleTable, texBufAddress, texBufWidth, texelPos);
+		    b, texSwizzleTable, texBufAddress, texBufWidth, texelPos);
 		auto texNibAddress = (texAddress + NewInt(b, 3)) * NewInt(b, 2);
 		auto texPixel = CMemoryUtils::Memory_Read4(b, memoryBuffer, texNibAddress);
 		return GetClutColor(b, textureFormat, clutFormat, texPixel, clutBuffer, texCsa);
@@ -152,7 +152,7 @@ Nuanceur::CFloat4Rvalue CDrawUtils::GetTextureColor(Nuanceur::CShaderBuilder& b,
 	case CGSHandler::PSMT4HH:
 	{
 		auto texAddress = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT32>(
-			b, texSwizzleTable, texBufAddress, texBufWidth, texelPos);
+		    b, texSwizzleTable, texBufAddress, texBufWidth, texelPos);
 		auto texNibAddress = ((texAddress + NewInt(b, 3)) * NewInt(b, 2)) | NewInt(b, 1);
 		auto texPixel = CMemoryUtils::Memory_Read4(b, memoryBuffer, texNibAddress);
 		return GetClutColor(b, textureFormat, clutFormat, texPixel, clutBuffer, texCsa);
@@ -161,8 +161,8 @@ Nuanceur::CFloat4Rvalue CDrawUtils::GetTextureColor(Nuanceur::CShaderBuilder& b,
 }
 
 void CDrawUtils::ExpandAlpha(Nuanceur::CShaderBuilder& b, uint32 textureFormat, uint32 clutFormat,
-						uint32 texBlackIsTransparent, Nuanceur::CFloat4Lvalue& textureColor,
-						Nuanceur::CFloatValue textureA0, Nuanceur::CFloatValue textureA1)
+                             uint32 texBlackIsTransparent, Nuanceur::CFloat4Lvalue& textureColor,
+                             Nuanceur::CFloatValue textureA0, Nuanceur::CFloatValue textureA1)
 {
 	using namespace Nuanceur;
 
@@ -170,15 +170,15 @@ void CDrawUtils::ExpandAlpha(Nuanceur::CShaderBuilder& b, uint32 textureFormat, 
 	if(CGsPixelFormats::IsPsmIDTEX(textureFormat))
 	{
 		requiresExpansion =
-			(clutFormat == CGSHandler::PSMCT16) ||
-			(clutFormat == CGSHandler::PSMCT16S);
+		    (clutFormat == CGSHandler::PSMCT16) ||
+		    (clutFormat == CGSHandler::PSMCT16S);
 	}
 	else
 	{
 		requiresExpansion =
-			(textureFormat == CGSHandler::PSMCT24) ||
-			(textureFormat == CGSHandler::PSMCT16) ||
-			(textureFormat == CGSHandler::PSMCT16S);
+		    (textureFormat == CGSHandler::PSMCT24) ||
+		    (textureFormat == CGSHandler::PSMCT16) ||
+		    (textureFormat == CGSHandler::PSMCT16S);
 	}
 
 	if(!requiresExpansion)
@@ -203,7 +203,7 @@ void CDrawUtils::ExpandAlpha(Nuanceur::CShaderBuilder& b, uint32 textureFormat, 
 }
 
 Nuanceur::CInt3Rvalue CDrawUtils::GetAlphaABD(Nuanceur::CShaderBuilder& b, uint32 alphaABD,
-										 Nuanceur::CInt4Value srcColor, Nuanceur::CInt4Value dstColor)
+                                              Nuanceur::CInt4Value srcColor, Nuanceur::CInt4Value dstColor)
 {
 	switch(alphaABD)
 	{
@@ -219,7 +219,7 @@ Nuanceur::CInt3Rvalue CDrawUtils::GetAlphaABD(Nuanceur::CShaderBuilder& b, uint3
 }
 
 Nuanceur::CInt3Rvalue CDrawUtils::GetAlphaC(Nuanceur::CShaderBuilder& b, uint32 alphaC,
-									   Nuanceur::CInt4Value srcColor, Nuanceur::CInt4Value dstColor, Nuanceur::CIntValue alphaFix)
+                                            Nuanceur::CInt4Value srcColor, Nuanceur::CInt4Value dstColor, Nuanceur::CIntValue alphaFix)
 {
 	switch(alphaC)
 	{
@@ -235,9 +235,9 @@ Nuanceur::CInt3Rvalue CDrawUtils::GetAlphaC(Nuanceur::CShaderBuilder& b, uint32 
 }
 
 void CDrawUtils::AlphaTest(Nuanceur::CShaderBuilder& b,
-					  uint32 alphaTestFunction, uint32 alphaTestFailAction,
-					  Nuanceur::CInt4Value srcIColor, Nuanceur::CIntValue alphaRef,
-					  Nuanceur::CBoolLvalue writeColor, Nuanceur::CBoolLvalue writeDepth, Nuanceur::CBoolLvalue writeAlpha)
+                           uint32 alphaTestFunction, uint32 alphaTestFailAction,
+                           Nuanceur::CInt4Value srcIColor, Nuanceur::CIntValue alphaRef,
+                           Nuanceur::CBoolLvalue writeColor, Nuanceur::CBoolLvalue writeDepth, Nuanceur::CBoolLvalue writeAlpha)
 {
 	using namespace Nuanceur;
 
@@ -299,8 +299,8 @@ void CDrawUtils::AlphaTest(Nuanceur::CShaderBuilder& b,
 }
 
 void CDrawUtils::DestinationAlphaTest(Nuanceur::CShaderBuilder& b, uint32 framebufferFormat,
-								 uint32 dstAlphaTestRef, Nuanceur::CUintValue dstPixel,
-								 Nuanceur::CBoolLvalue writeColor, Nuanceur::CBoolLvalue writeDepth)
+                                      uint32 dstAlphaTestRef, Nuanceur::CUintValue dstPixel,
+                                      Nuanceur::CBoolLvalue writeColor, Nuanceur::CBoolLvalue writeDepth)
 {
 	using namespace Nuanceur;
 
@@ -339,7 +339,7 @@ void CDrawUtils::DestinationAlphaTest(Nuanceur::CShaderBuilder& b, uint32 frameb
 }
 
 void CDrawUtils::WriteToFramebuffer(Nuanceur::CShaderBuilder& b, uint32 framebufferFormat,
-							   Nuanceur::CArrayUintValue memoryBuffer, Nuanceur::CIntValue fbAddress, Nuanceur::CUintValue srcPixel)
+                                    Nuanceur::CArrayUintValue memoryBuffer, Nuanceur::CIntValue fbAddress, Nuanceur::CUintValue srcPixel)
 {
 	switch(framebufferFormat)
 	{
@@ -369,7 +369,7 @@ void CDrawUtils::WriteToFramebuffer(Nuanceur::CShaderBuilder& b, uint32 framebuf
 }
 
 void CDrawUtils::WriteToDepthbuffer(Nuanceur::CShaderBuilder& b, uint32 depthbufferFormat,
-							   Nuanceur::CArrayUintValue memoryBuffer, Nuanceur::CIntValue depthAddress, Nuanceur::CUintValue srcDepth)
+                                    Nuanceur::CArrayUintValue memoryBuffer, Nuanceur::CIntValue depthAddress, Nuanceur::CUintValue srcDepth)
 {
 	switch(depthbufferFormat)
 	{

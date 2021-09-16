@@ -18,7 +18,7 @@
 using namespace GSH_Vulkan;
 
 CDrawDesktop::CDrawDesktop(const ContextPtr& context, const FrameCommandBufferPtr& frameCommandBuffer)
-	: CDraw(context, frameCommandBuffer)
+    : CDraw(context, frameCommandBuffer)
 {
 	CreateRenderPass();
 	CreateDrawImage();
@@ -99,10 +99,10 @@ void CDrawDesktop::CreateDrawImage()
 	//that don't write to any color attachment
 
 	m_drawImage = Framework::Vulkan::CImage(m_context->device, m_context->physicalDeviceMemoryProperties,
-											VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, VK_FORMAT_R8G8B8A8_UNORM, DRAW_AREA_SIZE, DRAW_AREA_SIZE);
+	                                        VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, VK_FORMAT_R8G8B8A8_UNORM, DRAW_AREA_SIZE, DRAW_AREA_SIZE);
 
 	m_drawImage.SetLayout(m_context->queue, m_context->commandBufferPool,
-						  VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT);
+	                      VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT);
 
 	m_drawImageView = m_drawImage.CreateImageView();
 }
@@ -252,19 +252,19 @@ PIPELINE CDrawDesktop::CreateDrawPipeline(const PIPELINE_CAPS& caps)
 	multisampleStateInfo.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
 
 	static const VkDynamicState dynamicStates[] =
-		{
-			VK_DYNAMIC_STATE_VIEWPORT,
-			VK_DYNAMIC_STATE_SCISSOR,
-		};
+	    {
+	        VK_DYNAMIC_STATE_VIEWPORT,
+	        VK_DYNAMIC_STATE_SCISSOR,
+	    };
 	auto dynamicStateInfo = Framework::Vulkan::PipelineDynamicStateCreateInfo();
 	dynamicStateInfo.pDynamicStates = dynamicStates;
 	dynamicStateInfo.dynamicStateCount = sizeof(dynamicStates) / sizeof(dynamicStates[0]);
 
 	VkPipelineShaderStageCreateInfo shaderStages[2] =
-		{
-			{VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO},
-			{VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO},
-		};
+	    {
+	        {VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO},
+	        {VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO},
+	    };
 
 	shaderStages[0].stage = VK_SHADER_STAGE_VERTEX_BIT;
 	shaderStages[0].module = vertexShader;
@@ -478,29 +478,29 @@ Framework::Vulkan::CShaderModule CDrawDesktop::CreateFragmentShader(const PIPELI
 		if(caps.hasTexture)
 		{
 			auto clampCoordinates =
-				[&](CInt2Value textureIuv) {
-					auto clampU = CDrawUtils::ClampTexCoord(b, caps.texClampU, textureIuv->x(), texSize->x(), clampMin->x(), clampMax->x());
-					auto clampV = CDrawUtils::ClampTexCoord(b, caps.texClampV, textureIuv->y(), texSize->y(), clampMin->y(), clampMax->y());
-					return NewInt2(clampU, clampV);
-				};
+			    [&](CInt2Value textureIuv) {
+				    auto clampU = CDrawUtils::ClampTexCoord(b, caps.texClampU, textureIuv->x(), texSize->x(), clampMin->x(), clampMax->x());
+				    auto clampV = CDrawUtils::ClampTexCoord(b, caps.texClampV, textureIuv->y(), texSize->y(), clampMin->y(), clampMax->y());
+				    return NewInt2(clampU, clampV);
+			    };
 
 			auto getTextureColor =
-				[&](CInt2Value textureIuv, CFloat4Lvalue& textureColor) {
-					if(caps.textureUseMemoryCopy)
-					{
-						textureColor = CDrawUtils::GetTextureColor(b, caps.textureFormat, caps.clutFormat, textureIuv,
-													   memoryBufferCopy, clutBuffer, texSwizzleTable, texBufAddress, texBufWidth, texCsa);
-					}
-					else
-					{
-						textureColor = CDrawUtils::GetTextureColor(b, caps.textureFormat, caps.clutFormat, textureIuv,
-													   memoryBuffer, clutBuffer, texSwizzleTable, texBufAddress, texBufWidth, texCsa);
-					}
-					if(caps.textureHasAlpha)
-					{
-						CDrawUtils::ExpandAlpha(b, caps.textureFormat, caps.clutFormat, caps.textureBlackIsTransparent, textureColor, texA0, texA1);
-					}
-				};
+			    [&](CInt2Value textureIuv, CFloat4Lvalue& textureColor) {
+				    if(caps.textureUseMemoryCopy)
+				    {
+					    textureColor = CDrawUtils::GetTextureColor(b, caps.textureFormat, caps.clutFormat, textureIuv,
+					                                               memoryBufferCopy, clutBuffer, texSwizzleTable, texBufAddress, texBufWidth, texCsa);
+				    }
+				    else
+				    {
+					    textureColor = CDrawUtils::GetTextureColor(b, caps.textureFormat, caps.clutFormat, textureIuv,
+					                                               memoryBuffer, clutBuffer, texSwizzleTable, texBufAddress, texBufWidth, texCsa);
+				    }
+				    if(caps.textureHasAlpha)
+				    {
+					    CDrawUtils::ExpandAlpha(b, caps.textureFormat, caps.clutFormat, caps.textureBlackIsTransparent, textureColor, texA0, texA1);
+				    }
+			    };
 
 			auto textureSt = CFloat2Lvalue(b.CreateVariableFloat("textureSt"));
 			textureSt = inputTexCoord->xy() / inputTexCoord->zz();
@@ -539,10 +539,10 @@ Framework::Vulkan::CShaderModule CDrawDesktop::CreateFragmentShader(const PIPELI
 				auto factorD = textureLinearAb->x() * textureLinearAb->y();
 
 				textureColor =
-					textureColorA * factorA->xxxx() +
-					textureColorB * factorB->xxxx() +
-					textureColorC * factorC->xxxx() +
-					textureColorD * factorD->xxxx();
+				    textureColorA * factorA->xxxx() +
+				    textureColorB * factorB->xxxx() +
+				    textureColorC * factorC->xxxx() +
+				    textureColorD * factorD->xxxx();
 			}
 			else
 			{
@@ -655,12 +655,12 @@ Framework::Vulkan::CShaderModule CDrawDesktop::CreateFragmentShader(const PIPELI
 		case CGSHandler::PSMCT24:
 		case CGSHandler::PSMZ24:
 			fbAddress = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT32>(
-				b, fbSwizzleTable, fbBufAddress, fbBufWidth, screenPos);
+			    b, fbSwizzleTable, fbBufAddress, fbBufWidth, screenPos);
 			break;
 		case CGSHandler::PSMCT16:
 		case CGSHandler::PSMCT16S:
 			fbAddress = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT16>(
-				b, fbSwizzleTable, fbBufAddress, fbBufWidth, screenPos);
+			    b, fbSwizzleTable, fbBufAddress, fbBufWidth, screenPos);
 			break;
 		}
 
@@ -672,13 +672,13 @@ Framework::Vulkan::CShaderModule CDrawDesktop::CreateFragmentShader(const PIPELI
 		case CGSHandler::PSMZ32:
 		case CGSHandler::PSMZ24:
 			depthAddress = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMZ32>(
-				b, depthSwizzleTable, depthBufAddress, depthBufWidth, screenPos);
+			    b, depthSwizzleTable, depthBufAddress, depthBufWidth, screenPos);
 			break;
 		case CGSHandler::PSMZ16:
 		case CGSHandler::PSMZ16S:
 			//TODO: Use real swizzle table
 			depthAddress = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMZ16>(
-				b, depthSwizzleTable, depthBufAddress, depthBufWidth, screenPos);
+			    b, depthSwizzleTable, depthBufAddress, depthBufWidth, screenPos);
 			break;
 		}
 
@@ -691,7 +691,7 @@ Framework::Vulkan::CShaderModule CDrawDesktop::CreateFragmentShader(const PIPELI
 		srcIColor = ToInt(textureColor->xyzw() * NewFloat4(b, 255.f, 255.f, 255.f, 255.f));
 
 		CDrawUtils::AlphaTest(b, caps.alphaTestFunction, caps.alphaTestFailAction, srcIColor, alphaRef,
-				  writeColor, writeDepth, writeAlpha);
+		                      writeColor, writeDepth, writeAlpha);
 
 		BeginInvocationInterlock(b);
 
@@ -703,8 +703,8 @@ Framework::Vulkan::CShaderModule CDrawDesktop::CreateFragmentShader(const PIPELI
 		auto finalIColor = CInt4Lvalue(b.CreateVariableInt("finalIColor"));
 
 		bool canDiscardAlpha =
-			(caps.alphaTestFunction != CGSHandler::ALPHA_TEST_ALWAYS) &&
-			(caps.alphaTestFailAction == CGSHandler::ALPHA_TEST_FAIL_RGBONLY);
+		    (caps.alphaTestFunction != CGSHandler::ALPHA_TEST_ALWAYS) &&
+		    (caps.alphaTestFailAction == CGSHandler::ALPHA_TEST_FAIL_RGBONLY);
 		bool needsDstColor = (caps.hasAlphaBlending != 0) || (caps.maskColor != 0) || canDiscardAlpha || (caps.hasDstAlphaTest != 0);
 		if(needsDstColor)
 		{
@@ -746,7 +746,7 @@ Framework::Vulkan::CShaderModule CDrawDesktop::CreateFragmentShader(const PIPELI
 		}
 
 		bool needsDstDepth = (caps.depthTestFunction == CGSHandler::DEPTH_TEST_GEQUAL) ||
-							 (caps.depthTestFunction == CGSHandler::DEPTH_TEST_GREATER);
+		                     (caps.depthTestFunction == CGSHandler::DEPTH_TEST_GREATER);
 		if(needsDstDepth)
 		{
 			dstDepth = CDrawUtils::GetDepth(b, caps.depthbufferFormat, depthAddress, memoryBuffer);
@@ -928,7 +928,7 @@ void CDrawDesktop::FlushVertices()
 		memoryBarrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_SHADER_WRITE_BIT;
 
 		m_context->device.vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
-											   VK_DEPENDENCY_BY_REGION_BIT, 1, &memoryBarrier, 0, nullptr, 0, nullptr);
+		                                       VK_DEPENDENCY_BY_REGION_BIT, 1, &memoryBarrier, 0, nullptr, 0, nullptr);
 	}
 #endif
 
@@ -948,7 +948,7 @@ void CDrawDesktop::FlushVertices()
 	}
 
 	m_context->device.vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, drawPipeline->pipelineLayout,
-											  0, 1, &descriptorSet, static_cast<uint32_t>(descriptorDynamicOffsets.size()), descriptorDynamicOffsets.data());
+	                                          0, 1, &descriptorSet, static_cast<uint32_t>(descriptorDynamicOffsets.size()), descriptorDynamicOffsets.data());
 
 	m_context->device.vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, drawPipeline->pipeline);
 
@@ -957,7 +957,7 @@ void CDrawDesktop::FlushVertices()
 	m_context->device.vkCmdBindVertexBuffers(commandBuffer, 0, 1, &vertexBuffer, &vertexBufferOffset);
 
 	m_context->device.vkCmdPushConstants(commandBuffer, drawPipeline->pipelineLayout, VK_SHADER_STAGE_FRAGMENT_BIT,
-										 0, sizeof(DRAW_PIPELINE_PUSHCONSTANTS), &m_pushConstants);
+	                                     0, sizeof(DRAW_PIPELINE_PUSHCONSTANTS), &m_pushConstants);
 
 	m_context->device.vkCmdDraw(commandBuffer, vertexCount, 1, 0, 0);
 
@@ -974,4 +974,3 @@ void CDrawDesktop::FlushRenderPass()
 		m_renderPassBegun = false;
 	}
 }
-

@@ -276,7 +276,7 @@ std::vector<VkVertexInputAttributeDescription> CDraw::GetVertexAttributes()
 		vertexAttributeDesc.location = VERTEX_ATTRIB_LOCATION_FOG;
 		vertexAttributes.push_back(vertexAttributeDesc);
 	}
-	
+
 	return vertexAttributes;
 }
 
