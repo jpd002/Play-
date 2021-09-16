@@ -7,11 +7,10 @@ export default function App() {
     const dispatch = useAppDispatch();
     const state = useAppSelector((state) => state.player);
     const handleChange = function(event : ChangeEvent<HTMLInputElement>) {
-      if(event.target && event.target.files) {
+      if(event.target && event.target.files && event.target.files.length != 0) {
         var url = URL.createObjectURL(event.target.files[0]);
         dispatch(loadArchive(url));
       }
-      console.log("Uploading file...");
     }
     const handleClick = function(psfFilePath : string) {
       dispatch(loadPsf(psfFilePath));
