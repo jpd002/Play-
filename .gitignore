@@ -38,3 +38,6 @@ xcuserdata
 
 # PsfAot output files
 *.blockcache_*
+
+# npm
+node_modules
