@@ -4,7 +4,7 @@
 	<!-- Application Navigation -->
 
 	<string name="main_menu_settings">Настройки</string>
-	<string name="main_menu_addfolder">Add Folder</string>
+	<string name="main_menu_addfolder">Добавить каталог</string>
 	<string name="main_menu_about">О приложении</string>
 	<string name="main_menu_exit">Выход</string>
 
@@ -14,11 +14,11 @@
 	<string name="search_games_msg">Пожалуйста, подождите&#8230;</string>
 	<string name="updating_db">Обновление коллекции&#8230;</string>
 
-	<string name="launch_game">Launching game&#8230;</string>
+	<string name="launch_game">Запуск игры&#8230;</string>
 	<string name="launch_game_msg">Пожалуйста, подождите&#8230;</string>
 
-	<string name="navigation_drawer_open">Navigation drawer открыт</string>
-	<string name="navigation_drawer_close">Navigation drawer закрыт</string>
+	<string name="navigation_drawer_open">Навигационная секция открыта</string>
+	<string name="navigation_drawer_close">Навигационная секция закрыта</string>
 
 	<string name="menu_title_open">Меню</string>
 	<string name="menu_title_shut">Игры</string>
@@ -30,7 +30,7 @@
 
 	<string name="game_unavailable">Игра недоступна.\nУдалить её из списка?</string>
 	<string name="not_found">Не найдено</string>
-	<string name="no_game_found_adapter">No game found.\n\nPlease open the menu and select \'Add Folder\' to add games.</string>
+	<string name="no_game_found_adapter">Игры не найдены.\n\nПожалуйста, откройте меню и нажмите \'Добавить каталог\', чтобы добавить игры.</string>
 
 	<!-- Application Preferences -->
 
@@ -56,7 +56,7 @@
 	<string name="pref_emu_video_force_bilinear_title">Форсировать билинейную фильтрацию</string>
 	<string name="pref_emu_video_force_bilinear_summary">Принудительно использовать билинейную фильтрацию для всех типов текстур</string>
 
-	<string name="pref_emu_video_presentation_mode_title">Режим вывода</string>
+	<string name="pref_emu_video_presentation_mode_title">Режим отображения</string>
 
 	<string name="pref_emu_audio">Аудио</string>
 
@@ -65,7 +65,7 @@
 
 	<string name="pref_emu_audio_spublockcount_title">Размер буфера</string>
 
-	<string name="preferences_screen_ui">Настройки интерфейса</string>
+	<string name="preferences_screen_ui">Интерфейс</string>
 
 	<string name="preferences_ui">Настройки хранилища</string>
 
@@ -117,10 +117,10 @@
 	<string name="emulator_drawer_savestate">Сохранить состояние</string>
 	<string name="emulator_drawer_loadstate">Загрузить состояние</string>
 
-	<string name="emulator_save_state_ok">Сохранено успешно.</string>
+	<string name="emulator_save_state_ok">Успешно сохранено.</string>
 	<string name="emulator_save_state_fail">Не удалось сохранить.</string>
 
-	<string name="emulator_load_state_ok">Загружено успешно.</string>
+	<string name="emulator_load_state_ok">Успешно загружено.</string>
 	<string name="emulator_load_state_fail">Не удалось загрузить.</string>
 
 	<!-- Error Reporting / Debugging -->
@@ -145,5 +145,8 @@
 	<string name="gameinfo_edit_activity_gamecover">Обложка</string>
 	<string name="gameinfo_edit_activity_gamecover_change">Сменить</string>
 	<string name="gameinfo_edit_activity_gamecover_default">По умолчанию</string>
+	
+	<string name="permission_dialog_title">Запрос разрешения</string>
+	<string name="permission_dialog_summary">Play! требуется доступ к хранилищу (чтение/запись). Без него Play! не сможет найти игры или сохранить прогресс.</string>
 	
 </resources>
