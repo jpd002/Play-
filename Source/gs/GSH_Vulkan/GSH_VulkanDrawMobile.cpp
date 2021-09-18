@@ -1,4 +1,5 @@
 #include "GSH_VulkanDrawMobile.h"
+#include "GSH_VulkanDrawUtils.h"
 #include "GSH_VulkanMemoryUtils.h"
 #include "MemStream.h"
 #include "vulkan/StructDefs.h"
@@ -30,37 +31,17 @@ using namespace GSH_Vulkan;
 #define DEPTH_MAX (4294967296.0f)
 
 CDrawMobile::CDrawMobile(const ContextPtr& context, const FrameCommandBufferPtr& frameCommandBuffer)
-    : m_context(context)
-    , m_frameCommandBuffer(frameCommandBuffer)
+    : CDraw(context, frameCommandBuffer)
     , m_loadPipelineCache(context->device)
     , m_storePipelineCache(context->device)
-    , m_drawPipelineCache(context->device)
 {
 	CreateRenderPass();
 	CreateDrawImages();
 	CreateFramebuffer();
-
-	for(auto& frame : m_frames)
-	{
-		frame.vertexBuffer = Framework::Vulkan::CBuffer(
-		    m_context->device, m_context->physicalDeviceMemoryProperties,
-		    VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-		    sizeof(PRIM_VERTEX) * MAX_VERTEX_COUNT);
-
-		auto result = m_context->device.vkMapMemory(m_context->device, frame.vertexBuffer.GetMemory(),
-		                                            0, VK_WHOLE_SIZE, 0, reinterpret_cast<void**>(&frame.vertexBufferPtr));
-		CHECKVULKANERROR(result);
-	}
-
-	m_pipelineCaps <<= 0;
 }
 
 CDrawMobile::~CDrawMobile()
 {
-	for(auto& frame : m_frames)
-	{
-		m_context->device.vkUnmapMemory(m_context->device, frame.vertexBuffer.GetMemory());
-	}
 	m_context->device.vkDestroyFramebuffer(m_context->device, m_framebuffer, nullptr);
 	m_context->device.vkDestroyRenderPass(m_context->device, m_renderPass, nullptr);
 	m_context->device.vkDestroyImageView(m_context->device, m_drawColorImageView, nullptr);
@@ -87,10 +68,10 @@ void CDrawMobile::SetPipelineCaps(const PIPELINE_CAPS& caps)
 void CDrawMobile::SetFramebufferParams(uint32 addr, uint32 width, uint32 writeMask)
 {
 	bool storeChanged =
-	    (m_loadStorePushConstants.fbBufAddr != addr) ||
-	    (m_loadStorePushConstants.fbBufWidth != width);
+	    (m_pushConstants.fbBufAddr != addr) ||
+	    (m_pushConstants.fbBufWidth != width);
 	bool drawChanged =
-	    (m_drawPushConstants.fbWriteMask != writeMask);
+	    (m_pushConstants.fbWriteMask != writeMask);
 	if(!storeChanged && !drawChanged) return;
 	if(storeChanged)
 	{
@@ -100,102 +81,20 @@ void CDrawMobile::SetFramebufferParams(uint32 addr, uint32 width, uint32 writeMa
 	{
 		FlushVertices();
 	}
-	m_loadStorePushConstants.fbBufAddr = addr;
-	m_loadStorePushConstants.fbBufWidth = width;
-	m_drawPushConstants.fbWriteMask = writeMask;
+	m_pushConstants.fbBufAddr = addr;
+	m_pushConstants.fbBufWidth = width;
+	m_pushConstants.fbWriteMask = writeMask;
 }
 
 void CDrawMobile::SetDepthbufferParams(uint32 addr, uint32 width)
 {
 	bool changed =
-	    (m_loadStorePushConstants.depthBufAddr != addr) ||
-	    (m_loadStorePushConstants.depthBufWidth != width);
+	    (m_pushConstants.depthBufAddr != addr) ||
+	    (m_pushConstants.depthBufWidth != width);
 	if(!changed) return;
 	FlushRenderPass();
-	m_loadStorePushConstants.depthBufAddr = addr;
-	m_loadStorePushConstants.depthBufWidth = width;
-}
-
-void CDrawMobile::SetTextureParams(uint32 bufAddr, uint32 bufWidth, uint32 width, uint32 height, uint32 csa)
-{
-	bool changed =
-	    (m_drawPushConstants.texBufAddr != bufAddr) ||
-	    (m_drawPushConstants.texBufWidth != bufWidth) ||
-	    (m_drawPushConstants.texWidth != width) ||
-	    (m_drawPushConstants.texHeight != height) ||
-	    (m_drawPushConstants.texCsa != csa);
-	if(!changed) return;
-	FlushVertices();
-	m_drawPushConstants.texBufAddr = bufAddr;
-	m_drawPushConstants.texBufWidth = bufWidth;
-	m_drawPushConstants.texWidth = width;
-	m_drawPushConstants.texHeight = height;
-	m_drawPushConstants.texCsa = csa;
-}
-
-void CDrawMobile::SetClutBufferOffset(uint32 clutBufferOffset)
-{
-	bool changed = m_clutBufferOffset != clutBufferOffset;
-	if(!changed) return;
-	FlushVertices();
-	m_clutBufferOffset = clutBufferOffset;
-}
-
-void CDrawMobile::SetTextureAlphaParams(uint32 texA0, uint32 texA1)
-{
-	bool changed =
-	    (m_drawPushConstants.texA0 != texA0) ||
-	    (m_drawPushConstants.texA1 != texA1);
-	if(!changed) return;
-	FlushVertices();
-	m_drawPushConstants.texA0 = texA0;
-	m_drawPushConstants.texA1 = texA1;
-}
-
-void CDrawMobile::SetTextureClampParams(uint32 clampMinU, uint32 clampMinV, uint32 clampMaxU, uint32 clampMaxV)
-{
-	bool changed =
-	    (m_drawPushConstants.clampMin[0] != clampMinU) ||
-	    (m_drawPushConstants.clampMin[1] != clampMinV) ||
-	    (m_drawPushConstants.clampMax[0] != clampMaxU) ||
-	    (m_drawPushConstants.clampMax[1] != clampMaxV);
-	if(!changed) return;
-	FlushVertices();
-	m_drawPushConstants.clampMin[0] = clampMinU;
-	m_drawPushConstants.clampMin[1] = clampMinV;
-	m_drawPushConstants.clampMax[0] = clampMaxU;
-	m_drawPushConstants.clampMax[1] = clampMaxV;
-}
-
-void CDrawMobile::SetFogParams(float fogR, float fogG, float fogB)
-{
-	bool changed =
-	    (m_drawPushConstants.fogColor[0] != fogR) ||
-	    (m_drawPushConstants.fogColor[1] != fogG) ||
-	    (m_drawPushConstants.fogColor[2] != fogB);
-	if(!changed) return;
-	FlushVertices();
-	m_drawPushConstants.fogColor[0] = fogR;
-	m_drawPushConstants.fogColor[1] = fogG;
-	m_drawPushConstants.fogColor[2] = fogB;
-	m_drawPushConstants.fogColor[3] = 0;
-}
-
-void CDrawMobile::SetAlphaTestParams(uint32 alphaRef)
-{
-	bool changed = (m_drawPushConstants.alphaRef != alphaRef);
-	if(!changed) return;
-	FlushVertices();
-	m_drawPushConstants.alphaRef = alphaRef;
-}
-
-void CDrawMobile::SetAlphaBlendingParams(uint32 alphaFix)
-{
-	bool changed =
-	    (m_drawPushConstants.alphaFix != alphaFix);
-	if(!changed) return;
-	FlushVertices();
-	m_drawPushConstants.alphaFix = alphaFix;
+	m_pushConstants.depthBufAddr = addr;
+	m_pushConstants.depthBufWidth = width;
 }
 
 void CDrawMobile::SetScissor(uint32 scissorX, uint32 scissorY, uint32 scissorWidth, uint32 scissorHeight)
@@ -211,50 +110,6 @@ void CDrawMobile::SetScissor(uint32 scissorX, uint32 scissorY, uint32 scissorWid
 	m_scissorY = scissorY;
 	m_scissorWidth = scissorWidth;
 	m_scissorHeight = scissorHeight;
-}
-
-void CDrawMobile::SetMemoryCopyParams(uint32 memoryCopyAddress, uint32 memoryCopySize)
-{
-	bool changed =
-	    (memoryCopyAddress != m_memoryCopyAddress) ||
-	    (memoryCopySize != m_memoryCopySize);
-	if(!changed) return;
-	FlushRenderPass();
-	m_memoryCopyAddress = memoryCopyAddress;
-	m_memoryCopySize = memoryCopySize;
-}
-
-void CDrawMobile::AddVertices(const PRIM_VERTEX* vertexBeginPtr, const PRIM_VERTEX* vertexEndPtr)
-{
-	auto amount = vertexEndPtr - vertexBeginPtr;
-	if((m_passVertexEnd + amount) > MAX_VERTEX_COUNT)
-	{
-		m_frameCommandBuffer->Flush();
-		assert((m_passVertexEnd + amount) <= MAX_VERTEX_COUNT);
-	}
-	if(m_pipelineCaps.textureUseMemoryCopy)
-	{
-		//Check if sprite we are about to add overlaps with current region
-		//Some games use tiny sprites to do full screen effects that requires
-		//to keep a copy of RAM for texture sampling:
-		//- Metal Gear Solid 3
-		//- MK: Shaolin Monks
-		//- Tales of Legendia
-		const auto topLeftCorner = vertexBeginPtr;
-		const auto bottomRightCorner = vertexBeginPtr + 5;
-		CGsSpriteRect rect(topLeftCorner->x, topLeftCorner->y, bottomRightCorner->x, bottomRightCorner->y);
-		if(m_memoryCopyRegion.Intersects(rect))
-		{
-			FlushRenderPass();
-		}
-		else
-		{
-			m_memoryCopyRegion.Insert(rect);
-		}
-	}
-	auto& frame = m_frames[m_frameCommandBuffer->GetCurrentFrame()];
-	memcpy(frame.vertexBufferPtr + m_passVertexEnd, vertexBeginPtr, amount * sizeof(PRIM_VERTEX));
-	m_passVertexEnd += amount;
 }
 
 void CDrawMobile::FlushVertices()
@@ -323,7 +178,7 @@ void CDrawMobile::FlushVertices()
 		                                          0, 1, &descriptorSet, 0, nullptr);
 		m_context->device.vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, loadPipeline->pipeline);
 		m_context->device.vkCmdPushConstants(commandBuffer, loadPipeline->pipelineLayout, VK_SHADER_STAGE_FRAGMENT_BIT,
-		                                     0, sizeof(LOAD_STORE_PIPELINE_PUSHCONSTANTS), &m_loadStorePushConstants);
+		                                     0, sizeof(DRAW_PIPELINE_PUSHCONSTANTS), &m_pushConstants);
 		m_context->device.vkCmdDraw(commandBuffer, 3, 1, 0, 0);
 
 		m_context->device.vkCmdNextSubpass(commandBuffer, VK_SUBPASS_CONTENTS_INLINE);
@@ -332,10 +187,10 @@ void CDrawMobile::FlushVertices()
 	}
 
 	//Find pipeline and create it if we've never encountered it before
-	auto drawPipeline = m_drawPipelineCache.TryGetPipeline(m_pipelineCaps);
+	auto drawPipeline = m_pipelineCache.TryGetPipeline(m_pipelineCaps);
 	if(!drawPipeline)
 	{
-		drawPipeline = m_drawPipelineCache.RegisterPipeline(m_pipelineCaps, CreateDrawPipeline(m_pipelineCaps));
+		drawPipeline = m_pipelineCache.RegisterPipeline(m_pipelineCaps, CreateDrawPipeline(m_pipelineCaps));
 	}
 
 	{
@@ -372,7 +227,7 @@ void CDrawMobile::FlushVertices()
 	m_context->device.vkCmdBindVertexBuffers(commandBuffer, 0, 1, &vertexBuffer, &vertexBufferOffset);
 
 	m_context->device.vkCmdPushConstants(commandBuffer, drawPipeline->pipelineLayout, VK_SHADER_STAGE_FRAGMENT_BIT,
-	                                     0, sizeof(DRAW_PIPELINE_PUSHCONSTANTS), &m_drawPushConstants);
+	                                     0, sizeof(DRAW_PIPELINE_PUSHCONSTANTS), &m_pushConstants);
 
 	m_context->device.vkCmdDraw(commandBuffer, vertexCount, 1, 0, 0);
 
@@ -419,7 +274,7 @@ void CDrawMobile::FlushRenderPass()
 		                                          0, 1, &descriptorSet, 0, nullptr);
 		m_context->device.vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, storePipeline->pipeline);
 		m_context->device.vkCmdPushConstants(commandBuffer, storePipeline->pipelineLayout, VK_SHADER_STAGE_FRAGMENT_BIT,
-		                                     0, sizeof(LOAD_STORE_PIPELINE_PUSHCONSTANTS), &m_loadStorePushConstants);
+		                                     0, sizeof(DRAW_PIPELINE_PUSHCONSTANTS), &m_pushConstants);
 		m_context->device.vkCmdDraw(commandBuffer, 3, 1, 0, 0);
 
 		m_context->device.vkCmdEndRenderPass(commandBuffer);
@@ -431,20 +286,10 @@ void CDrawMobile::FlushRenderPass()
 	m_renderPassMaxY = -FLT_MAX;
 }
 
-void CDrawMobile::PreFlushFrameCommandBuffer()
-{
-	FlushRenderPass();
-}
-
-void CDrawMobile::PostFlushFrameCommandBuffer()
-{
-	m_passVertexStart = m_passVertexEnd = 0;
-}
-
 VkDescriptorSet CDrawMobile::PrepareDescriptorSet(VkDescriptorSetLayout descriptorSetLayout, const DESCRIPTORSET_CAPS& caps)
 {
-	auto descriptorSetIterator = m_drawDescriptorSetCache.find(caps);
-	if(descriptorSetIterator != std::end(m_drawDescriptorSetCache))
+	auto descriptorSetIterator = m_descriptorSetCache.find(caps);
+	if(descriptorSetIterator != std::end(m_descriptorSetCache))
 	{
 		return descriptorSetIterator->second;
 	}
@@ -572,7 +417,7 @@ VkDescriptorSet CDrawMobile::PrepareDescriptorSet(VkDescriptorSetLayout descript
 		m_context->device.vkUpdateDescriptorSets(m_context->device, static_cast<uint32_t>(writes.size()), writes.data(), 0, nullptr);
 	}
 
-	m_drawDescriptorSetCache.insert(std::make_pair(caps, descriptorSet));
+	m_descriptorSetCache.insert(std::make_pair(caps, descriptorSet));
 
 	return descriptorSet;
 }
@@ -752,7 +597,7 @@ PIPELINE CDrawMobile::CreateDrawPipeline(const PIPELINE_CAPS& caps)
 {
 	PIPELINE drawPipeline;
 
-	auto vertexShader = CreateDrawVertexShader();
+	auto vertexShader = CreateVertexShader(caps);
 	auto fragmentShader = CreateDrawFragmentShader(caps);
 
 	auto result = VK_SUCCESS;
@@ -986,435 +831,6 @@ PIPELINE CDrawMobile::CreateDrawPipeline(const PIPELINE_CAPS& caps)
 	return drawPipeline;
 }
 
-Framework::Vulkan::CShaderModule CDrawMobile::CreateDrawVertexShader()
-{
-	using namespace Nuanceur;
-
-	auto b = CShaderBuilder();
-
-	{
-		//Vertex Inputs
-		auto inputPosition = CFloat4Lvalue(b.CreateInput(Nuanceur::SEMANTIC_POSITION));
-		auto inputDepth = CUint4Lvalue(b.CreateInputUint(Nuanceur::SEMANTIC_TEXCOORD, VERTEX_ATTRIB_LOCATION_DEPTH - 1));
-		auto inputColor = CFloat4Lvalue(b.CreateInput(Nuanceur::SEMANTIC_TEXCOORD, VERTEX_ATTRIB_LOCATION_COLOR - 1));
-		auto inputTexCoord = CFloat4Lvalue(b.CreateInput(Nuanceur::SEMANTIC_TEXCOORD, VERTEX_ATTRIB_LOCATION_TEXCOORD - 1));
-		auto inputFog = CFloat4Lvalue(b.CreateInput(Nuanceur::SEMANTIC_TEXCOORD, VERTEX_ATTRIB_LOCATION_FOG - 1));
-
-		//Outputs
-		auto outputPosition = CFloat4Lvalue(b.CreateOutput(Nuanceur::SEMANTIC_SYSTEM_POSITION));
-		auto outputDepth = CFloat4Lvalue(b.CreateOutput(Nuanceur::SEMANTIC_TEXCOORD, 1));
-		auto outputColor = CFloat4Lvalue(b.CreateOutput(Nuanceur::SEMANTIC_TEXCOORD, 2));
-		auto outputTexCoord = CFloat4Lvalue(b.CreateOutput(Nuanceur::SEMANTIC_TEXCOORD, 3));
-		auto outputFog = CFloat4Lvalue(b.CreateOutput(Nuanceur::SEMANTIC_TEXCOORD, 4));
-
-		auto position = ((inputPosition->xy() + NewFloat2(b, 0.5f, 0.5f)) * NewFloat2(b, 2.f / DRAW_AREA_SIZE, 2.f / DRAW_AREA_SIZE) + NewFloat2(b, -1, -1));
-
-		outputPosition = NewFloat4(position, NewFloat2(b, 0.f, 1.f));
-		outputDepth = ToFloat(inputDepth) / NewFloat4(b, DEPTH_MAX, DEPTH_MAX, DEPTH_MAX, DEPTH_MAX);
-		outputColor = inputColor->xyzw();
-		outputTexCoord = inputTexCoord->xyzw();
-		outputFog = inputFog->xyzw();
-	}
-
-	Framework::CMemStream shaderStream;
-	Nuanceur::CSpirvShaderGenerator::Generate(shaderStream, b, Nuanceur::CSpirvShaderGenerator::SHADER_TYPE_VERTEX);
-	shaderStream.Seek(0, Framework::STREAM_SEEK_SET);
-	return Framework::Vulkan::CShaderModule(m_context->device, shaderStream);
-}
-
-static Nuanceur::CUintRvalue GetDepth(Nuanceur::CShaderBuilder& b, uint32 depthFormat,
-                                      Nuanceur::CIntValue depthAddress, Nuanceur::CArrayUintValue memoryBuffer)
-{
-	switch(depthFormat)
-	{
-	default:
-		assert(false);
-	case CGSHandler::PSMZ32:
-		return CMemoryUtils::Memory_Read32(b, memoryBuffer, depthAddress);
-	case CGSHandler::PSMZ24:
-		return CMemoryUtils::Memory_Read24(b, memoryBuffer, depthAddress);
-	case CGSHandler::PSMZ16:
-	case CGSHandler::PSMZ16S:
-		return CMemoryUtils::Memory_Read16(b, memoryBuffer, depthAddress);
-	}
-}
-
-static Nuanceur::CIntRvalue ClampTexCoord(Nuanceur::CShaderBuilder& b, uint32 clampMode, Nuanceur::CIntValue texCoord, Nuanceur::CIntValue texSize,
-                                          Nuanceur::CIntValue clampMin, Nuanceur::CIntValue clampMax)
-{
-	using namespace Nuanceur;
-
-	switch(clampMode)
-	{
-	default:
-		assert(false);
-	case CGSHandler::CLAMP_MODE_REPEAT:
-		return texCoord & (texSize - NewInt(b, 1));
-	case CGSHandler::CLAMP_MODE_CLAMP:
-		return Clamp(texCoord, NewInt(b, 0), texSize - NewInt(b, 1));
-	case CGSHandler::CLAMP_MODE_REGION_CLAMP:
-		return Clamp(texCoord, clampMin, clampMax);
-	case CGSHandler::CLAMP_MODE_REGION_REPEAT:
-		return (texCoord & clampMin) | clampMax;
-	}
-};
-
-static Nuanceur::CFloat4Rvalue GetClutColor(Nuanceur::CShaderBuilder& b,
-                                            uint32 textureFormat, uint32 clutFormat, Nuanceur::CUintValue texPixel,
-                                            Nuanceur::CArrayUintValue clutBuffer, Nuanceur::CIntValue texCsa)
-{
-	using namespace Nuanceur;
-
-	assert(CGsPixelFormats::IsPsmIDTEX(textureFormat));
-
-	bool idx8 = CGsPixelFormats::IsPsmIDTEX8(textureFormat) ? 1 : 0;
-	auto clutIndex = CIntLvalue(b.CreateTemporaryInt());
-
-	if(idx8)
-	{
-		clutIndex = ToInt(texPixel);
-	}
-	else
-	{
-		clutIndex = ToInt(texPixel) + texCsa;
-	}
-
-	switch(clutFormat)
-	{
-	default:
-		assert(false);
-	case CGSHandler::PSMCT32:
-	case CGSHandler::PSMCT24:
-	{
-		auto clutIndexLo = (clutIndex & NewInt(b, 0xFF));
-		auto clutIndexHi = (clutIndex & NewInt(b, 0xFF)) + NewInt(b, 0x100);
-		auto clutPixelLo = Load(clutBuffer, clutIndexLo);
-		auto clutPixelHi = Load(clutBuffer, clutIndexHi);
-		auto clutPixel = clutPixelLo | (clutPixelHi << NewUint(b, 16));
-		return CMemoryUtils::PSM32ToVec4(b, clutPixel);
-	}
-	case CGSHandler::PSMCT16:
-	{
-		auto clutPixel = Load(clutBuffer, clutIndex);
-		return CMemoryUtils::PSM16ToVec4(b, clutPixel);
-	}
-	}
-}
-
-static Nuanceur::CFloat4Rvalue GetTextureColor(Nuanceur::CShaderBuilder& b, uint32 textureFormat, uint32 clutFormat,
-                                               Nuanceur::CInt2Value texelPos, Nuanceur::CArrayUintValue memoryBuffer, Nuanceur::CArrayUintValue clutBuffer,
-                                               Nuanceur::CImageUint2DValue texSwizzleTable, Nuanceur::CIntValue texBufAddress, Nuanceur::CIntValue texBufWidth,
-                                               Nuanceur::CIntValue texCsa)
-{
-	using namespace Nuanceur;
-
-	switch(textureFormat)
-	{
-	default:
-		assert(false);
-	case CGSHandler::PSMCT32:
-	case CGSHandler::PSMZ32:
-	{
-		auto texAddress = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT32>(
-		    b, texSwizzleTable, texBufAddress, texBufWidth, texelPos);
-		auto texPixel = CMemoryUtils::Memory_Read32(b, memoryBuffer, texAddress);
-		return CMemoryUtils::PSM32ToVec4(b, texPixel);
-	}
-	case CGSHandler::PSMCT24:
-	case CGSHandler::PSMCT24_UNK:
-	case CGSHandler::PSMZ24:
-	{
-		auto texAddress = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT32>(
-		    b, texSwizzleTable, texBufAddress, texBufWidth, texelPos);
-		auto texPixel = CMemoryUtils::Memory_Read24(b, memoryBuffer, texAddress);
-		return CMemoryUtils::PSM32ToVec4(b, texPixel);
-	}
-	case CGSHandler::PSMCT16:
-	case CGSHandler::PSMCT16S:
-	case CGSHandler::PSMZ16:
-	{
-		auto texAddress = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT16>(
-		    b, texSwizzleTable, texBufAddress, texBufWidth, texelPos);
-		auto texPixel = CMemoryUtils::Memory_Read16(b, memoryBuffer, texAddress);
-		return CMemoryUtils::PSM16ToVec4(b, texPixel);
-	}
-	case CGSHandler::PSMT8:
-	{
-		auto texAddress = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMT8>(
-		    b, texSwizzleTable, texBufAddress, texBufWidth, texelPos);
-		auto texPixel = CMemoryUtils::Memory_Read8(b, memoryBuffer, texAddress);
-		return GetClutColor(b, textureFormat, clutFormat, texPixel, clutBuffer, texCsa);
-	}
-	case CGSHandler::PSMT4:
-	{
-		auto texAddress = CMemoryUtils::GetPixelAddress_PSMT4(
-		    b, texSwizzleTable, texBufAddress, texBufWidth, texelPos);
-		auto texPixel = CMemoryUtils::Memory_Read4(b, memoryBuffer, texAddress);
-		return GetClutColor(b, textureFormat, clutFormat, texPixel, clutBuffer, texCsa);
-	}
-	case CGSHandler::PSMT8H:
-	{
-		auto texAddress = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT32>(
-		    b, texSwizzleTable, texBufAddress, texBufWidth, texelPos);
-		auto texPixel = CMemoryUtils::Memory_Read8(b, memoryBuffer, texAddress + NewInt(b, 3));
-		return GetClutColor(b, textureFormat, clutFormat, texPixel, clutBuffer, texCsa);
-	}
-	case CGSHandler::PSMT4HL:
-	{
-		auto texAddress = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT32>(
-		    b, texSwizzleTable, texBufAddress, texBufWidth, texelPos);
-		auto texNibAddress = (texAddress + NewInt(b, 3)) * NewInt(b, 2);
-		auto texPixel = CMemoryUtils::Memory_Read4(b, memoryBuffer, texNibAddress);
-		return GetClutColor(b, textureFormat, clutFormat, texPixel, clutBuffer, texCsa);
-	}
-	case CGSHandler::PSMT4HH:
-	{
-		auto texAddress = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT32>(
-		    b, texSwizzleTable, texBufAddress, texBufWidth, texelPos);
-		auto texNibAddress = ((texAddress + NewInt(b, 3)) * NewInt(b, 2)) | NewInt(b, 1);
-		auto texPixel = CMemoryUtils::Memory_Read4(b, memoryBuffer, texNibAddress);
-		return GetClutColor(b, textureFormat, clutFormat, texPixel, clutBuffer, texCsa);
-	}
-	}
-}
-
-static void ExpandAlpha(Nuanceur::CShaderBuilder& b, uint32 textureFormat, uint32 clutFormat,
-                        uint32 texBlackIsTransparent, Nuanceur::CFloat4Lvalue& textureColor,
-                        Nuanceur::CFloatValue textureA0, Nuanceur::CFloatValue textureA1)
-{
-	using namespace Nuanceur;
-
-	bool requiresExpansion = false;
-	if(CGsPixelFormats::IsPsmIDTEX(textureFormat))
-	{
-		requiresExpansion =
-		    (clutFormat == CGSHandler::PSMCT16) ||
-		    (clutFormat == CGSHandler::PSMCT16S);
-	}
-	else
-	{
-		requiresExpansion =
-		    (textureFormat == CGSHandler::PSMCT24) ||
-		    (textureFormat == CGSHandler::PSMCT16) ||
-		    (textureFormat == CGSHandler::PSMCT16S);
-	}
-
-	if(!requiresExpansion)
-	{
-		return;
-	}
-
-	auto alpha = Mix(textureA0, textureA1, textureColor->w());
-	textureColor = NewFloat4(textureColor->xyz(), alpha);
-
-	if(texBlackIsTransparent)
-	{
-		//Add rgb and check if it is zero (assume rgb is positive)
-		//Set alpha to 0 if it is
-		auto colorSum = textureColor->x() + textureColor->y() + textureColor->z();
-		BeginIf(b, colorSum == NewFloat(b, 0));
-		{
-			textureColor = NewFloat4(textureColor->xyz(), NewFloat(b, 0));
-		}
-		EndIf(b);
-	}
-}
-
-static Nuanceur::CInt3Rvalue GetAlphaABD(Nuanceur::CShaderBuilder& b, uint32 alphaABD,
-                                         Nuanceur::CInt4Value srcColor, Nuanceur::CInt4Value dstColor)
-{
-	switch(alphaABD)
-	{
-	default:
-		assert(false);
-	case CGSHandler::ALPHABLEND_ABD_CS:
-		return srcColor->xyz();
-	case CGSHandler::ALPHABLEND_ABD_CD:
-		return dstColor->xyz();
-	case CGSHandler::ALPHABLEND_ABD_ZERO:
-		return NewInt3(b, 0, 0, 0);
-	}
-}
-
-static Nuanceur::CInt3Rvalue GetAlphaC(Nuanceur::CShaderBuilder& b, uint32 alphaC,
-                                       Nuanceur::CInt4Value srcColor, Nuanceur::CInt4Value dstColor, Nuanceur::CIntValue alphaFix)
-{
-	switch(alphaC)
-	{
-	default:
-		assert(false);
-	case CGSHandler::ALPHABLEND_C_AS:
-		return srcColor->www();
-	case CGSHandler::ALPHABLEND_C_AD:
-		return dstColor->www();
-	case CGSHandler::ALPHABLEND_C_FIX:
-		return alphaFix->xxx();
-	}
-}
-
-static void AlphaTest(Nuanceur::CShaderBuilder& b,
-                      uint32 alphaTestFunction, uint32 alphaTestFailAction,
-                      Nuanceur::CInt4Value srcIColor, Nuanceur::CIntValue alphaRef,
-                      Nuanceur::CBoolLvalue writeColor, Nuanceur::CBoolLvalue writeDepth, Nuanceur::CBoolLvalue writeAlpha)
-{
-	using namespace Nuanceur;
-
-	auto srcAlpha = srcIColor->w();
-	auto alphaTestResult = CBoolLvalue(b.CreateVariableBool("alphaTestResult"));
-	switch(alphaTestFunction)
-	{
-	default:
-		assert(false);
-	case CGSHandler::ALPHA_TEST_ALWAYS:
-		alphaTestResult = NewBool(b, true);
-		break;
-	case CGSHandler::ALPHA_TEST_NEVER:
-		alphaTestResult = NewBool(b, false);
-		break;
-	case CGSHandler::ALPHA_TEST_LESS:
-		alphaTestResult = srcAlpha < alphaRef;
-		break;
-	case CGSHandler::ALPHA_TEST_LEQUAL:
-		alphaTestResult = srcAlpha <= alphaRef;
-		break;
-	case CGSHandler::ALPHA_TEST_EQUAL:
-		alphaTestResult = srcAlpha == alphaRef;
-		break;
-	case CGSHandler::ALPHA_TEST_GEQUAL:
-		alphaTestResult = srcAlpha >= alphaRef;
-		break;
-	case CGSHandler::ALPHA_TEST_GREATER:
-		alphaTestResult = srcAlpha > alphaRef;
-		break;
-	case CGSHandler::ALPHA_TEST_NOTEQUAL:
-		alphaTestResult = srcAlpha != alphaRef;
-		break;
-	}
-
-	BeginIf(b, !alphaTestResult);
-	{
-		switch(alphaTestFailAction)
-		{
-		default:
-			assert(false);
-		case CGSHandler::ALPHA_TEST_FAIL_KEEP:
-			writeColor = NewBool(b, false);
-			writeDepth = NewBool(b, false);
-			break;
-		case CGSHandler::ALPHA_TEST_FAIL_FBONLY:
-			writeDepth = NewBool(b, false);
-			break;
-		case CGSHandler::ALPHA_TEST_FAIL_ZBONLY:
-			writeColor = NewBool(b, false);
-			break;
-		case CGSHandler::ALPHA_TEST_FAIL_RGBONLY:
-			writeDepth = NewBool(b, false);
-			writeAlpha = NewBool(b, false);
-			break;
-		}
-	}
-	EndIf(b);
-}
-
-static void DestinationAlphaTest(Nuanceur::CShaderBuilder& b, uint32 framebufferFormat,
-                                 uint32 dstAlphaTestRef, Nuanceur::CUintValue dstPixel,
-                                 Nuanceur::CBoolLvalue writeColor, Nuanceur::CBoolLvalue writeDepth)
-{
-	using namespace Nuanceur;
-
-	auto alphaBit = CUintLvalue(b.CreateTemporaryUint());
-	switch(framebufferFormat)
-	{
-	case CGSHandler::PSMCT32:
-		alphaBit = dstPixel & NewUint(b, 0x80000000);
-		break;
-	case CGSHandler::PSMCT16:
-	case CGSHandler::PSMCT16S:
-		alphaBit = dstPixel & NewUint(b, 0x8000);
-		break;
-	default:
-		assert(false);
-		break;
-	}
-
-	auto dstAlphaTestResult = CBoolLvalue(b.CreateTemporaryBool());
-	if(dstAlphaTestRef)
-	{
-		//Pixels with alpha bit set pass
-		dstAlphaTestResult = (alphaBit != NewUint(b, 0));
-	}
-	else
-	{
-		dstAlphaTestResult = (alphaBit == NewUint(b, 0));
-	}
-
-	BeginIf(b, !dstAlphaTestResult);
-	{
-		writeColor = NewBool(b, false);
-		writeDepth = NewBool(b, false);
-	}
-	EndIf(b);
-}
-
-static void WriteToFramebuffer(Nuanceur::CShaderBuilder& b, uint32 framebufferFormat,
-                               Nuanceur::CArrayUintValue memoryBuffer, Nuanceur::CIntValue fbAddress, Nuanceur::CUintValue srcPixel)
-{
-	switch(framebufferFormat)
-	{
-	default:
-		assert(false);
-		[[fallthrough]];
-	case CGSHandler::PSMCT32:
-	{
-		CMemoryUtils::Memory_Write32(b, memoryBuffer, fbAddress, srcPixel);
-	}
-	break;
-	case CGSHandler::PSMCT24:
-	case CGSHandler::PSMZ24:
-	{
-		auto dstPixel = srcPixel & NewUint(b, 0xFFFFFF);
-		CMemoryUtils::Memory_Write24(b, memoryBuffer, fbAddress, dstPixel);
-	}
-	break;
-	case CGSHandler::PSMCT16:
-	case CGSHandler::PSMCT16S:
-	{
-		auto dstPixel = srcPixel & NewUint(b, 0xFFFF);
-		CMemoryUtils::Memory_Write16(b, memoryBuffer, fbAddress, dstPixel);
-	}
-	break;
-	}
-}
-
-static void WriteToDepthbuffer(Nuanceur::CShaderBuilder& b, uint32 depthbufferFormat,
-                               Nuanceur::CArrayUintValue memoryBuffer, Nuanceur::CIntValue depthAddress, Nuanceur::CUintValue srcDepth)
-{
-	switch(depthbufferFormat)
-	{
-	case CGSHandler::PSMZ32:
-	{
-		CMemoryUtils::Memory_Write32(b, memoryBuffer, depthAddress, srcDepth);
-	}
-	break;
-	case CGSHandler::PSMZ24:
-	{
-		auto dstDepth = srcDepth & NewUint(b, 0xFFFFFF);
-		CMemoryUtils::Memory_Write24(b, memoryBuffer, depthAddress, dstDepth);
-	}
-	break;
-	case CGSHandler::PSMZ16:
-	case CGSHandler::PSMZ16S:
-	{
-		auto dstDepth = srcDepth & NewUint(b, 0xFFFF);
-		CMemoryUtils::Memory_Write16(b, memoryBuffer, depthAddress, dstDepth);
-	}
-	break;
-	default:
-		assert(false);
-		break;
-	}
-}
-
 Framework::Vulkan::CShaderModule CDrawMobile::CreateDrawFragmentShader(const PIPELINE_CAPS& caps)
 {
 	using namespace Nuanceur;
@@ -1481,18 +897,18 @@ Framework::Vulkan::CShaderModule CDrawMobile::CreateDrawFragmentShader(const PIP
 		{
 			auto clampCoordinates =
 			    [&](CInt2Value textureIuv) {
-				    auto clampU = ClampTexCoord(b, caps.texClampU, textureIuv->x(), texSize->x(), clampMin->x(), clampMax->x());
-				    auto clampV = ClampTexCoord(b, caps.texClampV, textureIuv->y(), texSize->y(), clampMin->y(), clampMax->y());
+				    auto clampU = CDrawUtils::ClampTexCoord(b, caps.texClampU, textureIuv->x(), texSize->x(), clampMin->x(), clampMax->x());
+				    auto clampV = CDrawUtils::ClampTexCoord(b, caps.texClampV, textureIuv->y(), texSize->y(), clampMin->y(), clampMax->y());
 				    return NewInt2(clampU, clampV);
 			    };
 
 			auto getTextureColor =
 			    [&](CInt2Value textureIuv, CFloat4Lvalue& textureColor) {
-				    textureColor = GetTextureColor(b, caps.textureFormat, caps.clutFormat, textureIuv,
+				    textureColor = CDrawUtils::GetTextureColor(b, caps.textureFormat, caps.clutFormat, textureIuv,
 				                                   memoryBuffer, clutBuffer, texSwizzleTable, texBufAddress, texBufWidth, texCsa);
 				    if(caps.textureHasAlpha)
 				    {
-					    ExpandAlpha(b, caps.textureFormat, caps.clutFormat, caps.textureBlackIsTransparent, textureColor, texA0, texA1);
+					    CDrawUtils::ExpandAlpha(b, caps.textureFormat, caps.clutFormat, caps.textureBlackIsTransparent, textureColor, texA0, texA1);
 				    }
 			    };
 
@@ -1640,7 +1056,7 @@ Framework::Vulkan::CShaderModule CDrawMobile::CreateDrawFragmentShader(const PIP
 		auto srcIColor = CInt4Lvalue(b.CreateVariableInt("srcIColor"));
 		srcIColor = ToInt(textureColor->xyzw() * NewFloat4(b, 255.f, 255.f, 255.f, 255.f));
 
-		AlphaTest(b, caps.alphaTestFunction, caps.alphaTestFailAction, srcIColor, alphaRef,
+		CDrawUtils::AlphaTest(b, caps.alphaTestFunction, caps.alphaTestFailAction, srcIColor, alphaRef,
 		          writeColor, writeDepth, writeAlpha);
 
 		bool canDiscardAlpha =
@@ -1685,7 +1101,7 @@ Framework::Vulkan::CShaderModule CDrawMobile::CreateDrawFragmentShader(const PIP
 
 		if(caps.hasDstAlphaTest)
 		{
-			DestinationAlphaTest(b, caps.framebufferFormat, caps.dstAlphaTestRef, dstPixel, writeColor, writeDepth);
+			CDrawUtils::DestinationAlphaTest(b, caps.framebufferFormat, caps.dstAlphaTestRef, dstPixel, writeColor, writeDepth);
 		}
 
 		auto depthTestResult = CBoolLvalue(b.CreateVariableBool("depthTestResult"));
@@ -1715,10 +1131,10 @@ Framework::Vulkan::CShaderModule CDrawMobile::CreateDrawFragmentShader(const PIP
 		if(caps.hasAlphaBlending)
 		{
 			//Blend
-			auto alphaA = GetAlphaABD(b, caps.alphaA, srcIColor, dstIColor);
-			auto alphaB = GetAlphaABD(b, caps.alphaB, srcIColor, dstIColor);
-			auto alphaC = GetAlphaC(b, caps.alphaC, srcIColor, dstIColor, alphaFix);
-			auto alphaD = GetAlphaABD(b, caps.alphaD, srcIColor, dstIColor);
+			auto alphaA = CDrawUtils::GetAlphaABD(b, caps.alphaA, srcIColor, dstIColor);
+			auto alphaB = CDrawUtils::GetAlphaABD(b, caps.alphaB, srcIColor, dstIColor);
+			auto alphaC = CDrawUtils::GetAlphaC(b, caps.alphaC, srcIColor, dstIColor, alphaFix);
+			auto alphaD = CDrawUtils::GetAlphaABD(b, caps.alphaD, srcIColor, dstIColor);
 
 			auto blendedRGB = ShiftRightArithmetic((alphaA - alphaB) * alphaC, NewInt3(b, 7, 7, 7)) + alphaD;
 			auto blendedIColor = NewInt4(blendedRGB, srcIColor->w());
@@ -1879,7 +1295,7 @@ PIPELINE CDrawMobile::CreateLoadPipeline(const PIPELINE_CAPS& caps)
 		VkPushConstantRange pushConstantInfo = {};
 		pushConstantInfo.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 		pushConstantInfo.offset = 0;
-		pushConstantInfo.size = sizeof(LOAD_STORE_PIPELINE_PUSHCONSTANTS);
+		pushConstantInfo.size = sizeof(DRAW_PIPELINE_PUSHCONSTANTS);
 
 		auto pipelineLayoutCreateInfo = Framework::Vulkan::PipelineLayoutCreateInfo();
 		pipelineLayoutCreateInfo.pushConstantRangeCount = 1;
@@ -2038,7 +1454,7 @@ PIPELINE CDrawMobile::CreateStorePipeline(const PIPELINE_CAPS& caps)
 		VkPushConstantRange pushConstantInfo = {};
 		pushConstantInfo.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 		pushConstantInfo.offset = 0;
-		pushConstantInfo.size = sizeof(LOAD_STORE_PIPELINE_PUSHCONSTANTS);
+		pushConstantInfo.size = sizeof(DRAW_PIPELINE_PUSHCONSTANTS);
 
 		auto pipelineLayoutCreateInfo = Framework::Vulkan::PipelineLayoutCreateInfo();
 		pipelineLayoutCreateInfo.pushConstantRangeCount = 1;
@@ -2252,7 +1668,7 @@ Framework::Vulkan::CShaderModule CDrawMobile::CreateLoadFragmentShader(const PIP
 		break;
 		}
 
-		dstDepth = GetDepth(b, caps.depthbufferFormat, depthAddress, memoryBuffer);
+		dstDepth = CDrawUtils::GetDepth(b, caps.depthbufferFormat, depthAddress, memoryBuffer);
 
 		outputColor = dstPixel->x();
 		outputDepth = dstDepth->x();
@@ -2347,10 +1763,10 @@ Framework::Vulkan::CShaderModule CDrawMobile::CreateStoreFragmentShader(const PI
 		fbAddress = fbAddress & NewInt(b, CGSHandler::RAMSIZE - 1);
 		depthAddress = depthAddress & NewInt(b, CGSHandler::RAMSIZE - 1);
 
-		WriteToFramebuffer(b, caps.framebufferFormat, memoryBuffer, fbAddress, dstPixel);
+		CDrawUtils::WriteToFramebuffer(b, caps.framebufferFormat, memoryBuffer, fbAddress, dstPixel);
 		if(caps.writeDepth)
 		{
-			WriteToDepthbuffer(b, caps.depthbufferFormat, memoryBuffer, depthAddress, dstDepth);
+			CDrawUtils::WriteToDepthbuffer(b, caps.depthbufferFormat, memoryBuffer, depthAddress, dstDepth);
 		}
 
 		outputColor = dstPixel->x();

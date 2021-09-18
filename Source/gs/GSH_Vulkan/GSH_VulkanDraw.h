@@ -83,9 +83,9 @@ namespace GSH_Vulkan
 		CDraw(const ContextPtr&, const FrameCommandBufferPtr&);
 		virtual ~CDraw();
 
-		void SetPipelineCaps(const PIPELINE_CAPS&);
-		void SetFramebufferParams(uint32, uint32, uint32);
-		void SetDepthbufferParams(uint32, uint32);
+		virtual void SetPipelineCaps(const PIPELINE_CAPS&);
+		virtual void SetFramebufferParams(uint32, uint32, uint32);
+		virtual void SetDepthbufferParams(uint32, uint32);
 		void SetTextureParams(uint32, uint32, uint32, uint32, uint32);
 		void SetClutBufferOffset(uint32);
 		void SetTextureAlphaParams(uint32, uint32);
@@ -93,7 +93,7 @@ namespace GSH_Vulkan
 		void SetFogParams(float, float, float);
 		void SetAlphaBlendingParams(uint32);
 		void SetAlphaTestParams(uint32);
-		void SetScissor(uint32, uint32, uint32, uint32);
+		virtual void SetScissor(uint32, uint32, uint32, uint32);
 		void SetMemoryCopyParams(uint32, uint32);
 
 		void AddVertices(const PRIM_VERTEX*, const PRIM_VERTEX*);
