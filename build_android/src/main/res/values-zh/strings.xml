@@ -29,8 +29,8 @@
 	<string name="file_list_default">未分类</string>
 
 	<string name="game_unavailable">游戏不可用。\n您要将其从列表中删除吗？</string>
-	<string name="not_found">未找到</string>
-	<string name="no_game_found_adapter"未找到游戏。\n\n请打开菜单并选择\“Add Folder\”来添加游戏。</string>
+	<string name="not_found">没有找到</string>
+	<string name="no_game_found_adapter"未找到游戏。\n\n请打开菜单并选择\“添加文件夹\”来添加游戏。</string>
 
 	<!-- Application Preferences -->
 
@@ -49,7 +49,7 @@
 	<string name="pref_emu_video">视频设置</string>
 
 	<string name="pref_emu_video_res_factor_title">设置分辨率</string>
-
+	
 	<string name="pref_emu_video_widescreen_title">调整输出到宽屏</string>
 	<string name="pref_emu_video_widescreen_summary">调整画面为16:9比例。</string>
 	
@@ -62,7 +62,7 @@
 
 	<string name="pref_emu_audio_enable_output_title">启用音频输出</string>
 	<string name="pref_emu_audio_enable_output_summary">启用音频输出。</string>
-
+	
 	<string name="pref_emu_audio_spublockcount_title">缓冲区大小</string>
 	
 	<string name="preferences_screen_ui">界面设置</string>
@@ -131,7 +131,7 @@
 	<string name="report">报告</string>
 
 	<string name="platform">将logcat内容复制到剪贴板\n请在问题报告中粘贴</string>
-	<string name="log_saved">日志保存到 \"Files Dir\" 路径</string>
+	<string name="log_saved">日志保存到\“Files Dir\”路径</string>
 	<string name="no_recent_adapter">最近没有玩过PS2游戏。</string>
 	
 	<!-- Editor Menu -->
@@ -146,7 +146,7 @@
 	<string name="gameinfo_edit_activity_gamecover_change">更改</string>
 	<string name="gameinfo_edit_activity_gamecover_default">默认</string>
 	
-	<string name="permission_dialog_title">权限请求</string>
+	<string name="permission_dialog_title"权限请求</string>
 	<string name="permission_dialog_summary">Play!需要存储访问（读/写）。否则，Play!将无法找到你的游戏或者保存你的进程。</string>
-	
+
 </resources>
