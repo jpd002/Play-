@@ -4,7 +4,7 @@
 	<!-- Application Navigation -->
 
 	<string name="main_menu_settings">设置</string>
-	<string name="main_menu_addfolder">Add Folder</string>
+	<string name="main_menu_addfolder">添加文件夹</string>
 	<string name="main_menu_about">关于</string>
 	<string name="main_menu_exit">退出</string>
 
@@ -14,7 +14,7 @@
 	<string name="search_games_msg">请稍候&#8230;</string>
 	<string name="updating_db">更新收藏&#8230;</string>
 
-	<string name="launch_game">Launching game&#8230;</string>
+	<string name="launch_game">启动游戏&#8230;</string>
 	<string name="launch_game_msg">请稍候&#8230;</string>
 
 	<string name="navigation_drawer_open">导航栏打开</string>
@@ -30,7 +30,7 @@
 
 	<string name="game_unavailable">游戏不可用。\n您要将其从列表中删除吗？</string>
 	<string name="not_found">未找到</string>
-	<string name="no_game_found_adapter">No game found.\n\nPlease open the menu and select \'Add Folder\' to add games.</string>
+	<string name="no_game_found_adapter"未找到游戏。\n\n请打开菜单并选择\“Add Folder\”来添加游戏。</string>
 
 	<!-- Application Preferences -->
 
@@ -48,18 +48,23 @@
 
 	<string name="pref_emu_video">视频设置</string>
 
-	<string name="pref_emu_video_res_factor_title">Set Resolution Factor</string>
+	<string name="pref_emu_video_res_factor_title">设置分辨率</string>
 
+	<string name="pref_emu_video_widescreen_title">调整输出到宽屏</string>
+	<string name="pref_emu_video_widescreen_summary">调整画面为16:9比例。</string>
+	
 	<string name="pref_emu_video_force_bilinear_title">强制双线性过滤</string>
 	<string name="pref_emu_video_force_bilinear_summary">强制在所有纹理上使用双线性过滤。</string>
 
-	<string name="pref_emu_video_presentation_mode_title">Presentation Mode</string>
+	<string name="pref_emu_video_presentation_mode_title">屏幕模式</string>
 
 	<string name="pref_emu_audio">音频设置</string>
 
 	<string name="pref_emu_audio_enable_output_title">启用音频输出</string>
 	<string name="pref_emu_audio_enable_output_summary">启用音频输出。</string>
 
+	<string name="pref_emu_audio_spublockcount_title">缓冲区大小</string>
+	
 	<string name="preferences_screen_ui">界面设置</string>
 
 	<string name="preferences_ui">存储选项</string>
@@ -87,6 +92,25 @@
 		<item>绿色</item>
 	</string-array>
 
+	<string-array name="pref_emu_video_res_factor_entries">
+		<item>1倍</item>
+		<item>2倍</item>
+		<item>4倍</item>
+		<item>8倍</item>
+	</string-array>
+
+	<string-array name="pref_emu_video_presentation_mode_entries">
+		<item>填充</item>
+		<item>适应（默认）</item>
+		<item>原始大小</item>
+	</string-array>
+
+	<string-array name="pref_emu_audio_spublockcount_entries">
+		<item>400</item>
+		<item>100</item>
+		<item>10</item>
+	</string-array>
+	
 	<!-- Emulator Drawer -->
 
 	<string name="emulator_drawer_exit">退出</string>
@@ -106,7 +130,7 @@
 	<string name="dismiss">搁置</string>
 	<string name="report">报告</string>
 
-	<string name="platform">将 logcat 内容复制到剪贴板\n请在问题报告中粘贴</string>
+	<string name="platform">将logcat内容复制到剪贴板\n请在问题报告中粘贴</string>
 	<string name="log_saved">日志保存到 \"Files Dir\" 路径</string>
 	<string name="no_recent_adapter">最近没有玩过PS2游戏。</string>
 	
@@ -121,5 +145,8 @@
 	<string name="gameinfo_edit_activity_gamecover">游戏封面</string>
 	<string name="gameinfo_edit_activity_gamecover_change">更改</string>
 	<string name="gameinfo_edit_activity_gamecover_default">默认</string>
+	
+	<string name="permission_dialog_title">权限请求</string>
+	<string name="permission_dialog_summary">Play!需要存储访问（读/写）。否则，Play!将无法找到你的游戏或者保存你的进程。</string>
 	
 </resources>
