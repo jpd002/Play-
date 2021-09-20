@@ -1,7 +1,28 @@
 import './App.css';
 import { ChangeEvent } from 'react';
+import { FixedSizeList, ListChildComponentProps } from 'react-window';
+import { Box, ListItem, ListItemButton, ListItemText } from '@mui/material';
 import { useAppDispatch, useAppSelector, init, loadArchive, loadPsf, play, stop } from "./Actions";
 import { PsfPlayerModule } from './PsfPlayerModule';
+
+function RenderRow(props: ListChildComponentProps) {
+  const { index, style, data } = props;
+  let archiveFileList = data as string[];
+  let archiveFile = archiveFileList[index];
+
+  const dispatch = useAppDispatch();  
+  const handleClick = function(psfFilePath : string) {
+    dispatch(loadPsf(psfFilePath));
+  }
+
+  return (
+    <ListItem style={style} key={index} component="div" disablePadding>
+      <ListItemButton onClick={(e) => handleClick(archiveFile)}>
+        <ListItemText primary={archiveFile} />
+      </ListItemButton>
+    </ListItem>
+  );
+}
 
 export default function App() {
     const dispatch = useAppDispatch();
@@ -12,10 +33,6 @@ export default function App() {
         dispatch(loadArchive(url));
       }
     }
-    const handleClick = function(psfFilePath : string) {
-      dispatch(loadPsf(psfFilePath));
-      console.log(`Clicked ${psfFilePath}!`);
-    }
     if(PsfPlayerModule === null) {
       return (
         <div className="App">
@@ -25,6 +42,17 @@ export default function App() {
     } else {
       return (
         <div className="App">
+          <FixedSizeList
+            className={"playlist"}
+            height={480}
+            width={360}
+            itemSize={46}
+            itemCount={state.archiveFileList.length}
+            overscanCount={5}
+            itemData={state.archiveFileList}
+            >
+              {RenderRow}
+          </FixedSizeList>
           <div>
             <textarea value={state.value} />
             <br />
@@ -33,15 +61,6 @@ export default function App() {
           </div>
           <div>
             <input type="file" onChange={handleChange}/>
-          </div>
-          <div>
-            <ul>
-              {
-                state.archiveFileList.map(item => (
-                  <li><button className="link" onClick={(e) => handleClick(item)}>{item}</button></li>
-                ))
-              }
-            </ul>
           </div>
         </div>
       );
