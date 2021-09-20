@@ -1,7 +1,7 @@
 import './App.css';
 import { ChangeEvent } from 'react';
 import { FixedSizeList, ListChildComponentProps } from 'react-window';
-import { Box, ListItem, ListItemButton, ListItemText } from '@mui/material';
+import { ListItem, ListItemButton, ListItemText } from '@mui/material';
 import { useAppDispatch, useAppSelector, init, loadArchive, loadPsf, play, stop } from "./Actions";
 import { PsfPlayerModule } from './PsfPlayerModule';
 
