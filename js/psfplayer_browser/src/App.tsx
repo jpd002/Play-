@@ -1,13 +1,13 @@
 import './App.css';
 import { ChangeEvent } from 'react';
-import { RootState, useAppDispatch, useAppSelector, init, loadArchive, loadPsf, play, stop } from "./Actions";
+import { useAppDispatch, useAppSelector, init, loadArchive, loadPsf, play, stop } from "./Actions";
 import { PsfPlayerModule } from './PsfPlayerModule';
 
 export default function App() {
     const dispatch = useAppDispatch();
     const state = useAppSelector((state) => state.player);
     const handleChange = function(event : ChangeEvent<HTMLInputElement>) {
-      if(event.target && event.target.files && event.target.files.length != 0) {
+      if(event.target && event.target.files && event.target.files.length !== 0) {
         var url = URL.createObjectURL(event.target.files[0]);
         dispatch(loadArchive(url));
       }
@@ -38,7 +38,7 @@ export default function App() {
             <ul>
               {
                 state.archiveFileList.map(item => (
-                  <li><a onClick={(e) => handleClick(item)} style={{cursor: 'pointer'}}>{item}</a></li>
+                  <li><button className="link" onClick={(e) => handleClick(item)}>{item}</button></li>
                 ))
               }
             </ul>

@@ -1,4 +1,4 @@
-import { configureStore, createAction, createAsyncThunk, createReducer } from "@reduxjs/toolkit";
+import { configureStore, createAsyncThunk, createReducer } from "@reduxjs/toolkit";
 import { TypedUseSelectorHook, useDispatch, useSelector } from "react-redux";
 import { PsfPlayerModule, initPsfPlayerModule, getPsfArchiveFileList, loadPsfFromArchive, tickPsf } from "./PsfPlayerModule";
 import { Mutex } from 'async-mutex';
