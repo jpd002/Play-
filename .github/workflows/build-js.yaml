@@ -1,0 +1,34 @@
+name: Build JavaScript
+
+on: [push, pull_request]
+jobs:
+  build_js:
+    runs-on: ubuntu-20.04
+    steps:
+    - name: Set up Node.js
+      uses: actions/setup-node@v1
+      with:
+        node-version: 16.6
+    - name: Setup Emscripten
+      uses: mymindstorm/setup-emsdk@v10
+    - name: Checkout
+      uses: actions/checkout@v2
+      with:
+        submodules: recursive
+        fetch-depth: 0
+    - name: Generate CMake Project
+      run: |
+        mkdir build
+        cd build
+        emcmake cmake .. -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTS=OFF -DBUILD_PLAY=OFF -DBUILD_PSFPLAYER=ON -DUSE_QT=OFF
+    - name: Build Native Code
+      run: |
+        cd build
+        cmake --build . --config Release -j $(nproc)
+    - name: Build PsfPlayer Browser
+      run: |
+        cd js/psfplayer_browser
+        cp ../../build/tools/PsfPlayer/Source/js_ui/PsfPlayer.js ./src/
+        cp ../../build/tools/PsfPlayer/Source/js_ui/PsfPlayer.wasm ./public/
+        npm install
+        npm run build
