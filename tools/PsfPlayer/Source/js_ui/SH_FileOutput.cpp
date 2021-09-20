@@ -14,7 +14,6 @@ CSoundHandler* CSH_FileOutput::HandlerFactory()
 
 void CSH_FileOutput::Reset()
 {
-
 }
 
 void CSH_FileOutput::Write(int16* samples, unsigned int sampleCount, unsigned int sampleRate)
@@ -30,5 +29,4 @@ bool CSH_FileOutput::HasFreeBuffers()
 
 void CSH_FileOutput::RecycleBuffers()
 {
-
 }

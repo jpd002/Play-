@@ -354,7 +354,7 @@ void CBasicBlock::SetOutLink(LINK_SLOT linkSlot, BlockOutLinkPointer link)
 
 void CBasicBlock::LinkBlock(LINK_SLOT linkSlot, CBasicBlock* otherBlock)
 {
-#if !defined(AOT_ENABLED) && !defined(__EMSCRIPTEN__) 
+#if !defined(AOT_ENABLED) && !defined(__EMSCRIPTEN__)
 	assert(!IsEmpty());
 	assert(!otherBlock->IsEmpty());
 	assert(linkSlot < LINK_SLOT_MAX);
@@ -373,7 +373,7 @@ void CBasicBlock::LinkBlock(LINK_SLOT linkSlot, CBasicBlock* otherBlock)
 
 void CBasicBlock::UnlinkBlock(LINK_SLOT linkSlot)
 {
-#if !defined(AOT_ENABLED) && !defined(__EMSCRIPTEN__) 
+#if !defined(AOT_ENABLED) && !defined(__EMSCRIPTEN__)
 	assert(!IsEmpty());
 	assert(linkSlot < LINK_SLOT_MAX);
 	assert(m_linkBlockTrampolineOffset[linkSlot] != INVALID_LINK_SLOT);

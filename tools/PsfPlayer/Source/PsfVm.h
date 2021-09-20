@@ -47,7 +47,7 @@ public:
 
 	NewFrameEvent OnNewFrame;
 
-//private:
+	//private:
 public:
 	void ThreadProc();
 
