@@ -160,7 +160,12 @@ void CPsfVm::Step()
 
 void CPsfVm::StepSync()
 {
-	m_subSystem->Update(false, m_soundHandler);
+	m_soundHandler->RecycleBuffers();
+	while(true)
+	{
+		if(!m_soundHandler->HasFreeBuffers()) break;
+		m_subSystem->Update(false, m_soundHandler);
+	}
 }
 
 void CPsfVm::SetSpuHandler(const SpuHandlerFactory& factory)

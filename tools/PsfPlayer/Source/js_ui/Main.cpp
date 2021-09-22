@@ -32,7 +32,8 @@ extern "C" void initVm()
 		Jitter::CWasmFunctionRegistry::RegisterFunction(reinterpret_cast<uintptr_t>(&MemoryUtils_SetWordProxy), "_MemoryUtils_SetWordProxy", "viii");
 
 		g_virtualMachine = new CPsfVm();
-		g_virtualMachine->SetSpuHandlerImpl(&CSH_FileOutput::HandlerFactory);
+		//g_virtualMachine->SetSpuHandlerImpl(&CSH_FileOutput::HandlerFactory);
+		g_virtualMachine->SetSpuHandlerImpl(&CSH_OpenAL::HandlerFactory);
 	}
 	catch(const std::exception& ex)
 	{
