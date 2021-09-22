@@ -11,6 +11,7 @@
 #include <emscripten/bind.h>
 
 CPsfVm* g_virtualMachine = nullptr;
+CPsfBase::TagMap g_tags;
 
 int main(int argc, const char** argv)
 {
@@ -45,8 +46,9 @@ extern "C" void loadPsf(const char* archivePath, const char* psfPath)
 	try
 	{
 		assert(g_virtualMachine);
+		g_tags.clear();
 		auto fileToken = CArchivePsfStreamProvider::GetPathTokenFromFilePath(psfPath);
-		CPsfLoader::LoadPsf(*g_virtualMachine, fileToken, archivePath);
+		CPsfLoader::LoadPsf(*g_virtualMachine, fileToken, archivePath, &g_tags);
 	}
 	catch(const std::exception& ex)
 	{
@@ -86,11 +88,18 @@ std::vector<std::string> getPsfArchiveFileList(std::string rawArchivePath)
 	return result;
 }
 
+CPsfBase::TagMap getCurrentPsfTags()
+{
+	return g_tags;
+}
+
 EMSCRIPTEN_BINDINGS(PsfPlayer)
 {
 	using namespace emscripten;
 
 	register_vector<std::string>("StringList");
+	register_map<std::string, std::string>("StringMap");
 
 	function("getPsfArchiveFileList", &getPsfArchiveFileList);
+	function("getCurrentPsfTags", &getCurrentPsfTags);
 }

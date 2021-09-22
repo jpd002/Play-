@@ -19,6 +19,19 @@ function convertStringVectorToArray(strVector : any) {
     return strArray;
 }
 
+function convertStringMapToDictionary(strMap : any) {
+    let keysList = strMap.keys();
+    let keys : string[] = [];
+    for(let i = 0; i < keysList.size(); i++) {
+        let str = keysList.get(i);
+        keys.push(str);
+    }
+    let strDict : Map<string, string> = new Map();
+    keys.forEach(key => strDict.set(key, strMap.get(key)));
+    strMap.delete();
+    return strDict;
+}
+
 export let initPsfPlayerModule = async function() {
     PsfPlayerModule = await PsfPlayer(module_overrides);
     PsfPlayerModule.FS.mkdir("/work");
@@ -32,6 +45,11 @@ export let getPsfArchiveFileList = function(archivePath : string) {
 
 export let loadPsfFromArchive = async function(archivePath : string, psfPath : string) {
     await PsfPlayerModule.ccall("loadPsf", "", ['string', 'string'], [archivePath, psfPath], { async: true });
+}
+
+export let getCurrentPsfTags = function() {
+    let tags = convertStringMapToDictionary(PsfPlayerModule.getCurrentPsfTags());
+    return tags;
 }
 
 export let tickPsf = async function() {

@@ -1,6 +1,6 @@
 import { configureStore, createAsyncThunk, createReducer } from "@reduxjs/toolkit";
 import { TypedUseSelectorHook, useDispatch, useSelector } from "react-redux";
-import { PsfPlayerModule, initPsfPlayerModule, getPsfArchiveFileList, loadPsfFromArchive, tickPsf } from "./PsfPlayerModule";
+import { PsfPlayerModule, initPsfPlayerModule, getPsfArchiveFileList, loadPsfFromArchive, getCurrentPsfTags, tickPsf } from "./PsfPlayerModule";
 import { Mutex } from 'async-mutex';
 
 let archiveFilePath = "archive.zip";
@@ -18,11 +18,13 @@ let updateFct = async function() {
 export type AudioState = {
     value: string,
     archiveFileList : string[]
+    currentPsfTags : any | undefined
 };
 
 let initialState : AudioState = {
     value: "unknown",
     archiveFileList: [],
+    currentPsfTags: undefined
 };
 
 export const init = createAsyncThunk<void>('init', 
@@ -52,13 +54,15 @@ export const loadArchive = createAsyncThunk<string[] | undefined, string>('loadA
         return fileList;
     }
 );
-export const loadPsf = createAsyncThunk<void, string>('loadPsf',
+export const loadPsf = createAsyncThunk<any, string>('loadPsf',
     async (psfFilePath : string, thunkAPI) => {
         let releaseLock = await tickMutex.acquire();
         clearTimeout(updateTimer);
         await loadPsfFromArchive(archiveFilePath, psfFilePath);
+        let tags = getCurrentPsfTags();
         updateTimer = setTimeout(updateFct, updateDelay);
         releaseLock();
+        return Object.fromEntries(tags);
     }
 );
 export const play = createAsyncThunk<void, void>('play',
@@ -98,6 +102,7 @@ const reducer = createReducer(initialState, (builder) => (
         })
         .addCase(loadPsf.fulfilled, (state, action) => {
             state.value = "psf loaded";
+            state.currentPsfTags = action.payload;
             return state;
         })
         .addCase(loadPsf.rejected, (state, action) => {

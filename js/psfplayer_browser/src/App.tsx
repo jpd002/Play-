@@ -54,7 +54,8 @@ export default function App() {
               {RenderRow}
           </FixedSizeList>
           <div>
-            <textarea value={state.value} />
+            <br />
+            <div>{state.currentPsfTags ? `${state.currentPsfTags.game} - ${state.currentPsfTags.title}` : 'PsfPlayer'}</div>
             <br />
             <button onClick={() => dispatch(play())}>Start</button>
             <button onClick={() => dispatch(stop())}>Stop</button>
