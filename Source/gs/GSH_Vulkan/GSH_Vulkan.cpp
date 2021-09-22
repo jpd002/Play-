@@ -5,6 +5,7 @@
 #include "GSH_VulkanDrawDesktop.h"
 #include "GSH_VulkanDeviceInfo.h"
 #include "vulkan/StructDefs.h"
+#include "vulkan/StructChain.h"
 #include "vulkan/Utils.h"
 
 #define LOG_NAME ("gsh_vulkan")
@@ -368,30 +369,41 @@ void CGSH_Vulkan::CreateDevice(VkPhysicalDevice physicalDevice)
 
 	std::vector<const char*> enabledLayers;
 
-	auto physicalDeviceFeaturesInvocationInterlock = Framework::Vulkan::PhysicalDeviceFragmentShaderInterlockFeaturesEXT();
-	physicalDeviceFeaturesInvocationInterlock.fragmentShaderPixelInterlock = VK_TRUE;
+	Framework::Vulkan::CStructChain createDeviceStructs;
 
-	auto physicalDeviceFeatures2 = Framework::Vulkan::PhysicalDeviceFeatures2KHR();
-	physicalDeviceFeatures2.pNext = &physicalDeviceFeaturesInvocationInterlock;
+	{
+		auto physicalDeviceFeaturesInvocationInterlock = Framework::Vulkan::PhysicalDeviceFragmentShaderInterlockFeaturesEXT();
+		physicalDeviceFeaturesInvocationInterlock.fragmentShaderPixelInterlock = VK_TRUE;
+		createDeviceStructs.AddStruct(physicalDeviceFeaturesInvocationInterlock);
+	}
+
+	{
+		auto physicalDeviceFeatures2 = Framework::Vulkan::PhysicalDeviceFeatures2KHR();
 #ifndef __APPLE__
-	//MoltenVK doesn't report this properly (probably due to mobile devices supporting buffer stores and not image stores)
-	physicalDeviceFeatures2.features.fragmentStoresAndAtomics = VK_TRUE;
+		//MoltenVK doesn't report this properly (probably due to mobile devices supporting buffer stores and not image stores)
+		physicalDeviceFeatures2.features.fragmentStoresAndAtomics = VK_TRUE;
 #endif
-	physicalDeviceFeatures2.features.shaderInt16 = VK_TRUE;
+		physicalDeviceFeatures2.features.shaderInt16 = VK_TRUE;
+		createDeviceStructs.AddStruct(physicalDeviceFeatures2);
+	}
 
-	auto physicalDeviceVulkan12features = Framework::Vulkan::PhysicalDeviceVulkan12Features();
-	physicalDeviceVulkan12features.pNext = &physicalDeviceFeatures2;
-	physicalDeviceVulkan12features.shaderInt8 = VK_TRUE;
-	physicalDeviceVulkan12features.storageBuffer8BitAccess = VK_TRUE;
-	physicalDeviceVulkan12features.uniformAndStorageBuffer8BitAccess = VK_TRUE;
+	{
+		auto physicalDeviceVulkan12Features = Framework::Vulkan::PhysicalDeviceVulkan12Features();
+		physicalDeviceVulkan12Features.shaderInt8 = VK_TRUE;
+		physicalDeviceVulkan12Features.storageBuffer8BitAccess = VK_TRUE;
+		physicalDeviceVulkan12Features.uniformAndStorageBuffer8BitAccess = VK_TRUE;
+		createDeviceStructs.AddStruct(physicalDeviceVulkan12Features);
+	}
 
-	auto physicalDevice16BitStorageFeatures = Framework::Vulkan::PhysicalDevice16BitStorageFeatures();
-	physicalDevice16BitStorageFeatures.pNext = &physicalDeviceVulkan12features;
-	physicalDevice16BitStorageFeatures.storageBuffer16BitAccess = VK_TRUE;
-	physicalDevice16BitStorageFeatures.uniformAndStorageBuffer16BitAccess = VK_TRUE;
+	{
+		auto physicalDevice16BitStorageFeatures = Framework::Vulkan::PhysicalDevice16BitStorageFeatures();
+		physicalDevice16BitStorageFeatures.storageBuffer16BitAccess = VK_TRUE;
+		physicalDevice16BitStorageFeatures.uniformAndStorageBuffer16BitAccess = VK_TRUE;
+		createDeviceStructs.AddStruct(physicalDevice16BitStorageFeatures);
+	}
 
 	auto deviceCreateInfo = Framework::Vulkan::DeviceCreateInfo();
-	deviceCreateInfo.pNext = &physicalDevice16BitStorageFeatures;
+	deviceCreateInfo.pNext = createDeviceStructs.GetNext();
 	deviceCreateInfo.flags = 0;
 	deviceCreateInfo.enabledLayerCount = static_cast<uint32>(enabledLayers.size());
 	deviceCreateInfo.ppEnabledLayerNames = enabledLayers.data();
