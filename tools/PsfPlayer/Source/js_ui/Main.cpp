@@ -43,7 +43,7 @@ extern "C" void initVm()
 
 extern "C" void loadPsf(const char* archivePath, const char* psfPath)
 {
-	printf("Loading '%s' from '%s.\r\n", psfPath, archivePath);
+	printf("Loading '%s' from '%s'.\r\n", psfPath, archivePath);
 	try
 	{
 		assert(g_virtualMachine);
