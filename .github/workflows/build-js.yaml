@@ -32,3 +32,13 @@ jobs:
         cp ../../build/tools/PsfPlayer/Source/js_ui/PsfPlayer.wasm ./public/
         npm install
         npm run build
+    - name: Update Test Environment
+      uses: jakejarvis/s3-sync-action@v0.5.1
+      with:
+        args: --acl public-read --delete
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        AWS_REGION: us-east-2
+        AWS_S3_BUCKET: psfplayer-test
+        SOURCE_DIR: 'js/psfplayer_browser/build'
