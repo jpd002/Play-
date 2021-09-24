@@ -41,3 +41,11 @@
   border: 1px solid lightgray;
   margin: auto;
 }
+
+span.version {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  color: darkgray;
+  font-size: smaller;
+}

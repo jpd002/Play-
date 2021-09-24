@@ -30,6 +30,7 @@ jobs:
         cd js/psfplayer_browser
         cp ../../build/tools/PsfPlayer/Source/js_ui/PsfPlayer.js ./src/
         cp ../../build/tools/PsfPlayer/Source/js_ui/PsfPlayer.wasm ./public/
+        export REACT_APP_VERSION=$(git describe)
         npm install
         npm run build
     - name: Update Test Environment

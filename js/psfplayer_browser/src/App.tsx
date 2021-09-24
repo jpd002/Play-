@@ -63,6 +63,9 @@ export default function App() {
           <div>
             <input type="file" onChange={handleChange}/>
           </div>
+          <span className="version">
+            {`Version: ${process.env.REACT_APP_VERSION}`}
+          </span>
         </div>
       );
     }
