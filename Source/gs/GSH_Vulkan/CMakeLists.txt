@@ -47,6 +47,7 @@ add_library(gsh_vulkan STATIC
 	GSH_VulkanMemoryUtils.h
 	GSH_VulkanOffscreen.cpp
 	GSH_VulkanOffscreen.h
+	GSH_VulkanPlatformDefs.h
 	GSH_VulkanPipelineCache.h
 	GSH_VulkanPresent.cpp
 	GSH_VulkanPresent.h

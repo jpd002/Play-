@@ -2,6 +2,7 @@
 #include "../GsPixelFormats.h"
 #include "../../Log.h"
 #include "GSH_Vulkan.h"
+#include "GSH_VulkanPlatformDefs.h"
 #include "GSH_VulkanDrawDesktop.h"
 #include "GSH_VulkanDrawMobile.h"
 #include "GSH_VulkanDeviceInfo.h"
@@ -82,8 +83,14 @@ Framework::Vulkan::CInstance CGSH_Vulkan::CreateInstance(bool useValidationLayer
 	auto appInfo = Framework::Vulkan::ApplicationInfo();
 	appInfo.pApplicationName = "Play!";
 	appInfo.pEngineName = "Play!";
+#if GSH_VULKAN_IS_DESKTOP
+	appInfo.apiVersion = VK_API_VERSION_1_2;
+#elif GSH_VULKAN_IS_MOBILE
 	appInfo.apiVersion = VK_API_VERSION_1_0;
-
+#else
+#error Unsupported Vulkan flavor
+#endif
+	
 	instanceCreateInfo.pApplicationInfo = &appInfo;
 	instanceCreateInfo.enabledExtensionCount = extensions.size();
 	instanceCreateInfo.ppEnabledExtensionNames = extensions.data();
@@ -141,7 +148,13 @@ void CGSH_Vulkan::InitializeImpl()
 
 	m_frameCommandBuffer = std::make_shared<CFrameCommandBuffer>(m_context);
 	m_clutLoad = std::make_shared<CClutLoad>(m_context, m_frameCommandBuffer);
+#if GSH_VULKAN_IS_DESKTOP
+	m_draw = std::make_shared<CDrawDesktop>(m_context, m_frameCommandBuffer);
+#elif GSH_VULKAN_IS_MOBILE
 	m_draw = std::make_shared<CDrawMobile>(m_context, m_frameCommandBuffer);
+#else
+#error Unsupported Vulkan flavor
+#endif
 	if(m_context->surface)
 	{
 		m_present = std::make_shared<CPresent>(m_context);
@@ -366,28 +379,35 @@ void CGSH_Vulkan::CreateDevice(VkPhysicalDevice physicalDevice)
 
 	std::vector<const char*> enabledExtensions;
 	enabledExtensions.push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
-	//enabledExtensions.push_back(VK_EXT_FRAGMENT_SHADER_INTERLOCK_EXTENSION_NAME);
-
+#if GSH_VULKAN_IS_DESKTOP
+	enabledExtensions.push_back(VK_EXT_FRAGMENT_SHADER_INTERLOCK_EXTENSION_NAME);
+#endif
+	
 	std::vector<const char*> enabledLayers;
 
 	Framework::Vulkan::CStructChain createDeviceStructs;
 
+#if GSH_VULKAN_IS_DESKTOP
 	{
 		auto physicalDeviceFeaturesInvocationInterlock = Framework::Vulkan::PhysicalDeviceFragmentShaderInterlockFeaturesEXT();
 		physicalDeviceFeaturesInvocationInterlock.fragmentShaderPixelInterlock = VK_TRUE;
 		createDeviceStructs.AddStruct(physicalDeviceFeaturesInvocationInterlock);
 	}
-
+#endif
+	
 	{
 		auto physicalDeviceFeatures2 = Framework::Vulkan::PhysicalDeviceFeatures2KHR();
 #ifndef __APPLE__
 		//MoltenVK doesn't report this properly (probably due to mobile devices supporting buffer stores and not image stores)
 		physicalDeviceFeatures2.features.fragmentStoresAndAtomics = VK_TRUE;
 #endif
+#if GSH_VULKAN_IS_DESKTOP
 		physicalDeviceFeatures2.features.shaderInt16 = VK_TRUE;
+#endif
 		createDeviceStructs.AddStruct(physicalDeviceFeatures2);
 	}
 
+#if GSH_VULKAN_IS_DESKTOP
 	{
 		auto physicalDeviceVulkan12Features = Framework::Vulkan::PhysicalDeviceVulkan12Features();
 		physicalDeviceVulkan12Features.shaderInt8 = VK_TRUE;
@@ -402,7 +422,8 @@ void CGSH_Vulkan::CreateDevice(VkPhysicalDevice physicalDevice)
 		physicalDevice16BitStorageFeatures.uniformAndStorageBuffer16BitAccess = VK_TRUE;
 		createDeviceStructs.AddStruct(physicalDevice16BitStorageFeatures);
 	}
-
+#endif
+	
 	auto deviceCreateInfo = Framework::Vulkan::DeviceCreateInfo();
 	deviceCreateInfo.pNext = createDeviceStructs.GetNext();
 	deviceCreateInfo.flags = 0;
