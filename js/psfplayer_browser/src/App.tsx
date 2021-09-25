@@ -57,8 +57,14 @@ export default function App() {
             <br />
             <div>{state.currentPsfTags ? `${state.currentPsfTags.game} - ${state.currentPsfTags.title}` : 'PsfPlayer'}</div>
             <br />
-            <button onClick={() => dispatch(play())}>Start</button>
-            <button onClick={() => dispatch(stop())}>Stop</button>
+            <button>&#x23EE;</button>
+            {
+              state.playing ?
+                (<button disabled={!state.psfLoaded} onClick={() => dispatch(stop())}>&#x23F8;</button>)
+                :
+                (<button disabled={!state.psfLoaded} onClick={() => dispatch(play())}>&#x25B6;</button>)
+            }
+            <button>&#x23ED;</button>
           </div>
           <div>
             <input type="file" onChange={handleChange}/>

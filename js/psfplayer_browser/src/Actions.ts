@@ -17,12 +17,16 @@ let updateFct = async function() {
 
 export type AudioState = {
     value: string,
+    psfLoaded: boolean
+    playing: boolean
     archiveFileList : string[]
     currentPsfTags : any | undefined
 };
 
 let initialState : AudioState = {
     value: "unknown",
+    psfLoaded: false,
+    playing: false,
     archiveFileList: [],
     currentPsfTags: undefined
 };
@@ -103,6 +107,8 @@ const reducer = createReducer(initialState, (builder) => (
         .addCase(loadPsf.fulfilled, (state, action) => {
             state.value = "psf loaded";
             state.currentPsfTags = action.payload;
+            state.psfLoaded = true;
+            state.playing = true;
             return state;
         })
         .addCase(loadPsf.rejected, (state, action) => {
@@ -112,11 +118,13 @@ const reducer = createReducer(initialState, (builder) => (
         .addCase(play.fulfilled, (state) => {
             console.log("playing");
             state.value = "playing";
+            state.playing = true;
             return state;
         })
         .addCase(stop.fulfilled, (state) => {
             console.log("stopping");
             state.value = "stopped";
+            state.playing = false;
             return state;
         })
 ));
