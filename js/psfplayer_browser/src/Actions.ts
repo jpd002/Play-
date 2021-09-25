@@ -55,6 +55,11 @@ export const loadArchive = createAsyncThunk<string[] | undefined, string>('loadA
         PsfPlayerModule.FS.write(stream, data, 0, data.length, 0);
         PsfPlayerModule.FS.close(stream);
         let fileList = getPsfArchiveFileList(archiveFilePath);
+        fileList = fileList.filter(path => 
+            path.endsWith(".psf") ||
+            path.endsWith(".psf2") ||
+            path.endsWith(".minipsf") ||
+            path.endsWith(".minipsf2"));
         return fileList;
     }
 );
