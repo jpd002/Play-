@@ -90,7 +90,7 @@ Framework::Vulkan::CInstance CGSH_Vulkan::CreateInstance(bool useValidationLayer
 #else
 #error Unsupported Vulkan flavor
 #endif
-	
+
 	instanceCreateInfo.pApplicationInfo = &appInfo;
 	instanceCreateInfo.enabledExtensionCount = extensions.size();
 	instanceCreateInfo.ppEnabledExtensionNames = extensions.data();
@@ -382,7 +382,7 @@ void CGSH_Vulkan::CreateDevice(VkPhysicalDevice physicalDevice)
 #if GSH_VULKAN_IS_DESKTOP
 	enabledExtensions.push_back(VK_EXT_FRAGMENT_SHADER_INTERLOCK_EXTENSION_NAME);
 #endif
-	
+
 	std::vector<const char*> enabledLayers;
 
 	Framework::Vulkan::CStructChain createDeviceStructs;
@@ -394,7 +394,7 @@ void CGSH_Vulkan::CreateDevice(VkPhysicalDevice physicalDevice)
 		createDeviceStructs.AddStruct(physicalDeviceFeaturesInvocationInterlock);
 	}
 #endif
-	
+
 	{
 		auto physicalDeviceFeatures2 = Framework::Vulkan::PhysicalDeviceFeatures2KHR();
 #ifndef __APPLE__
@@ -423,7 +423,7 @@ void CGSH_Vulkan::CreateDevice(VkPhysicalDevice physicalDevice)
 		createDeviceStructs.AddStruct(physicalDevice16BitStorageFeatures);
 	}
 #endif
-	
+
 	auto deviceCreateInfo = Framework::Vulkan::DeviceCreateInfo();
 	deviceCreateInfo.pNext = createDeviceStructs.GetNext();
 	deviceCreateInfo.flags = 0;

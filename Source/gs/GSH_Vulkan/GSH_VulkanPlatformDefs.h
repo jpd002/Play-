@@ -15,4 +15,3 @@
 #if !GSH_VULKAN_IS_DESKTOP && !GSH_VULKAN_IS_MOBILE
 #error Unknown Vulkan flavor.
 #endif
-

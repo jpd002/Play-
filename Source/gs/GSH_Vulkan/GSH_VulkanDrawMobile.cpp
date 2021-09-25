@@ -905,7 +905,7 @@ Framework::Vulkan::CShaderModule CDrawMobile::CreateDrawFragmentShader(const PIP
 			auto getTextureColor =
 			    [&](CInt2Value textureIuv, CFloat4Lvalue& textureColor) {
 				    textureColor = CDrawUtils::GetTextureColor(b, caps.textureFormat, caps.clutFormat, textureIuv,
-				                                   memoryBuffer, clutBuffer, texSwizzleTable, texBufAddress, texBufWidth, texCsa);
+				                                               memoryBuffer, clutBuffer, texSwizzleTable, texBufAddress, texBufWidth, texCsa);
 				    if(caps.textureHasAlpha)
 				    {
 					    CDrawUtils::ExpandAlpha(b, caps.textureFormat, caps.clutFormat, caps.textureBlackIsTransparent, textureColor, texA0, texA1);
@@ -1057,7 +1057,7 @@ Framework::Vulkan::CShaderModule CDrawMobile::CreateDrawFragmentShader(const PIP
 		srcIColor = ToInt(textureColor->xyzw() * NewFloat4(b, 255.f, 255.f, 255.f, 255.f));
 
 		CDrawUtils::AlphaTest(b, caps.alphaTestFunction, caps.alphaTestFailAction, srcIColor, alphaRef,
-		          writeColor, writeDepth, writeAlpha);
+		                      writeColor, writeDepth, writeAlpha);
 
 		bool canDiscardAlpha =
 		    (caps.alphaTestFunction != CGSHandler::ALPHA_TEST_ALWAYS) &&
