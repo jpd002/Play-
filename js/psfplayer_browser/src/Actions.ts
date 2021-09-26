@@ -43,6 +43,7 @@ export const init = createAsyncThunk<void>('init',
         await initPsfPlayerModule();
     }
 );
+
 export const loadArchive = createAsyncThunk<string[] | undefined, string>('loadArchive',
     async (url : string, thunkAPI) => {
         console.log(`loading ${url}...`);
@@ -70,6 +71,7 @@ export const loadArchive = createAsyncThunk<string[] | undefined, string>('loadA
         return fileList;
     }
 );
+
 export const loadPsf = createAsyncThunk<LoadPsfResult, number>('loadPsf',
     async (archiveFileIndex : number, thunkAPI) => {
         let state = thunkAPI.getState() as RootState;
@@ -87,6 +89,7 @@ export const loadPsf = createAsyncThunk<LoadPsfResult, number>('loadPsf',
         return result;
     }
 );
+
 export const play = createAsyncThunk<void, void>('play',
     async () => {
         let releaseLock = await tickMutex.acquire();
@@ -94,7 +97,8 @@ export const play = createAsyncThunk<void, void>('play',
         releaseLock();
     }
 );
-export const stop = createAsyncThunk<void, void>('stop',
+
+export const pause = createAsyncThunk<void, void>('pause',
     async() => {
         let releaseLock = await tickMutex.acquire();
         clearTimeout(updateTimer);
@@ -140,9 +144,9 @@ const reducer = createReducer(initialState, (builder) => (
             state.playing = true;
             return state;
         })
-        .addCase(stop.fulfilled, (state) => {
-            console.log("stopping");
-            state.value = "stopped";
+        .addCase(pause.fulfilled, (state) => {
+            console.log("paused");
+            state.value = "paused";
             state.playing = false;
             return state;
         })

@@ -2,7 +2,7 @@ import './App.css';
 import { ChangeEvent } from 'react';
 import { FixedSizeList, ListChildComponentProps } from 'react-window';
 import { ListItem, ListItemButton, ListItemText } from '@mui/material';
-import { useAppDispatch, useAppSelector, loadArchive, loadPsf, play, stop } from "./Actions";
+import { useAppDispatch, useAppSelector, loadArchive, loadPsf, play, pause } from "./Actions";
 import { PsfPlayerModule } from './PsfPlayerModule';
 
 function RenderRow(props: ListChildComponentProps) {
@@ -65,7 +65,7 @@ export default function App() {
             <button>&#x23EE;</button>
             {
               state.playing ?
-                (<button disabled={!state.psfLoaded} onClick={() => dispatch(stop())}>&#x23F8;</button>)
+                (<button disabled={!state.psfLoaded} onClick={() => dispatch(pause())}>&#x23F8;</button>)
                 :
                 (<button disabled={!state.psfLoaded} onClick={() => dispatch(play())}>&#x25B6;</button>)
             }
