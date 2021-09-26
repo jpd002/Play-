@@ -6,19 +6,25 @@ import { useAppDispatch, useAppSelector, loadArchive, loadPsf, play, stop } from
 import { PsfPlayerModule } from './PsfPlayerModule';
 
 function RenderRow(props: ListChildComponentProps) {
-  const { index, style, data } = props;
-  let archiveFileList = data as string[];
-  let archiveFile = archiveFileList[index];
+  const { index, style } = props;
+
+  const state = useAppSelector((state) => state.player);
+  let archiveFile = state.archiveFileList[index];
 
   const dispatch = useAppDispatch();  
-  const handleClick = function(psfFilePath : string) {
-    dispatch(loadPsf(psfFilePath));
+  const handleClick = function(archiveFileIndex : number) {
+    dispatch(loadPsf(archiveFileIndex));
+  }
+
+  let itemStyle : React.CSSProperties = {};
+  if(index === state.playingIndex) {
+    itemStyle.fontWeight = "bold";
   }
 
   return (
     <ListItem style={style} key={index} component="div" disablePadding>
-      <ListItemButton onClick={(e) => handleClick(archiveFile)}>
-        <ListItemText primary={archiveFile} />
+      <ListItemButton onClick={(e) => handleClick(index)}>
+        <ListItemText primary={archiveFile} primaryTypographyProps={{style: itemStyle}} />
       </ListItemButton>
     </ListItem>
   );
@@ -49,7 +55,6 @@ export default function App() {
             itemSize={46}
             itemCount={state.archiveFileList.length}
             overscanCount={5}
-            itemData={state.archiveFileList}
             >
               {RenderRow}
           </FixedSizeList>

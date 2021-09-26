@@ -19,14 +19,21 @@ export type AudioState = {
     value: string,
     psfLoaded: boolean
     playing: boolean
+    playingIndex: number
     archiveFileList : string[]
     currentPsfTags : any | undefined
+};
+
+type LoadPsfResult = {
+    archiveFileIndex : number
+    tags : any,
 };
 
 let initialState : AudioState = {
     value: "unknown",
     psfLoaded: false,
     playing: false,
+    playingIndex: -1,
     archiveFileList: [],
     currentPsfTags: undefined
 };
@@ -63,15 +70,21 @@ export const loadArchive = createAsyncThunk<string[] | undefined, string>('loadA
         return fileList;
     }
 );
-export const loadPsf = createAsyncThunk<any, string>('loadPsf',
-    async (psfFilePath : string, thunkAPI) => {
+export const loadPsf = createAsyncThunk<LoadPsfResult, number>('loadPsf',
+    async (archiveFileIndex : number, thunkAPI) => {
+        let state = thunkAPI.getState() as RootState;
+        let psfFilePath = state.player.archiveFileList[archiveFileIndex];
         let releaseLock = await tickMutex.acquire();
         clearTimeout(updateTimer);
         await loadPsfFromArchive(archiveFilePath, psfFilePath);
         let tags = getCurrentPsfTags();
         updateTimer = setTimeout(updateFct, updateDelay);
         releaseLock();
-        return Object.fromEntries(tags);
+        let result : LoadPsfResult = {
+            archiveFileIndex: archiveFileIndex,
+            tags: Object.fromEntries(tags)
+        };
+        return result;
     }
 );
 export const play = createAsyncThunk<void, void>('play',
@@ -111,7 +124,8 @@ const reducer = createReducer(initialState, (builder) => (
         })
         .addCase(loadPsf.fulfilled, (state, action) => {
             state.value = "psf loaded";
-            state.currentPsfTags = action.payload;
+            state.currentPsfTags = action.payload.tags;
+            state.playingIndex = action.payload.archiveFileIndex;
             state.psfLoaded = true;
             state.playing = true;
             return state;
