@@ -15,6 +15,16 @@ let updateFct = async function() {
     releaseLock();
 };
 
+const loadPsfFromPath = async function(psfFilePath : string) {
+    let releaseLock = await tickMutex.acquire();
+    clearTimeout(updateTimer);
+    await loadPsfFromArchive(archiveFilePath, psfFilePath);
+    let tags = getCurrentPsfTags();
+    updateTimer = setTimeout(updateFct, updateDelay);
+    releaseLock();
+    return tags;
+}
+
 export type AudioState = {
     value: string,
     psfLoaded: boolean
@@ -76,12 +86,7 @@ export const loadPsf = createAsyncThunk<LoadPsfResult, number>('loadPsf',
     async (archiveFileIndex : number, thunkAPI) => {
         let state = thunkAPI.getState() as RootState;
         let psfFilePath = state.player.archiveFileList[archiveFileIndex];
-        let releaseLock = await tickMutex.acquire();
-        clearTimeout(updateTimer);
-        await loadPsfFromArchive(archiveFilePath, psfFilePath);
-        let tags = getCurrentPsfTags();
-        updateTimer = setTimeout(updateFct, updateDelay);
-        releaseLock();
+        let tags = await loadPsfFromPath(psfFilePath);
         let result : LoadPsfResult = {
             archiveFileIndex: archiveFileIndex,
             tags: Object.fromEntries(tags)
