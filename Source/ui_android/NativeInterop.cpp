@@ -32,8 +32,13 @@
 CPS2VM* g_virtualMachine = nullptr;
 CPS2VM::ProfileFrameDoneSignal::Connection g_ProfileFrameDoneConnection;
 Framework::CSignal<void(uint32)>::Connection g_OnNewFrameConnection;
+int g_currentGsHandlerId = -1;
 
+#define PREF_VIDEO_GS_HANDLER ("video.gshandler")
 #define PREF_AUDIO_ENABLEOUTPUT ("audio.enableoutput")
+
+#define PREFERENCE_VALUE_VIDEO_GS_HANDLER_OPENGL 0
+#define PREFERENCE_VALUE_VIDEO_GS_HANDLER_VULKAN 1
 
 static void SetupSoundHandler()
 {
@@ -112,8 +117,10 @@ extern "C" JNIEXPORT void JNICALL Java_com_virtualapplications_play_NativeIntero
 #ifdef PROFILE
 	g_ProfileFrameDoneConnection = g_virtualMachine->ProfileFrameDone.Connect(std::bind(&CStatsManager::OnProfileFrameDone, &CStatsManager::GetInstance(), g_virtualMachine, std::placeholders::_1));
 #endif
+	CAppConfig::GetInstance().RegisterPreferenceInteger(PREF_VIDEO_GS_HANDLER, PREFERENCE_VALUE_VIDEO_GS_HANDLER_OPENGL);
 	CAppConfig::GetInstance().RegisterPreferenceBoolean(PREF_AUDIO_ENABLEOUTPUT, true);
 	CGSH_OpenGL::RegisterPreferences();
+	g_currentGsHandlerId = -1;
 }
 
 extern "C" JNIEXPORT jboolean JNICALL Java_com_virtualapplications_play_NativeInterop_isVirtualMachineCreated(JNIEnv* env, jobject obj)
@@ -198,10 +205,21 @@ extern "C" JNIEXPORT void JNICALL Java_com_virtualapplications_play_NativeIntero
 {
 	auto nativeWindow = ANativeWindow_fromSurface(env, surface);
 	auto gsHandler = g_virtualMachine->GetGSHandler();
-	if(gsHandler == nullptr)
+	int gsHandlerId = CAppConfig::GetInstance().GetPreferenceInteger(PREF_VIDEO_GS_HANDLER);
+	bool recreateNeeded = (gsHandler == nullptr) || (g_currentGsHandlerId != gsHandlerId);
+	if(recreateNeeded)
 	{
-		//g_virtualMachine->CreateGSHandler(CGSH_OpenGLAndroid::GetFactoryFunction(nativeWindow));
-		g_virtualMachine->CreateGSHandler(CGSH_VulkanAndroid::GetFactoryFunction(nativeWindow));
+		switch(gsHandlerId)
+		{
+		default:
+		case PREFERENCE_VALUE_VIDEO_GS_HANDLER_OPENGL:
+			g_virtualMachine->CreateGSHandler(CGSH_OpenGLAndroid::GetFactoryFunction(nativeWindow));
+			break;
+		case PREFERENCE_VALUE_VIDEO_GS_HANDLER_VULKAN:
+			g_virtualMachine->CreateGSHandler(CGSH_VulkanAndroid::GetFactoryFunction(nativeWindow));
+			break;
+		}
+		g_currentGsHandlerId = gsHandlerId;
 		g_OnNewFrameConnection = g_virtualMachine->m_ee->m_gs->OnNewFrame.Connect(
 		    std::bind(&CStatsManager::OnNewFrame, &CStatsManager::GetInstance(), std::placeholders::_1));
 	}
