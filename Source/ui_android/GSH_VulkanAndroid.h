@@ -1,14 +1,15 @@
 #pragma once
 
 #include "../gs/GSH_Vulkan/GSH_Vulkan.h"
+#include "NativeWindowUpdateListener.h"
 
-class CGSH_VulkanAndroid : public CGSH_Vulkan
+class CGSH_VulkanAndroid : public CGSH_Vulkan, public INativeWindowUpdateListener
 {
 public:
 	CGSH_VulkanAndroid(ANativeWindow*);
 	virtual ~CGSH_VulkanAndroid() = default;
 
-	void SetWindow(ANativeWindow*);
+	void SetWindow(ANativeWindow*) override;
 
 	static FactoryFunction GetFactoryFunction(ANativeWindow*);
 

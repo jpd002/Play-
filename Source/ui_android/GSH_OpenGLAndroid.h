@@ -2,14 +2,15 @@
 
 #include "../gs/GSH_OpenGL/GSH_OpenGL.h"
 #include "opengl/OpenGlDef.h"
+#include "NativeWindowUpdateListener.h"
 
-class CGSH_OpenGLAndroid : public CGSH_OpenGL
+class CGSH_OpenGLAndroid : public CGSH_OpenGL, public INativeWindowUpdateListener
 {
 public:
 	CGSH_OpenGLAndroid(NativeWindowType);
 	virtual ~CGSH_OpenGLAndroid();
 
-	void SetWindow(NativeWindowType);
+	void SetWindow(NativeWindowType) override;
 
 	static FactoryFunction GetFactoryFunction(NativeWindowType);
 

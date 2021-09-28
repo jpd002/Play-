@@ -207,7 +207,10 @@ extern "C" JNIEXPORT void JNICALL Java_com_virtualapplications_play_NativeIntero
 	}
 	else
 	{
-		static_cast<CGSH_VulkanAndroid*>(gsHandler)->SetWindow(nativeWindow);
+		if(auto windowUpdateListener = dynamic_cast<INativeWindowUpdateListener*>(gsHandler))
+		{
+			windowUpdateListener->SetWindow(nativeWindow);
+		}
 	}
 }
 

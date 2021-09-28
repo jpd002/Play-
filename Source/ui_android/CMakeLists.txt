@@ -51,6 +51,7 @@ set(ANDROID_SRC_FILES
 	InputManager.cpp
 	NativeInterop.cpp
 	NativeShared.cpp
+	NativeWindowUpdateListener.h
 	SettingsManager.cpp
 	SH_OpenSL.cpp
 	StatsInterop.cpp
