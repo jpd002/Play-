@@ -29,6 +29,11 @@
 		<item>elf</item>
 	</string-array>
 
+	<string-array name="pref_emu_video_gs_handler_values">
+		<item>0</item>
+		<item>1</item>
+	</string-array>
+
 	<string-array name="pref_emu_video_res_factor_values">
 		<item>1</item>
 		<item>2</item>

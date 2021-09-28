@@ -26,6 +26,17 @@
 
         <ListPreference
             android:defaultValue="1"
+            android:entries="@array/pref_emu_video_gs_handler_entries"
+            android:entryValues="@array/pref_emu_video_gs_handler_values"
+            android:key="video.gshandler"
+            android:negativeButtonText="@null"
+            android:positiveButtonText="@null"
+            android:title="@string/pref_emu_video_gs_handler_title"
+            app:iconSpaceReserved="false"
+            app:useSimpleSummaryProvider="true" />
+
+        <ListPreference
+            android:defaultValue="1"
             android:entries="@array/pref_emu_video_res_factor_entries"
             android:entryValues="@array/pref_emu_video_res_factor_values"
             android:key="renderer.opengl.resfactor"
