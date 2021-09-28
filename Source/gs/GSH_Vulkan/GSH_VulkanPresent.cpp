@@ -75,7 +75,7 @@ void CPresent::DoPresent(uint32 bufPsm, uint32 bufAddress, uint32 bufWidth, uint
 
 	uint32_t imageIndex = 0;
 	result = m_context->device.vkAcquireNextImageKHR(m_context->device, m_swapChain, UINT64_MAX, m_imageAcquireSemaphore, VK_NULL_HANDLE, &imageIndex);
-	if(result == VK_ERROR_OUT_OF_DATE_KHR)
+	if((result == VK_ERROR_OUT_OF_DATE_KHR) || (result == VK_ERROR_SURFACE_LOST_KHR))
 	{
 		m_context->device.vkQueueWaitIdle(m_context->queue);
 		DestroySwapChain();
@@ -340,19 +340,6 @@ void CPresent::CreateSwapChain()
 	CHECKVULKANERROR(result);
 	m_surfaceExtents = surfaceCaps.currentExtent;
 
-	//Create the semaphore that will be used to prevent submit from rendering before getting the image
-	{
-		auto semaphoreCreateInfo = Framework::Vulkan::SemaphoreCreateInfo();
-		auto result = m_context->device.vkCreateSemaphore(m_context->device, &semaphoreCreateInfo, nullptr, &m_imageAcquireSemaphore);
-		CHECKVULKANERROR(result);
-	}
-
-	{
-		auto semaphoreCreateInfo = Framework::Vulkan::SemaphoreCreateInfo();
-		auto result = m_context->device.vkCreateSemaphore(m_context->device, &semaphoreCreateInfo, nullptr, &m_renderCompleteSemaphore);
-		CHECKVULKANERROR(result);
-	}
-
 	auto swapChainCreateInfo = Framework::Vulkan::SwapchainCreateInfoKHR();
 	swapChainCreateInfo.surface = m_context->surface;
 	//Make sure to check that MAX_FRAMES in CFrameCommandBuffer is at least as big as minImageCount
@@ -371,7 +358,24 @@ void CPresent::CreateSwapChain()
 	swapChainCreateInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
 
 	result = m_context->device.vkCreateSwapchainKHR(m_context->device, &swapChainCreateInfo, nullptr, &m_swapChain);
+	if(result == VK_ERROR_SURFACE_LOST_KHR)
+	{
+		return;
+	}
 	CHECKVULKANERROR(result);
+
+	//Create the semaphore that will be used to prevent submit from rendering before getting the image
+	{
+		auto semaphoreCreateInfo = Framework::Vulkan::SemaphoreCreateInfo();
+		auto result = m_context->device.vkCreateSemaphore(m_context->device, &semaphoreCreateInfo, nullptr, &m_imageAcquireSemaphore);
+		CHECKVULKANERROR(result);
+	}
+
+	{
+		auto semaphoreCreateInfo = Framework::Vulkan::SemaphoreCreateInfo();
+		auto result = m_context->device.vkCreateSemaphore(m_context->device, &semaphoreCreateInfo, nullptr, &m_renderCompleteSemaphore);
+		CHECKVULKANERROR(result);
+	}
 
 	uint32_t imageCount = 0;
 	result = m_context->device.vkGetSwapchainImagesKHR(m_context->device, m_swapChain, &imageCount, nullptr);
