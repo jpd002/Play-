@@ -504,6 +504,7 @@ void CDrawMobile::CreateRenderPass()
 		subpassDependency.dstSubpass = 0;
 		subpassDependency.dstStageMask = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
 		subpassDependency.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+		subpassDependency.dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
 
 		subpassDependencies.push_back(subpassDependency);
 	}
@@ -516,6 +517,7 @@ void CDrawMobile::CreateRenderPass()
 		subpassDependency.dstSubpass = 1;
 		subpassDependency.dstStageMask = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
 		subpassDependency.dstAccessMask = VK_ACCESS_INPUT_ATTACHMENT_READ_BIT;
+		subpassDependency.dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
 
 		subpassDependencies.push_back(subpassDependency);
 	}
@@ -541,6 +543,7 @@ void CDrawMobile::CreateRenderPass()
 		subpassDependency.dstSubpass = 2;
 		subpassDependency.dstStageMask = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
 		subpassDependency.dstAccessMask = VK_ACCESS_INPUT_ATTACHMENT_READ_BIT;
+		subpassDependency.dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
 
 		subpassDependencies.push_back(subpassDependency);
 	}
@@ -553,6 +556,7 @@ void CDrawMobile::CreateRenderPass()
 		subpassDependency.dstSubpass = VK_SUBPASS_EXTERNAL;
 		subpassDependency.dstStageMask = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT | VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT;
 		subpassDependency.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+		subpassDependency.dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
 
 		subpassDependencies.push_back(subpassDependency);
 	}
