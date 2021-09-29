@@ -441,7 +441,7 @@ void CGSH_Vulkan::CreateDevice(VkPhysicalDevice physicalDevice)
 		VkPhysicalDeviceProperties deviceProperties = {};
 		m_context->instance->vkGetPhysicalDeviceProperties(physicalDevice, &deviceProperties);
 		m_context->storageBufferAlignment = deviceProperties.limits.minStorageBufferOffsetAlignment;
-		m_context->computeWorkgroupSize = deviceProperties.limits.maxComputeWorkGroupSize[0];
+		m_context->computeWorkgroupInvocations = deviceProperties.limits.maxComputeWorkGroupInvocations;
 	}
 }
 

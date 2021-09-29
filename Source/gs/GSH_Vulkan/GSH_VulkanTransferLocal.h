@@ -68,6 +68,7 @@ namespace GSH_Vulkan
 		FrameCommandBufferPtr m_frameCommandBuffer;
 		PipelineCache m_pipelineCache;
 		DescriptorSetCache m_descriptorSetCache;
+		uint32 m_localSize = 0;
 
 		PIPELINE_CAPS m_pipelineCaps;
 	};

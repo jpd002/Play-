@@ -13,9 +13,6 @@ using namespace GSH_Vulkan;
 #define DESCRIPTOR_LOCATION_MEMORY_8BIT 3
 #define DESCRIPTOR_LOCATION_MEMORY_16BIT 4
 
-#define LOCAL_SIZE_X 32
-#define LOCAL_SIZE_Y 32
-
 #define TRANSFER_USE_8_16_BIT GSH_VULKAN_IS_DESKTOP
 
 CTransferLocal::CTransferLocal(const ContextPtr& context, const FrameCommandBufferPtr& frameCommandBuffer)
@@ -23,6 +20,13 @@ CTransferLocal::CTransferLocal(const ContextPtr& context, const FrameCommandBuff
     , m_frameCommandBuffer(frameCommandBuffer)
     , m_pipelineCache(context->device)
 {
+	//Find a proper workgroup size
+	m_localSize = 32;
+	if((m_localSize * m_localSize) > context->computeWorkgroupInvocations)
+	{
+		m_localSize = 16;
+		assert((m_localSize * m_localSize) <= context->computeWorkgroupInvocations);
+	}
 	m_pipelineCaps <<= 0;
 }
 
@@ -47,8 +51,8 @@ void CTransferLocal::DoTransfer()
 	auto descriptorSet = PrepareDescriptorSet(xferPipeline->descriptorSetLayout, descriptorSetCaps);
 	auto commandBuffer = m_frameCommandBuffer->GetCommandBuffer();
 
-	uint32 workUnitsX = (Params.rrw + LOCAL_SIZE_X - 1) / LOCAL_SIZE_X;
-	uint32 workUnitsY = (Params.rrh + LOCAL_SIZE_Y - 1) / LOCAL_SIZE_Y;
+	uint32 workUnitsX = (Params.rrw + m_localSize - 1) / m_localSize;
+	uint32 workUnitsY = (Params.rrh + m_localSize - 1) / m_localSize;
 
 	//Add a barrier to ensure reads are complete before writing to GS memory
 	if(false)
@@ -176,8 +180,8 @@ Framework::Vulkan::CShaderModule CTransferLocal::CreateShader(const PIPELINE_CAP
 
 	auto b = CShaderBuilder();
 
-	b.SetMetadata(CShaderBuilder::METADATA_LOCALSIZE_X, LOCAL_SIZE_X);
-	b.SetMetadata(CShaderBuilder::METADATA_LOCALSIZE_Y, LOCAL_SIZE_Y);
+	b.SetMetadata(CShaderBuilder::METADATA_LOCALSIZE_X, m_localSize);
+	b.SetMetadata(CShaderBuilder::METADATA_LOCALSIZE_Y, m_localSize);
 
 	{
 		auto inputInvocationId = CInt4Lvalue(b.CreateInputInt(Nuanceur::SEMANTIC_SYSTEM_GIID));

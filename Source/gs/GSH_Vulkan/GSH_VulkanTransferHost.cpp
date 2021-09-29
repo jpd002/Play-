@@ -36,7 +36,7 @@ CTransferHost::CTransferHost(const ContextPtr& context, const FrameCommandBuffer
 		CHECKVULKANERROR(result);
 	}
 
-	m_localSize = std::min<uint32>(context->computeWorkgroupSize, 1024);
+	m_localSize = std::min<uint32>(context->computeWorkgroupInvocations, 1024);
 	m_pipelineCaps <<= 0;
 }
 
