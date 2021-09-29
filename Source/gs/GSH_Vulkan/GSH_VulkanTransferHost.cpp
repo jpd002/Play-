@@ -17,8 +17,6 @@ using namespace GSH_Vulkan;
 #define DESCRIPTOR_LOCATION_MEMORY_8BIT 3
 #define DESCRIPTOR_LOCATION_MEMORY_16BIT 4
 
-#define LOCAL_SIZE_X 1024
-
 #define TRANSFER_USE_8_16_BIT GSH_VULKAN_IS_DESKTOP
 
 CTransferHost::CTransferHost(const ContextPtr& context, const FrameCommandBufferPtr& frameCommandBuffer)
@@ -38,6 +36,7 @@ CTransferHost::CTransferHost(const ContextPtr& context, const FrameCommandBuffer
 		CHECKVULKANERROR(result);
 	}
 
+	m_localSize = std::min<uint32>(context->computeWorkgroupSize, 1024);
 	m_pipelineCaps <<= 0;
 }
 
@@ -106,7 +105,7 @@ void CTransferHost::DoTransfer(const XferBuffer& inputData)
 	}
 
 	Params.pixelCount = pixelCount;
-	uint32 workUnits = (pixelCount + LOCAL_SIZE_X - 1) / LOCAL_SIZE_X;
+	uint32 workUnits = (pixelCount + m_localSize - 1) / m_localSize;
 
 	auto descriptorSetCaps = make_convertible<DESCRIPTORSET_CAPS>(0);
 	descriptorSetCaps.dstPsm = m_pipelineCaps.dstFormat;
@@ -131,6 +130,7 @@ void CTransferHost::DoTransfer(const XferBuffer& inputData)
 	m_context->device.vkCmdDispatch(commandBuffer, workUnits, 1, 1);
 
 	m_xferBufferOffset += inputData.size();
+	m_xferBufferOffset = (m_xferBufferOffset + (m_context->storageBufferAlignment - 1)) & -m_context->storageBufferAlignment;
 }
 
 VkDescriptorSet CTransferHost::PrepareDescriptorSet(VkDescriptorSetLayout descriptorSetLayout, const DESCRIPTORSET_CAPS& caps)
@@ -251,7 +251,7 @@ Framework::Vulkan::CShaderModule CTransferHost::CreateXferShader(const PIPELINE_
 
 	auto b = CShaderBuilder();
 
-	b.SetMetadata(CShaderBuilder::METADATA_LOCALSIZE_X, LOCAL_SIZE_X);
+	b.SetMetadata(CShaderBuilder::METADATA_LOCALSIZE_X, m_localSize);
 
 	{
 		auto inputInvocationId = CInt4Lvalue(b.CreateInputInt(Nuanceur::SEMANTIC_SYSTEM_GIID));

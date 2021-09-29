@@ -436,6 +436,13 @@ void CGSH_Vulkan::CreateDevice(VkPhysicalDevice physicalDevice)
 	deviceCreateInfo.pQueueCreateInfos = &deviceQueueCreateInfo;
 
 	m_context->device = Framework::Vulkan::CDevice(m_instance, physicalDevice, deviceCreateInfo);
+
+	{
+		VkPhysicalDeviceProperties deviceProperties = {};
+		m_context->instance->vkGetPhysicalDeviceProperties(physicalDevice, &deviceProperties);
+		m_context->storageBufferAlignment = deviceProperties.limits.minStorageBufferOffsetAlignment;
+		m_context->computeWorkgroupSize = deviceProperties.limits.maxComputeWorkGroupSize[0];
+	}
 }
 
 void CGSH_Vulkan::CreateDescriptorPool()
