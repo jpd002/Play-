@@ -3,6 +3,8 @@ import { TypedUseSelectorHook, useDispatch, useSelector } from "react-redux";
 import { PsfPlayerModule, initPsfPlayerModule, getPsfArchiveFileList, loadPsfFromArchive, getCurrentPsfTags, tickPsf } from "./PsfPlayerModule";
 import { Mutex } from 'async-mutex';
 
+const invalidPlayingIndex = -1;
+
 let archiveFilePath = "archive.zip";
 let tickMutex = new Mutex();
 const updateDelay : number = 30;
@@ -25,6 +27,18 @@ const loadPsfFromPath = async function(psfFilePath : string) {
     return tags;
 }
 
+const playPsf = async function() {
+    let releaseLock = await tickMutex.acquire();
+    updateTimer = setTimeout(updateFct, updateDelay);
+    releaseLock();
+}
+
+const stopPsf = async function() {
+    let releaseLock = await tickMutex.acquire();
+    clearTimeout(updateTimer);
+    releaseLock();
+}
+
 export type AudioState = {
     value: string,
     psfLoaded: boolean
@@ -43,7 +57,7 @@ let initialState : AudioState = {
     value: "unknown",
     psfLoaded: false,
     playing: false,
-    playingIndex: -1,
+    playingIndex: invalidPlayingIndex,
     archiveFileList: [],
     currentPsfTags: undefined
 };
@@ -57,6 +71,7 @@ export const init = createAsyncThunk<void>('init',
 export const loadArchive = createAsyncThunk<string[] | undefined, string>('loadArchive',
     async (url : string, thunkAPI) => {
         console.log(`loading ${url}...`);
+        await stopPsf();
         let blob = await fetch(url).then(response => {
             if(!response.ok) {
                 return null;
@@ -97,17 +112,13 @@ export const loadPsf = createAsyncThunk<LoadPsfResult, number>('loadPsf',
 
 export const play = createAsyncThunk<void, void>('play',
     async () => {
-        let releaseLock = await tickMutex.acquire();
-        updateTimer = setTimeout(updateFct, updateDelay);
-        releaseLock();
+        await playPsf();
     }
 );
 
 export const pause = createAsyncThunk<void, void>('pause',
     async() => {
-        let releaseLock = await tickMutex.acquire();
-        clearTimeout(updateTimer);
-        releaseLock();
+        await stopPsf();
     }
 );
 
@@ -120,6 +131,8 @@ const reducer = createReducer(initialState, (builder) => (
         })
         .addCase(loadArchive.fulfilled, (state, action) => {
             state.value = "loaded";
+            state.playingIndex = invalidPlayingIndex;
+            state.currentPsfTags = undefined;
             if(action.payload) {
                 state.archiveFileList = action.payload;
             } else {
@@ -128,6 +141,9 @@ const reducer = createReducer(initialState, (builder) => (
             return state;
         })
         .addCase(loadArchive.rejected, (state, action) => {
+            state.playingIndex = invalidPlayingIndex;
+            state.currentPsfTags = undefined;
+            state.archiveFileList = [];
             state.value = `loading failed: ${action.error.message}`;
             return state;
         })
