@@ -178,6 +178,7 @@ private:
 	{
 		uint32 isValid;
 		uint32 delay;
+		uint32 compare;
 		uint32 callback;
 		uint32 callbackParam;
 		uint32 gp;
@@ -321,6 +322,8 @@ private:
 	void SemaLinkThread(uint32, uint32);
 	void SemaUnlinkThread(uint32, uint32);
 	void SemaReleaseSingleThread(uint32, bool);
+
+	void AlarmUpdateCompare();
 
 	std::pair<uint32, uint32> GetVsyncFlagPtrs() const;
 	void SetVsyncFlagPtrs(uint32, uint32);

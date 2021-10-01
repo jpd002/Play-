@@ -747,6 +747,12 @@ void CPS2OS::AssembleInterruptHandler()
 		    assembler.JAL(BIOS_ADDRESS_INTCHANDLER);
 		    assembler.NOP();
 
+		    if(line == CINTC::INTC_LINE_TIMER3)
+		    {
+			    assembler.JAL(BIOS_ADDRESS_ALARMHANDLER);
+			    assembler.NOP();
+		    }
+
 		    assembler.MarkLabel(skipIntHandlerLabel);
 	    };
 
@@ -775,9 +781,6 @@ void CPS2OS::AssembleInterruptHandler()
 	generateIntHandler(assembler, CINTC::INTC_LINE_TIMER1);
 	generateIntHandler(assembler, CINTC::INTC_LINE_TIMER2);
 	generateIntHandler(assembler, CINTC::INTC_LINE_TIMER3);
-
-	assembler.JAL(BIOS_ADDRESS_ALARMHANDLER);
-	assembler.NOP();
 
 	//Make sure interrupts are enabled (This is needed by some games that play
 	//with the status register in interrupt handlers and is done by the EE BIOS)
@@ -999,17 +1002,24 @@ void CPS2OS::AssembleAlarmHandler()
 
 	//Prologue
 	//S0 -> Handler Counter
+	//S1 -> Compare Value
+	int32 stackAlloc = 0x20;
 
-	assembler.ADDIU(CMIPS::SP, CMIPS::SP, 0xFFF0);
+	assembler.ADDIU(CMIPS::SP, CMIPS::SP, -stackAlloc);
 	assembler.SD(CMIPS::RA, 0x0000, CMIPS::SP);
 	assembler.SD(CMIPS::S0, 0x0008, CMIPS::SP);
+	assembler.SD(CMIPS::S1, 0x0010, CMIPS::SP);
+
+	//Load T3 compare
+	assembler.LI(CMIPS::S1, CTimer::T3_COMP);
+	assembler.LW(CMIPS::S1, 0, CMIPS::S1);
 
 	//Initialize handler loop
 	assembler.ADDU(CMIPS::S0, CMIPS::R0, CMIPS::R0);
 
 	assembler.MarkLabel(checkHandlerLabel);
 
-	//Get the address to the current INTCHANDLER structure
+	//Get the address to the current ALARM structure
 	assembler.ADDIU(CMIPS::T0, CMIPS::R0, sizeof(ALARM));
 	assembler.MULTU(CMIPS::T0, CMIPS::S0, CMIPS::T0);
 	assembler.LI(CMIPS::T1, BIOS_ADDRESS_ALARM_BASE);
@@ -1018,6 +1028,13 @@ void CPS2OS::AssembleAlarmHandler()
 	//Check validity
 	assembler.LW(CMIPS::T1, offsetof(ALARM, isValid), CMIPS::T0);
 	assembler.BEQ(CMIPS::T1, CMIPS::R0, moveToNextHandler);
+	assembler.NOP();
+
+	assembler.LW(CMIPS::T1, offsetof(ALARM, compare), CMIPS::T0);
+	assembler.ORI(CMIPS::T2, CMIPS::R0, 0xFFFF);
+	assembler.AND(CMIPS::T1, CMIPS::T1, CMIPS::T2);
+
+	assembler.BNE(CMIPS::T1, CMIPS::S1, moveToNextHandler);
 	assembler.NOP();
 
 	//Load the necessary stuff
@@ -1047,7 +1064,9 @@ void CPS2OS::AssembleAlarmHandler()
 	//Epilogue
 	assembler.LD(CMIPS::RA, 0x0000, CMIPS::SP);
 	assembler.LD(CMIPS::S0, 0x0008, CMIPS::SP);
-	assembler.ADDIU(CMIPS::SP, CMIPS::SP, 0x10);
+	assembler.LD(CMIPS::S1, 0x0010, CMIPS::SP);
+	assembler.ADDIU(CMIPS::SP, CMIPS::SP, stackAlloc);
+
 	assembler.JR(CMIPS::RA);
 	assembler.NOP();
 }
@@ -1362,6 +1381,32 @@ void CPS2OS::SemaReleaseSingleThread(uint32 semaId, bool cancelled)
 	context->gpr[SC_RETURN].nD0 = static_cast<int32>(returnValue);
 
 	sema->waitCount--;
+}
+
+void CPS2OS::AlarmUpdateCompare()
+{
+	uint32 minCompare = UINT32_MAX;
+	for(const auto& alarm : m_alarms)
+	{
+		if(!alarm) continue;
+		minCompare = std::min<uint32>(alarm->compare, minCompare);
+	}
+
+	if(minCompare == UINT32_MAX)
+	{
+		//No alarm to watch
+		return;
+	}
+
+	//Enable TIMER3 INTs
+	m_ee.m_pMemoryMap->SetWord(CTimer::T3_MODE, CTimer::MODE_CLOCK_SELECT_EXTERNAL | CTimer::MODE_COUNT_ENABLE | CTimer::MODE_EQUAL_FLAG | CTimer::MODE_EQUAL_INT_ENABLE);
+	m_ee.m_pMemoryMap->SetWord(CTimer::T3_COMP, minCompare & 0xFFFF);
+
+	uint32 mask = (1 << CINTC::INTC_LINE_TIMER3);
+	if(!(m_ee.m_pMemoryMap->GetWord(CINTC::INTC_MASK) & mask))
+	{
+		m_ee.m_pMemoryMap->SetWord(CINTC::INTC_MASK, mask);
+	}
 }
 
 void CPS2OS::CreateIdleThread()
@@ -1955,11 +2000,19 @@ void CPS2OS::sc_SetAlarm()
 		return;
 	}
 
+	//Delay is a short
+	assert(delay < 0x10000);
+
+	uint32 currentCount = m_ee.m_pMemoryMap->GetWord(CTimer::T3_COUNT);
+
 	auto alarm = m_alarms[alarmId];
 	alarm->delay = delay;
+	alarm->compare = currentCount + delay;
 	alarm->callback = callback;
 	alarm->callbackParam = callbackParam;
 	alarm->gp = m_ee.m_State.nGPR[CMIPS::GP].nV0;
+
+	AlarmUpdateCompare();
 
 	m_ee.m_State.nGPR[SC_RETURN].nD0 = alarmId;
 }
@@ -1977,6 +2030,8 @@ void CPS2OS::sc_ReleaseAlarm()
 	}
 
 	m_alarms.Free(alarmId);
+
+	AlarmUpdateCompare();
 }
 
 //20
