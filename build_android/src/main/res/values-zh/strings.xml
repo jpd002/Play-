@@ -48,7 +48,7 @@
 
 	<string name="pref_emu_video">视频设置</string>
 
-	<string name="pref_emu_video_gs_handler_title">GS Handler</string>
+	<string name="pref_emu_video_gs_handler_title">GS处理程序</string>
 
 	<string name="pref_emu_video_res_factor_title">设置分辨率</string>
 
@@ -96,7 +96,7 @@
 
 	<string-array name="pref_emu_video_gs_handler_entries">
 		<item>OpenGL</item>
-		<item>Vulkan (Experimental)</item>
+		<item>Vulkan（实验性）</item>
 	</string-array>
 
 	<string-array name="pref_emu_video_res_factor_entries">
@@ -138,7 +138,7 @@
 	<string name="report">报告</string>
 
 	<string name="platform">将logcat内容复制到剪贴板\n请在问题报告中粘贴</string>
-	<string name="log_saved">日志保存到\“Files Dir\”路径</string>
+	<string name="log_saved">将日志保存到\“Files Dir\”路径</string>
 	<string name="no_recent_adapter">最近没有玩过PS2游戏。</string>
 	
 	<!-- Editor Menu -->
