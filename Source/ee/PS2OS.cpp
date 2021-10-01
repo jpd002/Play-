@@ -2000,8 +2000,8 @@ void CPS2OS::sc_SetAlarm()
 		return;
 	}
 
-	//Delay is a short
-	assert(delay < 0x10000);
+	//Check limits (0 delay will probably be problematic and delay is a short)
+	assert((delay > 0) && (delay < 0x10000));
 
 	uint32 currentCount = m_ee.m_pMemoryMap->GetWord(CTimer::T3_COUNT);
 
