@@ -56,7 +56,14 @@ public class VirtualMachineManager
 		{
 			if(progDialog != null && progDialog.isShowing())
 			{
-				progDialog.dismiss();
+				try
+				{
+					progDialog.dismiss();
+				}
+				catch(final Exception e)
+				{
+					//We don't really care if we get an exception while dismissing
+				}
 			}
 			if(_exception != null)
 			{

@@ -98,7 +98,11 @@ public class NavigationDrawerFragment extends Fragment
 		//highlight on startup, every other way returns null.
 		mDrawerListView.post(() -> {
 			int attributeResourceId = getThemeColor(getActivity(), R.attr.colorPrimaryDark);
-			mDrawerListView.getChildAt(mCurrentSelectedPosition).setBackgroundColor(attributeResourceId);
+			View childView = mDrawerListView.getChildAt(mCurrentSelectedPosition);
+			if(childView != null)
+			{
+				childView.setBackgroundColor(attributeResourceId);
+			}
 		});
 
 		mDrawerListView_bottom.setAdapter(new ArrayAdapter<>(
