@@ -47,6 +47,8 @@ extern "C" void loadPsf(const char* archivePath, const char* psfPath)
 	try
 	{
 		assert(g_virtualMachine);
+		g_virtualMachine->Pause();
+		g_virtualMachine->Reset();
 		g_tags.clear();
 		auto fileToken = CArchivePsfStreamProvider::GetPathTokenFromFilePath(psfPath);
 		CPsfLoader::LoadPsf(*g_virtualMachine, fileToken, archivePath, &g_tags);
