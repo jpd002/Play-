@@ -100,6 +100,13 @@ public:
 		ENABLE_CPND = 0x10000,
 	};
 
+	enum WRITE_MASKS
+	{
+		MADR_WRITE_MASK = ~(0x0000000FU),
+		QWC_WRITE_MASK = ~(0xFFFF0000U),
+		SPR_MADR_WRITE_MASK = ~(0x8000000FU),
+	};
+
 	CDMAC(uint8*, uint8*, uint8*, CMIPS&);
 	virtual ~CDMAC() = default;
 

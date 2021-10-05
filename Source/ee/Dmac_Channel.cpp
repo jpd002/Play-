@@ -197,6 +197,8 @@ void CChannel::ExecuteNormal()
 	m_nMADR += nRecv * 0x10;
 	m_nQWC -= nRecv;
 
+	m_nQWC &= CDMAC::QWC_WRITE_MASK;
+
 	if(m_nQWC == 0)
 	{
 		ClearSTR();

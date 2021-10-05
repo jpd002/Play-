@@ -31,9 +31,6 @@
 #define STATE_REGS_D8_SADR ("D8_SADR")
 #define STATE_REGS_D9_SADR ("D9_SADR")
 
-#define MADR_WRITE_MASK (~0x0000000F)
-#define SPR_MADR_WRITE_MASK (~0x8000000F)
-
 #define SADR_WRITE_MASK ((PS2::EE_SPR_SIZE - 1) & ~0x0F)
 
 #define REGISTER_READ(addr, value) \
