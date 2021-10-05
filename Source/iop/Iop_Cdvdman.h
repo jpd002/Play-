@@ -97,7 +97,7 @@ namespace Iop
 		uint8* m_ram = nullptr;
 
 		uint32 m_callbackPtr = 0;
-		uint32 m_status = CDVD_STATUS_STOPPED;
+		uint32 m_status = CDVD_STATUS_PAUSED;
 		uint32 m_streamPos = 0;
 		uint32 m_streamBufferSize = 0;
 		COMMAND m_pendingCommand = COMMAND_NONE;
