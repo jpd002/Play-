@@ -89,6 +89,7 @@ void InputEventSelectionDialog::onInputEvent(const BINDINGTARGET& target, uint32
 		//Check if we've pressed something
 		if(PS2::CControllerInfo::IsAxis(m_button))
 		{
+			printf("id: %d, type: %d, value: %d\r\n", target.keyId, target.keyType, value);
 			switch(target.keyType)
 			{
 			case BINDINGTARGET::KEYTYPE::BUTTON:
