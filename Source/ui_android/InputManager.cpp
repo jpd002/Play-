@@ -53,24 +53,24 @@ void CInputManager::SetAxisState(int buttonId, float value)
 	}
 }
 
-extern "C" JNIEXPORT void JNICALL Java_com_virtualapplications_play_InputManager_setButtonState(JNIEnv* env, jobject obj, jint buttonId, jboolean pressed)
+extern "C" JNIEXPORT void JNICALL Java_com_virtualapplications_play_InputManager_setButtonState(JNIEnv* env, jclass clazz, jint buttonId, jboolean pressed)
 {
 	CInputManager::GetInstance().SetButtonState(buttonId, (pressed == JNI_TRUE));
 }
 
-extern "C" JNIEXPORT void JNICALL Java_com_virtualapplications_play_InputManager_setAxisState(JNIEnv* env, jobject obj, jint buttonId, jfloat value)
+extern "C" JNIEXPORT void JNICALL Java_com_virtualapplications_play_InputManager_setAxisState(JNIEnv* env, jclass clazz, jint buttonId, jfloat value)
 {
 	CInputManager::GetInstance().SetAxisState(buttonId, value);
 }
 
-extern "C" JNIEXPORT jstring JNICALL Java_com_virtualapplications_play_InputManager_getVirtualPadItems(JNIEnv* env, jobject obj, jfloat screenWidth, jfloat screenHeight)
+extern "C" JNIEXPORT jstring JNICALL Java_com_virtualapplications_play_InputManager_getVirtualPadItems(JNIEnv* env, jclass clazz, jfloat screenWidth, jfloat screenHeight)
 {
 	auto items = CVirtualPad::GetItems(screenWidth, screenHeight);
 	auto documentNode = std::make_unique<Framework::Xml::CNode>("Document", true);
 	for(const auto& item : items)
 	{
 		auto itemNode = new Framework::Xml::CNode("Item", true);
-		itemNode->InsertAttribute("isAnalog", item.isAnalog ? "true" : "false");
+		itemNode->InsertAttribute("type", std::to_string(item.type).c_str());
 		itemNode->InsertAttribute("x1", std::to_string(item.x1).c_str());
 		itemNode->InsertAttribute("y1", std::to_string(item.y1).c_str());
 		itemNode->InsertAttribute("x2", std::to_string(item.x2).c_str());

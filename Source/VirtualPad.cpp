@@ -59,6 +59,7 @@ CVirtualPad::ItemArray CVirtualPad::GetItems(float screenWidth, float screenHeig
 	    startSelPadPosX + padButtonSize * 2, startSelPadPosY + padButtonSize / 2, startSelPadPosX + padButtonSize * 3, startSelPadPosY + padButtonSize,
 	    PS2::CControllerInfo::START, "start"));
 
+#if 0
 	items.push_back(CreateButtonItem(
 	    dpadPosX + dpadButtonSize * 2, dpadPosY + dpadButtonSize * 0, dpadPosX + dpadButtonSize * 4, dpadPosY + dpadButtonSize * 3,
 	    PS2::CControllerInfo::DPAD_UP, "up"));
@@ -71,6 +72,10 @@ CVirtualPad::ItemArray CVirtualPad::GetItems(float screenWidth, float screenHeig
 	items.push_back(CreateButtonItem(
 	    dpadPosX + dpadButtonSize * 3, dpadPosY + dpadButtonSize * 2, dpadPosX + dpadButtonSize * 6, dpadPosY + dpadButtonSize * 4,
 	    PS2::CControllerInfo::DPAD_RIGHT, "right"));
+#endif
+
+	items.push_back(CreateDigitalPadItem(
+			dpadPosX, dpadPosY, dpadPosX + dpadButtonSize * 6, dpadPosY + dpadButtonSize * 6, PS2::CControllerInfo::DPAD_LEFT));
 
 	items.push_back(CreateButtonItem(
 	    actionPadPosX + padButtonSize * 1, actionPadPosY + padButtonSize * 0, actionPadPosX + padButtonSize * 2, actionPadPosY + padButtonSize * 1,
@@ -105,7 +110,7 @@ CVirtualPad::ItemArray CVirtualPad::GetItems(float screenWidth, float screenHeig
 CVirtualPad::ITEM CVirtualPad::CreateButtonItem(float x1, float y1, float x2, float y2, PS2::CControllerInfo::BUTTON code, const std::string& imageName, const std::string& caption)
 {
 	ITEM item;
-	item.isAnalog = false;
+	item.type = ITEM_BUTTON;
 	item.x1 = x1;
 	item.y1 = y1;
 	item.x2 = x2;
@@ -119,7 +124,7 @@ CVirtualPad::ITEM CVirtualPad::CreateButtonItem(float x1, float y1, float x2, fl
 CVirtualPad::ITEM CVirtualPad::CreateAnalogStickItem(float x1, float y1, float x2, float y2, PS2::CControllerInfo::BUTTON codeX, PS2::CControllerInfo::BUTTON codeY, const std::string& imageName)
 {
 	ITEM item;
-	item.isAnalog = true;
+	item.type = ITEM_ANALOG_STICK;
 	item.x1 = x1;
 	item.y1 = y1;
 	item.x2 = x2;
@@ -127,5 +132,19 @@ CVirtualPad::ITEM CVirtualPad::CreateAnalogStickItem(float x1, float y1, float x
 	item.code0 = codeX;
 	item.code1 = codeY;
 	item.imageName = imageName;
+	return item;
+}
+
+CVirtualPad::ITEM CVirtualPad::CreateDigitalPadItem(float x1, float y1, float x2, float y2, PS2::CControllerInfo::BUTTON codeX)
+{
+	ITEM item;
+	item.type = ITEM_DIGITAL_PAD;
+	item.x1 = x1;
+	item.y1 = y1;
+	item.x2 = x2;
+	item.y2 = y2;
+	item.code0 = codeX;
+//	item.code1 = codeY;
+	item.imageName = "dpad";
 	return item;
 }

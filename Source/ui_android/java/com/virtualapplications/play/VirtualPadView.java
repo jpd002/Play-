@@ -39,6 +39,7 @@ public class VirtualPadView extends SurfaceView
 		_itemBitmaps.put("circle", BitmapFactory.decodeResource(getResources(), R.drawable.circle));
 		_itemBitmaps.put("lr", BitmapFactory.decodeResource(getResources(), R.drawable.lr));
 		_itemBitmaps.put("analogStick", BitmapFactory.decodeResource(getResources(), R.drawable.analogstick));
+		_itemBitmaps.put("dpad", BitmapFactory.decodeResource(getResources(), R.drawable.dpad));
 
 		setWillNotDraw(false);
 	}
@@ -67,7 +68,7 @@ public class VirtualPadView extends SurfaceView
 			{
 				Node itemNode = itemNodes.item(i);
 				NamedNodeMap attributes = itemNode.getAttributes();
-				boolean isAnalog = Boolean.parseBoolean(attributes.getNamedItem("isAnalog").getNodeValue());
+				int type = Integer.parseInt(attributes.getNamedItem("type").getNodeValue());
 				float x1 = Float.parseFloat(attributes.getNamedItem("x1").getNodeValue());
 				float y1 = Float.parseFloat(attributes.getNamedItem("y1").getNodeValue());
 				float x2 = Float.parseFloat(attributes.getNamedItem("x2").getNodeValue());
@@ -82,13 +83,17 @@ public class VirtualPadView extends SurfaceView
 				}
 				Bitmap bitmap = _itemBitmaps.get(imageName);
 				RectF itemRect = new RectF(x1 * density, y1 * density, x2 * density, y2 * density);
-				if(isAnalog)
+				switch(type)
 				{
-					_items.add(new VirtualPadStick(itemRect, code0, code1, bitmap));
-				}
-				else
-				{
+				case 0:
 					_items.add(new VirtualPadButton(itemRect, code0, bitmap, caption));
+					break;
+				case 1:
+					_items.add(new VirtualPadStick(itemRect, code0, code1, bitmap));
+					break;
+				case 2:
+					_items.add(new VirtualPadDpad(itemRect, bitmap));
+					break;
 				}
 			}
 		}
