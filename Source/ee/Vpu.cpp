@@ -1,4 +1,6 @@
+#include "Vpu.h"
 #include "make_unique.h"
+#include "string_format.h"
 #include "../Log.h"
 #include "../states/RegisterStateFile.h"
 #include "../Ps2Const.h"
@@ -6,9 +8,12 @@
 #include "Vif.h"
 #include "Vif1.h"
 #include "GIF.h"
-#include "Vpu.h"
 
 #define LOG_NAME ("ee_vpu")
+
+#define STATE_PATH_REGS_FORMAT ("vpu/vpu_%d.xml")
+
+#define STATE_REGS_RUNNING ("running")
 
 CVpu::CVpu(unsigned int number, const VPUINIT& vpuInit, CGIF& gif, CINTC& intc, uint8* ram, uint8* spr)
     : m_number(number)
@@ -101,11 +106,24 @@ void CVpu::Reset()
 
 void CVpu::SaveState(Framework::CZipArchiveWriter& archive)
 {
+	{
+		auto path = string_format(STATE_PATH_REGS_FORMAT, m_number);
+		auto registerFile = new CRegisterStateFile(path.c_str());
+		registerFile->SetRegister32(STATE_REGS_RUNNING, m_running);
+		archive.InsertFile(registerFile);
+	}
+
 	m_vif->SaveState(archive);
 }
 
 void CVpu::LoadState(Framework::CZipArchiveReader& archive)
 {
+	{
+		auto path = string_format(STATE_PATH_REGS_FORMAT, m_number);
+		CRegisterStateFile registerFile(*archive.BeginReadFile(path.c_str()));
+		m_running = registerFile.GetRegister32(STATE_REGS_RUNNING) != 0;
+	}
+
 	m_vif->LoadState(archive);
 }
 
