@@ -646,7 +646,7 @@ void CPS2VM::UpdateEe()
 		m_vblankTicks -= executed;
 
 #ifdef DEBUGGER_INCLUDED
-		if(m_singleStepEe) break;
+		if(m_singleStepEe || m_singleStepVu0 || m_singleStepVu1) break;
 		if(m_ee->m_EE.m_executor->MustBreak()) break;
 #endif
 	}
