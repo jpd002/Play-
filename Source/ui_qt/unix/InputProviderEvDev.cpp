@@ -57,12 +57,12 @@ void CInputProviderEvDev::OnEvDevInputEvent(GamePadDeviceId deviceId, int code, 
 				assert(false);
 				break;
 			}
+			printf("min: %d, max: %d, rawValue: %d, fixedValue: %d\r\n", abs->minimum, abs->maximum, value, fixedValue);
 		}
 		else
 		{
 			int range = (abs->maximum - abs->minimum);
 			fixedValue = ((value - abs->minimum) * 255) / range;
-			printf("range: %d, fixedValue: %d\r\n", range, fixedValue);
 			tgt.keyType = BINDINGTARGET::KEYTYPE::AXIS;
 		}
 		OnInput(tgt, fixedValue);
