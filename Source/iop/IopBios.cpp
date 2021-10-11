@@ -658,7 +658,22 @@ int32 CIopBios::LoadModule(CELF& elf, const char* path)
 		//Clear BSS section
 		uint32 dataSectPos = iopMod->textSectionSize;
 		uint32 bssSectPos = iopMod->textSectionSize + iopMod->dataSectionSize;
-		memset(m_ram + moduleRange.first + bssSectPos, 0, iopMod->bssSectionSize);
+		uint32 bssSectSize = iopMod->bssSectionSize;
+		uint32 moduleSize = moduleRange.second - moduleRange.first;
+		if(bssSectSize == 0)
+		{
+			//Some games (Kya: Dark Lineage) seem to not report a proper value for bss size.
+			//Try to compute its value so we can properly clear the section.
+			assert(moduleSize >= bssSectPos);
+			bssSectSize = moduleSize - bssSectPos;
+		}
+		else
+		{
+			//Just make sure that everything checks out
+			uint32 totalSize = bssSectPos + bssSectSize;
+			assert(totalSize == moduleSize);
+		}
+		memset(m_ram + moduleRange.first + bssSectPos, 0, bssSectSize);
 	}
 
 	std::string moduleName = iopMod ? iopMod->moduleName : "";
