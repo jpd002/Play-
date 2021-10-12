@@ -1,4 +1,5 @@
 #include <cassert>
+#include <cstdio>
 #include "InputBindingManager.h"
 #include "AppConfig.h"
 #include "string_format.h"
@@ -267,6 +268,7 @@ uint32 CInputBindingManager::GetBindingValue(uint32 pad, PS2::CControllerInfo::B
 
 void CInputBindingManager::ResetBindingValues()
 {
+	printf("ResetBindingValues\r\n");
 	for(unsigned int pad = 0; pad < MAX_PADS; pad++)
 	{
 		for(unsigned int button = 0; button < PS2::CControllerInfo::MAX_BUTTONS; button++)
@@ -365,6 +367,7 @@ CInputBindingManager::CPovHatBinding::CPovHatBinding(const BINDINGTARGET& bindin
     : m_binding(binding)
     , m_refValue(refValue)
 {
+	printf("Ctor %d.\r\n", refValue);
 }
 
 CInputBindingManager::BINDINGTYPE CInputBindingManager::CPovHatBinding::GetBindingType() const
@@ -403,6 +406,7 @@ void CInputBindingManager::CPovHatBinding::Load(Framework::CConfig& config, cons
 void CInputBindingManager::CPovHatBinding::ProcessEvent(const BINDINGTARGET& target, uint32 value)
 {
 	if(m_binding != target) return;
+	printf("Got Event: %d.\r\n", value);
 	m_value = value;
 }
 
@@ -420,6 +424,7 @@ uint32 CInputBindingManager::CPovHatBinding::GetValue() const
 	int32 normalizedValue = (m_value * 360) / BINDINGTARGET::POVHAT_MAX;
 	if(GetShortestDistanceBetweenAngles(normalizedValue, normalizedRefValue) <= 45)
 	{
+		printf("Pressed.\r\n");
 		return 1;
 	}
 	else
