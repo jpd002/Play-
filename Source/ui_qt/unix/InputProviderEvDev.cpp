@@ -60,6 +60,8 @@ void CInputProviderEvDev::OnEvDevInputEvent(GamePadDeviceId deviceId, int code, 
 		}
 		else
 		{
+			int range = (abs->maximum - abs->minimum);
+			fixedValue = ((value - abs->minimum) * 255) / range;
 			tgt.keyType = BINDINGTARGET::KEYTYPE::AXIS;
 		}
 		OnInput(tgt, fixedValue);
