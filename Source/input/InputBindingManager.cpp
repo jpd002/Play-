@@ -430,7 +430,16 @@ uint32 CInputBindingManager::CPovHatBinding::GetValue() const
 
 void CInputBindingManager::CPovHatBinding::SetValue(uint32 value)
 {
-	m_value = value;
+	if(value == 0)
+	{
+		//Using POVHAT_MAX will make GetValue return 0
+		m_value = BINDINGTARGET::POVHAT_MAX;
+	}
+	else
+	{
+		//Using refValue will make GetValue return 1
+		m_value = m_refValue;
+	}
 }
 
 int32 CInputBindingManager::CPovHatBinding::GetShortestDistanceBetweenAngles(int32 angle1, int32 angle2)
