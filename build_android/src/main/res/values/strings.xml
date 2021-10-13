@@ -159,4 +159,9 @@
 	<string name="permission_dialog_title">Permission Request</string>
 	<string name="permission_dialog_summary">Play! needs storage access (read/write). Without it, Play! won\'t be able to find your games or save your progress.</string>
 
+	<!-- Data Files Migration -->
+	<string name="migration_title">Data Files Migration</string>
+	<string name="migration_explanation">Due to filesystem access policy changes in Android 11, this new version of this app now uses a \'Data Files\' folder inside the app\'s data folder instead of external storage.\n\nWould you like to migrate your data from the previous location to the new one?</string>
+	<string name="migration_selectfolder">Please select the location of the previous Data Files folder (usually located at the root of your device\'s storage and named \'Play Data Files\').</string>
+
 </resources>

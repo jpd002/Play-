@@ -552,8 +552,8 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 		if(!userNotified)
 		{
 			new AlertDialog.Builder(this)
-					.setTitle("Data Files Migration")
-					.setMessage("Due to filesystem access policy changes in Android 11, this new version of this app now uses a 'Data Files' folder inside the app's data folder instead of external storage.\r\n\r\nWould you like to migrate your data from the previous location to the new one?")
+					.setTitle(getString(R.string.migration_title))
+					.setMessage(getString(R.string.migration_explanation))
 					.setPositiveButton(android.R.string.yes, (dialog, id) -> {
 						selectDataFilesFolderToMigrate();
 					})
@@ -568,8 +568,8 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 	private void selectDataFilesFolderToMigrate()
 	{
 		new AlertDialog.Builder(this)
-				.setTitle("Data Files Migration")
-				.setMessage("Please select the location of the previous Data Files folder (usually located at the root of your device's storage and named 'Play Data Files').")
+				.setTitle(getString(R.string.migration_title))
+				.setMessage(getString(R.string.migration_selectfolder))
 				.setPositiveButton(android.R.string.ok, (dialog, id) -> {
 					Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
 					startActivityForResult(intent, g_dataFilesFolderPickerRequestCode);
@@ -589,7 +589,7 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 		catch(Exception ex)
 		{
 			new AlertDialog.Builder(this)
-					.setTitle("Data Files Migration")
+					.setTitle(getString(R.string.migration_title))
 					.setMessage(String.format("Failed: %s", ex.getMessage()))
 					.create()
 					.show();
