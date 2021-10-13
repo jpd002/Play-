@@ -245,7 +245,7 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 		{
 			Uri folderUri = data.getData();
 			getContentResolver().takePersistableUriPermission(folderUri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
-			processFolder(data.getData());
+			processFolder(folderUri);
 		}
 	}
 
