@@ -80,6 +80,9 @@
 	<string name="pref_ui_reset_cache_title">Reset Cache</string>
 	<string name="pref_ui_reset_cache_summary">Clear stored cover images</string>
 
+	<string name="pref_ui_migrate_datafiles_title">Migrate Data Files</string>
+	<string name="pref_ui_migrate_datafiles_summary">Migrate Data Files from a folder on the device</string>
+
 	<string name="preferences_theme">Theme Settings</string>
 
 	<string name="pref_title_theme_selection">Theme Selection</string>

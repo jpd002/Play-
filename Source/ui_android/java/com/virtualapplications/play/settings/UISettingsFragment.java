@@ -16,6 +16,7 @@ import androidx.preference.PreferenceManager;
 import static com.virtualapplications.play.Constants.PREF_UI_CATEGORY_STORAGE;
 import static com.virtualapplications.play.Constants.PREF_UI_CLEAR_CACHE;
 import static com.virtualapplications.play.Constants.PREF_UI_CLEAR_UNAVAILABLE;
+import static com.virtualapplications.play.Constants.PREF_UI_MIGRATE_DATA_FILES;
 import static com.virtualapplications.play.Constants.PREF_UI_RESCAN;
 
 public class UISettingsFragment extends PreferenceFragmentCompat
@@ -29,6 +30,7 @@ public class UISettingsFragment extends PreferenceFragmentCompat
 		findPreference(PREF_UI_RESCAN).setOnPreferenceClickListener(this);
 		findPreference(PREF_UI_CLEAR_UNAVAILABLE).setOnPreferenceClickListener(this);
 		findPreference(PREF_UI_CLEAR_CACHE).setOnPreferenceClickListener(this);
+		findPreference(PREF_UI_MIGRATE_DATA_FILES).setOnPreferenceClickListener(this);
 	}
 
 	private void clearCoverCache()
@@ -68,6 +70,12 @@ public class UISettingsFragment extends PreferenceFragmentCompat
 			clearCoverCache();
 			preferenceCategory.removePreference(preference);
 			Toast.makeText(getActivity(), "Clearing cover cache...", Toast.LENGTH_SHORT).show();
+			return true;
+		case PREF_UI_MIGRATE_DATA_FILES:
+			prefs.edit().putBoolean(PREF_UI_MIGRATE_DATA_FILES, true).apply();
+			preferenceCategory.removePreference(preference);
+			Toast.makeText(getActivity(), "Migrating data files...", Toast.LENGTH_SHORT).show();
+			getActivity().finish();
 			return true;
 		default:
 			return false;
