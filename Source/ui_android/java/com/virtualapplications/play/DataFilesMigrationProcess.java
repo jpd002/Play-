@@ -20,7 +20,8 @@ class DataFilesMigrationProcess
 
 	//Some notes/questions for the migration process:
 	//- Should we migrate the bootables.db file?
-	//- Should we overwrite files systematically (ask the user?)
+	//- Should we overwrite files systematically?
+	//  No, we can assume that files in the Data Files are always older
 
 	final Context _context;
 
@@ -39,7 +40,7 @@ class DataFilesMigrationProcess
 		}
 		DocumentFile dstFolderDoc = DocumentFile.fromFile(dataFilesFolder);
 		DocumentFile srcFolderDoc = DocumentFile.fromTreeUri(_context, srcFolderUri);
-		CopyFiles(dstFolderDoc, srcFolderDoc);
+		CopyTree(dstFolderDoc, srcFolderDoc);
 	}
 
 	void CheckIsDataFilesFolder(Uri srcFolderUri) throws Exception
@@ -52,19 +53,29 @@ class DataFilesMigrationProcess
 		}
 	}
 
-	void CopySingleFile(OutputStream dstStream, InputStream srcStream) throws IOException
+	void CopyFile(DocumentFile dstFileDoc, DocumentFile srcFileDoc) throws IOException
 	{
-		int bufferSize = 0x10000;
-		byte[] buffer = new byte[bufferSize];
-		while(true)
+		InputStream srcStream = _context.getContentResolver().openInputStream(srcFileDoc.getUri());
+		OutputStream dstStream = _context.getContentResolver().openOutputStream(dstFileDoc.getUri());
+		try
 		{
-			int amountRead = srcStream.read(buffer);
-			if(amountRead == -1) break;
-			dstStream.write(buffer, 0, amountRead);
+			int bufferSize = 0x10000;
+			byte[] buffer = new byte[bufferSize];
+			while(true)
+			{
+				int amountRead = srcStream.read(buffer);
+				if(amountRead == -1) break;
+				dstStream.write(buffer, 0, amountRead);
+			}
+		}
+		finally
+		{
+			srcStream.close();
+			dstStream.close();
 		}
 	}
 
-	void CopyFiles(DocumentFile dstFolderDoc, DocumentFile srcFolderDoc)
+	void CopyTree(DocumentFile dstFolderDoc, DocumentFile srcFolderDoc)
 	{
 		for(DocumentFile srcFileDoc : srcFolderDoc.listFiles())
 		{
@@ -72,29 +83,20 @@ class DataFilesMigrationProcess
 			{
 				Log.w(Constants.TAG, String.format("Creating directory '%s'...", srcFileDoc.getName()));
 				DocumentFile dstFileDoc = dstFolderDoc.createDirectory(srcFileDoc.getName());
-				CopyFiles(dstFileDoc, srcFileDoc);
+				CopyTree(dstFileDoc, srcFileDoc);
 			}
 			else
 			{
-				Log.w(Constants.TAG, String.format("Copying '%s'...", srcFileDoc.getName()));
+				Log.w(Constants.TAG, String.format("Copying file '%s'...", srcFileDoc.getName()));
 				try
 				{
-					//if(dstFolderDoc.findFile(srcFileDoc.getName()) != null)
-					//{
-					//	throw new Exception("File already exists.");
-					//}
+					if(dstFolderDoc.findFile(srcFileDoc.getName()) != null)
+					{
+						Log.w(Constants.TAG, "Skipping because it already exists.");
+						continue;
+					}
 					DocumentFile dstFileDoc = dstFolderDoc.createFile("", srcFileDoc.getName());
-					InputStream srcStream = _context.getContentResolver().openInputStream(srcFileDoc.getUri());
-					OutputStream dstStream = _context.getContentResolver().openOutputStream(dstFileDoc.getUri());
-					try
-					{
-						CopySingleFile(dstStream, srcStream);
-					}
-					finally
-					{
-						srcStream.close();
-						dstStream.close();
-					}
+					CopyFile(dstFileDoc, srcFileDoc);
 				}
 				catch(Exception ex)
 				{

@@ -47,6 +47,8 @@ import static com.virtualapplications.play.ThemeManager.getThemeColor;
 
 public class MainActivity extends AppCompatActivity implements NavigationDrawerFragment.NavigationDrawerCallbacks, SharedPreferences.OnSharedPreferenceChangeListener
 {
+	private static final String PREF_ANDROID11_USER_NOTIFIED = "android11_user_notified";
+
 	private int currentOrientation;
 	private GameInfo gameInfo;
 	protected NavigationDrawerFragment mNavigationDrawerFragment;
@@ -57,6 +59,7 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 
 	static final int g_settingsRequestCode = 0xDEAD;
 	static final int g_folderPickerRequestCode = 0xBEEF;
+	static final int g_dataFilesFolderPickerRequestCode = 0xBEF0;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -136,6 +139,8 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 		sortMethod = sp.getInt("sortMethod", SORT_NONE);
 		onNavigationDrawerItemSelected(sortMethod);
 		sp.registerOnSharedPreferenceChangeListener(this);
+
+		prepareAndroid11MigrationProcess();
 	}
 
 	@Override
@@ -246,6 +251,13 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 			Uri folderUri = data.getData();
 			getContentResolver().takePersistableUriPermission(folderUri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
 			processFolder(folderUri);
+		}
+
+		if(requestCode == g_dataFilesFolderPickerRequestCode && resultCode == RESULT_OK)
+		{
+			Uri folderUri = data.getData();
+			getContentResolver().takePersistableUriPermission(folderUri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
+			executeDataFilesMigration(folderUri);
 		}
 	}
 
@@ -522,6 +534,46 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 		else
 		{
 			new ImageFinder(fullscan).execute();
+		}
+	}
+
+	private void prepareAndroid11MigrationProcess()
+	{
+		SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
+		boolean userNotified = sp.getBoolean(PREF_ANDROID11_USER_NOTIFIED, false);
+
+		if(!userNotified)
+		{
+			new AlertDialog.Builder(this)
+					.setTitle("Data Files Migration")
+					.setMessage("Due to filesystem access policy changes in Android 11, this new version of this app now uses a 'Data Files' folder inside the app's data folder. Would you like to migrate your data from a previous version of the app?")
+					.setPositiveButton(android.R.string.yes, (dialog, id) -> {
+						selectDataFilesFolderToMigrate();
+					})
+					.setNegativeButton(android.R.string.no, (dialog, id) -> {})
+					.create()
+					.show();
+		}
+
+		sp.edit().putBoolean(PREF_ANDROID11_USER_NOTIFIED, true).commit();
+	}
+
+	private void selectDataFilesFolderToMigrate()
+	{
+		Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
+		startActivityForResult(intent, g_dataFilesFolderPickerRequestCode);
+	}
+
+	private void executeDataFilesMigration(Uri dataFilesFolderUri)
+	{
+		DataFilesMigrationProcess process = new DataFilesMigrationProcess(this);
+		try
+		{
+			process.Start(dataFilesFolderUri);
+		}
+		catch(Exception ex)
+		{
+
 		}
 	}
 }
