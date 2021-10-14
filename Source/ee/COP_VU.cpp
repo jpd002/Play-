@@ -304,8 +304,27 @@ void CCOP_VU::BC2()
 	//Not implemented
 	//We assume that this is used to check if VU0 is still running
 	//after VCALLMS* is used (used in .hack games)
+	//Also used in Kya: Dark Lineage
+	//For now, we just make it as if VU0 is not running
+	
 	uint32 op = (m_nOpcode >> 16) & 0x03;
-	assert(op == 0x01);
+	switch(op)
+	{
+	case 0x00:
+		//BC2F
+		//(running == false) -> Branch
+		m_codeGen->PushCst(0);
+		m_codeGen->PushCst(0);
+		Branch(Jitter::CONDITION_EQ);
+		break;
+	case 0x01:
+		//BC2T
+		//(running == false) -> Do not branch
+		break;
+	default:
+		Illegal();
+		break;
+	}
 }
 
 //10-1F

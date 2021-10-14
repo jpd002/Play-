@@ -201,7 +201,7 @@ INSTRUCTION CCOP_VU::m_cReflCop2[32] =
 INSTRUCTION CCOP_VU::m_cReflBc2[4] =
 {
 	//0x00
-	{	NULL,		NULL,			NULL,				NULL,				NULL,						NULL			},
+	{	"BC2F",		NULL,			CopyMnemonic,		ReflOpOff,			MIPSReflection::IsBranch,	ReflEaOffset	},
 	{	"BC2T",		NULL,			CopyMnemonic,		ReflOpOff,			MIPSReflection::IsBranch,	ReflEaOffset	},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,						NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,						NULL			},
