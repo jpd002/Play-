@@ -347,6 +347,7 @@ void CDrawUtils::WriteToFramebuffer(Nuanceur::CShaderBuilder& b, uint32 framebuf
 		assert(false);
 		[[fallthrough]];
 	case CGSHandler::PSMCT32:
+	case CGSHandler::PSMZ32:
 	{
 		CMemoryUtils::Memory_Write32(b, memoryBuffer, fbAddress, srcPixel);
 	}

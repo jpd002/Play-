@@ -653,6 +653,7 @@ Framework::Vulkan::CShaderModule CDrawDesktop::CreateFragmentShader(const PIPELI
 			[[fallthrough]];
 		case CGSHandler::PSMCT32:
 		case CGSHandler::PSMCT24:
+		case CGSHandler::PSMZ32:
 		case CGSHandler::PSMZ24:
 			fbAddress = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT32>(
 			    b, fbSwizzleTable, fbBufAddress, fbBufWidth, screenPos);
@@ -714,6 +715,7 @@ Framework::Vulkan::CShaderModule CDrawDesktop::CreateFragmentShader(const PIPELI
 				assert(false);
 				[[fallthrough]];
 			case CGSHandler::PSMCT32:
+			case CGSHandler::PSMZ32:
 			{
 				dstPixel = CMemoryUtils::Memory_Read32(b, memoryBuffer, fbAddress);
 				dstIColor = CMemoryUtils::PSM32ToIVec4(b, dstPixel);
@@ -823,6 +825,8 @@ Framework::Vulkan::CShaderModule CDrawDesktop::CreateFragmentShader(const PIPELI
 				[[fallthrough]];
 			case CGSHandler::PSMCT32:
 			case CGSHandler::PSMCT24:
+			case CGSHandler::PSMZ32:
+			case CGSHandler::PSMZ24:
 			{
 				finalPixel = CMemoryUtils::IVec4ToPSM32(b, finalIColor);
 			}
