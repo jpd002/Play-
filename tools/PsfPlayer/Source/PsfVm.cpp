@@ -17,7 +17,7 @@ CPsfVm::CPsfVm()
     , m_soundHandler(NULL)
 {
 	m_isThreadOver = false;
-	//m_thread = std::thread([&]() { ThreadProc(); });
+	m_thread = std::thread([&]() { ThreadProc(); });
 }
 
 CPsfVm::~CPsfVm()

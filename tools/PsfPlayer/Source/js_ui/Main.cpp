@@ -22,18 +22,21 @@ extern "C" void initVm()
 {
 	try
 	{
-		Jitter::CWasmFunctionRegistry::RegisterFunction(reinterpret_cast<uintptr_t>(&EmptyBlockHandler), "_EmptyBlockHandler", "vi");
-		Jitter::CWasmFunctionRegistry::RegisterFunction(reinterpret_cast<uintptr_t>(&MemoryUtils_GetByteProxy), "_MemoryUtils_GetByteProxy", "iii");
-		Jitter::CWasmFunctionRegistry::RegisterFunction(reinterpret_cast<uintptr_t>(&MemoryUtils_GetHalfProxy), "_MemoryUtils_GetHalfProxy", "iii");
-		Jitter::CWasmFunctionRegistry::RegisterFunction(reinterpret_cast<uintptr_t>(&MemoryUtils_GetWordProxy), "_MemoryUtils_GetWordProxy", "iii");
-
-		Jitter::CWasmFunctionRegistry::RegisterFunction(reinterpret_cast<uintptr_t>(&MemoryUtils_SetByteProxy), "_MemoryUtils_SetByteProxy", "viii");
-		Jitter::CWasmFunctionRegistry::RegisterFunction(reinterpret_cast<uintptr_t>(&MemoryUtils_SetHalfProxy), "_MemoryUtils_SetHalfProxy", "viii");
-		Jitter::CWasmFunctionRegistry::RegisterFunction(reinterpret_cast<uintptr_t>(&MemoryUtils_SetWordProxy), "_MemoryUtils_SetWordProxy", "viii");
-
 		g_virtualMachine = new CPsfVm();
-		//g_virtualMachine->SetSpuHandlerImpl(&CSH_FileOutput::HandlerFactory);
-		g_virtualMachine->SetSpuHandlerImpl(&CSH_OpenAL::HandlerFactory);
+
+		g_virtualMachine->m_mailBox.SendCall([] () {
+			Jitter::CWasmFunctionRegistry::RegisterFunction(reinterpret_cast<uintptr_t>(&EmptyBlockHandler), "_EmptyBlockHandler", "vi");
+			Jitter::CWasmFunctionRegistry::RegisterFunction(reinterpret_cast<uintptr_t>(&MemoryUtils_GetByteProxy), "_MemoryUtils_GetByteProxy", "iii");
+			Jitter::CWasmFunctionRegistry::RegisterFunction(reinterpret_cast<uintptr_t>(&MemoryUtils_GetHalfProxy), "_MemoryUtils_GetHalfProxy", "iii");
+			Jitter::CWasmFunctionRegistry::RegisterFunction(reinterpret_cast<uintptr_t>(&MemoryUtils_GetWordProxy), "_MemoryUtils_GetWordProxy", "iii");
+
+			Jitter::CWasmFunctionRegistry::RegisterFunction(reinterpret_cast<uintptr_t>(&MemoryUtils_SetByteProxy), "_MemoryUtils_SetByteProxy", "viii");
+			Jitter::CWasmFunctionRegistry::RegisterFunction(reinterpret_cast<uintptr_t>(&MemoryUtils_SetHalfProxy), "_MemoryUtils_SetHalfProxy", "viii");
+			Jitter::CWasmFunctionRegistry::RegisterFunction(reinterpret_cast<uintptr_t>(&MemoryUtils_SetWordProxy), "_MemoryUtils_SetWordProxy", "viii");
+		});
+		
+		g_virtualMachine->SetSpuHandlerImpl(&CSH_FileOutput::HandlerFactory);
+		//g_virtualMachine->SetSpuHandlerImpl(&CSH_OpenAL::HandlerFactory);
 	}
 	catch(const std::exception& ex)
 	{
@@ -50,8 +53,12 @@ extern "C" void loadPsf(const char* archivePath, const char* psfPath)
 		g_virtualMachine->Pause();
 		g_virtualMachine->Reset();
 		g_tags.clear();
-		auto fileToken = CArchivePsfStreamProvider::GetPathTokenFromFilePath(psfPath);
-		CPsfLoader::LoadPsf(*g_virtualMachine, fileToken, archivePath, &g_tags);
+		g_virtualMachine->m_mailBox.SendCall([&] () {
+			printf("Going in the web worker.\r\n");
+			auto fileToken = CArchivePsfStreamProvider::GetPathTokenFromFilePath(psfPath);
+			CPsfLoader::LoadPsf(*g_virtualMachine, fileToken, archivePath, &g_tags);
+			g_virtualMachine->Resume();
+		});
 	}
 	catch(const std::exception& ex)
 	{
