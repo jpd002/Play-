@@ -306,7 +306,7 @@ void CCOP_VU::BC2()
 	//after VCALLMS* is used (used in .hack games)
 	//Also used in Kya: Dark Lineage
 	//For now, we just make it as if VU0 is not running
-	
+
 	uint32 op = (m_nOpcode >> 16) & 0x03;
 	switch(op)
 	{
