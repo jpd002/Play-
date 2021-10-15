@@ -9,6 +9,7 @@
 #define PREF_PS2_HDD_DIRECTORY ("ps2.hdd.directory")
 
 #define PREF_PS2_LIMIT_FRAMERATE ("ps2.limitframerate")
+#define PREF_PS2_CLOCK_RATIO ("ps2.clockratio")
 
 #define PREF_AUDIO_SPUBLOCKCOUNT ("audio.spublockcount")
 

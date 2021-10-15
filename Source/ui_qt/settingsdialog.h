@@ -34,6 +34,7 @@ private slots:
 
 	//General Page
 	void on_comboBox_system_language_currentIndexChanged(int index);
+	void on_comboBox_clock_ratio_currentIndexChanged(int index);
 	void on_checkBox_limitFrameRate_clicked(bool checked);
 
 	//Video Page

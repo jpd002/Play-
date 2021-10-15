@@ -2,6 +2,7 @@
 #include "ui_settingsdialog.h"
 #include "PS2VM_Preferences.h"
 #include "PreferenceDefs.h"
+#include "string_format.h"
 #include "../gs/GSH_OpenGL/GSH_OpenGL.h"
 #include <cassert>
 #include <cmath>
@@ -81,6 +82,17 @@ void SettingsDialog::LoadPreferences()
 	ui->comboBox_system_language->setCurrentIndex(CAppConfig::GetInstance().GetPreferenceInteger(PREF_SYSTEM_LANGUAGE));
 	ui->checkBox_limitFrameRate->setChecked(CAppConfig::GetInstance().GetPreferenceBoolean(PREF_PS2_LIMIT_FRAMERATE));
 
+	{
+		std::string clockRatioString = string_format("%d%%", CAppConfig::GetInstance().GetPreferenceInteger(PREF_PS2_CLOCK_RATIO));
+		int index = ui->comboBox_clock_ratio->findText(clockRatioString.c_str());
+		//If ratio not found, just use the first entry
+		if(index == -1)
+		{
+			index = 0;
+		}
+		ui->comboBox_clock_ratio->setCurrentIndex(index);
+	}
+
 	int factor = CAppConfig::GetInstance().GetPreferenceInteger(PREF_CGSH_OPENGL_RESOLUTION_FACTOR);
 	int factor_index = std::log2(factor);
 	ui->comboBox_res_multiplyer->setCurrentIndex(factor_index);
@@ -98,6 +110,14 @@ void SettingsDialog::LoadPreferences()
 void SettingsDialog::on_comboBox_system_language_currentIndexChanged(int index)
 {
 	CAppConfig::GetInstance().SetPreferenceInteger(PREF_SYSTEM_LANGUAGE, index);
+}
+
+void SettingsDialog::on_comboBox_clock_ratio_currentIndexChanged(int index)
+{
+	auto itemText = ui->comboBox_clock_ratio->itemText(index);
+	int ratio = 100;
+	sscanf(itemText.toStdString().c_str(), "%d%%", &ratio);
+	CAppConfig::GetInstance().SetPreferenceInteger(PREF_PS2_CLOCK_RATIO, ratio);
 }
 
 void SettingsDialog::on_checkBox_limitFrameRate_clicked(bool checked)

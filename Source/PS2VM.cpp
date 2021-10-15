@@ -98,6 +98,7 @@ CPS2VM::CPS2VM()
 	m_OnCrtModeChangeConnection = m_ee->m_os->OnCrtModeChange.Connect(std::bind(&CPS2VM::OnCrtModeChange, this));
 
 	CAppConfig::GetInstance().RegisterPreferenceBoolean(PREF_PS2_LIMIT_FRAMERATE, true);
+	CAppConfig::GetInstance().RegisterPreferenceInteger(PREF_PS2_CLOCK_RATIO, 100);
 	ReloadFrameRateLimit();
 
 	CAppConfig::GetInstance().RegisterPreferenceInteger(PREF_AUDIO_SPUBLOCKCOUNT, 100);
@@ -174,7 +175,9 @@ void CPS2VM::ReloadFrameRateLimit()
 	bool limitFrameRate = CAppConfig::GetInstance().GetPreferenceBoolean(PREF_PS2_LIMIT_FRAMERATE);
 	m_frameLimiter.SetFrameRate(limitFrameRate ? frameRate : 0);
 
-	uint32 frameTicks = PS2::EE_CLOCK_FREQ / frameRate;
+	uint32 clockRatio = CAppConfig::GetInstance().GetPreferenceInteger(PREF_PS2_CLOCK_RATIO);
+	uint32 frameTicks = (PS2::EE_CLOCK_FREQ / frameRate);
+	frameTicks = (frameTicks * clockRatio) / 100;
 	m_onScreenTicksTotal = frameTicks * 9 / 10;
 	m_vblankTicksTotal = frameTicks / 10;
 }
