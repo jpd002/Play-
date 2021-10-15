@@ -21,6 +21,7 @@ import androidx.appcompat.app.*;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.widget.Toolbar;
 
+import android.util.Log;
 import android.view.*;
 import android.view.View;
 import android.widget.*;
@@ -251,7 +252,7 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 		{
 			Uri folderUri = data.getData();
 			getContentResolver().takePersistableUriPermission(folderUri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
-			processFolder(folderUri);
+			processAddFolder(folderUri);
 		}
 
 		if(requestCode == g_dataFilesFolderPickerRequestCode && resultCode == RESULT_OK)
@@ -398,24 +399,36 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 		}
 	}
 
-	private void processFolder(Uri folderUri)
+	private void processAddFolder(Uri folderUri)
 	{
 		ContentResolver res = getApplicationContext().getContentResolver();
 		DocumentFile folderDoc = DocumentFile.fromTreeUri(this, folderUri);
+		scanContentFolder(folderDoc);
+		prepareFileListView(false);
+	}
+
+	private void scanContentFolder(DocumentFile folderDoc)
+	{
 		for(DocumentFile fileDoc : folderDoc.listFiles())
 		{
 			try
 			{
-				String docUriString = fileDoc.getUri().toString();
-				String decodedUriString = URLDecoder.decode(docUriString, StandardCharsets.UTF_8.name());
-				BootablesInterop.tryRegisterBootable(decodedUriString);
+				if(fileDoc.isDirectory())
+				{
+					scanContentFolder(fileDoc);
+				}
+				else
+				{
+					String docUriString = fileDoc.getUri().toString();
+					String decodedUriString = URLDecoder.decode(docUriString, StandardCharsets.UTF_8.name());
+					BootablesInterop.tryRegisterBootable(decodedUriString);
+				}
 			}
 			catch(Exception ex)
 			{
-
+				Log.w(Constants.TAG, String.format("scanContentFolder: Error while processing '%s': %s", fileDoc.getUri().toString(), ex.toString()));
 			}
 		}
-		prepareFileListView(false);
 	}
 
 	private final class ImageFinder extends AsyncTask<String, Integer, List<Bootable>>
