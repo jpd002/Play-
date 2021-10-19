@@ -593,19 +593,7 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 
 	private void executeDataFilesMigration(Uri dataFilesFolderUri)
 	{
-		DataFilesMigrationProcess process = new DataFilesMigrationProcess(this);
-		try
-		{
-			process.Start(dataFilesFolderUri);
-			Toast.makeText(this, "Migration complete.", Toast.LENGTH_SHORT).show();
-		}
-		catch(Exception ex)
-		{
-			new AlertDialog.Builder(this)
-					.setTitle(getString(R.string.migration_title))
-					.setMessage(String.format("Failed: %s", ex.getMessage()))
-					.create()
-					.show();
-		}
+		DataFilesMigrationProcessTask task = new DataFilesMigrationProcessTask(this, dataFilesFolderUri);
+		task.execute();
 	}
 }
