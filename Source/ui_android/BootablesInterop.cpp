@@ -84,10 +84,10 @@ extern "C" JNIEXPORT jobjectArray Java_com_virtualapplications_play_BootablesInt
 	return bootablesJ;
 }
 
-extern "C" JNIEXPORT void Java_com_virtualapplications_play_BootablesInterop_tryRegisterBootable(JNIEnv* env, jclass clazz, jstring bootablePathString)
+extern "C" JNIEXPORT jboolean Java_com_virtualapplications_play_BootablesInterop_tryRegisterBootable(JNIEnv* env, jclass clazz, jstring bootablePathString)
 {
 	auto bootablePath = fs::path(GetStringFromJstring(env, bootablePathString));
-	TryRegisterBootable(bootablePath);
+	return TryRegisterBootable(bootablePath);
 }
 
 extern "C" JNIEXPORT void Java_com_virtualapplications_play_BootablesInterop_setLastBootedTime(JNIEnv* env, jobject obj, jstring bootablePathString, jlong lastBootedTime)

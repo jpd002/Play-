@@ -14,7 +14,7 @@ public class BootablesInterop
 	public static native void scanBootables(String[] rootDirectories);
 	public static native void fullScanBootables(String[] rootDirectories);
 	public static native Bootable[] getBootables(int sortingMethod);
-	public static native void tryRegisterBootable(String bootablePath);
+	public static native boolean tryRegisterBootable(String bootablePath);
 	public static native void setLastBootedTime(String bootablePath, long lastBootedTime);
 	public static native boolean IsBootableExecutablePath(String bootablePath);
 	public static native boolean DoesBootableExist(String bootablePath);
