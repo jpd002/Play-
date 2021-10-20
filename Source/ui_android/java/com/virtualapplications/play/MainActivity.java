@@ -420,8 +420,15 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 				else
 				{
 					String docUriString = fileDoc.getUri().toString();
-					String decodedUriString = URLDecoder.decode(docUriString, StandardCharsets.UTF_8.name());
-					BootablesInterop.tryRegisterBootable(decodedUriString);
+					//String decodedUriString = URLDecoder.decode(docUriString, StandardCharsets.UTF_8.name());
+					if(!BootablesInterop.tryRegisterBootable(docUriString))
+					{
+						Log.w(Constants.TAG, String.format("scanContentFolder: Failed to register '%s'.", docUriString));
+					}
+					else
+					{
+						Log.w(Constants.TAG, String.format("scanContantFolder: Registered '%s'.", docUriString));
+					}
 				}
 			}
 			catch(Exception ex)
