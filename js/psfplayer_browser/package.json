@@ -23,9 +23,9 @@
     "web-vitals": "^1.1.2"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
+    "start": "react-app-rewired start",
+    "build": "react-app-rewired build",
+    "test": "react-app-rewired test",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
@@ -48,6 +48,7 @@
   },
   "devDependencies": {
     "@types/react-window": "^1.8.5",
+    "react-app-rewired": "^2.1.8",
     "react-redux": "^7.2.4",
     "redux": "^4.1.1"
   }
