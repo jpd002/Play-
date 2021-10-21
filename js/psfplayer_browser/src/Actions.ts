@@ -12,7 +12,7 @@ let updateTimer : any;
 
 let updateFct = async function() {
     let releaseLock = await tickMutex.acquire();
-    await tickPsf();
+//    await tickPsf();
     updateTimer = setTimeout(updateFct, updateDelay);
     releaseLock();
 };

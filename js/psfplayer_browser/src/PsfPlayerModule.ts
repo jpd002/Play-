@@ -6,7 +6,8 @@ let module_overrides = {
     locateFile: function(path : string) {
         const baseURL = window.location.origin + window.location.pathname.substring(0, window.location.pathname.lastIndexOf( "/" ));
         return baseURL + '/' + path;
-    }
+    },
+    mainScriptUrlOrBlob: "",
 };
 
 function convertStringVectorToArray(strVector : any) {
@@ -33,9 +34,10 @@ function convertStringMapToDictionary(strMap : any) {
 }
 
 export let initPsfPlayerModule = async function() {
+    module_overrides.mainScriptUrlOrBlob = module_overrides.locateFile('PsfPlayer.js');
     PsfPlayerModule = await PsfPlayer(module_overrides);
     PsfPlayerModule.FS.mkdir("/work");
-    await PsfPlayerModule.ccall("initVm", "", [], [], { async: true });
+    PsfPlayerModule.ccall("initVm", "", [], []);
 };
 
 export let getPsfArchiveFileList = function(archivePath : string) {
