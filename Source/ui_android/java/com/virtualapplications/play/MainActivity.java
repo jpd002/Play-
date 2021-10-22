@@ -458,13 +458,17 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 		@Override
 		protected List<Bootable> doInBackground(String... paths)
 		{
-			if(fullscan)
+			//With scoped storage on Android 30, it's not possible to scan the device's fullsystem
+			if(Build.VERSION.SDK_INT < Build.VERSION_CODES.R)
 			{
-				GameIndexer.fullScan();
-			}
-			else
-			{
-				GameIndexer.startupScan();
+				if(fullscan)
+				{
+					GameIndexer.fullScan();
+				}
+				else
+				{
+					GameIndexer.startupScan();
+				}
 			}
 
 			return new ArrayList<>(Arrays.asList(getBootables(sortMethod)));
