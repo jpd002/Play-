@@ -14,7 +14,7 @@ void fullScan(JNIEnv* env, jobjectArray rootDirectories)
 	}
 }
 
-extern "C" JNIEXPORT void JNICALL Java_com_virtualapplications_play_BootablesInterop_scanBootables(JNIEnv* env, jobject obj, jobjectArray rootDirectories)
+extern "C" JNIEXPORT void JNICALL Java_com_virtualapplications_play_BootablesInterop_scanBootables(JNIEnv* env, jclass clazz, jobjectArray rootDirectories)
 {
 	try
 	{
@@ -38,7 +38,7 @@ extern "C" JNIEXPORT void JNICALL Java_com_virtualapplications_play_BootablesInt
 	FetchGameTitles();
 }
 
-extern "C" JNIEXPORT void JNICALL Java_com_virtualapplications_play_BootablesInterop_fullScanBootables(JNIEnv* env, jobject obj, jobjectArray rootDirectories)
+extern "C" JNIEXPORT void JNICALL Java_com_virtualapplications_play_BootablesInterop_fullScanBootables(JNIEnv* env, jclass clazz, jobjectArray rootDirectories)
 {
 	try
 	{
@@ -51,7 +51,7 @@ extern "C" JNIEXPORT void JNICALL Java_com_virtualapplications_play_BootablesInt
 	FetchGameTitles();
 }
 
-extern "C" JNIEXPORT jobjectArray Java_com_virtualapplications_play_BootablesInterop_getBootables(JNIEnv* env, jobject obj, jint sortedMethod)
+extern "C" JNIEXPORT jobjectArray Java_com_virtualapplications_play_BootablesInterop_getBootables(JNIEnv* env, jclass clazz, jint sortedMethod)
 {
 	auto bootables = BootablesDb::CClient::GetInstance().GetBootables(sortedMethod);
 	const auto& bootableClassInfo = com::virtualapplications::play::Bootable_ClassInfo::GetInstance();
@@ -90,31 +90,31 @@ extern "C" JNIEXPORT jboolean Java_com_virtualapplications_play_BootablesInterop
 	return TryRegisterBootable(bootablePath);
 }
 
-extern "C" JNIEXPORT void Java_com_virtualapplications_play_BootablesInterop_setLastBootedTime(JNIEnv* env, jobject obj, jstring bootablePathString, jlong lastBootedTime)
+extern "C" JNIEXPORT void Java_com_virtualapplications_play_BootablesInterop_setLastBootedTime(JNIEnv* env, jclass clazz, jstring bootablePathString, jlong lastBootedTime)
 {
 	auto bootablePath = fs::path(GetStringFromJstring(env, bootablePathString));
 	BootablesDb::CClient::GetInstance().SetLastBootedTime(bootablePath, lastBootedTime);
 }
 
-extern "C" JNIEXPORT jboolean Java_com_virtualapplications_play_BootablesInterop_IsBootableExecutablePath(JNIEnv* env, jobject obj, jstring bootablePathString)
+extern "C" JNIEXPORT jboolean Java_com_virtualapplications_play_BootablesInterop_IsBootableExecutablePath(JNIEnv* env, jclass clazz, jstring bootablePathString)
 {
 	auto bootablePath = fs::path(GetStringFromJstring(env, bootablePathString));
 	return IsBootableExecutablePath(bootablePath);
 }
 
-extern "C" JNIEXPORT jboolean Java_com_virtualapplications_play_BootablesInterop_DoesBootableExist(JNIEnv* env, jobject obj, jstring bootablePathString)
+extern "C" JNIEXPORT jboolean Java_com_virtualapplications_play_BootablesInterop_DoesBootableExist(JNIEnv* env, jclass clazz, jstring bootablePathString)
 {
 	auto bootablePath = fs::path(GetStringFromJstring(env, bootablePathString));
 	return DoesBootableExist(bootablePath);
 }
 
-extern "C" JNIEXPORT void Java_com_virtualapplications_play_BootablesInterop_UnregisterBootable(JNIEnv* env, jobject obj, jstring bootablePathString)
+extern "C" JNIEXPORT void Java_com_virtualapplications_play_BootablesInterop_UnregisterBootable(JNIEnv* env, jclass clazz, jstring bootablePathString)
 {
 	auto bootablePath = fs::path(GetStringFromJstring(env, bootablePathString));
 	BootablesDb::CClient::GetInstance().UnregisterBootable(bootablePath);
 }
 
-extern "C" JNIEXPORT void Java_com_virtualapplications_play_BootablesInterop_PurgeInexistingFiles(JNIEnv* env, jobject obj)
+extern "C" JNIEXPORT void Java_com_virtualapplications_play_BootablesInterop_PurgeInexistingFiles(JNIEnv* env, jclass clazz)
 {
 	PurgeInexistingFiles();
 }
