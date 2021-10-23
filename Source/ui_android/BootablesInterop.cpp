@@ -33,7 +33,7 @@ extern "C" JNIEXPORT void JNICALL Java_com_virtualapplications_play_BootablesInt
 	}
 	catch(const std::exception& exception)
 	{
-		Log_Print("Caught an exception: '%s'\r\n", exception.what());
+		Log_Error("Caught an exception: '%s'\r\n", exception.what());
 	}
 	FetchGameTitles();
 }
@@ -46,16 +46,25 @@ extern "C" JNIEXPORT void JNICALL Java_com_virtualapplications_play_BootablesInt
 	}
 	catch(const std::exception& exception)
 	{
-		Log_Print("Caught an exception: '%s'\r\n", exception.what());
+		Log_Error("Caught an exception in fullScan: '%s'\r\n", exception.what());
 	}
 	FetchGameTitles();
 }
 
 extern "C" JNIEXPORT jobjectArray Java_com_virtualapplications_play_BootablesInterop_getBootables(JNIEnv* env, jclass clazz, jint sortedMethod)
 {
-	auto bootables = BootablesDb::CClient::GetInstance().GetBootables(sortedMethod);
-	const auto& bootableClassInfo = com::virtualapplications::play::Bootable_ClassInfo::GetInstance();
+	std::vector<BootablesDb::Bootable> bootables;
 
+	try
+	{
+		bootables = BootablesDb::CClient::GetInstance().GetBootables(sortedMethod);
+	}
+	catch(const std::exception& exception)
+	{
+		Log_Error("Caught an exception in GetBootables: '%s'\r\n", exception.what());
+	}
+
+	const auto& bootableClassInfo = com::virtualapplications::play::Bootable_ClassInfo::GetInstance();
 	auto bootablesJ = env->NewObjectArray(bootables.size(), bootableClassInfo.clazz, NULL);
 
 	for(unsigned int i = 0; i < bootables.size(); i++)
