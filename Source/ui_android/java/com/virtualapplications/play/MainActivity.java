@@ -448,6 +448,7 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 			this.fullscan = fullscan;
 		}
 
+		@Override
 		protected void onPreExecute()
 		{
 			progDialog = ProgressDialog.show(MainActivity.this,
@@ -455,12 +456,25 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 					getString(R.string.search_games_msg), true);
 		}
 
+		void updateProgressText(String progressText)
+		{
+			runOnUiThread(new Runnable()
+			{
+				@Override
+				public void run()
+				{
+					progDialog.setMessage(progressText);
+				}
+			});
+		}
+
 		@Override
 		protected List<Bootable> doInBackground(String... paths)
 		{
-			//With scoped storage on Android 30, it's not possible to scan the device's fullsystem
+			//With scoped storage on Android 30, it's not possible to scan the device's filesystem
 			if(Build.VERSION.SDK_INT < Build.VERSION_CODES.R)
 			{
+				updateProgressText("Scanning bootables...");
 				if(fullscan)
 				{
 					GameIndexer.fullScan();
@@ -471,19 +485,25 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 				}
 			}
 
-			return new ArrayList<>(Arrays.asList(getBootables(sortMethod)));
+			updateProgressText("Fetching bootables...");
+			Bootable[] bootables = getBootables(sortMethod);
+
+			return new ArrayList<>(Arrays.asList(bootables));
 		}
 
 		@Override
 		protected void onPostExecute(List<Bootable> images)
 		{
+			updateProgressText("Populating images...");
+
+			currentGames = images;
+			// Create the list of acceptable images
+			populateImages(images);
+
 			if(progDialog != null && progDialog.isShowing())
 			{
 				progDialog.dismiss();
 			}
-			currentGames = images;
-			// Create the list of acceptable images
-			populateImages(images);
 		}
 	}
 
