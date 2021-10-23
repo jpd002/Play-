@@ -51,9 +51,7 @@ static Framework::CStream* CreateImageStream(const fs::path& imagePath)
 #ifdef __ANDROID__
 	if(Framework::Android::CContentUtils::IsContentPath(imagePath))
 	{
-		//auto uri = Framework::Android::CContentUtils::BuildUriFromPath(imagePath);
-		auto uri = imagePath.string();
-		uri.replace(0, 9, "content://");
+		auto uri = Framework::Android::CContentUtils::BuildUriFromPath(imagePath);
 		return new Framework::Android::CContentStream(uri.c_str(), "r");
 	}
 	else
