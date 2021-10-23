@@ -427,7 +427,7 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 					}
 					else
 					{
-						Log.w(Constants.TAG, String.format("scanContantFolder: Registered '%s'.", docUriString));
+						Log.w(Constants.TAG, String.format("scanContentFolder: Registered '%s'.", docUriString));
 					}
 				}
 			}
