@@ -40,20 +40,24 @@ export let initPsfPlayerModule = async function() {
     PsfPlayerModule.ccall("initVm", "", [], []);
 };
 
+export let resumePsf = async function () {
+    PsfPlayerModule.resumePsf();
+}
+
+export let pausePsf = async function () {
+    PsfPlayerModule.pausePsf();
+}
+
 export let getPsfArchiveFileList = function(archivePath : string) {
     let fileList = PsfPlayerModule.getPsfArchiveFileList(archivePath);
     return convertStringVectorToArray(fileList);
 }
 
 export let loadPsfFromArchive = async function(archivePath : string, psfPath : string) {
-    await PsfPlayerModule.ccall("loadPsf", "", ['string', 'string'], [archivePath, psfPath], { async: true });
+    PsfPlayerModule.loadPsf(archivePath, psfPath);
 }
 
 export let getCurrentPsfTags = function() {
     let tags = convertStringMapToDictionary(PsfPlayerModule.getCurrentPsfTags());
     return tags;
-}
-
-export let tickPsf = async function() {
-    await PsfPlayerModule.ccall("step", "", [], [], { async: true });
 }

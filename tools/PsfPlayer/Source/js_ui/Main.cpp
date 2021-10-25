@@ -47,33 +47,32 @@ extern "C" void initVm()
 	}
 }
 
-extern "C" void loadPsf(const char* archivePath, const char* psfPath)
+void resumePsf()
 {
-	printf("Loading '%s' from '%s'.\r\n", psfPath, archivePath);
+	assert(g_virtualMachine);
+	g_virtualMachine->Resume();
+}
+
+void pausePsf()
+{
+	assert(g_virtualMachine);
+	g_virtualMachine->Pause();
+}
+
+void loadPsf(std::string archivePath, std::string psfPath)
+{
+	printf("Loading '%s' from '%s'.\r\n", psfPath.c_str(), archivePath.c_str());
 	try
 	{
 		assert(g_virtualMachine);
 		g_virtualMachine->Pause();
-		g_virtualMachine->Reset();
 		g_tags.clear();
 		g_virtualMachine->m_mailBox.SendCall([&] () {
-			printf("Going in the web worker.\r\n");
+			g_virtualMachine->Reset();
 			auto fileToken = CArchivePsfStreamProvider::GetPathTokenFromFilePath(psfPath);
 			CPsfLoader::LoadPsf(*g_virtualMachine, fileToken, archivePath, &g_tags);
 			g_virtualMachine->Resume();
 		}, true);
-	}
-	catch(const std::exception& ex)
-	{
-		printf("Exception: %s\r\n", ex.what());
-	}
-}
-
-extern "C" void step()
-{
-	try
-	{
-		g_virtualMachine->StepSync();
 	}
 	catch(const std::exception& ex)
 	{
@@ -113,6 +112,9 @@ EMSCRIPTEN_BINDINGS(PsfPlayer)
 	register_vector<std::string>("StringList");
 	register_map<std::string, std::string>("StringMap");
 
+	function("pausePsf", &pausePsf);
+	function("resumePsf", &resumePsf);
+	function("loadPsf", &loadPsf);
 	function("getPsfArchiveFileList", &getPsfArchiveFileList);
 	function("getCurrentPsfTags", &getCurrentPsfTags);
 }

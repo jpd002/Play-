@@ -158,16 +158,6 @@ void CPsfVm::Step()
 	OnRunningStateChange();
 }
 
-void CPsfVm::StepSync()
-{
-	m_soundHandler->RecycleBuffers();
-	while(true)
-	{
-		if(!m_soundHandler->HasFreeBuffers()) break;
-		m_subSystem->Update(false, m_soundHandler);
-	}
-}
-
 void CPsfVm::SetSpuHandler(const SpuHandlerFactory& factory)
 {
 	m_mailBox.SendCall(bind(&CPsfVm::SetSpuHandlerImpl, this, factory), true);

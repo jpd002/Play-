@@ -21,7 +21,6 @@ public:
 
 	void Reset();
 	void Step();
-	void StepSync();
 	void SetSpuHandler(const SpuHandlerFactory&);
 
 	void SetReverbEnabled(bool);

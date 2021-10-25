@@ -1,42 +1,23 @@
 import { configureStore, createAsyncThunk, createReducer } from "@reduxjs/toolkit";
 import { TypedUseSelectorHook, useDispatch, useSelector } from "react-redux";
-import { PsfPlayerModule, initPsfPlayerModule, getPsfArchiveFileList, loadPsfFromArchive, getCurrentPsfTags, tickPsf } from "./PsfPlayerModule";
-import { Mutex } from 'async-mutex';
+import { PsfPlayerModule, initPsfPlayerModule, resumePsf, pausePsf, getPsfArchiveFileList, loadPsfFromArchive, getCurrentPsfTags } from "./PsfPlayerModule";
 
 const invalidPlayingIndex = -1;
 
 let archiveFilePath = "archive.zip";
-let tickMutex = new Mutex();
-const updateDelay : number = 30;
-let updateTimer : any;
-
-let updateFct = async function() {
-    let releaseLock = await tickMutex.acquire();
-//    await tickPsf();
-    updateTimer = setTimeout(updateFct, updateDelay);
-    releaseLock();
-};
 
 const loadPsfFromPath = async function(psfFilePath : string) {
-    let releaseLock = await tickMutex.acquire();
-    clearTimeout(updateTimer);
     await loadPsfFromArchive(archiveFilePath, psfFilePath);
     let tags = getCurrentPsfTags();
-    updateTimer = setTimeout(updateFct, updateDelay);
-    releaseLock();
     return tags;
 }
 
 const playPsf = async function() {
-    let releaseLock = await tickMutex.acquire();
-    updateTimer = setTimeout(updateFct, updateDelay);
-    releaseLock();
+    resumePsf();
 }
 
 const stopPsf = async function() {
-    let releaseLock = await tickMutex.acquire();
-    clearTimeout(updateTimer);
-    releaseLock();
+    pausePsf();
 }
 
 export type AudioState = {
@@ -160,13 +141,11 @@ const reducer = createReducer(initialState, (builder) => (
             return state;
         })
         .addCase(play.fulfilled, (state) => {
-            console.log("playing");
             state.value = "playing";
             state.playing = true;
             return state;
         })
         .addCase(pause.fulfilled, (state) => {
-            console.log("paused");
             state.value = "paused";
             state.playing = false;
             return state;
