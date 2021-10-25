@@ -26,10 +26,10 @@ list(APPEND PROJECT_LIBS sh_openal)
 
 add_executable(PsfPlayer 
 	Main.cpp
-	SH_AudioProxy.cpp
-	SH_AudioProxy.h
 	SH_FileOutput.cpp
 	SH_FileOutput.h
+	SH_OpenALProxy.cpp
+	SH_OpenALProxy.h
 )
 target_link_libraries(PsfPlayer PUBLIC ${PROJECT_LIBS})
 

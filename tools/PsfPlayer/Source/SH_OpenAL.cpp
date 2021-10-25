@@ -67,6 +67,11 @@ bool CSH_OpenAL::HasFreeBuffers()
 	return m_availableBuffers.size() != 0;
 }
 
+uint32 CSH_OpenAL::GetFreeBufferCount() const
+{
+	return m_availableBuffers.size();
+}
+
 void CSH_OpenAL::Write(int16* samples, unsigned int sampleCount, unsigned int sampleRate)
 {
 	assert(m_availableBuffers.size() != 0);

@@ -6,13 +6,13 @@
 #include "Jitter_CodeGen_Wasm.h"
 #include "BasicBlock.h"
 #include "MemoryUtils.h"
-#include "SH_AudioProxy.h"
+#include "SH_OpenALProxy.h"
 #include "SH_FileOutput.h"
 #include "../SH_OpenAL.h"
 #include <emscripten/bind.h>
 
 CPsfVm* g_virtualMachine = nullptr;
-CSoundHandler* g_soundHandler = nullptr;
+CSH_OpenAL* g_soundHandler = nullptr;
 CPsfBase::TagMap g_tags;
 
 int main(int argc, const char** argv)
@@ -39,7 +39,7 @@ extern "C" void initVm()
 		
 		//g_soundHandler = new CSH_FileOutput();
 		g_soundHandler = new CSH_OpenAL();
-		g_virtualMachine->SetSpuHandlerImpl(CSH_AudioProxy::GetFactoryFunction(g_soundHandler));
+		g_virtualMachine->SetSpuHandlerImpl(CSH_OpenALProxy::GetFactoryFunction(g_soundHandler));
 	}
 	catch(const std::exception& ex)
 	{

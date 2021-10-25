@@ -10,6 +10,11 @@
 class CSH_OpenAL : public CSoundHandler
 {
 public:
+	enum
+	{
+		MAX_BUFFERS = 25,
+	};
+
 	CSH_OpenAL();
 	virtual ~CSH_OpenAL();
 
@@ -20,13 +25,10 @@ public:
 	bool HasFreeBuffers() override;
 	void RecycleBuffers() override;
 
+	uint32 GetFreeBufferCount() const;
+
 private:
 	typedef std::deque<ALuint> BufferList;
-
-	enum
-	{
-		MAX_BUFFERS = 25,
-	};
 
 	OpenAl::CDevice m_device;
 	OpenAl::CContext m_context;
