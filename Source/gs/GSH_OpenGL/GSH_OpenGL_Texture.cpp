@@ -3,6 +3,9 @@
 #include <sys/stat.h>
 #include <limits.h>
 #include <algorithm>
+#ifdef _WIN32
+#include <intrin.h>
+#endif
 #include "GSH_OpenGL.h"
 #include "StdStream.h"
 #include "bitmap/BMP.h"
@@ -14,6 +17,21 @@
 
 void CGSH_OpenGL::SetupTextureUpdaters()
 {
+	bool canUseSimd48Updaters = true;
+
+#ifdef _WIN32
+	{
+		std::array<int, 4> cpuInfo;
+		__cpuid(cpuInfo.data(), 1);
+
+		static const uint32 CPUID_FLAG_SSSE3 = 0x000200;
+		bool hasSsse3 = (cpuInfo[2] & CPUID_FLAG_SSSE3) != 0;
+
+		//x86 SIMD updaters use PSHUFB that is available on SSSE3
+		canUseSimd48Updaters = hasSsse3;
+	}
+#endif
+
 	for(unsigned int i = 0; i < PSM_MAX; i++)
 	{
 		m_textureUpdater[i] = &CGSH_OpenGL::TexUpdater_Invalid;
@@ -25,10 +43,17 @@ void CGSH_OpenGL::SetupTextureUpdaters()
 	m_textureUpdater[PSMCT32_UNK] = &CGSH_OpenGL::TexUpdater_Psm32;
 	m_textureUpdater[PSMCT24_UNK] = &CGSH_OpenGL::TexUpdater_Psm32;
 	m_textureUpdater[PSMCT16S] = &CGSH_OpenGL::TexUpdater_Psm16<CGsPixelFormats::CPixelIndexorPSMCT16S>;
-	m_textureUpdater[PSMT8] = &CGSH_OpenGL::TexUpdater_Psm8;
-	m_textureUpdater[PSMT4] = &CGSH_OpenGL::TexUpdater_Psm4;
-	// original for quick perf testing
-	//m_textureUpdater[PSMT4] = &CGSH_OpenGL::TexUpdater_Psm48<CGsPixelFormats::CPixelIndexorPSMT4>;
+
+	if(canUseSimd48Updaters)
+	{
+		m_textureUpdater[PSMT8] = &CGSH_OpenGL::TexUpdater_Psm8;
+		m_textureUpdater[PSMT4] = &CGSH_OpenGL::TexUpdater_Psm4;
+	}
+	else
+	{
+		m_textureUpdater[PSMT8] = &CGSH_OpenGL::TexUpdater_Psm48<CGsPixelFormats::CPixelIndexorPSMT8>;
+		m_textureUpdater[PSMT4] = &CGSH_OpenGL::TexUpdater_Psm48<CGsPixelFormats::CPixelIndexorPSMT4>;
+	}
 
 	m_textureUpdater[PSMT8H] = &CGSH_OpenGL::TexUpdater_Psm48H<24, 0xFF>;
 	m_textureUpdater[PSMT4HL] = &CGSH_OpenGL::TexUpdater_Psm48H<24, 0x0F>;
