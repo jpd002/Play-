@@ -49,6 +49,9 @@
 	<string name="pref_emu_general_pad_display_title">Show Virtual Pad</string>
 	<string name="pref_emu_general_pad_display_summary">Enables display of on-screen virtual controller pad.</string>
 
+	<string name="pref_emu_general_limit_frame_rate_title">Cap Frame Rate</string>
+	<string name="pref_emu_general_limit_frame_rate_summary">Cap Frame Rate to Video Refresh Rate</string>
+
 	<string name="pref_emu_video">Video Settings</string>
 
 	<string name="pref_emu_video_gs_handler_title">GS Handler</string>

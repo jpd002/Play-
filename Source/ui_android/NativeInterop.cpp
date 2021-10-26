@@ -60,6 +60,7 @@ static void ResetVirtualMachine()
 	g_virtualMachine->Pause();
 	g_virtualMachine->Reset();
 	g_virtualMachine->ReloadSpuBlockCount();
+	g_virtualMachine->ReloadFrameRateLimit();
 	SetupSoundHandler();
 }
 
@@ -236,6 +237,7 @@ extern "C" JNIEXPORT void JNICALL Java_com_virtualapplications_play_NativeIntero
 {
 	SetupSoundHandler();
 	g_virtualMachine->ReloadSpuBlockCount();
+	g_virtualMachine->ReloadFrameRateLimit();
 	auto gsHandler = g_virtualMachine->GetGSHandler();
 	if(gsHandler != nullptr)
 	{

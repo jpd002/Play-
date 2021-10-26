@@ -18,6 +18,13 @@
             android:summary="@string/pref_emu_general_pad_display_summary"
             android:title="@string/pref_emu_general_pad_display_title"
             app:iconSpaceReserved="false" />
+
+        <SwitchPreferenceCompat
+            android:key="ps2.limitframerate"
+            android:persistent="false"
+            android:summary="@string/pref_emu_general_limit_frame_rate_summary"
+            android:title="@string/pref_emu_general_limit_frame_rate_title"
+            app:iconSpaceReserved="false" />
     </PreferenceCategory>
 
     <PreferenceCategory
