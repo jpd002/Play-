@@ -478,7 +478,7 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 			//With scoped storage on Android 30, it's not possible to scan the device's filesystem
 			if(Build.VERSION.SDK_INT < Build.VERSION_CODES.R)
 			{
-				updateProgressText("Scanning bootables...");
+				updateProgressText(getString(R.string.search_games_scanning));
 				if(fullscan)
 				{
 					GameIndexer.fullScan();
@@ -489,7 +489,7 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 				}
 			}
 
-			updateProgressText("Fetching bootables...");
+			updateProgressText(getString(R.string.search_games_fetching));
 			Bootable[] bootables = getBootables(sortMethod);
 
 			return new ArrayList<>(Arrays.asList(bootables));
@@ -498,7 +498,7 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 		@Override
 		protected void onPostExecute(List<Bootable> images)
 		{
-			updateProgressText("Populating images...");
+			updateProgressText(getString(R.string.search_games_populating));
 
 			currentGames = images;
 			// Create the list of acceptable images

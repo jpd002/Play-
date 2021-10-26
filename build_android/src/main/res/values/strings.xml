@@ -12,6 +12,9 @@
 
 	<string name="search_games">Building collection&#8230;</string>
 	<string name="search_games_msg">Please wait&#8230;</string>
+	<string name="search_games_scanning">Scanning games&#8230;</string>
+	<string name="search_games_fetching">Fetching games&#8230;</string>
+	<string name="search_games_populating">Populating images&#8230;</string>
 	<string name="updating_db">Updating collection&#8230;</string>
 
 	<string name="launch_game">Launching game&#8230;</string>
