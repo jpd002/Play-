@@ -197,6 +197,12 @@ private:
 	uint32 m_nextClutCacheIndex = 0;
 	std::vector<uint8> m_xferBuffer;
 
+	//Optimization for Virtua Fighter 2, Sega Rally 95
+	float m_lastLineU = 0;
+	float m_lastLineV = 0;
+	float m_clutLineU = 0;
+	float m_clutLineV = 0;
+
 	bool m_depthTestingEnabled = true;
 	bool m_alphaBlendingEnabled = true;
 	bool m_alphaTestingEnabled = true;
