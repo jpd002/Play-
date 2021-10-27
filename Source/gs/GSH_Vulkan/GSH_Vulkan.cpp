@@ -1436,18 +1436,14 @@ Framework::CBitmap CGSH_Vulkan::GetTextureImpl(uint64 tex0Reg, uint32 maxMip, ui
 	break;
 	case PSMT8:
 	{
-		bitmap = Framework::CBitmap(tex0.GetWidth(), tex0.GetHeight(), 8);
-		auto bitmapPixels = reinterpret_cast<uint8*>(bitmap.GetPixels());
-		CGsPixelFormats::CPixelIndexorPSMT8 indexor(GetRam(), tex0.GetBufPtr(), tex0.nBufWidth);
-		for(unsigned int y = 0; y < height; y++)
-		{
-			for(unsigned int x = 0; x < width; x++)
-			{
-				uint8 pixel = indexor.GetPixel(x, y);
-				(*bitmapPixels) = pixel;
-				bitmapPixels++;
-			}
-		}
+		bitmap = ReadImage8<CGsPixelFormats::CPixelIndexorPSMT8>(GetRam(), tex0.GetBufPtr(),
+		                                                         tex0.nBufWidth, tex0.GetWidth(), tex0.GetHeight());
+	}
+	break;
+	case PSMT4:
+	{
+		bitmap = ReadImage8<CGsPixelFormats::CPixelIndexorPSMT4>(GetRam(), tex0.GetBufPtr(),
+		                                                         tex0.nBufWidth, tex0.GetWidth(), tex0.GetHeight());
 	}
 	break;
 	}

@@ -157,6 +157,24 @@ private:
 		return bitmap;
 	}
 
+	template <typename PixelIndexor>
+	static Framework::CBitmap ReadImage8(uint8* ram, uint32 bufferPtr, uint32 bufferWidth, uint32 width, uint32 height)
+	{
+		auto bitmap = Framework::CBitmap(width, height, 8);
+		auto bitmapPixels = reinterpret_cast<uint8*>(bitmap.GetPixels());
+		PixelIndexor indexor(ram, bufferPtr, bufferWidth);
+		for(unsigned int y = 0; y < height; y++)
+		{
+			for(unsigned int x = 0; x < width; x++)
+			{
+				uint8 pixel = indexor.GetPixel(x, y);
+				(*bitmapPixels) = pixel;
+				bitmapPixels++;
+			}
+		}
+		return bitmap;
+	}
+
 	GSH_Vulkan::FrameCommandBufferPtr m_frameCommandBuffer;
 	GSH_Vulkan::ClutLoadPtr m_clutLoad;
 	GSH_Vulkan::DrawPtr m_draw;
