@@ -30,6 +30,8 @@ jobs:
         cd js/psfplayer_browser
         cp ../../build/tools/PsfPlayer/Source/js_ui/PsfPlayer.js ./src/
         cp ../../build/tools/PsfPlayer/Source/js_ui/PsfPlayer.wasm ./public/
+        cp ../../build/tools/PsfPlayer/Source/js_ui/PsfPlayer.js ./public/
+        cp ../../build/tools/PsfPlayer/Source/js_ui/PsfPlayer.worker.js ./public/
         export REACT_APP_VERSION=$(git describe)
         npm install
         npm run build
