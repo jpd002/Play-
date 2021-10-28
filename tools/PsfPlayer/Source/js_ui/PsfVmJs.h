@@ -6,7 +6,7 @@
 class CPsfVmJs : public CPsfVm
 {
 public:
-    CPsfVmJs();
+	CPsfVmJs();
 
-    CPsfBase::TagMap LoadPsf(std::string, std::string);
+	CPsfBase::TagMap LoadPsf(std::string, std::string);
 };

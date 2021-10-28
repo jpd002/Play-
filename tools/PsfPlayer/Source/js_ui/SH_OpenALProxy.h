@@ -17,6 +17,6 @@ public:
 
 private:
 	CSH_OpenAL* m_parent = nullptr;
-    unsigned int m_bufferCount = 0;
-    em_queued_call* m_recycleBuffersCall = nullptr;
+	unsigned int m_bufferCount = 0;
+	em_queued_call* m_recycleBuffersCall = nullptr;
 };
