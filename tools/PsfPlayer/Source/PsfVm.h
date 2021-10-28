@@ -1,5 +1,4 @@
-#ifndef _PSFVM_H_
-#define _PSFVM_H_
+#pragma once
 
 #include "Types.h"
 #include "MIPS.h"
@@ -46,8 +45,10 @@ public:
 
 	NewFrameEvent OnNewFrame;
 
-	//private:
-public:
+protected:
+	CMailBox m_mailBox;
+
+private:
 	void ThreadProc();
 
 	void SetReverbEnabledImpl(bool);
@@ -61,8 +62,5 @@ public:
 	std::thread m_thread;
 	bool m_singleStep;
 	bool m_isThreadOver;
-	CMailBox m_mailBox;
 	Framework::CSignal<void()>::Connection m_OnNewFrameConnection;
 };
-
-#endif

@@ -1,17 +1,13 @@
-#include "PsfVm.h"
+#include "PsfVmJs.h"
 #include <cstdio>
 #include "filesystem_def.h"
-#include "PsfLoader.h"
 #include "PsfArchive.h"
-#include "Jitter_CodeGen_Wasm.h"
-#include "BasicBlock.h"
-#include "MemoryUtils.h"
 #include "SH_OpenALProxy.h"
 #include "SH_FileOutput.h"
 #include "../SH_OpenAL.h"
 #include <emscripten/bind.h>
 
-CPsfVm* g_virtualMachine = nullptr;
+CPsfVmJs* g_virtualMachine = nullptr;
 CSH_OpenAL* g_soundHandler = nullptr;
 CPsfBase::TagMap g_tags;
 
@@ -24,22 +20,11 @@ extern "C" void initVm()
 {
 	try
 	{
-		g_virtualMachine = new CPsfVm();
+		g_virtualMachine = new CPsfVmJs();
 
-		g_virtualMachine->m_mailBox.SendCall([] () {
-			Jitter::CWasmFunctionRegistry::RegisterFunction(reinterpret_cast<uintptr_t>(&EmptyBlockHandler), "_EmptyBlockHandler", "vi");
-			Jitter::CWasmFunctionRegistry::RegisterFunction(reinterpret_cast<uintptr_t>(&MemoryUtils_GetByteProxy), "_MemoryUtils_GetByteProxy", "iii");
-			Jitter::CWasmFunctionRegistry::RegisterFunction(reinterpret_cast<uintptr_t>(&MemoryUtils_GetHalfProxy), "_MemoryUtils_GetHalfProxy", "iii");
-			Jitter::CWasmFunctionRegistry::RegisterFunction(reinterpret_cast<uintptr_t>(&MemoryUtils_GetWordProxy), "_MemoryUtils_GetWordProxy", "iii");
-
-			Jitter::CWasmFunctionRegistry::RegisterFunction(reinterpret_cast<uintptr_t>(&MemoryUtils_SetByteProxy), "_MemoryUtils_SetByteProxy", "viii");
-			Jitter::CWasmFunctionRegistry::RegisterFunction(reinterpret_cast<uintptr_t>(&MemoryUtils_SetHalfProxy), "_MemoryUtils_SetHalfProxy", "viii");
-			Jitter::CWasmFunctionRegistry::RegisterFunction(reinterpret_cast<uintptr_t>(&MemoryUtils_SetWordProxy), "_MemoryUtils_SetWordProxy", "viii");
-		}, true);
-		
 		//g_soundHandler = new CSH_FileOutput();
 		g_soundHandler = new CSH_OpenAL();
-		g_virtualMachine->SetSpuHandlerImpl(CSH_OpenALProxy::GetFactoryFunction(g_soundHandler));
+		g_virtualMachine->SetSpuHandler(CSH_OpenALProxy::GetFactoryFunction(g_soundHandler));
 	}
 	catch(const std::exception& ex)
 	{
@@ -66,13 +51,7 @@ void loadPsf(std::string archivePath, std::string psfPath)
 	{
 		assert(g_virtualMachine);
 		g_virtualMachine->Pause();
-		g_tags.clear();
-		g_virtualMachine->m_mailBox.SendCall([&] () {
-			g_virtualMachine->Reset();
-			auto fileToken = CArchivePsfStreamProvider::GetPathTokenFromFilePath(psfPath);
-			CPsfLoader::LoadPsf(*g_virtualMachine, fileToken, archivePath, &g_tags);
-			g_virtualMachine->Resume();
-		}, true);
+		g_tags = g_virtualMachine->LoadPsf(archivePath, psfPath);
 	}
 	catch(const std::exception& ex)
 	{

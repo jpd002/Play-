@@ -26,6 +26,8 @@ list(APPEND PROJECT_LIBS sh_openal)
 
 add_executable(PsfPlayer 
 	Main.cpp
+	PsfVmJs.cpp
+	PsfVmJs.h
 	SH_FileOutput.cpp
 	SH_FileOutput.h
 	SH_OpenALProxy.cpp
