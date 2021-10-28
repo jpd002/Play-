@@ -14,7 +14,7 @@
 	<string name="search_games_msg">请稍候&#8230;</string>
 	<string name="search_games_scanning">扫描游戏中&#8230;</string>
 	<string name="search_games_fetching">获取游戏中&#8230;</string>
-	<string name="search_games_populating">填充图片中&#8230;</string
+	<string name="search_games_populating">填充图片中&#8230;</string>
 	<string name="updating_db">更新收藏&#8230;</string>
 
 	<string name="launch_game">启动游戏&#8230;</string>
