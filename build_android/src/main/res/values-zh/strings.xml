@@ -40,7 +40,7 @@
 
 	<string name="pref_emu_general">常规设置</string>
 
-	<string name="pref_emu_general_fps_display_title">显示帧和绘制调用计数器</string>
+	<string name="pref_emu_general_fps_display_title">显示帧数和绘制调用计数器</string>
 	<string name="pref_emu_general_fps_display_summary">启用显示 &quot;每秒帧数&quot; (f/s) 和 &quot;每秒绘制调用&quot; (dc/f) 屏幕统计。</string>
 
 	<string name="pref_emu_general_limit_frame_rate_title">限制帧数</string>
