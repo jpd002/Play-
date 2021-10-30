@@ -45,3 +45,11 @@ jobs:
         AWS_REGION: us-east-2
         AWS_S3_BUCKET: psfplayer-test
         SOURCE_DIR: 'js/psfplayer_browser/build'
+    - name: Invalidate Test Environment CloudFront Distribution
+      uses: chetan/invalidate-cloudfront-action@v1.3
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        AWS_REGION: us-east-2
+        DISTRIBUTION: ELJDS9GVQ9YYY
+        PATHS: '/*'
