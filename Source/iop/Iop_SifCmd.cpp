@@ -493,7 +493,11 @@ void CSifCmd::ProcessInvocation(uint32 serverDataAddr, uint32 methodId, uint32* 
 	//Copy params
 	if(serverData->buffer != 0)
 	{
-		memcpy(&m_ram[serverData->buffer], params, size);
+		//SIF DMA only deals with quadwords, round the transfer size up to quadword boundary
+		//Atelier Marie & Elie relies on this: reports payload of size 0x1C, but actually uses 0x20
+		//Module init funciton reads at 0x1C to get a pointer to EE memory used to update sound status
+		uint32 copySize = (size + 0x0F) & ~0x0F;
+		memcpy(&m_ram[serverData->buffer], params, copySize);
 	}
 	serverData->rid = methodId;
 	serverData->rsize = size;
