@@ -26,6 +26,7 @@
 		android:isGame="true"
 		android:theme="@style/Blue"
 		android:requestLegacyExternalStorage="true"
+		android:allowNativeHeapPointerTagging="false"
 		>
 		<activity 
 			android:name=".MainActivity"
