@@ -1,5 +1,5 @@
 import './App.css';
-import { ChangeEvent } from 'react';
+import { ChangeEvent, useRef } from 'react';
 import { FixedSizeList, ListChildComponentProps } from 'react-window';
 import { ListItem, ListItemButton, ListItemText } from '@mui/material';
 import { useAppDispatch, useAppSelector, loadArchive, loadPsf, play, pause } from "./Actions";
@@ -32,10 +32,12 @@ function RenderRow(props: ListChildComponentProps) {
 
 export default function App() {
     const dispatch = useAppDispatch();
+    const listRef = useRef<FixedSizeList>(null);
     const state = useAppSelector((state) => state.player);
     const handleChange = function(event : ChangeEvent<HTMLInputElement>) {
       if(event.target && event.target.files && event.target.files.length !== 0) {
         var url = URL.createObjectURL(event.target.files[0]);
+        listRef.current?.scrollTo(0);
         dispatch(loadArchive(url));
       }
     }
@@ -57,6 +59,7 @@ export default function App() {
             itemSize={46}
             itemCount={state.archiveFileList.length}
             overscanCount={5}
+            ref={listRef}
             >
               {RenderRow}
           </FixedSizeList>
