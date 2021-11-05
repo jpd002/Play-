@@ -1,6 +1,7 @@
 #import <SDWebImage/UIImageView+WebCache.h>
 #import "CoverViewController.h"
 #import "EmulatorViewController.h"
+#import "SettingsViewController.h"
 #import "../ui_shared/BootablesProcesses.h"
 #import "../ui_shared/BootablesDbClient.h"
 #import "PathUtils.h"
@@ -15,10 +16,8 @@
 
 static NSString* const reuseIdentifier = @"coverCell";
 
-- (void)buildCollection
+- (void)buildCollectionWithForcedFullScan: (BOOL)forceFullDeviceScan
 {
-	assert(_bootables == nullptr);
-
 	UIAlertController* alert = [UIAlertController alertControllerWithTitle: @"Building collection" message: @"Please wait..." preferredStyle: UIAlertControllerStyleAlert];
 	
 	CGRect aivRect = CGRectMake(0, 0, 40, 40);
@@ -37,7 +36,7 @@ static NSString* const reuseIdentifier = @"coverCell";
 	dispatch_async(queue, ^{
 		
 		auto activeDirs = GetActiveBootableDirectories();
-		if(activeDirs.empty())
+		if(forceFullDeviceScan || activeDirs.empty())
 		{
 			dispatch_async(dispatch_get_main_queue(), ^{
 				alert.message = @"Scanning games on filesystem...";
@@ -56,7 +55,7 @@ static NSString* const reuseIdentifier = @"coverCell";
 		}
 		
 		//Always scan games in app storage. The app's path change when it's reinstalled,
-		//thus, games from the previous installation won't be found (will be deleted by PurgeInexistingFiles).
+		//thus, games from the previous installation won't be found (will be deleted in PurgeInexistingFiles).
 		dispatch_async(dispatch_get_main_queue(), ^{
 			alert.message = @"Scanning games in app storage...";
 		});
@@ -72,6 +71,11 @@ static NSString* const reuseIdentifier = @"coverCell";
 		});
 		FetchGameTitles();
 
+		if(_bootables)
+		{
+			delete _bootables;
+			_bootables = nullptr;
+		}
 		_bootables = new BootableArray(BootablesDb::CClient::GetInstance().GetBootables());
 
 		//Done
@@ -96,7 +100,7 @@ static NSString* const reuseIdentifier = @"coverCell";
 		self.collectionView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentAlways;
 	}
 	
-	[self buildCollection];
+	[self buildCollectionWithForcedFullScan: NO];
 }
 
 - (void)viewDidUnload
@@ -172,6 +176,19 @@ static NSString* const reuseIdentifier = @"coverCell";
 		EmulatorViewController* emulatorViewController = segue.destinationViewController;
 		emulatorViewController.bootablePath = [NSString stringWithUTF8String:bootable.path.native().c_str()];
 		[self.collectionView deselectItemAtIndexPath:indexPath animated:NO];
+	}
+	else if([segue.identifier isEqualToString:@"showSettings"])
+	{
+		UINavigationController* navViewController = segue.destinationViewController;
+		SettingsViewController* settingsViewController = (SettingsViewController*)navViewController.visibleViewController;
+		settingsViewController.allowFullDeviceScan = true;
+		settingsViewController.allowGsHandlerSelection = true;
+		settingsViewController.completionHandler = ^(bool fullScanRequested) {
+			if(fullScanRequested)
+			{
+				[self buildCollectionWithForcedFullScan: YES];
+			}
+		};
 	}
 }
 
