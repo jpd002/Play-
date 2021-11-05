@@ -85,6 +85,7 @@
 		return FALSE;
 #endif
 	}
+	return TRUE;
 }
 
 - (void)prepareForSegue:(UIStoryboardSegue*)segue sender:(id)sender
