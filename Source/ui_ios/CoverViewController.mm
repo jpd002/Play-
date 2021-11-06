@@ -16,73 +16,72 @@
 
 static NSString* const reuseIdentifier = @"coverCell";
 
-- (void)buildCollectionWithForcedFullScan: (BOOL)forceFullDeviceScan
+- (void)buildCollectionWithForcedFullScan:(BOOL)forceFullDeviceScan
 {
-	UIAlertController* alert = [UIAlertController alertControllerWithTitle: @"Building collection" message: @"Please wait..." preferredStyle: UIAlertControllerStyleAlert];
-	
+	UIAlertController* alert = [UIAlertController alertControllerWithTitle:@"Building collection" message:@"Please wait..." preferredStyle:UIAlertControllerStyleAlert];
+
 	CGRect aivRect = CGRectMake(0, 0, 40, 40);
-	
-	UIActivityIndicatorView* aiv = [[UIActivityIndicatorView alloc] initWithFrame: aivRect];
+
+	UIActivityIndicatorView* aiv = [[UIActivityIndicatorView alloc] initWithFrame:aivRect];
 	[aiv startAnimating];
-	
+
 	UIViewController* vc = [[UIViewController alloc] init];
 	vc.preferredContentSize = aivRect.size;
-	[vc.view addSubview: aiv];
-	[alert setValue: vc forKey: @"contentViewController"];
-	
+	[vc.view addSubview:aiv];
+	[alert setValue:vc forKey:@"contentViewController"];
+
 	[self presentViewController:alert animated:YES completion:nil];
-	
+
 	dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
 	dispatch_async(queue, ^{
-		
-		auto activeDirs = GetActiveBootableDirectories();
-		if(forceFullDeviceScan || activeDirs.empty())
-		{
-			dispatch_async(dispatch_get_main_queue(), ^{
-				alert.message = @"Scanning games on filesystem...";
-			});
-			ScanBootables("/private/var/mobile");
-		}
-		else
-		{
-			dispatch_async(dispatch_get_main_queue(), ^{
-				alert.message = @"Scanning games in active directories...";
-			});
-			for(const auto& activeDir : activeDirs)
-			{
-				ScanBootables(activeDir, false);
-			}
-		}
-		
-		//Always scan games in app storage. The app's path change when it's reinstalled,
-		//thus, games from the previous installation won't be found (will be deleted in PurgeInexistingFiles).
-		dispatch_async(dispatch_get_main_queue(), ^{
-			alert.message = @"Scanning games in app storage...";
-		});
-		ScanBootables(Framework::PathUtils::GetPersonalDataPath());
+	  auto activeDirs = GetActiveBootableDirectories();
+	  if(forceFullDeviceScan || activeDirs.empty())
+	  {
+		  dispatch_async(dispatch_get_main_queue(), ^{
+			alert.message = @"Scanning games on filesystem...";
+		  });
+		  ScanBootables("/private/var/mobile");
+	  }
+	  else
+	  {
+		  dispatch_async(dispatch_get_main_queue(), ^{
+			alert.message = @"Scanning games in active directories...";
+		  });
+		  for(const auto& activeDir : activeDirs)
+		  {
+			  ScanBootables(activeDir, false);
+		  }
+	  }
 
-		dispatch_async(dispatch_get_main_queue(), ^{
-			alert.message = @"Purging inexisting files...";
-		});
-		PurgeInexistingFiles();
+	  //Always scan games in app storage. The app's path change when it's reinstalled,
+	  //thus, games from the previous installation won't be found (will be deleted in PurgeInexistingFiles).
+	  dispatch_async(dispatch_get_main_queue(), ^{
+		alert.message = @"Scanning games in app storage...";
+	  });
+	  ScanBootables(Framework::PathUtils::GetPersonalDataPath());
 
-		dispatch_async(dispatch_get_main_queue(), ^{
-			alert.message = @"Fetching game titles...";
-		});
-		FetchGameTitles();
+	  dispatch_async(dispatch_get_main_queue(), ^{
+		alert.message = @"Purging inexisting files...";
+	  });
+	  PurgeInexistingFiles();
 
-		if(_bootables)
-		{
-			delete _bootables;
-			_bootables = nullptr;
-		}
-		_bootables = new BootableArray(BootablesDb::CClient::GetInstance().GetBootables());
+	  dispatch_async(dispatch_get_main_queue(), ^{
+		alert.message = @"Fetching game titles...";
+	  });
+	  FetchGameTitles();
 
-		//Done
-		dispatch_async(dispatch_get_main_queue(), ^{
-			[alert dismissViewControllerAnimated: YES completion: nil];
-			[self.collectionView reloadData];
-		});
+	  if(_bootables)
+	  {
+		  delete _bootables;
+		  _bootables = nullptr;
+	  }
+	  _bootables = new BootableArray(BootablesDb::CClient::GetInstance().GetBootables());
+
+	  //Done
+	  dispatch_async(dispatch_get_main_queue(), ^{
+		[alert dismissViewControllerAnimated:YES completion:nil];
+		[self.collectionView reloadData];
+	  });
 	});
 }
 
@@ -99,8 +98,8 @@ static NSString* const reuseIdentifier = @"coverCell";
 	{
 		self.collectionView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentAlways;
 	}
-	
-	[self buildCollectionWithForcedFullScan: NO];
+
+	[self buildCollectionWithForcedFullScan:NO];
 }
 
 - (void)viewDidUnload
@@ -184,10 +183,10 @@ static NSString* const reuseIdentifier = @"coverCell";
 		settingsViewController.allowFullDeviceScan = true;
 		settingsViewController.allowGsHandlerSelection = true;
 		settingsViewController.completionHandler = ^(bool fullScanRequested) {
-			if(fullScanRequested)
-			{
-				[self buildCollectionWithForcedFullScan: YES];
-			}
+		  if(fullScanRequested)
+		  {
+			  [self buildCollectionWithForcedFullScan:YES];
+		  }
 		};
 	}
 }
