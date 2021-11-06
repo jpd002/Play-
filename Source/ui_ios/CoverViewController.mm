@@ -15,16 +15,6 @@
 
 static NSString* const reuseIdentifier = @"coverCell";
 
-- (void)awakeFromNib
-{
-	[super awakeFromNib];
-
-	ScanBootables(Framework::PathUtils::GetPersonalDataPath());
-	ScanBootables("/private/var/mobile");
-	PurgeInexistingFiles();
-	FetchGameTitles();
-}
-
 - (void)viewDidLoad
 {
 	[super viewDidLoad];
@@ -49,6 +39,40 @@ static NSString* const reuseIdentifier = @"coverCell";
 	delete _bootables;
 
 	[super viewDidUnload];
+}
+
+- (void)viewDidAppear:(BOOL)animated
+{
+	UIAlertController* alert = [UIAlertController alertControllerWithTitle: @"Scanning" message: @"Please wait..." preferredStyle: UIAlertControllerStyleAlert];
+	[self presentViewController:alert animated:YES completion:nil];
+	
+	dispatch_queue_t queue = dispatch_queue_create("play_startup", NULL);
+	dispatch_async(queue, ^{
+		dispatch_async(dispatch_get_main_queue(), ^{
+			alert.title = @"Scanning local games...";
+		});
+		ScanBootables(Framework::PathUtils::GetPersonalDataPath());
+
+		dispatch_async(dispatch_get_main_queue(), ^{
+			alert.title = @"Scanning games on all device...";
+		});
+		ScanBootables("/private/var/mobile");
+
+		dispatch_async(dispatch_get_main_queue(), ^{
+			alert.title = @"Purging inexisting files...";
+		});
+		PurgeInexistingFiles();
+
+		dispatch_async(dispatch_get_main_queue(), ^{
+			alert.title = @"Fetching game titles...";
+		});
+		FetchGameTitles();
+
+		//Done
+		dispatch_async(dispatch_get_main_queue(), ^{
+			[alert dismissViewControllerAnimated: YES completion: nil];
+		});
+	});
 }
 
 - (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
