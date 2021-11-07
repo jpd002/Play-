@@ -217,6 +217,17 @@ protected:
 			{
 				branchAddress = m_context.m_pArch->GetInstructionEffectiveAddress(&m_context, address, opcode);
 				endAddress = address + 4;
+				//Check if the instruction in the delay slot (at address + 4) is a branch
+				//If it is, don't include it in this block. This will make the behavior coherent between linked and non-linked blocks.
+				//Branch instructions don't modify registers, it should be ok not to execute them if they are in a delay slot
+				{
+					uint32 endOpcode = m_context.m_pMemoryMap->GetInstruction(endAddress);
+					auto endBranchType = m_context.m_pArch->IsInstructionBranch(&m_context, endAddress, endOpcode);
+					if(endBranchType == MIPS_BRANCH_NORMAL)
+					{
+						endAddress = address;
+					}
+				}
 				break;
 			}
 			else if(branchType == MIPS_BRANCH_NODELAY)
