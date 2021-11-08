@@ -420,7 +420,7 @@ void CLibMc2::CheckAsync(CMIPS& context)
 	{
 		//In Sync Mode, sleep thread for a few vblanks
 		assert(m_waitThreadId == WAIT_THREAD_ID_EMPTY);
-		m_waitVBlankCount = 4;
+		m_waitVBlankCount = WAIT_VBLANK_INIT_COUNT;
 		m_waitThreadId = m_eeBios.SuspendCurrentThread();
 	}
 }

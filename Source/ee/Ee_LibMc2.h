@@ -70,6 +70,7 @@ namespace Ee
 		enum
 		{
 			WAIT_THREAD_ID_EMPTY = 0,
+			WAIT_VBLANK_INIT_COUNT = 4,
 		};
 
 		struct CARDINFO
