@@ -256,7 +256,7 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 		{
 			Uri folderUri = data.getData();
 			getContentResolver().takePersistableUriPermission(folderUri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
-			processAddFolder(folderUri);
+			prepareFileListView(false);
 		}
 
 		if(requestCode == g_dataFilesFolderPickerRequestCode && resultCode == RESULT_OK)
@@ -402,14 +402,6 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 		}
 	}
 
-	private void processAddFolder(Uri folderUri)
-	{
-		ContentResolver res = getApplicationContext().getContentResolver();
-		DocumentFile folderDoc = DocumentFile.fromTreeUri(this, folderUri);
-		scanContentFolder(folderDoc);
-		prepareFileListView(false);
-	}
-
 	private void scanContentFolder(DocumentFile folderDoc)
 	{
 		for(DocumentFile fileDoc : folderDoc.listFiles())
@@ -485,6 +477,21 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 				{
 					GameIndexer.startupScan();
 				}
+			}
+
+			List<UriPermission> uriPermissions = getContentResolver().getPersistedUriPermissions();
+			if(!uriPermissions.isEmpty())
+			{
+				updateProgressText("Scanning games in permitted folders...");
+
+				for(UriPermission uriPermission : uriPermissions)
+				{
+					DocumentFile folderDoc = DocumentFile.fromTreeUri(MainActivity.this, uriPermission.getUri());
+					scanContentFolder(folderDoc);
+				}
+
+				updateProgressText("Fetching game titles...");
+				BootablesInterop.fetchGameTitles();
 			}
 
 			updateProgressText(getString(R.string.search_games_fetching));

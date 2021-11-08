@@ -123,6 +123,11 @@ extern "C" JNIEXPORT void Java_com_virtualapplications_play_BootablesInterop_Unr
 	BootablesDb::CClient::GetInstance().UnregisterBootable(bootablePath);
 }
 
+extern "C" JNIEXPORT void Java_com_virtualapplications_play_BootablesInterop_fetchGameTitles(JNIEnv* env, jclass clazz)
+{
+	FetchGameTitles();
+}
+
 extern "C" JNIEXPORT void Java_com_virtualapplications_play_BootablesInterop_PurgeInexistingFiles(JNIEnv* env, jclass clazz)
 {
 	PurgeInexistingFiles();

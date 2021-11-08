@@ -19,5 +19,6 @@ public class BootablesInterop
 	public static native boolean IsBootableExecutablePath(String bootablePath);
 	public static native boolean DoesBootableExist(String bootablePath);
 	public static native void UnregisterBootable(String bootablePath);
+	public static native void fetchGameTitles();
 	public static native void PurgeInexistingFiles();
 }
