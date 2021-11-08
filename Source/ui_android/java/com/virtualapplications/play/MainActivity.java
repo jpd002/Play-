@@ -262,7 +262,6 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 		if(requestCode == g_dataFilesFolderPickerRequestCode && resultCode == RESULT_OK)
 		{
 			Uri folderUri = data.getData();
-			getContentResolver().takePersistableUriPermission(folderUri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
 			executeDataFilesMigration(folderUri);
 		}
 	}
