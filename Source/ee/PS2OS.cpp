@@ -241,7 +241,7 @@ CPS2OS::CPS2OS(CMIPS& ee, uint8* ram, uint8* bios, uint8* spr, CGSHandler*& gs, 
     , m_bios(bios)
     , m_spr(spr)
     , m_sif(sif)
-    , m_libMc2(ram, iopBios)
+    , m_libMc2(ram, *this, iopBios)
     , m_iopBios(iopBios)
     , m_threads(reinterpret_cast<THREAD*>(m_ram + BIOS_ADDRESS_THREAD_BASE), BIOS_ID_BASE, MAX_THREAD)
     , m_semaphores(reinterpret_cast<SEMAPHORE*>(m_ram + BIOS_ADDRESS_SEMAPHORE_BASE), SEMA_ID_BASE, MAX_SEMAPHORE)
@@ -1467,6 +1467,11 @@ CPS2OS::DECI2HANDLER* CPS2OS::GetDeci2Handler(uint32 id)
 	return &((DECI2HANDLER*)&m_ram[0x00008000])[id];
 }
 
+Ee::CLibMc2& CPS2OS::GetLibMc2()
+{
+	return m_libMc2;
+}
+
 void CPS2OS::HandleInterrupt()
 {
 	//Check if interrupts are enabled here because EIE bit isn't checked by CMIPS
@@ -1515,6 +1520,36 @@ bool CPS2OS::CheckVBlankFlag()
 
 	SetVsyncFlagPtrs(0, 0);
 	return changed;
+}
+
+uint32 CPS2OS::SuspendCurrentThread()
+{
+	//For HLE module usage
+
+	uint32 threadId = m_currentThreadId;
+
+	auto thread = m_threads[threadId];
+	assert(thread);
+	assert(thread->status == THREAD_RUNNING);
+
+	thread->status = THREAD_SUSPENDED;
+	UnlinkThread(threadId);
+
+	ThreadShakeAndBake();
+
+	return threadId;
+}
+
+void CPS2OS::ResumeThread(uint32 threadId)
+{
+	//For HLE module usage
+
+	auto thread = m_threads[threadId];
+	assert(thread);
+	assert(thread->status == THREAD_SUSPENDED);
+
+	thread->status = THREAD_RUNNING;
+	LinkThread(threadId);
 }
 
 void CPS2OS::UpdateTLBEnabledState()

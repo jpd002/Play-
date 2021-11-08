@@ -4,6 +4,8 @@
 #include "MIPS.h"
 #include "iop/IopBios.h"
 
+class CPS2OS;
+
 namespace Ee
 {
 	class CLibMc2
@@ -50,11 +52,17 @@ namespace Ee
 			SYSCALL_RANGE_END,
 		};
 
-		CLibMc2(uint8*, CIopBios&);
+		CLibMc2(uint8*, CPS2OS&, CIopBios&);
 		void HandleSyscall(CMIPS&);
+		void NotifyVBlankStart();
 		void HookLibMc2Functions();
 
 	private:
+		enum
+		{
+			WAIT_THREAD_ID_EMPTY = 0,
+		};
+
 		struct CARDINFO
 		{
 			uint32 type;
@@ -67,7 +75,7 @@ namespace Ee
 		uint32 AnalyzeFunction(uint32, int16);
 		void WriteSyscall(uint32, uint16);
 
-		int32 CheckAsync(uint32, uint32, uint32);
+		void CheckAsync(CMIPS&);
 		int32 GetInfoAsync(uint32, uint32);
 		int32 CreateFileAsync(uint32, uint32);
 		int32 DeleteAsync(uint32, uint32);
@@ -82,10 +90,13 @@ namespace Ee
 		static const char* GetSysCallDescription(uint16);
 
 		uint8* m_ram = nullptr;
+		CPS2OS& m_eeBios;
 		CIopBios& m_iopBios;
 		CIopBios::ModuleLoadedEvent::Connection m_moduleLoadedConnection;
 		uint32 m_lastCmd = 0;
 		uint32 m_lastResult = 0;
+		uint32 m_waitThreadId = WAIT_THREAD_ID_EMPTY;
+		uint32 m_waitVBlankCount = 0;
 
 		uint32 m_getInfoAsyncPtr = 0;
 		uint32 m_writeFileAsyncPtr = 0;

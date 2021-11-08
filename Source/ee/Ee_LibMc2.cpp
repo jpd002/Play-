@@ -2,7 +2,7 @@
 #include "Ee_LibMc2.h"
 #include "Ps2Const.h"
 #include "Log.h"
-#include "../iop/IopBios.h"
+#include "PS2OS.h"
 #include "../iop/Iop_McServ.h"
 
 using namespace Ee;
@@ -19,8 +19,9 @@ using namespace Ee;
 #define MC2_RESULT_OK 0
 #define MC2_RESULT_ERROR_NOT_FOUND 0x81010002
 
-CLibMc2::CLibMc2(uint8* ram, CIopBios& iopBios)
+CLibMc2::CLibMc2(uint8* ram, CPS2OS& eeBios, CIopBios& iopBios)
     : m_ram(ram)
+    , m_eeBios(eeBios)
     , m_iopBios(iopBios)
 {
 	m_moduleLoadedConnection = m_iopBios.OnModuleLoaded.Connect(
@@ -250,10 +251,7 @@ void CLibMc2::HandleSyscall(CMIPS& ee)
 	switch(ee.m_State.nGPR[CMIPS::V1].nV0)
 	{
 	case SYSCALL_MC2_CHECKASYNC:
-		ee.m_State.nGPR[CMIPS::V0].nD0 = CheckAsync(
-		    ee.m_State.nGPR[CMIPS::A0].nV0,
-		    ee.m_State.nGPR[CMIPS::A1].nV0,
-		    ee.m_State.nGPR[CMIPS::A2].nV0);
+		CheckAsync(ee);
 		break;
 	case SYSCALL_MC2_GETINFO_ASYNC:
 		ee.m_State.nGPR[CMIPS::V0].nD0 = GetInfoAsync(
@@ -326,6 +324,20 @@ void CLibMc2::HandleSyscall(CMIPS& ee)
 	}
 }
 
+void CLibMc2::NotifyVBlankStart()
+{
+	if(m_waitThreadId != WAIT_THREAD_ID_EMPTY)
+	{
+		assert(m_waitVBlankCount != 0);
+		m_waitVBlankCount--;
+		if(m_waitVBlankCount == 0)
+		{
+			m_eeBios.ResumeThread(m_waitThreadId);
+			m_waitThreadId = WAIT_THREAD_ID_EMPTY;
+		}
+	}
+}
+
 static void CopyDirParamTime(CLibMc2::DIRPARAM::TIME* dst, const Iop::CMcServ::ENTRY::TIME* src)
 {
 	dst->year = src->year;
@@ -345,8 +357,12 @@ static void CopyDirParam(CLibMc2::DIRPARAM* dst, const Iop::CMcServ::ENTRY* src)
 	CopyDirParamTime(&dst->modificationDate, &src->modificationTime);
 }
 
-int32 CLibMc2::CheckAsync(uint32 mode, uint32 cmdPtr, uint32 resultPtr)
+void CLibMc2::CheckAsync(CMIPS& context)
 {
+	uint32 mode = context.m_State.nGPR[CMIPS::A0].nV0;
+	uint32 cmdPtr = context.m_State.nGPR[CMIPS::A1].nV0;
+	uint32 resultPtr = context.m_State.nGPR[CMIPS::A2].nV0;
+
 	CLog::GetInstance().Print(LOG_NAME, "CheckAsync(mode = %d, cmdPtr = 0x%08X, resultPtr = 0x%08X);\r\n",
 	                          mode, cmdPtr, resultPtr);
 
@@ -356,12 +372,29 @@ int32 CLibMc2::CheckAsync(uint32 mode, uint32 cmdPtr, uint32 resultPtr)
 	//Returns -1 if no function was executing
 	uint32 result = (m_lastCmd != 0) ? 1 : -1;
 
-	*reinterpret_cast<uint32*>(m_ram + cmdPtr) = m_lastCmd;
-	*reinterpret_cast<uint32*>(m_ram + resultPtr) = m_lastResult;
+	if(cmdPtr != 0)
+	{
+		*reinterpret_cast<uint32*>(m_ram + cmdPtr) = m_lastCmd;
+	}
+	if(resultPtr != 0)
+	{
+		*reinterpret_cast<uint32*>(m_ram + resultPtr) = m_lastResult;
+	}
 
 	m_lastCmd = 0;
 
-	return result;
+	context.m_State.nGPR[CMIPS::V0].nV0 = result;
+
+	//Mode:
+	//0 -> Sync (use WaitSema)
+	//1 -> Async (use PollSema)
+	if(mode == 0)
+	{
+		//In Sync Mode, sleep thread for a few vblanks
+		assert(m_waitThreadId == WAIT_THREAD_ID_EMPTY);
+		m_waitVBlankCount = 4;
+		m_waitThreadId = m_eeBios.SuspendCurrentThread();
+	}
 }
 
 int32 CLibMc2::GetInfoAsync(uint32 socketId, uint32 infoPtr)

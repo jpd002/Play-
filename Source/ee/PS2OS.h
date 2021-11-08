@@ -44,11 +44,16 @@ public:
 	std::pair<uint32, uint32> GetExecutableRange() const;
 	uint32 LoadExecutable(const char*, const char*);
 
+	Ee::CLibMc2& GetLibMc2();
+
 	void HandleInterrupt();
 	void HandleSyscall();
 	void HandleReturnFromException();
 	void HandleTLBException();
 	bool CheckVBlankFlag();
+
+	uint32 SuspendCurrentThread();
+	void ResumeThread(uint32);
 
 	void UpdateTLBEnabledState();
 
