@@ -201,10 +201,12 @@ void CLibMc2::WriteSyscall(uint32 address, uint16 syscallNumber)
 		return;
 	}
 
-	*reinterpret_cast<uint32*>(m_ram + address + 0x0) = 0x24030000 | syscallNumber;
-	*reinterpret_cast<uint32*>(m_ram + address + 0x4) = 0x0000000C;
-	*reinterpret_cast<uint32*>(m_ram + address + 0x8) = 0x03E00008;
-	*reinterpret_cast<uint32*>(m_ram + address + 0xC) = 0x00000000;
+	CMIPSAssembler assembler(reinterpret_cast<uint32*>(m_ram + address));
+
+	assembler.ADDIU(CMIPS::V1, CMIPS::R0, syscallNumber);
+	assembler.SYSCALL();
+	assembler.JR(CMIPS::RA);
+	assembler.NOP();
 }
 
 const char* CLibMc2::GetSysCallDescription(uint16 syscallNumber)
