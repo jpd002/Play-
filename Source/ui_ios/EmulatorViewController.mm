@@ -456,7 +456,7 @@ CPS2VM::ProfileFrameDoneSignal::Connection g_profileFrameDoneConnection;
 	{
 		UINavigationController* navViewController = segue.destinationViewController;
 		SettingsViewController* settingsViewController = (SettingsViewController*)navViewController.visibleViewController;
-		settingsViewController.completionHandler = ^() {
+		settingsViewController.completionHandler = ^(bool) {
 		  [self setupSoundHandler];
 		  [self updateOnScreenWidgets];
 		  auto gsHandler = g_virtualMachine->GetGSHandler();

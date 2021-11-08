@@ -65,7 +65,7 @@
 
 	if(self.completionHandler)
 	{
-		self.completionHandler();
+		self.completionHandler(self.fullDeviceScanRequested);
 	}
 }
 
@@ -79,12 +79,12 @@
 	if([identifier isEqualToString:@"showGsHandlerSelector"])
 	{
 #ifdef HAS_GSH_VULKAN
-		//We can't change the GS handler if the emulator is running in the background
-		return (self.completionHandler == nil);
+		return self.allowGsHandlerSelection;
 #else
 		return FALSE;
 #endif
 	}
+	return TRUE;
 }
 
 - (void)prepareForSegue:(UIStoryboardSegue*)segue sender:(id)sender
@@ -115,6 +115,13 @@
 	int factor = 1 << selector.value;
 	CAppConfig::GetInstance().SetPreferenceInteger(PREF_CGSH_OPENGL_RESOLUTION_FACTOR, factor);
 	[self updateResolutionFactorLabel];
+}
+
+- (IBAction)startFullDeviceScan
+{
+	if(!self.allowFullDeviceScan) return;
+	self.fullDeviceScanRequested = true;
+	[self.presentingViewController dismissViewControllerAnimated:YES completion:nil];
 }
 
 - (IBAction)returnToParent
