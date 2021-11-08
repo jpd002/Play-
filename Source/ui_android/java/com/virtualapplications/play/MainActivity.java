@@ -482,7 +482,7 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 			List<UriPermission> uriPermissions = getContentResolver().getPersistedUriPermissions();
 			if(!uriPermissions.isEmpty())
 			{
-				updateProgressText("Scanning games in permitted folders...");
+				updateProgressText(getString(R.string.search_games_scan_folders));
 
 				for(UriPermission uriPermission : uriPermissions)
 				{
@@ -490,7 +490,7 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 					scanContentFolder(folderDoc);
 				}
 
-				updateProgressText("Fetching game titles...");
+				updateProgressText(getString(R.string.search_games_fetching_titles));
 				BootablesInterop.fetchGameTitles();
 			}
 
