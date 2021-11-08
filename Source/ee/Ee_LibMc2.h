@@ -5,6 +5,11 @@
 #include "iop/IopBios.h"
 
 class CPS2OS;
+namespace Framework
+{
+	class CZipArchiveReader;
+	class CZipArchiveWriter;
+}
 
 namespace Ee
 {
@@ -53,6 +58,10 @@ namespace Ee
 		};
 
 		CLibMc2(uint8*, CPS2OS&, CIopBios&);
+
+		void SaveState(Framework::CZipArchiveWriter&);
+		void LoadState(Framework::CZipArchiveReader&);
+
 		void HandleSyscall(CMIPS&);
 		void NotifyVBlankStart();
 		void HookLibMc2Functions();

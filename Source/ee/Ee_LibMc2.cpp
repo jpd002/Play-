@@ -1,5 +1,7 @@
-#include <cassert>
 #include "Ee_LibMc2.h"
+#include <cassert>
+#include "zip/ZipArchiveWriter.h"
+#include "zip/ZipArchiveReader.h"
 #include "Ps2Const.h"
 #include "Log.h"
 #include "PS2OS.h"
@@ -8,6 +10,12 @@
 using namespace Ee;
 
 #define LOG_NAME "ee_libmc2"
+
+#define STATE_XML ("libmc2/state.xml")
+#define STATE_LAST_CMD ("lastCmd")
+#define STATE_LAST_RESULT ("lastResult")
+#define STATE_WAIT_THREADID ("waitThreadId")
+#define STATE_WAIT_VBLANK_COUNT ("waitVBlankCount")
 
 #define MC_PORT 0
 
@@ -25,7 +33,27 @@ CLibMc2::CLibMc2(uint8* ram, CPS2OS& eeBios, CIopBios& iopBios)
     , m_iopBios(iopBios)
 {
 	m_moduleLoadedConnection = m_iopBios.OnModuleLoaded.Connect(
-	    [this](const char* moduleName) { OnIopModuleLoaded(moduleName); });
+	    [this](const char* moduleName)
+	    { OnIopModuleLoaded(moduleName); });
+}
+
+void CLibMc2::SaveState(Framework::CZipArchiveWriter& archive)
+{
+	auto registerFile = new CRegisterStateFile(STATE_XML);
+	registerFile->SetRegister32(STATE_LAST_CMD, m_lastCmd);
+	registerFile->SetRegister32(STATE_LAST_RESULT, m_lastResult);
+	registerFile->SetRegister32(STATE_WAIT_THREADID, m_waitThreadId);
+	registerFile->SetRegister32(STATE_WAIT_VBLANK_COUNT, m_waitVBlankCount);
+	archive.InsertFile(registerFile);
+}
+
+void CLibMc2::LoadState(Framework::CZipArchiveReader& archive)
+{
+	auto registerFile = CRegisterStateFile(*archive.BeginReadFile(STATE_XML));
+	m_lastCmd = registerFile.GetRegister32(STATE_LAST_CMD);
+	m_lastResult = registerFile.GetRegister32(STATE_LAST_RESULT);
+	m_waitThreadId = registerFile.GetRegister32(STATE_WAIT_THREADID);
+	m_waitVBlankCount = registerFile.GetRegister32(STATE_WAIT_VBLANK_COUNT);
 }
 
 uint32 CLibMc2::AnalyzeFunction(uint32 startAddress, int16 stackAlloc)
