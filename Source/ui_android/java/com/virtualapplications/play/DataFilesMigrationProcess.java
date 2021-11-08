@@ -8,6 +8,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Arrays;
+import java.util.HashSet;
 
 import androidx.documentfile.provider.DocumentFile;
 
@@ -22,6 +24,9 @@ class DataFilesMigrationProcess
 	//  No, we can assume that files in the Data Files are always older
 
 	final Context _context;
+	final String _configXmlFileName = "config.xml";
+	final String _bootablesDbFileName = "bootables.db";
+	final HashSet<String> _excludedFileNames = new HashSet<>(Arrays.asList(_configXmlFileName, _bootablesDbFileName));
 
 	public DataFilesMigrationProcess(Context context)
 	{
@@ -44,8 +49,9 @@ class DataFilesMigrationProcess
 	void CheckIsDataFilesFolder(Uri srcFolderUri) throws Exception
 	{
 		DocumentFile folderDoc = DocumentFile.fromTreeUri(_context, srcFolderUri);
-		DocumentFile configFile = folderDoc.findFile("config.xml");
-		if(configFile == null)
+		DocumentFile configFile = folderDoc.findFile(_configXmlFileName);
+		DocumentFile bootablesFile = folderDoc.findFile(_bootablesDbFileName);
+		if((configFile == null) && (bootablesFile == null))
 		{
 			throw new Exception("Selected folder doesn't seem to be a Data Files folder.");
 		}
@@ -91,6 +97,11 @@ class DataFilesMigrationProcess
 					if(dstFolderDoc.findFile(srcFileDoc.getName()) != null)
 					{
 						Log.w(Constants.TAG, "Skipping because it already exists.");
+						continue;
+					}
+					if(_excludedFileNames.contains(srcFileDoc.getName()))
+					{
+						Log.w(Constants.TAG, "Skipping because it is excluded.");
 						continue;
 					}
 					DocumentFile dstFileDoc = dstFolderDoc.createFile("", srcFileDoc.getName());
