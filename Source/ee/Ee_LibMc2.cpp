@@ -33,8 +33,7 @@ CLibMc2::CLibMc2(uint8* ram, CPS2OS& eeBios, CIopBios& iopBios)
     , m_iopBios(iopBios)
 {
 	m_moduleLoadedConnection = m_iopBios.OnModuleLoaded.Connect(
-	    [this](const char* moduleName)
-	    { OnIopModuleLoaded(moduleName); });
+	    [this](const char* moduleName) { OnIopModuleLoaded(moduleName); });
 }
 
 void CLibMc2::SaveState(Framework::CZipArchiveWriter& archive)
