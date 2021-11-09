@@ -414,6 +414,10 @@ private:
 	OsVariableWrapper<uint32> m_tlbsExceptionHandler;
 	OsVariableWrapper<uint32> m_sifDmaNextIdx;
 
+	//Incremented when RotateThreadReadyQueue didn't have any effect
+	//Speed hack for Atelier Marie & Elie
+	uint32 m_selfRotateThreadCount;
+
 	uint32* m_sifDmaTimes = nullptr;
 
 	ThreadQueue m_threadSchedule;
