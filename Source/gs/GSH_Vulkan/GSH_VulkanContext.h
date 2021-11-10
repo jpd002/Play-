@@ -39,6 +39,7 @@ namespace GSH_Vulkan
 			{
 			default:
 				assert(false);
+				[[fallthrough]];
 			case CGSHandler::PSMCT32:
 			case CGSHandler::PSMCT24:
 			case CGSHandler::PSMCT24_UNK:

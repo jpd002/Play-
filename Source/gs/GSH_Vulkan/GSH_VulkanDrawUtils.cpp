@@ -94,6 +94,7 @@ Nuanceur::CFloat4Rvalue CDrawUtils::GetTextureColor(Nuanceur::CShaderBuilder& b,
 	{
 	default:
 		assert(false);
+		[[fallthrough]];
 	case CGSHandler::PSMCT32:
 	case CGSHandler::PSMZ32:
 	{
