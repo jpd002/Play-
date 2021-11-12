@@ -22,8 +22,8 @@
 	<string name="launch_game">启动游戏&#8230;</string>
 	<string name="launch_game_msg">请稍候&#8230;</string>
 
-	<string name="navigation_drawer_open">导航栏打开</string>
-	<string name="navigation_drawer_close">导航栏关闭</string>
+	<string name="navigation_drawer_open">打开导航栏</string>
+	<string name="navigation_drawer_close">关闭导航栏</string>
 
 	<string name="menu_title_open">菜单</string>
 	<string name="menu_title_shut">游戏</string>
@@ -135,7 +135,7 @@
 	<string name="emulator_drawer_savestate">快速保存</string>
 	<string name="emulator_drawer_loadstate">快速读取</string>
 
-	<string name="emulator_save_state_ok">快速保存成功。</string>
+	<string name="emulator_save_state_ok">保存状态成功。</string>
 	<string name="emulator_save_state_fail">保存状态失败。</string>
 
 	<string name="emulator_load_state_ok">读取状态成功。</string>
