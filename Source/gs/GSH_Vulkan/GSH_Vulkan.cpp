@@ -703,6 +703,12 @@ void CGSH_Vulkan::SetRenderingContext(uint64 primReg)
 			break;
 		}
 
+		//Ignore min filter if we don't have mipmap levels.
+		if(tex1.nMaxMip == 0)
+		{
+			minLinear = magLinear;
+		}
+
 		pipelineCaps.textureUseLinearFiltering = (minLinear && magLinear);
 	}
 
