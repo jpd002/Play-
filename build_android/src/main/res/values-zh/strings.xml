@@ -10,12 +10,14 @@
 
 	<string name="game_info">无信息</string>
 
-	<string name="search_games">建立收藏&#8230;</string>
+	<string name="search_games">正在建立收藏&#8230;</string>
 	<string name="search_games_msg">请稍候&#8230;</string>
 	<string name="search_games_scanning">扫描游戏中&#8230;</string>
+	<string name="search_games_scan_folders">正在扫描已添加的文件夹&#8230;</string>
+	<string name="search_games_fetching_titles">正在获取游戏标题&#8230;</string>
 	<string name="search_games_fetching">获取游戏中&#8230;</string>
 	<string name="search_games_populating">填充图片中&#8230;</string>
-	<string name="updating_db">更新收藏&#8230;</string>
+	<string name="updating_db">更新收藏中&#8230;</string>
 
 	<string name="launch_game">启动游戏&#8230;</string>
 	<string name="launch_game_msg">请稍候&#8230;</string>
@@ -46,11 +48,11 @@
 	<string name="pref_emu_general_fps_display_title">显示帧数和绘制调用计数器</string>
 	<string name="pref_emu_general_fps_display_summary">启用显示 &quot;每秒帧数&quot; (f/s) 和 &quot;每秒绘制调用&quot; (dc/f) 屏幕统计。</string>
 
-	<string name="pref_emu_general_limit_frame_rate_title">限制帧数</string>
-	<string name="pref_emu_general_limit_frame_rate_summary">限制帧数到视频刷新率</string>
-
 	<string name="pref_emu_general_pad_display_title">显示虚拟按键</string>
 	<string name="pref_emu_general_pad_display_summary">显示屏幕上的虚拟按键。</string>
+
+	<string name="pref_emu_general_limit_frame_rate_title">限制帧数</string>
+	<string name="pref_emu_general_limit_frame_rate_summary">限制帧数到视频刷新率</string>
 
 	<string name="pref_emu_video">视频设置</string>
 
@@ -85,6 +87,9 @@
 
 	<string name="pref_ui_reset_cache_title">重置缓存</string>
 	<string name="pref_ui_reset_cache_summary">清除存储的封面图片</string>
+
+	<string name="pref_ui_migrate_datafiles_title">迁移数据文件</string>
+	<string name="pref_ui_migrate_datafiles_summary">从设备上的文件夹中迁移数据文件</string>
 
 	<string name="preferences_theme">主题设置</string>
 
@@ -127,18 +132,18 @@
 	<!-- Emulator Drawer -->
 
 	<string name="emulator_drawer_exit">退出</string>
-	<string name="emulator_drawer_savestate">存档</string>
-	<string name="emulator_drawer_loadstate">读档</string>
+	<string name="emulator_drawer_savestate">快速保存</string>
+	<string name="emulator_drawer_loadstate">快速读取</string>
 
-	<string name="emulator_save_state_ok">存档已保存。</string>
-	<string name="emulator_save_state_fail">无法保存存档。</string>
+	<string name="emulator_save_state_ok">快速保存成功。</string>
+	<string name="emulator_save_state_fail">保存状态失败。</string>
 
-	<string name="emulator_load_state_ok">存档已加载。</string>
-	<string name="emulator_load_state_fail">无法加载存档。</string>
+	<string name="emulator_load_state_ok">读取状态成功。</string>
+	<string name="emulator_load_state_fail">读取状态失败。</string>
 
 	<!-- Error Reporting / Debugging -->
 
-	<string name="report_issue">检测到上一个崩溃</string>
+	<string name="report_issue">检测到上一次崩溃</string>
 
 	<string name="dismiss">搁置</string>
 	<string name="report">报告</string>
@@ -161,5 +166,11 @@
 	
 	<string name="permission_dialog_title">权限请求</string>
 	<string name="permission_dialog_summary">Play!需要存储访问（读/写）。否则，Play!将无法找到你的游戏或者保存你的进程。</string>
+
+	<!-- Data Files Migration -->
+	<string name="migration_title">数据文件迁移</string>
+	<string name="migration_explanation">由于Android 11中的文件系统访问策略改变，这个新版本的应用程序现在使用一个\“Data Files\”文件夹在应用程序的数据文件夹中，而不是外部存储。\n\n您想要将您的数据从以前的位置迁移到新的位置吗？</string>
+	<string name="migration_selectfolder">请选择之前的数据文件文件夹的位置(通常位于设备存储的根目录，并名为\“Play Data Files\”)。</string>
+	<string name="migration_task_msg">请稍后&#8230;</string>
 
 </resources>
