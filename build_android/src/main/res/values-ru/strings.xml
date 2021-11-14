@@ -11,6 +11,11 @@
 	<string name="game_info">Нет информации</string>
 
 	<string name="search_games">Создание коллекции&#8230;</string>
+	<string name="search_games_scanning">Сканирование игр&#8230;</string>
+	<string name="search_games_scan_folders">Сканирование добавленного каталога&#8230;</string>
+	<string name="search_games_fetching_titles">Получение названий игр&#8230;</string>
+	<string name="search_games_fetching">Получение игр&#8230;</string>
+	<string name="search_games_populating">Добавление обложек&#8230;</string>
 	<string name="search_games_msg">Пожалуйста, подождите&#8230;</string>
 	<string name="updating_db">Обновление коллекции&#8230;</string>
 
@@ -46,9 +51,12 @@
 	<string name="pref_emu_general_pad_display_title">Показывать экранный геймпад</string>
 	<string name="pref_emu_general_pad_display_summary">Включить отображение виртуального контроллера</string>
 
+	<string name="pref_emu_general_limit_frame_rate_title">Ограничивать частоту кадров</string>
+	<string name="pref_emu_general_limit_frame_rate_summary">Ограничивать частоту кадров частотой обновления экрана</string>
+
 	<string name="pref_emu_video">Видео</string>
 
-	<string name="pref_emu_video_gs_handler_title">GS Handler</string>
+	<string name="pref_emu_video_gs_handler_title">Графический движок</string>
 
 	<string name="pref_emu_video_res_factor_title">Масштаб разрешения</string>
 
@@ -80,6 +88,9 @@
 	<string name="pref_ui_reset_cache_title">Очистить кэш</string>
 	<string name="pref_ui_reset_cache_summary">Удалить сохранённые обложки</string>
 
+	<string name="pref_ui_migrate_datafiles_title">Перенос Data Files</string>
+	<string name="pref_ui_migrate_datafiles_summary">Переместить Data Files из каталога на устройстве</string>	
+	
 	<string name="preferences_theme">Настройки темы</string>
 
 	<string name="pref_title_theme_selection">Выбор темы</string>
@@ -96,7 +107,7 @@
 
 	<string-array name="pref_emu_video_gs_handler_entries">
 		<item>OpenGL</item>
-		<item>Vulkan (Experimental)</item>
+		<item>Vulkan (экспериментально)</item>
 	</string-array>
 
 	<string-array name="pref_emu_video_res_factor_entries">
@@ -121,8 +132,8 @@
 	<!-- Emulator Drawer -->
 
 	<string name="emulator_drawer_exit">Выход</string>
-	<string name="emulator_drawer_savestate">Сохранить состояние</string>
-	<string name="emulator_drawer_loadstate">Загрузить состояние</string>
+	<string name="emulator_drawer_savestate">Сохранить</string>
+	<string name="emulator_drawer_loadstate">Загрузить</string>
 
 	<string name="emulator_save_state_ok">Успешно сохранено.</string>
 	<string name="emulator_save_state_fail">Не удалось сохранить.</string>
@@ -155,5 +166,11 @@
 	
 	<string name="permission_dialog_title">Запрос разрешения</string>
 	<string name="permission_dialog_summary">Play! требуется доступ к хранилищу (чтение/запись). Без него Play! не сможет найти игры или сохранить прогресс.</string>
-	
+
+	<!-- Data Files Migration -->	
+	<string name="migration_title">Перенос Data Files</string>
+	<string name="migration_explanation">В результате изменений в политике доступа к файловой системе в Android 11, вместо внешнего хранилища в новой версии приложения используется каталог \'Data Files\', расположенный в каталоге приложения.\n\nПереместить данные из предыдущего места хранения в новое?</string>
+	<string name="migration_selectfolder">Пожалуйста, укажите расположение предыдущего каталога Data Files (обычно он находится в корне памяти и имеет название \'Play Data Files\').</string>
+	<string name="migration_task_msg">Пожалуйста, подождите&#8230;</string>	
+
 </resources>
