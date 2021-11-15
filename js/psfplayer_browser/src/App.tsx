@@ -41,12 +41,41 @@ function usePrevious<Type>(value : Type) : Type | undefined {
 export default function App() {
     const dispatch = useAppDispatch();
     const listRef = useRef<FixedSizeList>(null);
+    const audioRef = useRef<HTMLAudioElement>(null);
     const state = useAppSelector((state) => state.player);
     const prevArchiveFileListVersion = usePrevious(state.archiveFileListVersion);
     const prevPlaying = usePrevious(state.playing);
     useEffect(() => {
       if(state.archiveFileListVersion !== prevArchiveFileListVersion) {
         listRef.current?.scrollTo(0);
+      }
+      if(state.playing !== prevPlaying) {
+        if(state.playing) {
+          audioRef.current?.play().then(() => {
+            navigator.mediaSession.metadata = new MediaMetadata({
+              title: 'PsfPlayer',
+              artist: 'PsfPlayer',
+              album: 'PsfPlayer',
+            });
+            navigator.mediaSession.setPositionState({
+              duration: 1000,
+              playbackRate: 44100,
+              position: 0
+            });
+            navigator.mediaSession.playbackState = 'playing';
+          });
+        } else {
+          audioRef.current?.pause();
+          navigator.mediaSession.playbackState = 'paused';
+        }
+        navigator.mediaSession.setActionHandler('play', function() {
+            navigator.mediaSession.playbackState = 'playing';
+            dispatch(play())
+        });
+        navigator.mediaSession.setActionHandler('pause', function() {
+            navigator.mediaSession.playbackState = 'paused';
+            dispatch(pause())
+        });
       }
     });
     const handleChange = function(event : ChangeEvent<HTMLInputElement>) {
@@ -66,6 +95,7 @@ export default function App() {
       let nextIndex = Math.min(state.playingIndex + 1, state.archiveFileList.length);
       return (
         <div className="App">
+          <audio loop ref={audioRef} src={`${process.env.PUBLIC_URL}/silence.wav`} />
           <FixedSizeList
             className={"playlist"}
             height={480}
