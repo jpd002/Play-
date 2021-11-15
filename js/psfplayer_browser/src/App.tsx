@@ -45,6 +45,48 @@ export default function App() {
     const state = useAppSelector((state) => state.player);
     const prevArchiveFileListVersion = usePrevious(state.archiveFileListVersion);
     const prevPlaying = usePrevious(state.playing);
+    const prevPlayingIndex = usePrevious(state.playingIndex);
+
+    let prevIndex = Math.max(state.playingIndex - 1, 0);
+    let nextIndex = Math.min(state.playingIndex + 1, state.archiveFileList.length);
+
+    const updateMediaSession = () => {
+      if(!state.currentPsfTags) {
+        return;
+      }
+      navigator.mediaSession.metadata = new MediaMetadata({
+        title: state.currentPsfTags.title,
+        artist: state.currentPsfTags.artist,
+        album: state.currentPsfTags.game,
+      });
+      navigator.mediaSession.setPositionState({
+        duration: 1000,
+        playbackRate: 44100,
+        position: 0
+      });
+      navigator.mediaSession.setActionHandler('play', function() {
+        navigator.mediaSession.playbackState = 'playing';
+        dispatch(play());
+      });
+      navigator.mediaSession.setActionHandler('pause', function() {
+          navigator.mediaSession.playbackState = 'paused';
+          dispatch(pause());
+      });
+      navigator.mediaSession.setActionHandler('previoustrack', function() {
+        dispatch(loadPsf(prevIndex));
+      });
+      navigator.mediaSession.setActionHandler('nexttrack', function() {
+          dispatch(loadPsf(nextIndex));
+      });
+    }
+
+    const handleChange = function(event : ChangeEvent<HTMLInputElement>) {
+      if(event.target && event.target.files && event.target.files.length !== 0) {
+        var url = URL.createObjectURL(event.target.files[0]);
+        dispatch(loadArchive(url));
+      }
+    }
+
     useEffect(() => {
       if(state.archiveFileListVersion !== prevArchiveFileListVersion) {
         listRef.current?.scrollTo(0);
@@ -52,38 +94,18 @@ export default function App() {
       if(state.playing !== prevPlaying) {
         if(state.playing) {
           audioRef.current?.play().then(() => {
-            navigator.mediaSession.metadata = new MediaMetadata({
-              title: 'PsfPlayer',
-              artist: 'PsfPlayer',
-              album: 'PsfPlayer',
-            });
-            navigator.mediaSession.setPositionState({
-              duration: 1000,
-              playbackRate: 44100,
-              position: 0
-            });
+            updateMediaSession();
             navigator.mediaSession.playbackState = 'playing';
           });
         } else {
           audioRef.current?.pause();
           navigator.mediaSession.playbackState = 'paused';
         }
-        navigator.mediaSession.setActionHandler('play', function() {
-            navigator.mediaSession.playbackState = 'playing';
-            dispatch(play())
-        });
-        navigator.mediaSession.setActionHandler('pause', function() {
-            navigator.mediaSession.playbackState = 'paused';
-            dispatch(pause())
-        });
+      }
+      if(state.playingIndex !== prevPlayingIndex) {
+        updateMediaSession();
       }
     });
-    const handleChange = function(event : ChangeEvent<HTMLInputElement>) {
-      if(event.target && event.target.files && event.target.files.length !== 0) {
-        var url = URL.createObjectURL(event.target.files[0]);
-        dispatch(loadArchive(url));
-      }
-    }
     if(PsfPlayerModule === null) {
       return (
         <div className="App">
@@ -91,8 +113,6 @@ export default function App() {
         </div>
       )
     } else {
-      let prevIndex = Math.max(state.playingIndex - 1, 0);
-      let nextIndex = Math.min(state.playingIndex + 1, state.archiveFileList.length);
       return (
         <div className="App">
           <audio loop ref={audioRef} src={`${process.env.PUBLIC_URL}/silence.wav`} />
