@@ -1,5 +1,5 @@
 import './App.css';
-import { ChangeEvent, useRef } from 'react';
+import { ChangeEvent, useEffect, useRef } from 'react';
 import { FixedSizeList, ListChildComponentProps } from 'react-window';
 import { ListItem, ListItemButton, ListItemText } from '@mui/material';
 import { useAppDispatch, useAppSelector, loadArchive, loadPsf, play, pause } from "./Actions";
@@ -30,14 +30,28 @@ function RenderRow(props: ListChildComponentProps) {
   );
 }
 
+function usePrevious<Type>(value : Type) : Type | undefined {
+  const ref = useRef<Type>();
+  useEffect(() => {
+    ref.current = value;
+  });
+  return ref.current;
+}
+
 export default function App() {
     const dispatch = useAppDispatch();
     const listRef = useRef<FixedSizeList>(null);
     const state = useAppSelector((state) => state.player);
+    const prevArchiveFileListVersion = usePrevious(state.archiveFileListVersion);
+    const prevPlaying = usePrevious(state.playing);
+    useEffect(() => {
+      if(state.archiveFileListVersion !== prevArchiveFileListVersion) {
+        listRef.current?.scrollTo(0);
+      }
+    });
     const handleChange = function(event : ChangeEvent<HTMLInputElement>) {
       if(event.target && event.target.files && event.target.files.length !== 0) {
         var url = URL.createObjectURL(event.target.files[0]);
-        listRef.current?.scrollTo(0);
         dispatch(loadArchive(url));
       }
     }

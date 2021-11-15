@@ -26,6 +26,7 @@ export type AudioState = {
     playing: boolean
     playingIndex: number
     archiveFileList : string[]
+    archiveFileListVersion : number;
     currentPsfTags : any | undefined
 };
 
@@ -40,6 +41,7 @@ let initialState : AudioState = {
     playing: false,
     playingIndex: invalidPlayingIndex,
     archiveFileList: [],
+    archiveFileListVersion: 0,
     currentPsfTags: undefined
 };
 
@@ -119,12 +121,14 @@ const reducer = createReducer(initialState, (builder) => (
             } else {
                 state.archiveFileList = [];
             }
+            state.archiveFileListVersion = state.archiveFileListVersion + 1;
             return state;
         })
         .addCase(loadArchive.rejected, (state, action) => {
             state.playingIndex = invalidPlayingIndex;
             state.currentPsfTags = undefined;
             state.archiveFileList = [];
+            state.archiveFileListVersion = state.archiveFileListVersion + 1;
             state.value = `loading failed: ${action.error.message}`;
             return state;
         })
