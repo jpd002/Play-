@@ -73,6 +73,23 @@ namespace Ee
 			WAIT_VBLANK_INIT_COUNT = 4,
 		};
 
+		struct MODULE_FUNCTIONS
+		{
+			uint32 getInfoAsyncPtr = 0;
+			uint32 writeFileAsyncPtr = 0;
+			uint32 createFileAsyncPtr = 0;
+			uint32 deleteAsyncPtr = 0;
+			uint32 getDirAsyncPtr = 0;
+			uint32 mkDirAsyncPtr = 0;
+			uint32 chDirAsyncPtr = 0;
+			uint32 chModAsyncPtr = 0;
+			uint32 searchFileAsyncPtr = 0;
+			uint32 readFileAsyncPtr = 0;
+			uint32 readFile2AsyncPtr = 0;
+			uint32 writeFile2AsyncPtr = 0;
+			uint32 checkAsyncPtr = 0;
+		};
+
 		struct CARDINFO
 		{
 			uint32 type;
@@ -82,7 +99,7 @@ namespace Ee
 		static_assert(sizeof(CARDINFO) == 0x0C);
 
 		void OnIopModuleLoaded(const char*);
-		uint32 AnalyzeFunction(uint32, int16);
+		uint32 AnalyzeFunction(MODULE_FUNCTIONS&, uint32, int16);
 		void WriteSyscall(uint32, uint16);
 
 		void CheckAsync(CMIPS&);
@@ -107,19 +124,5 @@ namespace Ee
 		uint32 m_lastResult = 0;
 		uint32 m_waitThreadId = WAIT_THREAD_ID_EMPTY;
 		uint32 m_waitVBlankCount = 0;
-
-		uint32 m_getInfoAsyncPtr = 0;
-		uint32 m_writeFileAsyncPtr = 0;
-		uint32 m_createFileAsyncPtr = 0;
-		uint32 m_deleteAsyncPtr = 0;
-		uint32 m_getDirAsyncPtr = 0;
-		uint32 m_mkDirAsyncPtr = 0;
-		uint32 m_chDirAsyncPtr = 0;
-		uint32 m_chModAsyncPtr = 0;
-		uint32 m_searchFileAsyncPtr = 0;
-		uint32 m_readFileAsyncPtr = 0;
-		uint32 m_readFile2AsyncPtr = 0;
-		uint32 m_writeFile2AsyncPtr = 0;
-		uint32 m_checkAsyncPtr = 0;
 	};
 }

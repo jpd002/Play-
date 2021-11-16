@@ -55,7 +55,7 @@ void CLibMc2::LoadState(Framework::CZipArchiveReader& archive)
 	m_waitVBlankCount = registerFile.GetRegister32(STATE_WAIT_VBLANK_COUNT);
 }
 
-uint32 CLibMc2::AnalyzeFunction(uint32 startAddress, int16 stackAlloc)
+uint32 CLibMc2::AnalyzeFunction(MODULE_FUNCTIONS& moduleFunctions, uint32 startAddress, int16 stackAlloc)
 {
 	static const uint32 maxFunctionSize = 0x200;
 	bool completed = false;
@@ -121,45 +121,45 @@ uint32 CLibMc2::AnalyzeFunction(uint32 startAddress, int16 stackAlloc)
 			switch(constantsLoaded[0])
 			{
 			case 0x02:
-				m_getInfoAsyncPtr = startAddress;
+				moduleFunctions.getInfoAsyncPtr = startAddress;
 				break;
 			case 0x05:
-				m_readFileAsyncPtr = startAddress;
+				moduleFunctions.readFileAsyncPtr = startAddress;
 				break;
 			case 0x06:
-				m_writeFileAsyncPtr = startAddress;
+				moduleFunctions.writeFileAsyncPtr = startAddress;
 				break;
 			case 0x07:
-				m_createFileAsyncPtr = startAddress;
+				moduleFunctions.createFileAsyncPtr = startAddress;
 				break;
 			case 0x08:
-				m_deleteAsyncPtr = startAddress;
+				moduleFunctions.deleteAsyncPtr = startAddress;
 				break;
 			case 0x0A:
 				if(stackAlloc < 0x100)
 				{
 					//Mana Khemia 2 has 2 potential functions that matches,
 					//we use the stack alloc to make sure we get the right one
-					m_getDirAsyncPtr = startAddress;
+					moduleFunctions.getDirAsyncPtr = startAddress;
 				}
 				break;
 			case 0x0B:
-				m_mkDirAsyncPtr = startAddress;
+				moduleFunctions.mkDirAsyncPtr = startAddress;
 				break;
 			case 0x0C:
-				m_chDirAsyncPtr = startAddress;
+				moduleFunctions.chDirAsyncPtr = startAddress;
 				break;
 			case 0x0D:
-				m_chModAsyncPtr = startAddress;
+				moduleFunctions.chModAsyncPtr = startAddress;
 				break;
 			case 0x0E:
-				m_searchFileAsyncPtr = startAddress;
+				moduleFunctions.searchFileAsyncPtr = startAddress;
 				break;
 			case 0x20:
-				m_readFile2AsyncPtr = startAddress;
+				moduleFunctions.readFile2AsyncPtr = startAddress;
 				break;
 			case 0x21:
-				m_writeFile2AsyncPtr = startAddress;
+				moduleFunctions.writeFile2AsyncPtr = startAddress;
 				break;
 			}
 		}
@@ -170,7 +170,7 @@ uint32 CLibMc2::AnalyzeFunction(uint32 startAddress, int16 stackAlloc)
 			uint32 pollSemaCount = (syscallsUsed.find(POLLSEMA_SYSCALL) != std::end(syscallsUsed) ? syscallsUsed[POLLSEMA_SYSCALL] : 0);
 			if((waitSemaCount == 1) && (pollSemaCount == 1))
 			{
-				m_checkAsyncPtr = startAddress;
+				moduleFunctions.checkAsyncPtr = startAddress;
 			}
 		}
 		return address;
@@ -191,6 +191,8 @@ void CLibMc2::OnIopModuleLoaded(const char* moduleName)
 
 void CLibMc2::HookLibMc2Functions()
 {
+	MODULE_FUNCTIONS moduleFunctions;
+
 	for(uint32 address = 0; address < PS2::EE_RAM_SIZE; address += 4)
 	{
 		uint32 opcode = *reinterpret_cast<uint32*>(m_ram + address);
@@ -201,24 +203,24 @@ void CLibMc2::HookLibMc2Functions()
 			if(offset < 0)
 			{
 				//Might be a function start
-				address = AnalyzeFunction(address, -offset);
+				address = AnalyzeFunction(moduleFunctions, address, -offset);
 			}
 		}
 	}
 
-	WriteSyscall(m_getInfoAsyncPtr, SYSCALL_MC2_GETINFO_ASYNC);
-	WriteSyscall(m_readFileAsyncPtr, SYSCALL_MC2_READFILE_ASYNC);
-	WriteSyscall(m_writeFileAsyncPtr, SYSCALL_MC2_WRITEFILE_ASYNC);
-	WriteSyscall(m_createFileAsyncPtr, SYSCALL_MC2_CREATEFILE_ASYNC);
-	WriteSyscall(m_deleteAsyncPtr, SYSCALL_MC2_DELETE_ASYNC);
-	WriteSyscall(m_getDirAsyncPtr, SYSCALL_MC2_GETDIR_ASYNC);
-	WriteSyscall(m_mkDirAsyncPtr, SYSCALL_MC2_MKDIR_ASYNC);
-	WriteSyscall(m_chDirAsyncPtr, SYSCALL_MC2_CHDIR_ASYNC);
-	WriteSyscall(m_chModAsyncPtr, SYSCALL_MC2_CHMOD_ASYNC);
-	WriteSyscall(m_searchFileAsyncPtr, SYSCALL_MC2_SEARCHFILE_ASYNC);
-	WriteSyscall(m_readFile2AsyncPtr, SYSCALL_MC2_READFILE2_ASYNC);
-	WriteSyscall(m_writeFile2AsyncPtr, SYSCALL_MC2_WRITEFILE2_ASYNC);
-	WriteSyscall(m_checkAsyncPtr, SYSCALL_MC2_CHECKASYNC);
+	WriteSyscall(moduleFunctions.getInfoAsyncPtr, SYSCALL_MC2_GETINFO_ASYNC);
+	WriteSyscall(moduleFunctions.readFileAsyncPtr, SYSCALL_MC2_READFILE_ASYNC);
+	WriteSyscall(moduleFunctions.writeFileAsyncPtr, SYSCALL_MC2_WRITEFILE_ASYNC);
+	WriteSyscall(moduleFunctions.createFileAsyncPtr, SYSCALL_MC2_CREATEFILE_ASYNC);
+	WriteSyscall(moduleFunctions.deleteAsyncPtr, SYSCALL_MC2_DELETE_ASYNC);
+	WriteSyscall(moduleFunctions.getDirAsyncPtr, SYSCALL_MC2_GETDIR_ASYNC);
+	WriteSyscall(moduleFunctions.mkDirAsyncPtr, SYSCALL_MC2_MKDIR_ASYNC);
+	WriteSyscall(moduleFunctions.chDirAsyncPtr, SYSCALL_MC2_CHDIR_ASYNC);
+	WriteSyscall(moduleFunctions.chModAsyncPtr, SYSCALL_MC2_CHMOD_ASYNC);
+	WriteSyscall(moduleFunctions.searchFileAsyncPtr, SYSCALL_MC2_SEARCHFILE_ASYNC);
+	WriteSyscall(moduleFunctions.readFile2AsyncPtr, SYSCALL_MC2_READFILE2_ASYNC);
+	WriteSyscall(moduleFunctions.writeFile2AsyncPtr, SYSCALL_MC2_WRITEFILE2_ASYNC);
+	WriteSyscall(moduleFunctions.checkAsyncPtr, SYSCALL_MC2_CHECKASYNC);
 }
 
 void CLibMc2::WriteSyscall(uint32 address, uint16 syscallNumber)
