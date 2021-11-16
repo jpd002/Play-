@@ -59,6 +59,8 @@ namespace Ee
 
 		CLibMc2(uint8*, CPS2OS&, CIopBios&);
 
+		void Reset();
+
 		void SaveState(Framework::CZipArchiveWriter&);
 		void LoadState(Framework::CZipArchiveReader&);
 

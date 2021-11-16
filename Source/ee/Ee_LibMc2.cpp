@@ -36,6 +36,14 @@ CLibMc2::CLibMc2(uint8* ram, CPS2OS& eeBios, CIopBios& iopBios)
 	    [this](const char* moduleName) { OnIopModuleLoaded(moduleName); });
 }
 
+void CLibMc2::Reset()
+{
+	m_lastCmd = 0;
+	m_lastResult = 0;
+	m_waitThreadId = WAIT_THREAD_ID_EMPTY;
+	m_waitVBlankCount = 0;
+}
+
 void CLibMc2::SaveState(Framework::CZipArchiveWriter& archive)
 {
 	auto registerFile = new CRegisterStateFile(STATE_XML);

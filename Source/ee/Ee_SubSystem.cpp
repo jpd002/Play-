@@ -219,6 +219,7 @@ void CSubSystem::Reset()
 	m_timer.Reset();
 
 	m_os->Initialize();
+	m_os->GetLibMc2().Reset();
 	FillFakeIopRam();
 
 	m_statusRegisterCheckers.clear();
