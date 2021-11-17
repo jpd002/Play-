@@ -511,7 +511,14 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 
 			if(progDialog != null && progDialog.isShowing())
 			{
-				progDialog.dismiss();
+				try
+				{
+					progDialog.dismiss();
+				}
+				catch(final Exception e)
+				{
+					//We don't really care if we get an exception while dismissing
+				}
 			}
 		}
 	}
