@@ -134,6 +134,20 @@ public class EmulatorActivity extends Activity
 	}
 
 	@Override
+	public void onAttachedToWindow()
+	{
+		super.onAttachedToWindow();
+		if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.P)
+		{
+			DisplayCutout displayCutout = getWindow().getDecorView().getRootWindowInsets().getDisplayCutout();
+			if(displayCutout != null)
+			{
+				_fpsTextView.setX(displayCutout.getSafeInsetLeft());
+			}
+		}
+	}
+
+	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data)
 	{
 		if(requestCode == _settingsIntentRequestCode)
