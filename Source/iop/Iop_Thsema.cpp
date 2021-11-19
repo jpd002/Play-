@@ -102,7 +102,7 @@ void CThsema::Invoke(CMIPS& context, unsigned int functionId)
 
 uint32 CThsema::CreateSemaphore(const SEMAPHORE* semaphore)
 {
-	return m_bios.CreateSemaphore(semaphore->initialCount, semaphore->maxCount);
+	return m_bios.CreateSemaphore(semaphore->initialCount, semaphore->maxCount, semaphore->options, semaphore->attributes);
 }
 
 uint32 CThsema::DeleteSemaphore(uint32 semaphoreId)

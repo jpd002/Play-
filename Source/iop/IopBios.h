@@ -233,7 +233,7 @@ public:
 	void SleepThreadTillVBlankStart();
 	void SleepThreadTillVBlankEnd();
 
-	uint32 CreateSemaphore(uint32, uint32);
+	uint32 CreateSemaphore(uint32, uint32, uint32, uint32);
 	uint32 DeleteSemaphore(uint32);
 	uint32 SignalSemaphore(uint32, bool);
 	uint32 WaitSemaphore(uint32);
@@ -332,7 +332,7 @@ private:
 		MAX_MESSAGEBOX = 32,
 		MAX_FPL = 16,
 		MAX_VPL = 16,
-		MAX_MODULESTARTREQUEST = 8,
+		MAX_MODULESTARTREQUEST = 4,
 		MAX_LOADEDMODULE = 32,
 	};
 
@@ -350,6 +350,8 @@ private:
 		uint32 count;
 		uint32 maxCount;
 		uint32 waitCount;
+		uint32 attrib;
+		uint32 option;
 	};
 
 	struct SEMAPHORE_STATUS

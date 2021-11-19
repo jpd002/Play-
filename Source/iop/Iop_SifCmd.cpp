@@ -544,7 +544,7 @@ void CSifCmd::FinishBindRpc(uint32 clientDataAddr, uint32 serverId)
 {
 	auto clientData = reinterpret_cast<SIFRPCCLIENTDATA*>(m_ram + clientDataAddr);
 	clientData->serverDataAddr = serverId;
-	clientData->header.semaId = m_bios.CreateSemaphore(0, 1);
+	clientData->header.semaId = m_bios.CreateSemaphore(0, 1, 0, 0);
 
 	int32 result = CIopBios::KERNEL_RESULT_OK;
 	result = m_bios.WaitSemaphore(clientData->header.semaId);
@@ -808,7 +808,7 @@ void CSifCmd::SifCallRpc(CMIPS& context)
 	assert(clientData->serverDataAddr != 0);
 	clientData->endFctPtr = endFctAddr;
 	clientData->endParam = endParam;
-	clientData->header.semaId = m_bios.CreateSemaphore(0, 1);
+	clientData->header.semaId = m_bios.CreateSemaphore(0, 1, 0, 0);
 	int32 result = CIopBios::KERNEL_RESULT_OK;
 	result = m_bios.WaitSemaphore(clientData->header.semaId);
 	assert(result == CIopBios::KERNEL_RESULT_OK);

@@ -1850,11 +1850,11 @@ void CIopBios::NotifyVBlankEnd()
 #endif
 }
 
-uint32 CIopBios::CreateSemaphore(uint32 initialCount, uint32 maxCount)
+uint32 CIopBios::CreateSemaphore(uint32 initialCount, uint32 maxCount, uint32 optionData, uint32 attributes)
 {
 #ifdef _DEBUG
-	CLog::GetInstance().Print(LOGNAME, "%i: CreateSemaphore(initialCount = %i, maxCount = %i);\r\n",
-	                          m_currentThreadId.Get(), initialCount, maxCount);
+	CLog::GetInstance().Print(LOGNAME, "%i: CreateSemaphore(initialCount = %i, maxCount = %i, optionData = 0x%08X, attributes = 0x%08X);\r\n",
+	                          m_currentThreadId.Get(), initialCount, maxCount, optionData, attributes);
 #endif
 
 	uint32 semaphoreId = m_semaphores.Allocate();
@@ -1864,12 +1864,13 @@ uint32 CIopBios::CreateSemaphore(uint32 initialCount, uint32 maxCount)
 		return -1;
 	}
 
-	SEMAPHORE* semaphore = m_semaphores[semaphoreId];
-
+	auto semaphore = m_semaphores[semaphoreId];
 	semaphore->count = initialCount;
 	semaphore->maxCount = maxCount;
 	semaphore->id = semaphoreId;
 	semaphore->waitCount = 0;
+	semaphore->attrib = attributes;
+	semaphore->option = optionData;
 
 	return semaphore->id;
 }
@@ -2006,8 +2007,8 @@ uint32 CIopBios::ReferSemaphoreStatus(uint32 semaphoreId, uint32 statusPtr)
 	}
 
 	auto status = reinterpret_cast<SEMAPHORE_STATUS*>(m_ram + statusPtr);
-	status->attrib = 0;
-	status->option = 0;
+	status->attrib = semaphore->attrib;
+	status->option = semaphore->option;
 	status->initCount = 0;
 	status->maxCount = semaphore->maxCount;
 	status->currentCount = semaphore->count;
