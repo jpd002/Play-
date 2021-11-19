@@ -314,7 +314,7 @@ void CSubSystem::CountTicks(int ticks)
 	{
 		if((m_EE.m_State.nCOP0[CCOP_SCU::STATUS] & CMIPS::STATUS_EXL) == 0)
 		{
-			m_sif.ProcessPackets();
+			m_sif.CountTicks(ticks);
 		}
 	}
 	m_EE.m_State.nCOP0[CCOP_SCU::COUNT] += ticks;

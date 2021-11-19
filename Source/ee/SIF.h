@@ -21,7 +21,7 @@ public:
 
 	void Reset();
 
-	void ProcessPackets();
+	void CountTicks(uint32);
 	void MarkPacketProcessed();
 
 	void RegisterModule(uint32, CSifModule*);
@@ -36,9 +36,9 @@ public:
 	uint32 ReceiveDMA5(uint32, uint32, uint32, bool);
 	uint32 ReceiveDMA6(uint32, uint32, uint32, bool);
 
-	void SendPacket(void*, uint32);
+	void SendPacket(const void*, uint32);
 
-	void SendDMA(void*, uint32);
+	void SendDMA(const void*, uint32);
 
 	uint32 GetRegister(uint32);
 	void SetRegister(uint32, uint32);
@@ -53,16 +53,27 @@ private:
 		SIFRPCREQUESTEND reply;
 	};
 
+	struct BINDREQUESTINFO
+	{
+		int32 timeout;
+		SIFRPCREQUESTEND reply;
+	};
+
 	typedef std::map<uint32, CSifModule*> ModuleMap;
 	typedef std::vector<uint8> PacketQueue;
 	typedef std::map<uint32, CALLREQUESTINFO> CallReplyMap;
+	typedef std::map<uint32, BINDREQUESTINFO> BindReplyMap;
+
+	void CheckPendingBindRequests(uint32);
 
 	void DeleteModules();
 
 	void SaveCallReplies(Framework::CZipArchiveWriter&);
+	void SaveBindReplies(Framework::CZipArchiveWriter&);
 
 	static PacketQueue LoadPacketQueue(Framework::CZipArchiveReader&);
 	static CallReplyMap LoadCallReplies(Framework::CZipArchiveReader&);
+	static BindReplyMap LoadBindReplies(Framework::CZipArchiveReader&);
 
 	static void SaveState_Header(const std::string&, CStructFile&, const SIFCMDHEADER&);
 	static void SaveState_RpcCall(CStructFile&, const SIFRPCCALL&);
@@ -100,6 +111,7 @@ private:
 	bool m_packetProcessed;
 
 	CallReplyMap m_callReplies;
+	BindReplyMap m_bindReplies;
 
 	ModuleResetHandler m_moduleResetHandler;
 	CustomCommandHandler m_customCommandHandler;

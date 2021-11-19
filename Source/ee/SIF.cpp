@@ -13,6 +13,8 @@
 #define RPC_SERVERID_XOR (0xACACACAC)
 #define SIF_RESETADDR 0 //Only works if equals to 0
 
+#define SIF_BIND_TIMEOUT_TICKS 0x10000
+
 #define LOG_NAME ("sif")
 
 #define STATE_REGS_XML ("sif/regs.xml")
@@ -54,6 +56,8 @@
 #define STATE_PACKET_REQUEST_END_BUFFER ("Packet_Request_End_Buffer")
 #define STATE_PACKET_REQUEST_END_CLIENTBUFFER ("Packet_Request_End_ClientBuffer")
 
+#define STATE_BIND_REPLY_TIMEOUT ("Bind_Reply_Timeout")
+
 CSIF::CSIF(CDMAC& dmac, uint8* eeRam, uint8* iopRam)
     : m_dmac(dmac)
     , m_eeRam(eeRam)
@@ -80,6 +84,7 @@ void CSIF::Reset()
 	m_packetProcessed = true;
 
 	m_callReplies.clear();
+	m_bindReplies.clear();
 
 	DeleteModules();
 }
@@ -100,6 +105,35 @@ void CSIF::SetCmdBuffer(uint32 bufferAddress, uint32 size)
 void CSIF::RegisterModule(uint32 moduleId, CSifModule* module)
 {
 	m_modules[moduleId] = module;
+
+	auto replyIterator(m_bindReplies.find(moduleId));
+	if(replyIterator != m_bindReplies.end())
+	{
+		const auto& requestInfo(replyIterator->second);
+		SendPacket(&requestInfo.reply, sizeof(SIFRPCREQUESTEND));
+		m_bindReplies.erase(replyIterator);
+	}
+}
+
+void CSIF::CheckPendingBindRequests(uint32 ticks)
+{
+	for(auto bindReplyIterator = m_bindReplies.begin();
+	    bindReplyIterator != m_bindReplies.end();)
+	{
+		auto& requestInfo = bindReplyIterator->second;
+		if(requestInfo.timeout < 0)
+		{
+			CLog::GetInstance().Warn(LOG_NAME, "Timed out waiting to bind server 0x%08X.\r\n", bindReplyIterator->first);
+			requestInfo.reply.serverDataAddr = 0;
+			SendPacket(&requestInfo.reply, sizeof(SIFRPCREQUESTEND));
+			bindReplyIterator = m_bindReplies.erase(bindReplyIterator);
+		}
+		else
+		{
+			requestInfo.timeout -= ticks;
+			bindReplyIterator++;
+		}
+	}
 }
 
 bool CSIF::IsModuleRegistered(uint32 moduleId) const
@@ -207,18 +241,20 @@ uint32 CSIF::ReceiveDMA6(uint32 nSrcAddr, uint32 nSize, uint32 nDstAddr, bool is
 	}
 }
 
-void CSIF::SendPacket(void* packet, uint32 size)
+void CSIF::SendPacket(const void* packet, uint32 size)
 {
 	m_packetQueue.insert(m_packetQueue.begin(),
-	                     reinterpret_cast<uint8*>(packet),
-	                     reinterpret_cast<uint8*>(packet) + size);
+	                     reinterpret_cast<const uint8*>(packet),
+	                     reinterpret_cast<const uint8*>(packet) + size);
 	m_packetQueue.insert(m_packetQueue.begin(),
-	                     reinterpret_cast<uint8*>(&size),
-	                     reinterpret_cast<uint8*>(&size) + 4);
+	                     reinterpret_cast<const uint8*>(&size),
+	                     reinterpret_cast<const uint8*>(&size) + 4);
 }
 
-void CSIF::ProcessPackets()
+void CSIF::CountTicks(uint32 ticks)
 {
+	CheckPendingBindRequests(ticks);
+
 	if(m_packetProcessed && !m_packetQueue.empty())
 	{
 		assert(m_packetQueue.size() > 4);
@@ -235,7 +271,7 @@ void CSIF::MarkPacketProcessed()
 	m_packetProcessed = true;
 }
 
-void CSIF::SendDMA(void* pData, uint32 nSize)
+void CSIF::SendDMA(const void* pData, uint32 nSize)
 {
 	//Humm, the DMAC doesn't know about our addresses on this side...
 
@@ -268,6 +304,7 @@ void CSIF::LoadState(Framework::CZipArchiveReader& archive)
 	m_packetQueue = LoadPacketQueue(archive);
 
 	m_callReplies = LoadCallReplies(archive);
+	m_bindReplies = LoadBindReplies(archive);
 }
 
 void CSIF::SaveState(Framework::CZipArchiveWriter& archive)
@@ -287,6 +324,7 @@ void CSIF::SaveState(Framework::CZipArchiveWriter& archive)
 	archive.InsertFile(new CMemoryStateFile(STATE_PACKETQUEUE, m_packetQueue.data(), m_packetQueue.size()));
 
 	SaveCallReplies(archive);
+	SaveBindReplies(archive);
 }
 
 void CSIF::SaveCallReplies(Framework::CZipArchiveWriter& archive)
@@ -304,6 +342,23 @@ void CSIF::SaveCallReplies(Framework::CZipArchiveWriter& archive)
 		callRepliesFile->InsertStruct(replyId.c_str(), replyStruct);
 	}
 	archive.InsertFile(callRepliesFile);
+}
+
+void CSIF::SaveBindReplies(Framework::CZipArchiveWriter& archive)
+{
+	auto bindRepliesFile = new CStructCollectionStateFile(STATE_BIND_REPLIES_XML);
+	for(const auto& bindReplyIterator : m_bindReplies)
+	{
+		const auto& bindReply(bindReplyIterator.second);
+		auto replyId = string_format("%08x", bindReplyIterator.first);
+		CStructFile replyStruct;
+		{
+			SaveState_RequestEnd(replyStruct, bindReply.reply);
+		}
+		replyStruct.SetRegister32(STATE_BIND_REPLY_TIMEOUT, bindReply.timeout);
+		bindRepliesFile->InsertStruct(replyId.c_str(), replyStruct);
+	}
+	archive.InsertFile(bindRepliesFile);
 }
 
 CSIF::PacketQueue CSIF::LoadPacketQueue(Framework::CZipArchiveReader& archive)
@@ -335,6 +390,22 @@ CSIF::CallReplyMap CSIF::LoadCallReplies(Framework::CZipArchiveReader& archive)
 		callReplies[replyId] = callReply;
 	}
 	return callReplies;
+}
+
+CSIF::BindReplyMap CSIF::LoadBindReplies(Framework::CZipArchiveReader& archive)
+{
+	BindReplyMap bindReplies;
+	auto bindRepliesFile = CStructCollectionStateFile(*archive.BeginReadFile(STATE_BIND_REPLIES_XML));
+	for(const auto& structFilePair : bindRepliesFile)
+	{
+		const auto& structFile(structFilePair.second);
+		uint32 replyId = lexical_cast_hex<std::string>(structFilePair.first);
+		BINDREQUESTINFO bindReply;
+		LoadState_RequestEnd(structFile, bindReply.reply);
+		bindReply.timeout = structFile.GetRegister32(STATE_BIND_REPLY_TIMEOUT);
+		bindReplies[replyId] = bindReply;
+	}
+	return bindReplies;
 }
 
 void CSIF::SaveState_Header(const std::string& prefix, CStructFile& file, const SIFCMDHEADER& packetHeader)
@@ -475,7 +546,7 @@ void CSIF::Cmd_Bind(const SIFCMDHEADER* hdr)
 	rend.buffer = RPC_RECVADDR;
 	rend.cbuffer = 0xDEADCAFE;
 
-	CLog::GetInstance().Print(LOG_NAME, "Bound client data (0x%08X) with server id 0x%08X.\r\n", bind->clientDataAddr, bind->serverId);
+	CLog::GetInstance().Print(LOG_NAME, "Binding client data (0x%08X) with server id 0x%08X.\r\n", bind->clientDataAddr, bind->serverId);
 
 	auto moduleIterator(m_modules.find(bind->serverId));
 	if(moduleIterator != m_modules.end())
@@ -484,9 +555,11 @@ void CSIF::Cmd_Bind(const SIFCMDHEADER* hdr)
 	}
 	else
 	{
-		// Binding failed, as module was not loaded in time
-		rend.serverDataAddr = 0;
-		SendPacket(&rend, sizeof(SIFRPCREQUESTEND));
+		assert(m_bindReplies.find(bind->serverId) == m_bindReplies.end());
+		BINDREQUESTINFO requestInfo;
+		requestInfo.reply = rend;
+		requestInfo.timeout = SIF_BIND_TIMEOUT_TICKS;
+		m_bindReplies[bind->serverId] = requestInfo;
 	}
 }
 
