@@ -7,6 +7,7 @@
 #import "PathUtils.h"
 #import "BackgroundLayer.h"
 #import "CoverViewCell.h"
+#import "AltServerJitService.h"
 
 @interface CoverViewController ()
 
@@ -99,6 +100,7 @@ static NSString* const reuseIdentifier = @"coverCell";
 		self.collectionView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentAlways;
 	}
 
+	[[AltServerJitService sharedAltServerJitService] startProcess];
 	[self buildCollectionWithForcedFullScan:NO];
 }
 
@@ -183,6 +185,7 @@ static NSString* const reuseIdentifier = @"coverCell";
 		settingsViewController.allowFullDeviceScan = true;
 		settingsViewController.allowGsHandlerSelection = true;
 		settingsViewController.completionHandler = ^(bool fullScanRequested) {
+		  [[AltServerJitService sharedAltServerJitService] startProcess];
 		  if(fullScanRequested)
 		  {
 			  [self buildCollectionWithForcedFullScan:YES];
