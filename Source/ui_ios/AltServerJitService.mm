@@ -19,7 +19,7 @@
 	static AltServerJitService* sharedInstance = nil;
 	static dispatch_once_t onceToken;
 	dispatch_once(&onceToken, ^{
-		sharedInstance = [[self alloc] init];
+	  sharedInstance = [[self alloc] init];
 	});
 	return sharedInstance;
 }
@@ -36,15 +36,15 @@
 	{
 		return;
 	}
-	
+
 	//Don't start the process if we've already started it
 	if(self.processStarted)
 	{
 		return;
 	}
-	
+
 	self.processStarted = YES;
-	
+
 	[[ALTServerManager sharedManager] startDiscovering];
 
 	[[ALTServerManager sharedManager] autoconnectWithCompletionHandler:^(ALTServerConnection* connection, NSError* error) {

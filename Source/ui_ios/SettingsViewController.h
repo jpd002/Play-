@@ -14,7 +14,7 @@
 	IBOutlet UISwitch* forceBilinearFiltering;
 
 	IBOutlet UISwitch* enableAudioOutput;
-	
+
 	IBOutlet UISwitch* enableAltServerJIT;
 
 	IBOutlet UILabel* versionInfoLabel;
