@@ -61,5 +61,7 @@
 	</array>
 	<key>NSLocalNetworkUsageDescription</key>
 	<string>Play! uses the local network to find and communicate with AltServer.</string>
+	<key>ALTDeviceID</key>
+	<string></string>
 </dict>
 </plist>
