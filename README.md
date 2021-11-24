@@ -6,6 +6,23 @@ If a specific game doesn't work with the emulator, please create a new issue the
 
 For more information, please visit [purei.org](https://purei.org).
 
+## Running on iOS ##
+
+This emulator uses JIT code generation to speed things up. This is not supported by default by iOS, thus, there are some extra requirements:
+
+- Have a device running iOS 13 or less, or an arm64e device running iOS 14.2/14.3.
+- Have a jailbroken device.
+
+If these requirements are not met, there are still ways to enable JIT through other means. Here is a guide explaining how JIT can be enabled:
+
+https://spidy123222.github.io/iOS-Debugging-JIT-Guides/
+
+Play! implements automatic JIT activation through AltServer, which requires AltServer to be running on the same network as your iOS device. This can be enabled in the Settings menu of the emulator.
+
+You can also build the emulator yourself and launch it through Xcode's debugger, but you will need to be tethered to your Mac while playing. You will also need a paid developer license to do that.
+
+**If you try to play a game without JIT enabled, you will experience a crash when you launch the game.**
+
 ## Building ##
 
 ### Getting Started ###
