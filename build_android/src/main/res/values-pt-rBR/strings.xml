@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+	<!-- Application Navigation -->
+
+	<string name="main_menu_settings">Configurações</string>
+	<string name="main_menu_addfolder">Adicionar pasta</string>
+	<string name="main_menu_about">Sobre</string>
+	<string name="main_menu_exit">Sair</string>
+
+	<string name="game_info">Nem informação</string>
+
+	<string name="search_games">Construindo coleção&#8230;</string>
+	<string name="search_games_msg">Por favor, aguarde&#8230;</string>
+	<string name="search_games_scanning">Analisando jogos&#8230;</string>
+	<string name="search_games_scan_folders">Analisando pastas adicionadas&#8230;</string>
+	<string name="search_games_fetching_titles">Obtendo títulos de jogo&#8230;</string>
+	<string name="search_games_fetching">Obtendo jogos&#8230;</string>
+	<string name="search_games_populating">Preenchendo imagens&#8230;</string>
+	<string name="updating_db">Atualizando coleção&#8230;</string>
+
+	<string name="launch_game">Iniciando jogo&#8230;</string>
+	<string name="launch_game_msg">Por favor, aguarde&#8230;</string>
+
+	<string name="navigation_drawer_open">Gaveta de navegação aberta</string>
+	<string name="navigation_drawer_close">Gaveta de navegação fechada</string>
+
+	<string name="menu_title_open">Menu</string>
+	<string name="menu_title_shut">Jogos</string>
+	<string name="menu_title_look">Buscar</string>
+
+	<string name="file_list_recent">Recente</string>
+	<string name="file_list_homebrew">Homebrew</string>
+	<string name="file_list_default">Não classificado</string>
+
+	<string name="game_unavailable">O jogo não está disponível.\nVocê gostaria de removê-lo da lista?</string>
+	<string name="not_found">Não encontrado</string>
+	<string name="no_game_found_adapter">Nenhum jogo encontrado.\n\nPor favor, abra o menu e selecione \'Adicionar pasta\' para adicionar jogos.</string>
+
+	<!-- Application Preferences -->
+
+	<string name="title_activity_settings">Configurações</string>
+
+	<string name="preferences_screen_emu">Configurações do emulador</string>
+
+	<string name="pref_emu_general">Configurações gerais</string>
+
+	<string name="pref_emu_general_fps_display_title">Mostrar quadro e contadores de chamadas de desenho</string>
+	<string name="pref_emu_general_fps_display_summary">Habilita a exibição das estatísticas de &quot;quadros por segundo&quot; (f/s) e de &quot;chamadas de desenho por quadro&quot; (dc/f) na tela.</string>
+
+	<string name="pref_emu_general_pad_display_title">Mostrar Virtual Pad</string>
+	<string name="pref_emu_general_pad_display_summary">Habilita a exibição do controle virtual na tela.</string>
+
+	<string name="pref_emu_general_limit_frame_rate_title">Limitar taxa de quadros</string>
+	<string name="pref_emu_general_limit_frame_rate_summary">Limita a taxa de quadros para a taxa de atualização de vídeo</string>
+
+	<string name="pref_emu_video">Configurações de vídeo</string>
+
+	<string name="pref_emu_video_gs_handler_title">Manipulador do GS</string>
+
+	<string name="pref_emu_video_res_factor_title">Definir fator de resolução</string>
+
+	<string name="pref_emu_video_widescreen_title">Redimensionar a saída para Widescreen</string>
+	<string name="pref_emu_video_widescreen_summary">Redimensiona o vídeo para a proporção 16:9.</string>
+
+	<string name="pref_emu_video_force_bilinear_title">Forçar filtro bilinear</string>
+	<string name="pref_emu_video_force_bilinear_summary">Força o uso do filtro bilinear em todas as texturas.</string>
+
+	<string name="pref_emu_video_presentation_mode_title">Modo de apresentação</string>
+
+	<string name="pref_emu_audio">Configurações de áudio</string>
+
+	<string name="pref_emu_audio_enable_output_title">Habilitar saída de áudio</string>
+	<string name="pref_emu_audio_enable_output_summary">Habilita a saída de áudio.</string>
+
+	<string name="pref_emu_audio_spublockcount_title">Tamanho do buffer</string>
+
+	<string name="preferences_screen_ui">Configurações da interface</string>
+
+	<string name="preferences_ui">Opções de armazenamento</string>
+
+	<string name="pref_ui_rescan_all_title">Reanalisar armazenamento</string>
+	<string name="pref_ui_rescan_all_summary">Analisa o armazenamento por novos jogo</string>
+
+	<string name="pref_ui_clear_unavailable_title">Limpar jogos indisponíveis</string>
+	<string name="pref_ui_clear_unavailable_summary">Remove qualquer jogo atualmente inacessível da lista de jogos</string>
+
+	<string name="pref_ui_reset_cache_title">Restaurar cache</string>
+	<string name="pref_ui_reset_cache_summary">Limpa as imagens de capa armazenadas</string>
+
+	<string name="pref_ui_migrate_datafiles_title">Migrar arquivos de dados</string>
+	<string name="pref_ui_migrate_datafiles_summary">Migra os arquivos de dados a partir de uma pasta no dispositivo</string>
+
+	<string name="preferences_theme">Configurações de tema</string>
+
+	<string name="pref_title_theme_selection">Seleção de trema</string>
+
+	<string-array name="pref_theme_selection_titles">
+		<item>Âmbar</item>
+		<item>Azul (Padrão)</item>
+		<item>Rosa</item>
+		<item>Púrpura</item>
+		<item>Azul-petróleo</item>
+		<item>Púrpura escuro</item>
+		<item>Verde</item>
+	</string-array>
+
+	<string-array name="pref_emu_video_gs_handler_entries">
+		<item>OpenGL</item>
+		<item>Vulkan (Experimental)</item>
+	</string-array>
+
+	<string-array name="pref_emu_video_res_factor_entries">
+		<item>1x</item>
+		<item>2x</item>
+		<item>4x</item>
+		<item>8x</item>
+	</string-array>
+
+	<string-array name="pref_emu_video_presentation_mode_entries">
+		<item>Preencher tela</item>
+		<item>Ajustar à tela (Padrão)</item>
+		<item>Tamanho original</item>
+	</string-array>
+
+	<string-array name="pref_emu_audio_spublockcount_entries">
+		<item>400</item>
+		<item>100</item>
+		<item>10</item>
+	</string-array>
+
+	<!-- Emulator Drawer -->
+
+	<string name="emulator_drawer_exit">Sair</string>
+	<string name="emulator_drawer_savestate">Salvar estado</string>
+	<string name="emulator_drawer_loadstate">Carregar estado</string>
+
+	<string name="emulator_save_state_ok">Estado salvo com sucesso.</string>
+	<string name="emulator_save_state_fail">Não foi possível salvar o estado.</string>
+
+	<string name="emulator_load_state_ok">Estado carregado com sucesso.</string>
+	<string name="emulator_load_state_fail">Não foi possível carregar o estado.</string>
+
+	<!-- Error Reporting / Debugging -->
+
+	<string name="report_issue">Erro detectado</string>
+
+	<string name="dismiss">Ignorar</string>
+	<string name="report">Reportar</string>
+
+	<string name="platform">Copiando o conteúdo de logcat para área de transferência\nPor favor, cole no relatório de emissão</string>
+	<string name="log_saved">Registro salvo na pasta \"Files Dir\"</string>
+	<string name="no_recent_adapter">Não foi encontrado nenhum jogo de PS2 jogado recentemente.</string>
+
+	<!-- Editor Menu -->
+	<string name="editor_menu_save">Salvar</string>
+	<string name="editor_menu_reset">Reiniciar</string>
+	<string name="editor_menu_cancel">Cancelar</string>
+
+	<!-- Game Info Edit Activity -->
+	<string name="gameinfo_edit_activity_gametitle">Título do jogo</string>
+	<string name="gameinfo_edit_activity_gameoverview">Visão geral do jogo</string>
+	<string name="gameinfo_edit_activity_gamecover">Capa do jogo</string>
+	<string name="gameinfo_edit_activity_gamecover_change">Alterar</string>
+	<string name="gameinfo_edit_activity_gamecover_default">Padrão</string>
+
+	<string name="permission_dialog_title">Pedido de permissão</string>
+	<string name="permission_dialog_summary">O Play! precisa de acesso ao armazenamento (leitura/escrita). Sem ele, o Play! não será capaz de encontrar seus jogos ou salvar seu progresso.</string>
+
+	<!-- Data Files Migration -->
+	<string name="migration_title">Migração de arquivos de dados</string>
+	<string name="migration_explanation">Devido a mudanças na política de acesso ao sistema de arquivos no Android 11, esta nova versão deste aplicativo usa uma pasta \'Data Files\' dentro da pasta de dados do aplicativo, em vez de armazenamento externo.\n\nVocê gostaria de migrar seus dados do local anterior para o novo?</string>
+	<string name="migration_selectfolder">Por favor, selecione a localização da pasta de arquivos de dados anterior (geralmente localizada na raiz do armazenamento de seu dispositivo e denominada de \'Play Data Files\').</string>
+	<string name="migration_task_msg">Por favor, aguarde&#8230;</string>
+
+</resources>
