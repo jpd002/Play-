@@ -72,6 +72,10 @@ if(BUILD_PLAY)
 		if(TARGET_PLATFORM_ANDROID)
 			add_subdirectory(Source/ui_android/)
 		endif(TARGET_PLATFORM_ANDROID)
+
+		if(TARGET_PLATFORM_JS)
+			add_subdirectory(Source/ui_js)
+		endif(TARGET_PLATFORM_JS)
 	endif()
 endif(BUILD_PLAY)
 
