@@ -92,10 +92,14 @@ public:
 
 	ProfileFrameDoneSignal ProfileFrameDone;
 
+protected:
+	virtual void CreateVM();
+
+	CMailBox m_mailBox;
+
 private:
 	typedef std::unique_ptr<COpticalMedia> OpticalMediaPtr;
 
-	void CreateVM();
 	void ResetVM();
 	void DestroyVM();
 	bool SaveVMState(const fs::path&);
@@ -132,7 +136,6 @@ private:
 	void EmuThread();
 
 	std::thread m_thread;
-	CMailBox m_mailBox;
 	STATUS m_nStatus;
 	bool m_nEnd;
 

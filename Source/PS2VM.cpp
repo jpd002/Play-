@@ -90,13 +90,6 @@ CPS2VM::CPS2VM()
 
 	Framework::PathUtils::EnsurePathExists(GetStateDirectoryPath());
 
-	m_iop = std::make_unique<Iop::CSubSystem>(true);
-	auto iopOs = dynamic_cast<CIopBios*>(m_iop->m_bios.get());
-
-	m_ee = std::make_unique<Ee::CSubSystem>(m_iop->m_ram, *iopOs);
-	m_OnRequestLoadExecutableConnection = m_ee->m_os->OnRequestLoadExecutable.Connect(std::bind(&CPS2VM::ReloadExecutable, this, std::placeholders::_1, std::placeholders::_2));
-	m_OnCrtModeChangeConnection = m_ee->m_os->OnCrtModeChange.Connect(std::bind(&CPS2VM::OnCrtModeChange, this));
-
 	CAppConfig::GetInstance().RegisterPreferenceBoolean(PREF_PS2_LIMIT_FRAMERATE, true);
 	ReloadFrameRateLimit();
 
@@ -259,7 +252,6 @@ void CPS2VM::DumpEEDmacHandlers()
 
 void CPS2VM::Initialize()
 {
-	CreateVM();
 	m_nEnd = false;
 	m_thread = std::thread([&]() { EmuThread(); });
 }
@@ -404,6 +396,13 @@ void CPS2VM::SaveDebugTags(const char* packageName)
 
 void CPS2VM::CreateVM()
 {
+	m_iop = std::make_unique<Iop::CSubSystem>(true);
+	auto iopOs = dynamic_cast<CIopBios*>(m_iop->m_bios.get());
+
+	m_ee = std::make_unique<Ee::CSubSystem>(m_iop->m_ram, *iopOs);
+	m_OnRequestLoadExecutableConnection = m_ee->m_os->OnRequestLoadExecutable.Connect(std::bind(&CPS2VM::ReloadExecutable, this, std::placeholders::_1, std::placeholders::_2));
+	m_OnCrtModeChangeConnection = m_ee->m_os->OnCrtModeChange.Connect(std::bind(&CPS2VM::OnCrtModeChange, this));
+
 	ResetVM();
 }
 
@@ -782,6 +781,7 @@ void CPS2VM::OnCrtModeChange()
 
 void CPS2VM::EmuThread()
 {
+	CreateVM();
 	fesetround(FE_TOWARDZERO);
 	FpUtils::SetDenormalHandlingMode();
 	CProfiler::GetInstance().SetWorkThread();
