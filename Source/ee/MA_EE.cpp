@@ -119,6 +119,7 @@ void CMA_EE::LQ()
 	}
 	m_codeGen->Else();
 	{
+#ifndef __EMSCRIPTEN__
 		ComputeMemAccessAddrNoXlat();
 
 		m_codeGen->PushCtx();
@@ -127,6 +128,7 @@ void CMA_EE::LQ()
 		m_codeGen->MD_PullRel(offsetof(CMIPS, m_State.nGPR[m_nRT]));
 
 		m_codeGen->PullTop();
+#endif
 	}
 	m_codeGen->EndIf();
 }
@@ -146,6 +148,7 @@ void CMA_EE::SQ()
 	}
 	m_codeGen->Else();
 	{
+#ifndef __EMSCRIPTEN__
 		ComputeMemAccessAddrNoXlat();
 
 		m_codeGen->PushCtx();
@@ -154,6 +157,7 @@ void CMA_EE::SQ()
 		m_codeGen->Call(reinterpret_cast<void*>(&MemoryUtils_SetQuadProxy), 3, Jitter::CJitter::RETURN_VALUE_NONE);
 
 		m_codeGen->PullTop();
+#endif
 	}
 	m_codeGen->EndIf();
 }
