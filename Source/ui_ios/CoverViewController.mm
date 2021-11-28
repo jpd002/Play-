@@ -102,6 +102,7 @@ static NSString* const reuseIdentifier = @"coverCell";
 
 	[[AltServerJitService sharedAltServerJitService] startProcess];
 	[self buildCollectionWithForcedFullScan:NO];
+    self.collectionView.collectionViewLayout = [self createLayout];
 }
 
 - (void)viewDidUnload
@@ -128,6 +129,35 @@ static NSString* const reuseIdentifier = @"coverCell";
 	{
 		return NO;
 	}
+}
+
+#pragma mark <UICollectionViewLayout>
+
+-(UICollectionViewLayout*)createLayout
+{
+    UICollectionViewCompositionalLayout *layout = [[UICollectionViewCompositionalLayout alloc] initWithSectionProvider:^NSCollectionLayoutSection * _Nullable(NSInteger section, id<NSCollectionLayoutEnvironment> _Nonnull layoutEnvironment) {
+        NSInteger numColumns = [self columnCountForTraitCollection:layoutEnvironment.traitCollection];
+        NSCollectionLayoutSize *layoutSize = [NSCollectionLayoutSize sizeWithWidthDimension:[NSCollectionLayoutDimension fractionalWidthDimension:0.2] heightDimension:[NSCollectionLayoutDimension estimatedDimension:300]];
+        NSCollectionLayoutItem *item = [NSCollectionLayoutItem itemWithLayoutSize:layoutSize];
+        item.contentInsets = NSDirectionalEdgeInsetsMake(2, 2, 2, 2);
+        NSCollectionLayoutDimension *groupHeight = [NSCollectionLayoutDimension estimatedDimension:300];
+        NSCollectionLayoutSize *groupSize = [NSCollectionLayoutSize sizeWithWidthDimension:[NSCollectionLayoutDimension fractionalWidthDimension:1.0] heightDimension:groupHeight];
+        NSCollectionLayoutGroup *group = [NSCollectionLayoutGroup horizontalGroupWithLayoutSize:groupSize subitem:item count:numColumns];
+        return [NSCollectionLayoutSection sectionWithGroup:group];
+    }];
+    return layout;
+}
+
+-(NSInteger)columnCountForTraitCollection:(UITraitCollection*)traitCollection
+{
+    switch (traitCollection.horizontalSizeClass) {
+        case UIUserInterfaceSizeClassRegular:
+            return 4;
+            break;
+        default:
+            return 2;
+            break;
+    }
 }
 
 #pragma mark <UICollectionViewDataSource>
@@ -164,8 +194,6 @@ static NSString* const reuseIdentifier = @"coverCell";
 
 	return cell;
 }
-
-#pragma mark <UICollectionViewDelegate>
 
 - (void)prepareForSegue:(UIStoryboardSegue*)segue sender:(id)sender
 {
