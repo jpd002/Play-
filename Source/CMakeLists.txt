@@ -43,6 +43,7 @@ if(NOT TARGET Framework)
 	add_subdirectory(
 		${CMAKE_CURRENT_SOURCE_DIR}/../deps/Framework/build_cmake/Framework
 		${CMAKE_CURRENT_BINARY_DIR}/Framework
+		EXCLUDE_FROM_ALL
 	)
 endif()
 list(APPEND PROJECT_LIBS Framework)
@@ -52,6 +53,7 @@ if(ENABLE_AMAZON_S3)
 		add_subdirectory(
 			${CMAKE_CURRENT_SOURCE_DIR}/../deps/Framework/build_cmake/FrameworkAmazon
 			${CMAKE_CURRENT_BINARY_DIR}/FrameworkAmazon
+			EXCLUDE_FROM_ALL
 		)
 	endif()
 	list(APPEND PROJECT_LIBS Framework_Amazon)
@@ -76,6 +78,7 @@ if(NOT BZIP2_FOUND)
 		add_subdirectory(
 			${CMAKE_CURRENT_SOURCE_DIR}/../deps/Dependencies/build_cmake/bzip2-1.0.6
 			${CMAKE_CURRENT_BINARY_DIR}/bzip2-1.0.6
+			EXCLUDE_FROM_ALL
 		)
 	endif()
 	list(APPEND PROJECT_LIBS BZip2::BZip2)
@@ -91,6 +94,7 @@ if(NOT ZLIB_FOUND)
 		add_subdirectory(
 			${CMAKE_CURRENT_SOURCE_DIR}/../deps/Dependencies/build_cmake/zlib-1.2.8
 			${CMAKE_CURRENT_BINARY_DIR}/zlib-1.2.8
+			EXCLUDE_FROM_ALL
 		)
 	endif()
 endif()
@@ -106,6 +110,7 @@ if(NOT TARGET libchdr)
 	add_subdirectory(
 		${CMAKE_CURRENT_SOURCE_DIR}/../deps/libchdr/
 		${CMAKE_CURRENT_BINARY_DIR}/libchdr
+		EXCLUDE_FROM_ALL
 	)
 endif()
 list(APPEND PROJECT_LIBS chdr-static)
