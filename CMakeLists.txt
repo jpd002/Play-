@@ -27,12 +27,22 @@ if(BUILD_TESTS)
 	enable_testing()
 endif()
 
-execute_process(COMMAND git describe RESULT_VARIABLE GIT_DESCRIBE_RESULT OUTPUT_VARIABLE GIT_TAG OUTPUT_STRIP_TRAILING_WHITESPACE)
-if(GIT_DESCRIBE_RESULT EQUAL 0)
-	message("Building for ${GIT_TAG}.")
-	set(PROJECT_Version ${GIT_TAG})
+find_package(Git)
+if(GIT_FOUND AND EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/.git/")
+	execute_process(COMMAND ${GIT_EXECUTABLE} describe --always
+		WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+		RESULT_VARIABLE GIT_DESCRIBE_RESULT
+		OUTPUT_VARIABLE GIT_TAG
+		OUTPUT_STRIP_TRAILING_WHITESPACE
+	)
+	if(GIT_DESCRIBE_RESULT EQUAL 0)
+		message("Building for ${GIT_TAG}.")
+		set(PROJECT_Version ${GIT_TAG})
+	else()
+		message("Warning: Failed to obtain Git tag.")
+	endif()
 else()
-	message("Warning: Failed to obtain Git tag.")
+	message("Warning: Not a git repo or git not found.")
 endif()
 
 add_definitions(-DPLAY_VERSION="${PROJECT_Version}")
