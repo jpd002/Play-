@@ -409,13 +409,16 @@ void CLibMc2::CheckAsync(CMIPS& context)
 	//Returns -1 if no function was executing
 	uint32 result = (m_lastCmd != 0) ? 1 : -1;
 
+	//Don't report last cmd result if we didn't execute a command
+	uint32 lastCmdResult = (m_lastCmd != 0) ? m_lastResult : 0;
+
 	if(cmdPtr != 0)
 	{
 		*reinterpret_cast<uint32*>(m_ram + cmdPtr) = m_lastCmd;
 	}
 	if(resultPtr != 0)
 	{
-		*reinterpret_cast<uint32*>(m_ram + resultPtr) = m_lastResult;
+		*reinterpret_cast<uint32*>(m_ram + resultPtr) = lastCmdResult;
 	}
 
 	m_lastCmd = 0;
