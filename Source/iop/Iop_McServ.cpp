@@ -1075,7 +1075,7 @@ void CMcServ::CPathFinder::SearchRecurse(const fs::path& path)
 
 			if(fs::is_directory(*elementIterator))
 			{
-				entry.size = 0;
+				entry.size = CountEntries(*elementIterator);
 				entry.attributes = MC_FILE_ATTR_FOLDER;
 			}
 			else
@@ -1109,4 +1109,15 @@ void CMcServ::CPathFinder::SearchRecurse(const fs::path& path)
 			SearchRecurse(*elementIterator);
 		}
 	}
+}
+
+uint32 CMcServ::CPathFinder::CountEntries(const fs::path& path)
+{
+	uint32 entryCount = 0;
+	assert(fs::is_directory(path));
+	for(auto& entry : fs::directory_iterator(path))
+	{
+		entryCount++;
+	}
+	return entryCount;
 }

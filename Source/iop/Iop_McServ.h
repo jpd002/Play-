@@ -174,6 +174,7 @@ namespace Iop
 			typedef std::vector<ENTRY> EntryList;
 
 			void SearchRecurse(const fs::path&);
+			uint32 CountEntries(const fs::path&);
 
 			EntryList m_entries;
 			fs::path m_basePath;
