@@ -137,13 +137,15 @@ static NSString* const reuseIdentifier = @"coverCell";
 {
 	UICollectionViewCompositionalLayout* layout = [[UICollectionViewCompositionalLayout alloc] initWithSectionProvider:^NSCollectionLayoutSection* _Nullable(NSInteger section, id<NSCollectionLayoutEnvironment> _Nonnull layoutEnvironment) {
 	  NSInteger numColumns = [self columnCountForTraitCollection:layoutEnvironment.traitCollection];
-	  NSCollectionLayoutSize* layoutSize = [NSCollectionLayoutSize sizeWithWidthDimension:[NSCollectionLayoutDimension fractionalWidthDimension:0.2] heightDimension:[NSCollectionLayoutDimension estimatedDimension:300]];
+	  NSCollectionLayoutSize* layoutSize = [NSCollectionLayoutSize sizeWithWidthDimension:[NSCollectionLayoutDimension fractionalWidthDimension:0.2] heightDimension:[NSCollectionLayoutDimension fractionalHeightDimension:1.0]];
 	  NSCollectionLayoutItem* item = [NSCollectionLayoutItem itemWithLayoutSize:layoutSize];
-	  item.contentInsets = NSDirectionalEdgeInsetsMake(2, 2, 2, 2);
 	  NSCollectionLayoutDimension* groupHeight = [NSCollectionLayoutDimension estimatedDimension:300];
 	  NSCollectionLayoutSize* groupSize = [NSCollectionLayoutSize sizeWithWidthDimension:[NSCollectionLayoutDimension fractionalWidthDimension:1.0] heightDimension:groupHeight];
 	  NSCollectionLayoutGroup* group = [NSCollectionLayoutGroup horizontalGroupWithLayoutSize:groupSize subitem:item count:numColumns];
-	  return [NSCollectionLayoutSection sectionWithGroup:group];
+      group.interItemSpacing = [NSCollectionLayoutSpacing fixedSpacing:8.0];
+      NSCollectionLayoutSection *layoutSection = [NSCollectionLayoutSection sectionWithGroup:group];
+      layoutSection.interGroupSpacing = 8.0;
+	  return layoutSection;
 	}];
 	return layout;
 }
