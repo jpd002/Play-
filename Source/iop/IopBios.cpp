@@ -13,6 +13,7 @@
 #include "../Ps2Const.h"
 #include "../MipsExecutor.h"
 #include "Iop_Intc.h"
+#include "../states/MemoryStateFile.h"
 #include "../states/StructCollectionStateFile.h"
 
 #ifdef _IOP_EMULATE_MODULES
@@ -44,6 +45,8 @@
 #define STATE_MODULES ("iopbios/dyn_modules.xml")
 #define STATE_MODULE_IMPORT_TABLE_ADDRESS ("ImportTableAddress")
 
+#define STATE_MODULESTARTREQUESTS ("iopbios/module_start_requests")
+
 #define BIOS_THREAD_LINK_HEAD_BASE (CIopBios::CONTROL_BLOCK_START + 0x0000)
 #define BIOS_CURRENT_THREAD_ID_BASE (CIopBios::CONTROL_BLOCK_START + 0x0008)
 #define BIOS_CURRENT_TIME_BASE (CIopBios::CONTROL_BLOCK_START + 0x0010)
@@ -71,9 +74,7 @@
 #define BIOS_VPL_SIZE (sizeof(CIopBios::VPL) * CIopBios::MAX_VPL)
 #define BIOS_MEMORYBLOCK_BASE (BIOS_VPL_BASE + BIOS_VPL_SIZE)
 #define BIOS_MEMORYBLOCK_SIZE (sizeof(Iop::MEMORYBLOCK) * CIopBios::MAX_MEMORYBLOCK)
-#define BIOS_MODULESTARTREQUEST_BASE (BIOS_MEMORYBLOCK_BASE + BIOS_MEMORYBLOCK_SIZE)
-#define BIOS_MODULESTARTREQUEST_SIZE (sizeof(CIopBios::MODULESTARTREQUEST) * CIopBios::MAX_MODULESTARTREQUEST)
-#define BIOS_LOADEDMODULE_BASE (BIOS_MODULESTARTREQUEST_BASE + BIOS_MODULESTARTREQUEST_SIZE)
+#define BIOS_LOADEDMODULE_BASE (BIOS_MEMORYBLOCK_BASE + BIOS_MEMORYBLOCK_SIZE)
 #define BIOS_LOADEDMODULE_SIZE (sizeof(CIopBios::LOADEDMODULE) * CIopBios::MAX_LOADEDMODULE)
 #define BIOS_CALCULATED_END (BIOS_LOADEDMODULE_BASE + BIOS_LOADEDMODULE_SIZE)
 
@@ -332,6 +333,8 @@ void CIopBios::SaveState(Framework::CZipArchiveWriter& archive)
 	{
 		module->SaveState(archive);
 	}
+
+	archive.InsertFile(new CMemoryStateFile(STATE_MODULESTARTREQUESTS, m_moduleStartRequests, sizeof(m_moduleStartRequests)));
 }
 
 void CIopBios::LoadState(Framework::CZipArchiveReader& archive)
@@ -369,6 +372,8 @@ void CIopBios::LoadState(Framework::CZipArchiveReader& archive)
 		}
 	}
 
+	archive.BeginReadFile(STATE_MODULESTARTREQUESTS)->Read(m_moduleStartRequests, sizeof(m_moduleStartRequests));
+
 #ifdef _IOP_EMULATE_MODULES
 	//Make sure HLE modules are properly registered
 	for(const auto& loadedModule : m_loadedModules)
@@ -405,15 +410,19 @@ bool CIopBios::IsIdle()
 
 void CIopBios::InitializeModuleStarter()
 {
-	ModuleStartRequestHead() = 0;
-	ModuleStartRequestFree() = BIOS_MODULESTARTREQUEST_BASE;
+	memset(m_moduleStartRequests, 0, sizeof(m_moduleStartRequests));
+
+	ModuleStartRequestHead() = MODULESTARTREQUEST::INVALID_PTR;
+	ModuleStartRequestFree() = 0;
 
 	//Initialize Module Load Request Free List
 	for(unsigned int i = 0; i < (MAX_MODULESTARTREQUEST - 1); i++)
 	{
-		auto moduleStartRequest = reinterpret_cast<MODULESTARTREQUEST*>(m_ram + BIOS_MODULESTARTREQUEST_BASE) + i;
-		moduleStartRequest->nextPtr = reinterpret_cast<uint8*>(moduleStartRequest + 1) - m_ram;
+		auto moduleStartRequest = &m_moduleStartRequests[i];
+		moduleStartRequest->nextPtr = i + 1;
 	}
+
+	m_moduleStartRequests[MAX_MODULESTARTREQUEST - 1].nextPtr = MODULESTARTREQUEST::INVALID_PTR;
 
 	m_moduleStarterThreadId = CreateThread(m_moduleStarterThreadProcAddress, MODULE_INIT_PRIORITY, DEFAULT_STACKSIZE, 0, 0);
 	StartThread(m_moduleStarterThreadId, 0);
@@ -422,29 +431,29 @@ void CIopBios::InitializeModuleStarter()
 void CIopBios::RequestModuleStart(bool stopRequest, uint32 moduleId, const char* path, const char* args, unsigned int argsLength)
 {
 	uint32 requestPtr = ModuleStartRequestFree();
-	assert(requestPtr != 0);
-	if(requestPtr == 0)
+	assert(requestPtr != MODULESTARTREQUEST::INVALID_PTR);
+	if(requestPtr == MODULESTARTREQUEST::INVALID_PTR)
 	{
 		CLog::GetInstance().Warn(LOGNAME, "Too many modules to be loaded.");
 		return;
 	}
 
-	auto moduleStartRequest = reinterpret_cast<MODULESTARTREQUEST*>(m_ram + requestPtr);
+	auto moduleStartRequest = &m_moduleStartRequests[requestPtr];
 
 	//Unlink from free list and link in active list (at the end)
 	{
 		ModuleStartRequestFree() = moduleStartRequest->nextPtr;
 
 		uint32* currentPtr = &ModuleStartRequestHead();
-		while(*currentPtr != 0)
+		while(*currentPtr != MODULESTARTREQUEST::INVALID_PTR)
 		{
-			auto currentModuleLoadRequest = reinterpret_cast<MODULESTARTREQUEST*>(m_ram + *currentPtr);
+			auto currentModuleLoadRequest = &m_moduleStartRequests[*currentPtr];
 			currentPtr = &currentModuleLoadRequest->nextPtr;
 		}
 
 		*currentPtr = requestPtr;
 
-		moduleStartRequest->nextPtr = 0;
+		moduleStartRequest->nextPtr = MODULESTARTREQUEST::INVALID_PTR;
 	}
 
 	moduleStartRequest->moduleId = moduleId;
@@ -476,14 +485,14 @@ void CIopBios::ProcessModuleStart()
 	assert(m_currentThreadId == m_moduleStarterThreadId);
 
 	uint32 requestPtr = ModuleStartRequestHead();
-	assert(requestPtr != 0);
-	if(requestPtr == 0)
+	assert(requestPtr != MODULESTARTREQUEST::INVALID_PTR);
+	if(requestPtr == MODULESTARTREQUEST::INVALID_PTR)
 	{
 		CLog::GetInstance().Print(LOGNAME, "Asked to load module when none was requested.");
 		return;
 	}
 
-	auto moduleStartRequest = reinterpret_cast<MODULESTARTREQUEST*>(m_ram + requestPtr);
+	auto moduleStartRequest = &m_moduleStartRequests[requestPtr];
 
 	//Unlink from active list and link in free list
 	{

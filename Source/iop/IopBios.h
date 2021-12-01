@@ -332,7 +332,7 @@ private:
 		MAX_MESSAGEBOX = 32,
 		MAX_FPL = 16,
 		MAX_VPL = 16,
-		MAX_MODULESTARTREQUEST = 4,
+		MAX_MODULESTARTREQUEST = 32,
 		MAX_LOADEDMODULE = 32,
 	};
 
@@ -493,6 +493,11 @@ private:
 	{
 		enum
 		{
+			INVALID_PTR = -1,
+		};
+
+		enum
+		{
 			MAX_PATH_SIZE = 256,
 			MAX_ARGS_SIZE = 256
 		};
@@ -644,6 +649,8 @@ private:
 	MessageBoxList m_messageBoxes;
 	FplList m_fpls;
 	VplList m_vpls;
+
+	MODULESTARTREQUEST m_moduleStartRequests[MAX_MODULESTARTREQUEST] = {};
 
 	IopModuleMapType m_modules;
 
