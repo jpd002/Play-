@@ -696,6 +696,9 @@ void CPS2OS::AssembleInterruptHandler()
 {
 	CEEAssembler assembler(reinterpret_cast<uint32*>(&m_bios[BIOS_ADDRESS_INTERRUPTHANDLER - BIOS_ADDRESS_BASE]));
 
+	auto processDmacLabel = assembler.CreateLabel();
+	auto doneLabel = assembler.CreateLabel();
+
 	const uint32 stackFrameSize = 0x230;
 
 	//Invariant - Current thread is idle thread
@@ -719,69 +722,73 @@ void CPS2OS::AssembleInterruptHandler()
 	assembler.AND(CMIPS::T0, CMIPS::T0, CMIPS::T1);
 	assembler.MTC0(CMIPS::T0, CCOP_SCU::STATUS);
 
-	//Get INTC status
-	assembler.LI(CMIPS::T0, CINTC::INTC_STAT);
-	assembler.LW(CMIPS::S0, 0x0000, CMIPS::T0);
-
-	//Get INTC mask
-	assembler.LI(CMIPS::T1, CINTC::INTC_MASK);
-	assembler.LW(CMIPS::S1, 0x0000, CMIPS::T1);
-
-	//Get cause
-	assembler.AND(CMIPS::S0, CMIPS::S0, CMIPS::S1);
-
-	//Clear cause
-	//assembler.SW(CMIPS::S0, 0x0000, CMIPS::T0);
+	//Get CAUSE register
+	assembler.MFC0(CMIPS::T0, CCOP_SCU::CAUSE);
+	assembler.ADDIU(CMIPS::T1, CMIPS::R0, CCOP_SCU::CAUSE_IP_3);
+	assembler.AND(CMIPS::T0, CMIPS::T0, CMIPS::T1);
+	assembler.BNE(CMIPS::T0, CMIPS::R0, processDmacLabel);
 	assembler.NOP();
 
-	static const auto generateIntHandler =
-	    [](CMIPSAssembler& assembler, uint32 line) {
-		    auto skipIntHandlerLabel = assembler.CreateLabel();
-
-		    //Check cause
-		    assembler.ANDI(CMIPS::T0, CMIPS::S0, (1 << line));
-		    assembler.BEQ(CMIPS::R0, CMIPS::T0, skipIntHandlerLabel);
-		    assembler.NOP();
-
-		    //Process handlers
-		    assembler.ADDIU(CMIPS::A0, CMIPS::R0, line);
-		    assembler.JAL(BIOS_ADDRESS_INTCHANDLER);
-		    assembler.NOP();
-
-		    if(line == CINTC::INTC_LINE_TIMER3)
-		    {
-			    assembler.JAL(BIOS_ADDRESS_ALARMHANDLER);
-			    assembler.NOP();
-		    }
-
-		    assembler.MarkLabel(skipIntHandlerLabel);
-	    };
-
-	generateIntHandler(assembler, CINTC::INTC_LINE_GS);
-
+	//Process INTC interrupt
 	{
-		auto skipIntHandlerLabel = assembler.CreateLabel();
+		//Get INTC status
+		assembler.LI(CMIPS::T0, CINTC::INTC_STAT);
+		assembler.LW(CMIPS::S0, 0x0000, CMIPS::T0);
 
-		//Check if INT1 (DMAC)
-		assembler.ANDI(CMIPS::T0, CMIPS::S0, (1 << CINTC::INTC_LINE_DMAC));
-		assembler.BEQ(CMIPS::R0, CMIPS::T0, skipIntHandlerLabel);
+		//Get INTC mask
+		assembler.LI(CMIPS::T1, CINTC::INTC_MASK);
+		assembler.LW(CMIPS::S1, 0x0000, CMIPS::T1);
+
+		//Get cause
+		assembler.AND(CMIPS::S0, CMIPS::S0, CMIPS::S1);
+
+		static const auto generateIntHandler =
+			[](CMIPSAssembler& assembler, uint32 line)
+		{
+			auto skipIntHandlerLabel = assembler.CreateLabel();
+
+			//Check cause
+			assembler.ANDI(CMIPS::T0, CMIPS::S0, (1 << line));
+			assembler.BEQ(CMIPS::R0, CMIPS::T0, skipIntHandlerLabel);
+			assembler.NOP();
+
+			//Process handlers
+			assembler.ADDIU(CMIPS::A0, CMIPS::R0, line);
+			assembler.JAL(BIOS_ADDRESS_INTCHANDLER);
+			assembler.NOP();
+
+			if (line == CINTC::INTC_LINE_TIMER3)
+			{
+				assembler.JAL(BIOS_ADDRESS_ALARMHANDLER);
+				assembler.NOP();
+			}
+
+			assembler.MarkLabel(skipIntHandlerLabel);
+		};
+
+		generateIntHandler(assembler, CINTC::INTC_LINE_GS);
+		generateIntHandler(assembler, CINTC::INTC_LINE_VBLANK_START);
+		generateIntHandler(assembler, CINTC::INTC_LINE_VBLANK_END);
+		generateIntHandler(assembler, CINTC::INTC_LINE_VIF1);
+		generateIntHandler(assembler, CINTC::INTC_LINE_IPU);
+		generateIntHandler(assembler, CINTC::INTC_LINE_TIMER0);
+		generateIntHandler(assembler, CINTC::INTC_LINE_TIMER1);
+		generateIntHandler(assembler, CINTC::INTC_LINE_TIMER2);
+		generateIntHandler(assembler, CINTC::INTC_LINE_TIMER3);
+
+		assembler.BEQ(CMIPS::R0, CMIPS::R0, doneLabel);
 		assembler.NOP();
-
-		//Go to DMAC interrupt handler
-		assembler.JAL(BIOS_ADDRESS_DMACHANDLER);
-		assembler.NOP();
-
-		assembler.MarkLabel(skipIntHandlerLabel);
 	}
 
-	generateIntHandler(assembler, CINTC::INTC_LINE_VBLANK_START);
-	generateIntHandler(assembler, CINTC::INTC_LINE_VBLANK_END);
-	generateIntHandler(assembler, CINTC::INTC_LINE_VIF1);
-	generateIntHandler(assembler, CINTC::INTC_LINE_IPU);
-	generateIntHandler(assembler, CINTC::INTC_LINE_TIMER0);
-	generateIntHandler(assembler, CINTC::INTC_LINE_TIMER1);
-	generateIntHandler(assembler, CINTC::INTC_LINE_TIMER2);
-	generateIntHandler(assembler, CINTC::INTC_LINE_TIMER3);
+	assembler.MarkLabel(processDmacLabel);
+
+	//Process DMAC interrupt
+	{
+		assembler.JAL(BIOS_ADDRESS_DMACHANDLER);
+		assembler.NOP();
+	}
+
+	assembler.MarkLabel(doneLabel);
 
 	//Make sure interrupts are enabled (This is needed by some games that play
 	//with the status register in interrupt handlers and is done by the EE BIOS)
@@ -819,11 +826,6 @@ void CPS2OS::AssembleDmacHandler()
 	assembler.SD(CMIPS::S0, 0x0008, CMIPS::SP);
 	assembler.SD(CMIPS::S1, 0x0010, CMIPS::SP);
 	assembler.SD(CMIPS::S2, 0x0018, CMIPS::SP);
-
-	//Clear INTC cause
-	assembler.LI(CMIPS::T1, CINTC::INTC_STAT);
-	assembler.ADDIU(CMIPS::T0, CMIPS::R0, (1 << CINTC::INTC_LINE_DMAC));
-	assembler.SW(CMIPS::T0, 0x0000, CMIPS::T1);
 
 	//Load the DMA interrupt status
 	assembler.LI(CMIPS::T0, CDMAC::D_STAT);
@@ -1473,7 +1475,7 @@ Ee::CLibMc2& CPS2OS::GetLibMc2()
 	return m_libMc2;
 }
 
-void CPS2OS::HandleInterrupt()
+void CPS2OS::HandleInterrupt(int32 cpuIntLine)
 {
 	//Check if interrupts are enabled here because EIE bit isn't checked by CMIPS
 	if((m_ee.m_State.nCOP0[CCOP_SCU::STATUS] & INTERRUPTS_ENABLED_MASK) != INTERRUPTS_ENABLED_MASK)
@@ -1490,6 +1492,25 @@ void CPS2OS::HandleInterrupt()
 	{
 		auto thread = m_threads[m_currentThreadId];
 		ThreadSaveContext(thread, true);
+	}
+
+	//Update CAUSE register
+	m_ee.m_State.nCOP0[CCOP_SCU::CAUSE] &= ~(CCOP_SCU::CAUSE_EXCCODE_MASK | CCOP_SCU::CAUSE_IP_2 | CCOP_SCU::CAUSE_IP_3);
+	m_ee.m_State.nCOP0[CCOP_SCU::CAUSE] |= CCOP_SCU::CAUSE_EXCCODE_INT;
+
+	switch(cpuIntLine)
+	{
+	case 0:
+		//INTC interrupt
+		m_ee.m_State.nCOP0[CCOP_SCU::CAUSE] |= CCOP_SCU::CAUSE_IP_2;
+		break;
+	case 1:
+		//DMAC interrupt
+		m_ee.m_State.nCOP0[CCOP_SCU::CAUSE] |= CCOP_SCU::CAUSE_IP_3;
+		break;
+	default:
+		assert(false);
+		break;
 	}
 
 	bool interrupted = m_ee.GenerateInterrupt(BIOS_ADDRESS_INTERRUPTHANDLER);

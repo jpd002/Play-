@@ -39,7 +39,6 @@ CSubSystem::CSubSystem(uint8* iopRam, CIopBios& iopBios)
     , m_dmac(m_ram, m_spr, m_vuMem0, m_EE)
     , m_gif(m_gs, m_dmac, m_ram, m_spr)
     , m_sif(m_dmac, m_ram, iopRam)
-    , m_intc(m_dmac)
     , m_ipu(m_intc)
     , m_timer(m_intc, m_gs)
     , m_MAVU0(PS2::VUMEM0SIZE - 1)
@@ -709,15 +708,24 @@ void CSubSystem::CheckPendingInterrupts()
 {
 	if(!m_EE.m_State.nHasException)
 	{
+		int32 cpuIntLine = -1;
+		if(m_intc.IsInterruptPending())
+		{
+			cpuIntLine = 0;
+		}
+		else if(m_dmac.IsInterruptPending())
+		{
+			cpuIntLine = 1;
+		}
 		if(
-		    m_intc.IsInterruptPending()
+		    (cpuIntLine != -1)
 #ifdef DEBUGGER_INCLUDED
 		    //			&& !m_singleStepEe
 		    && !m_EE.m_executor->MustBreak()
 #endif
 		)
 		{
-			m_os->HandleInterrupt();
+			m_os->HandleInterrupt(cpuIntLine);
 		}
 	}
 }

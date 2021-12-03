@@ -6,10 +6,9 @@
 
 #define STATE_REGS_XML ("intc/regs.xml")
 
-CINTC::CINTC(CDMAC& dmac)
+CINTC::CINTC()
     : m_INTC_STAT(0)
     , m_INTC_MASK(0)
-    , m_dmac(dmac)
 {
 }
 
@@ -19,21 +18,9 @@ void CINTC::Reset()
 	m_INTC_MASK = 0;
 }
 
-uint32 CINTC::GetStat() const
-{
-	uint32 tempStat = m_INTC_STAT;
-
-	if(m_dmac.IsInterruptPending())
-	{
-		tempStat |= (1 << INTC_LINE_DMAC);
-	}
-
-	return tempStat;
-}
-
 bool CINTC::IsInterruptPending() const
 {
-	return (GetStat() & m_INTC_MASK) != 0;
+	return (m_INTC_STAT & m_INTC_MASK) != 0;
 }
 
 uint32 CINTC::GetRegister(uint32 nAddress)
@@ -41,7 +28,7 @@ uint32 CINTC::GetRegister(uint32 nAddress)
 	switch(nAddress)
 	{
 	case INTC_STAT:
-		return GetStat();
+		return m_INTC_STAT;
 		break;
 	case INTC_MASK:
 		return m_INTC_MASK;

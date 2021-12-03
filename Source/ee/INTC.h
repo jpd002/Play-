@@ -17,7 +17,7 @@ public:
 	enum LINES
 	{
 		INTC_LINE_GS = 0,
-		INTC_LINE_DMAC = 1,
+		INTC_LINE_SBUS = 1,
 		INTC_LINE_VBLANK_START = 2,
 		INTC_LINE_VBLANK_END = 3,
 		INTC_LINE_VIF0 = 4,
@@ -29,7 +29,7 @@ public:
 		INTC_LINE_TIMER3 = 12,
 	};
 
-	CINTC(CDMAC&);
+	CINTC();
 	virtual ~CINTC() = default;
 
 	void Reset();
@@ -44,9 +44,6 @@ public:
 	void SaveState(Framework::CZipArchiveWriter&);
 
 private:
-	uint32 GetStat() const;
-
 	uint32 m_INTC_STAT;
 	uint32 m_INTC_MASK;
-	CDMAC& m_dmac;
 };

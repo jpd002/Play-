@@ -46,7 +46,7 @@ public:
 
 	Ee::CLibMc2& GetLibMc2();
 
-	void HandleInterrupt();
+	void HandleInterrupt(int32);
 	void HandleSyscall();
 	void HandleReturnFromException();
 	void HandleTLBException();
