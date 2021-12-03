@@ -1,6 +1,7 @@
 #include <cstdio>
 #include <emscripten/bind.h>
 #include "Ps2VmJs.h"
+#include "gs/GSH_Null.h"
 
 CPs2VmJs* g_virtualMachine = nullptr;
 
@@ -13,6 +14,8 @@ extern "C" void initVm()
 {
 	g_virtualMachine = new CPs2VmJs();
 	g_virtualMachine->Initialize();
+	g_virtualMachine->CreateGSHandler(CGSH_Null::GetFactoryFunction());
+
 	//g_virtualMachine->Reset();
 	printf("Reset VM\r\n");
 }
