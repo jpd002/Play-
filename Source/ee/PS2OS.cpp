@@ -2008,20 +2008,15 @@ void CPS2OS::sc_EnableDmac()
 {
 	uint32 channel = m_ee.m_State.nGPR[SC_PARAM0].nV[0];
 	uint32 registerId = 0x10000 << channel;
+	bool changed = false;
 
 	if(!(m_ee.m_pMemoryMap->GetWord(CDMAC::D_STAT) & registerId))
 	{
 		m_ee.m_pMemoryMap->SetWord(CDMAC::D_STAT, registerId);
+		changed = true;
 	}
 
-	//Enable INT1
-	if(!(m_ee.m_pMemoryMap->GetWord(CINTC::INTC_MASK) & 0x02))
-	{
-		m_ee.m_pMemoryMap->SetWord(CINTC::INTC_MASK, 0x02);
-	}
-
-	m_ee.m_State.nGPR[SC_RETURN].nV[0] = 1;
-	m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0;
+	m_ee.m_State.nGPR[SC_RETURN].nD0 = changed ? 1 : 0;
 }
 
 //17
@@ -2030,16 +2025,15 @@ void CPS2OS::sc_DisableDmac()
 {
 	uint32 channel = m_ee.m_State.nGPR[SC_PARAM0].nV[0];
 	uint32 registerId = 0x10000 << channel;
+	bool changed = false;
 
 	if(m_ee.m_pMemoryMap->GetWord(CDMAC::D_STAT) & registerId)
 	{
 		m_ee.m_pMemoryMap->SetWord(CDMAC::D_STAT, registerId);
-		m_ee.m_State.nGPR[SC_RETURN].nD0 = 1;
+		changed = true;
 	}
-	else
-	{
-		m_ee.m_State.nGPR[SC_RETURN].nD0 = 0;
-	}
+
+	m_ee.m_State.nGPR[SC_RETURN].nD0 = changed ? 1 : 0;
 }
 
 //18/1E
