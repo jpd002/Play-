@@ -164,7 +164,7 @@ void CDMAC::SetChannelTransferFunction(unsigned int channel, const DmaReceiveHan
 	}
 }
 
-bool CDMAC::IsInterruptPending()
+bool CDMAC::IsInterruptPending() const
 {
 	uint16 mask = static_cast<uint16>((m_D_STAT & 0x63FF0000) >> 16);
 	uint16 status = static_cast<uint16>((m_D_STAT & 0x0000E3FF) >> 0);

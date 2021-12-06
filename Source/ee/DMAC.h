@@ -123,7 +123,7 @@ public:
 	void DisassembleGet(uint32);
 	void DisassembleSet(uint32, uint32);
 
-	bool IsInterruptPending();
+	bool IsInterruptPending() const;
 	void ResumeDMA0();
 	void ResumeDMA1();
 	void ResumeDMA2();
