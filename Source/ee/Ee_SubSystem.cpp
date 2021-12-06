@@ -559,8 +559,9 @@ uint32 CSubSystem::IOPortWriteHandler(uint32 nAddress, uint32 nData)
 		                         nAddress, nData, m_EE.m_State.nPC);
 	}
 
+	bool isInterruptPending = m_intc.IsInterruptPending() || m_dmac.IsInterruptPending();
 	if(
-	    m_intc.IsInterruptPending() &&
+	    isInterruptPending &&
 	    (m_EE.m_State.nHasException == MIPS_EXCEPTION_NONE) &&
 	    ((m_EE.m_State.nCOP0[CCOP_SCU::STATUS] & INTERRUPTS_ENABLED_MASK) == INTERRUPTS_ENABLED_MASK))
 	{
