@@ -743,28 +743,27 @@ void CPS2OS::AssembleInterruptHandler()
 		assembler.AND(CMIPS::S0, CMIPS::S0, CMIPS::S1);
 
 		static const auto generateIntHandler =
-			[](CMIPSAssembler& assembler, uint32 line)
-		{
-			auto skipIntHandlerLabel = assembler.CreateLabel();
+		    [](CMIPSAssembler& assembler, uint32 line) {
+			    auto skipIntHandlerLabel = assembler.CreateLabel();
 
-			//Check cause
-			assembler.ANDI(CMIPS::T0, CMIPS::S0, (1 << line));
-			assembler.BEQ(CMIPS::R0, CMIPS::T0, skipIntHandlerLabel);
-			assembler.NOP();
+			    //Check cause
+			    assembler.ANDI(CMIPS::T0, CMIPS::S0, (1 << line));
+			    assembler.BEQ(CMIPS::R0, CMIPS::T0, skipIntHandlerLabel);
+			    assembler.NOP();
 
-			//Process handlers
-			assembler.ADDIU(CMIPS::A0, CMIPS::R0, line);
-			assembler.JAL(BIOS_ADDRESS_INTCHANDLER);
-			assembler.NOP();
+			    //Process handlers
+			    assembler.ADDIU(CMIPS::A0, CMIPS::R0, line);
+			    assembler.JAL(BIOS_ADDRESS_INTCHANDLER);
+			    assembler.NOP();
 
-			if (line == CINTC::INTC_LINE_TIMER3)
-			{
-				assembler.JAL(BIOS_ADDRESS_ALARMHANDLER);
-				assembler.NOP();
-			}
+			    if(line == CINTC::INTC_LINE_TIMER3)
+			    {
+				    assembler.JAL(BIOS_ADDRESS_ALARMHANDLER);
+				    assembler.NOP();
+			    }
 
-			assembler.MarkLabel(skipIntHandlerLabel);
-		};
+			    assembler.MarkLabel(skipIntHandlerLabel);
+		    };
 
 		generateIntHandler(assembler, CINTC::INTC_LINE_GS);
 		generateIntHandler(assembler, CINTC::INTC_LINE_VBLANK_START);
