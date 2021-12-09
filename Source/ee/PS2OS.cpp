@@ -271,7 +271,7 @@ CPS2OS::~CPS2OS()
 void CPS2OS::Initialize()
 {
 	m_elf = nullptr;
-	m_selfRotateThreadCount = 0;
+	m_idleEvaluator.Reset();
 
 	SetVsyncFlagPtrs(0, 0);
 	UpdateTLBEnabledState();
@@ -300,7 +300,7 @@ void CPS2OS::Release()
 bool CPS2OS::IsIdle() const
 {
 	return m_ee.CanGenerateInterrupt() &&
-	       ((m_currentThreadId == m_idleThreadId) || (m_selfRotateThreadCount > 500));
+	       ((m_currentThreadId == m_idleThreadId) || m_idleEvaluator.IsIdle());
 }
 
 void CPS2OS::DumpIntcHandlers()
@@ -1156,6 +1156,7 @@ void CPS2OS::ThreadSwitchContext(uint32 id)
 	}
 
 	m_currentThreadId = id;
+	m_idleEvaluator.NotifyEvent(Ee::CIdleEvaluator::EVENT_CHANGETHREAD, id);
 
 	//Load the new context
 	{
@@ -2316,14 +2317,7 @@ void CPS2OS::sc_RotateThreadReadyQueue()
 
 	ThreadShakeAndBake();
 
-	if(m_currentThreadId == threadIdBefore)
-	{
-		m_selfRotateThreadCount++;
-	}
-	else
-	{
-		m_selfRotateThreadCount = 0;
-	}
+	m_idleEvaluator.NotifyEvent(Ee::CIdleEvaluator::EVENT_ROTATETHREADREADYQUEUE, threadIdBefore, m_currentThreadId);
 }
 
 //2D/2E
@@ -2830,6 +2824,8 @@ void CPS2OS::sc_SignalSema()
 		return;
 	}
 
+	m_idleEvaluator.NotifyEvent(Ee::CIdleEvaluator::EVENT_SIGNALSEMA, id);
+
 	//TODO: Check maximum value
 
 	//Set return value here because we might reschedule
@@ -2861,6 +2857,8 @@ void CPS2OS::sc_WaitSema()
 		m_ee.m_State.nGPR[SC_RETURN].nD0 = -1;
 		return;
 	}
+
+	m_idleEvaluator.NotifyEvent(Ee::CIdleEvaluator::EVENT_WAITSEMA, id);
 
 	if(sema->count == 0)
 	{

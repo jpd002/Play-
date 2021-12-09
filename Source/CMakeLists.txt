@@ -157,6 +157,8 @@ set(COMMON_SRC_FILES
 	ee/DMAC.h
 	ee/Dmac_Channel.cpp
 	ee/Dmac_Channel.h
+	ee/Ee_IdleEvaluator.cpp
+	ee/Ee_IdleEvaluator.h
 	ee/Ee_LibMc2.cpp
 	ee/Ee_LibMc2.h
 	ee/Ee_SubSystem.cpp

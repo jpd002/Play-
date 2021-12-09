@@ -12,6 +12,7 @@
 #include "../OsStructQueue.h"
 #include "../gs/GSHandler.h"
 #include "SIF.h"
+#include "Ee_IdleEvaluator.h"
 #include "Ee_LibMc2.h"
 
 #define INTERRUPTS_ENABLED_MASK (CMIPS::STATUS_IE | CMIPS::STATUS_EIE)
@@ -414,10 +415,6 @@ private:
 	OsVariableWrapper<uint32> m_tlbsExceptionHandler;
 	OsVariableWrapper<uint32> m_sifDmaNextIdx;
 
-	//Incremented when RotateThreadReadyQueue didn't have any effect
-	//Speed hack for Atelier Marie & Elie
-	uint32 m_selfRotateThreadCount;
-
 	uint32* m_sifDmaTimes = nullptr;
 
 	ThreadQueue m_threadSchedule;
@@ -433,6 +430,7 @@ private:
 	CSIF& m_sif;
 	Ee::CLibMc2 m_libMc2;
 	CIopBios& m_iopBios;
+	Ee::CIdleEvaluator m_idleEvaluator;
 
 #ifdef DEBUGGER_INCLUDED
 	static const SYSCALL_NAME g_syscallNames[];
