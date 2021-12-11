@@ -92,6 +92,7 @@ void CCOP_VU::LQC2()
 	}
 	m_codeGen->Else();
 	{
+#ifndef __EMSCRIPTEN__
 		ComputeMemAccessAddrNoXlat();
 
 		m_codeGen->PushCtx();
@@ -100,6 +101,7 @@ void CCOP_VU::LQC2()
 		m_codeGen->MD_PullRel(offsetof(CMIPS, m_State.nCOP2[m_nFT]));
 
 		m_codeGen->PullTop();
+#endif
 	}
 	m_codeGen->EndIf();
 }
@@ -119,6 +121,7 @@ void CCOP_VU::SQC2()
 	}
 	m_codeGen->Else();
 	{
+#ifndef __EMSCRIPTEN__
 		ComputeMemAccessAddrNoXlat();
 
 		m_codeGen->PushCtx();
@@ -127,6 +130,7 @@ void CCOP_VU::SQC2()
 		m_codeGen->Call(reinterpret_cast<void*>(&MemoryUtils_SetQuadProxy), 3, Jitter::CJitter::RETURN_VALUE_NONE);
 
 		m_codeGen->PullTop();
+#endif
 	}
 	m_codeGen->EndIf();
 }
