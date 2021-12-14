@@ -105,6 +105,8 @@ protected:
 	void CompileEpilog(CMipsJitter*);
 
 private:
+	bool IsIdleLoopBlock() const;
+
 	void HandleExternalFunctionReference(uintptr_t, uint32, Jitter::CCodeGen::SYMBOL_REF_TYPE);
 
 #ifdef DEBUGGER_INCLUDED

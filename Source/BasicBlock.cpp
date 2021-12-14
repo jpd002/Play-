@@ -231,8 +231,67 @@ void CBasicBlock::CompileProlog(CMipsJitter* jitter)
 #endif
 }
 
+bool CBasicBlock::IsIdleLoopBlock() const
+{
+	uint32 endInstructionAddress = m_end - 4;
+	uint32 endInstruction = m_context.m_pMemoryMap->GetWord(endInstructionAddress);
+
+	//We need a branch at the end of the block
+	auto branchType = m_context.m_pArch->IsInstructionBranch(&m_context, endInstructionAddress, endInstruction);
+	if(branchType != MIPS_BRANCH_NORMAL) return false;
+
+	//Check that the branch target is ourself
+	uint32 branchTarget = m_context.m_pArch->GetInstructionEffectiveAddress(&m_context, endInstructionAddress, endInstruction);
+	if(branchTarget != m_begin) return false;
+
+	uint32 compareReg = 0;
+
+	//Check what kind of branching instruction we have.
+	{
+		uint32 op = (endInstruction >> 26) & 0x3F;
+		uint32 rt = (endInstruction >> 16) & 0x1F;
+		uint32 rs = (endInstruction >> 21) & 0x1F;
+
+		//We want a BEQ or BNE comparing with R0
+		if((op != 4) && (op != 5)) return false;
+		if((rt != 0) && (rs != 0)) return false;
+
+		if(rt == 0) compareReg = rs;
+		if(rs == 0) compareReg = rt;
+	}
+
+	//Check all instructions inside to see if we can prove it's waiting for some kind of flag
+	for(uint32 address = m_begin; address < (m_end - 4); address += 4)
+	{
+		uint32 inst = m_context.m_pMemoryMap->GetWord(address);
+		uint32 op = (inst >> 26) & 0x3F;
+		uint32 rt = (inst >> 16) & 0x1F;
+		uint32 rs = (inst >> 21) & 0x1F;
+		switch(op)
+		{
+		case 0x00:
+			//NOP
+			break;
+		case 0x23:
+			if(rt != compareReg) return false;
+			break;
+		default:
+			//We don't know what this does, let's not take a chance
+			return false;
+		}
+	}
+
+	return true;
+}
+
 void CBasicBlock::CompileEpilog(CMipsJitter* jitter)
 {
+	if(IsIdleLoopBlock())
+	{
+		jitter->PushCst(MIPS_EXCEPTION_IDLE);
+		jitter->PullRel(offsetof(CMIPS, m_State.nHasException));
+	}
+
 	//Update cycle quota
 	jitter->PushRel(offsetof(CMIPS, m_State.cycleQuota));
 	jitter->PushCst(((m_end - m_begin) / 4) + 1);
