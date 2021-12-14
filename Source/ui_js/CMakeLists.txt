@@ -16,8 +16,18 @@ if(NOT TARGET PlayCore)
 endif()
 list(APPEND PROJECT_LIBS PlayCore)
 
+if(NOT TARGET gsh_opengl)
+	add_subdirectory(
+		${CMAKE_CURRENT_SOURCE_DIR}/../gs/GSH_OpenGL
+		${CMAKE_CURRENT_BINARY_DIR}/gs/GSH_OpenGL
+	)
+endif()
+list(APPEND PROJECT_LIBS gsh_opengl)
+
 add_executable(Play
 	Main.cpp
+	GSH_OpenGLJs.cpp
+	GSH_OpenGLJs.h
 	Ps2VmJs.cpp
 	Ps2VmJs.h
 )
@@ -34,4 +44,6 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s ASSERTIONS=2")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s EXPORT_NAME=Play")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s PTHREAD_POOL_SIZE=4")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s WASM_BIGINT")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s OFFSCREEN_FRAMEBUFFER=1")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s ENVIRONMENT=web,worker")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s USE_WEBGL2=1")

@@ -1,9 +1,10 @@
 #include <cstdio>
 #include <emscripten/bind.h>
 #include "Ps2VmJs.h"
-#include "gs/GSH_Null.h"
+#include "GSH_OpenGLJs.h"
 
 CPs2VmJs* g_virtualMachine = nullptr;
+EMSCRIPTEN_WEBGL_CONTEXT_HANDLE g_context = 0;
 
 int main(int argc, const char** argv)
 {
@@ -12,9 +13,16 @@ int main(int argc, const char** argv)
 
 extern "C" void initVm()
 {
+	EmscriptenWebGLContextAttributes attr;
+	emscripten_webgl_init_context_attributes(&attr);
+	attr.majorVersion = 2;
+	attr.minorVersion = 0;
+	g_context = emscripten_webgl_create_context("#outputCanvas", &attr);
+	assert(g_context >= 0);
+
 	g_virtualMachine = new CPs2VmJs();
 	g_virtualMachine->Initialize();
-	g_virtualMachine->CreateGSHandler(CGSH_Null::GetFactoryFunction());
+	g_virtualMachine->CreateGSHandler(CGSH_OpenGLJs::GetFactoryFunction(g_context));
 
 	//g_virtualMachine->Reset();
 	printf("Reset VM\r\n");

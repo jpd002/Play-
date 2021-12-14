@@ -349,20 +349,22 @@ void CGSH_OpenGL::TexUpdater_Psm16(uint32 bufPtr, uint32 bufWidth, unsigned int 
 }
 
 #ifdef _WIN32
-#define USE_SSE
+	#define USE_SSE
 #elif defined(__APPLE__)
-#include <TargetConditionals.h>
-#if TARGET_CPU_X86_64
-#define USE_SSE
-#elif TARGET_CPU_ARM64
-#define USE_NEON
-#endif
+	#include <TargetConditionals.h>
+	#if TARGET_CPU_X86_64
+		#define USE_SSE
+	#elif TARGET_CPU_ARM64
+		#define USE_NEON
+	#endif
 #elif defined(__ANDROID__) || defined(__linux__) || defined(__FreeBSD__)
-#if defined(__x86_64__) || defined(__i386__)
-#define USE_SSE
-#elif defined(__aarch64__) || defined(__arm__)
-#define USE_NEON
-#endif
+	#if defined(__x86_64__) || defined(__i386__)
+		#define USE_SSE
+	#elif defined(__aarch64__) || defined(__arm__)
+		#define USE_NEON
+	#endif
+#elif defined(__EMSCRIPTEN__)
+	#define USE_NEON
 #endif
 
 #if defined(USE_SSE)
