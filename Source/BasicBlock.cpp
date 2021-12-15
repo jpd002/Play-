@@ -233,6 +233,19 @@ void CBasicBlock::CompileProlog(CMipsJitter* jitter)
 
 bool CBasicBlock::IsIdleLoopBlock() const
 {
+	enum OP
+	{
+		OP_BEQ = 0x04,
+		OP_BNE = 0x05,
+		OP_XORI = 0x0E,
+		OP_LW = 0x23,
+	};
+
+	enum
+	{
+		OP_SPECIAL_SLTU = 0x2B,
+	};
+
 	//Limit this to EE (TODO: make this check better)
 	if(m_context.m_pCOP[2] == nullptr) return false;
 
@@ -256,7 +269,7 @@ bool CBasicBlock::IsIdleLoopBlock() const
 		uint32 rs = (endInstruction >> 21) & 0x1F;
 
 		//We want a BEQ or BNE comparing with R0
-		if((op != 4) && (op != 5)) return false;
+		if((op != OP_BEQ) && (op != OP_BNE)) return false;
 		if((rt != 0) && (rs != 0)) return false;
 
 		if(rt == 0) compareReg = rs;
@@ -267,15 +280,27 @@ bool CBasicBlock::IsIdleLoopBlock() const
 	for(uint32 address = m_begin; address < (m_end - 4); address += 4)
 	{
 		uint32 inst = m_context.m_pMemoryMap->GetWord(address);
-		uint32 op = (inst >> 26) & 0x3F;
+		if(inst == 0) continue;
+		uint32 special = inst & 0x3F;
+		uint32 rd = (inst >> 11) & 0x1F;
 		uint32 rt = (inst >> 16) & 0x1F;
 		uint32 rs = (inst >> 21) & 0x1F;
+		uint32 op = (inst >> 26) & 0x3F;
 		switch(op)
 		{
 		case 0x00:
-			//NOP
+			switch(special)
+			{
+			case OP_SPECIAL_SLTU:
+				if(rd != compareReg) return false;
+				break;
+			default:
+				//We don't know what this does, let's not take a chance
+				return false;
+			}
 			break;
-		case 0x23:
+		case OP_XORI:
+		case OP_LW:
 			if(rt != compareReg) return false;
 			break;
 		default:
