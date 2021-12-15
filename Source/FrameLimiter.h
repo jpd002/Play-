@@ -17,6 +17,14 @@ public:
 private:
 	typedef std::chrono::high_resolution_clock::time_point TimePoint;
 
+	enum
+	{
+		MAX_FRAMETIMES = 4,
+	};
+
+	std::chrono::microseconds m_frameTimes[MAX_FRAMETIMES];
+	uint32 m_frameTimeIndex = 0;
+
 	std::chrono::microseconds m_minFrameDuration = std::chrono::microseconds(0);
 	bool m_frameStarted = false;
 	TimePoint m_lastFrameTime;

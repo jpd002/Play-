@@ -11,6 +11,10 @@ CFrameLimiter::CFrameLimiter()
 #ifdef _WIN32
 	timeBeginPeriod(1);
 #endif
+	for (uint32 i = 0; i < MAX_FRAMETIMES; i++)
+	{
+		m_frameTimes[i] = std::chrono::microseconds(0);
+	}
 }
 
 CFrameLimiter::~CFrameLimiter()
@@ -32,9 +36,17 @@ void CFrameLimiter::EndFrame()
 	assert(m_frameStarted);
 	auto currentFrameTime = std::chrono::high_resolution_clock::now();
 	auto frameDuration = std::chrono::duration_cast<std::chrono::microseconds>(currentFrameTime - m_lastFrameTime);
-	if(frameDuration < m_minFrameDuration)
+	m_frameTimes[m_frameTimeIndex++] = frameDuration;
+	m_frameTimeIndex %= MAX_FRAMETIMES;
+	std::chrono::microseconds averageFrameTime = std::chrono::microseconds(0);
+	for(uint32 i = 0; i < MAX_FRAMETIMES; i++)
 	{
-		auto delay = m_minFrameDuration - frameDuration;
+		averageFrameTime += m_frameTimes[i];
+	}
+	averageFrameTime /= MAX_FRAMETIMES;
+	if(averageFrameTime < m_minFrameDuration)
+	{
+		auto delay = m_minFrameDuration - averageFrameTime;
 #ifdef _WIN32
 		{
 			LARGE_INTEGER ft = {};
@@ -47,7 +59,7 @@ void CFrameLimiter::EndFrame()
 		}
 #elif defined(__APPLE__)
 		//Sleeping for the whole delay on macOS/iOS doesn't provide a good enough resolution
-		while(frameDuration < m_minFrameDuration)
+		while(averageFrameTime < m_minFrameDuration)
 		{
 			std::this_thread::sleep_for(std::chrono::microseconds(250));
 			currentFrameTime = std::chrono::high_resolution_clock::now();
