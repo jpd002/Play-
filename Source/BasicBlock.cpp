@@ -233,6 +233,9 @@ void CBasicBlock::CompileProlog(CMipsJitter* jitter)
 
 bool CBasicBlock::IsIdleLoopBlock() const
 {
+	//Limit this to EE (TODO: make this check better)
+	if(m_context.m_pCOP[2] == nullptr) return false;
+
 	uint32 endInstructionAddress = m_end - 4;
 	uint32 endInstruction = m_context.m_pMemoryMap->GetWord(endInstructionAddress);
 
