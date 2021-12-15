@@ -17,6 +17,7 @@ QSurfaceFormat OpenGLWindow::GetSurfaceFormat()
 #endif
 	format.setProfile(QSurfaceFormat::CoreProfile);
 	format.setSwapBehavior(QSurfaceFormat::DoubleBuffer);
+	format.setSwapInterval(0);
 	format.setAlphaBufferSize(0);
 	return format;
 }
