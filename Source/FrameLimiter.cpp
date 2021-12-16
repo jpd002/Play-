@@ -11,7 +11,7 @@ CFrameLimiter::CFrameLimiter()
 #ifdef _WIN32
 	timeBeginPeriod(1);
 #endif
-	for (uint32 i = 0; i < MAX_FRAMETIMES; i++)
+	for(uint32 i = 0; i < MAX_FRAMETIMES; i++)
 	{
 		m_frameTimes[i] = std::chrono::microseconds(0);
 	}
@@ -42,7 +42,7 @@ void CFrameLimiter::EndFrame()
 		m_frameTimes[m_frameTimeIndex++] = frameDuration;
 		m_frameTimeIndex %= MAX_FRAMETIMES;
 	}
-	
+
 	//Compute average frame time
 	std::chrono::microseconds averageFrameTime = std::chrono::microseconds(0);
 	for(uint32 i = 0; i < MAX_FRAMETIMES; i++)
