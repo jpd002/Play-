@@ -20,7 +20,7 @@ jobs:
       run: |
         mkdir build
         cd build
-        emcmake cmake .. -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTS=OFF -DBUILD_PLAY=OFF -DBUILD_PSFPLAYER=ON -DUSE_QT=OFF
+        emcmake cmake .. -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTS=OFF -DBUILD_PLAY=ON -DBUILD_PSFPLAYER=ON -DUSE_QT=OFF
     - name: Build Native Code
       run: |
         cd build
