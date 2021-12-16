@@ -238,6 +238,7 @@ bool CBasicBlock::IsIdleLoopBlock() const
 		OP_BEQ = 0x04,
 		OP_BNE = 0x05,
 		OP_SLTIU = 0x0B,
+		OP_ANDI = 0x0C,
 		OP_XORI = 0x0E,
 		OP_LUI = 0x0F,
 		OP_LW = 0x23,
@@ -304,6 +305,7 @@ bool CBasicBlock::IsIdleLoopBlock() const
 		case OP_LUI:
 			//This always sets a value to a register, doesn't rely on previous state
 			break;
+		case OP_ANDI:
 		case OP_XORI:
 		case OP_LW:
 		case OP_SLTIU:
