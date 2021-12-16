@@ -348,6 +348,7 @@ void CGSH_OpenGL::TexUpdater_Psm16(uint32 bufPtr, uint32 bufWidth, unsigned int 
 	CHECKGLERROR();
 }
 
+// clang-format off
 #ifdef _WIN32
 	#define USE_SSE
 #elif defined(__APPLE__)
@@ -366,6 +367,7 @@ void CGSH_OpenGL::TexUpdater_Psm16(uint32 bufPtr, uint32 bufWidth, unsigned int 
 #elif defined(__EMSCRIPTEN__)
 	#define USE_NEON
 #endif
+// clang-format on
 
 #if defined(USE_SSE)
 #include <xmmintrin.h>

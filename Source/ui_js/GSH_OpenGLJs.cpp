@@ -1,7 +1,7 @@
 #include "GSH_OpenGLJs.h"
 
 CGSH_OpenGLJs::CGSH_OpenGLJs(EMSCRIPTEN_WEBGL_CONTEXT_HANDLE context)
-: m_context(context)
+    : m_context(context)
 {
 }
 
