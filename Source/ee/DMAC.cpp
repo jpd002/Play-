@@ -605,7 +605,7 @@ void CDMAC::SetRegister(uint32 nAddress, uint32 nData)
 
 	//D2_QWC
 	case D2_QWC + 0x0:
-		m_D2.m_nQWC = nData;
+		m_D2.m_nQWC = nData & QWC_WRITE_MASK;
 		break;
 	case D2_QWC + 0x4:
 	case D2_QWC + 0x8:
