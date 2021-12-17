@@ -264,13 +264,13 @@ void CChannel::ExecuteSourceChain()
 	bool isStallDrainChannel = false;
 	switch(m_dmac.m_D_CTRL.std)
 	{
-	case 0:
+	case CDMAC::D_CTRL_STD_NONE:
 		isStallDrainChannel = false;
 		break;
-	case 1:
+	case CDMAC::D_CTRL_STD_VIF1:
 		isStallDrainChannel = (m_number == CDMAC::CHANNEL_ID_VIF1);
 		break;
-	case 2:
+	case CDMAC::D_CTRL_STD_GIF:
 		isStallDrainChannel = (m_number == CDMAC::CHANNEL_ID_GIF);
 		break;
 	default:

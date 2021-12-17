@@ -134,6 +134,22 @@ public:
 	static bool IsEndSrcTagId(uint32);
 
 private:
+	enum D_CTRL_STS
+	{
+		D_CTRL_STS_NONE = 0,
+		D_CTRL_STS_SIF0 = 1,
+		D_CTRL_STS_FROM_SPR = 2,
+		D_CTRL_STS_FROM_IPU = 3,
+	};
+
+	enum D_CTRL_STD
+	{
+		D_CTRL_STD_NONE = 0,
+		D_CTRL_STD_VIF1 = 1,
+		D_CTRL_STD_GIF = 2,
+		D_CTRL_STD_SIF1 = 3,
+	};
+
 	struct D_CTRL_REG : public convertible<uint32>
 	{
 		unsigned int dmae : 1;

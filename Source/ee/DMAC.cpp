@@ -211,7 +211,7 @@ uint32 CDMAC::ResumeDMA3(const void* pBuffer, uint32 nSize)
 	if(m_D3_QWC == 0)
 	{
 		m_D3_CHCR &= ~CHCR_STR;
-		m_D_STAT |= 0x08;
+		m_D_STAT |= (1 << CHANNEL_ID_FROM_IPU);
 	}
 
 	return nSize;
