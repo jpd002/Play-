@@ -191,6 +191,11 @@ uint32 CDMAC::ResumeDMA3(const void* pBuffer, uint32 nSize)
 {
 	if(!(m_D3_CHCR & CHCR_STR)) return 0;
 
+	if((m_D_CTRL.sts == D_CTRL_STS_FROM_IPU) && (m_D_CTRL.std != D_CTRL_STD_NONE))
+	{
+		assert(m_D3_MADR >= m_D_STADR);
+	}
+
 	nSize = std::min<uint32>(nSize, m_D3_QWC);
 
 	void* pDst = nullptr;
@@ -207,6 +212,11 @@ uint32 CDMAC::ResumeDMA3(const void* pBuffer, uint32 nSize)
 
 	m_D3_MADR += (nSize * 0x10);
 	m_D3_QWC -= nSize;
+
+	if(m_D_CTRL.sts == D_CTRL_STS_FROM_IPU)
+	{
+		m_D_STADR = m_D3_MADR;
+	}
 
 	if(m_D3_QWC == 0)
 	{
