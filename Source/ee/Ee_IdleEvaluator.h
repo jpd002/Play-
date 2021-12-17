@@ -38,6 +38,7 @@ namespace Ee
 			void Reset();
 			void NotifyEvent(EVENT, uint32, uint32);
 
+			uint32 m_threadId = -1;
 			uint32 m_selfRotateThreadCount = 0;
 			bool m_isIdle = false;
 		} m_selfThreadRotate;

@@ -61,6 +61,7 @@ void CIdleEvaluator::STRATEGY_SEMACHECKER::NotifyEvent(EVENT eventType, uint32 a
 
 void CIdleEvaluator::STRATEGY_SELFTHREADROTATE::Reset()
 {
+	m_threadId = -1;
 	m_selfRotateThreadCount = 0;
 	m_isIdle = false;
 }
@@ -73,12 +74,21 @@ void CIdleEvaluator::STRATEGY_SELFTHREADROTATE::NotifyEvent(EVENT eventType, uin
 		if(arg0 == arg1)
 		{
 			m_selfRotateThreadCount++;
+			m_threadId = arg0;
 			if(m_selfRotateThreadCount > 500)
 			{
 				m_isIdle = true;
 			}
 		}
 		else
+		{
+			m_selfRotateThreadCount = 0;
+			m_threadId = -1;
+			m_isIdle = false;
+		}
+		break;
+	case EVENT_CHANGETHREAD:
+		if(arg0 != m_threadId)
 		{
 			m_selfRotateThreadCount = 0;
 			m_isIdle = false;
