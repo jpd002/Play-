@@ -188,6 +188,8 @@ void CEeExecutor::SetMemoryProtected(void* addr, size_t size, bool protect)
 	DWORD oldProtect = 0;
 	BOOL result = VirtualProtect(addr, size, protect ? PAGE_READONLY : PAGE_READWRITE, &oldProtect);
 	assert(result == TRUE);
+#elif defined(__EMSCRIPTEN__)
+	//Not supported on JavaScript/WebAssembly env
 #elif defined(__unix__) || defined(__ANDROID__) || defined(__APPLE__)
 	uintptr_t addrValue = reinterpret_cast<uintptr_t>(addr) & ~(m_pageSize - 1);
 	addr = reinterpret_cast<void*>(addrValue);
