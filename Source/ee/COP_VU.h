@@ -114,13 +114,13 @@ private:
 	void VADDAbc();
 	void VSUBAbc();
 	void VMULAbc();
-	void VMULAq();
 	void VMADDAbc();
 	void VMSUBAbc();
 
 	//V0
 	void VITOF0();
 	void VFTOI0();
+	void VMULAq();
 	void VADDA();
 	void VSUBA();
 	void VMOVE();
