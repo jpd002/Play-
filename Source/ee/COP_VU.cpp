@@ -671,6 +671,12 @@ void CCOP_VU::VMULAq()
 	VUShared::MULAq(m_codeGen, m_nDest, m_nFS, 0, 0);
 }
 
+//08
+void CCOP_VU::VADDAq()
+{
+	VUShared::ADDAq(m_codeGen, m_nDest, m_nFS, 0, 0);
+}
+
 //0A
 void CCOP_VU::VADDA()
 {
@@ -995,7 +1001,7 @@ CCOP_VU::InstructionFuncConstant CCOP_VU::m_pOpVx0[0x20] =
 	//0x00
 	&CCOP_VU::VADDAbc,		&CCOP_VU::VSUBAbc,		&CCOP_VU::VMADDAbc,		&CCOP_VU::VMSUBAbc,		&CCOP_VU::VITOF0,		&CCOP_VU::VFTOI0,		&CCOP_VU::VMULAbc,		&CCOP_VU::VMULAq,
 	//0x08
-	&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::VADDA,		&CCOP_VU::VSUBA,		&CCOP_VU::VMOVE,		&CCOP_VU::VLQI,			&CCOP_VU::VDIV,			&CCOP_VU::VMTIR,
+	&CCOP_VU::VADDAq,		&CCOP_VU::Illegal,		&CCOP_VU::VADDA,		&CCOP_VU::VSUBA,		&CCOP_VU::VMOVE,		&CCOP_VU::VLQI,			&CCOP_VU::VDIV,			&CCOP_VU::VMTIR,
 	//0x10
 	&CCOP_VU::VRNEXT,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,
 	//0x18

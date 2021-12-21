@@ -121,6 +121,7 @@ private:
 	void VITOF0();
 	void VFTOI0();
 	void VMULAq();
+	void VADDAq();
 	void VADDA();
 	void VSUBA();
 	void VMOVE();
