@@ -5,8 +5,12 @@
 
 extern "C" uint32 LWL_Proxy(uint32, uint32, CMIPS*);
 extern "C" uint32 LWR_Proxy(uint32, uint32, CMIPS*);
+extern "C" uint64 LDL_Proxy(uint32, uint64, CMIPS*);
+extern "C" uint64 LDR_Proxy(uint32, uint64, CMIPS*);
 extern "C" void SWL_Proxy(uint32, uint32, CMIPS*);
 extern "C" void SWR_Proxy(uint32, uint32, CMIPS*);
+extern "C" void SDL_Proxy(uint32, uint64, CMIPS*);
+extern "C" void SDR_Proxy(uint32, uint64, CMIPS*);
 
 void CPs2VmJs::CreateVM()
 {
@@ -26,8 +30,14 @@ void CPs2VmJs::CreateVM()
 	Jitter::CWasmFunctionRegistry::RegisterFunction(reinterpret_cast<uintptr_t>(&LWL_Proxy), "_LWL_Proxy", "iiii");
 	Jitter::CWasmFunctionRegistry::RegisterFunction(reinterpret_cast<uintptr_t>(&LWR_Proxy), "_LWR_Proxy", "iiii");
 
+	Jitter::CWasmFunctionRegistry::RegisterFunction(reinterpret_cast<uintptr_t>(&LDL_Proxy), "_LDL_Proxy", "jiji");
+	Jitter::CWasmFunctionRegistry::RegisterFunction(reinterpret_cast<uintptr_t>(&LDR_Proxy), "_LDR_Proxy", "jiji");
+
 	Jitter::CWasmFunctionRegistry::RegisterFunction(reinterpret_cast<uintptr_t>(&SWL_Proxy), "_SWL_Proxy", "viii");
 	Jitter::CWasmFunctionRegistry::RegisterFunction(reinterpret_cast<uintptr_t>(&SWR_Proxy), "_SWR_Proxy", "viii");
+
+	Jitter::CWasmFunctionRegistry::RegisterFunction(reinterpret_cast<uintptr_t>(&SDL_Proxy), "_SDL_Proxy", "viji");
+	Jitter::CWasmFunctionRegistry::RegisterFunction(reinterpret_cast<uintptr_t>(&SDR_Proxy), "_SDR_Proxy", "viji");
 
 	CPS2VM::CreateVM();
 }
