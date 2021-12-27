@@ -2,22 +2,12 @@ import { configureStore, createAsyncThunk, createReducer } from "@reduxjs/toolki
 import { TypedUseSelectorHook, useDispatch, useSelector } from "react-redux";
 import { PlayModule, initPlayModule } from './PlayModule';
 
-let filePath = "archive.zip";
-
 export type AudioState = {
     value: string,
-    psfLoaded: boolean
-    playing: boolean
-    archiveFileList : string[]
-    currentPsfTags : any | undefined
 };
 
 let initialState : AudioState = {
     value: "unknown",
-    psfLoaded: false,
-    playing: false,
-    archiveFileList: [],
-    currentPsfTags: undefined
 };
 
 export const init = createAsyncThunk<void>('init', 
@@ -26,9 +16,17 @@ export const init = createAsyncThunk<void>('init',
     }
 );
 
-export const loadElf = createAsyncThunk<void, string>('loadElf',
-    async (url : string, thunkAPI) => {
-        console.log(`loading ${url}...`);
+export const bootFile = createAsyncThunk<void, File>('bootFile',
+    async (file : File, thunkAPI) => {
+        const fileName = file.name;
+        const fileDotPos = fileName.lastIndexOf('.');
+        if(fileDotPos === -1) {
+            console.log("File name must have an extension.");
+            thunkAPI.rejectWithValue(null);
+            return;
+        }
+        const fileExtension = fileName.substring(fileDotPos);
+        let url = URL.createObjectURL(file);
         let blob = await fetch(url).then(response => {
             if(!response.ok) {
                 return null;
@@ -41,10 +39,14 @@ export const loadElf = createAsyncThunk<void, string>('loadElf',
             return;
         }
         let data = new Uint8Array(await blob.arrayBuffer());
-        let stream = PlayModule.FS.open(filePath, "w+");
+        let stream = PlayModule.FS.open(fileName, "w+");
         PlayModule.FS.write(stream, data, 0, data.length, 0);
         PlayModule.FS.close(stream);
-        PlayModule.loadElf(filePath);
+        if(fileExtension === ".elf") {
+            PlayModule.loadElf(fileName);
+        } else {
+            PlayModule.bootDiscImage(fileName);
+        }
     }
 );
 
@@ -55,14 +57,11 @@ const reducer = createReducer(initialState, (builder) => (
             state.value = "initialized";
             return state;
         })
-        .addCase(loadElf.fulfilled, (state, action) => {
+        .addCase(bootFile.fulfilled, (state, action) => {
             state.value = "loaded";
-            state.currentPsfTags = undefined;
             return state;
         })
-        .addCase(loadElf.rejected, (state, action) => {
-            state.currentPsfTags = undefined;
-            state.archiveFileList = [];
+        .addCase(bootFile.rejected, (state, action) => {
             state.value = `loading failed: ${action.error.message}`;
             return state;
         })
