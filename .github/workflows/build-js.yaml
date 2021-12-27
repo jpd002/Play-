@@ -25,6 +25,16 @@ jobs:
       run: |
         cd build
         cmake --build . --config Release -j $(nproc)
+    - name: Build Play Browser
+      run: |
+        cd js/play_browser
+        cp ../../build/Source/ui_js/Play.js ./src/
+        cp ../../build/Source/ui_js/Play.wasm ./public/
+        cp ../../build/Source/ui_js/Play.js ./public/
+        cp ../../build/Source/ui_js/Play.worker.js ./public/
+        export REACT_APP_VERSION=$(git describe)
+        npm install
+        npm run build
     - name: Build PsfPlayer Browser
       run: |
         cd js/psfplayer_browser
