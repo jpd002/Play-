@@ -21,6 +21,9 @@ function App() {
     return (
       <div>
         <input type="file" onChange={handleChange}/>
+        <span className="version">
+          {`Version: ${process.env.REACT_APP_VERSION}`}
+        </span>
       </div>
     );
   }
