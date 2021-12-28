@@ -45,7 +45,17 @@ jobs:
         export REACT_APP_VERSION=$(git describe)
         npm install
         npm run build
-    - name: Update Test Environment
+    - name: Update Play/Test Environment
+      uses: jakejarvis/s3-sync-action@v0.5.1
+      with:
+        args: --acl public-read --delete
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        AWS_REGION: us-east-2
+        AWS_S3_BUCKET: playjs-test
+        SOURCE_DIR: 'js/play_browser/build'
+    - name: Update PsfPlayer/Test Environment
       if: ${{ env.AWS_ACCESS_KEY_ID != null}}
       uses: jakejarvis/s3-sync-action@v0.5.1
       with:
@@ -56,7 +66,7 @@ jobs:
         AWS_REGION: us-east-2
         AWS_S3_BUCKET: psfplayer-test
         SOURCE_DIR: 'js/psfplayer_browser/build'
-    - name: Invalidate Test Environment CloudFront Distribution
+    - name: Invalidate PsfPlayer/Test Environment CloudFront Distribution
       if: ${{ env.AWS_ACCESS_KEY_ID != null}}
       uses: chetan/invalidate-cloudfront-action@v1.3
       env:
