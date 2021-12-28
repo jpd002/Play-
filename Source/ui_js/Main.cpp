@@ -19,6 +19,7 @@ extern "C" void initVm()
 	emscripten_webgl_init_context_attributes(&attr);
 	attr.majorVersion = 2;
 	attr.minorVersion = 0;
+	attr.alpha = false;
 	g_context = emscripten_webgl_create_context("#outputCanvas", &attr);
 	assert(g_context >= 0);
 
