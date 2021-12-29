@@ -85,8 +85,9 @@ void CSifMan::GenerateHandlers(uint8* ram, CSysmem& sysMem)
 	CMIPSAssembler assembler(reinterpret_cast<uint32*>(ram + m_sifSetDmaCallbackHandlerPtr));
 
 	assembler.ADDIU(CMIPS::SP, CMIPS::SP, 0xFFF0);
-	assembler.SW(CMIPS::RA, 0x00, CMIPS::SP);
-	assembler.SW(CMIPS::S0, 0x04, CMIPS::SP);
+	//SP + 0x00 is the space to store A0 by handler
+	assembler.SW(CMIPS::RA, 0x04, CMIPS::SP);
+	assembler.SW(CMIPS::S0, 0x08, CMIPS::SP);
 
 	assembler.ADDU(CMIPS::S0, CMIPS::V0, CMIPS::R0);
 	assembler.JALR(CMIPS::A1);
@@ -94,8 +95,8 @@ void CSifMan::GenerateHandlers(uint8* ram, CSysmem& sysMem)
 
 	assembler.ADDU(CMIPS::V0, CMIPS::S0, CMIPS::R0);
 
-	assembler.LW(CMIPS::S0, 0x04, CMIPS::SP);
-	assembler.LW(CMIPS::RA, 0x00, CMIPS::SP);
+	assembler.LW(CMIPS::S0, 0x08, CMIPS::SP);
+	assembler.LW(CMIPS::RA, 0x04, CMIPS::SP);
 	assembler.JR(CMIPS::RA);
 	assembler.ADDIU(CMIPS::SP, CMIPS::SP, 0x0010);
 
