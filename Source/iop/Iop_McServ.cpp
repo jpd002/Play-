@@ -163,7 +163,7 @@ bool CMcServ::Invoke(uint32 method, uint32* args, uint32 argsSize, uint32* ret, 
 	case 0x79:
 		Delete(args, argsSize, ret, retSize, ram);
 		break;
-	case 0x12:
+	case CMD_ID_GETENTSPACE:
 		GetEntSpace(args, argsSize, ret, retSize, ram);
 		break;
 	case 0x15:

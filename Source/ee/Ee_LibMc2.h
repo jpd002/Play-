@@ -52,6 +52,7 @@ namespace Ee
 			SYSCALL_MC2_CHDIR_ASYNC = 0x80C,
 			SYSCALL_MC2_CHMOD_ASYNC = 0x80D,
 			SYSCALL_MC2_SEARCHFILE_ASYNC = 0x80E,
+			SYSCALL_MC2_GETENTSPACE_ASYNC = 0x80F,
 			SYSCALL_MC2_READFILE2_ASYNC = 0x820,
 			SYSCALL_MC2_WRITEFILE2_ASYNC = 0x821,
 			SYSCALL_RANGE_END,
@@ -78,6 +79,7 @@ namespace Ee
 		struct MODULE_FUNCTIONS
 		{
 			uint32 getInfoAsyncPtr = 0;
+			uint32 readFileAsyncPtr = 0;
 			uint32 writeFileAsyncPtr = 0;
 			uint32 createFileAsyncPtr = 0;
 			uint32 deleteAsyncPtr = 0;
@@ -86,7 +88,7 @@ namespace Ee
 			uint32 chDirAsyncPtr = 0;
 			uint32 chModAsyncPtr = 0;
 			uint32 searchFileAsyncPtr = 0;
-			uint32 readFileAsyncPtr = 0;
+			uint32 getEntSpaceAsyncPtr = 0;
 			uint32 readFile2AsyncPtr = 0;
 			uint32 writeFile2AsyncPtr = 0;
 			uint32 checkAsyncPtr = 0;
@@ -113,6 +115,7 @@ namespace Ee
 		int32 ChDirAsync(uint32, uint32, uint32);
 		int32 ChModAsync(uint32, uint32, uint32);
 		int32 SearchFileAsync(uint32, uint32, uint32);
+		int32 GetEntSpaceAsync(uint32, uint32);
 		int32 ReadFileAsync(uint32, uint32, uint32, uint32, uint32);
 		int32 WriteFileAsync(uint32, uint32, uint32, uint32, uint32);
 

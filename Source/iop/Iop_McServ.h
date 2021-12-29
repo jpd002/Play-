@@ -32,6 +32,7 @@ namespace Iop
 			CMD_ID_GETDIR = 0x0D,
 			CMD_ID_SETFILEINFO = 0x0E,
 			CMD_ID_DELETE = 0x0F,
+			CMD_ID_GETENTSPACE = 0x12,
 		};
 
 		enum OPEN_FLAGS
