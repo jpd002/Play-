@@ -25,9 +25,11 @@ endif()
 list(APPEND PROJECT_LIBS gsh_opengl)
 
 add_executable(Play
-	Main.cpp
 	GSH_OpenGLJs.cpp
 	GSH_OpenGLJs.h
+	InputProviderEmscripten.cpp
+	InputProviderEmscripten.h
+	Main.cpp
 	Ps2VmJs.cpp
 	Ps2VmJs.h
 )
