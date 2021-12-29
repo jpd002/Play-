@@ -1136,7 +1136,7 @@ int32 CIopBios::StartThreadArgs(uint32 threadId, uint32 args, uint32 argpPtr)
 	static const auto pushToStack =
 	    [](uint8* dst, uint32& stackAddress, const uint8* src, uint32 size) {
 		    uint32 fixedSize = ((size + 0x3) & ~0x3);
-		    uint32 copyAddress = stackAddress - size;
+		    uint32 copyAddress = stackAddress - fixedSize;
 		    stackAddress -= fixedSize;
 		    memcpy(dst + copyAddress, src, size);
 		    return copyAddress;
