@@ -49,6 +49,17 @@ extern "C" void initVm()
 	g_virtualMachine->CreateGSHandler(CGSH_OpenGLJs::GetFactoryFunction(g_context));
 
 	{
+		//Size here needs to match the size of the canvas in HTML file.
+
+		CGSHandler::PRESENTATION_PARAMS presentationParams;
+		presentationParams.mode = CGSHandler::PRESENTATION_MODE_FIT;
+		presentationParams.windowWidth = 640;
+		presentationParams.windowHeight = 480;
+
+		g_virtualMachine->m_ee->m_gs->SetPresentationParams(presentationParams);
+	}
+
+	{
 		g_virtualMachine->CreatePadHandler(CPH_GenericInput::GetFactoryFunction());
 		auto padHandler = static_cast<CPH_GenericInput*>(g_virtualMachine->GetPadHandler());
 		auto& bindingManager = padHandler->GetBindingManager();
