@@ -629,7 +629,7 @@ void VUShared::ADDi(CMipsJitter* codeGen, uint8 nDest, uint8 nFd, uint8 nFs, uin
 		nFd = 32;
 	}
 
-#if 1
+#if !defined(__EMSCRIPTEN__)
 	for(unsigned int i = 0; i < 4; i++)
 	{
 		if(!VUShared::DestinationHasElement(nDest, i)) continue;
