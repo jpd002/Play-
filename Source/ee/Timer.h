@@ -41,6 +41,8 @@ public:
 
 	enum REGISTER
 	{
+		T1_COUNT = 0x10000800,
+
 		T3_COUNT = 0x10001800,
 		T3_MODE = 0x10001810,
 		T3_COMP = 0x10001820,
