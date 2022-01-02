@@ -1492,6 +1492,8 @@ void CPS2OS::HandleInterrupt(int32 cpuIntLine)
 	{
 		auto thread = m_threads[m_currentThreadId];
 		ThreadSaveContext(thread, true);
+
+		m_idleEvaluator.NotifyEvent(Ee::CIdleEvaluator::EVENT_INTERRUPT, 0);
 	}
 
 	//Update CAUSE register

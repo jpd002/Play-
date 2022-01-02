@@ -51,6 +51,7 @@ void CIdleEvaluator::STRATEGY_SEMACHECKER::NotifyEvent(EVENT eventType, uint32 a
 		}
 		m_lastWaitSema = arg0;
 		break;
+	case EVENT_INTERRUPT:
 	case EVENT_CHANGETHREAD:
 		m_lastSemaWaitCounter = 0;
 		m_lastWaitSema = -1;
