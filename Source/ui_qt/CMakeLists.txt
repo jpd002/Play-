@@ -92,6 +92,8 @@ set(QT_SOURCES
 	bootablelistdialog.h
 	BootableModel.cpp
 	BootableModel.h
+	BootableModelProxy.cpp
+	BootableModelProxy.h
 	ControllerConfig/controllerconfigdialog.cpp
 	ControllerConfig/controllerconfigdialog.h
 	ControllerConfig/inputbindingmodel.cpp
@@ -204,6 +206,7 @@ endif()
 set(QT_MOC_HEADERS
 	bootablelistdialog.h
 	BootableModel.h
+	BootableModelProxy.h
 	ControllerConfig/controllerconfigdialog.h
 	ControllerConfig/inputbindingmodel.h
 	ControllerConfig/inputeventselectiondialog.h
