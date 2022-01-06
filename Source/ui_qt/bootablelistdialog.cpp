@@ -104,7 +104,10 @@ void BootableListDialog::resetModel(bool repopulateBootables)
 		m_bootables = BootablesDb::CClient::GetInstance().GetBootables(m_sortingMethod);
 
 	model = new BootableModel(this, m_bootables);
-	ui->listView->setModel(model);
+	auto proxyModel = new BootableModelProxy(this);
+	proxyModel->setSourceModel(model);
+	ui->listView->setModel(proxyModel);
+	connect(ui->filterLineEdit, &QLineEdit::textChanged, proxyModel, &QSortFilterProxyModel::setFilterFixedString);
 	connect(ui->listView->selectionModel(), &QItemSelectionModel::currentChanged, this, &BootableListDialog::SelectionChange);
 
 	if(!m_thread_running)
