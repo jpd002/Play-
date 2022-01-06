@@ -35,6 +35,8 @@ public:
 	void paint(QPainter* painter, const QRect& rect, const QPalette& palette, int mode) const;
 	QSize sizeHint() const;
 
+	std::string GetKey();
+	std::string GetTitle();
 private:
 	int GetPadding() const;
 	std::string m_key;

@@ -133,6 +133,16 @@ QSize BootableCoverQVarient::sizeHint() const
 	return size;
 }
 
+std::string BootableCoverQVarient::GetKey()
+{
+	return m_key;
+}
+
+std::string BootableCoverQVarient::GetTitle()
+{
+	return m_title;
+}
+
 /* start of BootImageItemDelegate */
 BootImageItemDelegate::BootImageItemDelegate(QWidget* parent)
     : QStyledItemDelegate(parent)
