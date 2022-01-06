@@ -68,22 +68,15 @@ BootableListDialog::BootableListDialog(QWidget* parent)
 	connect(bootgame, &QAction::triggered,
 	        [&](bool) {
 		        QModelIndex index = ui->listView->selectionModel()->selectedIndexes().at(0);
-		        bootable = model->GetBootable(index);
-		        if(!m_s3_processing)
-		        {
-			        accept();
-		        }
-		        else
-		        {
-			        DisplayWarningMessage();
-		        }
+		        BootBootables(index);
 	        });
 	connect(removegame, &QAction::triggered,
 	        [&](bool) {
 		        QModelIndex index = ui->listView->selectionModel()->selectedIndexes().at(0);
-		        auto bootable = model->GetBootable(index);
+		        auto src_index = m_proxy_model->mapToSource(index);
+		        auto bootable = model->GetBootable(src_index);
 		        BootablesDb::CClient::GetInstance().UnregisterBootable(bootable.path);
-		        model->removeItem(index);
+		        model->removeItem(src_index);
 	        });
 	m_continuationChecker = new CContinuationChecker(this);
 #ifdef HAS_AMAZON_S3
@@ -163,9 +156,11 @@ void BootableListDialog::on_add_games_button_clicked()
 	}
 }
 
-void BootableListDialog::on_listView_doubleClicked(const QModelIndex& index)
+void BootableListDialog::BootBootables(const QModelIndex& index)
 {
-	bootable = model->GetBootable(index);
+	auto src_index = m_proxy_model->mapToSource(index);
+	assert(src_index.isValid());
+	bootable = model->GetBootable(src_index);
 	if(!m_s3_processing)
 	{
 		accept();
@@ -174,6 +169,11 @@ void BootableListDialog::on_listView_doubleClicked(const QModelIndex& index)
 	{
 		DisplayWarningMessage();
 	}
+}
+
+void BootableListDialog::on_listView_doubleClicked(const QModelIndex& index)
+{
+	BootBootables(index);
 }
 
 void BootableListDialog::on_refresh_button_clicked()
@@ -275,9 +275,19 @@ void BootableListDialog::on_awsS3Button_clicked()
 
 void BootableListDialog::SelectionChange(const QModelIndex& index)
 {
-	bootable = model->GetBootable(index);
-	ui->pathLineEdit->setText(bootable.path.string().c_str());
-	ui->serialLineEdit->setText(bootable.discId.c_str());
+	auto src_index = static_cast<QSortFilterProxyModel*>(ui->listView->model())->mapToSource(index);
+	if(src_index.isValid())
+	{
+		bootable = model->GetBootable(src_index);
+		ui->pathLineEdit->setText(bootable.path.string().c_str());
+		ui->serialLineEdit->setText(bootable.discId.c_str());
+	}
+	else
+	{
+		bootable = BootablesDb::Bootable();
+		ui->pathLineEdit->clear();
+		ui->serialLineEdit->clear();
+	}
 }
 
 void BootableListDialog::closeEvent(QCloseEvent* event)

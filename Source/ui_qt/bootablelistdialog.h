@@ -61,6 +61,7 @@ private:
 	void SelectionChange(const QModelIndex&);
 	void SetupStatusBar();
 	void DisplayWarningMessage();
+	void BootBootables(const QModelIndex&);
 
 Q_SIGNALS:
 	void AsyncResetModel(bool);
