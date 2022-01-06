@@ -316,3 +316,8 @@ void BootableListDialog::DisplayWarningMessage()
 	                     "Can't close dialog while background operation in progress.",
 	                     QMessageBox::Ok, QMessageBox::Ok);
 }
+
+void BootableListDialog::on_reset_filter_button_clicked()
+{
+	ui->filterLineEdit->clear();
+}

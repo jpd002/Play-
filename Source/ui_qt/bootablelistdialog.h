@@ -39,6 +39,8 @@ private slots:
 
 	void resetModel(bool = true);
 
+	void on_reset_filter_button_clicked();
+
 private:
 	Ui::BootableListDialog* ui;
 
