@@ -35,9 +35,15 @@ BootableListDialog::BootableListDialog(QWidget* parent)
     , m_s3_processing(false)
 {
 	ui->setupUi(this);
+	m_proxy_model = new BootableModelProxy(this);
+	ui->listView->setModel(m_proxy_model);
+
 	CAppConfig::GetInstance().RegisterPreferenceInteger("ui.sortmethod", 2);
 	m_sortingMethod = CAppConfig::GetInstance().GetPreferenceInteger("ui.sortmethod");
 	ui->comboBox->setCurrentIndex(m_sortingMethod);
+
+	connect(ui->filterLineEdit, &QLineEdit::textChanged, m_proxy_model, &QSortFilterProxyModel::setFilterFixedString);
+	connect(ui->listView->selectionModel(), &QItemSelectionModel::currentChanged, this, &BootableListDialog::SelectionChange);
 
 	// used as workaround to avoid direct ui access from a thread
 	connect(this, SIGNAL(AsyncUpdateCoverDisplay()), this, SLOT(UpdateCoverDisplay()));
@@ -96,19 +102,16 @@ BootableListDialog::~BootableListDialog()
 
 void BootableListDialog::resetModel(bool repopulateBootables)
 {
-	ui->listView->setModel(nullptr);
-	if(model)
-		delete model;
+	auto old_model = model;
 
 	if(repopulateBootables)
 		m_bootables = BootablesDb::CClient::GetInstance().GetBootables(m_sortingMethod);
 
 	model = new BootableModel(this, m_bootables);
-	auto proxyModel = new BootableModelProxy(this);
-	proxyModel->setSourceModel(model);
-	ui->listView->setModel(proxyModel);
-	connect(ui->filterLineEdit, &QLineEdit::textChanged, proxyModel, &QSortFilterProxyModel::setFilterFixedString);
-	connect(ui->listView->selectionModel(), &QItemSelectionModel::currentChanged, this, &BootableListDialog::SelectionChange);
+	m_proxy_model->setSourceModel(model);
+
+	if(old_model)
+		delete old_model;
 
 	if(!m_thread_running)
 	{

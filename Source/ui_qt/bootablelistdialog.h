@@ -7,6 +7,7 @@
 #include <thread>
 #include <atomic>
 #include "BootableModel.h"
+#include "BootableModelProxy.h"
 #include "ContinuationChecker.h"
 #include "ElidedLabel.h"
 
@@ -50,6 +51,7 @@ private:
 	BootablesDb::Bootable bootable;
 	std::vector<BootablesDb::Bootable> m_bootables;
 	BootableModel* model = nullptr;
+	BootableModelProxy* m_proxy_model = nullptr;
 	int m_sortingMethod = 2;
 	std::thread cover_loader;
 	std::atomic<bool> m_thread_running;
