@@ -46,8 +46,7 @@ void CPs2VmJs::CreateVM()
 
 void CPs2VmJs::BootElf(std::string path)
 {
-	m_mailBox.SendCall([this, path] ()
-	{
+	m_mailBox.SendCall([this, path]() {
 		printf("Loading '%s'...\r\n", path.c_str());
 		try
 		{
@@ -66,8 +65,7 @@ void CPs2VmJs::BootElf(std::string path)
 
 void CPs2VmJs::BootDiscImage(std::string path)
 {
-	m_mailBox.SendCall([this, path] ()
-	{
+	m_mailBox.SendCall([this, path]() {
 		printf("Loading '%s'...\r\n", path.c_str());
 		try
 		{

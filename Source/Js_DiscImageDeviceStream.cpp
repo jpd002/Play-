@@ -37,7 +37,8 @@ uint64 CJsDiscImageDeviceStream::Read(void* buffer, uint64 size)
 	MAIN_THREAD_EM_ASM({
 		let position = ($1) | ($2 << 32);
 		Module.discImageDevice.read($0, position, $3);
-	}, buffer, positionLow, positionHigh, static_cast<uint32>(size));
+	},
+	                   buffer, positionLow, positionHigh, static_cast<uint32>(size));
 	while(!MAIN_THREAD_EM_ASM_INT({return Module.discImageDevice.isDone()}))
 	{
 		usleep(100);
@@ -56,6 +57,6 @@ bool CJsDiscImageDeviceStream::IsEOF()
 	throw std::runtime_error("Not supported.");
 }
 
-void CJsDiscImageDeviceStream::Flush() 
+void CJsDiscImageDeviceStream::Flush()
 {
 }
