@@ -2,6 +2,8 @@
 #include "Jitter_CodeGen_Wasm.h"
 #include "MemoryUtils.h"
 #include "BasicBlock.h"
+#include "PS2VM_Preferences.h"
+#include "AppConfig.h"
 
 extern "C" uint32 LWL_Proxy(uint32, uint32, CMIPS*);
 extern "C" uint32 LWR_Proxy(uint32, uint32, CMIPS*);
@@ -40,4 +42,45 @@ void CPs2VmJs::CreateVM()
 	Jitter::CWasmFunctionRegistry::RegisterFunction(reinterpret_cast<uintptr_t>(&SDR_Proxy), "_SDR_Proxy", "viji");
 
 	CPS2VM::CreateVM();
+}
+
+void CPs2VmJs::BootElf(std::string path)
+{
+	m_mailBox.SendCall([this, path] ()
+	{
+		printf("Loading '%s'...\r\n", path.c_str());
+		try
+		{
+			Reset();
+			m_ee->m_os->BootFromFile(path);
+		}
+		catch(const std::exception& ex)
+		{
+			printf("Failed to start: %s.\r\n", ex.what());
+			return;
+		}
+		printf("Starting...\r\n");
+		ResumeImpl();
+	});
+}
+
+void CPs2VmJs::BootDiscImage(std::string path)
+{
+	m_mailBox.SendCall([this, path] ()
+	{
+		printf("Loading '%s'...\r\n", path.c_str());
+		try
+		{
+			CAppConfig::GetInstance().SetPreferencePath(PREF_PS2_CDROM0_PATH, path);
+			Reset();
+			m_ee->m_os->BootFromCDROM();
+		}
+		catch(const std::exception& ex)
+		{
+			printf("Failed to start: %s.\r\n", ex.what());
+			return;
+		}
+		printf("Starting...\r\n");
+		ResumeImpl();
+	});
 }

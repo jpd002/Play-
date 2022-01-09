@@ -26,25 +26,27 @@ export const bootFile = createAsyncThunk<void, File>('bootFile',
             return;
         }
         const fileExtension = fileName.substring(fileDotPos);
-        let url = URL.createObjectURL(file);
-        let blob = await fetch(url).then(response => {
-            if(!response.ok) {
-                return null;
-            } else {
-                return response.blob();
-            }
-        });
-        if(blob === null) {
-            thunkAPI.rejectWithValue(null);
-            return;
-        }
-        let data = new Uint8Array(await blob.arrayBuffer());
-        let stream = PlayModule.FS.open(fileName, "w+");
-        PlayModule.FS.write(stream, data, 0, data.length, 0);
-        PlayModule.FS.close(stream);
         if(fileExtension === ".elf") {
-            PlayModule.loadElf(fileName);
+            let url = URL.createObjectURL(file);
+            let blob = await fetch(url).then(response => {
+                if(!response.ok) {
+                    return null;
+                } else {
+                    return response.blob();
+                }
+            });
+            if(blob === null) {
+                thunkAPI.rejectWithValue(null);
+                return;
+            }
+            let data = new Uint8Array(await blob.arrayBuffer());
+            let stream = PlayModule.FS.open(fileName, "w+");
+            PlayModule.FS.write(stream, data, 0, data.length, 0);
+            PlayModule.FS.close(stream);
+            URL.revokeObjectURL(url);
+            PlayModule.bootElf(fileName);
         } else {
+            PlayModule.discImageDevice.setFile(file);
             PlayModule.bootDiscImage(fileName);
         }
     }

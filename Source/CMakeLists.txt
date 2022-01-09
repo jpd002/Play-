@@ -479,6 +479,10 @@ if(TARGET_PLATFORM_MACOS OR TARGET_PLATFORM_UNIX OR TARGET_PLATFORM_JS)
 	set(PLATFORM_SPECIFIC_SRC_FILES Posix_VolumeStream.cpp)
 endif()
 
+if(TARGET_PLATFORM_JS)
+	set(PLATFORM_SPECIFIC_SRC_FILES ${PLATFORM_SPECIFIC_SRC_FILES} Js_DiscImageDeviceStream.cpp Js_DiscImageDeviceStream.h)
+endif()
+
 add_library(PlayCore STATIC ${COMMON_SRC_FILES} ${PLATFORM_SPECIFIC_SRC_FILES})
 target_link_libraries(PlayCore ${PROJECT_LIBS})
 target_include_directories(PlayCore

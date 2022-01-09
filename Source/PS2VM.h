@@ -94,6 +94,7 @@ public:
 
 protected:
 	virtual void CreateVM();
+	void ResumeImpl();
 
 	CMailBox m_mailBox;
 
@@ -108,7 +109,6 @@ private:
 	void ReloadExecutable(const char*, const CPS2OS::ArgumentList&);
 	void OnCrtModeChange();
 
-	void ResumeImpl();
 	void PauseImpl();
 	void DestroyImpl();
 

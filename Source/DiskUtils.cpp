@@ -24,6 +24,9 @@
 #include "android/ContentStream.h"
 #include "android/ContentUtils.h"
 #endif
+#ifdef __EMSCRIPTEN__
+#include "Js_DiscImageDeviceStream.h"
+#endif
 #ifdef __APPLE__
 #include "TargetConditionals.h"
 #endif
@@ -58,6 +61,8 @@ static Framework::CStream* CreateImageStream(const fs::path& imagePath)
 	{
 		return new Framework::CPosixFileStream(imagePathString.c_str(), O_RDONLY);
 	}
+#elif defined(__EMSCRIPTEN__)
+	return new CJsDiscImageDeviceStream();
 #else
 	return new Framework::CStdStream(imagePathString.c_str(), "rb");
 #endif
