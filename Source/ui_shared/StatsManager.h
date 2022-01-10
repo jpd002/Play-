@@ -10,10 +10,13 @@
 class CStatsManager : public CSingleton<CStatsManager>
 {
 public:
-	void OnNewFrame(uint32);
+	void OnNewFrame(CPS2VM*, uint32);
+
+	static float ComputeCpuUsageRatio(int32 idleTicks, int32 totalTicks);
 
 	uint32 GetFrames();
 	uint32 GetDrawCalls();
+	CPS2VM::CPU_UTILISATION_INFO GetCpuUtilisationInfo();
 #ifdef PROFILE
 	std::string GetProfilingInfo();
 #endif
@@ -21,7 +24,7 @@ public:
 	void ClearStats();
 
 #ifdef PROFILE
-	void OnProfileFrameDone(CPS2VM*, const CProfiler::ZoneArray&);
+	void OnProfileFrameDone(const CProfiler::ZoneArray&);
 #endif
 
 private:
@@ -29,6 +32,8 @@ private:
 
 	uint32 m_frames = 0;
 	uint32 m_drawCalls = 0;
+
+	CPS2VM::CPU_UTILISATION_INFO m_cpuUtilisation;
 
 #ifdef PROFILE
 	struct ZONEINFO
@@ -39,8 +44,6 @@ private:
 	};
 
 	typedef std::map<std::string, ZONEINFO> ZoneMap;
-
-	CPS2VM::CPU_UTILISATION_INFO m_cpuUtilisation;
 
 	std::mutex m_profilerZonesMutex;
 	ZoneMap m_profilerZones;

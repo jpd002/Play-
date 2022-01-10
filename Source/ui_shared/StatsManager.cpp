@@ -3,11 +3,25 @@
 #include "string_format.h"
 #include "PS2VM.h"
 
-void CStatsManager::OnNewFrame(uint32 drawCalls)
+void CStatsManager::OnNewFrame(CPS2VM* virtualMachine, uint32 drawCalls)
 {
 	std::lock_guard<std::mutex> statsLock(m_statsMutex);
 	m_frames++;
 	m_drawCalls += drawCalls;
+
+	auto cpuUtilisation = virtualMachine->GetCpuUtilisationInfo();
+	m_cpuUtilisation.eeTotalTicks += cpuUtilisation.eeTotalTicks;
+	m_cpuUtilisation.eeIdleTicks += cpuUtilisation.eeIdleTicks;
+	m_cpuUtilisation.iopTotalTicks += cpuUtilisation.iopTotalTicks;
+	m_cpuUtilisation.iopIdleTicks += cpuUtilisation.iopIdleTicks;
+}
+
+float CStatsManager::ComputeCpuUsageRatio(int32 idleTicks, int32 totalTicks)
+{
+	idleTicks = std::max<int32>(idleTicks, 0);
+	float idleRatio = static_cast<float>(idleTicks) / static_cast<float>(totalTicks);
+	if(totalTicks == 0) idleRatio = 1.f;
+	return (1.f - idleRatio) * 100.f;
 }
 
 uint32 CStatsManager::GetFrames()
@@ -20,6 +34,12 @@ uint32 CStatsManager::GetDrawCalls()
 {
 	std::lock_guard<std::mutex> statsLock(m_statsMutex);
 	return m_drawCalls;
+}
+
+CPS2VM::CPU_UTILISATION_INFO CStatsManager::GetCpuUtilisationInfo()
+{
+	std::lock_guard<std::mutex> statsLock(m_statsMutex);
+	return m_cpuUtilisation;
 }
 
 #ifdef PROFILE
@@ -58,17 +78,11 @@ std::string CStatsManager::GetProfilingInfo()
 	}
 
 	{
-		m_cpuUtilisation.eeIdleTicks = std::max<int32>(m_cpuUtilisation.eeIdleTicks, 0);
-		m_cpuUtilisation.iopIdleTicks = std::max<int32>(m_cpuUtilisation.iopIdleTicks, 0);
+		float eeUsageRatio = ComputeCpuUsageRatio(m_cpuUtilisation.eeIdleTicks, m_cpuUtilisation.eeTotalTicks);
+		float iopUsageRatio = ComputeCpuUsageRatio(m_cpuUtilisation.iopIdleTicks, m_cpuUtilisation.iopTotalTicks);
 
-		float eeIdleRatio = static_cast<float>(m_cpuUtilisation.eeIdleTicks) / static_cast<float>(m_cpuUtilisation.eeTotalTicks);
-		float iopIdleRatio = static_cast<float>(m_cpuUtilisation.iopIdleTicks) / static_cast<float>(m_cpuUtilisation.iopTotalTicks);
-
-		if(m_cpuUtilisation.eeTotalTicks == 0) eeIdleRatio = 1.f;
-		if(m_cpuUtilisation.iopTotalTicks == 0) iopIdleRatio = 1.f;
-
-		result += string_format("EE Usage:  %6.2f%%\r\n", (1.f - eeIdleRatio) * 100.f);
-		result += string_format("IOP Usage: %6.2f%%\r\n", (1.f - iopIdleRatio) * 100.f);
+		result += string_format("EE Usage:  %6.2f%%\r\n", eeUsageRatio);
+		result += string_format("IOP Usage: %6.2f%%\r\n", iopUsageRatio);
 	}
 
 	return result;
@@ -81,18 +95,18 @@ void CStatsManager::ClearStats()
 	std::lock_guard<std::mutex> statsLock(m_statsMutex);
 	m_frames = 0;
 	m_drawCalls = 0;
+	m_cpuUtilisation = CPS2VM::CPU_UTILISATION_INFO();
 #ifdef PROFILE
 	for(auto& zonePair : m_profilerZones)
 	{
 		zonePair.second.currentValue = 0;
 	}
-	m_cpuUtilisation = CPS2VM::CPU_UTILISATION_INFO();
 #endif
 }
 
 #ifdef PROFILE
 
-void CStatsManager::OnProfileFrameDone(CPS2VM* virtualMachine, const CProfiler::ZoneArray& zones)
+void CStatsManager::OnProfileFrameDone(const CProfiler::ZoneArray& zones)
 {
 	std::lock_guard<std::mutex> profileZonesLock(m_profilerZonesMutex);
 
@@ -106,12 +120,6 @@ void CStatsManager::OnProfileFrameDone(CPS2VM* virtualMachine, const CProfiler::
 		}
 		zoneInfo.maxValue = std::max<uint64>(zoneInfo.maxValue, zone.totalTime);
 	}
-
-	auto cpuUtilisation = virtualMachine->GetCpuUtilisationInfo();
-	m_cpuUtilisation.eeTotalTicks += cpuUtilisation.eeTotalTicks;
-	m_cpuUtilisation.eeIdleTicks += cpuUtilisation.eeIdleTicks;
-	m_cpuUtilisation.iopTotalTicks += cpuUtilisation.iopTotalTicks;
-	m_cpuUtilisation.iopIdleTicks += cpuUtilisation.iopIdleTicks;
 }
 
 #endif

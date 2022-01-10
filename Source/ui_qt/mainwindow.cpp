@@ -191,7 +191,7 @@ void MainWindow::InitVirtualMachine()
 	}
 
 #ifdef PROFILE
-	m_profileFrameDoneConnection = m_virtualMachine->ProfileFrameDone.Connect(std::bind(&CStatsManager::OnProfileFrameDone, &CStatsManager::GetInstance(), m_virtualMachine, std::placeholders::_1));
+	m_profileFrameDoneConnection = m_virtualMachine->ProfileFrameDone.Connect(std::bind(&CStatsManager::OnProfileFrameDone, &CStatsManager::GetInstance(), std::placeholders::_1));
 #endif
 
 	//OnExecutableChange might be called from another thread, we need to wrap it around a Qt signal
@@ -249,7 +249,7 @@ void MainWindow::SetupGsHandler()
 
 	connect(m_outputwindow, SIGNAL(doubleClick(QMouseEvent*)), this, SLOT(doubleClickEvent(QMouseEvent*)));
 
-	m_OnNewFrameConnection = m_virtualMachine->m_ee->m_gs->OnNewFrame.Connect(std::bind(&CStatsManager::OnNewFrame, &CStatsManager::GetInstance(), std::placeholders::_1));
+	m_OnNewFrameConnection = m_virtualMachine->m_ee->m_gs->OnNewFrame.Connect(std::bind(&CStatsManager::OnNewFrame, &CStatsManager::GetInstance(), m_virtualMachine, std::placeholders::_1));
 }
 
 void MainWindow::SetupSoundHandler()
@@ -465,6 +465,10 @@ void MainWindow::CreateStatusBar()
 	m_fpsLabel->setAlignment(Qt::AlignHCenter);
 	m_fpsLabel->setMinimumSize(m_fpsLabel->sizeHint());
 
+	m_cpuUsageLabel = new QLabel("");
+	m_cpuUsageLabel->setAlignment(Qt::AlignHCenter);
+	m_cpuUsageLabel->setMinimumSize(m_cpuUsageLabel->sizeHint());
+
 	m_msgLabel = new ElidedLabel();
 	m_msgLabel->setAlignment(Qt::AlignLeft);
 	QFontMetrics fm(m_msgLabel->font());
@@ -473,6 +477,7 @@ void MainWindow::CreateStatusBar()
 
 	statusBar()->addWidget(m_msgLabel, 1);
 	statusBar()->addWidget(m_fpsLabel);
+	statusBar()->addWidget(m_cpuUsageLabel);
 #ifdef HAS_GSH_VULKAN
 	if(GSH_Vulkan::CDeviceInfo::GetInstance().HasAvailableDevices())
 	{
@@ -505,11 +510,16 @@ void MainWindow::updateStats()
 {
 	uint32 frames = CStatsManager::GetInstance().GetFrames();
 	uint32 drawCalls = CStatsManager::GetInstance().GetDrawCalls();
+	auto cpuUtilisation = CStatsManager::GetInstance().GetCpuUtilisationInfo();
 	uint32 dcpf = (frames != 0) ? (drawCalls / frames) : 0;
 #ifdef PROFILE
 	m_profileStatsLabel->setText(QString::fromStdString(CStatsManager::GetInstance().GetProfilingInfo()));
 #endif
 	m_fpsLabel->setText(QString("%1 f/s, %2 dc/f").arg(frames).arg(dcpf));
+
+	auto eeUsageRatio = CStatsManager::ComputeCpuUsageRatio(cpuUtilisation.eeIdleTicks, cpuUtilisation.eeTotalTicks);
+	m_cpuUsageLabel->setText(QString("EE CPU: %1%").arg(static_cast<int>(eeUsageRatio)));
+
 	CStatsManager::GetInstance().ClearStats();
 }
 

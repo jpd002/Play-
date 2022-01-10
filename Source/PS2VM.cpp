@@ -630,14 +630,10 @@ void CPS2VM::UpdateEe()
 		int executed = m_ee->ExecuteCpu(m_singleStepEe ? 1 : m_eeExecutionTicks);
 		if(m_ee->IsCpuIdle())
 		{
-#ifdef PROFILE
 			m_cpuUtilisation.eeIdleTicks += (m_eeExecutionTicks - executed);
-#endif
 			executed = m_eeExecutionTicks;
 		}
-#ifdef PROFILE
 		m_cpuUtilisation.eeTotalTicks += executed;
-#endif
 
 		m_ee->m_vpu0->Execute(m_singleStepVu0 ? 1 : executed);
 		m_ee->m_vpu1->Execute(m_singleStepVu1 ? 1 : executed);
@@ -664,14 +660,10 @@ void CPS2VM::UpdateIop()
 		int executed = m_iop->ExecuteCpu(m_singleStepIop ? 1 : m_iopExecutionTicks);
 		if(m_iop->IsCpuIdle())
 		{
-#ifdef PROFILE
 			m_cpuUtilisation.iopIdleTicks += (m_iopExecutionTicks - executed);
-#endif
 			executed = m_iopExecutionTicks;
 		}
-#ifdef PROFILE
 		m_cpuUtilisation.iopTotalTicks += executed;
-#endif
 
 		m_iopExecutionTicks -= executed;
 		m_spuUpdateTicks -= executed;
@@ -853,8 +845,8 @@ void CPS2VM::EmuThread()
 							CProfiler::GetInstance().Reset();
 						}
 
-						m_cpuUtilisation = CPU_UTILISATION_INFO();
 #endif
+						m_cpuUtilisation = CPU_UTILISATION_INFO();
 					}
 					else
 					{
