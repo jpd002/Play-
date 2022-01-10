@@ -280,8 +280,11 @@ bool CBasicBlock::IsIdleLoopBlock() const
 	}
 
 	//Check all instructions inside to see if we can prove it's waiting for some kind of flag
-	for(uint32 address = m_begin; address < (m_end - 4); address += 4)
+	for(uint32 address = m_begin; address <= m_end; address += 4)
 	{
+		//Don't check branch instruction as we've checked it already
+		if(address == endInstructionAddress) continue;
+
 		uint32 inst = m_context.m_pMemoryMap->GetWord(address);
 		if(inst == 0) continue;
 		uint32 special = inst & 0x3F;
