@@ -1,0 +1,17 @@
+<Game>
+	<Environments>
+		<Environment Id="1">
+			<Directory Name="/BASLUS-20510-SWCW" />
+			<File Name="/BASLUS-20510-SWCW/BASLUS-20510-SWCW" Size="2244" />
+			<File Name="/BASLUS-20510-SWCW/clonehead.ico" Size="128088" />
+			<File Name="/BASLUS-20510-SWCW/icon.sys" Size="964" />
+		</Environment>
+	</Environments>
+	<Tests>
+		<Test Query="./*" EnvironmentId="1" MaxEntries="18" Result="5" CurrentDirectory="/BASLUS-20510-SWCW">
+			<Entry Name="BASLUS-20510-SWCW" />
+			<Entry Name="clonehead.ico" />
+			<Entry Name="icon.sys" />
+		</Test>
+	</Tests>
+</Game>
