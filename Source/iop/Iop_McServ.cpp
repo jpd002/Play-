@@ -755,14 +755,22 @@ void CMcServ::GetEntSpace(uint32* args, uint32 argsSize, uint32* ret, uint32 ret
 	auto mcPath = CAppConfig::GetInstance().GetPreferencePath(m_mcPathPreference[cmd->port]);
 	auto savePath = Iop::PathUtils::MakeHostPath(mcPath, cmd->name);
 
-	if(fs::exists(savePath) && fs::is_directory(savePath))
+	try
 	{
-		// Arbitrarity number, allows Drakengard to detect MC
-		ret[0] = 0xFE;
+		if(fs::exists(savePath) && fs::is_directory(savePath))
+		{
+			// Arbitrarity number, allows Drakengard to detect MC
+			ret[0] = 0xFE;
+		}
+		else
+		{
+			ret[0] = RET_NO_ENTRY;
+		}
 	}
-	else
+	catch(const std::exception& exception)
 	{
-		ret[0] = RET_NO_ENTRY;
+		CLog::GetInstance().Warn(LOG_NAME, "Error while executing GetEntSpace: %s.\r\n", exception.what());
+		ret[0] = -1;
 	}
 }
 
