@@ -996,6 +996,13 @@ void CMcServ::CPathFinder::Search(const fs::path& basePath, const char* filter)
 	m_basePath = basePath;
 
 	std::string filterPathString = filter;
+
+	//Resolve relative paths (only when filter starts with one)
+	if(filterPathString.find("./") == 0)
+	{
+		filterPathString = filterPathString.substr(1);
+	}
+
 	if(filterPathString[0] != '/')
 	{
 		filterPathString = "/" + filterPathString;
