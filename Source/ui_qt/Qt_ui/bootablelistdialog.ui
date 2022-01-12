@@ -49,6 +49,13 @@
      <property name="rightMargin">
       <number>9</number>
      </property>
+     <item row="2" column="0">
+      <widget class="QLabel" name="filterlabel">
+       <property name="text">
+        <string>Filter:</string>
+       </property>
+      </widget>
+     </item>
      <item>
       <widget class="QLineEdit" name="filterLineEdit"/>
      </item>
