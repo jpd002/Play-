@@ -24,9 +24,9 @@ public:
 	fs::path GetSelectedPath() const;
 
 private slots:
-	void refreshButton_clicked();
-	void objectList_itemSelectionChanged();
-	void searchFilterEdit_textChanged(QString);
+	void on_refreshButton_clicked();
+	void on_objectList_itemSelectionChanged();
+	void on_searchFilterEdit_textChanged(QString);
 	void updateFilter();
 
 private:

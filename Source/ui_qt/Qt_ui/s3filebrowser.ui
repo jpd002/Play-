@@ -104,53 +104,5 @@
     </hint>
    </hints>
   </connection>
-  <connection>
-   <sender>refreshButton</sender>
-   <signal>clicked()</signal>
-   <receiver>S3FileBrowser</receiver>
-   <slot>refreshButton_clicked()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>400</x>
-     <y>21</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>223</x>
-     <y>186</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>objectList</sender>
-   <signal>itemSelectionChanged()</signal>
-   <receiver>S3FileBrowser</receiver>
-   <slot>objectList_itemSelectionChanged()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>223</x>
-     <y>187</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>223</x>
-     <y>186</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>searchFilterEdit</sender>
-   <signal>textChanged(QString)</signal>
-   <receiver>S3FileBrowser</receiver>
-   <slot>searchFilterEdit_textChanged(QString)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>223</x>
-     <y>49</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>223</x>
-     <y>186</y>
-    </hint>
-   </hints>
-  </connection>
  </connections>
 </ui>
