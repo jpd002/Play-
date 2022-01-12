@@ -37,7 +37,6 @@ project.afterEvaluate {
 android {
 	repositories {
 		google()
-		jcenter()
 		mavenCentral()
 	}
 
