@@ -2,11 +2,11 @@
 #include "BootableModel.h"
 #include <regex>
 BootableModelProxy::BootableModelProxy(QObject* parent)
-	: QSortFilterProxyModel(parent)
+    : QSortFilterProxyModel(parent)
 {
 }
 
-bool BootableModelProxy::filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const
+bool BootableModelProxy::filterAcceptsRow(int sourceRow, const QModelIndex& sourceParent) const
 {
 	QModelIndex index = sourceModel()->index(sourceRow, 0, sourceParent);
 
@@ -19,7 +19,7 @@ bool BootableModelProxy::filterAcceptsRow(int sourceRow, const QModelIndex &sour
 		QRegularExpression regex = filterRegularExpression();
 		regex.setPatternOptions(QRegularExpression::CaseInsensitiveOption);
 
-		return  key.contains(regex) ||  title.contains(regex);
+		return key.contains(regex) || title.contains(regex);
 	}
 	return false;
 }

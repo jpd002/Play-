@@ -31,18 +31,18 @@
 BootableListDialog::BootableListDialog(QWidget* parent)
     : QDialog(parent)
     , ui(new Ui::BootableListDialog)
-    , m_thread_running(false)
-    , m_s3_processing(false)
+    , m_threadRunning(false)
+    , m_s3Processing(false)
 {
 	ui->setupUi(this);
-	m_proxy_model = new BootableModelProxy(this);
-	ui->listView->setModel(m_proxy_model);
+	m_proxyModel = new BootableModelProxy(this);
+	ui->listView->setModel(m_proxyModel);
 
 	CAppConfig::GetInstance().RegisterPreferenceInteger("ui.sortmethod", 2);
 	m_sortingMethod = CAppConfig::GetInstance().GetPreferenceInteger("ui.sortmethod");
 	ui->comboBox->setCurrentIndex(m_sortingMethod);
 
-	connect(ui->filterLineEdit, &QLineEdit::textChanged, m_proxy_model, &QSortFilterProxyModel::setFilterFixedString);
+	connect(ui->filterLineEdit, &QLineEdit::textChanged, m_proxyModel, &QSortFilterProxyModel::setFilterFixedString);
 	connect(ui->listView->selectionModel(), &QItemSelectionModel::currentChanged, this, &BootableListDialog::SelectionChange);
 
 	// used as workaround to avoid direct ui access from a thread
@@ -73,10 +73,10 @@ BootableListDialog::BootableListDialog(QWidget* parent)
 	connect(removegame, &QAction::triggered,
 	        [&](bool) {
 		        QModelIndex index = ui->listView->selectionModel()->selectedIndexes().at(0);
-		        auto src_index = m_proxy_model->mapToSource(index);
-		        auto bootable = model->GetBootable(src_index);
+		        auto src_index = m_proxyModel->mapToSource(index);
+		        auto bootable = m_model->GetBootable(src_index);
 		        BootablesDb::CClient::GetInstance().UnregisterBootable(bootable.path);
-		        model->removeItem(src_index);
+		        m_model->removeItem(src_index);
 	        });
 	m_continuationChecker = new CContinuationChecker(this);
 #ifdef HAS_AMAZON_S3
@@ -88,40 +88,40 @@ BootableListDialog::BootableListDialog(QWidget* parent)
 
 BootableListDialog::~BootableListDialog()
 {
-	if(cover_loader.joinable())
-		cover_loader.join();
+	if(m_coverLoader.joinable())
+		m_coverLoader.join();
 	delete ui;
 }
 
 void BootableListDialog::resetModel(bool repopulateBootables)
 {
-	auto old_model = model;
+	auto old_model = m_model;
 
 	if(repopulateBootables)
 		m_bootables = BootablesDb::CClient::GetInstance().GetBootables(m_sortingMethod);
 
-	model = new BootableModel(this, m_bootables);
-	m_proxy_model->setSourceModel(model);
+	m_model = new BootableModel(this, m_bootables);
+	m_proxyModel->setSourceModel(m_model);
 
 	if(old_model)
 		delete old_model;
 
-	if(!m_thread_running)
+	if(!m_threadRunning)
 	{
-		if(cover_loader.joinable())
-			cover_loader.join();
-		m_thread_running = true;
-		cover_loader = std::thread([&] {
+		if(m_coverLoader.joinable())
+			m_coverLoader.join();
+		m_threadRunning = true;
+		m_coverLoader = std::thread([&] {
 			CoverUtils::PopulateCache(m_bootables);
 
 			AsyncUpdateCoverDisplay();
-			m_thread_running = false;
+			m_threadRunning = false;
 		});
 	}
 }
 BootablesDb::Bootable BootableListDialog::getResult()
 {
-	return bootable;
+	return m_bootable;
 }
 
 void BootableListDialog::showEvent(QShowEvent* ev)
@@ -158,10 +158,10 @@ void BootableListDialog::on_add_games_button_clicked()
 
 void BootableListDialog::BootBootables(const QModelIndex& index)
 {
-	auto src_index = m_proxy_model->mapToSource(index);
+	auto src_index = m_proxyModel->mapToSource(index);
 	assert(src_index.isValid());
-	bootable = model->GetBootable(src_index);
-	if(!m_s3_processing)
+	m_bootable = m_model->GetBootable(index);
+	if(!m_s3Processing)
 	{
 		accept();
 	}
@@ -211,7 +211,7 @@ void BootableListDialog::UpdateCoverDisplay()
 
 void BootableListDialog::resizeEvent(QResizeEvent* ev)
 {
-	model->SetWidth(ui->listView->size().width() - ui->listView->style()->pixelMetric(QStyle::PM_ScrollBarExtent) - 5);
+	m_model->SetWidth(ui->listView->size().width() - ui->listView->style()->pixelMetric(QStyle::PM_ScrollBarExtent) - 5);
 	QDialog::resizeEvent(ev);
 }
 
@@ -234,7 +234,7 @@ void BootableListDialog::on_awsS3Button_clicked()
 
 	m_statusBar->show();
 	auto getListFuture = std::async(std::launch::async, [this, bucketName]() {
-		m_s3_processing = true;
+		m_s3Processing = true;
 		auto credentials = CS3ObjectStream::CConfig::GetInstance().GetCredentials();
 		AsyncUpdateStatus("Requesting S3 Bucket Content.");
 		auto result = AmazonS3Utils::GetListObjects(credentials, bucketName);
@@ -265,7 +265,7 @@ void BootableListDialog::on_awsS3Button_clicked()
 			AsyncUpdateStatus("Refreshing Model.");
 			resetModel();
 		}
-		m_s3_processing = false;
+		m_s3Processing = false;
 		AsyncUpdateStatus("Complete.");
 		m_statusBar->hide();
 	};
@@ -278,13 +278,13 @@ void BootableListDialog::SelectionChange(const QModelIndex& index)
 	auto src_index = static_cast<QSortFilterProxyModel*>(ui->listView->model())->mapToSource(index);
 	if(src_index.isValid())
 	{
-		bootable = model->GetBootable(src_index);
-		ui->pathLineEdit->setText(bootable.path.string().c_str());
-		ui->serialLineEdit->setText(bootable.discId.c_str());
+		m_bootable = m_model->GetBootable(src_index);
+		ui->pathLineEdit->setText(m_bootable.path.string().c_str());
+		ui->serialLineEdit->setText(m_bootable.discId.c_str());
 	}
 	else
 	{
-		bootable = BootablesDb::Bootable();
+		m_bootable = BootablesDb::Bootable();
 		ui->pathLineEdit->clear();
 		ui->serialLineEdit->clear();
 	}
@@ -292,7 +292,7 @@ void BootableListDialog::SelectionChange(const QModelIndex& index)
 
 void BootableListDialog::closeEvent(QCloseEvent* event)
 {
-	if(m_s3_processing)
+	if(m_s3Processing)
 	{
 		event->ignore();
 		DisplayWarningMessage();

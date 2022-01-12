@@ -37,6 +37,7 @@ public:
 
 	std::string GetKey();
 	std::string GetTitle();
+
 private:
 	int GetPadding() const;
 	std::string m_key;

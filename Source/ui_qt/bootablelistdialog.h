@@ -16,8 +16,7 @@ namespace Ui
 	class BootableListDialog;
 }
 
-class
-    BootableListDialog : public QDialog
+class BootableListDialog : public QDialog
 {
 	Q_OBJECT
 
@@ -48,14 +47,14 @@ private:
 	QStatusBar* m_statusBar = nullptr;
 	ElidedLabel* m_msgLabel = nullptr;
 
-	BootablesDb::Bootable bootable;
+	BootablesDb::Bootable m_bootable;
 	std::vector<BootablesDb::Bootable> m_bootables;
-	BootableModel* model = nullptr;
-	BootableModelProxy* m_proxy_model = nullptr;
+	BootableModel* m_model = nullptr;
+	BootableModelProxy* m_proxyModel = nullptr;
 	int m_sortingMethod = 2;
-	std::thread cover_loader;
-	std::atomic<bool> m_thread_running;
-	std::atomic<bool> m_s3_processing;
+	std::thread m_coverLoader;
+	std::atomic<bool> m_threadRunning;
+	std::atomic<bool> m_s3Processing;
 	CContinuationChecker* m_continuationChecker = nullptr;
 
 	void SelectionChange(const QModelIndex&);
