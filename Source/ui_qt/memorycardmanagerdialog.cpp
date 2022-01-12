@@ -88,17 +88,34 @@ void MemoryCardManagerDialog::populateSaveList()
 
 	for(unsigned int i = 0; i < nItemCount; i++)
 	{
-		QString name = QString::fromWCharArray(m_pCurrentMemoryCard->GetSaveByIndex(i)->GetName());
-		ui->savelistWidget->addItem(name);
+		auto item = new QListWidgetItem(ui->savelistWidget);
+		auto name = QString::fromWCharArray(m_pCurrentMemoryCard->GetSaveByIndex(i)->GetName());
+		item->setText(name);
+		item->setData(Qt::UserRole, i);
+		ui->savelistWidget->addItem(item);
 	}
+
+	ui->savelistWidget->sortItems();
+}
+
+int MemoryCardManagerDialog::getSelectedSaveIndex()
+{
+	int saveIndex = -1;
+	auto selectedItem = ui->savelistWidget->currentItem();
+	if(selectedItem)
+	{
+		saveIndex = selectedItem->data(Qt::UserRole).toInt();
+	}
+	return saveIndex;
 }
 
 void MemoryCardManagerDialog::on_savelistWidget_currentRowChanged(int currentRow)
 {
-	int nItemCount = static_cast<int>(m_pCurrentMemoryCard->GetSaveCount() - 1);
-	if(currentRow >= 0 && currentRow <= nItemCount)
+	int saveIndex = getSelectedSaveIndex();
+	int saveCount = static_cast<int>(m_pCurrentMemoryCard->GetSaveCount() - 1);
+	if(saveIndex >= 0 && saveIndex <= saveCount)
 	{
-		const CSave* save = m_pCurrentMemoryCard->GetSaveByIndex(currentRow);
+		const CSave* save = m_pCurrentMemoryCard->GetSaveByIndex(saveIndex);
 		QDateTime* dt = new QDateTime;
 		dt->setTime_t(save->GetLastModificationTime());
 		QString datetime = dt->toUTC().toString("hh:mm - dd.MM.yyyy");
@@ -131,11 +148,11 @@ void MemoryCardManagerDialog::on_delete_save_button_clicked()
 	                                                           QMessageBox::Yes);
 	if(resBtn == QMessageBox::Yes)
 	{
-		int currentRow = ui->savelistWidget->currentRow();
-		int nItemCount = static_cast<int>(m_pCurrentMemoryCard->GetSaveCount() - 1);
-		if(currentRow >= 0 && currentRow <= nItemCount)
+		int saveIndex = getSelectedSaveIndex();
+		int saveCount = static_cast<int>(m_pCurrentMemoryCard->GetSaveCount() - 1);
+		if(saveIndex >= 0 && saveIndex <= saveCount)
 		{
-			const CSave* save = m_pCurrentMemoryCard->GetSaveByIndex(currentRow);
+			const CSave* save = m_pCurrentMemoryCard->GetSaveByIndex(saveIndex);
 			fs::remove_all(save->GetPath());
 			m_pCurrentMemoryCard->RefreshContents();
 			populateSaveList();
@@ -145,11 +162,11 @@ void MemoryCardManagerDialog::on_delete_save_button_clicked()
 
 void MemoryCardManagerDialog::on_export_save_button_clicked()
 {
-	int currentRow = ui->savelistWidget->currentRow();
-	int nItemCount = static_cast<int>(m_pCurrentMemoryCard->GetSaveCount() - 1);
-	if(currentRow >= 0 && currentRow <= nItemCount)
+	int saveIndex = getSelectedSaveIndex();
+	int saveCount = static_cast<int>(m_pCurrentMemoryCard->GetSaveCount() - 1);
+	if(saveIndex >= 0 && saveIndex <= saveCount)
 	{
-		const CSave* save = m_pCurrentMemoryCard->GetSaveByIndex(currentRow);
+		const CSave* save = m_pCurrentMemoryCard->GetSaveByIndex(saveIndex);
 		if(save != NULL)
 		{
 			QFileDialog dialog(this);

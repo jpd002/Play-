@@ -23,6 +23,7 @@ public:
 private:
 	CSaveImporterBase::OVERWRITE_PROMPT_RETURN OnImportOverwrite(const fs::path&);
 	void populateSaveList();
+	int getSelectedSaveIndex();
 
 	Ui::MemoryCardManagerDialog* ui;
 	CMemoryCard m_MemoryCard0;
