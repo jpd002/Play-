@@ -16,10 +16,11 @@ bool BootableModelProxy::filterAcceptsRow(int sourceRow, const QModelIndex& sour
 		BootableCoverQVarient bootablecover = qvariant_cast<BootableCoverQVarient>(data);
 		QString key = QString::fromStdString(bootablecover.GetKey());
 		QString title = QString::fromStdString(bootablecover.GetTitle());
+		QString path = QString::fromStdString(bootablecover.GetPath());
 		QRegularExpression regex = filterRegularExpression();
 		regex.setPatternOptions(QRegularExpression::CaseInsensitiveOption);
 
-		return key.contains(regex) || title.contains(regex);
+		return key.contains(regex) || title.contains(regex) || path.contains(regex);
 	}
 	return false;
 }
