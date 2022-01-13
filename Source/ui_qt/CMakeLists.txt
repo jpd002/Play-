@@ -120,6 +120,8 @@ set(QT_SOURCES
 	memorycardmanagerdialog.cpp
 	memorycardmanagerdialog.h
 	PreferenceDefs.h
+	QBootableListView.cpp
+	QBootableListView.h
 	QStringUtils.cpp
 	QStringUtils.h
 	QtUtils.cpp
@@ -213,6 +215,7 @@ set(QT_MOC_HEADERS
 	settingsdialog.h
 	openglwindow.h
 	outputwindow.h
+	QBootableListView.h
 	memorycardmanagerdialog.h
 	vfsmanagerdialog.h
 	vfsmodel.h

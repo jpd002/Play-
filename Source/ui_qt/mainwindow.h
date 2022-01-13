@@ -87,6 +87,7 @@ private:
 	void buildResizeWindowMenu();
 	void resizeWindow(unsigned int, unsigned int);
 	void UpdateGSHandlerLabel(int);
+	void SetupBootableView();
 
 	Ui::MainWindow* ui;
 

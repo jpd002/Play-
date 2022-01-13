@@ -54,6 +54,7 @@
 #include "vfsmanagerdialog.h"
 #include "bootablelistdialog.h"
 #include "ControllerConfig/controllerconfigdialog.h"
+#include "QBootableListView.h"
 
 #ifdef __APPLE__
 #include "macos/InputProviderMacOsHid.h"
@@ -102,6 +103,8 @@ MainWindow::MainWindow(QWidget* parent)
 	CreateStatusBar();
 	UpdateUI();
 	addAction(ui->actionPause_Resume);
+	SetupBootableView();
+
 #ifdef HAS_AMAZON_S3
 	ui->actionBoot_DiscImage_S3->setVisible(S3FileBrowser::IsAvailable());
 #endif
@@ -210,7 +213,7 @@ void MainWindow::SetupGsHandler()
 		m_outputwindow = new VulkanWindow;
 		QWidget* container = QWidget::createWindowContainer(m_outputwindow);
 		m_outputwindow->create();
-		ui->gridLayout->addWidget(container, 0, 0);
+		ui->stackedWidget->addWidget(container);
 		m_virtualMachine->CreateGSHandler(CGSH_VulkanQt::GetFactoryFunction(m_outputwindow));
 	}
 	break;
@@ -221,9 +224,15 @@ void MainWindow::SetupGsHandler()
 		m_outputwindow = new OpenGLWindow;
 		QWidget* container = QWidget::createWindowContainer(m_outputwindow);
 		m_outputwindow->create();
-		ui->gridLayout->addWidget(container, 0, 0);
+		ui->stackedWidget->addWidget(container);
 		m_virtualMachine->CreateGSHandler(CGSH_OpenGLQt::GetFactoryFunction(m_outputwindow));
 	}
+	}
+	if(ui->stackedWidget->count() > 2)
+	{
+		auto oldContainer = ui->stackedWidget->widget(1);
+		ui->stackedWidget->removeWidget(oldContainer);
+		delete oldContainer;
 	}
 
 	connect(m_outputwindow, SIGNAL(heightChanged(int)), this, SLOT(outputWindow_resized()));
@@ -946,4 +955,36 @@ void MainWindow::UpdateGSHandlerLabel(int gs_index)
 		break;
 #endif
 	}
+}
+
+void MainWindow::SetupBootableView()
+{
+	auto showEmu = std::bind(&QStackedWidget::setCurrentIndex, ui->stackedWidget, 1);
+	QBootableListView* listView = ui->listView;
+
+	QBootableListView::Callback bootGameCallback = [&, listView, showEmu](bool) {
+		auto index = listView->selectionModel()->selectedIndexes().at(0);
+		auto bootable = static_cast<BootableModel*>(listView->model())->GetBootable(index);
+		try
+		{
+			LoadCDROM(bootable.path);
+			BootCDROM();
+			showEmu();
+		}
+		catch(const std::exception& e)
+		{
+			QMessageBox messageBox;
+			messageBox.critical(nullptr, "Error", e.what());
+			messageBox.show();
+		}
+	};
+	listView->AddBootAction(bootGameCallback);
+	QBootableListView::Callback removeGameCallback = [&, listView](bool) {
+		auto index = listView->selectionModel()->selectedIndexes().at(0);
+		auto model = static_cast<BootableModel*>(listView->model());
+		auto bootable = model->GetBootable(index);
+		BootablesDb::CClient::GetInstance().UnregisterBootable(bootable.path);
+		model->removeItem(index);
+	};
+	listView->AddAction("Remove", removeGameCallback);
 }
