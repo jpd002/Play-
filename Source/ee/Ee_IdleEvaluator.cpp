@@ -95,6 +95,10 @@ void CIdleEvaluator::STRATEGY_SELFTHREADROTATE::NotifyEvent(EVENT eventType, uin
 			m_isIdle = false;
 		}
 		break;
+	case EVENT_INTERRUPT:
+		m_selfRotateThreadCount = 0;
+		m_isIdle = false;
+		break;
 	}
 }
 
@@ -131,6 +135,9 @@ void CIdleEvaluator::STRATEGY_THREADROTATEBOUNCE::NotifyEvent(EVENT eventType, u
 		{
 			m_bounceCount = 0;
 		}
+		break;
+	case EVENT_INTERRUPT:
+		m_bounceCount = 0;
 		break;
 	}
 	m_isIdle = (m_bounceCount > 1000);
