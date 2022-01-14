@@ -8,6 +8,8 @@
 QBootableListView::QBootableListView(QWidget* parent)
 {
 
+	setStyleSheet("QBootableListView{ background:QLinearGradient( x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #4baaf3, stop: 1 #0A0A0A); }");
+
 	// used as workaround to avoid direct ui access from a thread
 	connect(this, SIGNAL(AsyncUpdateCoverDisplay()), this, SLOT(UpdateCoverDisplay()));
 	connect(this, SIGNAL(AsyncResetModel(bool)), this, SLOT(resetModel(bool)));
