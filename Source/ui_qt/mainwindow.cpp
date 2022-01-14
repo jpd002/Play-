@@ -125,6 +125,10 @@ MainWindow::MainWindow(QWidget* parent)
 	connect(debugMenuUi->actionDumpNextFrame, &QAction::triggered, this, std::bind(&MainWindow::DumpNextFrame, this));
 	connect(debugMenuUi->actionGsDrawEnabled, &QAction::triggered, this, std::bind(&MainWindow::ToggleGsDraw, this));
 #endif
+	m_onRunningStateChangeConnection = m_virtualMachine->OnRunningStateChange.Connect([&] {
+		if(m_virtualMachine->GetStatus() == CVirtualMachine::RUNNING)
+			ui->stackedWidget->setCurrentIndex(1);
+	});
 }
 
 MainWindow::~MainWindow()
