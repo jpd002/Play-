@@ -6,7 +6,6 @@
 #include "BootableModel.h"
 #include "ui_shared/BootablesDbClient.h"
 
-
 class QBootableListView : public QListView
 {
 	Q_OBJECT
@@ -35,5 +34,4 @@ private:
 	std::atomic<bool> m_threadRunning;
 	std::thread m_coverLoader;
 	Callback m_bootCallback;
-
 };
