@@ -501,6 +501,7 @@ bool CPS2VM::LoadVMState(const fs::path& statePath)
 			m_ee->LoadState(archive);
 			m_iop->LoadState(archive);
 			m_ee->m_gs->LoadState(archive);
+			ReloadFrameRateLimit();
 		}
 		catch(...)
 		{
