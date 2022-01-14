@@ -54,7 +54,7 @@
          <number>0</number>
         </property>
         <item row="0" column="0">
-         <widget class="QBootableListView" name="listView"/>
+         <widget class="QBootablesView" name="listView"/>
         </item>
        </layout>
       </widget>
@@ -245,9 +245,9 @@
  <layoutdefault spacing="6" margin="11"/>
 <customwidgets>
   <customwidget>
-   <class>QBootableListView</class>
+   <class>QBootablesView</class>
    <extends>QListView</extends>
-   <header>QBootableListView.h</header>
+   <header>QBootablesView.h</header>
   </customwidget>
  </customwidgets>
  <resources>

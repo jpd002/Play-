@@ -54,7 +54,7 @@
 #include "vfsmanagerdialog.h"
 #include "bootablelistdialog.h"
 #include "ControllerConfig/controllerconfigdialog.h"
-#include "QBootableListView.h"
+#include "QBootablesView.h"
 
 #ifdef __APPLE__
 #include "macos/InputProviderMacOsHid.h"
@@ -964,9 +964,9 @@ void MainWindow::UpdateGSHandlerLabel(int gs_index)
 void MainWindow::SetupBootableView()
 {
 	auto showEmu = std::bind(&QStackedWidget::setCurrentIndex, ui->stackedWidget, 1);
-	QBootableListView* listView = ui->listView;
+	QBootablesView* listView = ui->listView;
 
-	QBootableListView::Callback bootGameCallback = [&, listView, showEmu](bool) {
+	QBootablesView::Callback bootGameCallback = [&, listView, showEmu](bool) {
 		auto index = listView->selectionModel()->selectedIndexes().at(0);
 		auto bootable = static_cast<BootableModel*>(listView->model())->GetBootable(index);
 		try
@@ -983,7 +983,7 @@ void MainWindow::SetupBootableView()
 		}
 	};
 	listView->AddBootAction(bootGameCallback);
-	QBootableListView::Callback removeGameCallback = [&, listView](bool) {
+	QBootablesView::Callback removeGameCallback = [&, listView](bool) {
 		auto index = listView->selectionModel()->selectedIndexes().at(0);
 		auto model = static_cast<BootableModel*>(listView->model());
 		auto bootable = model->GetBootable(index);

@@ -1,14 +1,14 @@
-#include "QBootableListView.h"
+#include "QBootablesView.h"
 
 #include <QAction>
 
 #include "CoverUtils.h"
 #include "ui_shared/BootablesProcesses.h"
 
-QBootableListView::QBootableListView(QWidget* parent)
+QBootablesView::QBootablesView(QWidget* parent)
 {
 
-	setStyleSheet("QBootableListView{ background:QLinearGradient( x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #4baaf3, stop: 1 #0A0A0A); }");
+	setStyleSheet("QBootablesView{ background:QLinearGradient( x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #4baaf3, stop: 1 #0A0A0A); }");
 
 	// used as workaround to avoid direct ui access from a thread
 	connect(this, SIGNAL(AsyncUpdateCoverDisplay()), this, SLOT(UpdateCoverDisplay()));
@@ -36,23 +36,23 @@ QBootableListView::QBootableListView(QWidget* parent)
 	auto model = new BootableModel(this, m_bootables);
 	setModel(model);
 
-	connect(this, &QAbstractItemView::doubleClicked, this, &QBootableListView::DoubleClicked);
+	connect(this, &QAbstractItemView::doubleClicked, this, &QBootablesView::DoubleClicked);
 }
 
-QBootableListView::~QBootableListView()
+QBootablesView::~QBootablesView()
 {
 	if(m_coverLoader.joinable())
 		m_coverLoader.join();
 }
 
-void QBootableListView::AddAction(std::string name, Callback callback)
+void QBootablesView::AddAction(std::string name, Callback callback)
 {
 	auto action = new QAction(name.c_str(), this);
 	connect(action, &QAction::triggered, callback);
 	addAction(action);
 }
 
-void QBootableListView::AddBootAction(Callback callback)
+void QBootablesView::AddBootAction(Callback callback)
 {
 	auto action = new QAction("Boot", this);
 	connect(action, &QAction::triggered, callback);
@@ -60,13 +60,13 @@ void QBootableListView::AddBootAction(Callback callback)
 	m_bootCallback = callback;
 }
 
-void QBootableListView::DoubleClicked(const QModelIndex&)
+void QBootablesView::DoubleClicked(const QModelIndex&)
 {
 	// we assume, selection will change on click, thus we can ignore the index
 	m_bootCallback(true);
 }
 
-void QBootableListView::AsyncPopulateCache()
+void QBootablesView::AsyncPopulateCache()
 {
 	if(!m_threadRunning)
 	{
@@ -83,7 +83,7 @@ void QBootableListView::AsyncPopulateCache()
 	}
 }
 
-void QBootableListView::resizeEvent(QResizeEvent* ev)
+void QBootablesView::resizeEvent(QResizeEvent* ev)
 {
 	static_cast<BootableModel*>(model())->SetWidth(size().width() - style()->pixelMetric(QStyle::PM_ScrollBarExtent) - 5);
 	QListView::resizeEvent(ev);

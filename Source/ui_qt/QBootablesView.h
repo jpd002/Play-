@@ -6,13 +6,13 @@
 #include "BootableModel.h"
 #include "ui_shared/BootablesDbClient.h"
 
-class QBootableListView : public QListView
+class QBootablesView : public QListView
 {
 	Q_OBJECT
 
 public:
-	explicit QBootableListView(QWidget* parent = 0);
-	~QBootableListView();
+	explicit QBootablesView(QWidget* parent = 0);
+	~QBootablesView();
 
 	using Callback = std::function<void(bool)>;
 
