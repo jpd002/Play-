@@ -1,5 +1,6 @@
 #pragma once
 
+#include <thread>
 #include <QListView>
 #include <QStorageInfo>
 #include "BootableModel.h"
