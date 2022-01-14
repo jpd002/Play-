@@ -134,7 +134,7 @@ private:
 	Framework::CSignal<void()>::Connection m_OnExecutableChangeConnection;
 	Framework::CSignal<void()>::Connection m_OnExecutableUnloadingConnection;
 	Framework::CSignal<void()>::Connection m_OnMachineStateChangeConnection;
-	Framework::CSignal<void()>::Connection m_OnRunningStateChangeConnection;
+	CVirtualMachine::RunningStateChangeEvent::Connection m_OnRunningStateChangeConnection;
 
 	CDisAsmWnd::FindCallersRequestedEvent::Connection m_findCallersRequestConnection;
 
