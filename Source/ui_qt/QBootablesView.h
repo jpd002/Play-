@@ -23,10 +23,9 @@ public:
 	explicit QBootablesView(QWidget* parent = 0);
 	~QBootablesView();
 
-	using Callback = std::function<void(QListView*, bool)>;
+	using BootCallback = std::function<void(fs::path)>;
 
-	void AddAction(std::string, Callback);
-	void AddBootAction(Callback);
+	void SetupActions(BootCallback);
 	void AddMsgLabel(ElidedLabel*);
 
 Q_SIGNALS:
@@ -67,5 +66,5 @@ private:
 
 	std::atomic<bool> m_threadRunning;
 	std::thread m_coverLoader;
-	Callback m_bootCallback;
+	BootCallback m_bootCallback;
 };

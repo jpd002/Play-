@@ -938,12 +938,10 @@ void MainWindow::SetupBootableView()
 
 	bootablesView->AddMsgLabel(m_msgLabel);
 
-	QBootablesView::Callback bootGameCallback = [&, showEmu](QListView* listView, bool) {
-		auto index = listView->selectionModel()->selectedIndexes().at(0);
-		auto bootable = static_cast<BootableModel*>(listView->model())->GetBootable(index);
+	QBootablesView::BootCallback bootGameCallback = [&, showEmu](fs::path filePath) {
 		try
 		{
-			LoadCDROM(bootable.path);
+			LoadCDROM(filePath);
 			BootCDROM();
 			showEmu();
 		}
@@ -954,13 +952,5 @@ void MainWindow::SetupBootableView()
 			messageBox.show();
 		}
 	};
-	bootablesView->AddBootAction(bootGameCallback);
-	QBootablesView::Callback removeGameCallback = [&](QListView* listView, bool) {
-		auto index = listView->selectionModel()->selectedIndexes().at(0);
-		auto model = static_cast<BootableModel*>(listView->model());
-		auto bootable = model->GetBootable(index);
-		BootablesDb::CClient::GetInstance().UnregisterBootable(bootable.path);
-		model->removeItem(index);
-	};
-	bootablesView->AddAction("Remove", removeGameCallback);
+	bootablesView->SetupActions(bootGameCallback);
 }

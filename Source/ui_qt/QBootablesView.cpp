@@ -72,31 +72,41 @@ void QBootablesView::AddMsgLabel(ElidedLabel* msgLabel)
 	m_msgLabel = msgLabel;
 }
 
-void QBootablesView::AddAction(std::string name, Callback callback)
+void QBootablesView::SetupActions(BootCallback bootCallback)
 {
-	auto action = new QAction(name.c_str(), this);
-	auto listViewBoundCallback = [listView = ui->listView, callback](bool val) {
-		callback(listView, val);
+	auto bootAction = new QAction("Boot", this);
+	auto listViewBoundCallback = [listView = ui->listView, proxyModel = m_proxyModel, bootCallback]() {
+		auto index = listView->selectionModel()->selectedIndexes().at(0);
+		auto src_index = proxyModel->mapToSource(index);
+		auto model = static_cast<BootableModel*>(proxyModel->sourceModel());
+		auto bootable = model->GetBootable(src_index);
+
+		bootCallback(bootable.path);
 	};
-	connect(action, &QAction::triggered, listViewBoundCallback);
-	ui->listView->addAction(action);
+	connect(bootAction, &QAction::triggered, listViewBoundCallback);
+	ui->listView->addAction(bootAction);
+	m_bootCallback = bootCallback;
+
+	auto removeAction = new QAction("Remove", this);
+	auto removeGameCallback = [listView = ui->listView, proxyModel = m_proxyModel](bool) {
+		auto index = listView->selectionModel()->selectedIndexes().at(0);
+		auto src_index = proxyModel->mapToSource(index);
+		auto model = static_cast<BootableModel*>(proxyModel->sourceModel());
+		auto bootable = model->GetBootable(src_index);
+
+		BootablesDb::CClient::GetInstance().UnregisterBootable(bootable.path);
+		model->removeItem(index);
+	};
+	connect(removeAction, &QAction::triggered, removeGameCallback);
+	ui->listView->addAction(removeAction);
 }
 
-void QBootablesView::AddBootAction(Callback callback)
+void QBootablesView::DoubleClicked(const QModelIndex& index)
 {
-	auto action = new QAction("Boot", this);
-	auto listViewBoundCallback = [listView = ui->listView, callback](bool val) {
-		callback(listView, val);
-	};
-	connect(action, &QAction::triggered, listViewBoundCallback);
-	ui->listView->addAction(action);
-	m_bootCallback = callback;
-}
-
-void QBootablesView::DoubleClicked(const QModelIndex&)
-{
-	// we assume, selection will change on click, thus we can ignore the index
-	m_bootCallback(ui->listView, true);
+	auto src_index = m_proxyModel->mapToSource(index);
+	auto model = static_cast<BootableModel*>(m_proxyModel->sourceModel());
+	auto bootable = model->GetBootable(src_index);
+	m_bootCallback(bootable.path);
 }
 
 void QBootablesView::AsyncPopulateCache()
@@ -168,7 +178,7 @@ void QBootablesView::BootBootables(const QModelIndex& index)
 	auto src_index = m_proxyModel->mapToSource(index);
 	assert(src_index.isValid());
 	auto bootable = static_cast<BootableModel*>(m_proxyModel->sourceModel())->GetBootable(index);
-	m_bootCallback(ui->listView, true);
+	m_bootCallback(bootable.path);
 }
 
 void QBootablesView::on_listView_doubleClicked(const QModelIndex& index)
