@@ -31,7 +31,7 @@ QVariant BootableModel::data(const QModelIndex& index, int role) const
 	{
 		int pos = index.row() + index.column();
 		auto bootable = m_bootables.at(static_cast<unsigned int>(pos));
-		return QVariant::fromValue(BootableCoverQVarient(bootable.discId, bootable.title));
+		return QVariant::fromValue(BootableCoverQVarient(bootable.discId, bootable.title, bootable.path.string()));
 	}
 	return QVariant();
 }
@@ -69,9 +69,10 @@ void BootableModel::SetWidth(int width)
 }
 
 /* start of BootImageItemDelegate */
-BootableCoverQVarient::BootableCoverQVarient(std::string key, std::string title)
+BootableCoverQVarient::BootableCoverQVarient(std::string key, std::string title, std::string path)
     : m_key(key)
     , m_title(title)
+    , m_path(path)
 {
 }
 
@@ -131,6 +132,21 @@ QSize BootableCoverQVarient::sizeHint() const
 		size.rwidth() += GetPadding();
 	}
 	return size;
+}
+
+std::string BootableCoverQVarient::GetKey()
+{
+	return m_key;
+}
+
+std::string BootableCoverQVarient::GetTitle()
+{
+	return m_title;
+}
+
+std::string BootableCoverQVarient::GetPath()
+{
+	return m_path;
 }
 
 /* start of BootImageItemDelegate */

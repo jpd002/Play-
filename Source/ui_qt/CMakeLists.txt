@@ -90,6 +90,8 @@ list(APPEND PROJECT_LIBS ui_shared)
 set(QT_SOURCES
 	BootableModel.cpp
 	BootableModel.h
+	BootableModelProxy.cpp
+	BootableModelProxy.h
 	ControllerConfig/controllerconfigdialog.cpp
 	ControllerConfig/controllerconfigdialog.h
 	ControllerConfig/inputbindingmodel.cpp
@@ -203,6 +205,7 @@ endif()
 	
 set(QT_MOC_HEADERS
 	BootableModel.h
+	BootableModelProxy.h
 	ControllerConfig/controllerconfigdialog.h
 	ControllerConfig/inputbindingmodel.h
 	ControllerConfig/inputeventselectiondialog.h

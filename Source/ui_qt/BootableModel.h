@@ -31,16 +31,21 @@ class BootableCoverQVarient
 {
 
 public:
-	explicit BootableCoverQVarient(std::string = "PH", std::string = "");
+	explicit BootableCoverQVarient(std::string = "PH", std::string = "", std::string = "");
 	~BootableCoverQVarient() = default;
 
 	void paint(QPainter* painter, const QRect& rect, const QPalette& palette, int mode) const;
 	QSize sizeHint() const;
 
+	std::string GetKey();
+	std::string GetTitle();
+	std::string GetPath();
+
 private:
 	int GetPadding() const;
 	std::string m_key;
 	std::string m_title;
+	std::string m_path;
 };
 
 Q_DECLARE_METATYPE(BootableCoverQVarient)
