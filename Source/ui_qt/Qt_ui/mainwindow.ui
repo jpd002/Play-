@@ -235,7 +235,7 @@
   </action>
   <action name="actionList_Bootables">
    <property name="text">
-    <string>Bootables list...</string>
+    <string>Toggle Bootables list...</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+L</string>
