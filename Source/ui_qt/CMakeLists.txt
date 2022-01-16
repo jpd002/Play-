@@ -88,8 +88,6 @@ if(NOT TARGET ui_shared)
 list(APPEND PROJECT_LIBS ui_shared)
 
 set(QT_SOURCES
-	bootablelistdialog.cpp
-	bootablelistdialog.h
 	BootableModel.cpp
 	BootableModel.h
 	ControllerConfig/controllerconfigdialog.cpp
@@ -204,7 +202,6 @@ if(DEBUGGER_INCLUDED)
 endif()
 	
 set(QT_MOC_HEADERS
-	bootablelistdialog.h
 	BootableModel.h
 	ControllerConfig/controllerconfigdialog.h
 	ControllerConfig/inputbindingmodel.h

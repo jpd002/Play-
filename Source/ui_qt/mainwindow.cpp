@@ -52,7 +52,6 @@
 
 #include "ui_mainwindow.h"
 #include "vfsmanagerdialog.h"
-#include "bootablelistdialog.h"
 #include "ControllerConfig/controllerconfigdialog.h"
 #include "QBootablesView.h"
 
@@ -913,36 +912,7 @@ void MainWindow::on_actionCapture_Screen_triggered()
 
 void MainWindow::on_actionList_Bootables_triggered()
 {
-	BootableListDialog dialog(this);
-	if(dialog.exec())
-	{
-		try
-		{
-			BootablesDb::Bootable bootable = dialog.getResult();
-			if(IsBootableDiscImagePath(bootable.path))
-			{
-				LoadCDROM(bootable.path);
-				BootCDROM();
-			}
-			else if(IsBootableExecutablePath(bootable.path))
-			{
-				BootElf(bootable.path);
-			}
-			else
-			{
-				QMessageBox messageBox;
-				QString invalid("Invalid File Format.");
-				messageBox.critical(this, this->windowTitle(), invalid);
-				messageBox.show();
-			}
-		}
-		catch(const std::exception& e)
-		{
-			QMessageBox messageBox;
-			messageBox.critical(nullptr, "Error", e.what());
-			messageBox.show();
-		}
-	}
+	ui->stackedWidget->setCurrentIndex(1 - ui->stackedWidget->currentIndex());
 }
 
 void MainWindow::UpdateGSHandlerLabel(int gs_index)
