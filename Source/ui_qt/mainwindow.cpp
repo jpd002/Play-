@@ -941,8 +941,22 @@ void MainWindow::SetupBootableView()
 	QBootablesView::BootCallback bootGameCallback = [&, showEmu](fs::path filePath) {
 		try
 		{
-			LoadCDROM(filePath);
-			BootCDROM();
+			if(IsBootableDiscImagePath(filePath))
+			{
+				LoadCDROM(filePath);
+				BootCDROM();
+			}
+			else if(IsBootableExecutablePath(filePath))
+			{
+				BootElf(filePath);
+			}
+			else
+			{
+				QMessageBox messageBox;
+				QString invalid("Invalid File Format.");
+				messageBox.critical(this, this->windowTitle(), invalid);
+				messageBox.show();
+			}
 			showEmu();
 		}
 		catch(const std::exception& e)
