@@ -1,12 +1,17 @@
 #pragma once
 
 #include <thread>
-#include <QListView>
+#include <QWidget>
 #include <QStorageInfo>
 #include "BootableModel.h"
 #include "ui_shared/BootablesDbClient.h"
 
-class QBootablesView : public QListView
+namespace Ui
+{
+	class QBootablesView;
+}
+
+class QBootablesView : public QWidget
 {
 	Q_OBJECT
 
@@ -14,7 +19,7 @@ public:
 	explicit QBootablesView(QWidget* parent = 0);
 	~QBootablesView();
 
-	using Callback = std::function<void(bool)>;
+	using Callback = std::function<void(QListView*, bool)>;
 
 	void AddAction(std::string, Callback);
 	void AddBootAction(Callback);
@@ -29,6 +34,8 @@ protected:
 private:
 	void AsyncPopulateCache();
 	void DoubleClicked(const QModelIndex&);
+
+	Ui::QBootablesView* ui;
 	std::vector<BootablesDb::Bootable> m_bootables;
 
 	std::atomic<bool> m_threadRunning;

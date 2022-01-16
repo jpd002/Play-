@@ -934,9 +934,9 @@ void MainWindow::UpdateGSHandlerLabel(int gs_index)
 void MainWindow::SetupBootableView()
 {
 	auto showEmu = std::bind(&QStackedWidget::setCurrentIndex, ui->stackedWidget, 1);
-	QBootablesView* listView = ui->listView;
+	QBootablesView* bootablesView = ui->bootablesView;
 
-	QBootablesView::Callback bootGameCallback = [&, listView, showEmu](bool) {
+	QBootablesView::Callback bootGameCallback = [&, showEmu](QListView* listView, bool) {
 		auto index = listView->selectionModel()->selectedIndexes().at(0);
 		auto bootable = static_cast<BootableModel*>(listView->model())->GetBootable(index);
 		try
@@ -952,13 +952,13 @@ void MainWindow::SetupBootableView()
 			messageBox.show();
 		}
 	};
-	listView->AddBootAction(bootGameCallback);
-	QBootablesView::Callback removeGameCallback = [&, listView](bool) {
+	bootablesView->AddBootAction(bootGameCallback);
+	QBootablesView::Callback removeGameCallback = [&](QListView* listView, bool) {
 		auto index = listView->selectionModel()->selectedIndexes().at(0);
 		auto model = static_cast<BootableModel*>(listView->model());
 		auto bootable = model->GetBootable(index);
 		BootablesDb::CClient::GetInstance().UnregisterBootable(bootable.path);
 		model->removeItem(index);
 	};
-	listView->AddAction("Remove", removeGameCallback);
+	bootablesView->AddAction("Remove", removeGameCallback);
 }

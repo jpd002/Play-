@@ -222,7 +222,7 @@ set(QT_MOC_HEADERS
 )
 
 set(QT_UIS
-	Qt_ui/bootablelistdialog.ui
+	Qt_ui/bootableview.ui
 	Qt_ui/controllerconfigdialog.ui
 	Qt_ui/debugmenu.ui
 	Qt_ui/inputeventselectiondialog.ui
