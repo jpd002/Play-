@@ -936,6 +936,8 @@ void MainWindow::SetupBootableView()
 	auto showEmu = std::bind(&QStackedWidget::setCurrentIndex, ui->stackedWidget, 1);
 	QBootablesView* bootablesView = ui->bootablesView;
 
+	bootablesView->AddMsgLabel(m_msgLabel);
+
 	QBootablesView::Callback bootGameCallback = [&, showEmu](QListView* listView, bool) {
 		auto index = listView->selectionModel()->selectedIndexes().at(0);
 		auto bootable = static_cast<BootableModel*>(listView->model())->GetBootable(index);
