@@ -641,10 +641,22 @@ void MainWindow::on_actionPause_Resume_triggered()
 
 void MainWindow::closeEvent(QCloseEvent* event)
 {
-	QMessageBox::StandardButton resBtn = QMessageBox::question(this, "Close Confirmation?",
-	                                                           tr("Are you sure you want to exit?\nHave you saved your progress?\n"),
-	                                                           QMessageBox::Yes | QMessageBox::No,
-	                                                           QMessageBox::Yes);
+	QMessageBox::StandardButton resBtn;
+	if(!ui->bootablesView->IsProcessing())
+	{
+		resBtn = QMessageBox::question(this, "Close Confirmation?",
+		                               tr("Are you sure you want to exit?\nHave you saved your progress?\n"),
+		                               QMessageBox::Yes | QMessageBox::No,
+		                               QMessageBox::Yes);
+	}
+	else
+	{
+		resBtn = QMessageBox::question(this, "Close Confirmation?",
+		                               tr("Are you sure you want to exit?\nBootables are currently getting processed.\n"),
+		                               QMessageBox::Yes | QMessageBox::No,
+		                               QMessageBox::Yes);
+	}
+
 	if(resBtn != QMessageBox::Yes)
 	{
 		event->ignore();

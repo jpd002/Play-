@@ -300,3 +300,8 @@ void QBootablesView::on_reset_filter_button_clicked()
 {
 	ui->filterLineEdit->clear();
 }
+
+bool QBootablesView::IsProcessing()
+{
+	return m_s3Processing || m_threadRunning;
+}

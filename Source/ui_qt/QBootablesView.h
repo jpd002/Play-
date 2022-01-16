@@ -27,6 +27,7 @@ public:
 
 	void SetupActions(BootCallback);
 	void AddMsgLabel(ElidedLabel*);
+	bool IsProcessing();
 
 Q_SIGNALS:
 	void AsyncResetModel(bool);
