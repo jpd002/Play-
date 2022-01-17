@@ -241,11 +241,13 @@ bool CBasicBlock::IsIdleLoopBlock() const
 		OP_ANDI = 0x0C,
 		OP_XORI = 0x0E,
 		OP_LUI = 0x0F,
+		OP_LQ = 0x1E,
 		OP_LW = 0x23,
 	};
 
 	enum
 	{
+		OP_SPECIAL_SLT = 0x2A,
 		OP_SPECIAL_SLTU = 0x2B,
 	};
 
@@ -263,7 +265,8 @@ bool CBasicBlock::IsIdleLoopBlock() const
 	uint32 branchTarget = m_context.m_pArch->GetInstructionEffectiveAddress(&m_context, endInstructionAddress, endInstruction);
 	if(branchTarget != m_begin) return false;
 
-	uint32 compareReg = 0;
+	uint32 compareRs = 0;
+	uint32 compareRt = 0;
 
 	//Check what kind of branching instruction we have.
 	{
@@ -271,13 +274,15 @@ bool CBasicBlock::IsIdleLoopBlock() const
 		uint32 rt = (endInstruction >> 16) & 0x1F;
 		uint32 rs = (endInstruction >> 21) & 0x1F;
 
-		//We want a BEQ or BNE comparing with R0
+		//We want a BEQ or BNE
 		if((op != OP_BEQ) && (op != OP_BNE)) return false;
-		if((rt != 0) && (rs != 0)) return false;
 
-		if(rt == 0) compareReg = rs;
-		if(rs == 0) compareReg = rt;
+		compareRs = rs;
+		compareRt = rt;
 	}
+
+	uint32 defState = 0; //Set of completely new definitions of registers within this block
+	uint32 useState = 0; //Set of previous state usage within this block
 
 	//Check all instructions inside to see if we can prove it's waiting for some kind of flag
 	for(uint32 address = m_begin; address <= m_end; address += 4)
@@ -292,13 +297,19 @@ bool CBasicBlock::IsIdleLoopBlock() const
 		uint32 rt = (inst >> 16) & 0x1F;
 		uint32 rs = (inst >> 21) & 0x1F;
 		uint32 op = (inst >> 26) & 0x3F;
+
+		uint32 newDef = 0;
+		uint32 newUse = 0;
+
 		switch(op)
 		{
 		case 0x00:
 			switch(special)
 			{
+			case OP_SPECIAL_SLT:
 			case OP_SPECIAL_SLTU:
-				if(rd != compareReg) return false;
+				newUse = (1 << rs) | (1 << rt);
+				newDef = (1 << rd);
 				break;
 			default:
 				//We don't know what this does, let's not take a chance
@@ -306,19 +317,38 @@ bool CBasicBlock::IsIdleLoopBlock() const
 			}
 			break;
 		case OP_LUI:
-			//This always sets a value to a register, doesn't rely on previous state
+			newDef = (1 << rt);
 			break;
-		case OP_ANDI:
-		case OP_XORI:
 		case OP_LW:
+		case OP_LQ:
 		case OP_SLTIU:
-			if(rt != compareReg) return false;
+		case OP_XORI:
+			newUse = (1 << rs);
+			newDef = (1 << rt);
 			break;
 		default:
 			//We don't know what this does, let's not take a chance
 			return false;
 		}
+
+		//Bail if this defines any state that we previously used
+		if(useState & newDef)
+		{
+			return false;
+		}
+
+		//Remove uses from defs within this block
+		newUse &= ~defState;
+
+		defState |= newDef;
+		useState |= newUse;
 	}
+
+	//Just make sure that we've at least defined our comparision register
+	bool compareRsDefined = defState & (1 << compareRs);
+	bool compareRtDefined = defState & (1 << compareRt);
+
+	assert(compareRsDefined || compareRtDefined);
 
 	return true;
 }
