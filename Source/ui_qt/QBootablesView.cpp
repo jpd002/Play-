@@ -177,7 +177,7 @@ void QBootablesView::BootBootables(const QModelIndex& index)
 {
 	auto src_index = m_proxyModel->mapToSource(index);
 	assert(src_index.isValid());
-	auto bootable = static_cast<BootableModel*>(m_proxyModel->sourceModel())->GetBootable(index);
+	auto bootable = static_cast<BootableModel*>(m_proxyModel->sourceModel())->GetBootable(src_index);
 	m_bootCallback(bootable.path);
 }
 
