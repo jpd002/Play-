@@ -101,12 +101,10 @@ protected:
 	uint32 m_end;
 	CMIPS& m_context;
 
-	void CompileProlog(CMipsJitter*);
-	void CompileEpilog(CMipsJitter*);
+	virtual void CompileProlog(CMipsJitter*);
+	virtual void CompileEpilog(CMipsJitter*);
 
 private:
-	bool IsIdleLoopBlock() const;
-
 	void HandleExternalFunctionReference(uintptr_t, uint32, Jitter::CCodeGen::SYMBOL_REF_TYPE);
 
 #ifdef DEBUGGER_INCLUDED

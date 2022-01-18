@@ -1,6 +1,7 @@
 #include "EeExecutor.h"
 #include "../Ps2Const.h"
 #include "AlignedAlloc.h"
+#include "EeBasicBlock.h"
 #include <zlib.h>
 
 #if defined(__unix__) || defined(__ANDROID__) || defined(__APPLE__)
@@ -156,7 +157,7 @@ BasicBlockPtr CEeExecutor::BlockFactory(CMIPS& context, uint32 start, uint32 end
 		}
 	}
 
-	auto result = std::make_shared<CBasicBlock>(context, start, end);
+	auto result = std::make_shared<CEeBasicBlock>(context, start, end);
 	result->Compile();
 	if(!hasBreakpoint)
 	{
