@@ -11,9 +11,9 @@ bool BootableModelProxy::filterAcceptsRow(int sourceRow, const QModelIndex& sour
 	QModelIndex index = sourceModel()->index(sourceRow, 0, sourceParent);
 
 	QVariant data = sourceModel()->data(index);
-	if(data.canConvert<BootableCoverQVarient>())
+	if(data.canConvert<BootableCoverQVariant>())
 	{
-		BootableCoverQVarient bootablecover = qvariant_cast<BootableCoverQVarient>(data);
+		BootableCoverQVariant bootablecover = qvariant_cast<BootableCoverQVariant>(data);
 		QString key = QString::fromStdString(bootablecover.GetKey());
 		QString title = QString::fromStdString(bootablecover.GetTitle());
 		QString path = QString::fromStdString(bootablecover.GetPath());

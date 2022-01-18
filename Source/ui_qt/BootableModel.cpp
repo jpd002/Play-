@@ -31,7 +31,7 @@ QVariant BootableModel::data(const QModelIndex& index, int role) const
 	{
 		int pos = index.row() + index.column();
 		auto bootable = m_bootables.at(static_cast<unsigned int>(pos));
-		return QVariant::fromValue(BootableCoverQVarient(bootable.discId, bootable.title, bootable.path.string()));
+		return QVariant::fromValue(BootableCoverQVariant(bootable.discId, bootable.title, bootable.path.string()));
 	}
 	return QVariant();
 }
@@ -69,14 +69,14 @@ void BootableModel::SetWidth(int width)
 }
 
 /* start of BootImageItemDelegate */
-BootableCoverQVarient::BootableCoverQVarient(std::string key, std::string title, std::string path)
+BootableCoverQVariant::BootableCoverQVariant(std::string key, std::string title, std::string path)
     : m_key(key)
     , m_title(title)
     , m_path(path)
 {
 }
 
-void BootableCoverQVarient::paint(QPainter* painter, const QRect& rect, const QPalette&, int) const
+void BootableCoverQVariant::paint(QPainter* painter, const QRect& rect, const QPalette&, int) const
 {
 	painter->save();
 
@@ -106,7 +106,7 @@ void BootableCoverQVarient::paint(QPainter* painter, const QRect& rect, const QP
 	painter->restore();
 }
 
-int BootableCoverQVarient::GetPadding() const
+int BootableCoverQVariant::GetPadding() const
 {
 	QPixmap pixmap = CoverUtils::find("PH");
 	int cover_width = pixmap.size().width() + 10;
@@ -119,7 +119,7 @@ int BootableCoverQVarient::GetPadding() const
 	return 0;
 }
 
-QSize BootableCoverQVarient::sizeHint() const
+QSize BootableCoverQVariant::sizeHint() const
 {
 	QSize size;
 	if(size.isEmpty())
@@ -134,17 +134,17 @@ QSize BootableCoverQVarient::sizeHint() const
 	return size;
 }
 
-std::string BootableCoverQVarient::GetKey()
+std::string BootableCoverQVariant::GetKey()
 {
 	return m_key;
 }
 
-std::string BootableCoverQVarient::GetTitle()
+std::string BootableCoverQVariant::GetTitle()
 {
 	return m_title;
 }
 
-std::string BootableCoverQVarient::GetPath()
+std::string BootableCoverQVariant::GetPath()
 {
 	return m_path;
 }
@@ -157,9 +157,9 @@ BootImageItemDelegate::BootImageItemDelegate(QWidget* parent)
 
 void BootImageItemDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const
 {
-	if(index.data().canConvert<BootableCoverQVarient>())
+	if(index.data().canConvert<BootableCoverQVariant>())
 	{
-		BootableCoverQVarient bootablecover = qvariant_cast<BootableCoverQVarient>(index.data());
+		BootableCoverQVariant bootablecover = qvariant_cast<BootableCoverQVariant>(index.data());
 
 		if(option.state & QStyle::State_Selected)
 			painter->fillRect(option.rect, option.palette.highlight());
@@ -174,9 +174,9 @@ void BootImageItemDelegate::paint(QPainter* painter, const QStyleOptionViewItem&
 
 QSize BootImageItemDelegate::sizeHint(const QStyleOptionViewItem& option, const QModelIndex& index) const
 {
-	if(index.data().canConvert<BootableCoverQVarient>())
+	if(index.data().canConvert<BootableCoverQVariant>())
 	{
-		BootableCoverQVarient bootablecover = qvariant_cast<BootableCoverQVarient>(index.data());
+		BootableCoverQVariant bootablecover = qvariant_cast<BootableCoverQVariant>(index.data());
 		return bootablecover.sizeHint();
 	}
 	else

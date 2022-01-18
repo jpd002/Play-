@@ -27,12 +27,12 @@ private:
 	std::vector<BootablesDb::Bootable>& m_bootables;
 };
 
-class BootableCoverQVarient
+class BootableCoverQVariant
 {
 
 public:
-	explicit BootableCoverQVarient(std::string = "PH", std::string = "", std::string = "");
-	~BootableCoverQVarient() = default;
+	explicit BootableCoverQVariant(std::string = "PH", std::string = "", std::string = "");
+	~BootableCoverQVariant() = default;
 
 	void paint(QPainter* painter, const QRect& rect, const QPalette& palette, int mode) const;
 	QSize sizeHint() const;
@@ -48,7 +48,7 @@ private:
 	std::string m_path;
 };
 
-Q_DECLARE_METATYPE(BootableCoverQVarient)
+Q_DECLARE_METATYPE(BootableCoverQVariant)
 
 class BootImageItemDelegate : public QStyledItemDelegate
 {
