@@ -16,7 +16,8 @@ public:
 	virtual void Pause() = 0;
 	virtual void Resume() = 0;
 
-	Framework::CSignal<void()> OnMachineStateChange;
+	using MachineStateChangeEvent = Framework::CSignal<void()>;
+	MachineStateChangeEvent OnMachineStateChange;
 	using RunningStateChangeEvent = Framework::CSignal<void()>;
 	RunningStateChangeEvent OnRunningStateChange;
 };
