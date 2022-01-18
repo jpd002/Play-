@@ -4,6 +4,8 @@
 #include "QStringUtils.h"
 #include <QtGlobal>
 
+Q_DECLARE_METATYPE(std::string)
+
 int main(int argc, char* argv[])
 {
 #if QT_VERSION >= QT_VERSION_CHECK(5, 6, 0)
@@ -13,6 +15,8 @@ int main(int argc, char* argv[])
 
 	QCoreApplication::setApplicationName("Play!");
 	QCoreApplication::setApplicationVersion("Version: " PLAY_VERSION);
+
+	qRegisterMetaType<std::string>();
 
 	QCommandLineParser parser;
 	parser.setApplicationDescription("Description: A multiplatform PS2 emulator.");
