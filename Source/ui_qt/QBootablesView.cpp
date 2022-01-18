@@ -41,8 +41,8 @@ QBootablesView::QBootablesView(QWidget* parent)
 	connect(this, &QBootablesView::AsyncUpdateStatus, this, &QBootablesView::UpdateStatus);
 
 	// used as workaround to avoid direct ui access from a thread
-	connect(this, SIGNAL(AsyncUpdateCoverDisplay()), this, SLOT(UpdateCoverDisplay()));
-	connect(this, SIGNAL(AsyncResetModel(bool)), this, SLOT(resetModel(bool)));
+	connect(this, &QBootablesView::AsyncUpdateCoverDisplay, this, &QBootablesView::UpdateCoverDisplay, Qt::QueuedConnection);
+	connect(this, &QBootablesView::AsyncResetModel, this, &QBootablesView::resetModel, Qt::QueuedConnection);
 
 	//if m_sortingMethod == currentIndex == 0, setting index wont trigger on_comboBox_currentIndexChanged() thus resetModel()
 	if(m_sortingMethod == 0)
