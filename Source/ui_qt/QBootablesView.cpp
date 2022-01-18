@@ -37,7 +37,6 @@ QBootablesView::QBootablesView(QWidget* parent)
 
 	connect(ui->filterLineEdit, &QLineEdit::textChanged, m_proxyModel, &QSortFilterProxyModel::setFilterFixedString);
 	connect(ui->listView->selectionModel(), &QItemSelectionModel::currentChanged, this, &QBootablesView::SelectionChange);
-	connect(ui->listView, &QAbstractItemView::doubleClicked, this, &QBootablesView::DoubleClicked);
 	connect(this, &QBootablesView::AsyncUpdateStatus, this, &QBootablesView::UpdateStatus);
 
 	// used as workaround to avoid direct ui access from a thread
@@ -99,14 +98,6 @@ void QBootablesView::SetupActions(BootCallback bootCallback)
 	};
 	connect(removeAction, &QAction::triggered, removeGameCallback);
 	ui->listView->addAction(removeAction);
-}
-
-void QBootablesView::DoubleClicked(const QModelIndex& index)
-{
-	auto src_index = m_proxyModel->mapToSource(index);
-	auto model = static_cast<BootableModel*>(m_proxyModel->sourceModel());
-	auto bootable = model->GetBootable(src_index);
-	m_bootCallback(bootable.path);
 }
 
 void QBootablesView::AsyncPopulateCache()

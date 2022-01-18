@@ -50,7 +50,6 @@ private slots:
 
 private:
 	void AsyncPopulateCache();
-	void DoubleClicked(const QModelIndex&);
 
 	void SelectionChange(const QModelIndex&);
 	void DisplayWarningMessage();
