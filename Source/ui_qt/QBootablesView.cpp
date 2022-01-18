@@ -305,3 +305,9 @@ bool QBootablesView::IsProcessing()
 {
 	return m_s3Processing || m_threadRunning;
 }
+
+void QBootablesView::UpdateCoverDisplay()
+{
+	//Force redraw
+	ui->listView->update();
+}

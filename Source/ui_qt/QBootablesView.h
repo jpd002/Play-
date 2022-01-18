@@ -55,6 +55,7 @@ private:
 	void SelectionChange(const QModelIndex&);
 	void DisplayWarningMessage();
 	void BootBootables(const QModelIndex&);
+	void UpdateCoverDisplay();
 
 	Ui::QBootablesView* ui;
 	std::vector<BootablesDb::Bootable> m_bootables;
