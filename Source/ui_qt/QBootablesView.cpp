@@ -74,13 +74,9 @@ void QBootablesView::AddMsgLabel(ElidedLabel* msgLabel)
 void QBootablesView::SetupActions(BootCallback bootCallback)
 {
 	auto bootAction = new QAction("Boot", this);
-	auto listViewBoundCallback = [listView = ui->listView, proxyModel = m_proxyModel, bootCallback]() {
+	auto listViewBoundCallback = [this, listView = ui->listView]() {
 		auto index = listView->selectionModel()->selectedIndexes().at(0);
-		auto src_index = proxyModel->mapToSource(index);
-		auto model = static_cast<BootableModel*>(proxyModel->sourceModel());
-		auto bootable = model->GetBootable(src_index);
-
-		bootCallback(bootable.path);
+		BootBootables(index);
 	};
 	connect(bootAction, &QAction::triggered, listViewBoundCallback);
 	ui->listView->addAction(bootAction);
