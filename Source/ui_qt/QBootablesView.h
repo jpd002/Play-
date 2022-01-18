@@ -62,11 +62,11 @@ private:
 
 	ElidedLabel* m_msgLabel = nullptr;
 	int m_sortingMethod = 2;
-	std::atomic<bool> m_s3Processing;
+	std::atomic<bool> m_s3Processing = false;
 	BootableModelProxy* m_proxyModel = nullptr;
 	CContinuationChecker* m_continuationChecker = nullptr;
 
-	std::atomic<bool> m_threadRunning;
+	std::atomic<bool> m_threadRunning = false;
 	std::thread m_coverLoader;
 	BootCallback m_bootCallback;
 };
