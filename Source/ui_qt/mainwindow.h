@@ -87,6 +87,7 @@ private:
 	void buildResizeWindowMenu();
 	void resizeWindow(unsigned int, unsigned int);
 	void UpdateGSHandlerLabel(int);
+	void SetupBootableView();
 
 	Ui::MainWindow* ui;
 
@@ -110,6 +111,7 @@ private:
 	Framework::CSignal<void()>::Connection m_OnExecutableChangeConnection;
 	CGSHandler::NewFrameEvent::Connection m_OnNewFrameConnection;
 	CScreenShotUtils::Connection m_screenShotCompleteConnection;
+	CVirtualMachine::RunningStateChangeEvent::Connection m_onRunningStateChangeConnection;
 
 #ifdef DEBUGGER_INCLUDED
 	std::unique_ptr<QtDebugger> m_debugger;

@@ -1,3 +1,5 @@
+#pragma once
+
 #include <string>
 #include <vector>
 #include <QListView>
@@ -25,23 +27,28 @@ private:
 	std::vector<BootablesDb::Bootable>& m_bootables;
 };
 
-class BootableCoverQVarient
+class BootableCoverQVariant
 {
 
 public:
-	explicit BootableCoverQVarient(std::string = "PH", std::string = "");
-	~BootableCoverQVarient() = default;
+	explicit BootableCoverQVariant(std::string = "PH", std::string = "", std::string = "");
+	~BootableCoverQVariant() = default;
 
 	void paint(QPainter* painter, const QRect& rect, const QPalette& palette, int mode) const;
 	QSize sizeHint() const;
+
+	std::string GetKey();
+	std::string GetTitle();
+	std::string GetPath();
 
 private:
 	int GetPadding() const;
 	std::string m_key;
 	std::string m_title;
+	std::string m_path;
 };
 
-Q_DECLARE_METATYPE(BootableCoverQVarient)
+Q_DECLARE_METATYPE(BootableCoverQVariant)
 
 class BootImageItemDelegate : public QStyledItemDelegate
 {

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>640</width>
-    <height>512</height>
+    <width>970</width>
+    <height>630</height>
    </rect>
   </property>
   <property name="focusPolicy">
@@ -34,6 +34,32 @@
     <property name="bottomMargin">
      <number>0</number>
     </property>
+    <item row="0" column="0">
+     <widget class="QStackedWidget" name="stackedWidget">
+      <widget class="QWidget" name="bootableView">
+       <layout class="QGridLayout" name="gridLayout_2">
+        <property name="leftMargin">
+         <number>0</number>
+        </property>
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <property name="rightMargin">
+         <number>0</number>
+        </property>
+        <property name="bottomMargin">
+         <number>0</number>
+        </property>
+        <property name="spacing">
+         <number>0</number>
+        </property>
+        <item row="0" column="0">
+         <widget class="QBootablesView" name="bootablesView"/>
+        </item>
+       </layout>
+      </widget>
+     </widget>
+    </item>
    </layout>
   </widget>
   <widget class="QMenuBar" name="menuBar">
@@ -209,7 +235,7 @@
   </action>
   <action name="actionList_Bootables">
    <property name="text">
-    <string>Bootables list...</string>
+    <string>Toggle Bootables list...</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+L</string>
@@ -217,6 +243,13 @@
   </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
+<customwidgets>
+  <customwidget>
+   <class>QBootablesView</class>
+   <extends>QWidget</extends>
+   <header>QBootablesView.h</header>
+  </customwidget>
+ </customwidgets>
  <resources>
   <include location="resources.qrc"/>
  </resources>

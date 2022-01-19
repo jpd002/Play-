@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>BootableListDialog</class>
- <widget class="QDialog" name="BootableListDialog">
+ <class>QBootablesView</class>
+ <widget class="QWidget" name="QBootablesView">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -41,6 +41,26 @@
    <property name="bottomMargin">
     <number>0</number>
    </property>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout_3">
+     <property name="leftMargin">
+      <number>9</number>
+     </property>
+     <property name="rightMargin">
+      <number>9</number>
+     </property>
+     <item>
+      <widget class="QLineEdit" name="filterLineEdit"/>
+     </item>
+     <item>
+      <widget class="QPushButton" name="reset_filter_button">
+       <property name="text">
+        <string>Reset Filter</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
    <item>
     <widget class="QListView" name="listView">
      <property name="sizePolicy">

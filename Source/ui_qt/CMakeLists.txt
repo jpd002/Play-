@@ -88,10 +88,10 @@ if(NOT TARGET ui_shared)
 list(APPEND PROJECT_LIBS ui_shared)
 
 set(QT_SOURCES
-	bootablelistdialog.cpp
-	bootablelistdialog.h
 	BootableModel.cpp
 	BootableModel.h
+	BootableModelProxy.cpp
+	BootableModelProxy.h
 	ControllerConfig/controllerconfigdialog.cpp
 	ControllerConfig/controllerconfigdialog.h
 	ControllerConfig/inputbindingmodel.cpp
@@ -120,6 +120,8 @@ set(QT_SOURCES
 	memorycardmanagerdialog.cpp
 	memorycardmanagerdialog.h
 	PreferenceDefs.h
+	QBootablesView.cpp
+	QBootablesView.h
 	QStringUtils.cpp
 	QStringUtils.h
 	QtUtils.cpp
@@ -202,8 +204,8 @@ if(DEBUGGER_INCLUDED)
 endif()
 	
 set(QT_MOC_HEADERS
-	bootablelistdialog.h
 	BootableModel.h
+	BootableModelProxy.h
 	ControllerConfig/controllerconfigdialog.h
 	ControllerConfig/inputbindingmodel.h
 	ControllerConfig/inputeventselectiondialog.h
@@ -213,6 +215,7 @@ set(QT_MOC_HEADERS
 	settingsdialog.h
 	openglwindow.h
 	outputwindow.h
+	QBootablesView.h
 	memorycardmanagerdialog.h
 	vfsmanagerdialog.h
 	vfsmodel.h
@@ -222,7 +225,7 @@ set(QT_MOC_HEADERS
 )
 
 set(QT_UIS
-	Qt_ui/bootablelistdialog.ui
+	Qt_ui/bootableview.ui
 	Qt_ui/controllerconfigdialog.ui
 	Qt_ui/debugmenu.ui
 	Qt_ui/inputeventselectiondialog.ui

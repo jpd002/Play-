@@ -52,8 +52,8 @@
 
 #include "ui_mainwindow.h"
 #include "vfsmanagerdialog.h"
-#include "bootablelistdialog.h"
 #include "ControllerConfig/controllerconfigdialog.h"
+#include "QBootablesView.h"
 
 #ifdef __APPLE__
 #include "macos/InputProviderMacOsHid.h"
@@ -102,6 +102,8 @@ MainWindow::MainWindow(QWidget* parent)
 	CreateStatusBar();
 	UpdateUI();
 	addAction(ui->actionPause_Resume);
+	SetupBootableView();
+
 #ifdef HAS_AMAZON_S3
 	ui->actionBoot_DiscImage_S3->setVisible(S3FileBrowser::IsAvailable());
 #endif
@@ -122,6 +124,10 @@ MainWindow::MainWindow(QWidget* parent)
 	connect(debugMenuUi->actionDumpNextFrame, &QAction::triggered, this, std::bind(&MainWindow::DumpNextFrame, this));
 	connect(debugMenuUi->actionGsDrawEnabled, &QAction::triggered, this, std::bind(&MainWindow::ToggleGsDraw, this));
 #endif
+	m_onRunningStateChangeConnection = m_virtualMachine->OnRunningStateChange.Connect([&] {
+		if(m_virtualMachine->GetStatus() == CVirtualMachine::RUNNING)
+			ui->stackedWidget->setCurrentIndex(1);
+	});
 }
 
 MainWindow::~MainWindow()
@@ -210,7 +216,7 @@ void MainWindow::SetupGsHandler()
 		m_outputwindow = new VulkanWindow;
 		QWidget* container = QWidget::createWindowContainer(m_outputwindow);
 		m_outputwindow->create();
-		ui->gridLayout->addWidget(container, 0, 0);
+		ui->stackedWidget->addWidget(container);
 		m_virtualMachine->CreateGSHandler(CGSH_VulkanQt::GetFactoryFunction(m_outputwindow));
 	}
 	break;
@@ -221,9 +227,15 @@ void MainWindow::SetupGsHandler()
 		m_outputwindow = new OpenGLWindow;
 		QWidget* container = QWidget::createWindowContainer(m_outputwindow);
 		m_outputwindow->create();
-		ui->gridLayout->addWidget(container, 0, 0);
+		ui->stackedWidget->addWidget(container);
 		m_virtualMachine->CreateGSHandler(CGSH_OpenGLQt::GetFactoryFunction(m_outputwindow));
 	}
+	}
+	if(ui->stackedWidget->count() > 2)
+	{
+		auto oldContainer = ui->stackedWidget->widget(1);
+		ui->stackedWidget->removeWidget(oldContainer);
+		delete oldContainer;
 	}
 
 	connect(m_outputwindow, SIGNAL(heightChanged(int)), this, SLOT(outputWindow_resized()));
@@ -629,10 +641,22 @@ void MainWindow::on_actionPause_Resume_triggered()
 
 void MainWindow::closeEvent(QCloseEvent* event)
 {
-	QMessageBox::StandardButton resBtn = QMessageBox::question(this, "Close Confirmation?",
-	                                                           tr("Are you sure you want to exit?\nHave you saved your progress?\n"),
-	                                                           QMessageBox::Yes | QMessageBox::No,
-	                                                           QMessageBox::Yes);
+	QMessageBox::StandardButton resBtn;
+	if(!ui->bootablesView->IsProcessing())
+	{
+		resBtn = QMessageBox::question(this, "Close Confirmation?",
+		                               tr("Are you sure you want to exit?\nHave you saved your progress?\n"),
+		                               QMessageBox::Yes | QMessageBox::No,
+		                               QMessageBox::Yes);
+	}
+	else
+	{
+		resBtn = QMessageBox::question(this, "Close Confirmation?",
+		                               tr("Are you sure you want to exit?\nBootables are currently getting processed.\n"),
+		                               QMessageBox::Yes | QMessageBox::No,
+		                               QMessageBox::Yes);
+	}
+
 	if(resBtn != QMessageBox::Yes)
 	{
 		event->ignore();
@@ -900,36 +924,7 @@ void MainWindow::on_actionCapture_Screen_triggered()
 
 void MainWindow::on_actionList_Bootables_triggered()
 {
-	BootableListDialog dialog(this);
-	if(dialog.exec())
-	{
-		try
-		{
-			BootablesDb::Bootable bootable = dialog.getResult();
-			if(IsBootableDiscImagePath(bootable.path))
-			{
-				LoadCDROM(bootable.path);
-				BootCDROM();
-			}
-			else if(IsBootableExecutablePath(bootable.path))
-			{
-				BootElf(bootable.path);
-			}
-			else
-			{
-				QMessageBox messageBox;
-				QString invalid("Invalid File Format.");
-				messageBox.critical(this, this->windowTitle(), invalid);
-				messageBox.show();
-			}
-		}
-		catch(const std::exception& e)
-		{
-			QMessageBox messageBox;
-			messageBox.critical(nullptr, "Error", e.what());
-			messageBox.show();
-		}
-	}
+	ui->stackedWidget->setCurrentIndex(1 - ui->stackedWidget->currentIndex());
 }
 
 void MainWindow::UpdateGSHandlerLabel(int gs_index)
@@ -946,4 +941,42 @@ void MainWindow::UpdateGSHandlerLabel(int gs_index)
 		break;
 #endif
 	}
+}
+
+void MainWindow::SetupBootableView()
+{
+	auto showEmu = std::bind(&QStackedWidget::setCurrentIndex, ui->stackedWidget, 1);
+	QBootablesView* bootablesView = ui->bootablesView;
+
+	bootablesView->AddMsgLabel(m_msgLabel);
+
+	QBootablesView::BootCallback bootGameCallback = [&, showEmu](fs::path filePath) {
+		try
+		{
+			if(IsBootableDiscImagePath(filePath))
+			{
+				LoadCDROM(filePath);
+				BootCDROM();
+			}
+			else if(IsBootableExecutablePath(filePath))
+			{
+				BootElf(filePath);
+			}
+			else
+			{
+				QMessageBox messageBox;
+				QString invalid("Invalid File Format.");
+				messageBox.critical(this, this->windowTitle(), invalid);
+				messageBox.show();
+			}
+			showEmu();
+		}
+		catch(const std::exception& e)
+		{
+			QMessageBox messageBox;
+			messageBox.critical(nullptr, "Error", e.what());
+			messageBox.show();
+		}
+	};
+	bootablesView->SetupActions(bootGameCallback);
 }
