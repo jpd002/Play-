@@ -337,9 +337,9 @@ CPS2VM::ProfileFrameDoneSignal::Connection g_profileFrameDoneConnection;
 	[self.view addSubview:self.profilerStatsLabel];
 #endif
 
-	g_newFrameConnection = g_virtualMachine->GetGSHandler()->OnNewFrame.Connect(std::bind(&CStatsManager::OnNewFrame, &CStatsManager::GetInstance(), std::placeholders::_1));
+	g_newFrameConnection = g_virtualMachine->GetGSHandler()->OnNewFrame.Connect(std::bind(&CStatsManager::OnNewFrame, &CStatsManager::GetInstance(), g_virtualMachine, std::placeholders::_1));
 #ifdef PROFILE
-	g_profileFrameDoneConnection = g_virtualMachine->ProfileFrameDone.Connect(std::bind(&CStatsManager::OnProfileFrameDone, &CStatsManager::GetInstance(), g_virtualMachine, std::placeholders::_1));
+	g_profileFrameDoneConnection = g_virtualMachine->ProfileFrameDone.Connect(std::bind(&CStatsManager::OnProfileFrameDone, &CStatsManager::GetInstance(), std::placeholders::_1));
 #endif
 	self.fpsCounterTimer = [NSTimer scheduledTimerWithTimeInterval:1 target:self selector:@selector(updateFpsCounter) userInfo:nil repeats:YES];
 }
