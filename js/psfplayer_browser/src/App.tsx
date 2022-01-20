@@ -82,8 +82,7 @@ export default function App() {
 
     const handleChange = function(event : ChangeEvent<HTMLInputElement>) {
       if(event.target && event.target.files && event.target.files.length !== 0) {
-        var url = URL.createObjectURL(event.target.files[0]);
-        dispatch(loadArchive(url));
+        dispatch(loadArchive(event.target.files[0]));
       }
     }
 
