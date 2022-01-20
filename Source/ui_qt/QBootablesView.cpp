@@ -236,7 +236,7 @@ void QBootablesView::on_awsS3Button_clicked()
 		if(new_entry)
 		{
 			AsyncUpdateStatus("Refreshing Model.");
-			resetModel();
+			AsyncResetModel(true);
 		}
 		m_s3Processing = false;
 		AsyncUpdateStatus("Complete.");
