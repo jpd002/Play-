@@ -165,21 +165,37 @@ void QBootablesView::on_listView_doubleClicked(const QModelIndex& index)
 
 void QBootablesView::on_refresh_button_clicked()
 {
-	auto bootables_paths = GetActiveBootableDirectories();
-	for(auto path : bootables_paths)
-	{
-		try
+	ui->refresh_button->setEnabled(false);
+	auto refreshFuture = std::async(std::launch::async, [&]() {
+		auto bootables_paths = GetActiveBootableDirectories();
+		for(auto path : bootables_paths)
 		{
-			ScanBootables(path, false);
+			QString msg = QString("Scanning '%1'.").arg(PathToQString(path));
+			AsyncUpdateStatus(msg.toStdString().c_str());
+			try
+			{
+				ScanBootables(path, false);
+			}
+			catch(...)
+			{
+			}
 		}
-		catch(...)
-		{
-		}
-	}
-	FetchGameTitles();
-	FetchGameCovers();
+		AsyncUpdateStatus("Retrieving Game Titles.");
+		FetchGameTitles();
+		AsyncUpdateStatus("Downloading Game Covers.");
+		FetchGameCovers();
 
-	resetModel();
+		return true;
+	});
+
+	auto enableRefreshButtonCallback = [&](bool) {
+		AsyncUpdateStatus("Refreshing Model.");
+		AsyncResetModel(true);
+		ui->refresh_button->setEnabled(true);
+		AsyncUpdateStatus("Complete.");
+	};
+	m_continuationChecker->GetContinuationManager().Register(std::move(refreshFuture), enableRefreshButtonCallback);
+
 }
 
 void QBootablesView::on_comboBox_currentIndexChanged(int index)
@@ -280,7 +296,7 @@ void QBootablesView::on_reset_filter_button_clicked()
 
 bool QBootablesView::IsProcessing()
 {
-	return m_s3Processing || m_coverProcessing;
+	return m_s3Processing || m_coverProcessing || !ui->refresh_button->isEnabled();
 }
 
 void QBootablesView::UpdateCoverDisplay()
