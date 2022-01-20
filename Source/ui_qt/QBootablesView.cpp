@@ -92,10 +92,10 @@ void QBootablesView::SetupActions(BootCallback bootCallback)
 void QBootablesView::AsyncPopulateCache()
 {
 	auto populateCoverCacheFuture = std::async(std::launch::async, [&]() {
-			m_coverProcessing = true;
-			CoverUtils::PopulateCache(m_bootables);
-			AsyncUpdateCoverDisplay();
-			return true;
+		m_coverProcessing = true;
+		CoverUtils::PopulateCache(m_bootables);
+		AsyncUpdateCoverDisplay();
+		return true;
 	});
 
 	m_continuationChecker->GetContinuationManager().Register(std::move(populateCoverCacheFuture), [&](bool) {
@@ -211,7 +211,6 @@ void QBootablesView::on_refresh_button_clicked()
 		AsyncUpdateStatus("Complete.");
 	};
 	m_continuationChecker->GetContinuationManager().Register(std::move(refreshFuture), enableRefreshButtonCallback);
-
 }
 
 void QBootablesView::on_comboBox_currentIndexChanged(int index)
