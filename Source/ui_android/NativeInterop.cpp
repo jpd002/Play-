@@ -116,7 +116,7 @@ extern "C" JNIEXPORT void JNICALL Java_com_virtualapplications_play_NativeIntero
 	g_virtualMachine->Initialize();
 	g_virtualMachine->CreatePadHandler(CPH_Generic::GetFactoryFunction());
 #ifdef PROFILE
-	g_ProfileFrameDoneConnection = g_virtualMachine->ProfileFrameDone.Connect(std::bind(&CStatsManager::OnProfileFrameDone, &CStatsManager::GetInstance(), g_virtualMachine, std::placeholders::_1));
+	g_ProfileFrameDoneConnection = g_virtualMachine->ProfileFrameDone.Connect(std::bind(&CStatsManager::OnProfileFrameDone, &CStatsManager::GetInstance(), std::placeholders::_1));
 #endif
 	CAppConfig::GetInstance().RegisterPreferenceInteger(PREF_VIDEO_GS_HANDLER, PREFERENCE_VALUE_VIDEO_GS_HANDLER_OPENGL);
 	CAppConfig::GetInstance().RegisterPreferenceBoolean(PREF_AUDIO_ENABLEOUTPUT, true);
@@ -222,7 +222,7 @@ extern "C" JNIEXPORT void JNICALL Java_com_virtualapplications_play_NativeIntero
 		}
 		g_currentGsHandlerId = gsHandlerId;
 		g_OnNewFrameConnection = g_virtualMachine->m_ee->m_gs->OnNewFrame.Connect(
-		    std::bind(&CStatsManager::OnNewFrame, &CStatsManager::GetInstance(), std::placeholders::_1));
+		    std::bind(&CStatsManager::OnNewFrame, &CStatsManager::GetInstance(), g_virtualMachine, std::placeholders::_1));
 	}
 	else
 	{
