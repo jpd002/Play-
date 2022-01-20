@@ -137,16 +137,32 @@ void QBootablesView::on_add_games_button_clicked()
 	if(dialog.exec())
 	{
 		auto filePath = QStringToPath(dialog.selectedFiles().first()).parent_path();
-		try
-		{
-			ScanBootables(filePath, false);
-		}
-		catch(...)
-		{
-		}
-		FetchGameTitles();
-		FetchGameCovers();
-		resetModel();
+		ui->add_games_button->setEnabled(false);
+		auto scanBootablesFuture = std::async(std::launch::async, [&, filePath]() {
+			QString msg = QString("Scanning '%1'.").arg(PathToQString(filePath));
+			AsyncUpdateStatus(msg.toStdString().c_str());
+			try
+			{
+				ScanBootables(filePath, false);
+			}
+			catch(...)
+			{
+			}
+			AsyncUpdateStatus("Retrieving Game Titles.");
+			FetchGameTitles();
+			AsyncUpdateStatus("Downloading Game Covers.");
+			FetchGameCovers();
+
+			return true;
+		});
+
+		auto enableAddButtonCallback = [&](bool) {
+			AsyncUpdateStatus("Refreshing Model.");
+			AsyncResetModel(true);
+			ui->add_games_button->setEnabled(true);
+			AsyncUpdateStatus("Complete.");
+		};
+		m_continuationChecker->GetContinuationManager().Register(std::move(scanBootablesFuture), enableAddButtonCallback);
 	}
 }
 
@@ -296,7 +312,7 @@ void QBootablesView::on_reset_filter_button_clicked()
 
 bool QBootablesView::IsProcessing()
 {
-	return m_s3Processing || m_coverProcessing || !ui->refresh_button->isEnabled();
+	return m_s3Processing || m_coverProcessing || !ui->refresh_button->isEnabled() || !ui->add_games_button->isEnabled();
 }
 
 void QBootablesView::UpdateCoverDisplay()
