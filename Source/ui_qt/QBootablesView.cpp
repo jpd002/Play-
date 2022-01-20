@@ -24,7 +24,7 @@
 QBootablesView::QBootablesView(QWidget* parent)
     : QWidget(parent)
     , ui(new Ui::QBootablesView)
-
+    , m_continuationChecker(new CContinuationChecker(this))
 {
 	ui->setupUi(this);
 	ui->listView->setStyleSheet("QListView{ background:QLinearGradient( x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #4baaf3, stop: 1 #0A0A0A); }");
@@ -55,15 +55,8 @@ QBootablesView::QBootablesView(QWidget* parent)
 	CoverUtils::PopulatePlaceholderCover();
 
 #ifdef HAS_AMAZON_S3
-	m_continuationChecker = new CContinuationChecker(this);
 	ui->awsS3Button->setVisible(S3FileBrowser::IsAvailable());
 #endif
-}
-
-QBootablesView::~QBootablesView()
-{
-	if(m_coverLoader.joinable())
-		m_coverLoader.join();
 }
 
 void QBootablesView::AddMsgLabel(ElidedLabel* msgLabel)
@@ -98,19 +91,16 @@ void QBootablesView::SetupActions(BootCallback bootCallback)
 
 void QBootablesView::AsyncPopulateCache()
 {
-	if(!m_threadRunning)
-	{
-		if(m_coverLoader.joinable())
-			m_coverLoader.join();
-
-		m_threadRunning = true;
-		m_coverLoader = std::thread([&] {
+	auto populateCoverCacheFuture = std::async(std::launch::async, [&]() {
+			m_coverProcessing = true;
 			CoverUtils::PopulateCache(m_bootables);
-
 			AsyncUpdateCoverDisplay();
-			m_threadRunning = false;
-		});
-	}
+			return true;
+	});
+
+	m_continuationChecker->GetContinuationManager().Register(std::move(populateCoverCacheFuture), [&](bool) {
+		m_coverProcessing = false;
+	});
 }
 
 void QBootablesView::resizeEvent(QResizeEvent* ev)
@@ -290,7 +280,7 @@ void QBootablesView::on_reset_filter_button_clicked()
 
 bool QBootablesView::IsProcessing()
 {
-	return m_s3Processing || m_threadRunning;
+	return m_s3Processing || m_coverProcessing;
 }
 
 void QBootablesView::UpdateCoverDisplay()

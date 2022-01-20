@@ -21,7 +21,6 @@ class QBootablesView : public QWidget
 
 public:
 	explicit QBootablesView(QWidget* parent = 0);
-	~QBootablesView();
 
 	using BootCallback = std::function<void(fs::path)>;
 
@@ -65,7 +64,6 @@ private:
 	BootableModelProxy* m_proxyModel = nullptr;
 	CContinuationChecker* m_continuationChecker = nullptr;
 
-	std::atomic<bool> m_threadRunning = false;
-	std::thread m_coverLoader;
+	std::atomic<bool> m_coverProcessing = false;
 	BootCallback m_bootCallback;
 };
