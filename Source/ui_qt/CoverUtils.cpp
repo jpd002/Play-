@@ -44,19 +44,26 @@ void CoverUtils::PopulateCache(std::vector<BootablesDb::Bootable> bootables)
 			continue;
 
 		auto path = coverpath / (bootable.discId + ".jpg");
-		if(fs::exists(path))
+		try
 		{
-			auto itr = CoverUtils::cache.find(bootable.discId.c_str());
-			if(itr == CoverUtils::cache.end())
+			if(fs::exists(path))
 			{
-				auto pixmap = QPixmap();
-				if(!pixmap.load(PathToQString(path)))
+				auto itr = CoverUtils::cache.find(bootable.discId.c_str());
+				if(itr == CoverUtils::cache.end())
 				{
-					pixmap.load(PathToQString(path), "png");
+					auto pixmap = QPixmap();
+					if(!pixmap.load(PathToQString(path)))
+					{
+						pixmap.load(PathToQString(path), "png");
+					}
+					pixmap = pixmap.scaled(placeholder_size, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+					CoverUtils::cache.insert(std::make_pair(bootable.discId.c_str(), pixmap));
 				}
-				pixmap = pixmap.scaled(placeholder_size, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
-				CoverUtils::cache.insert(std::make_pair(bootable.discId.c_str(), pixmap));
 			}
+		}
+		catch(const std::exception& ex)
+		{
+			//Ignore
 		}
 	}
 	m_lock.unlock();
