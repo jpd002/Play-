@@ -196,6 +196,13 @@
         </widget>
        </item>
        <item>
+        <widget class="QCheckBox" name="checkBox_showEECPUUsage">
+         <property name="text">
+          <string>Show EE CPU Usage</string>
+         </property>
+        </widget>
+       </item>
+       <item>
         <spacer name="verticalSpacer_2">
          <property name="orientation">
           <enum>Qt::Vertical</enum>

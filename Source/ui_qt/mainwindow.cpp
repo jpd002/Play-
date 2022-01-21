@@ -504,6 +504,8 @@ void MainWindow::CreateStatusBar()
 	m_fpsTimer = new QTimer(this);
 	connect(m_fpsTimer, SIGNAL(timeout()), this, SLOT(updateStats()));
 	m_fpsTimer->start(1000);
+
+	UpdateCpuUsageLabel();
 }
 
 void MainWindow::updateStats()
@@ -533,6 +535,7 @@ void MainWindow::on_actionSettings_triggered()
 	{
 		m_virtualMachine->ReloadSpuBlockCount();
 		m_virtualMachine->ReloadFrameRateLimit();
+		UpdateCpuUsageLabel();
 		auto new_gs_index = CAppConfig::GetInstance().GetPreferenceInteger(PREF_VIDEO_GS_HANDLER);
 		if(gs_index != new_gs_index)
 		{
@@ -714,10 +717,17 @@ void MainWindow::UpdateUI()
 	SetupSaveLoadStateSlots();
 }
 
+void MainWindow::UpdateCpuUsageLabel()
+{
+	bool visible = CAppConfig::GetInstance().GetPreferenceBoolean(PREF_UI_SHOWEECPUUSAGE);
+	m_cpuUsageLabel->setVisible(visible);
+}
+
 void MainWindow::RegisterPreferences()
 {
 	CAppConfig::GetInstance().RegisterPreferenceBoolean(PREFERENCE_AUDIO_ENABLEOUTPUT, true);
 	CAppConfig::GetInstance().RegisterPreferenceBoolean(PREF_UI_PAUSEWHENFOCUSLOST, true);
+	CAppConfig::GetInstance().RegisterPreferenceBoolean(PREF_UI_SHOWEECPUUSAGE, false);
 	CAppConfig::GetInstance().RegisterPreferenceInteger(PREF_VIDEO_GS_HANDLER, SettingsDialog::GS_HANDLERS::OPENGL);
 	CAppConfig::GetInstance().RegisterPreferenceString(PREF_INPUT_PAD1_PROFILE, "default");
 }

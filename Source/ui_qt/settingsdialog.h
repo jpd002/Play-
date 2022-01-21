@@ -35,6 +35,7 @@ private slots:
 	//General Page
 	void on_comboBox_system_language_currentIndexChanged(int index);
 	void on_checkBox_limitFrameRate_clicked(bool checked);
+	void on_checkBox_showEECPUUsage_clicked(bool checked);
 
 	//Video Page
 	void on_checkBox_widescreenOutput_clicked(bool checked);

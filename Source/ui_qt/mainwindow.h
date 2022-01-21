@@ -81,6 +81,7 @@ private:
 	void EmitOnExecutableChange();
 	bool IsExecutableLoaded() const;
 	void UpdateUI();
+	void UpdateCpuUsageLabel();
 	void RegisterPreferences();
 	void saveState(int);
 	void toggleFullscreen();
