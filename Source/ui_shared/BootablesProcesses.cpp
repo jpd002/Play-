@@ -186,9 +186,13 @@ void FetchGameTitles()
 
 	if(serials.empty()) return;
 
+	BootableLog("Fetching info for %d games.\r\n", serials.size());
+
 	try
 	{
 		auto gamesList = TheGamesDb::CClient::GetInstance().GetGames(serials);
+		BootableLog("Received info for %d games.\r\n", gamesList.size());
+
 		for(auto& game : gamesList)
 		{
 			for(const auto& bootable : bootables)
@@ -197,6 +201,8 @@ void FetchGameTitles()
 				{
 					if(discId == bootable.discId)
 					{
+						BootableLog("Setting info for '%s'...\r\n", bootable.discId.c_str());
+
 						BootablesDb::CClient::GetInstance().SetTitle(bootable.path, game.title.c_str());
 
 						if(!game.overview.empty())
@@ -215,8 +221,9 @@ void FetchGameTitles()
 			}
 		}
 	}
-	catch(...)
+	catch(const std::exception& exception)
 	{
+		BootableLog("Caught an exception while trying to fetch titles: %s\r\n", exception.what());
 	}
 }
 
