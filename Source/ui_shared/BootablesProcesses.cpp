@@ -229,23 +229,48 @@ void FetchGameCovers()
 	std::vector<std::string> serials;
 	for(const auto& bootable : bootables)
 	{
-		if(bootable.discId.empty() || bootable.coverUrl.empty())
+		if(bootable.discId.empty())
 			continue;
 
-		auto path = coverpath / (bootable.discId + ".jpg");
-		if(fs::exists(path))
-			continue;
+		BootableLog("Checking cover for '%s'...\r\n", bootable.discId.c_str());
 
-		auto requestResult =
-		    [&]() {
-			    auto client = Framework::Http::CreateHttpClient();
-			    client->SetUrl(bootable.coverUrl);
-			    return client->SendRequest();
-		    }();
-		if(requestResult.statusCode == Framework::Http::HTTP_STATUS_CODE::OK)
+		if(bootable.coverUrl.empty())
 		{
-			auto outputStream = Framework::CreateOutputStdStream(path.native());
-			outputStream.Write(requestResult.data.GetBuffer(), requestResult.data.GetSize());
+			BootableLog("Bootable has no cover URL, skipping.\r\n");
+			continue;
+		}
+
+		try
+		{
+			auto path = coverpath / (bootable.discId + ".jpg");
+
+			BootableLog("Looking for '%s'... ", path.string().c_str());
+			if(fs::exists(path))
+			{
+				BootableLog("Already exists, skipping.\r\n");
+				continue;
+			}
+			BootableLog("Doesn't exist.\r\n");
+			BootableLog("Downloading from '%s'...\r\n", bootable.coverUrl.c_str());
+
+			auto requestResult =
+				[&]() {
+					auto client = Framework::Http::CreateHttpClient();
+					client->SetUrl(bootable.coverUrl);
+					return client->SendRequest();
+				}();
+
+			BootableLog("Download yielded result %d.\r\n", requestResult.statusCode);
+			if(requestResult.statusCode == Framework::Http::HTTP_STATUS_CODE::OK)
+			{
+				auto outputStream = Framework::CreateOutputStdStream(path.native());
+				outputStream.Write(requestResult.data.GetBuffer(), requestResult.data.GetSize());
+				BootableLog("Saved cover to disk.\r\n");
+			}
+		}
+		catch(const std::exception& exception)
+		{
+			BootableLog("Caught an exception while trying to process cover: %s\r\n", exception.what());
 		}
 	}
 }
