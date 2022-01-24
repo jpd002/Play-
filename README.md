@@ -6,6 +6,8 @@ If a specific game doesn't work with the emulator, please create a new issue the
 
 For more information, please visit [purei.org](https://purei.org).
 
+For general discussion you're welcome to join our Discord: https://discord.gg/HygQnQP.
+
 ## Running on iOS ##
 
 This emulator uses JIT code generation to speed things up. This is not supported by default by iOS, thus, there are some extra requirements:
