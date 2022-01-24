@@ -261,11 +261,11 @@ void FetchGameCovers()
 			BootableLog("Downloading from '%s'...\r\n", bootable.coverUrl.c_str());
 
 			auto requestResult =
-				[&]() {
-					auto client = Framework::Http::CreateHttpClient();
-					client->SetUrl(bootable.coverUrl);
-					return client->SendRequest();
-				}();
+			    [&]() {
+				    auto client = Framework::Http::CreateHttpClient();
+				    client->SetUrl(bootable.coverUrl);
+				    return client->SendRequest();
+			    }();
 
 			BootableLog("Download yielded result %d.\r\n", requestResult.statusCode);
 			if(requestResult.statusCode == Framework::Http::HTTP_STATUS_CODE::OK)
