@@ -2,12 +2,15 @@
 #include <emscripten/bind.h>
 #include "Ps2VmJs.h"
 #include "GSH_OpenGLJs.h"
+#include "../../tools/PsfPlayer/Source/SH_OpenAL.h"
+#include "../../tools/PsfPlayer/Source/js_ui/SH_OpenALProxy.h"
 #include "input/PH_GenericInput.h"
 #include "InputProviderEmscripten.h"
 
 CPs2VmJs* g_virtualMachine = nullptr;
 EMSCRIPTEN_WEBGL_CONTEXT_HANDLE g_context = 0;
 std::shared_ptr<CInputProviderEmscripten> g_inputProvider;
+CSH_OpenAL* g_soundHandler = nullptr;
 
 int main(int argc, const char** argv)
 {
@@ -75,6 +78,11 @@ extern "C" void initVm()
 		bindingManager.SetSimpleBinding(0, PS2::CControllerInfo::CROSS, CInputProviderEmscripten::MakeBindingTarget("KeyZ"));
 		bindingManager.SetSimpleBinding(0, PS2::CControllerInfo::TRIANGLE, CInputProviderEmscripten::MakeBindingTarget("KeyS"));
 		bindingManager.SetSimpleBinding(0, PS2::CControllerInfo::CIRCLE, CInputProviderEmscripten::MakeBindingTarget("KeyX"));
+	}
+
+	{
+		g_soundHandler = new CSH_OpenAL();
+		g_virtualMachine->CreateSoundHandler(CSH_OpenALProxy::GetFactoryFunction(g_soundHandler));
 	}
 
 	EMSCRIPTEN_RESULT result = EMSCRIPTEN_RESULT_SUCCESS;

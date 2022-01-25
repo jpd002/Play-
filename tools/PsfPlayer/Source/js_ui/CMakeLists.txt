@@ -16,7 +16,7 @@ if(NOT TARGET PsfCore)
 endif()
 list(APPEND PROJECT_LIBS PsfCore)
 
-if(NOT TARGET SH_OpenAL)
+if(NOT TARGET sh_openal)
 	add_subdirectory(
 		${CMAKE_CURRENT_SOURCE_DIR}/../SH_OpenAL
 		${CMAKE_CURRENT_BINARY_DIR}/SH_OpenAL

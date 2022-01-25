@@ -24,6 +24,14 @@ if(NOT TARGET gsh_opengl)
 endif()
 list(APPEND PROJECT_LIBS gsh_opengl)
 
+if(NOT TARGET sh_openal)
+	add_subdirectory(
+		${CMAKE_CURRENT_SOURCE_DIR}/../../tools/PsfPlayer/Source/SH_OpenAL
+		${CMAKE_CURRENT_BINARY_DIR}/SH_OpenAL
+	)
+endif()
+list(APPEND PROJECT_LIBS sh_openal)
+
 add_executable(Play
 	GSH_OpenGLJs.cpp
 	GSH_OpenGLJs.h
@@ -32,6 +40,8 @@ add_executable(Play
 	Main.cpp
 	Ps2VmJs.cpp
 	Ps2VmJs.h
+	${CMAKE_CURRENT_SOURCE_DIR}/../../tools/PsfPlayer/Source/js_ui/SH_OpenALProxy.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/../../tools/PsfPlayer/Source/js_ui/SH_OpenALProxy.h
 )
 target_link_libraries(Play PUBLIC ${PROJECT_LIBS})
 
