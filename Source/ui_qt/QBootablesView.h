@@ -21,7 +21,6 @@ class QBootablesView : public QWidget
 
 public:
 	explicit QBootablesView(QWidget* parent = 0);
-	~QBootablesView();
 
 	using BootCallback = std::function<void(fs::path)>;
 
@@ -55,17 +54,17 @@ private:
 	void DisplayWarningMessage();
 	void BootBootables(const QModelIndex&);
 	void UpdateCoverDisplay();
+	void ToggleInterface(bool);
 
 	Ui::QBootablesView* ui;
 	std::vector<BootablesDb::Bootable> m_bootables;
 
 	ElidedLabel* m_msgLabel = nullptr;
 	int m_sortingMethod = 2;
-	std::atomic<bool> m_s3Processing = false;
+	std::atomic<bool> m_isProcessing = false;
 	BootableModelProxy* m_proxyModel = nullptr;
 	CContinuationChecker* m_continuationChecker = nullptr;
 
-	std::atomic<bool> m_threadRunning = false;
-	std::thread m_coverLoader;
+	std::atomic<bool> m_coverProcessing = false;
 	BootCallback m_bootCallback;
 };

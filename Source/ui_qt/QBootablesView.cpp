@@ -24,7 +24,7 @@
 QBootablesView::QBootablesView(QWidget* parent)
     : QWidget(parent)
     , ui(new Ui::QBootablesView)
-
+    , m_continuationChecker(new CContinuationChecker(this))
 {
 	ui->setupUi(this);
 	ui->listView->setStyleSheet("QListView{ background:QLinearGradient( x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #4baaf3, stop: 1 #0A0A0A); }");
@@ -55,15 +55,8 @@ QBootablesView::QBootablesView(QWidget* parent)
 	CoverUtils::PopulatePlaceholderCover();
 
 #ifdef HAS_AMAZON_S3
-	m_continuationChecker = new CContinuationChecker(this);
 	ui->awsS3Button->setVisible(S3FileBrowser::IsAvailable());
 #endif
-}
-
-QBootablesView::~QBootablesView()
-{
-	if(m_coverLoader.joinable())
-		m_coverLoader.join();
 }
 
 void QBootablesView::AddMsgLabel(ElidedLabel* msgLabel)
@@ -98,19 +91,16 @@ void QBootablesView::SetupActions(BootCallback bootCallback)
 
 void QBootablesView::AsyncPopulateCache()
 {
-	if(!m_threadRunning)
-	{
-		if(m_coverLoader.joinable())
-			m_coverLoader.join();
+	auto populateCoverCacheFuture = std::async(std::launch::async, [&]() {
+		m_coverProcessing = true;
+		CoverUtils::PopulateCache(m_bootables);
+		AsyncUpdateCoverDisplay();
+		return true;
+	});
 
-		m_threadRunning = true;
-		m_coverLoader = std::thread([&] {
-			CoverUtils::PopulateCache(m_bootables);
-
-			AsyncUpdateCoverDisplay();
-			m_threadRunning = false;
-		});
-	}
+	m_continuationChecker->GetContinuationManager().Register(std::move(populateCoverCacheFuture), [&](bool) {
+		m_coverProcessing = false;
+	});
 }
 
 void QBootablesView::resizeEvent(QResizeEvent* ev)
@@ -146,17 +136,33 @@ void QBootablesView::on_add_games_button_clicked()
 	dialog.setNameFilters(filters);
 	if(dialog.exec())
 	{
+		ToggleInterface(false);
 		auto filePath = QStringToPath(dialog.selectedFiles().first()).parent_path();
-		try
-		{
-			ScanBootables(filePath, false);
-		}
-		catch(...)
-		{
-		}
-		FetchGameTitles();
-		FetchGameCovers();
-		resetModel();
+		auto scanBootablesFuture = std::async(std::launch::async, [&, filePath]() {
+			QString msg = QString("Scanning '%1'.").arg(PathToQString(filePath));
+			AsyncUpdateStatus(msg.toStdString().c_str());
+			try
+			{
+				ScanBootables(filePath, false);
+			}
+			catch(...)
+			{
+			}
+			AsyncUpdateStatus("Retrieving Game Titles.");
+			FetchGameTitles();
+			AsyncUpdateStatus("Downloading Game Covers.");
+			FetchGameCovers();
+
+			return true;
+		});
+
+		auto enableAddButtonCallback = [&](bool) {
+			AsyncUpdateStatus("Refreshing Model.");
+			AsyncResetModel(true);
+			ToggleInterface(true);
+			AsyncUpdateStatus("Complete.");
+		};
+		m_continuationChecker->GetContinuationManager().Register(std::move(scanBootablesFuture), enableAddButtonCallback);
 	}
 }
 
@@ -175,21 +181,36 @@ void QBootablesView::on_listView_doubleClicked(const QModelIndex& index)
 
 void QBootablesView::on_refresh_button_clicked()
 {
-	auto bootables_paths = GetActiveBootableDirectories();
-	for(auto path : bootables_paths)
-	{
-		try
+	ToggleInterface(false);
+	auto refreshFuture = std::async(std::launch::async, [&]() {
+		auto bootables_paths = GetActiveBootableDirectories();
+		for(auto path : bootables_paths)
 		{
-			ScanBootables(path, false);
+			QString msg = QString("Scanning '%1'.").arg(PathToQString(path));
+			AsyncUpdateStatus(msg.toStdString().c_str());
+			try
+			{
+				ScanBootables(path, false);
+			}
+			catch(...)
+			{
+			}
 		}
-		catch(...)
-		{
-		}
-	}
-	FetchGameTitles();
-	FetchGameCovers();
+		AsyncUpdateStatus("Retrieving Game Titles.");
+		FetchGameTitles();
+		AsyncUpdateStatus("Downloading Game Covers.");
+		FetchGameCovers();
 
-	resetModel();
+		return true;
+	});
+
+	auto enableRefreshButtonCallback = [&](bool) {
+		AsyncUpdateStatus("Refreshing Model.");
+		AsyncResetModel(true);
+		ToggleInterface(true);
+		AsyncUpdateStatus("Complete.");
+	};
+	m_continuationChecker->GetContinuationManager().Register(std::move(refreshFuture), enableRefreshButtonCallback);
 }
 
 void QBootablesView::on_comboBox_currentIndexChanged(int index)
@@ -216,8 +237,8 @@ void QBootablesView::on_awsS3Button_clicked()
 	if(bucketName.empty())
 		return;
 
+	ToggleInterface(false);
 	auto getListFuture = std::async(std::launch::async, [this, bucketName]() {
-		m_s3Processing = true;
 		auto credentials = CS3ObjectStream::CConfig::GetInstance().GetCredentials();
 		AsyncUpdateStatus("Requesting S3 Bucket Content.");
 		auto result = AmazonS3Utils::GetListObjects(credentials, bucketName);
@@ -246,9 +267,9 @@ void QBootablesView::on_awsS3Button_clicked()
 		if(new_entry)
 		{
 			AsyncUpdateStatus("Refreshing Model.");
-			resetModel();
+			AsyncResetModel(true);
 		}
-		m_s3Processing = false;
+		ToggleInterface(true);
 		AsyncUpdateStatus("Complete.");
 	};
 	m_continuationChecker->GetContinuationManager().Register(std::move(getListFuture), updateBootableCallback);
@@ -290,11 +311,23 @@ void QBootablesView::on_reset_filter_button_clicked()
 
 bool QBootablesView::IsProcessing()
 {
-	return m_s3Processing || m_threadRunning;
+	return m_coverProcessing || !m_isProcessing;
 }
 
 void QBootablesView::UpdateCoverDisplay()
 {
 	//Force redraw
 	ui->listView->update();
+}
+
+void QBootablesView::ToggleInterface(bool enable)
+{
+	m_isProcessing = enable;
+	ui->add_games_button->setEnabled(enable);
+	ui->refresh_button->setEnabled(enable);
+	ui->comboBox->setEnabled(enable);
+#ifdef HAS_AMAZON_S3
+	ui->awsS3Button->setEnabled(enable);
+#endif
+	ui->listView->setContextMenuPolicy(enable ? Qt::ActionsContextMenu : Qt::NoContextMenu);
 }
