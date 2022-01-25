@@ -49,7 +49,7 @@ if(NOT TARGET sh_openal)
 		${CMAKE_CURRENT_SOURCE_DIR}/../../tools/PsfPlayer/Source/SH_OpenAL
 		${CMAKE_CURRENT_BINARY_DIR}/SH_OpenAL
 	)
-	endif()
+endif()
 list(APPEND PROJECT_LIBS sh_openal)
 
 if(NOT TARGET iCade_Static)
