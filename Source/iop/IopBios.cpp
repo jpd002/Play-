@@ -76,7 +76,9 @@
 #define BIOS_MEMORYBLOCK_SIZE (sizeof(Iop::MEMORYBLOCK) * CIopBios::MAX_MEMORYBLOCK)
 #define BIOS_LOADEDMODULE_BASE (BIOS_MEMORYBLOCK_BASE + BIOS_MEMORYBLOCK_SIZE)
 #define BIOS_LOADEDMODULE_SIZE (sizeof(CIopBios::LOADEDMODULE) * CIopBios::MAX_LOADEDMODULE)
-#define BIOS_CALCULATED_END (BIOS_LOADEDMODULE_BASE + BIOS_LOADEDMODULE_SIZE)
+#define BIOS_INTSTACK_BASE (BIOS_LOADEDMODULE_BASE + BIOS_LOADEDMODULE_SIZE)
+#define BIOS_INTSTACK_SIZE (0x800)
+#define BIOS_CALCULATED_END (BIOS_INTSTACK_BASE + BIOS_INTSTACK_SIZE)
 
 #define SYSCALL_EXITTHREAD 0x666
 #define SYSCALL_RETURNFROMEXCEPTION 0x667
@@ -2907,7 +2909,6 @@ uint32 CIopBios::AssembleThreadFinish(CMIPSAssembler& assembler)
 uint32 CIopBios::AssembleReturnFromException(CMIPSAssembler& assembler)
 {
 	uint32 address = BIOS_HANDLERS_BASE + assembler.GetProgramSize() * 4;
-	assembler.ADDIU(CMIPS::SP, CMIPS::SP, STACK_FRAME_RESERVE_SIZE);
 	assembler.ADDIU(CMIPS::V0, CMIPS::R0, SYSCALL_RETURNFROMEXCEPTION);
 	assembler.SYSCALL();
 	return address;
@@ -3148,9 +3149,9 @@ void CIopBios::HandleInterrupt()
 					SaveThreadContext(m_currentThreadId);
 				}
 				m_currentThreadId = -1;
-				INTRHANDLER* handler = m_intrHandlers[handlerId];
+				auto handler = m_intrHandlers[handlerId];
 				m_cpu.m_State.nPC = handler->handler;
-				m_cpu.m_State.nGPR[CMIPS::SP].nD0 -= STACK_FRAME_RESERVE_SIZE;
+				m_cpu.m_State.nGPR[CMIPS::SP].nD0 = (BIOS_INTSTACK_BASE + BIOS_INTSTACK_SIZE) - STACK_FRAME_RESERVE_SIZE;
 				m_cpu.m_State.nGPR[CMIPS::A0].nD0 = static_cast<int32>(handler->arg);
 				m_cpu.m_State.nGPR[CMIPS::RA].nD0 = static_cast<int32>(m_returnFromExceptionAddress);
 			}
