@@ -76,12 +76,13 @@ namespace Iop
 		{
 			MAX_SYSTEM_COMMAND = 0x20,
 			MAX_SREG = 0x20,
+			TRAMPOLINE_SIZE = 0x800,
 			PENDING_CMD_BUFFER_SIZE = 0x400,
 		};
 
 		struct MODULEDATA
 		{
-			uint8 trampoline[0x800];
+			uint8 trampoline[TRAMPOLINE_SIZE];
 			uint8 sendCmdExtraStruct[0x10];
 			uint32 sreg[MAX_SREG];
 			SIFCMDDATA sysCmdBuffer[MAX_SYSTEM_COMMAND];

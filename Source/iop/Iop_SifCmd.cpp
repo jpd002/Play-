@@ -331,34 +331,35 @@ void CSifCmd::BuildExportTable()
 
 	{
 		CMIPSAssembler assembler(exportTable);
+		uint32 assemblerBaseAddress = static_cast<uint32>(reinterpret_cast<uint8*>(exportTable) - m_ram);
 
 		//Trampoline for SifGetNextRequest
-		uint32 sifGetNextRequestAddr = (reinterpret_cast<uint8*>(exportTable) - m_ram) + (assembler.GetProgramSize() * 4);
+		uint32 sifGetNextRequestAddr = assemblerBaseAddress + (assembler.GetProgramSize() * 4);
 		assembler.JR(CMIPS::RA);
 		assembler.ADDIU(CMIPS::R0, CMIPS::R0, 20);
 
 		//Trampoline for SifExecRequest
-		uint32 sifExecRequestAddr = (reinterpret_cast<uint8*>(exportTable) - m_ram) + (assembler.GetProgramSize() * 4);
+		uint32 sifExecRequestAddr = assemblerBaseAddress + (assembler.GetProgramSize() * 4);
 		assembler.JR(CMIPS::RA);
 		assembler.ADDIU(CMIPS::R0, CMIPS::R0, 21);
 
-		uint32 finishExecRequestAddr = (reinterpret_cast<uint8*>(exportTable) - m_ram) + (assembler.GetProgramSize() * 4);
+		uint32 finishExecRequestAddr = assemblerBaseAddress + (assembler.GetProgramSize() * 4);
 		assembler.JR(CMIPS::RA);
 		assembler.ADDIU(CMIPS::R0, CMIPS::R0, CUSTOM_FINISHEXECREQUEST);
 
-		uint32 finishExecCmdAddr = (reinterpret_cast<uint8*>(exportTable) - m_ram) + (assembler.GetProgramSize() * 4);
+		uint32 finishExecCmdAddr = assemblerBaseAddress + (assembler.GetProgramSize() * 4);
 		assembler.JR(CMIPS::RA);
 		assembler.ADDIU(CMIPS::R0, CMIPS::R0, CUSTOM_FINISHEXECCMD);
 
-		uint32 finishBindRpcAddr = (reinterpret_cast<uint8*>(exportTable) - m_ram) + (assembler.GetProgramSize() * 4);
+		uint32 finishBindRpcAddr = assemblerBaseAddress + (assembler.GetProgramSize() * 4);
 		assembler.JR(CMIPS::RA);
 		assembler.ADDIU(CMIPS::R0, CMIPS::R0, CUSTOM_FINISHBINDRPC);
 
-		uint32 sleepThreadAddr = (reinterpret_cast<uint8*>(exportTable) - m_ram) + (assembler.GetProgramSize() * 4);
+		uint32 sleepThreadAddr = assemblerBaseAddress + (assembler.GetProgramSize() * 4);
 		assembler.JR(CMIPS::RA);
 		assembler.ADDIU(CMIPS::R0, CMIPS::R0, CUSTOM_SLEEPTHREAD);
 
-		uint32 delayThreadAddr = (reinterpret_cast<uint8*>(exportTable) - m_ram) + (assembler.GetProgramSize() * 4);
+		uint32 delayThreadAddr = assemblerBaseAddress + (assembler.GetProgramSize() * 4);
 		assembler.JR(CMIPS::RA);
 		assembler.ADDIU(CMIPS::R0, CMIPS::R0, CUSTOM_DELAYTHREAD);
 
@@ -366,7 +367,7 @@ void CSifCmd::BuildExportTable()
 		{
 			static const int16 stackAlloc = 0x10;
 
-			m_sifRpcLoopAddr = (reinterpret_cast<uint8*>(exportTable) - m_ram) + (assembler.GetProgramSize() * 4);
+			m_sifRpcLoopAddr = assemblerBaseAddress + (assembler.GetProgramSize() * 4);
 			auto checkNextRequestLabel = assembler.CreateLabel();
 			auto sleepThreadLabel = assembler.CreateLabel();
 
@@ -402,7 +403,7 @@ void CSifCmd::BuildExportTable()
 		{
 			static const int16 stackAlloc = 0x20;
 
-			m_sifExecRequestAddr = (reinterpret_cast<uint8*>(exportTable) - m_ram) + (assembler.GetProgramSize() * 4);
+			m_sifExecRequestAddr = assemblerBaseAddress + (assembler.GetProgramSize() * 4);
 
 			assembler.ADDIU(CMIPS::SP, CMIPS::SP, -stackAlloc);
 			assembler.SW(CMIPS::RA, 0x1C, CMIPS::SP);
@@ -430,7 +431,7 @@ void CSifCmd::BuildExportTable()
 		{
 			static const int16 stackAlloc = 0x20;
 
-			m_sifExecCmdHandlerAddr = (reinterpret_cast<uint8*>(exportTable) - m_ram) + (assembler.GetProgramSize() * 4);
+			m_sifExecCmdHandlerAddr = assemblerBaseAddress + (assembler.GetProgramSize() * 4);
 
 			assembler.ADDIU(CMIPS::SP, CMIPS::SP, -stackAlloc);
 			assembler.SW(CMIPS::RA, 0x1C, CMIPS::SP);
@@ -456,7 +457,7 @@ void CSifCmd::BuildExportTable()
 		{
 			static const int16 stackAlloc = 0x20;
 
-			m_sifBindRpcAddr = (reinterpret_cast<uint8*>(exportTable) - m_ram) + (assembler.GetProgramSize() * 4);
+			m_sifBindRpcAddr = assemblerBaseAddress + (assembler.GetProgramSize() * 4);
 
 			assembler.ADDIU(CMIPS::SP, CMIPS::SP, -stackAlloc);
 			assembler.SW(CMIPS::RA, 0x1C, CMIPS::SP);
@@ -482,6 +483,9 @@ void CSifCmd::BuildExportTable()
 			assembler.JR(CMIPS::RA);
 			assembler.ADDIU(CMIPS::SP, CMIPS::SP, stackAlloc);
 		}
+
+		uint32 totalSize = (assembler.GetProgramSize() * 4);
+		assert(totalSize <= TRAMPOLINE_SIZE);
 	}
 }
 
