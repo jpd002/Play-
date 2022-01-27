@@ -28,19 +28,69 @@
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
-    <div>
-      <canvas id="outputCanvas" width="640" height="480" tabindex="-1"/>
+    <div class="global-row"/>
+      <div class="global-column"/>
+        <div>
+          <canvas id="outputCanvas" width="640" height="480" tabindex="-1"/>
+        </div>
+        <div id="root"></div>
+      </div>
+      <div class="global-column">
+        <p>
+          <h3>What is this?</h3>
+          <p>
+            This is a port of Play!, a PlayStation2 emulator, running in a web browser.
+            This is only an experiment and is not meant to play all games that are currently supported
+            by the emulator on desktop and mobile.
+          </p>
+          <p>Supported file types: ISO, CSO, CHD, ISZ, BIN, ELF.</p>
+          <p>No BIOS file required.</p>
+          <p>Recent version of Chrome or Firefox required for a smoother experience.</p>
+        </p>
+        <p>
+          <h3>Links:</h3>
+          <div><a href="https://purei.org" target="blank">Official Website</a></div>
+          <div><a href="https://github.com/jpd002/Play-" target="blank">Source Code</a></div>
+          <div><a href="https://github.com/jpd002/Play-Compatibility/issues" target="blank">Compatibility List</a></div>
+        </p>
+        <p>
+          <h3>Controls:</h3>
+          <table>
+            <tr>
+              <th>PS2 Controller</th>
+              <th>Keyboard</th>
+            </tr>
+            <tr>
+              <td>D. Pad</td>
+              <td>Arrow Keys</td>
+            </tr>
+            <tr>
+              <td>Start</td>
+              <td>Return</td>
+            </tr>
+            <tr>
+              <td>Select</td>
+              <td>Backspace</td>
+            </tr>
+            <tr>
+              <td>Square</td>
+              <td>A</td>
+            </tr>
+            <tr>
+              <td>Cross</td>
+              <td>Z</td>
+            </tr>
+            <tr>
+              <td>Triangle</td>
+              <td>S</td>
+            </tr>
+            <tr>
+              <td>Circle</td>
+              <td>X</td>
+            </tr>
+          </table>
+        </p>
+      </div>
     </div>
-    <div id="root"></div>
-    <!--
-      This HTML file is a template.
-      If you open it directly in the browser, you will see an empty page.
-
-      You can add webfonts, meta tags, or analytics to this file.
-      The build step will place the bundled scripts into the <body> tag.
-
-      To begin the development, run `npm start` or `yarn start`.
-      To create a production bundle, use `npm run build` or `yarn build`.
-    -->
   </body>
 </html>
