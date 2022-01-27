@@ -1,6 +1,7 @@
 #include <cstring>
 #include "Iop_SifCmd.h"
 #include "IopBios.h"
+#include "../COP_SCU.h"
 #include "../ee/SIF.h"
 #include "../Log.h"
 #include "../states/StructCollectionStateFile.h"
@@ -438,11 +439,23 @@ void CSifCmd::BuildExportTable()
 			assembler.SW(CMIPS::S0, 0x18, CMIPS::SP);
 			assembler.ADDU(CMIPS::S0, CMIPS::A0, CMIPS::R0);
 
+			//Disable interrupts as the handler is supposed to be called in an interrupt handler
+			assembler.MFC0(CMIPS::T0, CCOP_SCU::STATUS);
+			assembler.LI(CMIPS::T1, ~CMIPS::STATUS_IE);
+			assembler.AND(CMIPS::T0, CMIPS::T0, CMIPS::T1);
+			assembler.MTC0(CMIPS::T0, CCOP_SCU::STATUS);
+
 			assembler.ADDU(CMIPS::A0, CMIPS::A1, CMIPS::R0); //A0 = Packet Address
 			assembler.LW(CMIPS::A1, offsetof(SIFCMDDATA, data), CMIPS::S0);
 			assembler.LW(CMIPS::T0, offsetof(SIFCMDDATA, sifCmdHandler), CMIPS::S0);
 			assembler.JALR(CMIPS::T0);
 			assembler.NOP();
+
+			//Enable interrupts
+			assembler.MFC0(CMIPS::T0, CCOP_SCU::STATUS);
+			assembler.LI(CMIPS::T1, CMIPS::STATUS_IE);
+			assembler.OR(CMIPS::T0, CMIPS::T0, CMIPS::T1);
+			assembler.MTC0(CMIPS::T0, CCOP_SCU::STATUS);
 
 			assembler.JAL(finishExecCmdAddr);
 			assembler.NOP();
