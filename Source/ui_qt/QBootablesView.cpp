@@ -311,7 +311,7 @@ void QBootablesView::on_reset_filter_button_clicked()
 
 bool QBootablesView::IsProcessing()
 {
-	return m_coverProcessing || !m_isProcessing;
+	return m_coverProcessing || m_isProcessing;
 }
 
 void QBootablesView::UpdateCoverDisplay()
@@ -322,7 +322,7 @@ void QBootablesView::UpdateCoverDisplay()
 
 void QBootablesView::ToggleInterface(bool enable)
 {
-	m_isProcessing = enable;
+	m_isProcessing = !enable;
 	ui->add_games_button->setEnabled(enable);
 	ui->refresh_button->setEnabled(enable);
 	ui->comboBox->setEnabled(enable);
