@@ -1,3 +1,5 @@
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+
 module.exports = {
     // Extend/override the dev server configuration used by CRA
     // See: https://github.com/timarney/react-app-rewired#extended-configuration-options
@@ -15,5 +17,13 @@ module.exports = {
         return config;
       };
     },
+    webpack: function(config, env) {
+      //Disable HTML minification on all build types
+      const webpackPlugin = config.plugins.find((plugin) => plugin instanceof HtmlWebpackPlugin);
+      if(webpackPlugin) {
+        webpackPlugin.options.minify = false;
+      }
+      return config;
+    }
   };
   
