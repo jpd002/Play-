@@ -54,6 +54,14 @@ span.version {
   flex: 50%;
 }
 
+.controls-row {
+  display: flex;
+}
+
+.controls-column {
+  flex: 50%;
+}
+
 table, th, td {
   border: 1px solid black;
   border-collapse: collapse;

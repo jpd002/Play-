@@ -78,6 +78,26 @@ extern "C" void initVm()
 		bindingManager.SetSimpleBinding(0, PS2::CControllerInfo::CROSS, CInputProviderEmscripten::MakeBindingTarget("KeyZ"));
 		bindingManager.SetSimpleBinding(0, PS2::CControllerInfo::TRIANGLE, CInputProviderEmscripten::MakeBindingTarget("KeyS"));
 		bindingManager.SetSimpleBinding(0, PS2::CControllerInfo::CIRCLE, CInputProviderEmscripten::MakeBindingTarget("KeyX"));
+		bindingManager.SetSimpleBinding(0, PS2::CControllerInfo::L1, CInputProviderEmscripten::MakeBindingTarget("Key1"));
+		bindingManager.SetSimpleBinding(0, PS2::CControllerInfo::L2, CInputProviderEmscripten::MakeBindingTarget("Key2"));
+		bindingManager.SetSimpleBinding(0, PS2::CControllerInfo::L3, CInputProviderEmscripten::MakeBindingTarget("Key3"));
+		bindingManager.SetSimpleBinding(0, PS2::CControllerInfo::R1, CInputProviderEmscripten::MakeBindingTarget("Key8"));
+		bindingManager.SetSimpleBinding(0, PS2::CControllerInfo::R2, CInputProviderEmscripten::MakeBindingTarget("Key9"));
+		bindingManager.SetSimpleBinding(0, PS2::CControllerInfo::R3, CInputProviderEmscripten::MakeBindingTarget("Key0"));
+
+		bindingManager.SetSimulatedAxisBinding(0, PS2::CControllerInfo::ANALOG_LEFT_X,
+		                                       CInputProviderEmscripten::MakeBindingTarget("KeyF"),
+		                                       CInputProviderEmscripten::MakeBindingTarget("KeyH"));
+		bindingManager.SetSimulatedAxisBinding(0, PS2::CControllerInfo::ANALOG_LEFT_Y,
+		                                       CInputProviderEmscripten::MakeBindingTarget("KeyT"),
+		                                       CInputProviderEmscripten::MakeBindingTarget("KeyG"));
+
+		bindingManager.SetSimulatedAxisBinding(0, PS2::CControllerInfo::ANALOG_RIGHT_X,
+		                                       CInputProviderEmscripten::MakeBindingTarget("KeyJ"),
+		                                       CInputProviderEmscripten::MakeBindingTarget("KeyL"));
+		bindingManager.SetSimulatedAxisBinding(0, PS2::CControllerInfo::ANALOG_RIGHT_Y,
+		                                       CInputProviderEmscripten::MakeBindingTarget("KeyI"),
+		                                       CInputProviderEmscripten::MakeBindingTarget("KeyK"));
 	}
 
 	{
