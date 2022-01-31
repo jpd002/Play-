@@ -62,6 +62,7 @@ namespace Iop
 		void ReadIopMem(uint32*, uint32, uint32*, uint32, uint8*);
 		bool StreamCmd(uint32*, uint32, uint32*, uint32, uint8*);
 		bool NDiskReady(uint32*, uint32, uint32*, uint32, uint8*);
+		void ReadChain(uint32*, uint32, uint32*, uint32, uint8*);
 		void SearchFile(uint32*, uint32, uint32*, uint32, uint8*);
 
 		CCdvdman& m_cdvdman;
