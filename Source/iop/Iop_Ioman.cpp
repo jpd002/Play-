@@ -54,6 +54,7 @@ using namespace Iop;
 #define DEVCTL_CDVD_DISKREADY 0x4325
 
 #define DEVCTL_HDD_STATUS 0x4807
+#define DEVCTL_HDD_MAXSECTOR 0x4801
 #define DEVCTL_HDD_TOTALSECTOR 0x4802
 #define DEVCTL_HDD_FREESECTOR 0x480A
 
@@ -617,6 +618,10 @@ int32 CIoman::DevCtl(const char* deviceName, uint32 command, const uint32* input
 		break;
 	case DEVCTL_HDD_STATUS:
 		CLog::GetInstance().Print(LOG_NAME, "HddStatus();\r\n");
+		break;
+	case DEVCTL_HDD_MAXSECTOR:
+		CLog::GetInstance().Print(LOG_NAME, "HddMaxSector();\r\n");
+		result = 0x400000; //Max num of sectors per partition
 		break;
 	case DEVCTL_HDD_TOTALSECTOR:
 		CLog::GetInstance().Print(LOG_NAME, "HddTotalSector();\r\n");
