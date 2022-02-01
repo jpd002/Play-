@@ -1,0 +1,32 @@
+name: Build Linux ARM64
+
+on: [push, pull_request]
+jobs:
+  build_linux_arm64:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Install Dependencies
+        run: |
+          sudo apt update
+          sudo apt install qemu-user-static binfmt-support
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          submodules: recursive
+          fetch-depth: 0
+      - name: Build & Test
+        uses: addnab/docker-run-action@v2
+        with:
+          image: jpd002/linux_arm64_build
+          options: -v ${{ github.workspace }}:/work
+          run: |
+            set -e
+            apt-get update
+            apt-get install -y libcurl4-openssl-dev libgl1-mesa-dev libglu1-mesa-dev libalut-dev libevdev-dev qt5-default libqt5x11extras5-dev
+            cd /work
+            cd build_cmake
+            mkdir build
+            cd build
+            cmake ../..
+            make -j $(nproc)
+            ctest -C Release
