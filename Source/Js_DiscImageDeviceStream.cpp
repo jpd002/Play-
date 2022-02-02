@@ -35,7 +35,9 @@ uint64 CJsDiscImageDeviceStream::Read(void* buffer, uint64 size)
 	uint32 positionHigh = static_cast<uint32>(m_position >> 32);
 
 	MAIN_THREAD_EM_ASM({
-		let position = ($1) | ($2 << 32);
+		let posLow = $1 >>> 0;
+		let posHigh = $2 >>> 0;
+		let position = posLow + (posHigh * 4294967296);
 		Module.discImageDevice.read($0, position, $3);
 	},
 	                   buffer, positionLow, positionHigh, static_cast<uint32>(size));
