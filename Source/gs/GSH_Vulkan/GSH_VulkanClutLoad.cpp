@@ -204,6 +204,7 @@ Framework::Vulkan::CShaderModule CClutLoad::CreateLoadShader(const PIPELINE_CAPS
 			}
 			break;
 			case CGSHandler::PSMCT16:
+			case CGSHandler::PSMCT16S:
 			{
 				auto colorAddress = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT16>(
 				    b, swizzleTable, clutBufPtr, clutBufWidth, colorPos);
@@ -249,6 +250,7 @@ Framework::Vulkan::CShaderModule CClutLoad::CreateLoadShader(const PIPELINE_CAPS
 		}
 		break;
 		case CGSHandler::PSMCT16:
+		case CGSHandler::PSMCT16S:
 		{
 			Store(clutBuffer, clutIndex, colorPixel);
 		}

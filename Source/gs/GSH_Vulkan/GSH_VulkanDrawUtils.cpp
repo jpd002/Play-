@@ -76,6 +76,7 @@ static Nuanceur::CFloat4Rvalue GetClutColor(Nuanceur::CShaderBuilder& b,
 		return CMemoryUtils::PSM32ToVec4(b, clutPixel);
 	}
 	case CGSHandler::PSMCT16:
+	case CGSHandler::PSMCT16S:
 	{
 		auto clutPixel = Load(clutBuffer, clutIndex);
 		return CMemoryUtils::PSM16ToVec4(b, clutPixel);
