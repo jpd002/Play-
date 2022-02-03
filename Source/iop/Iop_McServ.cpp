@@ -482,7 +482,14 @@ void CMcServ::Read(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, u
 		reinterpret_cast<uint32*>(&ram[cmd->paramAddress])[1] = 0;
 	}
 
-	ret[0] = static_cast<uint32>(file->Read(dst, cmd->size));
+	if(file->IsEOF())
+	{
+		ret[0] = 0;
+	}
+	else
+	{
+		ret[0] = static_cast<uint32>(file->Read(dst, cmd->size));
+	}
 }
 
 void CMcServ::Write(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
