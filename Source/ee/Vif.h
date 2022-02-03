@@ -75,6 +75,7 @@ protected:
 	enum
 	{
 		CODE_CMD_MARK = 0x07,
+		CODE_CMD_FLUSHE = 0x10,
 	};
 
 	enum

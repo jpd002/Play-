@@ -90,6 +90,18 @@ uint32 CVif::GetRegister(uint32 address)
 	{
 	case VIF0_STAT:
 	case VIF1_STAT:
+		if((m_STAT.nVEW != 0) && (m_CODE.nCMD == CODE_CMD_FLUSHE))
+		{
+			//We have a pending FLUSHE command that's waiting for the microprogram's end.
+			//Check if it's finished and act as if the command was executed properly.
+			//Some games will keep reading this register in a loop to verify the state of the VEW bit.
+			//- Red Faction
+			//- RPG Maker 3
+			if(!m_vpu.IsVuRunning())
+			{
+				m_STAT.nVEW = 0;
+			}
+		}
 		result = m_STAT;
 		if(m_STAT.nFDR != 0)
 		{
@@ -454,8 +466,7 @@ void CVif::ExecuteCommand(StreamType& stream, CODE nCommand)
 		m_MARK = nCommand.nIMM;
 		m_STAT.nMRK = 1;
 		break;
-	case 0x10:
-		//FLUSHE
+	case CODE_CMD_FLUSHE:
 		if(m_vpu.IsVuRunning())
 		{
 			m_STAT.nVEW = 1;
@@ -943,10 +954,10 @@ void CVif::DisassembleCommand(CODE code)
 		case 0x06:
 			CLog::GetInstance().Print(LOG_NAME, "MSKPATH3(mask = %d);\r\n", (code.nIMM & 0x8000) ? 1 : 0);
 			break;
-		case 0x07:
+		case CODE_CMD_MARK:
 			CLog::GetInstance().Print(LOG_NAME, "MARK(imm = 0x%x);\r\n", code.nIMM);
 			break;
-		case 0x10:
+		case CODE_CMD_FLUSHE:
 			CLog::GetInstance().Print(LOG_NAME, "FLUSHE();\r\n");
 			break;
 		case 0x11:
