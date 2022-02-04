@@ -1,6 +1,7 @@
 #include <cstring>
 #include "../GsPixelFormats.h"
 #include "../../Log.h"
+#include "../../AppConfig.h"
 #include "GSH_Vulkan.h"
 #include "GSH_VulkanPlatformDefs.h"
 #include "GSH_VulkanDrawDesktop.h"
@@ -1247,8 +1248,12 @@ void CGSH_Vulkan::ProcessHostToLocalTransfer()
 
 void CGSH_Vulkan::ProcessLocalToHostTransfer()
 {
-	//Make sure our local RAM copy is in sync with GPU
-	SyncMemoryCache();
+	bool readsEnabled = CAppConfig::GetInstance().GetPreferenceBoolean(PREF_CGSHANDLER_GS_RAM_READS_ENABLED);
+	if(readsEnabled)
+	{
+		//Make sure our local RAM copy is in sync with GPU
+		SyncMemoryCache();
+	}
 }
 
 void CGSH_Vulkan::ProcessLocalToLocalTransfer()

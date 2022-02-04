@@ -20,6 +20,7 @@ class CGsPacketMetadata;
 class CINTC;
 
 #define PREF_CGSHANDLER_PRESENTATION_MODE "renderer.presentationmode"
+#define PREF_CGSHANDLER_GS_RAM_READS_ENABLED "renderer.ramreads.enabled"
 #define PREF_CGSHANDLER_WIDESCREEN "renderer.widescreen"
 
 enum GS_REGS

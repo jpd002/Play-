@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>612</width>
-    <height>380</height>
+    <width>625</width>
+    <height>439</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -288,6 +288,13 @@
         <widget class="QCheckBox" name="checkBox_widescreenOutput">
          <property name="text">
           <string>Resize output to widescreen (16:9)</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="checkBox_enable_gs_ram_reads">
+         <property name="text">
+          <string>Enable GS RAM reads</string>
          </property>
         </widget>
        </item>
