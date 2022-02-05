@@ -148,6 +148,7 @@ void CGSHandler::ResetBase()
 	m_nReg[GS_REG_PRMODECONT] = 1;
 	memset(m_pRAM, 0, RAMSIZE);
 	memset(m_pCLUT, 0, CLUTSIZE);
+	memset(&m_trxCtx, 0, sizeof(m_trxCtx));
 	m_nPMODE = 0;
 	m_nSMODE2 = 0x3; // Interlacing with fullframe
 	m_nDISPFB1.heldValue = 0;

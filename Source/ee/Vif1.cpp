@@ -30,6 +30,7 @@ void CVif1::Reset()
 	m_TOPS = 0;
 	m_OFST = 0;
 	m_directQwordBufferIndex = 0;
+	memset(&m_directQwordBuffer, 0, sizeof(m_directQwordBuffer));
 }
 
 void CVif1::SaveState(Framework::CZipArchiveWriter& archive)

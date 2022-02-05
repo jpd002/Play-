@@ -34,7 +34,6 @@ CSubSystem::CSubSystem(bool ps2Mode)
     , m_speed(m_intc)
     , m_cpuArch(MIPS_REGSIZE_32)
     , m_copScu(MIPS_REGSIZE_32)
-    , m_dmaUpdateTicks(0)
 {
 	if(ps2Mode)
 	{
@@ -162,6 +161,7 @@ void CSubSystem::Reset()
 	m_cpu.m_Functions.RemoveTags();
 
 	m_dmaUpdateTicks = 0;
+	m_spuIrqUpdateTicks = 0;
 }
 
 void CSubSystem::SetupPageTable()
