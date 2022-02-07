@@ -8,6 +8,7 @@ using namespace Iop;
 #define FUNCTION_CREATEFPL "CreateFpl"
 #define FUNCTION_ALLOCATEFPL "AllocateFpl"
 #define FUNCTION_PALLOCATEFPL "pAllocateFpl"
+#define FUNCTION_IPALLOCATEFPL "ipAllocateFpl"
 #define FUNCTION_FREEFPL "FreeFpl"
 
 CThfpool::CThfpool(CIopBios& bios)
@@ -33,6 +34,9 @@ std::string CThfpool::GetFunctionName(unsigned int functionId) const
 	case 7:
 		return FUNCTION_PALLOCATEFPL;
 		break;
+	case 8:
+		return FUNCTION_IPALLOCATEFPL;
+		break;
 	case 9:
 		return FUNCTION_FREEFPL;
 		break;
@@ -55,6 +59,7 @@ void CThfpool::Invoke(CMIPS& context, unsigned int functionId)
 		    context.m_State.nGPR[CMIPS::A0].nV0));
 		break;
 	case 7:
+	case 8:
 		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(pAllocateFpl(
 		    context.m_State.nGPR[CMIPS::A0].nV0));
 		break;
