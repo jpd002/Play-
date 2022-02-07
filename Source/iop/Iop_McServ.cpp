@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <states/XmlStateFile.h>
 #include <xml/Utils.h>
+#include "string_format.h"
 #include "../AppConfig.h"
 #include "../PS2VM_Preferences.h"
 #include "../Log.h"
@@ -71,6 +72,48 @@ CMcServ::CMcServ(CIopBios& bios, CSifMan& sifMan, CSifCmd& sifCmd, CSysmem& sysM
 const char* CMcServ::GetMcPathPreference(unsigned int port)
 {
 	return m_mcPathPreference[port];
+}
+
+std::string CMcServ::EncodeMcName(const std::string& inputName)
+{
+	std::string result;
+	for(size_t i = 0; i < inputName.size(); i++)
+	{
+		auto inputChar = inputName[i];
+		if(inputChar == 0) break;
+		//':' is not allowed on Windows
+		if(inputChar == ':')
+		{
+			result += string_format("%%%02X", inputChar);
+		}
+		else
+		{
+			result += inputChar;
+		}
+	}
+	return result;
+}
+
+std::string CMcServ::DecodeMcName(const std::string& inputName)
+{
+	std::string result;
+	for(size_t i = 0; i < inputName.size(); i++)
+	{
+		auto inputChar = inputName[i];
+		if(inputChar == '%')
+		{
+			int decodedChar = 0;
+			int scanCount = sscanf(inputName.c_str() + i, "%%%02X", &decodedChar);
+			assert(scanCount == 1);
+			result += decodedChar;
+			i += 2;
+		}
+		else
+		{
+			result += inputChar;
+		}
+	}
+	return result;
 }
 
 std::string CMcServ::GetId() const
@@ -332,11 +375,13 @@ void CMcServ::Open(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, u
 		return;
 	}
 
+	auto name = EncodeMcName(cmd->name);
+
 	fs::path filePath;
 
 	try
 	{
-		filePath = GetAbsoluteFilePath(cmd->port, cmd->slot, cmd->name);
+		filePath = GetAbsoluteFilePath(cmd->port, cmd->slot, name.c_str());
 	}
 	catch(const std::exception& exception)
 	{
@@ -564,7 +609,7 @@ void CMcServ::ChDir(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, 
 	try
 	{
 		std::string newCurrentDirectory;
-		std::string requestedDirectory(cmd->name);
+		std::string requestedDirectory = EncodeMcName(cmd->name);
 
 		if(!requestedDirectory.empty() && (requestedDirectory[0] == SEPARATOR_CHAR))
 		{
@@ -1092,7 +1137,8 @@ void CMcServ::CPathFinder::SearchRecurse(const fs::path& path)
 			ENTRY entry;
 			memset(&entry, 0, sizeof(entry));
 
-			strncpy(reinterpret_cast<char*>(entry.name), relativePath.filename().string().c_str(), 0x1F);
+			auto entryName = DecodeMcName(relativePath.filename().string());
+			strncpy(reinterpret_cast<char*>(entry.name), entryName.c_str(), 0x1F);
 			entry.name[0x1F] = 0;
 
 			if(fs::is_directory(*elementIterator))
