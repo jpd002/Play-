@@ -475,6 +475,10 @@ void CChannel::ExecuteDestinationChain()
 		assert((tag.addr & 0x0F) == 0);
 		switch(tag.id)
 		{
+		case DMATAG_DST_CNTS:
+			//Stall register update not supported yet
+			assert(m_dmac.m_D_CTRL.sts != CDMAC::D_CTRL_STS_FROM_SPR);
+			[[fallthrough]];
 		case DMATAG_DST_CNT:
 		case DMATAG_DST_END:
 			m_nMADR = tag.addr;
