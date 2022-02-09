@@ -434,7 +434,7 @@ void CLibMc2::CheckAsync(CMIPS& context)
 
 	m_lastCmd = 0;
 
-	context.m_State.nGPR[CMIPS::V0].nV0 = result;
+	context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(result);
 
 	//Mode:
 	//0 -> Sync (use WaitSema)
