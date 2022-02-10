@@ -112,9 +112,6 @@ extern "C" void initVm()
 
 	result = emscripten_set_keyup_callback("#outputCanvas", nullptr, false, &keyboardCallback);
 	assert(result == EMSCRIPTEN_RESULT_SUCCESS);
-
-	//g_virtualMachine->Reset();
-	printf("Reset VM\r\n");
 }
 
 void bootElf(std::string path)
