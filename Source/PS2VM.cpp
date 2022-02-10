@@ -160,7 +160,7 @@ void CPS2VM::DestroySoundHandler()
 void CPS2VM::ReloadFrameRateLimit()
 {
 	uint32 frameRate = 60;
-	if(m_ee->m_gs != nullptr)
+	if(m_ee && m_ee->m_gs)
 	{
 		frameRate = m_ee->m_gs->GetCrtFrameRate();
 	}
