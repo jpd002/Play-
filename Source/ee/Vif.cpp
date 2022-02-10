@@ -416,7 +416,19 @@ void CVif::ProcessPacket(StreamType& stream)
 			m_intc.AssertLine(CINTC::INTC_LINE_VIF0 + m_number);
 		}
 
-		m_NUM = m_CODE.nNUM;
+		switch(m_CODE.nCMD)
+		{
+		case CODE_CMD_STMASK:
+			m_NUM = 1;
+			break;
+		case CODE_CMD_STROW:
+		case CODE_CMD_STCOL:
+			m_NUM = 4;
+			break;
+		default:
+			m_NUM = m_CODE.nNUM;
+			break;
+		}
 
 		ExecuteCommand(stream, m_CODE);
 	}
@@ -509,16 +521,13 @@ void CVif::ExecuteCommand(StreamType& stream, CODE nCommand)
 		}
 		StartMicroProgram(m_vpu.GetContext().m_State.nPC);
 		break;
-	case 0x20:
-		//STMASK
+	case CODE_CMD_STMASK:
 		Cmd_STMASK(stream, nCommand);
 		break;
-	case 0x30:
-		//STROW
+	case CODE_CMD_STROW:
 		Cmd_STROW(stream, nCommand);
 		break;
-	case 0x31:
-		//STCOL
+	case CODE_CMD_STCOL:
 		Cmd_STCOL(stream, nCommand);
 		break;
 	case 0x4A:
@@ -604,11 +613,6 @@ void CVif::Cmd_MPG(StreamType& stream, CODE nCommand)
 
 void CVif::Cmd_STROW(StreamType& stream, CODE nCommand)
 {
-	if(m_NUM == 0)
-	{
-		m_NUM = 4;
-	}
-
 	while(m_NUM != 0 && stream.GetAvailableReadBytes())
 	{
 		assert(m_NUM <= 4);
@@ -628,11 +632,6 @@ void CVif::Cmd_STROW(StreamType& stream, CODE nCommand)
 
 void CVif::Cmd_STCOL(StreamType& stream, CODE nCommand)
 {
-	if(m_NUM == 0)
-	{
-		m_NUM = 4;
-	}
-
 	while(m_NUM != 0 && stream.GetAvailableReadBytes())
 	{
 		assert(m_NUM <= 4);
@@ -652,11 +651,6 @@ void CVif::Cmd_STCOL(StreamType& stream, CODE nCommand)
 
 void CVif::Cmd_STMASK(StreamType& stream, CODE command)
 {
-	if(m_NUM == 0)
-	{
-		m_NUM = 1;
-	}
-
 	while(m_NUM != 0 && stream.GetAvailableReadBytes())
 	{
 		stream.Read(&m_MASK, 4);
@@ -975,13 +969,13 @@ void CVif::DisassembleCommand(CODE code)
 		case 0x17:
 			CLog::GetInstance().Print(LOG_NAME, "MSCNT();\r\n");
 			break;
-		case 0x20:
+		case CODE_CMD_STMASK:
 			CLog::GetInstance().Print(LOG_NAME, "STMASK();\r\n");
 			break;
-		case 0x30:
+		case CODE_CMD_STROW:
 			CLog::GetInstance().Print(LOG_NAME, "STROW();\r\n");
 			break;
-		case 0x31:
+		case CODE_CMD_STCOL:
 			CLog::GetInstance().Print(LOG_NAME, "STCOL();\r\n");
 			break;
 		case 0x4A:
