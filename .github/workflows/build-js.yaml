@@ -46,6 +46,7 @@ jobs:
         npm install
         npm run build
     - name: Update Play/Test Environment
+      if: ${{ env.AWS_ACCESS_KEY_ID != null}}
       uses: jakejarvis/s3-sync-action@v0.5.1
       with:
         args: --acl public-read --delete
@@ -67,6 +68,7 @@ jobs:
         AWS_S3_BUCKET: psfplayer-test
         SOURCE_DIR: 'js/psfplayer_browser/build'
     - name: Invalidate Play/Test Environment CloudFront Distribution
+      if: ${{ env.AWS_ACCESS_KEY_ID != null}}
       uses: chetan/invalidate-cloudfront-action@v1.3
       env:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
