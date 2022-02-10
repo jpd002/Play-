@@ -1116,6 +1116,7 @@ void VUShared::MAXbc(CMipsJitter* codeGen, uint8 dest, uint8 fd, uint8 fs, uint8
 
 void VUShared::MAXi(CMipsJitter* codeGen, uint8 dest, uint8 fd, uint8 fs)
 {
+	if(fd == 0) return;
 	MAX_base(codeGen, dest,
 	         offsetof(CMIPS, m_State.nCOP2[fd]),
 	         offsetof(CMIPS, m_State.nCOP2[fs]),
@@ -1125,6 +1126,7 @@ void VUShared::MAXi(CMipsJitter* codeGen, uint8 dest, uint8 fd, uint8 fs)
 
 void VUShared::MINI(CMipsJitter* codeGen, uint8 dest, uint8 fd, uint8 fs, uint8 ft)
 {
+	if(fd == 0) return;
 	MINI_base(codeGen, dest,
 	          offsetof(CMIPS, m_State.nCOP2[fd]),
 	          offsetof(CMIPS, m_State.nCOP2[fs]),
@@ -1134,6 +1136,7 @@ void VUShared::MINI(CMipsJitter* codeGen, uint8 dest, uint8 fd, uint8 fs, uint8 
 
 void VUShared::MINIbc(CMipsJitter* codeGen, uint8 dest, uint8 fd, uint8 fs, uint8 ft, uint8 bc)
 {
+	if(fd == 0) return;
 	MINI_base(codeGen, dest,
 	          offsetof(CMIPS, m_State.nCOP2[fd]),
 	          offsetof(CMIPS, m_State.nCOP2[fs]),
@@ -1143,6 +1146,7 @@ void VUShared::MINIbc(CMipsJitter* codeGen, uint8 dest, uint8 fd, uint8 fs, uint
 
 void VUShared::MINIi(CMipsJitter* codeGen, uint8 dest, uint8 fd, uint8 fs)
 {
+	if(fd == 0) return;
 	MINI_base(codeGen, dest,
 	          offsetof(CMIPS, m_State.nCOP2[fd]),
 	          offsetof(CMIPS, m_State.nCOP2[fs]),
