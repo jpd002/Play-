@@ -7,14 +7,13 @@ buildscript {
 	}
 
 	dependencies {
-		classpath 'com.android.tools.build:gradle:7.0.4'
+		classpath 'com.android.tools.build:gradle:7.1.1'
 		classpath 'org.ajoberstar.grgit:grgit-gradle:4.1.1'
 	}
 }
 
 project.ext {
-	keyStorePropFile = rootProject.file('keystore.properties')
-	signingEnabled = keyStorePropFile.exists()
+	signingEnabled = project.hasProperty("PLAY_RELEASE_STORE_FILE");
 	git = org.ajoberstar.grgit.Grgit.open(currentDir: project.rootDir)
 	gitVersionCode = git.tag.list().size()
 	gitVersionName = "${git.describe()}"
@@ -22,16 +21,6 @@ project.ext {
 
 project.afterEvaluate {
 	preBuild.dependsOn 'copyPatchesFile'
-
-	def configName = 'release'
-	if(project.ext.signingEnabled && android.signingConfigs.hasProperty(configName)) {
-		def props = new Properties()
-		props.load(new FileInputStream(project.ext.keyStorePropFile))
-		android.signingConfigs[configName].storeFile = file(props['storeFile'])
-		android.signingConfigs[configName].storePassword = props['storePassword']
-		android.signingConfigs[configName].keyAlias = props['keyAlias']
-		android.signingConfigs[configName].keyPassword = props['keyPassword']
-	}
 }
 
 android {
@@ -71,11 +60,17 @@ android {
 	}
 
 	signingConfigs {
-		release {
-			storeFile file('store.keystore')
-			storePassword ''
-			keyAlias ''
-			keyPassword ''
+		if(project.ext.signingEnabled) {
+			release {
+				storeFile file(PLAY_RELEASE_STORE_FILE)
+				storePassword PLAY_RELEASE_STORE_PASSWORD
+				keyAlias PLAY_RELEASE_KEY_ALIAS
+				keyPassword PLAY_RELEASE_KEY_PASSWORD
+			}
+		} else {
+			release {
+
+			}
 		}
 	}
 
@@ -93,11 +88,12 @@ android {
 			buildConfigField "java.util.Date", "buildTime", "new java.util.Date(" + System.currentTimeMillis() + "L)"
 		}
 	}
-
 	packagingOptions {
-		exclude 'META-INF/LICENSE.txt'
-		exclude 'META-INF/NOTICE.txt'
+		resources {
+			excludes += ['META-INF/LICENSE.txt', 'META-INF/NOTICE.txt']
+		}
 	}
+
 
 	task copyPatchesFile(type: Copy) {
 		from '../patches.xml'
