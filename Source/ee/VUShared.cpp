@@ -629,6 +629,9 @@ void VUShared::ADDi(CMipsJitter* codeGen, uint8 nDest, uint8 nFd, uint8 nFs, uin
 		nFd = 32;
 	}
 
+	//Use FpAddTruncate on all platforms, except JavaScript
+	//On JavaScript, using it doesn't seem to help Tri-Ace games
+	//there's probably some other rounding issue on that platform
 #if !defined(__EMSCRIPTEN__)
 	for(unsigned int i = 0; i < 4; i++)
 	{
