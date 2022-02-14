@@ -3076,6 +3076,9 @@ void CPS2OS::sc_SifSetDma()
 	auto xfers = reinterpret_cast<const SIFDMAREG*>(GetStructPtr(m_ee.m_State.nGPR[SC_PARAM0].nV0));
 	uint32 count = m_ee.m_State.nGPR[SC_PARAM1].nV[0];
 
+	//SifSetDma seems to always send something
+	if(count == 0) count = 1;
+
 	//DMA might call an interrupt handler, set return value now
 	uint32 queueId = queueIdx + BIOS_ID_BASE;
 	m_ee.m_State.nGPR[SC_RETURN].nD0 = static_cast<int32>(queueId);
