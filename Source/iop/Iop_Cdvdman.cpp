@@ -1,6 +1,7 @@
 #include <cstring>
 #include "../Log.h"
 #include "../states/RegisterStateFile.h"
+#include "../Ps2Const.h"
 #include "IopBios.h"
 #include "Iop_Cdvdman.h"
 
@@ -438,7 +439,7 @@ uint32 CCdvdman::CdRead(uint32 startSector, uint32 sectorCount, uint32 bufferPtr
 	}
 	if(m_opticalMedia && (bufferPtr != 0))
 	{
-		uint8* buffer = &m_ram[bufferPtr];
+		uint8* buffer = &m_ram[bufferPtr & (PS2::IOP_RAM_SIZE - 1)];
 		static const uint32 sectorSize = 2048;
 		auto fileSystem = m_opticalMedia->GetFileSystem();
 		for(unsigned int i = 0; i < sectorCount; i++)

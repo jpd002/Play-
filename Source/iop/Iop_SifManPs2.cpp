@@ -76,7 +76,7 @@ uint32 CSifManPs2::SifSetDma(uint32 structAddr, uint32 count)
 	for(unsigned int i = 0; i < count; i++)
 	{
 		const auto& dmaReg = dmaRegs[i];
-		uint8* src = m_iopRam + dmaReg.srcAddr;
+		uint8* src = m_iopRam + (dmaReg.srcAddr & (PS2::IOP_RAM_SIZE - 1));
 		uint8* dst = m_eeRam + (dmaReg.dstAddr & (PS2::EE_RAM_SIZE - 1));
 		memcpy(dst, src, dmaReg.size);
 	}
