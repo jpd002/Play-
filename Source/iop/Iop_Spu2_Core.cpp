@@ -162,6 +162,9 @@ uint32 CCore::ReadRegisterCore(unsigned int channelId, uint32 address, uint32 va
 	case A_TSA_HI:
 		result = GetAddressHi(m_spuBase.GetTransferAddress());
 		break;
+	case A_ESA_HI:
+		result = GetAddressHi(m_spuBase.GetReverbWorkAddressStart());
+		break;
 	case A_ESA_LO:
 		result = GetAddressLo(m_spuBase.GetReverbWorkAddressStart());
 		break;
