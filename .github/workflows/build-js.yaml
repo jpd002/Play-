@@ -46,7 +46,7 @@ jobs:
         npm install
         npm run build
     - name: Update Play/Test Environment
-      if: ${{ env.AWS_ACCESS_KEY_ID != null}}
+      if: ${{ env.AWS_ACCESS_KEY_ID != null }}
       uses: jakejarvis/s3-sync-action@v0.5.1
       with:
         args: --acl public-read --delete
@@ -56,8 +56,19 @@ jobs:
         AWS_REGION: us-east-2
         AWS_S3_BUCKET: playjs-test
         SOURCE_DIR: 'js/play_browser/build'
+    - name: Update Play/Prod Environment
+      if: ${{ (env.AWS_ACCESS_KEY_ID != null) && (github.ref == 'refs/heads/master') }}
+      uses: jakejarvis/s3-sync-action@v0.5.1
+      with:
+        args: --acl public-read --delete
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        AWS_REGION: us-east-2
+        AWS_S3_BUCKET: playjs
+        SOURCE_DIR: 'js/play_browser/build'
     - name: Update PsfPlayer/Test Environment
-      if: ${{ env.AWS_ACCESS_KEY_ID != null}}
+      if: ${{ env.AWS_ACCESS_KEY_ID != null }}
       uses: jakejarvis/s3-sync-action@v0.5.1
       with:
         args: --acl public-read --delete
@@ -68,7 +79,7 @@ jobs:
         AWS_S3_BUCKET: psfplayer-test
         SOURCE_DIR: 'js/psfplayer_browser/build'
     - name: Invalidate Play/Test Environment CloudFront Distribution
-      if: ${{ env.AWS_ACCESS_KEY_ID != null}}
+      if: ${{ env.AWS_ACCESS_KEY_ID != null }}
       uses: chetan/invalidate-cloudfront-action@v1.3
       env:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -76,8 +87,17 @@ jobs:
         AWS_REGION: us-east-2
         DISTRIBUTION: E1A9RDVO70PTKO
         PATHS: '/*'
+    - name: Invalidate Play/Prod Environment CloudFront Distribution
+      if: ${{ (env.AWS_ACCESS_KEY_ID != null) && (github.ref == 'refs/heads/master') }}
+      uses: chetan/invalidate-cloudfront-action@v1.3
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        AWS_REGION: us-east-2
+        DISTRIBUTION: E2IQ40RGGBWGV3
+        PATHS: '/*'
     - name: Invalidate PsfPlayer/Test Environment CloudFront Distribution
-      if: ${{ env.AWS_ACCESS_KEY_ID != null}}
+      if: ${{ env.AWS_ACCESS_KEY_ID != null }}
       uses: chetan/invalidate-cloudfront-action@v1.3
       env:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
