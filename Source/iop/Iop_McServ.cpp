@@ -848,7 +848,9 @@ bool CMcServ::ReadFast(uint32* args, uint32 argsSize, uint32* ret, uint32 retSiz
 		return true;
 	}
 
-	ret[0] = 1;
+	//Returns the amount of bytes read
+	assert(cmd->size >= file->GetRemainingLength());
+	ret[0] = cmd->size;
 
 	auto moduleData = reinterpret_cast<MODULEDATA*>(m_ram + m_moduleDataAddr);
 	moduleData->readFastHandle = cmd->handle;
