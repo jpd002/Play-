@@ -184,6 +184,10 @@ uint32 CLibMc2::AnalyzeFunction(MODULE_FUNCTIONS& moduleFunctions, uint32 startA
 				moduleFunctions.checkAsyncPtr = startAddress;
 			}
 		}
+		if((countLUI8101 == 3) && (jalCount == 2) && (syscallsUsed.size() == 0) && (constantsLoaded.size() == 0))
+		{
+			moduleFunctions.getDbcStatusPtr = startAddress;
+		}
 		return address;
 	}
 
@@ -233,6 +237,7 @@ void CLibMc2::HookLibMc2Functions()
 	WriteSyscall(moduleFunctions.readFile2AsyncPtr, SYSCALL_MC2_READFILE2_ASYNC);
 	WriteSyscall(moduleFunctions.writeFile2AsyncPtr, SYSCALL_MC2_WRITEFILE2_ASYNC);
 	WriteSyscall(moduleFunctions.checkAsyncPtr, SYSCALL_MC2_CHECKASYNC);
+	WriteSyscall(moduleFunctions.getDbcStatusPtr, SYSCALL_MC2_GETDBCSTATUS);
 }
 
 void CLibMc2::WriteSyscall(uint32 address, uint16 syscallNumber)
@@ -363,6 +368,11 @@ void CLibMc2::HandleSyscall(CMIPS& ee)
 		break;
 	case SYSCALL_MC2_GETENTSPACE_ASYNC:
 		ee.m_State.nGPR[CMIPS::V0].nD0 = GetEntSpaceAsync(
+		    ee.m_State.nGPR[CMIPS::A0].nV0,
+		    ee.m_State.nGPR[CMIPS::A1].nV0);
+		break;
+	case SYSCALL_MC2_GETDBCSTATUS:
+		ee.m_State.nGPR[CMIPS::V0].nD0 = GetDbcStatus(
 		    ee.m_State.nGPR[CMIPS::A0].nV0,
 		    ee.m_State.nGPR[CMIPS::A1].nV0);
 		break;
@@ -751,6 +761,14 @@ int32 CLibMc2::GetEntSpaceAsync(uint32 socketId, uint32 pathPtr)
 
 	m_lastCmd = SYSCALL_MC2_GETENTSPACE_ASYNC & 0xFF;
 
+	return 0;
+}
+
+int32 CLibMc2::GetDbcStatus(uint32 socketId, uint32 unknown)
+{
+	CLog::GetInstance().Print(LOG_NAME, "GetDbcStatus(socketId = %d, unknown = %d);\r\n",
+	                          socketId, unknown);
+	//Don't really know what that function does, but returning 0 seems to be the way to go
 	return 0;
 }
 

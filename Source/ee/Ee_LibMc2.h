@@ -55,6 +55,7 @@ namespace Ee
 			SYSCALL_MC2_GETENTSPACE_ASYNC = 0x80F,
 			SYSCALL_MC2_READFILE2_ASYNC = 0x820,
 			SYSCALL_MC2_WRITEFILE2_ASYNC = 0x821,
+			SYSCALL_MC2_GETDBCSTATUS = 0x900,
 			SYSCALL_RANGE_END,
 		};
 
@@ -92,6 +93,7 @@ namespace Ee
 			uint32 readFile2AsyncPtr = 0;
 			uint32 writeFile2AsyncPtr = 0;
 			uint32 checkAsyncPtr = 0;
+			uint32 getDbcStatusPtr = 0;
 		};
 
 		struct CARDINFO
@@ -118,6 +120,7 @@ namespace Ee
 		int32 GetEntSpaceAsync(uint32, uint32);
 		int32 ReadFileAsync(uint32, uint32, uint32, uint32, uint32);
 		int32 WriteFileAsync(uint32, uint32, uint32, uint32, uint32);
+		int32 GetDbcStatus(uint32, uint32);
 
 		static const char* GetSysCallDescription(uint16);
 
