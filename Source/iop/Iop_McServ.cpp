@@ -412,7 +412,16 @@ void CMcServ::Open(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, u
 			if(!fs::exists(filePath))
 			{
 				//Create file if it doesn't exist
-				Framework::CreateOutputStdStream(filePath.native());
+				try
+				{
+					Framework::CreateOutputStdStream(filePath.native());
+				}
+				catch(...)
+				{
+					//Might fail in some conditions (ex.: if file is to be created in a directory that doesn't exist).
+					ret[0] = RET_NO_ENTRY;
+					return;
+				}
 			}
 		}
 
