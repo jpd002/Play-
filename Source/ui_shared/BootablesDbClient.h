@@ -10,6 +10,13 @@
 
 namespace BootablesDb
 {
+	struct BootableState
+	{
+		std::string name;
+		std::string color;
+	};
+	using BootableStateList = std::vector<BootableState>;
+
 	struct Bootable
 	{
 		fs::path path;
@@ -18,6 +25,7 @@ namespace BootablesDb
 		std::string coverUrl;
 		std::string overview;
 		time_t lastBootedTime = 0;
+		BootableStateList states;
 	};
 
 	class CClient : public CSingleton<CClient>
@@ -48,11 +56,13 @@ namespace BootablesDb
 		void SetOverview(const fs::path& path, const char* overview);
 
 	private:
-		static Bootable ReadBootable(Framework::CSqliteStatement&);
+		Bootable ReadBootable(Framework::CSqliteStatement&);
+		BootableStateList GetGameStates(std::string);
 
 		void CheckDbVersion();
 
 		fs::path m_dbPath;
 		Framework::CSqliteDb m_db;
+		bool m_attachedState = false;
 	};
 };

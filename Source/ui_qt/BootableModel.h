@@ -31,7 +31,7 @@ class BootableCoverQVariant
 {
 
 public:
-	explicit BootableCoverQVariant(std::string = "PH", std::string = "", std::string = "");
+	explicit BootableCoverQVariant(std::string = "PH", std::string = "", std::string = "", BootablesDb::BootableStateList = {});
 	~BootableCoverQVariant() = default;
 
 	void paint(QPainter* painter, const QRect& rect, const QPalette& palette, int mode) const;
@@ -46,6 +46,7 @@ private:
 	std::string m_key;
 	std::string m_title;
 	std::string m_path;
+	std::string m_statusColor;
 };
 
 Q_DECLARE_METATYPE(BootableCoverQVariant)
