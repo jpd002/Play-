@@ -6,6 +6,19 @@ BootableModelProxy::BootableModelProxy(QObject* parent)
 {
 }
 
+void BootableModelProxy::setFilterState(const QString& state)
+{
+	if(state == "All")
+	{
+		m_state.clear();
+	}
+	else
+	{
+		m_state = state.toStdString();
+	}
+	invalidateFilter();
+}
+
 bool BootableModelProxy::filterAcceptsRow(int sourceRow, const QModelIndex& sourceParent) const
 {
 	QModelIndex index = sourceModel()->index(sourceRow, 0, sourceParent);
@@ -27,7 +40,12 @@ bool BootableModelProxy::filterAcceptsRow(int sourceRow, const QModelIndex& sour
 		regex.setCaseSensitivity(Qt::CaseInsensitive);
 #endif
 
-		return key.contains(regex) || title.contains(regex) || path.contains(regex);
+		bool res = (key.contains(regex) || title.contains(regex) || path.contains(regex));
+		if(!m_state.empty())
+		{
+			res &= bootablecover.HasState(m_state);
+		}
+		return res;
 	}
 	return false;
 }

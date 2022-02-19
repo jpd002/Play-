@@ -176,6 +176,25 @@ BootableStateList CClient::GetGameStates(std::string discId)
 	return states;
 }
 
+BootableStateList CClient::GetStates()
+{
+	BootableStateList states;
+	if(!m_attachedState)
+		return states;
+
+	std::string query = "SELECT stateDB.labels.name AS stateName, stateDB.labels.color AS stateColor FROM stateDB.labels;";
+
+	Framework::CSqliteStatement statement(m_db, query.c_str());
+	while(statement.Step())
+	{
+		BootableState state;
+		state.name = reinterpret_cast<const char*>(sqlite3_column_text(statement, 0));
+		state.color = reinterpret_cast<const char*>(sqlite3_column_text(statement, 1));
+		states.push_back(state);
+	}
+	return states;
+}
+
 Bootable CClient::ReadBootable(Framework::CSqliteStatement& statement)
 {
 	Bootable bootable;

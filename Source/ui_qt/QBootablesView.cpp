@@ -36,6 +36,7 @@ QBootablesView::QBootablesView(QWidget* parent)
 	ui->comboBox->setCurrentIndex(m_sortingMethod);
 
 	connect(ui->filterLineEdit, &QLineEdit::textChanged, m_proxyModel, &QSortFilterProxyModel::setFilterFixedString);
+	connect(ui->stateFilterComboBox, &QComboBox::currentTextChanged, m_proxyModel, &BootableModelProxy::setFilterState);
 	connect(ui->listView->selectionModel(), &QItemSelectionModel::currentChanged, this, &QBootablesView::SelectionChange);
 	connect(this, &QBootablesView::AsyncUpdateStatus, this, &QBootablesView::UpdateStatus);
 
@@ -57,6 +58,12 @@ QBootablesView::QBootablesView(QWidget* parent)
 #ifdef HAS_AMAZON_S3
 	ui->awsS3Button->setVisible(S3FileBrowser::IsAvailable());
 #endif
+
+	for(auto state : BootablesDb::CClient::GetInstance().GetStates())
+	{
+		ui->stateFilterComboBox->insertItem(ui->stateFilterComboBox->count(), QString::fromStdString(state.name));
+	}
+	ui->stateFilterComboBox->setVisible(ui->stateFilterComboBox->count() > 1);
 }
 
 void QBootablesView::AddMsgLabel(ElidedLabel* msgLabel)
@@ -307,6 +314,7 @@ void QBootablesView::DisplayWarningMessage()
 void QBootablesView::on_reset_filter_button_clicked()
 {
 	ui->filterLineEdit->clear();
+	ui->stateFilterComboBox->setCurrentIndex(0);
 }
 
 bool QBootablesView::IsProcessing()

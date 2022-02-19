@@ -45,6 +45,7 @@ namespace BootablesDb
 		bool BootableExists(const fs::path&);
 		Bootable GetBootable(const fs::path&);
 		std::vector<Bootable> GetBootables(int32_t = SORT_METHOD_NONE);
+		BootableStateList GetStates();
 
 		void RegisterBootable(const fs::path&, const char*, const char*);
 		void UnregisterBootable(const fs::path&);

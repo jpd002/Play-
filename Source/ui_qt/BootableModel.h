@@ -40,6 +40,7 @@ public:
 	std::string GetKey();
 	std::string GetTitle();
 	std::string GetPath();
+	bool HasState(std::string);
 
 private:
 	int GetPadding() const;
@@ -47,6 +48,7 @@ private:
 	std::string m_title;
 	std::string m_path;
 	std::string m_statusColor;
+	BootablesDb::BootableStateList m_states;
 };
 
 Q_DECLARE_METATYPE(BootableCoverQVariant)

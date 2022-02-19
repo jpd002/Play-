@@ -73,6 +73,7 @@ BootableCoverQVariant::BootableCoverQVariant(std::string key, std::string title,
     : m_key(key)
     , m_title(title)
     , m_path(path)
+    , m_states(states)
 {
 	for(auto state : states)
 	{
@@ -168,6 +169,14 @@ std::string BootableCoverQVariant::GetTitle()
 std::string BootableCoverQVariant::GetPath()
 {
 	return m_path;
+}
+
+bool BootableCoverQVariant::HasState(std::string state)
+{
+	auto itr = std::find_if(std::begin(m_states), std::end(m_states), [state](BootablesDb::BootableState bootState) {
+		return bootState.name == state;
+	});
+	return itr != std::end(m_states);
 }
 
 /* start of BootImageItemDelegate */
