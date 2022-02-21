@@ -54,7 +54,6 @@ def getLatestGamesStateUpdates():
 	res = []
 	hasNext = True
 	while(hasNext):
-		print(f"Retrieving Page {i}")
 		hasNext = requestGamesStateUpdates(URL.format(yesterday.strftime('%Y-%m-%d'), i), res)
 		i += 1
 
@@ -67,7 +66,6 @@ def getAllGamesStateUpdates():
 	res = []
 	hasNext = True
 	while(hasNext):
-		print(f"Retrieving Page {i}")
 		hasNext = requestGamesStateUpdates(URL.format(i), res)
 		i += 1
 
@@ -91,7 +89,6 @@ def updateDatabase(con, games, labels):
 			cur.execute("INSERT OR IGNORE INTO labels(name, color) values(?, ?);", (label['name'], label['color'],))
 
 	for game in games:
-		print(f"Updating {game['discId']}")
 		cur.execute("DELETE FROM games WHERE discId=?;", (game['discId'],))
 		for label in game['labels']:
 			cur.execute("INSERT OR IGNORE INTO games(discId, state) values(?, ?);", (game['discId'], label,))
