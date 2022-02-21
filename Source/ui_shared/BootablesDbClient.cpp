@@ -41,6 +41,18 @@ CClient::CClient()
 		Framework::CSqliteStatement statement(m_db, g_bootablesTableCreateStatement);
 		statement.StepNoResult();
 	}
+
+	{
+		auto path = Framework::PathUtils::GetAppResourcesPath() / "states.db";
+		std::error_code errorCode;
+		if(fs::exists(path, errorCode))
+		{
+			char* err = NULL;
+			auto query = string_format("ATTACH DATABASE '%s' as 'stateDB';", path.string().c_str());
+			sqlite3_exec(m_db, query.c_str(), 0, 0, &err);
+			m_attachedState = err == NULL;
+		}
+	}
 }
 
 bool CClient::BootableExists(const fs::path& path)
@@ -141,6 +153,48 @@ void CClient::SetOverview(const fs::path& path, const char* overview)
 	statement.StepNoResult();
 }
 
+BootableStateList CClient::GetGameStates(std::string discId)
+{
+	BootableStateList states;
+	if(!m_attachedState)
+		return states;
+
+	std::string query = "SELECT stateDB.labels.name AS stateName, stateDB.labels.color AS stateColor FROM stateDB.games ";
+	query += "LEFT JOIN stateDB.labels ON stateDB.games.state = stateDB.labels.name ";
+	query += "WHERE stateDB.games.state like 'state-%'";
+	query += "AND stateDB.games.discId = ?;";
+
+	Framework::CSqliteStatement statement(m_db, query.c_str());
+	statement.BindText(1, discId.c_str(), true);
+	while(statement.Step())
+	{
+		BootableState state;
+		state.name = reinterpret_cast<const char*>(sqlite3_column_text(statement, 0));
+		state.color = reinterpret_cast<const char*>(sqlite3_column_text(statement, 1));
+		states.push_back(state);
+	}
+	return states;
+}
+
+BootableStateList CClient::GetStates()
+{
+	BootableStateList states;
+	if(!m_attachedState)
+		return states;
+
+	std::string query = "SELECT stateDB.labels.name AS stateName, stateDB.labels.color AS stateColor FROM stateDB.labels;";
+
+	Framework::CSqliteStatement statement(m_db, query.c_str());
+	while(statement.Step())
+	{
+		BootableState state;
+		state.name = reinterpret_cast<const char*>(sqlite3_column_text(statement, 0));
+		state.color = reinterpret_cast<const char*>(sqlite3_column_text(statement, 1));
+		states.push_back(state);
+	}
+	return states;
+}
+
 Bootable CClient::ReadBootable(Framework::CSqliteStatement& statement)
 {
 	Bootable bootable;
@@ -150,6 +204,7 @@ Bootable CClient::ReadBootable(Framework::CSqliteStatement& statement)
 	bootable.coverUrl = reinterpret_cast<const char*>(sqlite3_column_text(statement, 3));
 	bootable.overview = reinterpret_cast<const char*>(sqlite3_column_text(statement, 5));
 	bootable.lastBootedTime = sqlite3_column_int(statement, 4);
+	bootable.states = GetGameStates(bootable.discId);
 	return bootable;
 }
 

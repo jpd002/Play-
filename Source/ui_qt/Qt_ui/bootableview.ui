@@ -53,6 +53,15 @@
       <widget class="QLineEdit" name="filterLineEdit"/>
      </item>
      <item>
+      <widget class="QComboBox" name="stateFilterComboBox">
+       <item>
+        <property name="text">
+         <string>All</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+     <item>
       <widget class="QPushButton" name="reset_filter_button">
        <property name="text">
         <string>Reset Filter</string>
@@ -173,13 +182,13 @@
          <verstretch>0</verstretch>
         </sizepolicy>
        </property>
+       <property name="visible">
+        <bool>false</bool>
+       </property>
        <property name="text">
         <string>Scan AWS S3</string>
        </property>
        <property name="autoDefault">
-        <bool>false</bool>
-       </property>
-       <property name="visible">
         <bool>false</bool>
        </property>
       </widget>

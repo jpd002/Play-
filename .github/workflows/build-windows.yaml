@@ -79,7 +79,12 @@ jobs:
       run: |
         cd build
         ctest -C Release
-
+    - name: Prepare states DB
+      run: |
+        pip3 install requests
+        python3 .github/CI_MISC/build_compatibility_db.py
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - name: Prepare Installer Package
       run: |
         cd build

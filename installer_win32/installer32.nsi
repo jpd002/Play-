@@ -82,6 +82,7 @@ Section "Play! (required)"
   File "..\Readme.html"
   File "..\Changelog.html"
   File "..\Patches.xml"
+  File "..\states.db"
   
   ; Write the installation path into the registry
   WriteRegStr HKLM SOFTWARE\NSIS_Play "Install_Dir" "$INSTDIR"
@@ -134,6 +135,7 @@ Section "Uninstall"
   Delete $INSTDIR\Readme.html
   Delete $INSTDIR\Changelog.html
   Delete $INSTDIR\Patches.xml
+  Delete $INSTDIR\states.db
   Delete $INSTDIR\uninstall.exe
   
   ; Remove directories used
