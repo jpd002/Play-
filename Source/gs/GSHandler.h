@@ -1009,6 +1009,7 @@ protected:
 	template <typename Storage>
 	void TransferReadHandlerGeneric(void*, uint32);
 	void TransferReadHandlerPSMCT24(void*, uint32);
+	void TransferReadHandlerPSMT8H(void*, uint32);
 
 	virtual void SyncCLUT(const TEX0&);
 	bool ProcessCLD(const TEX0&);

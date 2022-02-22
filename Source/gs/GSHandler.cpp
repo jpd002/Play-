@@ -97,6 +97,7 @@ CGSHandler::CGSHandler(bool gsThreaded)
 	m_transferReadHandlers[PSMCT24] = &CGSHandler::TransferReadHandlerPSMCT24;
 	m_transferReadHandlers[PSMCT16] = &CGSHandler::TransferReadHandlerGeneric<CGsPixelFormats::STORAGEPSMCT16>;
 	m_transferReadHandlers[PSMT8] = &CGSHandler::TransferReadHandlerGeneric<CGsPixelFormats::STORAGEPSMT8>;
+	m_transferReadHandlers[PSMT8H] = &CGSHandler::TransferReadHandlerPSMT8H;
 	m_transferReadHandlers[PSMZ32] = &CGSHandler::TransferReadHandlerGeneric<CGsPixelFormats::STORAGEPSMZ32>;
 
 	ResetBase();
@@ -1151,6 +1152,30 @@ void CGSHandler::TransferReadHandlerPSMCT24(void* buffer, uint32 length)
 		dst[i + 0] = (pixel >> 0) & 0xFF;
 		dst[i + 1] = (pixel >> 8) & 0xFF;
 		dst[i + 2] = (pixel >> 16) & 0xFF;
+		m_trxCtx.nRRX++;
+		if(m_trxCtx.nRRX == trxReg.nRRW)
+		{
+			m_trxCtx.nRRX = 0;
+			m_trxCtx.nRRY++;
+		}
+	}
+}
+
+void CGSHandler::TransferReadHandlerPSMT8H(void* buffer, uint32 length)
+{
+	auto trxPos = make_convertible<TRXPOS>(m_nReg[GS_REG_TRXPOS]);
+	auto trxReg = make_convertible<TRXREG>(m_nReg[GS_REG_TRXREG]);
+	auto trxBuf = make_convertible<BITBLTBUF>(m_nReg[GS_REG_BITBLTBUF]);
+
+	auto dst = reinterpret_cast<uint8*>(buffer);
+
+	CGsPixelFormats::CPixelIndexorPSMCT32 indexor(GetRam(), trxBuf.GetSrcPtr(), trxBuf.nSrcWidth);
+	for(uint32 i = 0; i < length; i++)
+	{
+		uint32 x = (m_trxCtx.nRRX + trxPos.nSSAX) % 2048;
+		uint32 y = (m_trxCtx.nRRY + trxPos.nSSAY) % 2048;
+		auto pixel = indexor.GetPixel(x, y);
+		dst[i] = static_cast<uint8>(pixel >> 24);
 		m_trxCtx.nRRX++;
 		if(m_trxCtx.nRRX == trxReg.nRRW)
 		{
