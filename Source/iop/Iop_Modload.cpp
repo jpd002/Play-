@@ -12,6 +12,8 @@ using namespace Iop;
 #define FUNCTION_LOADMODULEBUFFER "LoadModuleBuffer"
 #define FUNCTION_GETMODULEIDLIST "GetModuleIdList"
 #define FUNCTION_REFERMODULESTATUS "ReferModuleStatus"
+#define FUNCTION_STOPMODULE "StopModule"
+#define FUNCTION_UNLOADMODULE "UnloadModule"
 #define FUNCTION_SEARCHMODULEBYNAME "SearchModuleByName"
 #define FUNCTION_ALLOCLOADMEMORY "AllocLoadMemory"
 
@@ -47,6 +49,12 @@ std::string CModload::GetFunctionName(unsigned int functionId) const
 		break;
 	case 17:
 		return FUNCTION_REFERMODULESTATUS;
+		break;
+	case 20:
+		return FUNCTION_STOPMODULE;
+		break;
+	case 21:
+		return FUNCTION_UNLOADMODULE;
 		break;
 	case 22:
 		return FUNCTION_SEARCHMODULEBYNAME;
@@ -99,6 +107,17 @@ void CModload::Invoke(CMIPS& context, unsigned int functionId)
 		context.m_State.nGPR[CMIPS::V0].nD0 = ReferModuleStatus(
 		    context.m_State.nGPR[CMIPS::A0].nV0,
 		    context.m_State.nGPR[CMIPS::A1].nV0);
+		break;
+	case 20:
+		context.m_State.nGPR[CMIPS::V0].nD0 = StopModule(
+		    context.m_State.nGPR[CMIPS::A0].nV0,
+		    context.m_State.nGPR[CMIPS::A1].nV0,
+		    context.m_State.nGPR[CMIPS::A2].nV0,
+		    context.m_State.nGPR[CMIPS::A3].nV0);
+		break;
+	case 21:
+		context.m_State.nGPR[CMIPS::V0].nD0 = UnloadModule(
+		    context.m_State.nGPR[CMIPS::A0].nV0);
 		break;
 	case 22:
 		context.m_State.nGPR[CMIPS::V0].nD0 = SearchModuleByName(
@@ -183,6 +202,21 @@ int32 CModload::ReferModuleStatus(uint32 moduleId, uint32 moduleStatusPtr)
 	CLog::GetInstance().Print(LOG_NAME, FUNCTION_REFERMODULESTATUS "(moduleId = %d, moduleStatusPtr = 0x%08X);\r\n",
 	                          moduleId, moduleStatusPtr);
 	return m_bios.ReferModuleStatus(moduleId, moduleStatusPtr);
+}
+
+int32 CModload::StopModule(uint32 moduleId, uint32 argsLength, uint32 argsPtr, uint32 resultPtr)
+{
+	const char* args = reinterpret_cast<const char*>(m_ram + argsPtr);
+	CLog::GetInstance().Print(LOG_NAME, FUNCTION_STOPMODULE "(moduleId = %d, argsLength = %d, argsPtr = 0x%08X, resultPtr = 0x%08X);\r\n",
+	                          moduleId, argsLength, argsPtr, resultPtr);
+	return m_bios.StopModule(CIopBios::MODULESTARTREQUEST_SOURCE::LOCAL, moduleId);
+}
+
+int32 CModload::UnloadModule(uint32 moduleId)
+{
+	CLog::GetInstance().Print(LOG_NAME, FUNCTION_UNLOADMODULE "(moduleId = %d);\r\n",
+	                          moduleId);
+	return m_bios.UnloadModule(moduleId);
 }
 
 int32 CModload::SearchModuleByName(uint32 moduleNamePtr)
