@@ -227,6 +227,7 @@ Framework::Vulkan::CShaderModule CTransferLocal::CreateShader(const PIPELINE_CAP
 		switch(caps.srcFormat)
 		{
 		case CGSHandler::PSMCT32:
+		case CGSHandler::PSMCT24:
 		{
 			auto address = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT32>(
 			    b, srcSwizzleTable, srcBufAddress, srcBufWidth, srcPos);
