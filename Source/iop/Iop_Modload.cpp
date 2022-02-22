@@ -126,7 +126,7 @@ uint32 CModload::LoadStartModule(uint32 pathPtr, uint32 argsLength, uint32 argsP
 		auto moduleId = m_bios.LoadModuleFromPath(path);
 		if(moduleId >= 0)
 		{
-			moduleId = m_bios.StartModule(moduleId, path, args, argsLength);
+			moduleId = m_bios.StartModule(CIopBios::MODULESTARTREQUEST_SOURCE::LOCAL, moduleId, path, args, argsLength);
 		}
 		return moduleId;
 	}
@@ -144,7 +144,7 @@ uint32 CModload::StartModule(uint32 moduleId, uint32 pathPtr, uint32 argsLength,
 	const char* args = reinterpret_cast<const char*>(m_ram + argsPtr);
 	CLog::GetInstance().Print(LOG_NAME, FUNCTION_STARTMODULE "(moduleId = %d, path = '%s', argsLength = %d, argsPtr = 0x%08X, resultPtr = 0x%08X);\r\n",
 	                          moduleId, path, argsLength, argsPtr, resultPtr);
-	auto result = m_bios.StartModule(moduleId, path, args, argsLength);
+	auto result = m_bios.StartModule(CIopBios::MODULESTARTREQUEST_SOURCE::LOCAL, moduleId, path, args, argsLength);
 	return result;
 }
 

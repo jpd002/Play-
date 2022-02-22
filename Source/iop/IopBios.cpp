@@ -430,7 +430,7 @@ void CIopBios::InitializeModuleStarter()
 	StartThread(m_moduleStarterThreadId, 0);
 }
 
-void CIopBios::RequestModuleStart(bool stopRequest, uint32 moduleId, const char* path, const char* args, unsigned int argsLength)
+void CIopBios::RequestModuleStart(MODULESTARTREQUEST_SOURCE requestSource, bool stopRequest, uint32 moduleId, const char* path, const char* args, unsigned int argsLength)
 {
 	uint32 requestPtr = ModuleStartRequestFree();
 	assert(requestPtr != MODULESTARTREQUEST::INVALID_PTR);
@@ -458,8 +458,16 @@ void CIopBios::RequestModuleStart(bool stopRequest, uint32 moduleId, const char*
 		moduleStartRequest->nextPtr = MODULESTARTREQUEST::INVALID_PTR;
 	}
 
+	int32 requesterThreadId = -1;
+	if(requestSource == MODULESTARTREQUEST_SOURCE::LOCAL)
+	{
+		requesterThreadId = m_currentThreadId;
+		SleepThread();
+	}
+
 	moduleStartRequest->moduleId = moduleId;
 	moduleStartRequest->stopRequest = stopRequest;
+	moduleStartRequest->requesterThreadId = requesterThreadId;
 
 	assert((strlen(path) + 1) <= MODULESTARTREQUEST::MAX_PATH_SIZE);
 	strncpy(moduleStartRequest->path, path, MODULESTARTREQUEST::MAX_PATH_SIZE);
@@ -571,6 +579,7 @@ void CIopBios::ProcessModuleStart()
 
 	m_cpu.m_State.nGPR[CMIPS::S0].nV0 = moduleStartRequest->moduleId;
 	m_cpu.m_State.nGPR[CMIPS::S1].nV0 = moduleStartRequest->stopRequest;
+	m_cpu.m_State.nGPR[CMIPS::S2].nV0 = moduleStartRequest->requesterThreadId;
 	m_cpu.m_State.nGPR[CMIPS::GP].nV0 = loadedModule->gp;
 	m_cpu.m_State.nGPR[CMIPS::RA].nV0 = m_cpu.m_State.nPC;
 	m_cpu.m_State.nPC = loadedModule->entryPoint;
@@ -580,6 +589,7 @@ void CIopBios::FinishModuleStart()
 {
 	uint32 moduleId = m_cpu.m_State.nGPR[CMIPS::S0].nV0;
 	uint32 stopRequest = m_cpu.m_State.nGPR[CMIPS::S1].nV0;
+	int32 requesterThreadId = static_cast<int32>(m_cpu.m_State.nGPR[CMIPS::S2].nV0);
 	auto moduleResidentState = static_cast<MODULE_RESIDENT_STATE>(m_cpu.m_State.nGPR[CMIPS::A0].nV0 & 0x3);
 
 	auto loadedModule = m_loadedModules[moduleId];
@@ -604,8 +614,16 @@ void CIopBios::FinishModuleStart()
 	//some games disable interrupts but never enable them back! (The Mark of Kri)
 	m_cpu.m_State.nCOP0[CCOP_SCU::STATUS] |= CMIPS::STATUS_IE;
 
-	//We need to notify the EE that the load request is over
-	m_sifMan->SendCallReply(Iop::CLoadcore::MODULE_ID, nullptr);
+	if(requesterThreadId == -1)
+	{
+		//If requesterthreadId is -1, we assume that it came from LOADCORE SIF module
+		//We need to notify the EE that the load request is over
+		m_sifMan->SendCallReply(Iop::CLoadcore::MODULE_ID, nullptr);
+	}
+	else
+	{
+		WakeupThread(requesterThreadId, false);
+	}
 }
 
 int32 CIopBios::LoadModuleFromPath(const char* path, uint32 loadAddress, bool ownsMemory)
@@ -757,7 +775,7 @@ int32 CIopBios::UnloadModule(uint32 loadedModuleId)
 	return loadedModuleId;
 }
 
-int32 CIopBios::StartModule(uint32 loadedModuleId, const char* path, const char* args, uint32 argsLength)
+int32 CIopBios::StartModule(MODULESTARTREQUEST_SOURCE requestSource, uint32 loadedModuleId, const char* path, const char* args, uint32 argsLength)
 {
 	auto loadedModule = m_loadedModules[loadedModuleId];
 	if(loadedModule == nullptr)
@@ -770,11 +788,11 @@ int32 CIopBios::StartModule(uint32 loadedModuleId, const char* path, const char*
 		return loadedModuleId;
 	}
 	assert(loadedModule->state == MODULE_STATE::STOPPED);
-	RequestModuleStart(false, loadedModuleId, path, args, argsLength);
+	RequestModuleStart(requestSource, false, loadedModuleId, path, args, argsLength);
 	return loadedModuleId;
 }
 
-int32 CIopBios::StopModule(uint32 loadedModuleId)
+int32 CIopBios::StopModule(MODULESTARTREQUEST_SOURCE requestSource, uint32 loadedModuleId)
 {
 	auto loadedModule = m_loadedModules[loadedModuleId];
 	if(loadedModule == nullptr)
@@ -795,7 +813,7 @@ int32 CIopBios::StopModule(uint32 loadedModuleId)
 		                         loadedModuleId);
 		return -1;
 	}
-	RequestModuleStart(true, loadedModuleId, "other", nullptr, 0);
+	RequestModuleStart(requestSource, true, loadedModuleId, "other", nullptr, 0);
 	return loadedModuleId;
 }
 

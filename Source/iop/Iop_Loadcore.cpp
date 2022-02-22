@@ -220,7 +220,7 @@ bool CLoadcore::LoadModule(uint32* args, uint32 argsSize, uint32* ret, uint32 re
 	auto moduleId = m_bios.LoadModuleFromPath(moduleName);
 	if(moduleId >= 0)
 	{
-		moduleId = m_bios.StartModule(moduleId, moduleName, moduleArgs, moduleArgsSize);
+		moduleId = m_bios.StartModule(CIopBios::MODULESTARTREQUEST_SOURCE::REMOTE, moduleId, moduleName, moduleArgs, moduleArgsSize);
 	}
 
 	//This function returns something negative upon failure
@@ -272,7 +272,7 @@ void CLoadcore::LoadModuleFromMemory(uint32* args, uint32 argsSize, uint32* ret,
 	auto moduleId = m_bios.LoadModuleFromAddress(args[0]);
 	if(moduleId >= 0)
 	{
-		moduleId = m_bios.StartModule(moduleId, "", moduleArgs, moduleArgsSize);
+		moduleId = m_bios.StartModule(CIopBios::MODULESTARTREQUEST_SOURCE::REMOTE, moduleId, "", moduleArgs, moduleArgsSize);
 	}
 	ret[0] = moduleId;
 	ret[1] = 0; //Result of module's start() function
@@ -300,7 +300,7 @@ bool CLoadcore::StopModule(uint32* args, uint32 argsSize, uint32* ret, uint32 re
 		return true;
 	}
 
-	auto result = m_bios.StopModule(moduleId);
+	auto result = m_bios.StopModule(CIopBios::MODULESTARTREQUEST_SOURCE::REMOTE, moduleId);
 	ret[0] = result;
 
 	if(result >= 0)

@@ -155,6 +155,12 @@ public:
 		uint32 reserved[2];
 	};
 
+	enum class MODULESTARTREQUEST_SOURCE
+	{
+		LOCAL,
+		REMOTE,
+	};
+
 	CIopBios(CMIPS&, uint8*, uint32, uint8*);
 	virtual ~CIopBios();
 
@@ -162,8 +168,8 @@ public:
 	int32 LoadModuleFromAddress(uint32, uint32 = ~0U, bool = true);
 	int32 LoadModuleFromHost(uint8*);
 	int32 UnloadModule(uint32);
-	int32 StartModule(uint32, const char*, const char*, uint32);
-	int32 StopModule(uint32);
+	int32 StartModule(MODULESTARTREQUEST_SOURCE, uint32, const char*, const char*, uint32);
+	int32 StopModule(MODULESTARTREQUEST_SOURCE, uint32);
 	bool CanStopModule(uint32) const;
 	bool IsModuleHle(uint32) const;
 	int32 SearchModuleByName(const char*) const;
@@ -505,6 +511,7 @@ private:
 		uint32 nextPtr;
 		uint32 moduleId;
 		uint32 stopRequest;
+		int32 requesterThreadId;
 		char path[MAX_PATH_SIZE];
 		uint32 argsLength;
 		char args[MAX_ARGS_SIZE];
@@ -616,7 +623,7 @@ private:
 	void InitializeModuleStarter();
 	void ProcessModuleStart();
 	void FinishModuleStart();
-	void RequestModuleStart(bool, uint32, const char*, const char*, unsigned int);
+	void RequestModuleStart(MODULESTARTREQUEST_SOURCE, bool, uint32, const char*, const char*, unsigned int);
 
 	void PopulateSystemIntcHandlers();
 
