@@ -124,7 +124,7 @@ void CPsfLoader::LoadPs2(CPsfVm& virtualMachine, const CPsfPathToken& filePath, 
 
 	{
 		auto execPath = std::string(g_psfDeviceName) + ":/psf2.irx";
-		auto moduleId = bios->LoadModule(execPath.c_str());
+		auto moduleId = bios->LoadModuleFromPath(execPath.c_str());
 		assert(moduleId >= 0);
 		bios->StartModule(moduleId, execPath.c_str(), nullptr, 0);
 	}
