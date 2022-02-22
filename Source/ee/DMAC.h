@@ -150,6 +150,11 @@ private:
 		D_CTRL_STD_SIF1 = 3,
 	};
 
+	enum D_STAT_BITS
+	{
+		D_STAT_MEIS = (1 << 14),
+	};
+
 	struct D_CTRL_REG : public convertible<uint32>
 	{
 		unsigned int dmae : 1;

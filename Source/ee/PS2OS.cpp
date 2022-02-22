@@ -835,7 +835,7 @@ void CPS2OS::AssembleDmacHandler()
 	assembler.AND(interruptStatusRegister, CMIPS::T0, CMIPS::T1);
 
 	//Initialize channel counter
-	assembler.ADDIU(channelCounterRegister, CMIPS::R0, 0x0009);
+	assembler.ADDIU(channelCounterRegister, CMIPS::R0, 0x000E);
 
 	assembler.MarkLabel(testChannelLabel);
 
