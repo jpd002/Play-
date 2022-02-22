@@ -176,7 +176,7 @@ void ExecuteIopTest(const fs::path& testFilePath)
 				    executionOver = true;
 			    }
 		    });
-		iopOs->StartModule(rootModuleId, "", nullptr, 0);
+		iopOs->StartModule(CIopBios::MODULESTARTREQUEST_SOURCE::REMOTE, rootModuleId, "", nullptr, 0);
 		iopOs->GetIoman()->SetFileStream(Iop::CIoman::FID_STDOUT, resultStream);
 	}
 	virtualMachine.Resume();
