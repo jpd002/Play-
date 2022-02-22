@@ -158,8 +158,8 @@ public:
 	CIopBios(CMIPS&, uint8*, uint32, uint8*);
 	virtual ~CIopBios();
 
-	int32 LoadModule(const char*);
-	int32 LoadModule(uint32);
+	int32 LoadModuleFromPath(const char*, uint32 = ~0U, bool = true);
+	int32 LoadModuleFromAddress(uint32, uint32 = ~0U, bool = true);
 	int32 LoadModuleFromHost(uint8*);
 	int32 UnloadModule(uint32);
 	int32 StartModule(uint32, const char*, const char*, uint32);
@@ -524,6 +524,7 @@ private:
 		uint32 end;
 		uint32 entryPoint;
 		uint32 gp;
+		uint32 ownsMemory;
 		MODULE_STATE state;
 		MODULE_RESIDENT_STATE residentState;
 	};
@@ -593,8 +594,8 @@ private:
 	uint32& ModuleStartRequestHead() const;
 	uint32& ModuleStartRequestFree() const;
 
-	int32 LoadModule(CELF&, const char*);
-	uint32 LoadExecutable(CELF&, ExecutableRange&);
+	int32 LoadModule(CELF&, const char*, uint32, bool);
+	uint32 LoadExecutable(CELF&, ExecutableRange&, uint32);
 	unsigned int GetElfProgramToLoad(CELF&);
 	void RelocateElf(CELF&, uint32);
 	std::string ReadModuleName(uint32);

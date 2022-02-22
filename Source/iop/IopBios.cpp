@@ -608,7 +608,7 @@ void CIopBios::FinishModuleStart()
 	m_sifMan->SendCallReply(Iop::CLoadcore::MODULE_ID, nullptr);
 }
 
-int32 CIopBios::LoadModule(const char* path)
+int32 CIopBios::LoadModuleFromPath(const char* path, uint32 loadAddress, bool ownsMemory)
 {
 #ifdef _IOP_EMULATE_MODULES
 	//This is needed by some homebrew (ie.: doom.elf) that load modules from BIOS
@@ -627,31 +627,32 @@ int32 CIopBios::LoadModule(const char* path)
 	Iop::Ioman::CScopedFile file(handle, *m_ioman);
 	auto stream = m_ioman->GetFileStream(file);
 	CElfFile module(*stream);
-	return LoadModule(module, path);
+	return LoadModule(module, path, loadAddress, ownsMemory);
 }
 
-int32 CIopBios::LoadModule(uint32 modulePtr)
+int32 CIopBios::LoadModuleFromAddress(uint32 modulePtr, uint32 loadAddress, bool ownsMemory)
 {
 	CELF module(m_ram + modulePtr);
-	return LoadModule(module, "");
+	return LoadModule(module, "", loadAddress, ownsMemory);
 }
 
 int32 CIopBios::LoadModuleFromHost(uint8* modulePtr)
 {
 	CELF module(modulePtr);
-	return LoadModule(module, "");
+	return LoadModule(module, "", ~0U, true);
 }
 
-int32 CIopBios::LoadModule(CELF& elf, const char* path)
+int32 CIopBios::LoadModule(CELF& elf, const char* path, uint32 loadAddress, bool ownsMemory)
 {
 	uint32 loadedModuleId = m_loadedModules.Allocate();
 	assert(loadedModuleId != -1);
 	if(loadedModuleId == -1) return -1;
 
 	auto loadedModule = m_loadedModules[loadedModuleId];
+	loadedModule->ownsMemory = ownsMemory;
 
 	ExecutableRange moduleRange;
-	uint32 entryPoint = LoadExecutable(elf, moduleRange);
+	uint32 entryPoint = LoadExecutable(elf, moduleRange, loadAddress);
 
 	//Find .iopmod section
 	const ELFHEADER& header(elf.GetHeader());
@@ -747,8 +748,11 @@ int32 CIopBios::UnloadModule(uint32 loadedModuleId)
 	//TODO: Invalidate MIPS analysis range?
 	m_cpu.m_executor->ClearActiveBlocksInRange(loadedModule->start, loadedModule->end, false);
 
-	//TODO: Check return value here.
-	m_sysmem->FreeMemory(loadedModule->start);
+	if(loadedModule->ownsMemory)
+	{
+		//TODO: Check return value here.
+		m_sysmem->FreeMemory(loadedModule->start);
+	}
 	m_loadedModules.Free(loadedModuleId);
 	return loadedModuleId;
 }
@@ -3281,7 +3285,7 @@ bool CIopBios::ReleaseModule(const std::string& moduleName)
 	return true;
 }
 
-uint32 CIopBios::LoadExecutable(CELF& elf, ExecutableRange& executableRange)
+uint32 CIopBios::LoadExecutable(CELF& elf, ExecutableRange& executableRange, uint32 baseAddress)
 {
 	unsigned int programHeaderIndex = GetElfProgramToLoad(elf);
 	if(programHeaderIndex == -1)
@@ -3289,7 +3293,10 @@ uint32 CIopBios::LoadExecutable(CELF& elf, ExecutableRange& executableRange)
 		throw std::runtime_error("No program to load.");
 	}
 	ELFPROGRAMHEADER* programHeader = elf.GetProgram(programHeaderIndex);
-	uint32 baseAddress = m_sysmem->AllocateMemory(programHeader->nMemorySize, 0, 0);
+	if(baseAddress == ~0U)
+	{
+		baseAddress = m_sysmem->AllocateMemory(programHeader->nMemorySize, 0, 0);
+	}
 	RelocateElf(elf, baseAddress);
 
 	memcpy(

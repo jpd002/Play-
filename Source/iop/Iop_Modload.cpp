@@ -123,7 +123,7 @@ uint32 CModload::LoadStartModule(uint32 pathPtr, uint32 argsLength, uint32 argsP
 	const char* args = reinterpret_cast<const char*>(m_ram + argsPtr);
 	try
 	{
-		auto moduleId = m_bios.LoadModule(path);
+		auto moduleId = m_bios.LoadModuleFromPath(path);
 		if(moduleId >= 0)
 		{
 			moduleId = m_bios.StartModule(moduleId, path, args, argsLength);
@@ -152,12 +152,8 @@ uint32 CModload::LoadModuleBufferAddress(uint32 modBufPtr, uint32 dstAddr, uint3
 {
 	CLog::GetInstance().Print(LOG_NAME, FUNCTION_LOADMODULEBUFFERADDRESS "(modBufPtr = 0x%08X, dstAddr = 0x%08X, offset = %d);\r\n",
 	                          modBufPtr, dstAddr, offset);
-	//This can be used to load a module in a specific memory address
-	//Not supported for now
-	assert(dstAddr == 0);
-	assert(offset == 0);
 	assert((modBufPtr & 0x03) == 0);
-	return m_bios.LoadModule(modBufPtr);
+	return m_bios.LoadModuleFromAddress(modBufPtr, dstAddr + offset, offset == 0);
 }
 
 uint32 CModload::LoadModuleBuffer(uint32 modBufPtr)
@@ -165,7 +161,7 @@ uint32 CModload::LoadModuleBuffer(uint32 modBufPtr)
 	CLog::GetInstance().Print(LOG_NAME, FUNCTION_LOADMODULEBUFFER "(modBufPtr = 0x%08X);\r\n",
 	                          modBufPtr);
 	assert((modBufPtr & 0x03) == 0);
-	auto result = m_bios.LoadModule(modBufPtr);
+	auto result = m_bios.LoadModuleFromAddress(modBufPtr);
 	return result;
 }
 
