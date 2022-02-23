@@ -304,7 +304,6 @@ void CChannel::ExecuteSourceChain()
 			//Hold transfer if not ready
 			if(m_nTADR == m_dmac.m_D8.m_nMADR)
 			{
-				m_dmac.m_D_STAT |= CDMAC::D_STAT_MEIS;
 				break;
 			}
 		}
@@ -547,6 +546,12 @@ void CChannel::ExecuteSourceChainTransfer(bool isMfifo)
 		m_nTADR -= m_dmac.m_D_RBOR;
 		m_nTADR &= m_dmac.m_D_RBSR;
 		m_nTADR += m_dmac.m_D_RBOR;
+
+		//Check MFIFO empty
+		if(m_nTADR == m_dmac.m_D8.m_nMADR)
+		{
+			m_dmac.m_D_STAT |= CDMAC::D_STAT_MEIS;
+		}
 	}
 }
 
