@@ -610,7 +610,7 @@ void CIopBios::FinishModuleStart()
 	{
 		WakeupThread(requesterThreadId, false);
 	}
-	
+
 	//Finish our thread
 	ExitThread();
 }
