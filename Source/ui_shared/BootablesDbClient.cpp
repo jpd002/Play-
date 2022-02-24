@@ -161,8 +161,7 @@ BootableStateList CClient::GetGameStates(std::string discId)
 
 	std::string query = "SELECT stateDB.labels.name AS stateName, stateDB.labels.color AS stateColor FROM stateDB.games ";
 	query += "LEFT JOIN stateDB.labels ON stateDB.games.state = stateDB.labels.name ";
-	query += "WHERE stateDB.games.state like 'state-%'";
-	query += "AND stateDB.games.discId = ?;";
+	query += "WHERE stateDB.games.discId = ?;";
 
 	Framework::CSqliteStatement statement(m_db, query.c_str());
 	statement.BindText(1, discId.c_str(), true);
