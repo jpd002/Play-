@@ -281,7 +281,7 @@ public:
 	int32 RegisterIntrHandler(uint32, uint32, uint32, uint32);
 	int32 ReleaseIntrHandler(uint32);
 
-	void TriggerCallback(uint32 address, uint32 arg0 = 0, uint32 arg1 = 0, uint32 arg2 = 0, uint32 arg3 = 0);
+	int32 TriggerCallback(uint32 address, uint32 arg0 = 0, uint32 arg1 = 0, uint32 arg2 = 0, uint32 arg3 = 0);
 
 #ifdef DEBUGGER_INCLUDED
 	void LoadDebugTags(Framework::Xml::CNode*) override;
@@ -616,7 +616,7 @@ private:
 	uint32 AssembleThreadFinish(CMIPSAssembler&);
 	uint32 AssembleReturnFromException(CMIPSAssembler&);
 	uint32 AssembleIdleFunction(CMIPSAssembler&);
-	uint32 AssembleModuleStarterThreadProc(CMIPSAssembler&);
+	uint32 AssembleModuleStarterProc(CMIPSAssembler&);
 	uint32 AssembleAlarmThreadProc(CMIPSAssembler&);
 	uint32 AssembleVblankHandler(CMIPSAssembler&);
 
@@ -640,11 +640,9 @@ private:
 	uint32 m_threadFinishAddress;
 	uint32 m_returnFromExceptionAddress;
 	uint32 m_idleFunctionAddress;
-	uint32 m_moduleStarterThreadProcAddress;
+	uint32 m_moduleStarterProcAddress;
 	uint32 m_alarmThreadProcAddress;
 	uint32 m_vblankHandlerAddress;
-
-	uint32 m_moduleStarterThreadId;
 
 	bool m_rescheduleNeeded = false;
 	LoadedModuleList m_loadedModules;

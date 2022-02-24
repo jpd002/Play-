@@ -101,8 +101,7 @@ CIopBios::CIopBios(CMIPS& cpu, uint8* ram, uint32 ramSize, uint8* spr)
     , m_threadFinishAddress(0)
     , m_returnFromExceptionAddress(0)
     , m_idleFunctionAddress(0)
-    , m_moduleStarterThreadProcAddress(0)
-    , m_moduleStarterThreadId(0)
+    , m_moduleStarterProcAddress(0)
     , m_alarmThreadProcAddress(0)
     , m_vblankHandlerAddress(0)
     , m_threads(reinterpret_cast<THREAD*>(&m_ram[BIOS_THREADS_BASE]), 1, MAX_THREAD)
@@ -136,7 +135,7 @@ void CIopBios::Reset(const Iop::SifManPtr& sifMan)
 		m_threadFinishAddress = AssembleThreadFinish(assembler);
 		m_returnFromExceptionAddress = AssembleReturnFromException(assembler);
 		m_idleFunctionAddress = AssembleIdleFunction(assembler);
-		m_moduleStarterThreadProcAddress = AssembleModuleStarterThreadProc(assembler);
+		m_moduleStarterProcAddress = AssembleModuleStarterProc(assembler);
 		m_alarmThreadProcAddress = AssembleAlarmThreadProc(assembler);
 		m_vblankHandlerAddress = AssembleVblankHandler(assembler);
 		assert(BIOS_HANDLERS_END > ((assembler.GetProgramSize() * 4) + BIOS_HANDLERS_BASE));
@@ -425,9 +424,6 @@ void CIopBios::InitializeModuleStarter()
 	}
 
 	m_moduleStartRequests[MAX_MODULESTARTREQUEST - 1].nextPtr = MODULESTARTREQUEST::INVALID_PTR;
-
-	m_moduleStarterThreadId = CreateThread(m_moduleStarterThreadProcAddress, MODULE_INIT_PRIORITY, DEFAULT_STACKSIZE, 0, 0);
-	StartThread(m_moduleStarterThreadId, 0);
 }
 
 void CIopBios::RequestModuleStart(MODULESTARTREQUEST_SOURCE requestSource, bool stopRequest, uint32 moduleId, const char* path, const char* args, unsigned int argsLength)
@@ -476,9 +472,9 @@ void CIopBios::RequestModuleStart(MODULESTARTREQUEST_SOURCE requestSource, bool 
 	memcpy(moduleStartRequest->args, args, argsLength);
 	moduleStartRequest->argsLength = argsLength;
 
+	uint32 moduleStarterThreadId = TriggerCallback(m_moduleStarterProcAddress);
 	//Make sure thread runs at proper priority (Burnout 3 changes priority)
-	ChangeThreadPriority(m_moduleStarterThreadId, MODULE_INIT_PRIORITY);
-	WakeupThread(m_moduleStarterThreadId, false);
+	ChangeThreadPriority(moduleStarterThreadId, MODULE_INIT_PRIORITY);
 }
 
 void CIopBios::ProcessModuleStart()
@@ -491,8 +487,6 @@ void CIopBios::ProcessModuleStart()
 		    memcpy(dst + copyAddress, src, size);
 		    return copyAddress;
 	    };
-
-	assert(m_currentThreadId == m_moduleStarterThreadId);
 
 	uint32 requestPtr = ModuleStartRequestHead();
 	assert(requestPtr != MODULESTARTREQUEST::INVALID_PTR);
@@ -510,15 +504,6 @@ void CIopBios::ProcessModuleStart()
 
 		moduleStartRequest->nextPtr = ModuleStartRequestFree();
 		ModuleStartRequestFree() = requestPtr;
-	}
-
-	assert(m_currentThreadId == m_moduleStarterThreadId);
-
-	//Reset stack pointer
-	{
-		auto thread = GetThread(m_moduleStarterThreadId);
-		assert(thread);
-		m_cpu.m_State.nGPR[CMIPS::SP].nV0 = thread->stackBase + thread->stackSize - STACK_FRAME_RESERVE_SIZE;
 	}
 
 	auto loadedModule = m_loadedModules[moduleStartRequest->moduleId];
@@ -575,7 +560,8 @@ void CIopBios::ProcessModuleStart()
 		m_cpu.m_State.nGPR[CMIPS::A0].nD0 = static_cast<int32>(-1);
 	}
 
-	m_cpu.m_State.nGPR[CMIPS::SP].nV0 -= 4;
+	//Allocate stack space for spilling params
+	m_cpu.m_State.nGPR[CMIPS::SP].nV0 -= STACK_FRAME_RESERVE_SIZE;
 
 	m_cpu.m_State.nGPR[CMIPS::S0].nV0 = moduleStartRequest->moduleId;
 	m_cpu.m_State.nGPR[CMIPS::S1].nV0 = moduleStartRequest->stopRequest;
@@ -624,6 +610,9 @@ void CIopBios::FinishModuleStart()
 	{
 		WakeupThread(requesterThreadId, false);
 	}
+	
+	//Finish our thread
+	ExitThread();
 }
 
 int32 CIopBios::LoadModuleFromPath(const char* path, uint32 loadAddress, bool ownsMemory)
@@ -2944,22 +2933,15 @@ uint32 CIopBios::AssembleIdleFunction(CMIPSAssembler& assembler)
 	return address;
 }
 
-uint32 CIopBios::AssembleModuleStarterThreadProc(CMIPSAssembler& assembler)
+uint32 CIopBios::AssembleModuleStarterProc(CMIPSAssembler& assembler)
 {
 	uint32 address = BIOS_HANDLERS_BASE + assembler.GetProgramSize() * 4;
 
-	auto startLabel = assembler.CreateLabel();
-
-	assembler.MarkLabel(startLabel);
-	assembler.ADDIU(CMIPS::V0, CMIPS::R0, SYSCALL_SLEEPTHREAD);
-	assembler.SYSCALL();
 	assembler.ADDIU(CMIPS::V0, CMIPS::R0, SYSCALL_PROCESSMODULESTART);
 	assembler.SYSCALL();
 	assembler.ADDU(CMIPS::A0, CMIPS::V0, CMIPS::R0);
 	assembler.ADDIU(CMIPS::V0, CMIPS::R0, SYSCALL_FINISHMODULESTART);
 	assembler.SYSCALL();
-	assembler.BEQ(CMIPS::R0, CMIPS::R0, startLabel);
-	assembler.NOP();
 
 	return address;
 }
@@ -3482,7 +3464,7 @@ void CIopBios::RelocateElf(CELF& elf, uint32 baseAddress)
 	}
 }
 
-void CIopBios::TriggerCallback(uint32 address, uint32 arg0, uint32 arg1, uint32 arg2, uint32 arg3)
+int32 CIopBios::TriggerCallback(uint32 address, uint32 arg0, uint32 arg1, uint32 arg2, uint32 arg3)
 {
 	// Call the addres on a callback thread with A0 set to arg0
 	uint32 callbackThreadId = -1;
@@ -3513,6 +3495,8 @@ void CIopBios::TriggerCallback(uint32 address, uint32 arg0, uint32 arg1, uint32 
 	thread->context.gpr[CMIPS::A1] = arg1;
 	thread->context.gpr[CMIPS::A2] = arg2;
 	thread->context.gpr[CMIPS::A3] = arg3;
+
+	return callbackThreadId;
 }
 
 void CIopBios::PopulateSystemIntcHandlers()
