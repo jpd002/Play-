@@ -322,7 +322,7 @@ uint32 CFileIoHandler2200::InvokeDread(uint32* args, uint32 argsSize, uint32* re
 	assert(argsSize >= 32);
 	assert(retSize == 4);
 	auto command = reinterpret_cast<DREADCOMMAND*>(args);
-	Ioman::DIRENTRY dirEntry;
+	Ioman::DIRENTRY dirEntry = {};
 	auto result = m_ioman->Dread(command->fd, &dirEntry);
 
 	//Send response
@@ -333,8 +333,8 @@ uint32 CFileIoHandler2200::InvokeDread(uint32* args, uint32 argsSize, uint32* re
 		CopyHeader(reply.header, command->header);
 		reply.result = result;
 		reply.dirEntryPtr = command->dirEntryPtr;
-		reply.unknown3 = 0;
-		reply.unknown4 = 0;
+		memcpy(&reply.stat, &dirEntry.stat, sizeof(dirEntry.stat));
+		memcpy(reply.name, dirEntry.name, Ioman::DIRENTRY::NAME_SIZE);
 		memcpy(ram + m_resultPtr[0], &reply, sizeof(DREADREPLY));
 	}
 
