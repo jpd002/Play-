@@ -21,7 +21,7 @@ Framework::CStream* CPsfDevice::GetFile(uint32 mode, const char* path)
 	return result;
 }
 
-Iop::Ioman::Directory CPsfDevice::GetDirectory(const char* path)
+Iop::Ioman::DirectoryIteratorPtr CPsfDevice::GetDirectory(const char* path)
 {
 	throw std::runtime_error("Not supported.");
 }

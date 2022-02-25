@@ -1,5 +1,6 @@
 #pragma once
 
+#include <memory>
 #include "Ioman_Defs.h"
 
 namespace Iop

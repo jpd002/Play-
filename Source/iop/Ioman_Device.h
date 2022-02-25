@@ -2,6 +2,7 @@
 
 #include "Stream.h"
 #include "Ioman_DirectoryIterator.h"
+#include "filesystem_def.h"
 
 namespace Iop
 {
