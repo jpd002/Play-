@@ -5,7 +5,7 @@ using namespace Iop;
 using namespace Ioman;
 
 COpticalMediaDirectoryIterator::COpticalMediaDirectoryIterator(Framework::CStream* directoryStream)
-	: m_directoryStream(directoryStream)
+    : m_directoryStream(directoryStream)
 {
 	SeekToNextEntry();
 }
