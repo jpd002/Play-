@@ -11,7 +11,7 @@ jobs:
         target-platform: ['x64']
         arch-type: ['x86_64']
         installer-script: ['installer64.nsi']
-    runs-on: windows-latest
+    runs-on: windows-2019
     steps:
     - name: Add msbuild to PATH
       uses: microsoft/setup-msbuild@v1.0.2

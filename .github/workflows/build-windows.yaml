@@ -19,7 +19,7 @@ jobs:
             arch-type: 'x86_32'
             qt-arch: 'win32_msvc2019'
             installer-script: 'installer32.nsi'
-    runs-on: windows-latest
+    runs-on: windows-2019
     steps:
     - name: Cache Qt
       id: cache-qt
