@@ -1,14 +1,12 @@
 #pragma once
 
 #include "Stream.h"
-#include "filesystem_def.h"
+#include "Ioman_DirectoryIterator.h"
 
 namespace Iop
 {
 	namespace Ioman
 	{
-		typedef fs::directory_iterator Directory;
-
 		class CDevice
 		{
 		public:
@@ -25,7 +23,7 @@ namespace Iop
 
 			virtual ~CDevice() = default;
 			virtual Framework::CStream* GetFile(uint32, const char*) = 0;
-			virtual Directory GetDirectory(const char*) = 0;
+			virtual DirectoryIteratorPtr GetDirectory(const char*) = 0;
 			virtual void MakeDirectory(const char*)
 			{
 				throw std::runtime_error("Directory creation not supported.");

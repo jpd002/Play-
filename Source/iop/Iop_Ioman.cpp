@@ -41,10 +41,6 @@ using namespace Iop;
 #define FUNCTION_SEEK64 "Seek64"
 #define FUNCTION_DEVCTL "DevCtl"
 
-//Directories have "group read" only permissions? This is required by PS2PSXe.
-#define STAT_MODE_DIR (0747 | (1 << 12))  //File mode + Dir type (1)
-#define STAT_MODE_FILE (0777 | (2 << 12)) //File mode + File type (2)
-
 /** No such file or directory */
 #define ERROR_ENOENT 2
 
@@ -375,7 +371,7 @@ int32 CIoman::Dopen(const char* path)
 		}
 		auto directory = deviceIterator->second->GetDirectory(pathInfo.devicePath.c_str());
 		handle = m_nextFileHandle++;
-		m_directories[handle] = directory;
+		m_directories[handle] = std::move(directory);
 	}
 	catch(const std::exception& except)
 	{
@@ -411,31 +407,12 @@ int32 CIoman::Dread(uint32 handle, Ioman::DIRENTRY* dirEntry)
 	}
 
 	auto& directory = directoryIterator->second;
-	if(directory == Ioman::Directory())
+	if(directory->IsDone())
 	{
 		return 0;
 	}
 
-	auto itemPath = directory->path();
-	auto name = itemPath.filename().string();
-	strncpy(dirEntry->name, name.c_str(), Ioman::DIRENTRY::NAME_SIZE);
-	dirEntry->name[Ioman::DIRENTRY::NAME_SIZE - 1] = 0;
-
-	auto& stat = dirEntry->stat;
-	memset(&stat, 0, sizeof(Ioman::STAT));
-	if(fs::is_directory(itemPath))
-	{
-		stat.mode = STAT_MODE_DIR;
-		stat.attr = 0x8427;
-	}
-	else
-	{
-		stat.mode = STAT_MODE_FILE;
-		stat.loSize = fs::file_size(itemPath);
-		stat.attr = 0x8497;
-	}
-
-	directory++;
+	directory->ReadEntry(dirEntry);
 
 	return strlen(dirEntry->name);
 }
@@ -451,7 +428,7 @@ uint32 CIoman::GetStat(const char* path, Ioman::STAT* stat)
 		{
 			Dclose(fd);
 			memset(stat, 0, sizeof(Ioman::STAT));
-			stat->mode = STAT_MODE_DIR;
+			stat->mode = Ioman::STAT_MODE_DIR;
 			return 0;
 		}
 	}
@@ -464,7 +441,7 @@ uint32 CIoman::GetStat(const char* path, Ioman::STAT* stat)
 			uint32 size = Seek(fd, 0, SEEK_DIR_END);
 			Close(fd);
 			memset(stat, 0, sizeof(Ioman::STAT));
-			stat->mode = STAT_MODE_FILE;
+			stat->mode = Ioman::STAT_MODE_FILE;
 			stat->loSize = size;
 			return 0;
 		}

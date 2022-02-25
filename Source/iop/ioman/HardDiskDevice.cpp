@@ -4,6 +4,7 @@
 #include "PathUtils.h"
 #include "PS2VM_Preferences.h"
 #include "StringUtils.h"
+#include "PathDirectoryIterator.h"
 
 using namespace Iop::Ioman;
 
@@ -47,9 +48,9 @@ Framework::CStream* CHardDiskDevice::GetFile(uint32 accessType, const char* devi
 	}
 }
 
-Directory CHardDiskDevice::GetDirectory(const char* devicePath)
+DirectoryIteratorPtr CHardDiskDevice::GetDirectory(const char* devicePath)
 {
-	return Directory(m_basePath);
+	return std::make_unique<CPathDirectoryIterator>(m_basePath);
 }
 
 fs::path CHardDiskDevice::GetMountPath(const char* devicePath)

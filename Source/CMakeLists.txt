@@ -258,10 +258,15 @@ set(COMMON_SRC_FILES
 	iop/ioman/HardDiskDevice.h
 	iop/ioman/OpticalMediaDevice.cpp
 	iop/ioman/OpticalMediaDevice.h
+	iop/ioman/OpticalMediaDirectoryIterator.cpp
+	iop/ioman/OpticalMediaDirectoryIterator.h
 	iop/ioman/PathDirectoryDevice.h
+	iop/ioman/PathDirectoryIterator.cpp
+	iop/ioman/PathDirectoryIterator.h
 	iop/ioman/PreferenceDirectoryDevice.h
 	iop/Ioman_Defs.h
 	iop/Ioman_Device.h
+	iop/Ioman_DirectoryIterator.h
 	iop/Ioman_ScopedFile.cpp
 	iop/Ioman_ScopedFile.h
 	iop/Iop_Cdvdfsv.cpp

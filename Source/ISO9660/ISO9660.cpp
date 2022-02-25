@@ -86,3 +86,15 @@ Framework::CStream* CISO9660::Open(const char* filename)
 
 	return nullptr;
 }
+
+Framework::CStream* CISO9660::OpenDirectory(const char* path)
+{
+	CDirectoryRecord record;
+
+	if(GetFileRecord(&record, path) && record.IsDirectory())
+	{
+		return new CFile(m_blockProvider.get(), static_cast<uint64>(record.GetPosition()) * CBlockProvider::BLOCKSIZE);
+	}
+
+	return nullptr;
+}

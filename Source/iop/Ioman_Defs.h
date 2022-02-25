@@ -6,6 +6,13 @@ namespace Iop
 {
 	namespace Ioman
 	{
+		enum STAT_MODE
+		{
+			// Directories have "group read" only permissions? This is required by PS2PSXe.
+			STAT_MODE_DIR = (0747 | (1 << 12)),  // File mode + Dir type (1)
+			STAT_MODE_FILE = (0777 | (2 << 12)), // File mode + File type (2)
+		};
+
 		struct STAT
 		{
 			uint32 mode;

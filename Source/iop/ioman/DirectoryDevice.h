@@ -13,7 +13,7 @@ namespace Iop
 			virtual ~CDirectoryDevice() = default;
 
 			Framework::CStream* GetFile(uint32, const char*) override;
-			Directory GetDirectory(const char*) override;
+			DirectoryIteratorPtr GetDirectory(const char*) override;
 			void MakeDirectory(const char*) override;
 
 		protected:

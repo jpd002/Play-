@@ -132,7 +132,7 @@ namespace Iop
 		};
 
 		typedef std::map<int32, FileInfo> FileMapType;
-		typedef std::map<uint32, Ioman::Directory> DirectoryMapType;
+		typedef std::map<uint32, Ioman::DirectoryIteratorPtr> DirectoryMapType;
 		typedef std::map<std::string, DevicePtr> DeviceMapType;
 		typedef std::map<std::string, uint32> UserDeviceMapType;
 

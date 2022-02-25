@@ -1,6 +1,7 @@
 #include <cassert>
 #include "DirectoryDevice.h"
 #include "../Iop_PathUtils.h"
+#include "PathDirectoryIterator.h"
 #include "StdStream.h"
 #include "string_cast.h"
 
@@ -65,7 +66,7 @@ Framework::CStream* CDirectoryDevice::GetFile(uint32 accessType, const char* dev
 	}
 }
 
-Directory CDirectoryDevice::GetDirectory(const char* devicePath)
+DirectoryIteratorPtr CDirectoryDevice::GetDirectory(const char* devicePath)
 {
 	auto basePath = GetBasePath();
 	auto path = Iop::PathUtils::MakeHostPath(basePath, devicePath);
@@ -73,7 +74,7 @@ Directory CDirectoryDevice::GetDirectory(const char* devicePath)
 	{
 		throw std::runtime_error("Not a directory.");
 	}
-	return fs::directory_iterator(path);
+	return std::make_unique<CPathDirectoryIterator>(path);
 }
 
 void CDirectoryDevice::MakeDirectory(const char* devicePath)

@@ -1,6 +1,7 @@
 #include "OpticalMediaDevice.h"
 #include <algorithm>
 #include <string>
+#include "OpticalMediaDirectoryIterator.h"
 
 using namespace Iop::Ioman;
 
@@ -42,7 +43,16 @@ Framework::CStream* COpticalMediaDevice::GetFile(uint32 mode, const char* device
 	return fileSystem->Open(fixedString.c_str());
 }
 
-Directory COpticalMediaDevice::GetDirectory(const char* devicePath)
+DirectoryIteratorPtr COpticalMediaDevice::GetDirectory(const char* devicePath)
 {
-	throw std::runtime_error("Not supported.");
+	if(!m_opticalMedia) return nullptr;
+	std::string fixedString(devicePath);
+	std::transform(fixedString.begin(), fixedString.end(), fixedString.begin(), &COpticalMediaDevice::FixSlashes);
+	auto fileSystem = m_opticalMedia->GetFileSystem();
+	auto directoryStream = fileSystem->OpenDirectory(fixedString.c_str());
+	if(directoryStream == nullptr)
+	{
+		throw std::runtime_error("Directory not found.");
+	}
+	return std::make_unique<COpticalMediaDirectoryIterator>(directoryStream);
 }

@@ -17,6 +17,7 @@ public:
 	void ReadBlock(uint32, void*);
 
 	Framework::CStream* Open(const char*);
+	Framework::CStream* OpenDirectory(const char*);
 	bool GetFileRecord(ISO9660::CDirectoryRecord*, const char*);
 
 private:
