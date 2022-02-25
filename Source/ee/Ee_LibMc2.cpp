@@ -288,6 +288,8 @@ const char* CLibMc2::GetSysCallDescription(uint16 syscallNumber)
 		return "ReadFile2Async";
 	case SYSCALL_MC2_WRITEFILE2_ASYNC:
 		return "WriteFile2Async";
+	case SYSCALL_MC2_GETDBCSTATUS:
+		return "GetDbcStatus";
 	default:
 		return "unknown";
 		break;
