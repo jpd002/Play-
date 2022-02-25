@@ -1,4 +1,5 @@
 #include "OpticalMediaDirectoryIterator.h"
+#include <cstring>
 
 using namespace Iop;
 using namespace Ioman;

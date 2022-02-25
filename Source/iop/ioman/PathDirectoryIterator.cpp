@@ -1,4 +1,5 @@
 #include "PathDirectoryIterator.h"
+#include <cstring>
 
 using namespace Iop;
 using namespace Iop::Ioman;
