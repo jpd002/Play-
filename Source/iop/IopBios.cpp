@@ -3331,6 +3331,19 @@ unsigned int CIopBios::GetElfProgramToLoad(CELF& elf)
 	return program;
 }
 
+unsigned int CIopBios::FindElfExecutableSection(CELF& elf)
+{
+	const auto& header = elf.GetHeader();
+	for(unsigned int i = 0; i < header.nSectHeaderCount; i++)
+	{
+		auto sectionHeader = elf.GetSection(i);
+		if(sectionHeader->nType != (CELF::SHT_PROGBITS)) continue;
+		if(sectionHeader->nFlags != (CELF::SHF_ALLOC | CELF::SHF_EXECINSTR)) continue;
+		return i;
+	}
+	return 0;
+}
+
 void CIopBios::RelocateElf(CELF& elf, uint32 baseAddress)
 {
 	//The IOP's ELF loader doesn't seem to follow the ELF standard completely
@@ -3349,6 +3362,12 @@ void CIopBios::RelocateElf(CELF& elf, uint32 baseAddress)
 	    }();
 	bool isVersion2 = (header.nType == ET_SCE_IOPRELEXEC2);
 	auto textSectionIndex = elf.FindSectionIndex(".text");
+	if(textSectionIndex == 0)
+	{
+		//Some games strips the section name string table
+		//Find the text section another way
+		textSectionIndex = FindElfExecutableSection(elf);
+	}
 	assert(textSectionIndex != 0);
 	auto textSection = elf.GetSection(textSectionIndex);
 	auto textSectionData = reinterpret_cast<uint8*>(const_cast<void*>(elf.GetSectionData(textSectionIndex)));
