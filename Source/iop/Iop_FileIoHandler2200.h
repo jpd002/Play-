@@ -268,6 +268,7 @@ namespace Iop
 			Ioman::STATEX stat;
 			char name[Ioman::DIRENTRY::NAME_SIZE];
 		};
+		static_assert(sizeof(DREADREPLY) == 0x158, "DREADREPLY must be 0x158 bytes long.");
 
 		struct GETSTATREPLY
 		{
