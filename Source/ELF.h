@@ -106,6 +106,13 @@ public:
 		SHT_DYNSYM = 11,
 	};
 
+	enum SECTION_HEADER_FLAG
+	{
+		SHF_WRITE = 0x0001,
+		SHF_ALLOC = 0x0002,
+		SHF_EXECINSTR = 0x0004,
+	};
+
 	enum PROGRAM_HEADER_TYPE
 	{
 		PT_NULL = 0,
