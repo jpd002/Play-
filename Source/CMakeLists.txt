@@ -299,6 +299,8 @@ set(COMMON_SRC_FILES
 	iop/Iop_Intrman.h
 	iop/Iop_Ioman.cpp
 	iop/Iop_Ioman.h
+	iop/Iop_IomanX.cpp
+	iop/Iop_IomanX.h
 	iop/Iop_LibSd.cpp
 	iop/Iop_LibSd.h
 	iop/Iop_Loadcore.cpp

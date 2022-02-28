@@ -17,6 +17,7 @@
 #include "../states/StructCollectionStateFile.h"
 
 #ifdef _IOP_EMULATE_MODULES
+#include "Iop_IomanX.h"
 #include "Iop_Naplink.h"
 #endif
 
@@ -253,6 +254,7 @@ void CIopBios::Reset(const Iop::SifManPtr& sifMan)
 		m_mcserv = std::make_shared<Iop::CMcServ>(*this, *m_sifMan, *m_sifCmd, *m_sysmem, m_ram);
 		RegisterModule(m_mcserv);
 	}
+	RegisterModule(std::make_shared<Iop::CIomanX>(*m_ioman));
 	//RegisterModule(std::make_shared<Iop::CNaplink>(*m_sifMan, *m_ioman));
 	{
 		m_padman = std::make_shared<Iop::CPadMan>();
