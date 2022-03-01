@@ -141,8 +141,6 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 		sortMethod = sp.getInt("sortMethod", SORT_NONE);
 		onNavigationDrawerItemSelected(sortMethod);
 		sp.registerOnSharedPreferenceChangeListener(this);
-
-		prepareAndroid11MigrationProcess();
 	}
 
 	@Override
@@ -602,27 +600,6 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 		{
 			new ImageFinder(fullscan).execute();
 		}
-	}
-
-	private void prepareAndroid11MigrationProcess()
-	{
-		SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
-		boolean userNotified = sp.getBoolean(PREF_ANDROID11_USER_NOTIFIED, false);
-
-		if(!userNotified)
-		{
-			new AlertDialog.Builder(this)
-					.setTitle(getString(R.string.migration_title))
-					.setMessage(getString(R.string.migration_explanation))
-					.setPositiveButton(android.R.string.yes, (dialog, id) -> {
-						selectDataFilesFolderToMigrate();
-					})
-					.setNegativeButton(android.R.string.no, (dialog, id) -> {})
-					.create()
-					.show();
-		}
-
-		sp.edit().putBoolean(PREF_ANDROID11_USER_NOTIFIED, true).commit();
 	}
 
 	private void selectDataFilesFolderToMigrate()

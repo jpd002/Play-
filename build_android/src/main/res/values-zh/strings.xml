@@ -169,7 +169,6 @@
 
 	<!-- Data Files Migration -->
 	<string name="migration_title">数据文件迁移</string>
-	<string name="migration_explanation">由于Android 11中的文件系统访问策略改变，这个新版本的应用程序现在使用一个\“Data Files\”文件夹在应用程序的数据文件夹中，而不是外部存储。\n\n您想要将您的数据从以前的位置迁移到新的位置吗？</string>
 	<string name="migration_selectfolder">请选择之前的数据文件文件夹的位置(通常位于设备存储的根目录，并名为\“Play Data Files\”)。</string>
 	<string name="migration_task_msg">请稍候&#8230;</string>
 

@@ -169,7 +169,6 @@
 
 	<!-- Data Files Migration -->	
 	<string name="migration_title">Перенос Data Files</string>
-	<string name="migration_explanation">В результате изменений в политике доступа к файловой системе в Android 11, вместо внешнего хранилища в новой версии приложения используется каталог \'Data Files\', расположенный в каталоге приложения.\n\nПереместить данные из предыдущего места хранения в новое?</string>
 	<string name="migration_selectfolder">Пожалуйста, укажите расположение предыдущего каталога Data Files (обычно он находится в корне памяти и имеет название \'Play Data Files\').</string>
 	<string name="migration_task_msg">Пожалуйста, подождите&#8230;</string>	
 

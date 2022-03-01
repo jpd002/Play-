@@ -169,7 +169,6 @@
 
 	<!-- Data Files Migration -->
 	<string name="migration_title">Migração de arquivos de dados</string>
-	<string name="migration_explanation">Devido a mudanças na política de acesso ao sistema de arquivos no Android 11, esta nova versão deste aplicativo usa uma pasta \'Data Files\' dentro da pasta de dados do aplicativo, em vez de armazenamento externo.\n\nVocê gostaria de migrar seus dados do local anterior para o novo?</string>
 	<string name="migration_selectfolder">Por favor, selecione a localização da pasta de arquivos de dados anterior (geralmente localizada na raiz do armazenamento de seu dispositivo e denominada de \'Play Data Files\').</string>
 	<string name="migration_task_msg">Por favor, aguarde&#8230;</string>
 
