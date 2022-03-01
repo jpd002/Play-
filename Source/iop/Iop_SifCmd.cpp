@@ -1,6 +1,7 @@
 #include <cstring>
 #include "Iop_SifCmd.h"
 #include "IopBios.h"
+#include "../Ps2Const.h"
 #include "../COP_SCU.h"
 #include "../ee/SIF.h"
 #include "../Log.h"
@@ -514,7 +515,8 @@ void CSifCmd::ProcessInvocation(uint32 serverDataAddr, uint32 methodId, uint32* 
 		//Atelier Marie & Elie relies on this: reports payload of size 0x1C, but actually uses 0x20
 		//Module init funciton reads at 0x1C to get a pointer to EE memory used to update sound status
 		uint32 copySize = (size + 0x0F) & ~0x0F;
-		memcpy(&m_ram[serverData->buffer], params, copySize);
+		uint32 bufferAddr = serverData->buffer & (PS2::EE_RAM_SIZE - 1);
+		memcpy(&m_ram[bufferAddr], params, copySize);
 	}
 	serverData->rid = methodId;
 	serverData->rsize = size;
