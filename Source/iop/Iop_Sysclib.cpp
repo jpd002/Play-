@@ -157,8 +157,8 @@ void CSysclib::Invoke(CMIPS& context, unsigned int functionId)
 	case 13:
 		context.m_State.nGPR[CMIPS::V0].nD0 = context.m_State.nGPR[CMIPS::A0].nD0;
 		__memmove(
-		    &m_ram[context.m_State.nGPR[CMIPS::A0].nV0],
-		    &m_ram[context.m_State.nGPR[CMIPS::A1].nV0],
+		    context.m_State.nGPR[CMIPS::A0].nV0,
+		    context.m_State.nGPR[CMIPS::A1].nV0,
 		    context.m_State.nGPR[CMIPS::A2].nV0);
 		break;
 	case 14:
@@ -407,8 +407,10 @@ void CSysclib::__memcpy(uint32 destPtr, uint32 srcPtr, unsigned int length)
 	memcpy(dest, src, length);
 }
 
-void CSysclib::__memmove(void* dest, const void* src, uint32 length)
+void CSysclib::__memmove(uint32 destPtr, uint32 srcPtr, uint32 length)
 {
+	auto dest = reinterpret_cast<uint8*>(GetPtr(destPtr, length));
+	auto src = reinterpret_cast<uint8*>(GetPtr(srcPtr, length));
 	memmove(dest, src, length);
 }
 

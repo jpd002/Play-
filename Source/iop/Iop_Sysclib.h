@@ -40,7 +40,7 @@ namespace Iop
 		uint32 __look_ctype_table(uint32);
 		uint32 __memcmp(uint32, uint32, uint32);
 		void __memcpy(uint32, uint32, unsigned int);
-		void __memmove(void*, const void*, uint32);
+		void __memmove(uint32, uint32, uint32);
 		uint32 __memset(uint32, uint32, uint32);
 		uint32 __sprintf(CMIPS& context);
 		uint32 __strcat(uint32, uint32);
