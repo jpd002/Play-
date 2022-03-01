@@ -3364,7 +3364,7 @@ void CIopBios::RelocateElf(CELF& elf, uint32 baseAddress)
 	auto textSectionIndex = elf.FindSectionIndex(".text");
 	if(textSectionIndex == 0)
 	{
-		//Some games strips the section name string table
+		//Some games strip the section name string table (Twinkle Star Sprites)
 		//Find the text section another way
 		textSectionIndex = FindElfExecutableSection(elf);
 	}
