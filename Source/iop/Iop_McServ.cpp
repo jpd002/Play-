@@ -507,7 +507,7 @@ void CMcServ::Seek(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, u
 		break;
 	}
 
-	file->Seek(cmd->offset, origin);
+	file->Seek(static_cast<int32>(cmd->offset), origin);
 	ret[0] = static_cast<uint32>(file->Tell());
 }
 
