@@ -745,6 +745,12 @@ void CMcServ::SetFileInfo(uint32* args, uint32 argsSize, uint32* ret, uint32 ret
 		{
 			try
 			{
+				if(!fs::exists(filePath1))
+				{
+					ret[0] = RET_NO_ENTRY;
+					return;
+				}
+
 				fs::rename(filePath1, filePath2);
 			}
 			catch(...)
