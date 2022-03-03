@@ -604,7 +604,6 @@ private:
 	int32 LoadModule(CELF&, const char*, uint32, bool);
 	uint32 LoadExecutable(CELF&, ExecutableRange&, uint32);
 	unsigned int GetElfProgramToLoad(CELF&);
-	unsigned int FindElfExecutableSection(CELF&);
 	void RelocateElf(CELF&, uint32, uint32);
 	std::string ReadModuleName(uint32);
 	void DeleteModules();

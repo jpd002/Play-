@@ -3330,19 +3330,6 @@ unsigned int CIopBios::GetElfProgramToLoad(CELF& elf)
 	return program;
 }
 
-unsigned int CIopBios::FindElfExecutableSection(CELF& elf)
-{
-	const auto& header = elf.GetHeader();
-	for(unsigned int i = 0; i < header.nSectHeaderCount; i++)
-	{
-		auto sectionHeader = elf.GetSection(i);
-		if(sectionHeader->nType != (CELF::SHT_PROGBITS)) continue;
-		if(sectionHeader->nFlags != (CELF::SHF_ALLOC | CELF::SHF_EXECINSTR)) continue;
-		return i;
-	}
-	return 0;
-}
-
 void CIopBios::RelocateElf(CELF& elf, uint32 programBaseAddress, uint32 programSize)
 {
 	//The IOP's ELF loader doesn't seem to follow the ELF standard completely
