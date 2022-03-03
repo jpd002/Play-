@@ -306,12 +306,13 @@ uint32 CSysmem::FreeMemory(uint32 address)
 	{
 		m_blocks.Free(*nextBlockId);
 		*nextBlockId = nextBlock->nextBlockId;
+		return 0;
 	}
 	else
 	{
 		CLog::GetInstance().Warn(LOG_NAME, "%s: Trying to unallocate an unexisting memory block (0x%08X).\r\n", __FUNCTION__, address);
+		return -1;
 	}
-	return 0;
 }
 
 void CSysmem::DumpAllocList()
@@ -365,6 +366,5 @@ uint32 CSysmem::SifLoadMemory(uint32 address, const char* filePath)
 uint32 CSysmem::SifFreeMemory(uint32 address)
 {
 	CLog::GetInstance().Print(LOG_NAME, "FreeMemory(address = 0x%08X);\r\n", address);
-	FreeMemory(address);
-	return 0;
+	return FreeMemory(address);
 }
