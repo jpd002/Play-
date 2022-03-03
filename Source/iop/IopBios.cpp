@@ -3294,17 +3294,16 @@ uint32 CIopBios::LoadExecutable(CELF& elf, ExecutableRange& executableRange, uin
 	{
 		throw std::runtime_error("No program to load.");
 	}
-	ELFPROGRAMHEADER* programHeader = elf.GetProgram(programHeaderIndex);
+	auto programHeader = elf.GetProgram(programHeaderIndex);
 	if(baseAddress == ~0U)
 	{
 		baseAddress = m_sysmem->AllocateMemory(programHeader->nMemorySize, 0, 0);
 	}
-	RelocateElf(elf, baseAddress);
-
 	memcpy(
 	    m_ram + baseAddress,
 	    elf.GetContent() + programHeader->nOffset,
 	    programHeader->nFileSize);
+	RelocateElf(elf, baseAddress, programHeader->nFileSize);
 
 	executableRange.first = baseAddress;
 	executableRange.second = baseAddress + programHeader->nMemorySize;
@@ -3319,7 +3318,7 @@ unsigned int CIopBios::GetElfProgramToLoad(CELF& elf)
 	for(unsigned int i = 0; i < header.nProgHeaderCount; i++)
 	{
 		ELFPROGRAMHEADER* programHeader = elf.GetProgram(i);
-		if(programHeader != NULL && programHeader->nType == 1)
+		if(programHeader != NULL && programHeader->nType == CELF::PT_LOAD)
 		{
 			if(program != -1)
 			{
@@ -3344,33 +3343,19 @@ unsigned int CIopBios::FindElfExecutableSection(CELF& elf)
 	return 0;
 }
 
-void CIopBios::RelocateElf(CELF& elf, uint32 baseAddress)
+void CIopBios::RelocateElf(CELF& elf, uint32 programBaseAddress, uint32 programSize)
 {
 	//The IOP's ELF loader doesn't seem to follow the ELF standard completely
 	//when it comes to relocations. The relocation function seems to use the
-	//.text section's base address for all adjustments. Using information from the
+	//loaded program's base address for all adjustments. Using information from the
 	//section headers (either the section's start address or info field) will yield
-	//an incorrect result in some cases (ex.: RWA.IRA module from Burnout 3 and Burnout Revenge)
-
+	//an incorrect result in some cases.
+	//Examples:
+	//- RWA.IRX module from Burnout 3 and Burnout Revenge
+	//- Modules from Twinkle Star Sprites (stripped section name string table)
 	const auto& header = elf.GetHeader();
-	uint32 maxRelocAddress =
-	    [&]() {
-		    auto programHeader = elf.GetProgram(1);
-		    if(!programHeader) return UINT32_MAX;
-		    if(programHeader->nType != CELF::PT_LOAD) return UINT32_MAX;
-		    return programHeader->nMemorySize;
-	    }();
 	bool isVersion2 = (header.nType == ET_SCE_IOPRELEXEC2);
-	auto textSectionIndex = elf.FindSectionIndex(".text");
-	if(textSectionIndex == 0)
-	{
-		//Some games strip the section name string table (Twinkle Star Sprites)
-		//Find the text section another way
-		textSectionIndex = FindElfExecutableSection(elf);
-	}
-	assert(textSectionIndex != 0);
-	auto textSection = elf.GetSection(textSectionIndex);
-	auto textSectionData = reinterpret_cast<uint8*>(const_cast<void*>(elf.GetSectionData(textSectionIndex)));
+	auto programData = m_ram + programBaseAddress;
 	for(unsigned int i = 0; i < header.nSectHeaderCount; i++)
 	{
 		const auto* sectionHeader = elf.GetSection(i);
@@ -3385,20 +3370,20 @@ void CIopBios::RelocateElf(CELF& elf, uint32 baseAddress)
 			{
 				uint32 relocationAddress = relocationRecord[0] - sectionBase;
 				uint32 relocationType = relocationRecord[1] & 0xFF;
-				assert(relocationAddress < maxRelocAddress);
-				if(relocationAddress < maxRelocAddress)
+				assert(relocationAddress < programSize);
+				if(relocationAddress < programSize)
 				{
-					uint32& instruction = *reinterpret_cast<uint32*>(&textSectionData[relocationAddress]);
+					uint32& instruction = *reinterpret_cast<uint32*>(&programData[relocationAddress]);
 					switch(relocationType)
 					{
 					case CELF::R_MIPS_32:
 					{
-						instruction += baseAddress;
+						instruction += programBaseAddress;
 					}
 					break;
 					case CELF::R_MIPS_26:
 					{
-						uint32 offset = (instruction & 0x03FFFFFF) + (baseAddress >> 2);
+						uint32 offset = (instruction & 0x03FFFFFF) + (programBaseAddress >> 2);
 						instruction &= ~0x03FFFFFF;
 						instruction |= offset;
 					}
@@ -3409,9 +3394,9 @@ void CIopBios::RelocateElf(CELF& elf, uint32 baseAddress)
 							assert((record + 1) != recordCount);
 							assert((relocationRecord[3] & 0xFF) == CELF::R_MIPS_LO16);
 							uint32 nextRelocationAddress = relocationRecord[2] - sectionBase;
-							uint32 nextInstruction = *reinterpret_cast<uint32*>(&textSectionData[nextRelocationAddress]);
+							uint32 nextInstruction = *reinterpret_cast<uint32*>(&programData[nextRelocationAddress]);
 							uint32 offset = static_cast<int16>(nextInstruction) + (instruction << 16);
-							offset += baseAddress;
+							offset += programBaseAddress;
 							if(offset & 0x8000) offset += 0x10000;
 							instruction &= ~0xFFFF;
 							instruction |= offset >> 16;
@@ -3427,7 +3412,7 @@ void CIopBios::RelocateElf(CELF& elf, uint32 baseAddress)
 						if(isVersion2)
 						{
 							uint32 offset = static_cast<int16>(instruction);
-							offset += baseAddress;
+							offset += programBaseAddress;
 							instruction &= ~0xFFFF;
 							instruction |= offset & 0xFFFF;
 						}
@@ -3436,11 +3421,11 @@ void CIopBios::RelocateElf(CELF& elf, uint32 baseAddress)
 							assert(lastHi16 != -1);
 
 							uint32 offset = static_cast<int16>(instruction) + (instructionHi16 << 16);
-							offset += baseAddress;
+							offset += programBaseAddress;
 							instruction &= ~0xFFFF;
 							instruction |= offset & 0xFFFF;
 
-							uint32& prevInstruction = *reinterpret_cast<uint32*>(&textSectionData[lastHi16]);
+							uint32& prevInstruction = *reinterpret_cast<uint32*>(&programData[lastHi16]);
 							prevInstruction &= ~0xFFFF;
 							if(offset & 0x8000) offset += 0x10000;
 							prevInstruction |= offset >> 16;
@@ -3452,12 +3437,12 @@ void CIopBios::RelocateElf(CELF& elf, uint32 baseAddress)
 						assert(isVersion2);
 						assert((record + 1) != recordCount);
 						assert((relocationRecord[3] & 0xFF) == R_MIPSSCE_ADDEND);
-						uint32 offset = relocationRecord[2] + baseAddress;
+						uint32 offset = relocationRecord[2] + programBaseAddress;
 						if(offset & 0x8000) offset += 0x10000;
 						offset >>= 16;
 						while(1)
 						{
-							uint32& prevInstruction = *reinterpret_cast<uint32*>(&textSectionData[relocationAddress]);
+							uint32& prevInstruction = *reinterpret_cast<uint32*>(&programData[relocationAddress]);
 
 							int32 mhiOffset = static_cast<int16>(prevInstruction);
 							mhiOffset *= 4;
