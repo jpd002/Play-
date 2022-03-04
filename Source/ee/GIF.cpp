@@ -48,6 +48,7 @@ void CGIF::Reset()
 	m_qtemp = QTEMP_INIT;
 	m_signalState = SIGNAL_STATE_NONE;
 	m_maskedPath3XferState = MASKED_PATH3_XFER_NONE;
+	m_path3XferActiveTicks = 0;
 }
 
 void CGIF::LoadState(Framework::CZipArchiveReader& archive)
@@ -397,6 +398,13 @@ uint32 CGIF::ProcessMultiplePackets(const uint8* memory, uint32 memorySize, uint
 			break;
 		}
 
+		if(packetMetadata.pathIndex == 3)
+		{
+			//Eurocom games will check if PATH3 is outputting right after starting a DMA transfer
+			//So, this doesn't need to be a huge number
+			m_path3XferActiveTicks = 0x100;
+		}
+
 		address += ProcessSinglePacket(memory, memorySize, address, end, packetMetadata);
 		if(m_signalState == SIGNAL_STATE_PENDING)
 		{
@@ -443,6 +451,11 @@ uint32 CGIF::ReceiveDMA(uint32 address, uint32 qwc, uint32 unused, bool tagInclu
 	return (address - start) / 0x10;
 }
 
+void CGIF::CountTicks(uint32 cycles)
+{
+	m_path3XferActiveTicks = std::max<int32>(m_path3XferActiveTicks - cycles, 0);
+}
+
 uint32 CGIF::GetRegister(uint32 address)
 {
 	uint32 result = 0;
@@ -454,6 +467,12 @@ uint32 CGIF::GetRegister(uint32 address)
 			result |= GIF_STAT_M3P;
 			//Indicate that FIFO is full (15 qwords) (needed for GTA: San Andreas)
 			result |= (0x1F << 24);
+		}
+
+		if(m_path3XferActiveTicks > 0)
+		{
+			result |= GIF_STAT_OPH;
+			result |= GIF_STAT_APATH3;
 		}
 
 		result |= (m_gs->GetBUSDIR() << 12);

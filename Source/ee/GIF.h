@@ -20,6 +20,7 @@ public:
 	enum
 	{
 		GIF_STAT_M3P = 0x002,
+		GIF_STAT_OPH = 0x200,
 		GIF_STAT_APATH3 = 0xC00,
 	};
 
@@ -51,6 +52,8 @@ public:
 
 	uint32 ProcessSinglePacket(const uint8*, uint32, uint32, uint32, const CGsPacketMetadata&);
 	uint32 ProcessMultiplePackets(const uint8*, uint32, uint32, uint32, const CGsPacketMetadata&);
+
+	void CountTicks(uint32);
 
 	uint32 GetRegister(uint32);
 	void SetRegister(uint32, uint32);
@@ -97,6 +100,7 @@ private:
 	uint32 m_qtemp;
 	SIGNAL_STATE m_signalState = SIGNAL_STATE_NONE;
 	MASKED_PATH3_XFER_STATE m_maskedPath3XferState = MASKED_PATH3_XFER_NONE;
+	int32 m_path3XferActiveTicks = 0;
 	uint8* m_ram;
 	uint8* m_spr;
 	CGSHandler*& m_gs;
