@@ -22,6 +22,7 @@
 #define FUNCTION_CDGETDISKTYPE "CdGetDiskType"
 #define FUNCTION_CDDISKREADY "CdDiskReady"
 #define FUNCTION_CDTRAYREQ "CdTrayReq"
+#define FUNCTION_CDREADILINKID "CdReadILinkId"
 #define FUNCTION_CDREADCLOCK "CdReadClock"
 #define FUNCTION_CDSTATUS "CdStatus"
 #define FUNCTION_CDCALLBACK "CdCallback"
@@ -32,6 +33,7 @@
 #define FUNCTION_CDSTSTART "CdStStart"
 #define FUNCTION_CDSTSTAT "CdStStat"
 #define FUNCTION_CDSTSTOP "CdStStop"
+#define FUNCTION_CDREADMODEL "CdReadModel"
 #define FUNCTION_CDSETMMODE "CdSetMmode"
 #define FUNCTION_CDSTSEEKF "CdStSeekF"
 #define FUNCTION_CDREADDVDDUALINFO "CdReadDvdDualInfo"
@@ -212,6 +214,9 @@ std::string CCdvdman::GetFunctionName(unsigned int functionId) const
 	case 14:
 		return FUNCTION_CDTRAYREQ;
 		break;
+	case 22:
+		return FUNCTION_CDREADILINKID;
+		break;
 	case 24:
 		return FUNCTION_CDREADCLOCK;
 		break;
@@ -241,6 +246,9 @@ std::string CCdvdman::GetFunctionName(unsigned int functionId) const
 		break;
 	case 61:
 		return FUNCTION_CDSTSTOP;
+		break;
+	case 64:
+		return FUNCTION_CDREADMODEL;
 		break;
 	case 75:
 		return FUNCTION_CDSETMMODE;
@@ -303,6 +311,11 @@ void CCdvdman::Invoke(CMIPS& ctx, unsigned int functionId)
 		    ctx.m_State.nGPR[CMIPS::A0].nV0,
 		    ctx.m_State.nGPR[CMIPS::A1].nV0);
 		break;
+	case 22:
+		ctx.m_State.nGPR[CMIPS::V0].nV0 = CdReadILinkId(
+		    ctx.m_State.nGPR[CMIPS::A0].nV0,
+		    ctx.m_State.nGPR[CMIPS::A1].nV0);
+		break;
 	case 24:
 		ctx.m_State.nGPR[CMIPS::V0].nV0 = CdReadClock(ctx.m_State.nGPR[CMIPS::A0].nV0);
 		break;
@@ -342,6 +355,11 @@ void CCdvdman::Invoke(CMIPS& ctx, unsigned int functionId)
 		break;
 	case 61:
 		ctx.m_State.nGPR[CMIPS::V0].nV0 = CdStStop();
+		break;
+	case 64:
+		ctx.m_State.nGPR[CMIPS::V0].nV0 = CdReadModel(
+		    ctx.m_State.nGPR[CMIPS::A0].nV0,
+		    ctx.m_State.nGPR[CMIPS::A1].nV0);
 		break;
 	case 75:
 		ctx.m_State.nGPR[CMIPS::V0].nV0 = CdSetMmode(ctx.m_State.nGPR[CMIPS::A0].nV0);
@@ -520,6 +538,21 @@ uint32 CCdvdman::CdTrayReq(uint32 mode, uint32 trayCntPtr)
 	return 1;
 }
 
+uint32 CCdvdman::CdReadILinkId(uint32 idPtr, uint32 statPtr)
+{
+	CLog::GetInstance().Print(LOG_NAME, FUNCTION_CDREADILINKID "(idPtr = 0x%08X, statPtr = 0x%08X);\r\n",
+	                          idPtr, statPtr);
+
+	auto idBuffer = m_ram + idPtr;
+	//iLink ID is 64-bits (8 bytes)
+	memset(idBuffer, 0xAA, 8);
+	if(statPtr != 0)
+	{
+		*reinterpret_cast<uint32*>(m_ram + statPtr) = 0;
+	}
+	return 1;
+}
+
 uint32 CCdvdman::CdReadClock(uint32 clockPtr)
 {
 	CLog::GetInstance().Print(LOG_NAME, FUNCTION_CDREADCLOCK "(clockPtr = 0x%08X);\r\n",
@@ -605,6 +638,21 @@ uint32 CCdvdman::CdStStat()
 uint32 CCdvdman::CdStStop()
 {
 	CLog::GetInstance().Print(LOG_NAME, FUNCTION_CDSTSTOP "();\r\n");
+	return 1;
+}
+
+uint32 CCdvdman::CdReadModel(uint32 modelPtr, uint32 statPtr)
+{
+	CLog::GetInstance().Print(LOG_NAME, FUNCTION_CDREADMODEL "(modelPtr = 0x%08X, statPtr = 0x%08X);\r\n",
+	                          modelPtr, statPtr);
+
+	auto modelBuffer = reinterpret_cast<char*>(m_ram + modelPtr);
+	//modelBuffer seems to be 32 bytes long (Silent Scope 2 uses that number)
+	strcpy(modelBuffer, "SCPH-30000");
+	if(statPtr != 0)
+	{
+		*reinterpret_cast<uint32*>(m_ram + statPtr) = 0;
+	}
 	return 1;
 }
 

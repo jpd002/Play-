@@ -77,6 +77,7 @@ namespace Iop
 		uint32 CdGetDiskType();
 		uint32 CdDiskReady(uint32);
 		uint32 CdTrayReq(uint32, uint32);
+		uint32 CdReadILinkId(uint32, uint32);
 		uint32 CdReadClock(uint32);
 		uint32 CdStatus();
 		uint32 CdCallback(uint32);
@@ -87,6 +88,7 @@ namespace Iop
 		uint32 CdStStart(uint32, uint32);
 		uint32 CdStStat();
 		uint32 CdStStop();
+		uint32 CdReadModel(uint32, uint32);
 		uint32 CdSetMmode(uint32);
 		uint32 CdStSeekF(uint32);
 		uint32 CdReadDvdDualInfo(uint32, uint32);
