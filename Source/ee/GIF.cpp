@@ -23,6 +23,7 @@
 #define STATE_REGS_REGLIST ("REGLIST")
 #define STATE_REGS_EOP ("EOP")
 #define STATE_REGS_QTEMP ("QTEMP")
+#define STATE_REGS_PATH3_XFER_ACTIVE_TICKS ("Path3XferActiveTicks")
 
 CGIF::CGIF(CGSHandler*& gs, CDMAC& dmac, uint8* ram, uint8* spr)
     : m_qtemp(QTEMP_INIT)
@@ -64,6 +65,7 @@ void CGIF::LoadState(Framework::CZipArchiveReader& archive)
 	m_regList = registerFile.GetRegister64(STATE_REGS_REGLIST);
 	m_eop = registerFile.GetRegister32(STATE_REGS_EOP) != 0;
 	m_qtemp = registerFile.GetRegister32(STATE_REGS_QTEMP);
+	m_path3XferActiveTicks = registerFile.GetRegister32(STATE_REGS_PATH3_XFER_ACTIVE_TICKS);
 }
 
 void CGIF::SaveState(Framework::CZipArchiveWriter& archive)
@@ -79,6 +81,7 @@ void CGIF::SaveState(Framework::CZipArchiveWriter& archive)
 	registerFile->SetRegister64(STATE_REGS_REGLIST, m_regList);
 	registerFile->SetRegister32(STATE_REGS_EOP, m_eop ? 1 : 0);
 	registerFile->SetRegister32(STATE_REGS_QTEMP, m_qtemp);
+	registerFile->SetRegister32(STATE_REGS_PATH3_XFER_ACTIVE_TICKS, m_path3XferActiveTicks);
 	archive.InsertFile(registerFile);
 }
 
