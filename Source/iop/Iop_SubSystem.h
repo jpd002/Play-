@@ -7,6 +7,7 @@
 #include "Iop_Dev9.h"
 #include "Iop_Dmac.h"
 #include "Iop_Intc.h"
+#include "Iop_Ilink.h"
 #include "Iop_RootCounters.h"
 #include "Iop_Speed.h"
 #include "Iop_SpuBase.h"
@@ -47,6 +48,7 @@ namespace Iop
 		CSpu2 m_spu2;
 		CDev9 m_dev9;
 		CSpeed m_speed;
+		CIlink m_ilink;
 #ifdef _IOP_EMULATE_MODULES
 		CSio2 m_sio2;
 #endif

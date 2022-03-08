@@ -228,10 +228,9 @@ uint32 CSubSystem::ReadIoRegister(uint32 address)
 	{
 		return m_speed.ReadRegister(address);
 	}
-	else if(address >= 0x1F808400 && address <= 0x1F808500)
+	else if(address >= CIlink::ADDR_BEGIN && address <= CIlink::ADDR_END)
 	{
-		//iLink (aka Firewire) stuff
-		return 0x08;
+		return m_ilink.ReadRegister(address);
 	}
 	else
 	{
@@ -284,6 +283,10 @@ uint32 CSubSystem::WriteIoRegister(uint32 address, uint32 value)
 	else if(address >= SPEED_REG_BEGIN && address <= SPEED_REG_END)
 	{
 		m_speed.WriteRegister(address, value);
+	}
+	else if(address >= CIlink::ADDR_BEGIN && address <= CIlink::ADDR_END)
+	{
+		m_ilink.WriteRegister(address, value);
 	}
 	else
 	{
