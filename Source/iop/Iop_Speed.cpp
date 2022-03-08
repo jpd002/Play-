@@ -360,6 +360,7 @@ void CSpeed::LogRead(uint32 address)
 		CLog::GetInstance().Warn(LOG_NAME, "Read an unknown register 0x%08X.\r\n", address);
 		break;
 	}
+#undef LOG_GET
 }
 
 void CSpeed::LogWrite(uint32 address, uint32 value)
@@ -404,6 +405,7 @@ void CSpeed::LogWrite(uint32 address, uint32 value)
 		CLog::GetInstance().Warn(LOG_NAME, "Wrote 0x%08X to an unknown register 0x%08X.\r\n", value, address);
 		break;
 	}
+#undef LOG_SET
 }
 
 void CSpeed::LogBdRead(const char* name, uint32 base, uint32 address)
