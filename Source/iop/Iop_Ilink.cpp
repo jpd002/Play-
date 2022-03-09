@@ -1,8 +1,16 @@
 #include "Iop_Ilink.h"
 #include "Iop_Intc.h"
 #include "Log.h"
+#include "../states/RegisterStateFile.h"
 
 #define LOG_NAME ("iop_ilink")
+
+#define STATE_REGS_XML ("iop_ilink/regs.xml")
+#define STATE_REGS_PHYRESULT ("PHYRESULT")
+#define STATE_REGS_INTR0 ("INTR0")
+#define STATE_REGS_INTR0MASK ("INTR0MASK")
+#define STATE_REGS_INTR1 ("INTR1")
+#define STATE_REGS_INTR1MASK ("INTR1MASK")
 
 using namespace Iop;
 
@@ -18,6 +26,27 @@ void CIlink::Reset()
 	m_intr0Mask = 0;
 	m_intr1 = 0;
 	m_intr1Mask = 0;
+}
+
+void CIlink::LoadState(Framework::CZipArchiveReader& archive)
+{
+	CRegisterStateFile registerFile(*archive.BeginReadFile(STATE_REGS_XML));
+	m_phyResult = registerFile.GetRegister32(STATE_REGS_PHYRESULT);
+	m_intr0 = registerFile.GetRegister32(STATE_REGS_INTR0);
+	m_intr0Mask = registerFile.GetRegister32(STATE_REGS_INTR0MASK);
+	m_intr1 = registerFile.GetRegister32(STATE_REGS_INTR1);
+	m_intr1Mask = registerFile.GetRegister32(STATE_REGS_INTR1MASK);
+}
+
+void CIlink::SaveState(Framework::CZipArchiveWriter& archive)
+{
+	CRegisterStateFile* registerFile = new CRegisterStateFile(STATE_REGS_XML);
+	registerFile->SetRegister32(STATE_REGS_PHYRESULT, m_phyResult);
+	registerFile->SetRegister32(STATE_REGS_INTR0, m_intr0);
+	registerFile->SetRegister32(STATE_REGS_INTR0MASK, m_intr0Mask);
+	registerFile->SetRegister32(STATE_REGS_INTR1, m_intr1);
+	registerFile->SetRegister32(STATE_REGS_INTR1MASK, m_intr1Mask);
+	archive.InsertFile(registerFile);
 }
 
 uint32 CIlink::ReadRegister(uint32 address)

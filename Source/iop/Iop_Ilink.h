@@ -1,10 +1,8 @@
 #pragma once
 
-#include <vector>
-#include <functional>
 #include "Types.h"
-#include "BasicUnion.h"
-#include "Convertible.h"
+#include "zip/ZipArchiveWriter.h"
+#include "zip/ZipArchiveReader.h"
 
 namespace Iop
 {
@@ -43,6 +41,9 @@ namespace Iop
 		};
 
 		void Reset();
+
+		void LoadState(Framework::CZipArchiveReader&);
+		void SaveState(Framework::CZipArchiveWriter&);
 
 		uint32 ReadRegister(uint32);
 		void WriteRegister(uint32, uint32);

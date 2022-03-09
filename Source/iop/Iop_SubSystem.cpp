@@ -115,6 +115,7 @@ void CSubSystem::SaveState(Framework::CZipArchiveWriter& archive)
 	m_counters.SaveState(archive);
 	m_spuCore0.SaveState(archive);
 	m_spuCore1.SaveState(archive);
+	m_ilink.SaveState(archive);
 #ifdef _IOP_EMULATE_MODULES
 	m_sio2.SaveState(archive);
 #endif
@@ -132,6 +133,7 @@ void CSubSystem::LoadState(Framework::CZipArchiveReader& archive)
 	m_counters.LoadState(archive);
 	m_spuCore0.LoadState(archive);
 	m_spuCore1.LoadState(archive);
+	m_ilink.LoadState(archive);
 #ifdef _IOP_EMULATE_MODULES
 	m_sio2.LoadState(archive);
 #endif
