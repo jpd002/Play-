@@ -13,10 +13,6 @@ CIntc::CIntc()
 {
 }
 
-CIntc::~CIntc()
-{
-}
-
 void CIntc::Reset()
 {
 	m_status.f = 0;

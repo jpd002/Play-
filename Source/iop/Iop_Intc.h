@@ -1,5 +1,4 @@
-#ifndef _IOP_INTC_H_
-#define _IOP_INTC_H_
+#pragma once
 
 #include "Types.h"
 #include "BasicUnion.h"
@@ -56,7 +55,7 @@ namespace Iop
 		};
 
 		CIntc();
-		virtual ~CIntc();
+		virtual ~CIntc() = default;
 
 		void Reset();
 
@@ -77,5 +76,3 @@ namespace Iop
 		UNION64_32 m_mask;
 	};
 }
-
-#endif
