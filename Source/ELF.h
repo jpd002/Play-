@@ -64,6 +64,18 @@ struct ELFPROGRAMHEADER
 class CELF
 {
 public:
+	enum ELFCLASS
+	{
+		ELFCLASS32 = 1,
+		ELFCLASS64 = 2,
+	};
+
+	enum ELFDATA
+	{
+		ELFDATA2LSB = 1,
+		ELFDATA2MSB = 2,
+	};
+
 	enum EXECUTABLE_TYPE
 	{
 		ET_NONE = 0,

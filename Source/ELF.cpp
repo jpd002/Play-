@@ -16,7 +16,7 @@ CELF::CELF(uint8* content)
 		throw std::runtime_error("This file isn't a valid ELF file.");
 	}
 
-	if(m_Header.nId[4] != 1 || m_Header.nId[5] != 1)
+	if((m_Header.nId[4] != ELFCLASS32) || (m_Header.nId[5] != ELFDATA2LSB))
 	{
 		throw std::runtime_error("This ELF file format is not supported. Only 32-bits LSB ordered ELFs are supported.");
 	}
