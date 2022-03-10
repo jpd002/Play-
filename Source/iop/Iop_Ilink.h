@@ -16,7 +16,7 @@ namespace Iop
 		enum
 		{
 			ADDR_BEGIN = 0x1F808400,
-			ADDR_END = 0x1F808500
+			ADDR_END = 0x1F808554
 		};
 
 		enum
