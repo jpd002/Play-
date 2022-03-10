@@ -54,6 +54,7 @@ namespace Iop
 
 		CIntc& m_intc;
 
+		uint32 m_ctrl2 = 0;
 		uint32 m_phyResult;
 		uint32 m_intr0;
 		uint32 m_intr0Mask;
