@@ -48,6 +48,8 @@ DirectoryIteratorPtr COpticalMediaDevice::GetDirectory(const char* devicePath)
 	if(!m_opticalMedia) return nullptr;
 	std::string fixedString(devicePath);
 	std::transform(fixedString.begin(), fixedString.end(), fixedString.begin(), &COpticalMediaDevice::FixSlashes);
+	fixedString.erase(fixedString.find_last_not_of('.') + 1); // Remove trailing dot, if there is any
+
 	auto fileSystem = m_opticalMedia->GetFileSystem();
 	auto directoryStream = fileSystem->OpenDirectory(fixedString.c_str());
 	if(directoryStream == nullptr)
