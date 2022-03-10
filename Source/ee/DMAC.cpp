@@ -460,6 +460,11 @@ uint32 CDMAC::GetRegister(uint32 nAddress)
 		REGISTER_READ(D9_TADR, m_D9.m_nTADR)
 		REGISTER_READ(D9_SADR, m_D9_SADR)
 
+	case D9_CHCR + 0x1:
+		//This is done by AirBlade
+		return m_D9.ReadCHCR() >> 8;
+		break;
+
 	//General Registers
 	case D_CTRL:
 		return m_D_CTRL;
@@ -827,6 +832,10 @@ void CDMAC::SetRegister(uint32 nAddress, uint32 nData)
 	//Channel 9
 	case D9_CHCR + 0x0:
 		m_D9.WriteCHCR(nData);
+		break;
+	case D9_CHCR + 0x1:
+		//This is done by AirBlade
+		m_D9.WriteCHCR((m_D9.ReadCHCR() & ~0xFF00) | ((nData & 0xFF) << 8));
 		break;
 	case D9_CHCR + 0x4:
 	case D9_CHCR + 0x8:
