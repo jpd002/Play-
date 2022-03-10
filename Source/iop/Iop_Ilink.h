@@ -28,6 +28,8 @@ namespace Iop
 			REG_INTR0_MASK = 0x1F808424,
 			REG_INTR1 = 0x1F808428,
 			REG_INTR1_MASK = 0x1F80842C,
+			REG_INTR2 = 0x1F808430,
+			REG_INTR2_MASK = 0x1F808434,
 		};
 
 		enum
@@ -60,5 +62,7 @@ namespace Iop
 		uint32 m_intr0Mask;
 		uint32 m_intr1;
 		uint32 m_intr1Mask;
+		uint32 m_intr2;
+		uint32 m_intr2Mask;
 	};
 }
