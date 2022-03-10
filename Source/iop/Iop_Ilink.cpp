@@ -76,12 +76,14 @@ uint32 CIlink::ReadRegister(uint32 address)
 		break;
 	case REG_INTR0:
 		result = m_intr0;
+		m_intr0 = 0;
 		break;
 	case REG_INTR0_MASK:
 		result = m_intr0Mask;
 		break;
 	case REG_INTR1:
 		result = m_intr1;
+		m_intr1 = 0;
 		break;
 	case REG_INTR1_MASK:
 		result = m_intr1Mask;
