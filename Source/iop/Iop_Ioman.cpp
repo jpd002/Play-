@@ -181,6 +181,18 @@ std::string CIoman::GetFunctionName(unsigned int functionId) const
 	case 8:
 		return "seek";
 		break;
+	case 11:
+		return "mkdir";
+		break;
+	case 13:
+		return "dopen";
+		break;
+	case 14:
+		return "dclose";
+		break;
+	case 15:
+		return "dread";
+		break;
 	case 16:
 		return "getstat";
 		break;
@@ -942,6 +954,23 @@ void CIoman::Invoke(CMIPS& context, unsigned int functionId)
 		break;
 	case 8:
 		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(SeekVirtual(context));
+		break;
+	case 11:
+		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(Mkdir(
+		    reinterpret_cast<char*>(&m_ram[context.m_State.nGPR[CMIPS::A0].nV[0]])));
+		break;
+	case 13:
+		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(Dopen(
+		    reinterpret_cast<char*>(&m_ram[context.m_State.nGPR[CMIPS::A0].nV[0]])));
+		break;
+	case 14:
+		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(Dclose(
+		    context.m_State.nGPR[CMIPS::A0].nV0));
+		break;
+	case 15:
+		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(Dread(
+		    context.m_State.nGPR[CMIPS::A0].nV0,
+		    reinterpret_cast<Ioman::DIRENTRY*>(&m_ram[context.m_State.nGPR[CMIPS::A1].nV[0]])));
 		break;
 	case 16:
 		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(GetStat(
