@@ -64,6 +64,12 @@ struct ELFPROGRAMHEADER
 class CELF
 {
 public:
+	enum ELFHEADERID
+	{
+		EI_CLASS = 4,
+		EI_DATA = 5,
+	};
+
 	enum ELFCLASS
 	{
 		ELFCLASS32 = 1,
@@ -95,6 +101,7 @@ public:
 		EM_88K = 5,
 		EM_860 = 7,
 		EM_MIPS = 8,
+		EM_PPC64 = 21,
 		EM_ARM = 40,
 	};
 
