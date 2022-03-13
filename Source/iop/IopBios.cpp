@@ -664,11 +664,11 @@ int32 CIopBios::LoadModule(CELF& elf, const char* path, uint32 loadAddress, bool
 	uint32 entryPoint = LoadExecutable(elf, moduleRange, loadAddress);
 
 	//Find .iopmod section
-	const ELFHEADER& header(elf.GetHeader());
+	const auto& header = elf.GetHeader();
 	const IOPMOD* iopMod = NULL;
 	for(unsigned int i = 0; i < header.nSectHeaderCount; i++)
 	{
-		ELFSECTIONHEADER* sectionHeader(elf.GetSection(i));
+		auto sectionHeader = elf.GetSection(i);
 		if(sectionHeader->nType != IOPMOD_SECTION_ID) continue;
 		iopMod = reinterpret_cast<const IOPMOD*>(elf.GetSectionData(i));
 	}
@@ -3314,10 +3314,10 @@ uint32 CIopBios::LoadExecutable(CELF& elf, ExecutableRange& executableRange, uin
 unsigned int CIopBios::GetElfProgramToLoad(CELF& elf)
 {
 	unsigned int program = -1;
-	const ELFHEADER& header = elf.GetHeader();
+	const auto& header = elf.GetHeader();
 	for(unsigned int i = 0; i < header.nProgHeaderCount; i++)
 	{
-		ELFPROGRAMHEADER* programHeader = elf.GetProgram(i);
+		auto programHeader = elf.GetProgram(i);
 		if(programHeader != NULL && programHeader->nType == CELF::PT_LOAD)
 		{
 			if(program != -1)

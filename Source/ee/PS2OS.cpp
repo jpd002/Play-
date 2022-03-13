@@ -414,11 +414,11 @@ std::pair<uint32, uint32> CPS2OS::GetExecutableRange() const
 {
 	uint32 minAddr = 0xFFFFFFF0;
 	uint32 maxAddr = 0x00000000;
-	const ELFHEADER& header = m_elf->GetHeader();
+	const auto& header = m_elf->GetHeader();
 
 	for(unsigned int i = 0; i < header.nProgHeaderCount; i++)
 	{
-		ELFPROGRAMHEADER* p = m_elf->GetProgram(i);
+		auto p = m_elf->GetProgram(i);
 		if(p != NULL)
 		{
 			//Wild Arms: Alter Code F has zero sized program headers
@@ -478,7 +478,7 @@ void CPS2OS::LoadELF(Framework::CStream& stream, const char* executablePath, con
 void CPS2OS::LoadExecutableInternal()
 {
 	//Copy program in main RAM
-	const ELFHEADER& header = m_elf->GetHeader();
+	const auto& header = m_elf->GetHeader();
 	for(unsigned int i = 0; i < header.nProgHeaderCount; i++)
 	{
 		auto p = m_elf->GetProgram(i);
