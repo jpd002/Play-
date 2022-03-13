@@ -1,7 +1,7 @@
-#ifndef _ELFFILE_H_
-#define _ELFFILE_H_
+#pragma once
 
 #include "ELF.h"
+#include "Stream.h"
 
 class CElfFileContainer
 {
@@ -23,5 +23,3 @@ public:
 
 private:
 };
-
-#endif

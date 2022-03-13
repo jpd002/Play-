@@ -1,11 +1,11 @@
 #pragma once
 
-#include "Stream.h"
+#include <vector>
 #include "Types.h"
 
 #pragma pack(push, 1)
 
-struct ELFSYMBOL
+struct ELFSYMBOL32
 {
 	uint32 nName;
 	uint32 nValue;
@@ -15,7 +15,17 @@ struct ELFSYMBOL
 	uint16 nSectionIndex;
 };
 
-struct ELFHEADER
+struct ELFSYMBOL64
+{
+	uint32 nName;
+	uint8 nInfo;
+	uint8 nOther;
+	uint16 nSectionIndex;
+	uint64 nValue;
+	uint64 nSize;
+};
+
+struct ELFHEADER32
 {
 	uint8 nId[16];
 	uint16 nType;
@@ -33,7 +43,25 @@ struct ELFHEADER
 	uint16 nSectHeaderStringTableIndex;
 };
 
-struct ELFSECTIONHEADER
+struct ELFHEADER64
+{
+	uint8 nId[16];
+	uint16 nType;
+	uint16 nCPU;
+	uint32 nVersion;
+	uint64 nEntryPoint;
+	uint64 nProgHeaderStart;
+	uint64 nSectHeaderStart;
+	uint32 nFlags;
+	uint16 nSize;
+	uint16 nProgHeaderEntrySize;
+	uint16 nProgHeaderCount;
+	uint16 nSectHeaderEntrySize;
+	uint16 nSectHeaderCount;
+	uint16 nSectHeaderStringTableIndex;
+};
+
+struct ELFSECTIONHEADER32
 {
 	uint32 nStringTableIndex;
 	uint32 nType;
@@ -47,7 +75,21 @@ struct ELFSECTIONHEADER
 	uint32 nOther;
 };
 
-struct ELFPROGRAMHEADER
+struct ELFSECTIONHEADER64
+{
+	uint32 nStringTableIndex;
+	uint32 nType;
+	uint64 nFlags;
+	uint64 nStart;
+	uint64 nOffset;
+	uint64 nSize;
+	uint32 nIndex;
+	uint32 nInfo;
+	uint64 nAlignment;
+	uint64 nOther;
+};
+
+struct ELFPROGRAMHEADER32
 {
 	uint32 nType;
 	uint32 nOffset;
@@ -57,6 +99,18 @@ struct ELFPROGRAMHEADER
 	uint32 nMemorySize;
 	uint32 nFlags;
 	uint32 nAlignment;
+};
+
+struct ELFPROGRAMHEADER64
+{
+	uint32 nType;
+	uint32 nFlags;
+	uint64 nOffset;
+	uint64 nVAddress;
+	uint64 nPAddress;
+	uint64 nFileSize;
+	uint64 nMemorySize;
+	uint64 nAlignment;
 };
 
 #pragma pack(pop)
@@ -174,27 +228,27 @@ public:
 
 	CELF(uint8*);
 	CELF(const CELF&) = delete;
-	virtual ~CELF();
+	virtual ~CELF() = default;
 
 	CELF& operator=(const CELF&) = delete;
 
 	uint8* GetContent() const;
-	const ELFHEADER& GetHeader() const;
+	const ELFHEADER32& GetHeader() const;
 
-	ELFSECTIONHEADER* GetSection(unsigned int);
+	ELFSECTIONHEADER32* GetSection(unsigned int);
 	const void* GetSectionData(unsigned int);
 	const char* GetSectionName(unsigned int);
 
-	ELFSECTIONHEADER* FindSection(const char*);
+	ELFSECTIONHEADER32* FindSection(const char*);
 	unsigned int FindSectionIndex(const char*);
 	const void* FindSectionData(const char*);
 
-	ELFPROGRAMHEADER* GetProgram(unsigned int);
+	ELFPROGRAMHEADER32* GetProgram(unsigned int);
 
 private:
-	ELFHEADER m_Header;
+	ELFHEADER32 m_header;
 	uint8* m_content = nullptr;
 
-	ELFSECTIONHEADER* m_pSection = nullptr;
-	ELFPROGRAMHEADER* m_pProgram = nullptr;
+	std::vector<ELFSECTIONHEADER32> m_sections;
+	std::vector<ELFPROGRAMHEADER32> m_programs;
 };
