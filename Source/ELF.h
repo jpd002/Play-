@@ -118,6 +118,11 @@ struct ELFPROGRAMHEADER64
 class CELF
 {
 public:
+	typedef ELFHEADER32 HEADER;
+	typedef ELFPROGRAMHEADER32 PROGRAMHEADER;
+	typedef ELFSECTIONHEADER32 SECTIONHEADER;
+	typedef ELFSYMBOL32 ELFSYMBOL;
+
 	enum ELFHEADERID
 	{
 		EI_CLASS = 4,
@@ -233,22 +238,22 @@ public:
 	CELF& operator=(const CELF&) = delete;
 
 	uint8* GetContent() const;
-	const ELFHEADER32& GetHeader() const;
+	const HEADER& GetHeader() const;
 
-	ELFSECTIONHEADER32* GetSection(unsigned int);
+	SECTIONHEADER* GetSection(unsigned int);
 	const void* GetSectionData(unsigned int);
 	const char* GetSectionName(unsigned int);
 
-	ELFSECTIONHEADER32* FindSection(const char*);
+	SECTIONHEADER* FindSection(const char*);
 	unsigned int FindSectionIndex(const char*);
 	const void* FindSectionData(const char*);
 
-	ELFPROGRAMHEADER32* GetProgram(unsigned int);
+	PROGRAMHEADER* GetProgram(unsigned int);
 
 private:
-	ELFHEADER32 m_header;
+	HEADER m_header;
 	uint8* m_content = nullptr;
 
-	std::vector<ELFSECTIONHEADER32> m_sections;
-	std::vector<ELFPROGRAMHEADER32> m_programs;
+	std::vector<SECTIONHEADER> m_sections;
+	std::vector<PROGRAMHEADER> m_programs;
 };
