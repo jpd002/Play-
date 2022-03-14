@@ -103,6 +103,7 @@ namespace Iop
 		void ProcessNextDynamicCommand();
 
 		int32 SifGetSreg(uint32);
+		void SifSetSreg(uint32, uint32);
 		uint32 SifSetCmdBuffer(uint32, uint32);
 		void SifAddCmdHandler(uint32, uint32, uint32);
 		uint32 SifSendCmd(uint32, uint32, uint32, uint32, uint32, uint32);

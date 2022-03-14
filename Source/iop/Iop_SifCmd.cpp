@@ -24,6 +24,7 @@ using namespace Iop;
 #define MODULE_VERSION 0x101
 
 #define FUNCTION_SIFGETSREG "SifGetSreg"
+#define FUNCTION_SIFSETSREG "SifSetSreg"
 #define FUNCTION_SIFSETCMDBUFFER "SifSetCmdBuffer"
 #define FUNCTION_SIFADDCMDHANDLER "SifAddCmdHandler"
 #define FUNCTION_SIFSENDCMD "SifSendCmd"
@@ -121,6 +122,9 @@ std::string CSifCmd::GetFunctionName(unsigned int functionId) const
 	case 6:
 		return FUNCTION_SIFGETSREG;
 		break;
+	case 7:
+		return FUNCTION_SIFSETSREG;
+		break;
 	case 8:
 		return FUNCTION_SIFSETCMDBUFFER;
 		break;
@@ -203,6 +207,11 @@ void CSifCmd::Invoke(CMIPS& context, unsigned int functionId)
 	case 6:
 		context.m_State.nGPR[CMIPS::V0].nV0 = SifGetSreg(
 		    context.m_State.nGPR[CMIPS::A0].nV0);
+		break;
+	case 7:
+		SifSetSreg(
+		    context.m_State.nGPR[CMIPS::A0].nV0,
+		    context.m_State.nGPR[CMIPS::A1].nV0);
 		break;
 	case 8:
 		context.m_State.nGPR[CMIPS::V0].nV0 = SifSetCmdBuffer(
@@ -719,6 +728,19 @@ int32 CSifCmd::SifGetSreg(uint32 regIndex)
 	auto moduleData = reinterpret_cast<const MODULEDATA*>(m_ram + m_moduleDataAddr);
 	uint32 result = moduleData->sreg[regIndex];
 	return result;
+}
+
+void CSifCmd::SifSetSreg(uint32 regIndex, uint32 value)
+{
+	CLog::GetInstance().Print(LOG_NAME, FUNCTION_SIFSETSREG "(regIndex = %d, value = 0x%08X);\r\n",
+	                          regIndex, value);
+	assert(regIndex < MAX_SREG);
+	if(regIndex >= MAX_SREG)
+	{
+		return;
+	}
+	auto moduleData = reinterpret_cast<MODULEDATA*>(m_ram + m_moduleDataAddr);
+	moduleData->sreg[regIndex] = value;
 }
 
 uint32 CSifCmd::SifSetCmdBuffer(uint32 cmdBufferAddr, uint32 length)
