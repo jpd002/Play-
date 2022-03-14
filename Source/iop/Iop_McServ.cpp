@@ -573,6 +573,9 @@ void CMcServ::Write(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, 
 
 	result += static_cast<uint32>(file->Write(dst, cmd->size));
 	ret[0] = result;
+
+	//Force flushing for games that read after write without seeking or flushing
+	file->Flush();
 }
 
 void CMcServ::Flush(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
