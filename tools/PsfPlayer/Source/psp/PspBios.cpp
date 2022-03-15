@@ -371,13 +371,13 @@ void CBios::LoadModule(const char* path)
 		m_ioFileMgrForUserModule->IoClose(handle);
 	}
 
-	const ELFHEADER& moduleHeader(m_module->GetHeader());
+	const auto& moduleHeader(m_module->GetHeader());
 
 	uint32 moduleAllocSize = 0;
 	{
 		for(unsigned int i = 0; i < moduleHeader.nProgHeaderCount; i++)
 		{
-			ELFPROGRAMHEADER* programHeader = m_module->GetProgram(i);
+			auto programHeader = m_module->GetProgram(i);
 			if(programHeader->nType == RELOC_SECTION_ID) continue;
 			//Allocate a bit more for alignment computations later on
 			moduleAllocSize += programHeader->nFileSize + programHeader->nAlignment;
@@ -391,7 +391,7 @@ void CBios::LoadModule(const char* path)
 		uint32 currentAddress = baseAddress;
 		for(unsigned int i = 0; i < moduleHeader.nProgHeaderCount; i++)
 		{
-			ELFPROGRAMHEADER* programHeader = m_module->GetProgram(i);
+			auto programHeader = m_module->GetProgram(i);
 			if(programHeader->nType == RELOC_SECTION_ID) continue;
 
 			uint32 alignFixUp = (currentAddress & (programHeader->nAlignment - 1));
@@ -423,7 +423,7 @@ void CBios::LoadModule(const char* path)
 		m_moduleTags.push_back(module);
 	}
 
-	ELFSECTIONHEADER* moduleInfoSectionHeader = m_module->FindSection(".rodata.sceModuleInfo");
+	auto moduleInfoSectionHeader = m_module->FindSection(".rodata.sceModuleInfo");
 	MODULEINFO* moduleInfo = reinterpret_cast<MODULEINFO*>(m_ram + baseAddress + moduleInfoSectionHeader->nStart);
 
 	LIBRARYENTRY* libraryEntryBegin = reinterpret_cast<LIBRARYENTRY*>(m_ram + moduleInfo->libEntAddr);
@@ -954,10 +954,10 @@ CBios::MODULEFUNCTION* CBios::FindModuleFunction(MODULE* module, uint32 id)
 
 void CBios::RelocateElf(CELF& elf)
 {
-	const ELFHEADER& header = elf.GetHeader();
+	const auto& header = elf.GetHeader();
 	for(unsigned int i = 0; i < header.nSectHeaderCount; i++)
 	{
-		ELFSECTIONHEADER* sectionHeader = elf.GetSection(i);
+		auto sectionHeader = elf.GetSection(i);
 		if(sectionHeader != NULL &&
 		   (/*sectionHeader->nType == CELF::SHT_REL || */ sectionHeader->nType == RELOC_SECTION_ID))
 		{
@@ -971,8 +971,8 @@ void CBios::RelocateElf(CELF& elf)
 				uint32 ofsBase = (relocationRecord[1] >> 8) & 0xFF;
 				uint32 addrBase = (relocationRecord[1] >> 16) & 0xFF;
 
-				ELFPROGRAMHEADER* progOfsBase = elf.GetProgram(ofsBase);
-				ELFPROGRAMHEADER* progAddrBase = elf.GetProgram(addrBase);
+				auto progOfsBase = elf.GetProgram(ofsBase);
+				auto progAddrBase = elf.GetProgram(addrBase);
 				assert(progOfsBase != NULL);
 				assert(progAddrBase != NULL);
 				assert(progOfsBase->nType != RELOC_SECTION_ID);
@@ -1042,7 +1042,7 @@ uint32 CBios::FindNextRelocationTarget(CELF& elf, const uint32* begin, const uin
 		uint32 ofsBase = (relocationRecord[1] >> 8) & 0xFF;
 		uint32 addrBase = (relocationRecord[1] >> 16) & 0xFF;
 
-		ELFPROGRAMHEADER* progOfsBase = elf.GetProgram(ofsBase);
+		auto progOfsBase = elf.GetProgram(ofsBase);
 
 		assert(progOfsBase != NULL);
 		assert(progOfsBase->nType != RELOC_SECTION_ID);
@@ -1059,10 +1059,10 @@ uint32 CBios::FindNextRelocationTarget(CELF& elf, const uint32* begin, const uin
 
 uint32 CBios::FindRelocationAt(CELF& elf, uint32 address, uint32 programSection)
 {
-	const ELFHEADER& header = elf.GetHeader();
+	const auto& header = elf.GetHeader();
 	for(unsigned int i = 0; i < header.nSectHeaderCount; i++)
 	{
-		ELFSECTIONHEADER* sectionHeader = elf.GetSection(i);
+		auto sectionHeader = elf.GetSection(i);
 		if(sectionHeader != NULL &&
 		   (/*sectionHeader->nType == CELF::SHT_REL || */ sectionHeader->nType == RELOC_SECTION_ID))
 		{
