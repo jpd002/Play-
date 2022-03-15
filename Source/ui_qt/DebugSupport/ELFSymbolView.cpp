@@ -48,14 +48,14 @@ void CELFSymbolView::PopulateList()
 	// m_sortState = SORT_STATE_NONE;
 	const char* sectionName = ".symtab";
 
-	ELFSECTIONHEADER* pSymTab = m_pELF->FindSection(sectionName);
+	auto pSymTab = m_pELF->FindSection(sectionName);
 	if(pSymTab == NULL) return;
 
 	const char* pStrTab = (const char*)m_pELF->GetSectionData(pSymTab->nIndex);
 	if(pStrTab == NULL) return;
 
-	ELFSYMBOL* pSym = (ELFSYMBOL*)m_pELF->FindSectionData(sectionName);
-	unsigned int nCount = pSymTab->nSize / sizeof(ELFSYMBOL);
+	auto pSym = reinterpret_cast<const CELF::ELFSYMBOL*>(m_pELF->FindSectionData(sectionName));
+	unsigned int nCount = pSymTab->nSize / sizeof(CELF::ELFSYMBOL);
 
 	m_tableWidget->setRowCount(nCount);
 

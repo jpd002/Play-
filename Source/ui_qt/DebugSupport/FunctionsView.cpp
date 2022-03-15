@@ -259,19 +259,19 @@ void CFunctionsView::OnImportClick()
 
 		if(moduleImage == NULL) continue;
 
-		ELFSECTIONHEADER* pSymTab = moduleImage->FindSection(".symtab");
+		auto pSymTab = moduleImage->FindSection(".symtab");
 		if(pSymTab == NULL) continue;
 
 		const char* pStrTab = (const char*)moduleImage->GetSectionData(pSymTab->nIndex);
 		if(pStrTab == NULL) continue;
 
-		ELFSYMBOL* pSym = (ELFSYMBOL*)moduleImage->FindSectionData(".symtab");
-		unsigned int nCount = pSymTab->nSize / sizeof(ELFSYMBOL);
+		auto pSym = reinterpret_cast<const CELF::ELFSYMBOL*>(moduleImage->FindSectionData(".symtab"));
+		unsigned int nCount = pSymTab->nSize / sizeof(CELF::ELFSYMBOL);
 
 		for(unsigned int i = 0; i < nCount; i++)
 		{
 			if((pSym[i].nInfo & 0x0F) != 0x02) continue;
-			ELFSECTIONHEADER* symbolSection = moduleImage->GetSection(pSym[i].nSectionIndex);
+			auto symbolSection = moduleImage->GetSection(pSym[i].nSectionIndex);
 			if(symbolSection == NULL) continue;
 			m_context->m_Functions.InsertTag(module.begin + (pSym[i].nValue - symbolSection->nStart), pStrTab + pSym[i].nName);
 		}

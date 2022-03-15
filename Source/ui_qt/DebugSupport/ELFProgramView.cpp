@@ -69,7 +69,7 @@ void CELFProgramView::FillInformation(int program)
 {
 	int i = 0;
 	std::string sTemp;
-	ELFPROGRAMHEADER* pH = m_pELF->GetProgram(program);
+	auto pH = m_pELF->GetProgram(program);
 
 	switch(pH->nType)
 	{

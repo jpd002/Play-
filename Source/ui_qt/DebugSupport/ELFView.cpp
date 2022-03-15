@@ -75,7 +75,7 @@ void CELFView::PopulateList()
 
 	QTreeWidgetItem* sectionsRootItem = new QTreeWidgetItem(m_treeWidget, {"Sections"});
 	m_treeWidget->addTopLevelItem(sectionsRootItem);
-	const ELFHEADER& header = m_pELF->GetHeader();
+	const auto& header = m_pELF->GetHeader();
 
 	const char* sStrTab = (const char*)m_pELF->GetSectionData(header.nSectHeaderStringTableIndex);
 	for(unsigned int i = 0; i < header.nSectHeaderCount; i++)
@@ -83,7 +83,7 @@ void CELFView::PopulateList()
 		std::string sDisplay;
 		const char* sName(NULL);
 
-		ELFSECTIONHEADER* pSect = m_pELF->GetSection(i);
+		auto pSect = m_pELF->GetSection(i);
 
 		if(sStrTab != NULL)
 		{

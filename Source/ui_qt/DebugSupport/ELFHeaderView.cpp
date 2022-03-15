@@ -56,7 +56,7 @@ void CELFHeaderView::FillInformation()
 {
 	int i = 0;
 	std::string sTemp;
-	const ELFHEADER* pH = &m_pELF->GetHeader();
+	auto pH = &m_pELF->GetHeader();
 
 	switch(pH->nType)
 	{
