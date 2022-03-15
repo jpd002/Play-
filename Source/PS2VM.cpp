@@ -411,8 +411,6 @@ void CPS2VM::ResetVM()
 	m_ee->Reset();
 	m_iop->Reset();
 
-	//LoadBIOS();
-
 	if(m_ee->m_gs != NULL)
 	{
 		m_ee->m_gs->Reset();

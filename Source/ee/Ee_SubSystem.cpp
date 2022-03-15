@@ -1,6 +1,8 @@
 #include "Ee_SubSystem.h"
 #include "EeExecutor.h"
 #include "VuExecutor.h"
+#include "AppConfig.h"
+#include "StdStreamUtils.h"
 #include "../Ps2Const.h"
 #include "../Log.h"
 #include "../states/MemoryStateFile.h"
@@ -220,6 +222,7 @@ void CSubSystem::Reset()
 	m_os->Initialize();
 	m_os->GetLibMc2().Reset();
 	FillFakeIopRam();
+	//LoadBIOS();
 
 	m_statusRegisterCheckers.clear();
 	m_isIdle = false;
@@ -739,8 +742,9 @@ void CSubSystem::FlushInstructionCache()
 
 void CSubSystem::LoadBIOS()
 {
-	Framework::CStdStream BiosStream(fopen("./vfs/rom0/scph10000.bin", "rb"));
-	BiosStream.Read(m_bios, PS2::EE_BIOS_SIZE);
+	auto biosPath = CAppConfig::GetBasePath() / "bios/scph10000.bin";
+	auto biosStream = Framework::CreateInputStdStream(biosPath.native());
+	biosStream.Read(m_bios, PS2::EE_BIOS_SIZE);
 }
 
 void CSubSystem::FillFakeIopRam()
