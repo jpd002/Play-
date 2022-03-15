@@ -91,6 +91,12 @@ protected:
 
 	enum
 	{
+		STAT_VPS_IDLE = 0x00,
+		STAT_VPS_WAITING = 0x01,
+		STAT_VPS_DECODING = 0x02,
+		STAT_VPS_TRANSFER = 0x03,
+		STAT_VPS_MASK = 0x03,
+
 		STAT_FDR = 0x00800000,
 	};
 

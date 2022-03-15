@@ -119,6 +119,14 @@ uint32 CVif::GetRegister(uint32 address)
 				m_incomingFifoDelay--;
 			}
 		}
+		if(m_STAT.nVIS)
+		{
+			//If we're not idle here, something might be wrong
+			assert(m_STAT.nVPS == STAT_VPS_IDLE);
+			//If we're stalled because of an interrupt, report that VIF is decoding
+			result &= ~STAT_VPS_MASK;
+			result |= STAT_VPS_DECODING;
+		}
 		break;
 	case VIF0_ERR:
 	case VIF1_ERR:
