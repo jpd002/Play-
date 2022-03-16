@@ -305,7 +305,7 @@ void CIPU::ExecuteCommand()
 		m_currentCmd = nullptr;
 		m_isBusy = false;
 		m_IPU_CTRL |= IPU_CTRL_ECD;
-		CLog::GetInstance().Print(LOG_NAME, "VLC error encountered.\r\n");
+		CLog::GetInstance().Warn(LOG_NAME, "VLC error encountered.\r\n");
 	}
 }
 
