@@ -54,21 +54,23 @@ void CELFSymbolView::PopulateList()
 	const char* pStrTab = (const char*)m_pELF->GetSectionData(pSymTab->nIndex);
 	if(pStrTab == NULL) return;
 
-	auto pSym = reinterpret_cast<const CELF::ELFSYMBOL*>(m_pELF->FindSectionData(sectionName));
-	unsigned int nCount = pSymTab->nSize / sizeof(CELF::ELFSYMBOL);
+	auto symbols = reinterpret_cast<const CELF::ELFSYMBOL*>(m_pELF->FindSectionData(sectionName));
+	unsigned int count = pSymTab->nSize / sizeof(CELF::ELFSYMBOL);
 
-	m_tableWidget->setRowCount(nCount);
+	m_tableWidget->setRowCount(count);
 
-	for(unsigned int i = 0; i < nCount; i++)
+	for(unsigned int i = 0; i < count; i++)
 	{
+		auto symbol = symbols[i];
+
 		int j = 0;
 		std::string sTemp;
 
-		m_tableWidget->setItem(i, j++, new QTableWidgetItem(pStrTab + pSym[i].nName));
-		m_tableWidget->setItem(i, j++, new QTableWidgetItem(lexical_cast_hex<std::string>(pSym[i].nValue, 8).c_str()));
-		m_tableWidget->setItem(i, j++, new QTableWidgetItem(lexical_cast_hex<std::string>(pSym[i].nSize, 8).c_str()));
+		m_tableWidget->setItem(i, j++, new QTableWidgetItem(pStrTab + symbol.nName));
+		m_tableWidget->setItem(i, j++, new QTableWidgetItem(lexical_cast_hex<std::string>(symbol.nValue, 8).c_str()));
+		m_tableWidget->setItem(i, j++, new QTableWidgetItem(lexical_cast_hex<std::string>(symbol.nSize, 8).c_str()));
 
-		switch(pSym[i].nInfo & 0x0F)
+		switch(symbol.nInfo & 0x0F)
 		{
 		case 0x00:
 			sTemp = "STT_NOTYPE";
@@ -86,12 +88,12 @@ void CELFSymbolView::PopulateList()
 			sTemp = "STT_FILE";
 			break;
 		default:
-			sTemp = string_format("%i", pSym[i].nInfo & 0x0F);
+			sTemp = string_format("%i", symbol.nInfo & 0x0F);
 			break;
 		}
 		m_tableWidget->setItem(i, j++, new QTableWidgetItem(sTemp.c_str()));
 
-		switch((pSym[i].nInfo >> 4) & 0xF)
+		switch((symbol.nInfo >> 4) & 0xF)
 		{
 		case 0x00:
 			sTemp = "STB_LOCAL";
@@ -103,12 +105,12 @@ void CELFSymbolView::PopulateList()
 			sTemp = "STB_WEAK";
 			break;
 		default:
-			sTemp = string_format("%i", (pSym[i].nInfo >> 4) & 0x0F);
+			sTemp = string_format("%i", (symbol.nInfo >> 4) & 0x0F);
 			break;
 		}
 		m_tableWidget->setItem(i, j++, new QTableWidgetItem(sTemp.c_str()));
 
-		switch(pSym[i].nSectionIndex)
+		switch(symbol.nSectionIndex)
 		{
 		case 0:
 			sTemp = "SHN_UNDEF";
@@ -117,7 +119,7 @@ void CELFSymbolView::PopulateList()
 			sTemp = "SHN_ABS";
 			break;
 		default:
-			sTemp = string_format("%i", pSym[i].nSectionIndex);
+			sTemp = string_format("%i", symbol.nSectionIndex);
 			break;
 		}
 		m_tableWidget->setItem(i, j++, new QTableWidgetItem(sTemp.c_str()));
