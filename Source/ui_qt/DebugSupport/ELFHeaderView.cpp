@@ -107,6 +107,9 @@ void CELFHeaderView::FillInformation()
 	case CELF::EM_MIPS:
 		sTemp = ("EM_MIPS");
 		break;
+	case CELF::EM_PPC64:
+		sTemp = ("EM_PPC64");
+		break;
 	case CELF::EM_ARM:
 		sTemp = ("EM_ARM");
 		break;
