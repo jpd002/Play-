@@ -26,6 +26,7 @@
 #include "Iop_MtapMan.h"
 #include "Iop_Cdvdfsv.h"
 #include "Iop_McServ.h"
+#include "Iop_PowerOff.h"
 #endif
 
 class CIopBios : public Iop::CBiosBase
@@ -680,6 +681,7 @@ private:
 	Iop::MtapManPtr m_mtapman;
 	Iop::McServPtr m_mcserv;
 	Iop::CdvdfsvPtr m_cdvdfsv;
+	Iop::PowerOffPtr m_powerOff;
 
 	std::map<std::string, Iop::ModulePtr> m_hleModules;
 #endif

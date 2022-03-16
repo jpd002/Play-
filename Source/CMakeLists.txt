@@ -319,6 +319,8 @@ set(COMMON_SRC_FILES
 	iop/Iop_PadMan.h
 	iop/Iop_PathUtils.cpp
 	iop/Iop_PathUtils.h
+	iop/Iop_PowerOff.cpp
+	iop/Iop_PowerOff.h
 	iop/Iop_RootCounters.cpp
 	iop/Iop_RootCounters.h
 	iop/Iop_Secrman.cpp
