@@ -52,7 +52,7 @@ set(ELFVIEW_MOC_HEADERS
 )
 
 set(ELFVIEW_UI
-	Qt_ui/mainwindow.ui
+	qt_ui/mainwindow.ui
 )
 
 #QT5_ADD_RESOURCES(QT_RES_SOURCES ${QT_RESOURCES})
