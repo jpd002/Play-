@@ -32,10 +32,10 @@ private:
 	void FillInformation(int);
 	void FillDynamicSectionListView(int);
 
-	CELF* m_pELF;
+	CELF* m_pELF = nullptr;
 	QVBoxLayout* m_layout;
 	std::vector<QLineEdit*> m_editFields;
 	CMemoryViewTable* m_memView;
 	QTableWidget* m_dynSecTableWidget;
-	uint8* m_data;
+	uint8* m_data = nullptr;
 };

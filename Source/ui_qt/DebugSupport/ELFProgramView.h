@@ -23,7 +23,7 @@ public:
 private:
 	void FillInformation(int);
 
-	CELF* m_pELF;
+	CELF* m_pELF = nullptr;
 	QVBoxLayout* m_layout;
 	std::vector<QLineEdit*> m_editFields;
 };

@@ -22,7 +22,7 @@ public:
 private:
 	void PopulateList();
 
-	CELF* m_pELF;
+	CELF* m_pELF = nullptr;
 	QVBoxLayout* m_layout;
 	QTableWidget* m_tableWidget;
 };

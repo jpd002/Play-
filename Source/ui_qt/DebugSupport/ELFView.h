@@ -15,7 +15,6 @@
 
 class CELFView : public QMdiSubWindow
 {
-
 public:
 	CELFView(QMdiArea*);
 	~CELFView() = default;
@@ -30,7 +29,7 @@ private:
 	void PopulateList();
 	void itemSelectionChanged();
 
-	CELF* m_pELF;
+	CELF* m_pELF = nullptr;
 	QWidget* m_centralwidget;
 	QHBoxLayout* m_layout;
 	QTreeWidget* m_treeWidget;
