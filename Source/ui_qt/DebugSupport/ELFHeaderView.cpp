@@ -34,6 +34,8 @@ CELFHeaderView::CELFHeaderView(QMdiSubWindow* parent, QLayout* groupBoxLayout)
 		m_layout->addLayout(horizontalLayout);
 	}
 
+	m_layout->addStretch();
+
 	groupBoxLayout->addWidget(this);
 	hide();
 }
