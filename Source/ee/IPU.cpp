@@ -1139,11 +1139,21 @@ bool CIPU::CIDECCommand::Execute()
 				//Helps games like SMT: Nocturne which finishes a data packet with 8 zero bits
 				throw CStartCodeException();
 			}
-			if(startCode != 0x1)
+			if(startCode == 0)
 			{
+				//Only got zeroes, keep looking
+				m_IN_FIFO->Advance(8);
+			}
+			else if(startCode == 1)
+			{
+				//Found our start code
+				m_state = STATE_DONE;
+			}
+			else
+			{
+				//Not 0 or 1, something went wrong
 				throw CVLCTable::CVLCTableException();
 			}
-			m_state = STATE_DONE;
 		}
 		break;
 		case STATE_READMBINCREMENT:
