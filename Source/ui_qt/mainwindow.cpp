@@ -148,8 +148,8 @@ MainWindow::~MainWindow()
 		delete m_virtualMachine;
 		m_virtualMachine = nullptr;
 	}
-#ifdef DEBUGGER_INCLUDED
 	delete ui;
+#ifdef DEBUGGER_INCLUDED
 	delete debugMenuUi;
 #endif
 }
