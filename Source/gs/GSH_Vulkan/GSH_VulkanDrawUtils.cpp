@@ -116,6 +116,7 @@ Nuanceur::CFloat4Rvalue CDrawUtils::GetTextureColor(Nuanceur::CShaderBuilder& b,
 	case CGSHandler::PSMCT16:
 	case CGSHandler::PSMCT16S:
 	case CGSHandler::PSMZ16:
+	case CGSHandler::PSMZ16S:
 	{
 		auto texAddress = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT16>(
 		    b, texSwizzleTable, texBufAddress, texBufWidth, texelPos);
