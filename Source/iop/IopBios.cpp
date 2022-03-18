@@ -254,6 +254,10 @@ void CIopBios::Reset(const Iop::SifManPtr& sifMan)
 		m_mcserv = std::make_shared<Iop::CMcServ>(*this, *m_sifMan, *m_sifCmd, *m_sysmem, m_ram);
 		RegisterModule(m_mcserv);
 	}
+	{
+		m_powerOff = std::make_shared<Iop::CPowerOff>(*m_sifMan);
+		RegisterModule(m_powerOff);
+	}
 	RegisterModule(std::make_shared<Iop::CIomanX>(*m_ioman));
 	//RegisterModule(std::make_shared<Iop::CNaplink>(*m_sifMan, *m_ioman));
 	{
