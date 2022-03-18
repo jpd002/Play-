@@ -12,6 +12,13 @@ namespace Iop
 	class CCdvdman : public CModule
 	{
 	public:
+		enum CDVD_TRAQ_REQUEST_MODE
+		{
+			CDVD_TRAY_OPEN = 0,
+			CDVD_TRAY_CLOSE = 1,
+			CDVD_TRAY_CHECK = 2,
+		};
+
 		enum CDVD_STATUS
 		{
 			CDVD_STATUS_STOPPED = 0,
@@ -100,6 +107,7 @@ namespace Iop
 
 		uint32 m_callbackPtr = 0;
 		uint32 m_status = CDVD_STATUS_PAUSED;
+		uint32 m_discChanged = 1;
 		uint32 m_streamPos = 0;
 		uint32 m_streamBufferSize = 0;
 		COMMAND m_pendingCommand = COMMAND_NONE;
