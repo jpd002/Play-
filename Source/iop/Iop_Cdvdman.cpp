@@ -10,6 +10,7 @@
 #define STATE_FILENAME ("iop_cdvdman/state.xml")
 #define STATE_CALLBACK_ADDRESS ("CallbackAddress")
 #define STATE_STATUS ("Status")
+#define STATE_DISCCHANGED ("DiscChanged")
 #define STATE_PENDING_COMMAND ("PendingCommand")
 
 #define FUNCTION_CDINIT "CdInit"
@@ -52,6 +53,7 @@ void CCdvdman::LoadState(Framework::CZipArchiveReader& archive)
 	CRegisterStateFile registerFile(*archive.BeginReadFile(STATE_FILENAME));
 	m_callbackPtr = registerFile.GetRegister32(STATE_CALLBACK_ADDRESS);
 	m_status = registerFile.GetRegister32(STATE_STATUS);
+	m_discChanged = registerFile.GetRegister32(STATE_DISCCHANGED);
 	m_pendingCommand = static_cast<COMMAND>(registerFile.GetRegister32(STATE_PENDING_COMMAND));
 }
 
@@ -60,6 +62,7 @@ void CCdvdman::SaveState(Framework::CZipArchiveWriter& archive) const
 	auto registerFile = new CRegisterStateFile(STATE_FILENAME);
 	registerFile->SetRegister32(STATE_CALLBACK_ADDRESS, m_callbackPtr);
 	registerFile->SetRegister32(STATE_STATUS, m_status);
+	registerFile->SetRegister32(STATE_DISCCHANGED, m_discChanged);
 	registerFile->SetRegister32(STATE_PENDING_COMMAND, m_pendingCommand);
 	archive.InsertFile(registerFile);
 }
@@ -533,7 +536,16 @@ uint32 CCdvdman::CdTrayReq(uint32 mode, uint32 trayCntPtr)
 	                          mode, trayCntPtr);
 
 	auto trayCnt = reinterpret_cast<uint32*>(m_ram + trayCntPtr);
-	(*trayCnt) = 0;
+
+	if(mode == CDVD_TRAY_CHECK && m_discChanged)
+	{
+		(*trayCnt) = 1;
+		m_discChanged = false;
+	}
+	else
+	{
+		(*trayCnt) = 0;
+	}
 
 	return 1;
 }
