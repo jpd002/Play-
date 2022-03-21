@@ -19,8 +19,8 @@ void CXgKickTest::Execute(CTestVm& virtualMachine)
 	    CVuAssembler::Lower::IADDIU(CVuAssembler::VI1, CVuAssembler::VI0, testValue));
 
 	assembler.Write(
-		CVuAssembler::Upper::NOP(),
-		CVuAssembler::Lower::MFIR(CVuAssembler::DEST_X, CVuAssembler::VF4, CVuAssembler::VI1));
+	    CVuAssembler::Upper::NOP(),
+	    CVuAssembler::Lower::MFIR(CVuAssembler::DEST_X, CVuAssembler::VF4, CVuAssembler::VI1));
 
 	assembler.Write(
 	    CVuAssembler::Upper::NOP(),
@@ -35,8 +35,8 @@ void CXgKickTest::Execute(CTestVm& virtualMachine)
 	    CVuAssembler::Lower::NOP());
 
 	assembler.Write(
-		CVuAssembler::Upper::NOP(),
-		CVuAssembler::Lower::SQ(CVuAssembler::DEST_XYZW, CVuAssembler::VF4, 0, CVuAssembler::VI4));
+	    CVuAssembler::Upper::NOP(),
+	    CVuAssembler::Lower::SQ(CVuAssembler::DEST_XYZW, CVuAssembler::VF4, 0, CVuAssembler::VI4));
 
 	assembler.Write(
 	    CVuAssembler::Upper::NOP() | CVuAssembler::Upper::E_BIT,
