@@ -425,3 +425,10 @@ uint32 CVuAssembler::Lower::WAITQ()
 {
 	return 0x800003BF;
 }
+
+uint32 CVuAssembler::Lower::XGKICK(VI_REGISTER is)
+{
+	uint32 result = 0x800006FC;
+	result |= (is << 11);
+	return result;
+}
