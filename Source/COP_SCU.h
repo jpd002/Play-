@@ -28,6 +28,7 @@ public:
 		CAUSE_EXCCODE_INT = (0x00 << 2),  //Interrupt
 		CAUSE_EXCCODE_TLBL = (0x02 << 2), //TLB refill exception (load or instruction fetch)
 		CAUSE_EXCCODE_TLBS = (0x03 << 2), //TLB refill exception (store)
+		CAUSE_EXCCODE_TRAP = (0x0D << 2), //Trap
 		CAUSE_EXCCODE_MASK = (0x1F << 2),
 
 		CAUSE_IP_2 = (1 << 10),

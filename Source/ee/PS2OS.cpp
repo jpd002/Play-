@@ -63,8 +63,9 @@
 #define BIOS_ADDRESS_DMACHANDLERQUEUE_BASE 0x00000028
 #define BIOS_ADDRESS_TLB_READEXCEPTION_HANDLER 0x0000002C
 #define BIOS_ADDRESS_TLB_WRITEEXCEPTION_HANDLER 0x00000030
-#define BIOS_ADDRESS_SIFDMA_NEXT_INDEX 0x00000034
-#define BIOS_ADDRESS_SIFDMA_TIMES_BASE 0x00000038
+#define BIOS_ADDRESS_TRAPEXCEPTION_HANDLER 0x00000034
+#define BIOS_ADDRESS_SIFDMA_NEXT_INDEX 0x00000038
+#define BIOS_ADDRESS_SIFDMA_TIMES_BASE 0x0000003C
 #define BIOS_ADDRESS_SIFDMA_TIMES_END (BIOS_ADDRESS_SIFDMA_TIMES_BASE + (4 * BIOS_SIFDMA_COUNT))
 #define BIOS_ADDRESS_INTERRUPT_THREAD_CONTEXT BIOS_ADDRESS_SIFDMA_TIMES_END
 #define BIOS_ADDRESS_INTCHANDLER_BASE 0x0000A000
@@ -252,6 +253,7 @@ CPS2OS::CPS2OS(CMIPS& ee, uint8* ram, uint8* bios, uint8* spr, CGSHandler*& gs, 
     , m_idleThreadId(reinterpret_cast<uint32*>(m_ram + BIOS_ADDRESS_IDLE_THREAD_ID))
     , m_tlblExceptionHandler(reinterpret_cast<uint32*>(m_ram + BIOS_ADDRESS_TLB_READEXCEPTION_HANDLER))
     , m_tlbsExceptionHandler(reinterpret_cast<uint32*>(m_ram + BIOS_ADDRESS_TLB_WRITEEXCEPTION_HANDLER))
+    , m_trapExceptionHandler(reinterpret_cast<uint32*>(m_ram + BIOS_ADDRESS_TRAPEXCEPTION_HANDLER))
     , m_sifDmaNextIdx(reinterpret_cast<uint32*>(m_ram + BIOS_ADDRESS_SIFDMA_NEXT_INDEX))
     , m_sifDmaTimes(reinterpret_cast<uint32*>(m_ram + BIOS_ADDRESS_SIFDMA_TIMES_BASE))
     , m_threadSchedule(m_threads, reinterpret_cast<uint32*>(m_ram + BIOS_ADDRESS_THREADSCHEDULE_BASE))
@@ -1830,15 +1832,33 @@ void CPS2OS::sc_SetVTLBRefillHandler()
 	case CCOP_SCU::CAUSE_EXCCODE_TLBS:
 		m_tlbsExceptionHandler = handler;
 		break;
+	default:
+		CLog::GetInstance().Warn(LOG_NAME, "Setting handler 0x%08X for unknown exception %d.\r\n", handler, cause);
+		break;
 	}
 
 	UpdateTLBEnabledState();
+
+	m_ee.m_State.nGPR[SC_RETURN].nD0 = static_cast<int32>(handler);
 }
 
 //0E
 void CPS2OS::sc_SetVCommonHandler()
 {
-	//TODO: Enable TLB processing
+	uint32 cause = m_ee.m_State.nGPR[SC_PARAM0].nV0;
+	uint32 handler = m_ee.m_State.nGPR[SC_PARAM1].nV0;
+
+	switch(cause << 2)
+	{
+	case CCOP_SCU::CAUSE_EXCCODE_TRAP:
+		m_trapExceptionHandler = handler;
+		break;
+	default:
+		CLog::GetInstance().Warn(LOG_NAME, "Setting handler 0x%08X for unknown exception %d.\r\n", handler, cause);
+		break;
+	}
+
+	m_ee.m_State.nGPR[SC_RETURN].nD0 = static_cast<int32>(handler);
 }
 
 //10
