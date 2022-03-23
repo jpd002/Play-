@@ -239,6 +239,8 @@ public:
 	int32 FindVblankHandlerByLineAndPtr(uint32 startEnd, uint32 handlerPtr);
 	void SleepThreadTillVBlankStart();
 	void SleepThreadTillVBlankEnd();
+	void SleepThreadTillVBlank();
+	void SleepThreadTillNonVBlank();
 
 	uint32 CreateSemaphore(uint32, uint32, uint32, uint32);
 	uint32 DeleteSemaphore(uint32);
@@ -662,6 +664,7 @@ private:
 	IopModuleMapType m_modules;
 
 	OsVariableWrapper<uint32> m_currentThreadId;
+	OsVariableWrapper<bool> m_inVBlank;
 
 #ifdef DEBUGGER_INCLUDED
 	BiosDebugModuleInfoArray m_moduleTags;

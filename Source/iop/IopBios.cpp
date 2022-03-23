@@ -51,6 +51,7 @@
 #define BIOS_THREAD_LINK_HEAD_BASE (CIopBios::CONTROL_BLOCK_START + 0x0000)
 #define BIOS_CURRENT_THREAD_ID_BASE (CIopBios::CONTROL_BLOCK_START + 0x0008)
 #define BIOS_CURRENT_TIME_BASE (CIopBios::CONTROL_BLOCK_START + 0x0010)
+#define BIOS_IN_VBLANK_BASE (CIopBios::CONTROL_BLOCK_START + 0x0014)
 #define BIOS_MODULESTARTREQUEST_HEAD_BASE (CIopBios::CONTROL_BLOCK_START + 0x0018)
 #define BIOS_MODULESTARTREQUEST_FREE_BASE (CIopBios::CONTROL_BLOCK_START + 0x0020)
 #define BIOS_HANDLERS_BASE (CIopBios::CONTROL_BLOCK_START + 0x0100)
@@ -116,6 +117,7 @@ CIopBios::CIopBios(CMIPS& cpu, uint8* ram, uint32 ramSize, uint8* spr)
     , m_vpls(reinterpret_cast<VPL*>(&m_ram[BIOS_VPL_BASE]), 1, MAX_VPL)
     , m_loadedModules(reinterpret_cast<LOADEDMODULE*>(&m_ram[BIOS_LOADEDMODULE_BASE]), 1, MAX_LOADEDMODULE)
     , m_currentThreadId(reinterpret_cast<uint32*>(m_ram + BIOS_CURRENT_THREAD_ID_BASE))
+    , m_inVBlank(reinterpret_cast<bool*>(m_ram + BIOS_IN_VBLANK_BASE))
 {
 	static_assert(BIOS_CALCULATED_END <= CIopBios::CONTROL_BLOCK_END, "Control block size is too small");
 	static_assert(BIOS_SYSTEM_INTRHANDLER_TABLE_BASE > CIopBios::CONTROL_BLOCK_START, "Intr handler table is outside reserved block");
@@ -146,6 +148,7 @@ void CIopBios::Reset(const Iop::SifManPtr& sifMan)
 	CurrentTime() = 0xBE00000;
 	ThreadLinkHead() = 0;
 	m_currentThreadId = -1;
+	m_inVBlank = false;
 
 	m_cpu.m_State.nCOP0[CCOP_SCU::STATUS] |= CMIPS::STATUS_IE;
 
@@ -1692,6 +1695,30 @@ void CIopBios::SleepThreadTillVBlankEnd()
 	m_rescheduleNeeded = true;
 }
 
+void CIopBios::SleepThreadTillVBlank()
+{
+	if(m_inVBlank)
+	{
+		return;
+	}
+	THREAD* thread = GetThread(m_currentThreadId);
+	thread->status = THREAD_STATUS_WAIT_VBLANK_START;
+	UnlinkThread(thread->id);
+	m_rescheduleNeeded = true;
+}
+
+void CIopBios::SleepThreadTillNonVBlank()
+{
+	if(!m_inVBlank)
+	{
+		return;
+	}
+	THREAD* thread = GetThread(m_currentThreadId);
+	thread->status = THREAD_STATUS_WAIT_VBLANK_END;
+	UnlinkThread(thread->id);
+	m_rescheduleNeeded = true;
+}
+
 void CIopBios::LoadThreadContext(uint32 threadId)
 {
 	THREAD* thread = GetThread(threadId);
@@ -1849,6 +1876,7 @@ void CIopBios::CountTicks(uint32 ticks)
 
 void CIopBios::NotifyVBlankStart()
 {
+	m_inVBlank = true;
 	for(auto thread : m_threads)
 	{
 		if(!thread) continue;
@@ -1862,6 +1890,7 @@ void CIopBios::NotifyVBlankStart()
 
 void CIopBios::NotifyVBlankEnd()
 {
+	m_inVBlank = false;
 	for(auto thread : m_threads)
 	{
 		if(!thread) continue;

@@ -108,8 +108,7 @@ int32 CVblank::WaitVblank()
 #ifdef _DEBUG
 	CLog::GetInstance().Print(LOG_NAME, FUNCTION_WAITVBLANK "();\r\n");
 #endif
-	//TODO: Skip waiting if we're already in Vblank
-	m_bios.SleepThreadTillVBlankStart();
+	m_bios.SleepThreadTillVBlank();
 	return 0;
 }
 
@@ -118,7 +117,7 @@ int32 CVblank::WaitNonVblank()
 #ifdef _DEBUG
 	CLog::GetInstance().Print(LOG_NAME, FUNCTION_WAITNONVBLANK "();\r\n");
 #endif
-	m_bios.SleepThreadTillVBlankEnd();
+	m_bios.SleepThreadTillNonVBlank();
 	return 0;
 }
 
