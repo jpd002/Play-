@@ -38,6 +38,7 @@ add_executable(VuTest
 	TriAceTest.cpp
 	VuAssembler.cpp
 	XgKickTest.cpp
+	XgKickTest2.cpp
 
 	AddTest.h
 	BranchTest.h
@@ -61,6 +62,7 @@ add_executable(VuTest
 	TriAceTest.h
 	VuAssembler.h
 	XgKickTest.h
+	XgKickTest2.h
 )
 target_link_libraries(VuTest PlayCore)
 add_test(NAME VuTest
