@@ -16,7 +16,7 @@ namespace Iop
 		enum
 		{
 			ADDR_BEGIN = 0x1F808400,
-			ADDR_END = 0x1F808500
+			ADDR_END = 0x1F808554
 		};
 
 		enum
@@ -28,6 +28,8 @@ namespace Iop
 			REG_INTR0_MASK = 0x1F808424,
 			REG_INTR1 = 0x1F808428,
 			REG_INTR1_MASK = 0x1F80842C,
+			REG_INTR2 = 0x1F808430,
+			REG_INTR2_MASK = 0x1F808434,
 		};
 
 		enum
@@ -54,10 +56,13 @@ namespace Iop
 
 		CIntc& m_intc;
 
+		uint32 m_ctrl2 = 0;
 		uint32 m_phyResult;
 		uint32 m_intr0;
 		uint32 m_intr0Mask;
 		uint32 m_intr1;
 		uint32 m_intr1Mask;
+		uint32 m_intr2;
+		uint32 m_intr2Mask;
 	};
 }
