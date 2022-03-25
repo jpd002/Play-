@@ -543,6 +543,9 @@ void CMcServ::Read(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, u
 	else
 	{
 		ret[0] = static_cast<uint32>(file->Read(dst, cmd->size));
+
+		//Sync pointer for games that write after read without seeking or flushing
+		file->Seek(file->Tell(), Framework::STREAM_SEEK_SET);
 	}
 }
 
