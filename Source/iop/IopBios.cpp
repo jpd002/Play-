@@ -3361,6 +3361,64 @@ void CIopBios::RelocateElf(CELF& elf, uint32 programBaseAddress, uint32 programS
 			{
 				uint32 relocationAddress = relocationRecord[0] - sectionBase;
 				uint32 relocationType = relocationRecord[1] & 0xFF;
+
+				// It's presumed its possible for the relocationAddress to be negative, signaling an offset.
+				if(int32(relocationAddress) < 0)
+				{
+					switch(relocationType)
+					{
+					case CELF::R_MIPS_HI16:
+					{
+						// For R_MIPS_HI16, peak ahead to the R_MIPS_LO16 following, and reconstruct the address from there.
+						uint32 nextRelocationAddress = (relocationRecord + 0x2)[0];
+						uint32 nextRelocationType = (relocationRecord + 0x2)[1];
+
+						if(nextRelocationType == CELF::R_MIPS_LO16)
+						{
+							auto offset = int32(relocationAddress);
+							CLog::GetInstance().Warn(LOGNAME, "Relocating section %d record %d from following record "
+							                                  "address 0x%08X and offset %d to 0x%08X!\r\n",
+							                         i, record, nextRelocationAddress, offset, nextRelocationAddress + offset);
+							relocationAddress = nextRelocationAddress + offset;
+						}
+						else
+						{
+							CLog::GetInstance().Warn(LOGNAME, "Expected section %d record %d to be of type %d, but was %d\r\n",
+							                         i, record - 1, CELF::R_MIPS_LO16, nextRelocationType);
+							assert(0);
+						}
+
+						break;
+					}
+					case CELF::R_MIPS_LO16:
+					{
+						// For R_MIPS_LO16, peak back to the R_MIPS_HI16 preceding, and reconstruct the address from there.
+						uint32 nextRelocationAddress = (relocationRecord - 0x2)[0];
+						uint32 nextRelocationType = (relocationRecord - 0x2)[1];
+
+						if(nextRelocationType == CELF::R_MIPS_HI16)
+						{
+							auto offset = -int32(relocationAddress);
+							CLog::GetInstance().Warn(LOGNAME, "Relocating section %d record %d from previous record "
+							                                  "address 0x%08X and offset %d to 0x%08X!\r\n",
+							                         i, record, nextRelocationAddress, offset, nextRelocationAddress + offset);
+							relocationAddress = nextRelocationAddress + offset;
+						}
+						else
+						{
+							CLog::GetInstance().Warn(LOGNAME, "Expected section %d record %d to be of type %d, but was %d\r\n",
+							                         i, record - 1, CELF::R_MIPS_HI16, nextRelocationType);
+							assert(0);
+						}
+						break;
+					}
+					default:
+						CLog::GetInstance().Warn(LOGNAME, "Encountered unhandled negative offset in section %d record %d!\r\n",
+						                         i, record);
+						assert(0);
+					}
+				}
+
 				assert(relocationAddress < programSize);
 				if(relocationAddress < programSize)
 				{
