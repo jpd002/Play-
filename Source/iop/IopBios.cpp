@@ -3355,17 +3355,18 @@ void CIopBios::RelocateElf(CELF& elf, uint32 programBaseAddress, uint32 programS
 		const auto* sectionHeader = elf.GetSection(i);
 		if(sectionHeader != nullptr && sectionHeader->nType == CELF::SHT_REL)
 		{
-			uint32 lastHi16 = -1;
+			int32 lastHi16 = -1;
 			uint32 instructionHi16 = -1;
 			unsigned int recordCount = sectionHeader->nSize / 8;
 			auto relocationRecord = reinterpret_cast<const uint32*>(elf.GetSectionData(i));
 			uint32 sectionBase = 0;
 			for(unsigned int record = 0; record < recordCount; record++)
 			{
-				uint32 relocationAddress = relocationRecord[0] - sectionBase;
+				//Some games have negative relocation addresses (Hitman 2: Silent Assassin)
+				//Doesn't seem to be an issue, but we need offsets to be signed
+				int32 relocationAddress = relocationRecord[0] - sectionBase;
 				uint32 relocationType = relocationRecord[1] & 0xFF;
-				assert(relocationAddress < programSize);
-				if(relocationAddress < programSize)
+				assert(relocationAddress < static_cast<int32>(programSize));
 				{
 					uint32& instruction = *reinterpret_cast<uint32*>(&programData[relocationAddress]);
 					switch(relocationType)
