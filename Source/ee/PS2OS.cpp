@@ -771,6 +771,7 @@ void CPS2OS::AssembleInterruptHandler()
 		generateIntHandler(assembler, CINTC::INTC_LINE_GS);
 		generateIntHandler(assembler, CINTC::INTC_LINE_VBLANK_START);
 		generateIntHandler(assembler, CINTC::INTC_LINE_VBLANK_END);
+		generateIntHandler(assembler, CINTC::INTC_LINE_VIF0);
 		generateIntHandler(assembler, CINTC::INTC_LINE_VIF1);
 		generateIntHandler(assembler, CINTC::INTC_LINE_IPU);
 		generateIntHandler(assembler, CINTC::INTC_LINE_TIMER0);
