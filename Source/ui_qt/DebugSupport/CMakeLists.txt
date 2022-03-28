@@ -110,10 +110,15 @@ set(SRC_FILES
 	${SRC_ROOT}/ThreadsViewWnd.cpp
 	${SRC_ROOT}/ThreadsViewWnd.h
 	${SRC_ROOT}/QtDisAsmTableModel.cpp
+	${SRC_ROOT}/QtDisAsmTableModel.h
 	${SRC_ROOT}/QtDisAsmVuTableModel.cpp
+	${SRC_ROOT}/QtDisAsmVuTableModel.h
 	${SRC_ROOT}/QtGenericTableModel.cpp
+	${SRC_ROOT}/QtGenericTableModel.h
 	${SRC_ROOT}/QtDebugger.cpp
+	${SRC_ROOT}/QtDebugger.h
 	${SRC_ROOT}/QtDialogListWidget.cpp
+	${SRC_ROOT}/QtDialogListWidget.h
 )
 
 set(QT_DEBUGGER_MOC_HEADERS
