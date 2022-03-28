@@ -61,6 +61,7 @@ public:
 	virtual void Reset();
 	uint32 GetRegister(uint32);
 	void SetRegister(uint32, uint32);
+	void CountTicks(uint32);
 	virtual void SaveState(Framework::CZipArchiveWriter&);
 	virtual void LoadState(Framework::CZipArchiveReader&);
 
@@ -577,6 +578,7 @@ protected:
 	uint32 m_writeTick;
 	uint32 m_pendingMicroProgram;
 	uint32 m_incomingFifoDelay;
+	int32 m_interruptDelayTicks;
 
 	CProfiler::ZoneHandle m_vifProfilerZone = 0;
 };

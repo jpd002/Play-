@@ -312,6 +312,8 @@ void CSubSystem::CountTicks(int ticks)
 	m_dmac.ResumeDMA8();
 	m_gif.CountTicks(ticks);
 	m_ipu.CountTicks(ticks);
+	m_vpu0->GetVif().CountTicks(ticks);
+	m_vpu1->GetVif().CountTicks(ticks);
 	ExecuteIpu();
 	if(!m_EE.m_State.nHasException)
 	{

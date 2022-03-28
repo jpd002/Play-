@@ -81,6 +81,7 @@ void CVif::Reset()
 	m_stream.Reset();
 	m_pendingMicroProgram = -1;
 	m_incomingFifoDelay = 0;
+	m_interruptDelayTicks = 0;
 }
 
 uint32 CVif::GetRegister(uint32 address)
@@ -243,6 +244,20 @@ void CVif::SetRegister(uint32 address, uint32 value)
 #ifdef _DEBUG
 	DisassembleSet(address, value);
 #endif
+}
+
+void CVif::CountTicks(uint32 ticks)
+{
+	if(m_interruptDelayTicks != 0)
+	{
+		m_interruptDelayTicks -= ticks;
+		if(m_interruptDelayTicks <= 0)
+		{
+			assert(m_STAT.nINT);
+			m_intc.AssertLine(CINTC::INTC_LINE_VIF0 + m_number);
+			m_interruptDelayTicks = 0;
+		}
+	}
 }
 
 void CVif::SaveState(Framework::CZipArchiveWriter& archive)
@@ -421,7 +436,7 @@ void CVif::ProcessPacket(StreamType& stream)
 				m_STAT.nVIS = 1;
 			}
 			m_STAT.nINT = 1;
-			m_intc.AssertLine(CINTC::INTC_LINE_VIF0 + m_number);
+			m_interruptDelayTicks = 0x1000;
 		}
 
 		switch(m_CODE.nCMD)
