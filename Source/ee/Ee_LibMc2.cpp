@@ -437,11 +437,11 @@ void CLibMc2::CheckAsync(CMIPS& context)
 
 	if(cmdPtr != 0)
 	{
-		*reinterpret_cast<uint32*>(m_ram + cmdPtr) = m_lastCmd;
+		*reinterpret_cast<uint32*>(m_eeBios.GetStructPtr(cmdPtr)) = m_lastCmd;
 	}
 	if(resultPtr != 0)
 	{
-		*reinterpret_cast<uint32*>(m_ram + resultPtr) = lastCmdResult;
+		*reinterpret_cast<uint32*>(m_eeBios.GetStructPtr(resultPtr)) = lastCmdResult;
 	}
 
 	m_lastCmd = 0;
@@ -462,7 +462,7 @@ void CLibMc2::CheckAsync(CMIPS& context)
 
 int32 CLibMc2::GetInfoAsync(uint32 socketId, uint32 infoPtr)
 {
-	auto info = reinterpret_cast<CARDINFO*>(m_ram + infoPtr);
+	auto info = reinterpret_cast<CARDINFO*>(m_eeBios.GetStructPtr(infoPtr));
 
 	CLog::GetInstance().Print(LOG_NAME, "GetInfoAsync(socketId = %d, infoPtr = 0x%08X);\r\n",
 	                          socketId, infoPtr);
@@ -480,7 +480,7 @@ int32 CLibMc2::GetInfoAsync(uint32 socketId, uint32 infoPtr)
 
 int32 CLibMc2::CreateFileAsync(uint32 socketId, uint32 pathPtr)
 {
-	auto path = reinterpret_cast<const char*>(m_ram + pathPtr);
+	auto path = reinterpret_cast<const char*>(m_eeBios.GetStructPtr(pathPtr));
 
 	CLog::GetInstance().Print(LOG_NAME, "CreateFileAsync(socketId = %d, path = '%s');\r\n",
 	                          socketId, path);
@@ -521,7 +521,7 @@ int32 CLibMc2::CreateFileAsync(uint32 socketId, uint32 pathPtr)
 
 int32 CLibMc2::DeleteAsync(uint32 socketId, uint32 pathPtr)
 {
-	auto path = reinterpret_cast<const char*>(m_ram + pathPtr);
+	auto path = reinterpret_cast<const char*>(m_eeBios.GetStructPtr(pathPtr));
 
 	CLog::GetInstance().Print(LOG_NAME, "DeleteAsync(socketId = %d, path = '%s');\r\n",
 	                          socketId, path);
@@ -558,8 +558,8 @@ int32 CLibMc2::GetDirAsync(uint32 socketId, uint32 pathPtr, uint32 offset, int32
 {
 	assert((maxEntries >= 0) || (offset == 0));
 
-	auto path = reinterpret_cast<const char*>(m_ram + pathPtr);
-	auto dirEntries = reinterpret_cast<DIRPARAM*>(m_ram + dirEntriesPtr);
+	auto path = reinterpret_cast<const char*>(m_eeBios.GetStructPtr(pathPtr));
+	auto dirEntries = reinterpret_cast<DIRPARAM*>(m_eeBios.GetStructPtr(dirEntriesPtr));
 
 	CLog::GetInstance().Print(LOG_NAME, "GetDirAsync(socketId = %d, path = '%s', offset = %d, maxEntries = %d, dirEntriesPtr = 0x%08X, countPtr = 0x%08X);\r\n",
 	                          socketId, path, offset, maxEntries, dirEntriesPtr, countPtr);
@@ -592,12 +592,12 @@ int32 CLibMc2::GetDirAsync(uint32 socketId, uint32 pathPtr, uint32 offset, int32
 		if(maxEntries < 0)
 		{
 			//Wanted to get the total amount of entries
-			*reinterpret_cast<uint32*>(m_ram + countPtr) = result;
+			*reinterpret_cast<uint32*>(m_eeBios.GetStructPtr(countPtr)) = result;
 		}
 		else
 		{
 			assert(result >= offset);
-			*reinterpret_cast<uint32*>(m_ram + countPtr) = result - offset;
+			*reinterpret_cast<uint32*>(m_eeBios.GetStructPtr(countPtr)) = result - offset;
 
 			auto dirParam = dirEntries;
 			for(uint32 i = offset; i < result; i++)
@@ -618,7 +618,7 @@ int32 CLibMc2::GetDirAsync(uint32 socketId, uint32 pathPtr, uint32 offset, int32
 
 int32 CLibMc2::MkDirAsync(uint32 socketId, uint32 pathPtr)
 {
-	auto path = reinterpret_cast<const char*>(m_ram + pathPtr);
+	auto path = reinterpret_cast<const char*>(m_eeBios.GetStructPtr(pathPtr));
 
 	CLog::GetInstance().Print(LOG_NAME, "MkDirAsync(socketId = %d, path = '%s');\r\n",
 	                          socketId, path);
@@ -645,7 +645,7 @@ int32 CLibMc2::MkDirAsync(uint32 socketId, uint32 pathPtr)
 
 int32 CLibMc2::ChDirAsync(uint32 socketId, uint32 pathPtr, uint32 pwdPtr)
 {
-	auto path = reinterpret_cast<const char*>(m_ram + pathPtr);
+	auto path = reinterpret_cast<const char*>(m_eeBios.GetStructPtr(pathPtr));
 	assert(pwdPtr == 0);
 
 	CLog::GetInstance().Print(LOG_NAME, "ChDirAsync(socketId = %d, path = '%s', pwdPtr = 0x%08X);\r\n",
@@ -678,7 +678,7 @@ int32 CLibMc2::ChDirAsync(uint32 socketId, uint32 pathPtr, uint32 pwdPtr)
 
 int32 CLibMc2::ChModAsync(uint32 socketId, uint32 pathPtr, uint32 mode)
 {
-	auto path = reinterpret_cast<const char*>(m_ram + pathPtr);
+	auto path = reinterpret_cast<const char*>(m_eeBios.GetStructPtr(pathPtr));
 
 	CLog::GetInstance().Print(LOG_NAME, "ChModAsync(socketId = %d, path = '%s', mode = %d);\r\n",
 	                          socketId, path, mode);
@@ -691,8 +691,8 @@ int32 CLibMc2::ChModAsync(uint32 socketId, uint32 pathPtr, uint32 mode)
 
 int32 CLibMc2::SearchFileAsync(uint32 socketId, uint32 pathPtr, uint32 dirParamPtr)
 {
-	auto path = reinterpret_cast<const char*>(m_ram + pathPtr);
-	auto dirParam = reinterpret_cast<DIRPARAM*>(m_ram + dirParamPtr);
+	auto path = reinterpret_cast<const char*>(m_eeBios.GetStructPtr(pathPtr));
+	auto dirParam = reinterpret_cast<DIRPARAM*>(m_eeBios.GetStructPtr(dirParamPtr));
 
 	CLog::GetInstance().Print(LOG_NAME, "SearchFileAsync(socketId = %d, path = '%s', dirParamPtr = 0x%08X);\r\n",
 	                          socketId, path, dirParamPtr);
@@ -735,7 +735,7 @@ int32 CLibMc2::SearchFileAsync(uint32 socketId, uint32 pathPtr, uint32 dirParamP
 
 int32 CLibMc2::GetEntSpaceAsync(uint32 socketId, uint32 pathPtr)
 {
-	auto path = reinterpret_cast<const char*>(m_ram + pathPtr);
+	auto path = reinterpret_cast<const char*>(m_eeBios.GetStructPtr(pathPtr));
 
 	CLog::GetInstance().Print(LOG_NAME, "GetEntSpaceAsync(socketId = %d, path = '%s');\r\n",
 	                          socketId, path);
@@ -776,7 +776,7 @@ int32 CLibMc2::GetDbcStatus(uint32 socketId, uint32 unknown)
 
 int32 CLibMc2::ReadFileAsync(uint32 socketId, uint32 pathPtr, uint32 bufferPtr, uint32 offset, uint32 size)
 {
-	auto path = reinterpret_cast<const char*>(m_ram + pathPtr);
+	auto path = reinterpret_cast<const char*>(m_eeBios.GetStructPtr(pathPtr));
 
 	CLog::GetInstance().Print(LOG_NAME, "ReadFileAsync(socketId = %d, path = '%s', bufferPtr = 0x%08X, offset = 0x%08X, size = 0x%08X);\r\n",
 	                          socketId, path, bufferPtr, offset, size);
@@ -846,7 +846,7 @@ int32 CLibMc2::ReadFileAsync(uint32 socketId, uint32 pathPtr, uint32 bufferPtr, 
 
 int32 CLibMc2::WriteFileAsync(uint32 socketId, uint32 pathPtr, uint32 bufferPtr, uint32 offset, uint32 size)
 {
-	auto path = reinterpret_cast<const char*>(m_ram + pathPtr);
+	auto path = reinterpret_cast<const char*>(m_eeBios.GetStructPtr(pathPtr));
 
 	CLog::GetInstance().Print(LOG_NAME, "WriteFileAsync(socketId = %d, path = '%s', bufferPtr = 0x%08X, offset = 0x%08X, size = 0x%08X);\r\n",
 	                          socketId, path, bufferPtr, offset, size);

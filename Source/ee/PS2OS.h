@@ -56,6 +56,8 @@ public:
 	uint32 SuspendCurrentThread();
 	void ResumeThread(uint32);
 
+	uint8* GetStructPtr(uint32) const;
+
 	void UpdateTLBEnabledState();
 
 	static uint32 TranslateAddress(CMIPS*, uint32);
@@ -333,8 +335,6 @@ private:
 
 	std::pair<uint32, uint32> GetVsyncFlagPtrs() const;
 	void SetVsyncFlagPtrs(uint32, uint32);
-
-	uint8* GetStructPtr(uint32) const;
 
 	uint32 GetNextAvailableDeci2HandlerId();
 	DECI2HANDLER* GetDeci2Handler(uint32);
