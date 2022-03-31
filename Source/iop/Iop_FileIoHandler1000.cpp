@@ -7,6 +7,10 @@
 
 #define LOG_NAME ("iop_fileio")
 
+#define STATE_XML ("iop_fileio/state1000.xml")
+#define STATE_MODULEDATAADDR ("moduleDataAddr")
+#define STATE_TRAMPOLINEADDR ("trampolineAddr")
+
 using namespace Iop;
 
 #define MODULEDATA_SIZE 0x100
@@ -27,6 +31,22 @@ CFileIoHandler1000::CFileIoHandler1000(CIopBios& bios, uint8* iopRam, CIoman* io
     , m_iopRam(iopRam)
     , m_sifMan(sifMan)
 {
+}
+
+void CFileIoHandler1000::LoadState(Framework::CZipArchiveReader& archive)
+{
+	auto registerFile = CRegisterStateFile(*archive.BeginReadFile(STATE_XML));
+	m_moduleDataAddr = registerFile.GetRegister32(STATE_MODULEDATAADDR);
+	m_bufferAddr = m_moduleDataAddr + offsetof(MODULEDATA, buffer);
+	m_trampolineAddr = registerFile.GetRegister32(STATE_TRAMPOLINEADDR);
+}
+
+void CFileIoHandler1000::SaveState(Framework::CZipArchiveWriter& archive) const
+{
+	auto registerFile = new CRegisterStateFile(STATE_XML);
+	registerFile->SetRegister32(STATE_MODULEDATAADDR, m_moduleDataAddr);
+	registerFile->SetRegister32(STATE_TRAMPOLINEADDR, m_trampolineAddr);
+	archive.InsertFile(registerFile);
 }
 
 void CFileIoHandler1000::AllocateMemory()
