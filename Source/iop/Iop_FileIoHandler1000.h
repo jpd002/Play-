@@ -12,13 +12,13 @@ namespace Iop
 
 		void AllocateMemory() override;
 		void ReleaseMemory() override;
-		
+
 		void Invoke(CMIPS&, uint32) override;
 		bool Invoke(uint32, uint32*, uint32, uint32*, uint32, uint8*) override;
 
 		void LoadState(Framework::CZipArchiveReader&) override;
 		void SaveState(Framework::CZipArchiveWriter&) const override;
-		
+
 	private:
 		enum
 		{
