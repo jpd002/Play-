@@ -605,6 +605,13 @@ void CMcServ::ChDir(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, 
 	assert(argsSize >= 0x414);
 	CMD* cmd = reinterpret_cast<CMD*>(args);
 
+	// 007 Agent Under Fire sends junk for the port
+	if(cmd->port == -1 || cmd->slot == -1)
+	{
+		ret[0] = -1;
+		return;
+	}
+
 	CLog::GetInstance().Print(LOG_NAME, "ChDir(port = %i, slot = %i, tableAddress = 0x%08X, name = '%s');\r\n",
 	                          cmd->port, cmd->slot, cmd->tableAddress, cmd->name);
 
