@@ -27,16 +27,21 @@ CFileIoHandler1000::CFileIoHandler1000(CIopBios& bios, uint8* iopRam, CIoman* io
     , m_iopRam(iopRam)
     , m_sifMan(sifMan)
 {
+}
+
+void CFileIoHandler1000::AllocateMemory()
+{
 	auto sysmem = m_bios.GetSysmem();
 	m_moduleDataAddr = sysmem->AllocateMemory(sizeof(MODULEDATA), 0, 0);
 	m_bufferAddr = m_moduleDataAddr + offsetof(MODULEDATA, buffer);
 	BuildExportTable();
 }
 
-CFileIoHandler1000::~CFileIoHandler1000()
+void CFileIoHandler1000::ReleaseMemory()
 {
 	auto sysmem = m_bios.GetSysmem();
-	sysmem->FreeMemory(m_moduleDataAddr);
+	uint32 result = sysmem->FreeMemory(m_moduleDataAddr);
+	assert(result == 0);
 }
 
 void CFileIoHandler1000::Invoke(CMIPS& context, uint32 method)

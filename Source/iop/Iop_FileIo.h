@@ -20,6 +20,9 @@ namespace Iop
 			CHandler(CIoman*);
 			virtual ~CHandler() = default;
 
+			virtual void AllocateMemory() {};
+			virtual void ReleaseMemory() {};
+			
 			virtual void Invoke(CMIPS&, unsigned int);
 			virtual bool Invoke(uint32, uint32*, uint32, uint32*, uint32, uint8*) = 0;
 
@@ -55,6 +58,8 @@ namespace Iop
 
 	private:
 		typedef std::unique_ptr<CHandler> HandlerPtr;
+		
+		void SyncHandler();
 
 		CIopBios& m_bios;
 		uint8* m_ram = nullptr;

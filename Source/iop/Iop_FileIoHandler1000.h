@@ -8,11 +8,17 @@ namespace Iop
 	{
 	public:
 		CFileIoHandler1000(CIopBios&, uint8*, CIoman*, CSifMan&);
-		virtual ~CFileIoHandler1000();
+		virtual ~CFileIoHandler1000() = default;
 
+		void AllocateMemory() override;
+		void ReleaseMemory() override;
+		
 		void Invoke(CMIPS&, uint32) override;
 		bool Invoke(uint32, uint32*, uint32, uint32*, uint32, uint8*) override;
 
+		void LoadState() override;
+		void SaveState() override;
+		
 	private:
 		enum
 		{

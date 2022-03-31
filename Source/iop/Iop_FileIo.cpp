@@ -21,18 +21,28 @@ CFileIo::CFileIo(CIopBios& bios, uint8* ram, CSifMan& sifMan, CIoman& ioman)
     , m_ioman(ioman)
 {
 	m_sifMan.RegisterModule(SIF_MODULE_ID, this);
-	m_handler = std::make_unique<CFileIoHandler1000>(m_bios, m_ram, &m_ioman, m_sifMan);
+	SetModuleVersion(1000);
 }
 
 void CFileIo::SetModuleVersion(unsigned int moduleVersion)
 {
-	m_handler.reset();
+	if(m_handler)
+	{
+		m_handler->ReleaseMemory();
+	}
 	m_moduleVersion = moduleVersion;
-	if(moduleVersion >= 2100 && moduleVersion < 2200)
+	SyncHandler();
+	m_handler->AllocateMemory();
+}
+
+void CFileIo::SyncHandler()
+{
+	m_handler.reset();
+	if(m_moduleVersion >= 2100 && m_moduleVersion < 2200)
 	{
 		m_handler = std::make_unique<CFileIoHandler2100>(&m_ioman);
 	}
-	else if(moduleVersion >= 2200)
+	else if(m_moduleVersion >= 2200)
 	{
 		m_handler = std::make_unique<CFileIoHandler2200>(&m_ioman, m_sifMan);
 	}
@@ -68,7 +78,7 @@ void CFileIo::LoadState(Framework::CZipArchiveReader& archive)
 {
 	auto registerFile = CRegisterStateFile(*archive.BeginReadFile(STATE_VERSION_XML));
 	m_moduleVersion = registerFile.GetRegister32(STATE_VERSION_MODULEVERSION);
-	SetModuleVersion(m_moduleVersion);
+	SyncHandler();
 	m_handler->LoadState(archive);
 }
 
