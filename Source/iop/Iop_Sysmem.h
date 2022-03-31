@@ -17,7 +17,7 @@ namespace Iop
 		typedef COsStructManager<MEMORYBLOCK> BlockListType;
 
 		CSysmem(uint8*, uint32, uint32, BlockListType&, CStdio&, CIoman&, CSifMan&);
-		virtual ~CSysmem();
+		virtual ~CSysmem() = default;
 
 		std::string GetId() const override;
 		std::string GetFunctionName(unsigned int) const override;

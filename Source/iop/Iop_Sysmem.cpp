@@ -35,10 +35,6 @@ CSysmem::CSysmem(uint8* ram, uint32 memoryBegin, uint32 memoryEnd, BlockListType
 	sifMan.RegisterModule(MODULE_ID, this);
 }
 
-CSysmem::~CSysmem()
-{
-}
-
 std::string CSysmem::GetId() const
 {
 	return "sysmem";
