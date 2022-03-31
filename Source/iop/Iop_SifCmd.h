@@ -29,6 +29,8 @@ namespace Iop
 		void SifBindRpc(CMIPS&);
 		void SifCallRpc(CMIPS&);
 
+		void ClearServers();
+
 	private:
 		typedef std::list<CSifDynamic*> DynamicModuleList;
 
@@ -93,7 +95,6 @@ namespace Iop
 			uint32 pendingCmdBufferSize;
 		};
 
-		void ClearServers();
 		void BuildExportTable();
 
 		void ProcessCustomCommand(uint32);

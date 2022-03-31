@@ -862,6 +862,9 @@ int32 CIopBios::ReferModuleStatus(uint32 moduleId, uint32 statusPtr)
 
 void CIopBios::ProcessModuleReset(const std::string& imagePath)
 {
+	CLog::GetInstance().Print(LOGNAME, "ProcessModuleReset(%s);\r\n", imagePath.c_str());
+	m_sifCmd->ClearServers();
+
 	unsigned int imageVersion = 1000;
 	bool found = TryGetImageVersionFromPath(imagePath, &imageVersion);
 	if(!found) found = TryGetImageVersionFromContents(imagePath, &imageVersion);
