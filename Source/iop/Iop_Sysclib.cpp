@@ -453,7 +453,12 @@ uint32 CSysclib::__strcmp(const char* s1, const char* s2)
 
 void CSysclib::__strcpy(char* dst, const char* src)
 {
-	strcpy(dst, src);
+	// Note, we don't use a regular strcpy here, as games might
+	// use overlapping regions, which might not be supported on the
+	// host system. This memmove solution is safe.
+	// "Lord of the Rings - The Fellowship of the Ring" does that during
+	// startup for example.
+	memmove(dst, src, strlen(src) + 1);
 }
 
 uint32 CSysclib::__strncmp(const char* s1, const char* s2, uint32 length)
