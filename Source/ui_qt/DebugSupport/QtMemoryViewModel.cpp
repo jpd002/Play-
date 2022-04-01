@@ -45,23 +45,25 @@ QVariant CQtMemoryViewModel::data(const QModelIndex& index, int role) const
 		else
 		{
 			int address = index.row() * m_columnCount;
-			std::string res = "";
+			std::string res;
 			for(auto j = 0; j < m_columnCount; j++)
 			{
-				uint8 value = 0x0;
-				if(address + j < m_size)
+				if((address + j) >= m_size)
 				{
-					value = GetByte(address + j);
+					res += " ";
 				}
-				if(value < 0x20 || value > 0x7F)
+				else
 				{
-					value = '.';
+					uint8 value = GetByte(address + j);
+					if(value < 0x20 || value > 0x7F)
+					{
+						value = '.';
+					}
+					char valueString[2];
+					valueString[0] = value;
+					valueString[1] = 0x00;
+					res += valueString;
 				}
-
-				char valueString[2];
-				valueString[0] = value;
-				valueString[1] = 0x00;
-				res += valueString;
 			}
 			return res.c_str();
 		}
@@ -104,28 +106,49 @@ uint8 CQtMemoryViewModel::GetByte(uint32 nAddress) const
 
 std::string CQtMemoryViewModel::RenderByteUnit(uint32 address) const
 {
-	uint8 unitValue = GetByte(address);
-	return string_format("%02X", unitValue);
+	if(address >= m_size)
+	{
+		return "--";
+	}
+	else
+	{
+		uint8 unitValue = GetByte(address);
+		return string_format("%02X", unitValue);
+	}
 }
 
 std::string CQtMemoryViewModel::RenderWordUnit(uint32 address) const
 {
-	uint32 unitValue =
-	    (GetByte(address + 0) << 0) |
-	    (GetByte(address + 1) << 8) |
-	    (GetByte(address + 2) << 16) |
-	    (GetByte(address + 3) << 24);
-	return string_format("%08X", unitValue);
+	if(address >= m_size)
+	{
+		return "--------";
+	}
+	else
+	{
+		uint32 unitValue =
+		    (GetByte(address + 0) << 0) |
+		    (GetByte(address + 1) << 8) |
+		    (GetByte(address + 2) << 16) |
+		    (GetByte(address + 3) << 24);
+		return string_format("%08X", unitValue);
+	}
 }
 
 std::string CQtMemoryViewModel::RenderSingleUnit(uint32 address) const
 {
-	uint32 unitValue =
-	    (GetByte(address + 0) << 0) |
-	    (GetByte(address + 1) << 8) |
-	    (GetByte(address + 2) << 16) |
-	    (GetByte(address + 3) << 24);
-	return string_format("%+04.4e", *reinterpret_cast<const float*>(&unitValue));
+	if(address >= m_size)
+	{
+		return "-----------";
+	}
+	else
+	{
+		uint32 unitValue =
+		    (GetByte(address + 0) << 0) |
+		    (GetByte(address + 1) << 8) |
+		    (GetByte(address + 2) << 16) |
+		    (GetByte(address + 3) << 24);
+		return string_format("%+04.4e", *reinterpret_cast<const float*>(&unitValue));
+	}
 }
 
 unsigned int CQtMemoryViewModel::BytesForCurrentLine() const
