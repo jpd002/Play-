@@ -265,14 +265,25 @@ uint32 CDMAC::ReceiveDMA8(uint32 nDstAddress, uint32 nCount, uint32 unused, bool
 	assert(nTagIncluded == false);
 	assert(m_D8_SADR < PS2::EE_SPR_SIZE);
 
-	nDstAddress &= (PS2::EE_RAM_SIZE - 1);
+	uint8* dstPtr = nullptr;
+	if((nDstAddress >= PS2::VUMEM0ADDR) && (nDstAddress < (PS2::VUMEM0ADDR + PS2::VUMEM0SIZE)))
+	{
+		nDstAddress -= PS2::VUMEM0ADDR;
+		nDstAddress &= (PS2::VUMEM0SIZE - 1);
+		dstPtr = m_vuMem0;
+	}
+	else
+	{
+		nDstAddress &= (PS2::EE_RAM_SIZE - 1);
+		dstPtr = m_ram;
+	}
 
 	uint32 remainTransfer = nCount;
 	while(remainTransfer != 0)
 	{
 		uint32 remainSpr = (PS2::EE_SPR_SIZE - m_D8_SADR) / 0x10;
 		uint32 copySize = std::min<uint32>(remainSpr, remainTransfer);
-		memcpy(m_ram + nDstAddress, m_spr + m_D8_SADR, copySize * 0x10);
+		memcpy(dstPtr + nDstAddress, m_spr + m_D8_SADR, copySize * 0x10);
 
 		remainTransfer -= copySize;
 		nDstAddress += (copySize * 0x10);
