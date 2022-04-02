@@ -90,9 +90,9 @@ private:
 	void AssembleJAL();
 	void ReanalyzeEe();
 	void FindEeFunctions();
-	void Layout1024();
-	void Layout1280();
-	void Layout1600();
+	void Layout1024x768();
+	void Layout1280x1024();
+	void Layout1600x1200();
 	void LoadDebugTags();
 	void SaveDebugTags();
 

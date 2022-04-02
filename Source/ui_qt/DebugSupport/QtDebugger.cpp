@@ -390,7 +390,7 @@ void QtDebugger::FindEeFunctions()
 	m_virtualMachine.m_ee->m_EE.m_Functions.OnTagListChange();
 }
 
-void QtDebugger::Layout1024()
+void QtDebugger::Layout1024x768()
 {
 	static_cast<QWidget*>(GetDisassemblyWindow()->parent())->setGeometry(0, 0, 700, 435);
 	static_cast<QWidget*>(GetDisassemblyWindow()->parent())->show();
@@ -409,7 +409,7 @@ void QtDebugger::Layout1024()
 	GetCallStackWindow()->show();
 }
 
-void QtDebugger::Layout1280()
+void QtDebugger::Layout1280x1024()
 {
 	static_cast<QWidget*>(GetDisassemblyWindow()->parent())->setGeometry(0, 0, 900, 540);
 	static_cast<QWidget*>(GetDisassemblyWindow()->parent())->show();
@@ -428,7 +428,7 @@ void QtDebugger::Layout1280()
 	GetCallStackWindow()->show();
 }
 
-void QtDebugger::Layout1600()
+void QtDebugger::Layout1600x1200()
 {
 	static_cast<QWidget*>(GetDisassemblyWindow()->parent())->setGeometry(0, 0, 1094, 725);
 	static_cast<QWidget*>(GetDisassemblyWindow()->parent())->show();
@@ -769,17 +769,17 @@ void QtDebugger::on_actionTile_triggered()
 
 void QtDebugger::on_actionLayout_1024x768_triggered()
 {
-	Layout1024();
+	Layout1024x768();
 }
 
 void QtDebugger::on_actionLayout_1280x1024_triggered()
 {
-	Layout1280();
+	Layout1280x1024();
 }
 
 void QtDebugger::on_actionLayout_1600x1200_triggered()
 {
-	Layout1600();
+	Layout1600x1200();
 }
 
 void QtDebugger::on_actionfind_word_value_triggered()
