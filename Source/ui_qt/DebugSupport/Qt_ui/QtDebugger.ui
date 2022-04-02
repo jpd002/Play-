@@ -93,6 +93,7 @@
     <addaction name="actionCascade"/>
     <addaction name="actionTile"/>
     <addaction name="actionLayout_1024x768"/>
+	<addaction name="actionLayout_1280x800"/>
     <addaction name="actionLayout_1280x1024"/>
     <addaction name="actionLayout_1600x1200"/>
    </widget>
@@ -244,6 +245,11 @@
   <action name="actionLayout_1024x768">
    <property name="text">
     <string>Layout (1024x768)</string>
+   </property>
+  </action>
+  <action name="actionLayout_1280x800">
+   <property name="text">
+    <string>Layout (1280x800)</string>
    </property>
   </action>
   <action name="actionLayout_1280x1024">

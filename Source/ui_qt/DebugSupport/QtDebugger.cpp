@@ -409,6 +409,25 @@ void QtDebugger::Layout1024x768()
 	GetCallStackWindow()->show();
 }
 
+void QtDebugger::Layout1280x800()
+{
+	static_cast<QWidget*>(GetDisassemblyWindow()->parent())->setGeometry(0, 0, 1100, 475);
+	static_cast<QWidget*>(GetDisassemblyWindow()->parent())->show();
+	GetDisassemblyWindow()->show();
+
+	static_cast<QWidget*>(GetRegisterViewWindow()->parent())->setGeometry(1100, 0, 325, 475);
+	static_cast<QWidget*>(GetRegisterViewWindow()->parent())->show();
+	GetRegisterViewWindow()->show();
+
+	static_cast<QWidget*>(GetMemoryViewWindow()->parent())->setGeometry(0, 475, 1100, 265);
+	static_cast<QWidget*>(GetMemoryViewWindow()->parent())->show();
+	GetMemoryViewWindow()->show();
+
+	static_cast<QWidget*>(GetCallStackWindow()->parent())->setGeometry(1100, 475, 325, 265);
+	static_cast<QWidget*>(GetCallStackWindow()->parent())->show();
+	GetCallStackWindow()->show();
+}
+
 void QtDebugger::Layout1280x1024()
 {
 	static_cast<QWidget*>(GetDisassemblyWindow()->parent())->setGeometry(0, 0, 900, 540);
@@ -770,6 +789,11 @@ void QtDebugger::on_actionTile_triggered()
 void QtDebugger::on_actionLayout_1024x768_triggered()
 {
 	Layout1024x768();
+}
+
+void QtDebugger::on_actionLayout_1280x800_triggered()
+{
+	Layout1280x800();
 }
 
 void QtDebugger::on_actionLayout_1280x1024_triggered()

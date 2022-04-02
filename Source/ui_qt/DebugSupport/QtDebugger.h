@@ -42,6 +42,7 @@ private slots:
 	void on_actionCascade_triggered();
 	void on_actionTile_triggered();
 	void on_actionLayout_1024x768_triggered();
+	void on_actionLayout_1280x800_triggered();
 	void on_actionLayout_1280x1024_triggered();
 	void on_actionLayout_1600x1200_triggered();
 
@@ -91,6 +92,7 @@ private:
 	void ReanalyzeEe();
 	void FindEeFunctions();
 	void Layout1024x768();
+	void Layout1280x800();
 	void Layout1280x1024();
 	void Layout1600x1200();
 	void LoadDebugTags();
