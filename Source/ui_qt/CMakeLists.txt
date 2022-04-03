@@ -313,17 +313,25 @@ elseif(TARGET_PLATFORM_UNIX)
 		PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ GROUP_EXECUTE GROUP_READ WORLD_EXECUTE WORLD_READ
 		RENAME Play
 	)
-	install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/../../icons/icon_base.png
-		DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/1024x1024/apps
-		RENAME Play.png
+	install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/../../icons/icon_base_512x512.png
+		DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/512x512/apps
+		RENAME org.purei.Play.png
 	)
 	install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/../../icons/icon.svg
 		DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/scalable/apps
-		RENAME Play.svg
+		RENAME org.purei.Play.svg
 	)
 	install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/../../installer_unix/Play.desktop
 		DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/applications
+		RENAME org.purei.Play.desktop
 	)
+	if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/../../states.db")
+		install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/../../states.db
+			DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/
+		)
+	else()
+		message(WARNING "didn't find states.db")
+	endif()
 else()
 	add_executable(Play ${QT_SOURCES} ${QT_MOC_SRCS} ${QT_RES_SOURCES} ${QT_UI_HEADERS})
 endif()
