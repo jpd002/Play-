@@ -321,9 +321,8 @@ elseif(TARGET_PLATFORM_UNIX)
 		DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/scalable/apps
 		RENAME org.purei.Play.svg
 	)
-	install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/../../installer_unix/Play.desktop
+	install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/../../installer_unix/org.purei.Play.desktop
 		DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/applications
-		RENAME org.purei.Play.desktop
 	)
 	install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/../../installer_unix/org.purei.Play.metainfo.xml
 		DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/metainfo
