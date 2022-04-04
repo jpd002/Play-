@@ -132,6 +132,7 @@ public:
 	void ResumeDMA8();
 	bool IsDMA4Started() const;
 	static bool IsEndSrcTagId(uint32);
+	static bool IsEndDstTagId(uint32);
 
 private:
 	enum D_CTRL_STS

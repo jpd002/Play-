@@ -260,6 +260,12 @@ bool CDMAC::IsEndSrcTagId(uint32 tag)
 	return ((tag == CChannel::DMATAG_SRC_REFE) || (tag == CChannel::DMATAG_SRC_END));
 }
 
+bool CDMAC::IsEndDstTagId(uint32 tag)
+{
+	tag = ((tag >> 12) & 0x07);
+	return (tag == CChannel::DMATAG_DST_END);
+}
+
 uint32 CDMAC::ReceiveDMA8(uint32 nDstAddress, uint32 nCount, uint32 unused, bool nTagIncluded)
 {
 	assert(nTagIncluded == false);

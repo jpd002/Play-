@@ -465,28 +465,36 @@ void CChannel::ExecuteDestinationChain()
 
 	while(m_CHCR.nSTR == 1)
 	{
-		assert(m_nQWC == 0);
-
-		auto tag = make_convertible<DMAtag>(m_dmac.FetchDMATag(m_dmac.m_D8_SADR | 0x80000000));
-		m_dmac.m_D8_SADR += 0x10;
-
-		assert(tag.irq == 0);
-		assert(tag.pce == 0);
-		assert((tag.addr & 0x0F) == 0);
-		switch(tag.id)
+		//QWC is 0, fetch a new tag
+		//Some games don't reset the TAG value in CHCR and start a transfer that looks like a normal transfer
+		//I guess this is because TAG is still the end tag and the DMAC only fetches a new tag if it's started with QWC = 0
+		//- Hitman 2: Silent Assassin
+		//- Ridge Racer 5
+		if(m_nQWC == 0)
 		{
-		case DMATAG_DST_CNTS:
-			//Stall register update not supported yet
-			assert(m_dmac.m_D_CTRL.sts != CDMAC::D_CTRL_STS_FROM_SPR);
-			[[fallthrough]];
-		case DMATAG_DST_CNT:
-		case DMATAG_DST_END:
-			m_nMADR = tag.addr;
-			m_nQWC = tag.qwc;
-			break;
-		default:
-			assert(false);
-			break;
+			auto tag = make_convertible<DMAtag>(m_dmac.FetchDMATag(m_dmac.m_D8_SADR | 0x80000000));
+			m_dmac.m_D8_SADR += 0x10;
+
+			assert(tag.irq == 0);
+			assert(tag.pce == 0);
+			assert((tag.addr & 0x0F) == 0);
+			switch(tag.id)
+			{
+			case DMATAG_DST_CNTS:
+				//Stall register update not supported yet
+				assert(m_dmac.m_D_CTRL.sts != CDMAC::D_CTRL_STS_FROM_SPR);
+				[[fallthrough]];
+			case DMATAG_DST_CNT:
+			case DMATAG_DST_END:
+				m_nMADR = tag.addr;
+				m_nQWC = tag.qwc;
+				break;
+			default:
+				assert(false);
+				break;
+			}
+
+			m_CHCR.nTAG = static_cast<uint16>(tag >> 16);
 		}
 
 		uint32 recv = m_receive(m_nMADR, m_nQWC, m_CHCR.nDIR, false);
@@ -495,7 +503,7 @@ void CChannel::ExecuteDestinationChain()
 		m_nMADR += recv * 0x10;
 		m_nQWC -= recv;
 
-		if(tag.id == DMATAG_DST_END)
+		if(CDMAC::IsEndDstTagId(m_CHCR.nTAG))
 		{
 			ClearSTR();
 		}
