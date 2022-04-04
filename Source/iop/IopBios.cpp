@@ -3362,13 +3362,24 @@ void CIopBios::RelocateElf(CELF& elf, uint32 programBaseAddress, uint32 programS
 			uint32 sectionBase = 0;
 			for(unsigned int record = 0; record < recordCount; record++)
 			{
+				//Helper to make sure we don't read/write things out of the module's memory area
+				uint32 oobInstruction = 0;
+				const auto& getInstructionRef = [&](int32 offset) -> uint32& {
+					if((offset < 0) || (offset >= static_cast<int32>(programSize)))
+					{
+						CLog::GetInstance().Warn(LOGNAME, "Relocation %d accessing location out of bounds: %d.\r\n", record, offset);
+						oobInstruction = 0;
+						return oobInstruction;
+					}
+					return *reinterpret_cast<uint32*>(programData + offset);
+				};
+
 				//Some games have negative relocation addresses (Hitman 2: Silent Assassin)
 				//Doesn't seem to be an issue, but we need offsets to be signed
 				int32 relocationAddress = relocationRecord[0] - sectionBase;
 				uint32 relocationType = relocationRecord[1] & 0xFF;
-				assert(relocationAddress < static_cast<int32>(programSize));
 				{
-					uint32& instruction = *reinterpret_cast<uint32*>(&programData[relocationAddress]);
+					uint32& instruction = getInstructionRef(relocationAddress);
 					switch(relocationType)
 					{
 					case CELF::R_MIPS_32:
@@ -3388,8 +3399,8 @@ void CIopBios::RelocateElf(CELF& elf, uint32 programBaseAddress, uint32 programS
 						{
 							assert((record + 1) != recordCount);
 							assert((relocationRecord[3] & 0xFF) == CELF::R_MIPS_LO16);
-							uint32 nextRelocationAddress = relocationRecord[2] - sectionBase;
-							uint32 nextInstruction = *reinterpret_cast<uint32*>(&programData[nextRelocationAddress]);
+							int32 nextRelocationAddress = relocationRecord[2] - sectionBase;
+							uint32 nextInstruction = getInstructionRef(nextRelocationAddress);
 							uint32 offset = static_cast<int16>(nextInstruction) + (instruction << 16);
 							offset += programBaseAddress;
 							if(offset & 0x8000) offset += 0x10000;
@@ -3420,7 +3431,7 @@ void CIopBios::RelocateElf(CELF& elf, uint32 programBaseAddress, uint32 programS
 							instruction &= ~0xFFFF;
 							instruction |= offset & 0xFFFF;
 
-							uint32& prevInstruction = *reinterpret_cast<uint32*>(&programData[lastHi16]);
+							uint32& prevInstruction = getInstructionRef(lastHi16);
 							prevInstruction &= ~0xFFFF;
 							if(offset & 0x8000) offset += 0x10000;
 							prevInstruction |= offset >> 16;
@@ -3437,7 +3448,7 @@ void CIopBios::RelocateElf(CELF& elf, uint32 programBaseAddress, uint32 programS
 						offset >>= 16;
 						while(1)
 						{
-							uint32& prevInstruction = *reinterpret_cast<uint32*>(&programData[relocationAddress]);
+							uint32& prevInstruction = getInstructionRef(relocationAddress);
 
 							int32 mhiOffset = static_cast<int16>(prevInstruction);
 							mhiOffset *= 4;
