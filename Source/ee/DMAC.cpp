@@ -242,22 +242,22 @@ bool CDMAC::IsDMA4Started() const
 	return (m_D4.m_CHCR.nSTR != 0) && (m_D_ENABLE == 0);
 }
 
-uint64 CDMAC::FetchDMATag(uint32 nAddress)
+uint64 CDMAC::FetchDMATag(uint32 address)
 {
-	if(nAddress & 0x80000000)
+	if(address & 0x80000000)
 	{
-		return *(uint64*)&m_spr[nAddress & 0x3FFF];
+		return *reinterpret_cast<uint64*>(&m_spr[address & (PS2::EE_SPR_SIZE - 1)]);
 	}
 	else
 	{
-		return *(uint64*)&m_ram[nAddress & 0x1FFFFFF];
+		return *reinterpret_cast<uint64*>(&m_ram[address & (PS2::EE_RAM_SIZE - 1)]);
 	}
 }
 
-bool CDMAC::IsEndSrcTagId(uint32 nTag)
+bool CDMAC::IsEndSrcTagId(uint32 tag)
 {
-	nTag = ((nTag >> 28) & 0x07);
-	return ((nTag == CChannel::DMATAG_SRC_REFE) || (nTag == CChannel::DMATAG_SRC_END));
+	tag = ((tag >> 12) & 0x07);
+	return ((tag == CChannel::DMATAG_SRC_REFE) || (tag == CChannel::DMATAG_SRC_END));
 }
 
 uint32 CDMAC::ReceiveDMA8(uint32 nDstAddress, uint32 nCount, uint32 unused, bool nTagIncluded)

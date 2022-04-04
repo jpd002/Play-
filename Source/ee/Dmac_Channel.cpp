@@ -332,7 +332,7 @@ void CChannel::ExecuteSourceChain()
 				}
 				else
 				{
-					if(CDMAC::IsEndSrcTagId((uint32)m_CHCR.nTAG << 16))
+					if(CDMAC::IsEndSrcTagId(m_CHCR.nTAG))
 					{
 						ClearSTR();
 						continue;
