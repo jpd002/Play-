@@ -325,6 +325,9 @@ elseif(TARGET_PLATFORM_UNIX)
 		DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/applications
 		RENAME org.purei.Play.desktop
 	)
+	install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/../../installer_unix/org.purei.Play.metainfo.xml
+		DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/metainfo
+	)
 	if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/../../states.db")
 		install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/../../states.db
 			DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/
