@@ -205,6 +205,8 @@ namespace Iop
 		void WriteFast(uint32*, uint32, uint32*, uint32, uint8*);
 		void GetVersionInformation(uint32*, uint32, uint32*, uint32, uint8*);
 
+		bool HandleInvalidPortOrSlot(uint32, uint32, uint32*);
+
 		void StartReadFast(CMIPS&);
 		void ProceedReadFast(CMIPS&);
 		void FinishReadFast(CMIPS&);

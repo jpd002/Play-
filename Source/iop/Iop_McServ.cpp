@@ -318,6 +318,11 @@ void CMcServ::GetInfo(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize
 	CLog::GetInstance().Print(LOG_NAME, "GetInfo(port = %i, slot = %i, wantType = %i, wantFreeSpace = %i, wantFormatted = %i, retBuffer = 0x%08X);\r\n",
 	                          port, slot, wantType, wantFreeSpace, wantFormatted, args[7]);
 
+	if(HandleInvalidPortOrSlot(port, slot, ret))
+	{
+		return;
+	}
+
 	if(wantType)
 	{
 		retBuffer[0x00] = 2; //2 -> PS2 memory card
@@ -368,10 +373,8 @@ void CMcServ::Open(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, u
 	CLog::GetInstance().Print(LOG_NAME, "Open(port = %i, slot = %i, flags = %i, name = '%s');\r\n",
 	                          cmd->port, cmd->slot, cmd->flags, cmd->name);
 
-	if(cmd->port >= MAX_PORTS)
+	if(HandleInvalidPortOrSlot(cmd->port, cmd->slot, ret))
 	{
-		assert(0);
-		ret[0] = -1;
 		return;
 	}
 
@@ -605,15 +608,13 @@ void CMcServ::ChDir(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, 
 	assert(argsSize >= 0x414);
 	CMD* cmd = reinterpret_cast<CMD*>(args);
 
-	// 007 Agent Under Fire sends junk for the port
-	if(cmd->port == -1 || cmd->slot == -1)
-	{
-		ret[0] = -1;
-		return;
-	}
-
 	CLog::GetInstance().Print(LOG_NAME, "ChDir(port = %i, slot = %i, tableAddress = 0x%08X, name = '%s');\r\n",
 	                          cmd->port, cmd->slot, cmd->tableAddress, cmd->name);
+
+	if(HandleInvalidPortOrSlot(cmd->port, cmd->slot, ret))
+	{
+		return;
+	}
 
 	uint32 result = -1;
 
@@ -688,10 +689,8 @@ void CMcServ::GetDir(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize,
 	CLog::GetInstance().Print(LOG_NAME, "GetDir(port = %i, slot = %i, flags = %i, maxEntries = %i, tableAddress = 0x%08X, name = '%s');\r\n",
 	                          cmd->port, cmd->slot, cmd->flags, cmd->maxEntries, cmd->tableAddress, cmd->name);
 
-	if(cmd->port >= MAX_PORTS)
+	if(HandleInvalidPortOrSlot(cmd->port, cmd->slot, ret))
 	{
-		assert(0);
-		ret[0] = -1;
 		return;
 	}
 
@@ -744,6 +743,11 @@ void CMcServ::SetFileInfo(uint32* args, uint32 argsSize, uint32* ret, uint32 ret
 	auto cmd = reinterpret_cast<const CMD*>(args);
 	CLog::GetInstance().Print(LOG_NAME, "SetFileInfo(port = %i, slot = %i, flags = %i, name = '%s');\r\n", cmd->port, cmd->slot, cmd->flags, cmd->name);
 
+	if(HandleInvalidPortOrSlot(cmd->port, cmd->slot, ret))
+	{
+		return;
+	}
+
 	auto entry = reinterpret_cast<ENTRY*>(ram + cmd->tableAddress);
 
 	auto flags = cmd->flags;
@@ -791,6 +795,11 @@ void CMcServ::Delete(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize,
 
 	CLog::GetInstance().Print(LOG_NAME, "Delete(port = %d, slot = %d, name = '%s');\r\n", cmd->port, cmd->slot, cmd->name);
 
+	if(HandleInvalidPortOrSlot(cmd->port, cmd->slot, ret))
+	{
+		return;
+	}
+
 	try
 	{
 		auto filePath = GetAbsoluteFilePath(cmd->port, cmd->slot, cmd->name);
@@ -831,6 +840,11 @@ void CMcServ::GetEntSpace(uint32* args, uint32 argsSize, uint32* ret, uint32 ret
 
 	CLog::GetInstance().Print(LOG_NAME, "GetEntSpace(port = %i, slot = %i, flags = %i, name = '%s');\r\n",
 	                          cmd->port, cmd->slot, cmd->flags, cmd->name);
+
+	if(HandleInvalidPortOrSlot(cmd->port, cmd->slot, ret))
+	{
+		return;
+	}
 
 	auto mcPath = CAppConfig::GetInstance().GetPreferencePath(m_mcPathPreference[cmd->port]);
 	auto savePath = Iop::PathUtils::MakeHostPath(mcPath, cmd->name);
@@ -926,6 +940,28 @@ void CMcServ::GetVersionInformation(uint32* args, uint32 argsSize, uint32* ret, 
 	}
 
 	CLog::GetInstance().Print(LOG_NAME, "Init();\r\n");
+}
+
+bool CMcServ::HandleInvalidPortOrSlot(uint32 port, uint32 slot, uint32* ret)
+{
+	if(port >= MAX_PORTS)
+	{
+
+		CLog::GetInstance().Warn(LOG_NAME, "Called mc function with invalid port %d\r\n", port);
+		ret[0] = -1;
+		return true;
+	}
+
+	// Note, we only support one slot for the moment.
+	// See GetSlotMax.
+	if(slot != 0)
+	{
+		CLog::GetInstance().Warn(LOG_NAME, "Called mc function with invalid slot %d\r\n", slot);
+		ret[0] = -1;
+		return true;
+	}
+
+	return false;
 }
 
 void CMcServ::StartReadFast(CMIPS& context)
