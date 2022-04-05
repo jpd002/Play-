@@ -829,6 +829,12 @@ void QtDebugger::on_actionFunctions_triggered()
 	m_pFunctionsView->setFocus(Qt::ActiveWindowFocusReason);
 }
 
+void QtDebugger::on_actionELF_File_Information_triggered()
+{
+	m_pELFView->show();
+	m_pELFView->setFocus(Qt::ActiveWindowFocusReason);
+}
+
 void QtDebugger::on_actionThreads_triggered()
 {
 	static_cast<CThreadsViewWnd*>(m_threadsView->widget())->show();
