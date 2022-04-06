@@ -33,7 +33,7 @@ using namespace Iop;
 
 #define SEPARATOR_CHAR '/'
 
-#define CMD_DELAY_GETINFO 100000
+#define CMD_DELAY_DEFAULT 100000
 
 #define STATE_MEMCARDS_FILE ("iop_mcserv/memcards.xml")
 #define STATE_MEMCARDS_NODE "Memorycards"
@@ -134,7 +134,6 @@ void CMcServ::CountTicks(uint32 ticks, CSifMan* sifMan)
 	moduleData->pendingCommandDelay -= std::min<uint32>(moduleData->pendingCommandDelay, ticks);
 	if(moduleData->pendingCommandDelay == 0)
 	{
-		assert(moduleData->pendingCommand == CMD_ID_GETINFO);
 		sifMan->SendCallReply(MODULE_ID, nullptr);
 		moduleData->pendingCommand = CMD_ID_NONE;
 	}
@@ -161,15 +160,22 @@ void CMcServ::Invoke(CMIPS& context, unsigned int functionId)
 
 bool CMcServ::Invoke(uint32 method, uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
 {
+	bool delayResponse = true;
+
 	switch(method)
 	{
 	case CMD_ID_GETINFO:
 	case 0x78:
+		// Many games seem to be sensitive to the delay response of this function:
+		//- Nights Into Dreams (issues 2 Syncs very close to each other, infinite loop if GetInfo is instantenous)
+		//- Melty Blood Actress Again
+		//- Baroque
+		//- Naruto Shippuden: Ultimate Ninja 5 (if GetInfo doesn't return quickly enough, MC thread is killed and game will hang)
 		GetInfo(args, argsSize, ret, retSize, ram);
-		return false;
 		break;
 	case CMD_ID_OPEN:
 	case 0x71:
+		// Operation Winback 2 expects a delay here, otherwise it hangs trying to read or write a save file
 		Open(args, argsSize, ret, retSize, ram);
 		break;
 	case CMD_ID_CLOSE:
@@ -181,10 +187,12 @@ bool CMcServ::Invoke(uint32 method, uint32* args, uint32 argsSize, uint32* ret, 
 		break;
 	case CMD_ID_READ:
 	case 0x73:
+		// Operation Winback 2 expects a delay here, otherwise it hangs trying to read a save file
 		Read(args, argsSize, ret, retSize, ram);
 		break;
 	case CMD_ID_WRITE:
 	case 0x74:
+		// Operation Winback 2 expects a delay here, otherwise it hangs trying to write a save file
 		Write(args, argsSize, ret, retSize, ram);
 		break;
 	case 0x0A:
@@ -213,10 +221,10 @@ bool CMcServ::Invoke(uint32 method, uint32* args, uint32 argsSize, uint32* ret, 
 		GetSlotMax(args, argsSize, ret, retSize, ram);
 		break;
 	case 0x16:
-		return ReadFast(args, argsSize, ret, retSize, ram);
+		delayResponse = ReadFast(args, argsSize, ret, retSize, ram);
 		break;
 	case 0x1B:
-		WriteFast(args, argsSize, ret, retSize, ram);
+		delayResponse = WriteFast(args, argsSize, ret, retSize, ram);
 		break;
 	case 0xFE:
 	case 0x70:
@@ -225,8 +233,23 @@ bool CMcServ::Invoke(uint32 method, uint32* args, uint32 argsSize, uint32* ret, 
 		break;
 	default:
 		CLog::GetInstance().Warn(LOG_NAME, "Unknown RPC method invoked (0x%08X).\r\n", method);
-		break;
+		return true;
 	}
+
+	if(delayResponse)
+	{
+
+		// Delay all commands a bit
+		// Fixes games, which receive the rpc response before they are ready to receive them
+		auto moduleData = reinterpret_cast<MODULEDATA*>(m_ram + m_moduleDataAddr);
+		assert(moduleData->pendingCommand == CMD_ID_NONE);
+		moduleData->pendingCommand = method;
+		moduleData->pendingCommandDelay = CMD_DELAY_DEFAULT;
+
+		return false;
+	}
+
+	// If we don't want to delay (e.g. on errors), we return the rpc response immediately
 	return true;
 }
 
@@ -347,16 +370,6 @@ void CMcServ::GetInfo(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize
 	//  -2 if new unformatted card
 	//> -2 on error
 	ret[0] = isKnownCard ? 0 : -1;
-
-	//Many games seem to be sensitive to the delay response of this function:
-	//- Nights Into Dreams (issues 2 Syncs very close to each other, infinite loop if GetInfo is instantenous)
-	//- Melty Blood Actress Again
-	//- Baroque
-	//- Naruto Shippuden: Ultimate Ninja 5 (if GetInfo doesn't return quickly enough, MC thread is killed and game will hang)
-	auto moduleData = reinterpret_cast<MODULEDATA*>(m_ram + m_moduleDataAddr);
-	assert(moduleData->pendingCommand == CMD_ID_NONE);
-	moduleData->pendingCommand = CMD_ID_GETINFO;
-	moduleData->pendingCommandDelay = CMD_DELAY_GETINFO;
 }
 
 void CMcServ::Open(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
@@ -882,7 +895,7 @@ bool CMcServ::ReadFast(uint32* args, uint32 argsSize, uint32* ret, uint32 retSiz
 	return false;
 }
 
-void CMcServ::WriteFast(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
+bool CMcServ::WriteFast(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
 {
 	FILECMD* cmd = reinterpret_cast<FILECMD*>(args);
 
@@ -893,8 +906,7 @@ void CMcServ::WriteFast(uint32* args, uint32 argsSize, uint32* ret, uint32 retSi
 	if(file == nullptr)
 	{
 		ret[0] = RET_PERMISSION_DENIED;
-		assert(0);
-		return;
+		return true;
 	}
 
 	const void* dst = &ram[cmd->bufferAddress];
@@ -902,6 +914,8 @@ void CMcServ::WriteFast(uint32* args, uint32 argsSize, uint32* ret, uint32 retSi
 
 	result += static_cast<uint32>(file->Write(dst, cmd->size));
 	ret[0] = result;
+
+	return false;
 }
 
 void CMcServ::GetVersionInformation(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)

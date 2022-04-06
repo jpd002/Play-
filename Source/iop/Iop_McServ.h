@@ -202,7 +202,7 @@ namespace Iop
 		void GetEntSpace(uint32*, uint32, uint32*, uint32, uint8*);
 		void GetSlotMax(uint32*, uint32, uint32*, uint32, uint8*);
 		bool ReadFast(uint32*, uint32, uint32*, uint32, uint8*);
-		void WriteFast(uint32*, uint32, uint32*, uint32, uint8*);
+		bool WriteFast(uint32*, uint32, uint32*, uint32, uint8*);
 		void GetVersionInformation(uint32*, uint32, uint32*, uint32, uint8*);
 
 		void StartReadFast(CMIPS&);
