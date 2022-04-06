@@ -245,10 +245,11 @@ bool CCdvdfsv::Invoke593(uint32 method, uint32* args, uint32 argsSize, uint32* r
 	case 0x27:
 	{
 		//ReadDvdDualInfo
-		assert(retSize >= 8);
+		assert(retSize >= 0x0C);
 		CLog::GetInstance().Print(LOG_NAME, "ReadDvdDualInfo();\r\n");
 		ret[0] = 1;
 		ret[1] = (m_opticalMedia && m_opticalMedia->GetDvdIsDualLayer()) ? 1 : 0;
+		ret[2] = m_opticalMedia ? m_opticalMedia->GetDvdSecondLayerStart() : 0;
 	}
 	break;
 
