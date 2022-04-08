@@ -614,8 +614,9 @@ int32 CSpuBase::ComputeChannelVolume(const CHANNEL_VOLUME& volume, int32 current
 			{
 				int64 sweepDelta = static_cast<int64>(currentVolume) * static_cast<int64>(volume.sweep.volume) / 0x7F;
 				assert(sweepDelta >= 0);
-				uint32 sweepDeltaClamped = std::clamp<int64>(sweepDelta, 1, currentVolume);
-				volumeLevel = currentVolume - sweepDeltaClamped;
+				int32 baseVolume = std::max(1, currentVolume);
+				uint32 sweepDeltaClamped = std::clamp<int64>(sweepDelta, 1, baseVolume);
+				volumeLevel = baseVolume - sweepDeltaClamped;
 			}
 			else
 			{
