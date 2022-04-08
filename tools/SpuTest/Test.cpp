@@ -56,6 +56,12 @@ void CTest::SetCoreAddress(unsigned int coreIndex, uint32 registerAddress, uint3
 	SetCoreRegister(coreIndex, registerAddress + 2, (targetAddress >> 1) & 0xFFFE);
 }
 
+uint32 CTest::GetVoiceRegister(unsigned int coreIndex, uint32 voiceIndex, uint32 address)
+{
+	uint32 voiceAddress = address + (voiceIndex * 0x10);
+	return GetCoreRegister(coreIndex, voiceAddress);
+}
+
 void CTest::SetVoiceRegister(unsigned int coreIndex, uint32 voiceIndex, uint32 address, uint32 value)
 {
 	uint32 voiceAddress = address + (voiceIndex * 0x10);

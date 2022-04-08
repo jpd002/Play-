@@ -19,10 +19,12 @@ add_executable(SpuTest
 	KeyOnOffTest.cpp
 	Main.cpp
 	SimpleIrqTest.cpp
+	SweepTest.cpp
 	Test.cpp
 
 	KeyOnOffTest.h
 	SimpleIrqTest.h
+	SweepTest.h
 	Test.h
 )
 

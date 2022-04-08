@@ -31,6 +31,7 @@ protected:
 	uint32 GetCoreAddress(unsigned int, uint32);
 	void SetCoreAddress(unsigned int, uint32, uint32);
 
+	uint32 GetVoiceRegister(unsigned int, unsigned int, uint32);
 	void SetVoiceRegister(unsigned int, unsigned int, uint32, uint32);
 
 	uint32 GetVoiceAddress(unsigned int, unsigned int, uint32);
