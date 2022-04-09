@@ -1,6 +1,8 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "ElfViewEx.h"
+#include "DebugSupportSettings.h"
+#include "AppConfig.h"
 
 #include <QFileDialog>
 #include <QMessageBox>
@@ -9,6 +11,8 @@ MainWindow::MainWindow(QWidget* parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
+	CDebugSupportSettings::GetInstance().Initialize(&CAppConfig::GetInstance());
+	
 	ui->setupUi(this);
 }
 

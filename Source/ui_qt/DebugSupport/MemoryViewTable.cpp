@@ -12,7 +12,7 @@
 #include "string_format.h"
 #include "MemoryViewTable.h"
 #include "DebugExpressionEvaluator.h"
-#include "DebuggerDefaults.h"
+#include "DebugUtils.h"
 
 CMemoryViewTable::CMemoryViewTable(QWidget* parent)
     : QTableView(parent)
@@ -21,8 +21,8 @@ CMemoryViewTable::CMemoryViewTable(QWidget* parent)
 
 	setModel(m_model);
 	SetBytesPerLine(32);
-	// prepare monospaced font
-	QFont fixedFont = QFont(DEBUGGER_DEFAULT_MONOSPACE_FONT_FACE_NAME, DEBUGGER_DEFAULT_MONOSPACE_FONT_SIZE);
+
+	auto fixedFont = DebugUtils::CreateMonospaceFont();
 	setFont(fixedFont);
 
 	QFontMetrics metric(fixedFont);

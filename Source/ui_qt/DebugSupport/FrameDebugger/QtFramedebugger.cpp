@@ -9,7 +9,7 @@
 #include "GsPacketData.h"
 #include "GsPacketListModel.h"
 #include "GsStateUtils.h"
-#include "DebuggerDefaults.h"
+#include "DebugUtils.h"
 
 #include "../../GSH_OpenGLQt.h"
 #include "../../openglwindow.h"
@@ -36,8 +36,7 @@ QtFramedebugger::QtFramedebugger()
 
 	m_fbDisplayMode = static_cast<CGsContextView::FB_DISPLAY_MODE>(CAppConfig::GetInstance().GetPreferenceInteger(PREF_FRAMEDEBUGGER_FRAMEBUFFER_DISPLAYMODE));
 
-	QFont fixedFont = QFont(DEBUGGER_DEFAULT_MONOSPACE_FONT_FACE_NAME, DEBUGGER_DEFAULT_MONOSPACE_FONT_SIZE);
-	ui->inputStateTextEdit->setFont(fixedFont);
+	ui->inputStateTextEdit->setFont(DebugUtils::CreateMonospaceFont());
 
 	CreateGsHandler();
 

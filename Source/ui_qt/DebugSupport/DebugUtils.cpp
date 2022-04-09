@@ -1,6 +1,7 @@
 #include "DebugUtils.h"
 #include "string_cast.h"
 #include "string_format.h"
+#include "DebugSupportSettings.h"
 
 std::string DebugUtils::PrintAddressLocation(uint32 address, CMIPS* context, const BiosDebugModuleInfoArray& modules)
 {
@@ -48,4 +49,12 @@ const BIOS_DEBUG_MODULE_INFO* DebugUtils::FindModuleAtAddress(const BiosDebugMod
 		}
 	}
 	return nullptr;
+}
+
+QFont DebugUtils::CreateMonospaceFont()
+{
+	auto fontFaceName = CDebugSupportSettings::GetInstance().GetMonospaceFontFaceName();
+	auto fontSize = CDebugSupportSettings::GetInstance().GetMonospaceFontSize();
+
+	return QFont(fontFaceName.c_str(), fontSize);
 }

@@ -1,12 +1,11 @@
 #include "RegViewPage.h"
 #include <QHeaderView>
-#include "DebuggerDefaults.h"
+#include "DebugUtils.h"
 
 CRegViewPage::CRegViewPage(QWidget* Parent)
     : QTableWidget(Parent)
 {
-	QFont fixedFont = QFont(DEBUGGER_DEFAULT_MONOSPACE_FONT_FACE_NAME, DEBUGGER_DEFAULT_MONOSPACE_FONT_SIZE);
-	setFont(fixedFont);
+	setFont(DebugUtils::CreateMonospaceFont());
 
 	setEditTriggers(QAbstractItemView::NoEditTriggers);
 	horizontalHeader()->setVisible(false);

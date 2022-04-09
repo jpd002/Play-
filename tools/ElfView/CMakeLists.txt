@@ -25,6 +25,10 @@ set(DEBUG_SUPPORT_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/../../Source/ui_qt/DebugSuppo
 set(ELFVIEW_SRC
 	${DEBUG_SUPPORT_ROOT}/DebugExpressionEvaluator.cpp
 	${DEBUG_SUPPORT_ROOT}/DebugExpressionEvaluator.h
+	${DEBUG_SUPPORT_ROOT}/DebugSupportSettings.cpp
+	${DEBUG_SUPPORT_ROOT}/DebugSupportSettings.h
+	${DEBUG_SUPPORT_ROOT}/DebugUtils.cpp
+	${DEBUG_SUPPORT_ROOT}/DebugUtils.h
 	${DEBUG_SUPPORT_ROOT}/ELFHeaderView.cpp
 	${DEBUG_SUPPORT_ROOT}/ELFHeaderView.h
 	${DEBUG_SUPPORT_ROOT}/ELFProgramView.cpp

@@ -21,7 +21,7 @@
 #include "lexical_cast_ex.h"
 
 #include "DebugExpressionEvaluator.h"
-#include "DebuggerDefaults.h"
+#include "DebugUtils.h"
 
 CDisAsmWnd::CDisAsmWnd(QWidget* parent, CVirtualMachine& virtualMachine, CMIPS* ctx, const char* name, CQtDisAsmTableModel::DISASM_TYPE disAsmType)
     : QTableView(parent)
@@ -31,8 +31,7 @@ CDisAsmWnd::CDisAsmWnd(QWidget* parent, CVirtualMachine& virtualMachine, CMIPS* 
 {
 	HistoryReset();
 
-	QFont fixedFont = QFont(DEBUGGER_DEFAULT_MONOSPACE_FONT_FACE_NAME, DEBUGGER_DEFAULT_MONOSPACE_FONT_SIZE);
-	setFont(fixedFont);
+	setFont(DebugUtils::CreateMonospaceFont());
 
 	m_numericalCellWidth = ComputeNumericalCellWidth();
 
