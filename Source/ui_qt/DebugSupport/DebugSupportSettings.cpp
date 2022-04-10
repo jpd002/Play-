@@ -1,4 +1,5 @@
 #include "DebugSupportSettings.h"
+#include <cassert>
 
 #define PREF_DEBUGGER_MONOSPACE_FONT_FACE_NAME ("debugger.monospacefont.facename")
 #define PREF_DEBUGGER_MONOSPACE_FONT_SIZE ("debugger.monospacefont.size")
