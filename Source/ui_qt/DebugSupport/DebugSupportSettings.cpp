@@ -9,7 +9,7 @@ void CDebugSupportSettings::Initialize(Framework::CConfig* config)
 	//Needs to be initialized only once
 	assert(!m_config);
 	m_config = config;
-	
+
 	RegisterPreferences();
 }
 

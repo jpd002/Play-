@@ -113,7 +113,7 @@ MainWindow::MainWindow(QWidget* parent)
 
 #ifdef DEBUGGER_INCLUDED
 	CDebugSupportSettings::GetInstance().Initialize(&CAppConfig::GetInstance());
-	
+
 	m_debugger = std::make_unique<QtDebugger>(*m_virtualMachine);
 	m_frameDebugger = std::make_unique<QtFramedebugger>();
 

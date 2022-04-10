@@ -12,7 +12,7 @@ MainWindow::MainWindow(QWidget* parent)
     , ui(new Ui::MainWindow)
 {
 	CDebugSupportSettings::GetInstance().Initialize(&CAppConfig::GetInstance());
-	
+
 	ui->setupUi(this);
 }
 
