@@ -581,12 +581,6 @@ CDebugView* QtDebugger::GetCurrentView()
 	return m_pView[m_nCurrentView];
 }
 
-CMIPS* QtDebugger::GetContext()
-{
-	return nullptr;
-	return GetCurrentView()->GetContext();
-}
-
 CDisAsmWnd* QtDebugger::GetDisassemblyWindow()
 {
 	return GetCurrentView()->GetDisassemblyWindow();

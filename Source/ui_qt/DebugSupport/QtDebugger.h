@@ -108,7 +108,6 @@ private:
 	void SaveBytesPerLine();
 
 	CDebugView* GetCurrentView();
-	CMIPS* GetContext();
 	CDisAsmWnd* GetDisassemblyWindow();
 	CMemoryViewMIPSWnd* GetMemoryViewWindow();
 	CRegViewWnd* GetRegisterViewWindow();
