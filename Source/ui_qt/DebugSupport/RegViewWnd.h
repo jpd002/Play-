@@ -14,7 +14,6 @@ public:
 	virtual ~CRegViewWnd();
 
 	void HandleMachineStateChange() override;
-	void HandleRunningStateChange(CVirtualMachine::STATUS) override;
 
 private:
 	enum
@@ -22,9 +21,5 @@ private:
 		MAXTABS = 4,
 	};
 
-	void SelectTab(unsigned int);
-	void UnselectTab(unsigned int);
-	void RefreshLayout();
-
-	CRegViewPage* m_regView[MAXTABS];
+	CRegViewPage* m_regView[MAXTABS] = {};
 };

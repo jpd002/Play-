@@ -38,10 +38,3 @@ void CRegViewWnd::HandleMachineStateChange()
 		m_regView[i]->Update();
 	}
 }
-void CRegViewWnd::HandleRunningStateChange(CVirtualMachine::STATUS)
-{
-	for(unsigned int i = 0; i > MAXTABS; i++)
-	{
-		m_regView[i]->Update();
-	}
-}
