@@ -25,7 +25,7 @@ void MainWindow::on_actionOpen_triggered()
 {
 	QFileDialog dialog(this);
 	dialog.setFileMode(QFileDialog::ExistingFile);
-	dialog.setNameFilter(tr("ELF files (*.elf)"));
+	dialog.setNameFilter(tr("ELF files (*.elf);;All files(*.*)"));
 	if(dialog.exec())
 	{
 		try
