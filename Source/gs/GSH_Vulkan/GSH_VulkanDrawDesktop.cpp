@@ -327,7 +327,7 @@ VkDescriptorSet CDrawDesktop::PrepareDescriptorSet(VkDescriptorSetLayout descrip
 
 		VkDescriptorBufferInfo descriptorClutBufferInfo = {};
 		descriptorClutBufferInfo.buffer = m_context->clutBuffer;
-		descriptorClutBufferInfo.range = VK_WHOLE_SIZE;
+		descriptorClutBufferInfo.range = sizeof(uint32) * CGSHandler::CLUTENTRYCOUNT;
 
 		VkDescriptorImageInfo descriptorTexSwizzleTableImageInfo = {};
 		descriptorTexSwizzleTableImageInfo.imageView = m_context->GetSwizzleTable(caps.textureFormat);

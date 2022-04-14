@@ -92,7 +92,7 @@ VkDescriptorSet CClutLoad::PrepareDescriptorSet(VkDescriptorSetLayout descriptor
 
 		VkDescriptorBufferInfo descriptorClutBufferInfo = {};
 		descriptorClutBufferInfo.buffer = m_context->clutBuffer;
-		descriptorClutBufferInfo.range = VK_WHOLE_SIZE;
+		descriptorClutBufferInfo.range = sizeof(uint32) * CGSHandler::CLUTENTRYCOUNT;
 
 		VkDescriptorImageInfo descriptorSwizzleTableImageInfo = {};
 		descriptorSwizzleTableImageInfo.imageView = m_context->GetSwizzleTable(cpsm);

@@ -87,6 +87,12 @@ public:
 		RAMSIZE = 0x00400000,
 	};
 
+	enum CLUTSIZE
+	{
+		CLUTSIZE = 0x400,
+		CLUTENTRYCOUNT = (CLUTSIZE / 2)
+	};
+
 	enum PRESENTATION_MODE
 	{
 		PRESENTATION_MODE_FILL,
@@ -867,12 +873,6 @@ protected:
 	{
 		uint32 heldValue;
 		INTEGER64 value;
-	};
-
-	enum CLUTSIZE
-	{
-		CLUTSIZE = 0x400,
-		CLUTENTRYCOUNT = (CLUTSIZE / 2)
 	};
 
 	enum
