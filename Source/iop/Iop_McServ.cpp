@@ -45,7 +45,7 @@ using namespace Iop;
 #define MC_FILE_ATTR_FOLDER (MC_FILE_0400 | MC_FILE_ATTR_EXISTS | MC_FILE_ATTR_SUBDIR | MC_FILE_ATTR_READABLE | MC_FILE_ATTR_WRITEABLE | MC_FILE_ATTR_EXECUTABLE)
 
 // clang-format off
-const char* CMcServ::m_mcPathPreference[2] =
+const char* CMcServ::m_mcPathPreference[MAX_PORTS] =
 {
 	PREF_PS2_MC0_DIRECTORY,
 	PREF_PS2_MC1_DIRECTORY,
@@ -630,12 +630,13 @@ void CMcServ::ChDir(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, 
 	}
 
 	uint32 result = -1;
+	auto& currentDirectory = m_currentDirectory[cmd->port];
 
 	//Write out current directory
 	if(cmd->tableAddress != 0)
 	{
 		//Make sure we return '/' even if the current directory is empty, needed by Silent Hill 3
-		auto curDir = m_currentDirectory.empty() ? std::string(1, SEPARATOR_CHAR) : m_currentDirectory;
+		auto curDir = currentDirectory.empty() ? std::string(1, SEPARATOR_CHAR) : currentDirectory;
 
 		const size_t maxCurDirSize = 256;
 		char* currentDirOut = reinterpret_cast<char*>(ram + cmd->tableAddress);
@@ -661,7 +662,7 @@ void CMcServ::ChDir(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, 
 		}
 		else
 		{
-			newCurrentDirectory = m_currentDirectory + SEPARATOR_CHAR + requestedDirectory;
+			newCurrentDirectory = currentDirectory + SEPARATOR_CHAR + requestedDirectory;
 		}
 
 		auto mcPath = CAppConfig::GetInstance().GetPreferencePath(m_mcPathPreference[cmd->port]);
@@ -674,7 +675,7 @@ void CMcServ::ChDir(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, 
 		}
 		else if(fs::exists(hostPath) && fs::is_directory(hostPath))
 		{
-			m_currentDirectory = newCurrentDirectory;
+			currentDirectory = newCurrentDirectory;
 			result = 0;
 		}
 		else
@@ -716,7 +717,7 @@ void CMcServ::GetDir(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize,
 			auto mcPath = CAppConfig::GetInstance().GetPreferencePath(m_mcPathPreference[cmd->port]);
 			if(cmd->name[0] != SEPARATOR_CHAR)
 			{
-				mcPath = Iop::PathUtils::MakeHostPath(mcPath, m_currentDirectory.c_str());
+				mcPath = Iop::PathUtils::MakeHostPath(mcPath, m_currentDirectory[cmd->port].c_str());
 			}
 			mcPath = fs::absolute(mcPath);
 
@@ -960,7 +961,6 @@ bool CMcServ::HandleInvalidPortOrSlot(uint32 port, uint32 slot, uint32* ret)
 {
 	if(port >= MAX_PORTS)
 	{
-
 		CLog::GetInstance().Warn(LOG_NAME, "Called mc function with invalid port %d\r\n", port);
 		ret[0] = -1;
 		return true;
@@ -1069,7 +1069,7 @@ fs::path CMcServ::GetAbsoluteFilePath(unsigned int port, unsigned int slot, cons
 	}
 	else
 	{
-		return Iop::PathUtils::MakeHostPath(Iop::PathUtils::MakeHostPath(mcPath, m_currentDirectory.c_str()), name);
+		return Iop::PathUtils::MakeHostPath(Iop::PathUtils::MakeHostPath(mcPath, m_currentDirectory[port].c_str()), name);
 	}
 }
 

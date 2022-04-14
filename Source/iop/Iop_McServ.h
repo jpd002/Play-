@@ -226,8 +226,8 @@ namespace Iop
 		uint32 m_finishReadFastAddr = 0;
 		uint32 m_readFastAddr = 0;
 		Framework::CStdStream m_files[MAX_FILES];
-		static const char* m_mcPathPreference[2];
-		std::string m_currentDirectory;
+		static const char* m_mcPathPreference[MAX_PORTS];
+		std::string m_currentDirectory[MAX_PORTS];
 		CPathFinder m_pathFinder;
 
 		// Keeps track, if the memory card in
