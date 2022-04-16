@@ -239,7 +239,7 @@ void CDMAC::ResumeDMA8()
 
 bool CDMAC::IsDMA4Started() const
 {
-	return (m_D4.m_CHCR.nSTR != 0) && (m_D_ENABLE == 0);
+	return (m_D4.m_CHCR.nSTR != 0) && ((m_D_ENABLE & CDMAC::ENABLE_CPND) == 0);
 }
 
 uint64 CDMAC::FetchDMATag(uint32 address)
