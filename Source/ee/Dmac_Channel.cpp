@@ -106,7 +106,7 @@ void CChannel::Execute()
 {
 	if(m_CHCR.nSTR != 0)
 	{
-		if(m_dmac.m_D_ENABLE)
+		if(m_dmac.m_D_ENABLE & CDMAC::ENABLE_CPND)
 		{
 			//TODO: Need to check cases where this is done on channels other than 4
 			assert(m_number == CDMAC::CHANNEL_ID_TO_IPU);
