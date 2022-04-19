@@ -403,8 +403,15 @@ void CMcServ::Open(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, u
 		uint32 result = -1;
 		try
 		{
-			fs::create_directory(filePath);
-			result = 0;
+			if(fs::exists(filePath))
+			{
+				result = RET_NO_ENTRY;
+			}
+			else
+			{
+				fs::create_directory(filePath);
+				result = 0;
+			}
 		}
 		catch(...)
 		{
