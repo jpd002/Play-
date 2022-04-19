@@ -80,7 +80,6 @@ Section "Play! (required)"
   File /oname=styles\qwindowsvistastyle.dll "${BINARY_INPUT_PATH}\styles\qwindowsvistastyle.dll"
   File /oname=imageformats\qjpeg.dll "${BINARY_INPUT_PATH}\imageformats\qjpeg.dll"
   File "..\Readme.html"
-  File "..\Changelog.html"
   File "..\Patches.xml"
   File "..\states.db"
   
@@ -107,7 +106,6 @@ Section "Start Menu Shortcuts"
   CreateShortCut "$SMPROGRAMS\Play!\Uninstall.lnk" "$INSTDIR\uninstall.exe" "" "$INSTDIR\uninstall.exe" 0
   CreateShortCut "$SMPROGRAMS\Play!\Play!.lnk" "$INSTDIR\Play.exe" "" "$INSTDIR\Play.exe" 0
   CreateShortCut "$SMPROGRAMS\Play!\Read Me.lnk" "$INSTDIR\Readme.html" "" "$INSTDIR\Readme.html" 0
-  CreateShortCut "$SMPROGRAMS\Play!\Change Log.lnk" "$INSTDIR\changelog.html" "" "$INSTDIR\changelog.html" 0
   
 SectionEnd
 
@@ -133,7 +131,6 @@ Section "Uninstall"
   Delete $INSTDIR\styles\qwindowsvistastyle.dll
   Delete $INSTDIR\imageformats\qjpeg.dll
   Delete $INSTDIR\Readme.html
-  Delete $INSTDIR\Changelog.html
   Delete $INSTDIR\Patches.xml
   Delete $INSTDIR\states.db
   Delete $INSTDIR\uninstall.exe
