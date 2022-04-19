@@ -215,6 +215,9 @@ bool CMcServ::Invoke(uint32 method, uint32* args, uint32 argsSize, uint32* ret, 
 	case CMD_ID_GETENTSPACE:
 		GetEntSpace(args, argsSize, ret, retSize, ram);
 		break;
+	case CMD_ID_SETTHREADPRIORITY:
+		SetThreadPriority(args, argsSize, ret, retSize, ram);
+		break;
 	case 0x15:
 		GetSlotMax(args, argsSize, ret, retSize, ram);
 		break;
@@ -878,6 +881,17 @@ void CMcServ::GetEntSpace(uint32* args, uint32 argsSize, uint32* ret, uint32 ret
 		CLog::GetInstance().Warn(LOG_NAME, "Error while executing GetEntSpace: %s.\r\n", exception.what());
 		ret[0] = -1;
 	}
+}
+
+void CMcServ::SetThreadPriority(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
+{
+	auto cmd = reinterpret_cast<CMD*>(args);
+	uint32 priority = *reinterpret_cast<uint32*>(cmd->name);
+
+	CLog::GetInstance().Print(LOG_NAME, "SetThreadPriority(priority = %d);\r\n", priority);
+
+	//We don't really care about thread priority here, just report a success
+	ret[0] = 0;
 }
 
 void CMcServ::GetSlotMax(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)

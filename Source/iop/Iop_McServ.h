@@ -33,6 +33,7 @@ namespace Iop
 			CMD_ID_SETFILEINFO = 0x0E,
 			CMD_ID_DELETE = 0x0F,
 			CMD_ID_GETENTSPACE = 0x12,
+			CMD_ID_SETTHREADPRIORITY = 0x14,
 		};
 
 		enum OPEN_FLAGS
@@ -200,6 +201,7 @@ namespace Iop
 		void Delete(uint32*, uint32, uint32*, uint32, uint8*);
 		void SetFileInfo(uint32*, uint32, uint32*, uint32, uint8*);
 		void GetEntSpace(uint32*, uint32, uint32*, uint32, uint8*);
+		void SetThreadPriority(uint32*, uint32, uint32*, uint32, uint8*);
 		void GetSlotMax(uint32*, uint32, uint32*, uint32, uint8*);
 		bool ReadFast(uint32*, uint32, uint32*, uint32, uint8*);
 		void WriteFast(uint32*, uint32, uint32*, uint32, uint8*);
