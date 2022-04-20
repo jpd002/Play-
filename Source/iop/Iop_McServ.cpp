@@ -160,8 +160,6 @@ void CMcServ::Invoke(CMIPS& context, unsigned int functionId)
 
 bool CMcServ::Invoke(uint32 method, uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
 {
-	bool delayResponse = true;
-
 	switch(method)
 	{
 	case CMD_ID_GETINFO:
@@ -221,10 +219,10 @@ bool CMcServ::Invoke(uint32 method, uint32* args, uint32 argsSize, uint32* ret, 
 		GetSlotMax(args, argsSize, ret, retSize, ram);
 		break;
 	case 0x16:
-		delayResponse = ReadFast(args, argsSize, ret, retSize, ram);
+		return ReadFast(args, argsSize, ret, retSize, ram);
 		break;
 	case 0x1B:
-		delayResponse = WriteFast(args, argsSize, ret, retSize, ram);
+		WriteFast(args, argsSize, ret, retSize, ram);
 		break;
 	case 0xFE:
 	case 0x70:
@@ -236,21 +234,14 @@ bool CMcServ::Invoke(uint32 method, uint32* args, uint32 argsSize, uint32* ret, 
 		return true;
 	}
 
-	if(delayResponse)
-	{
+	// Delay all commands a bit (except ReadFast, which has a different mecanism)
+	// Fixes games which receive the rpc response before they are ready to receive them
+	auto moduleData = reinterpret_cast<MODULEDATA*>(m_ram + m_moduleDataAddr);
+	assert(moduleData->pendingCommand == CMD_ID_NONE);
+	moduleData->pendingCommand = method;
+	moduleData->pendingCommandDelay = CMD_DELAY_DEFAULT;
 
-		// Delay all commands a bit
-		// Fixes games, which receive the rpc response before they are ready to receive them
-		auto moduleData = reinterpret_cast<MODULEDATA*>(m_ram + m_moduleDataAddr);
-		assert(moduleData->pendingCommand == CMD_ID_NONE);
-		moduleData->pendingCommand = method;
-		moduleData->pendingCommandDelay = CMD_DELAY_DEFAULT;
-
-		return false;
-	}
-
-	// If we don't want to delay (e.g. on errors), we return the rpc response immediately
-	return true;
+	return false;
 }
 
 void CMcServ::BuildCustomCode()
@@ -917,7 +908,7 @@ bool CMcServ::ReadFast(uint32* args, uint32 argsSize, uint32* ret, uint32 retSiz
 	return false;
 }
 
-bool CMcServ::WriteFast(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
+void CMcServ::WriteFast(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
 {
 	FILECMD* cmd = reinterpret_cast<FILECMD*>(args);
 
@@ -928,7 +919,7 @@ bool CMcServ::WriteFast(uint32* args, uint32 argsSize, uint32* ret, uint32 retSi
 	if(file == nullptr)
 	{
 		ret[0] = RET_PERMISSION_DENIED;
-		return true;
+		return;
 	}
 
 	const void* dst = &ram[cmd->bufferAddress];
@@ -936,8 +927,6 @@ bool CMcServ::WriteFast(uint32* args, uint32 argsSize, uint32* ret, uint32 retSi
 
 	result += static_cast<uint32>(file->Write(dst, cmd->size));
 	ret[0] = result;
-
-	return false;
 }
 
 void CMcServ::GetVersionInformation(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
