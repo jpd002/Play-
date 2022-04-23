@@ -68,6 +68,8 @@ void CTransferHost::DoTransfer(const XferBuffer& inputData)
 
 	assert(inputData.size() <= XFER_BUFFER_SIZE);
 	memcpy(frame.xferBufferPtr + m_xferBufferOffset, inputData.data(), inputData.size());
+	assert((m_xferBufferOffset & 0x03) == 0);
+	Params.xferBufferOffset = m_xferBufferOffset / 4;
 
 	//Find pipeline and create it if we've never encountered it before
 	auto xferPipeline = m_pipelineCache.TryGetPipeline(m_pipelineCaps);
@@ -124,7 +126,7 @@ void CTransferHost::DoTransfer(const XferBuffer& inputData)
 		                                       0, 1, &memoryBarrier, 0, nullptr, 0, nullptr);
 	}
 
-	m_context->device.vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, xferPipeline->pipelineLayout, 0, 1, &descriptorSet, 1, &m_xferBufferOffset);
+	m_context->device.vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, xferPipeline->pipelineLayout, 0, 1, &descriptorSet, 0, nullptr);
 	m_context->device.vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, xferPipeline->pipeline);
 	m_context->device.vkCmdPushConstants(commandBuffer, xferPipeline->pipelineLayout, VK_SHADER_STAGE_COMPUTE_BIT, 0, sizeof(XFERPARAMS), &Params);
 	m_context->device.vkCmdDispatch(commandBuffer, workUnits, 1, 1);
@@ -212,7 +214,7 @@ VkDescriptorSet CTransferHost::PrepareDescriptorSet(VkDescriptorSetLayout descri
 			writeSet.dstSet = descriptorSet;
 			writeSet.dstBinding = DESCRIPTOR_LOCATION_XFERBUFFER;
 			writeSet.descriptorCount = 1;
-			writeSet.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC;
+			writeSet.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
 			writeSet.pBufferInfo = &descriptorBufferInfo;
 			writes.push_back(writeSet);
 		}
@@ -271,7 +273,8 @@ Framework::Vulkan::CShaderModule CTransferHost::CreateXferShader(const PIPELINE_
 		auto rrw = xferParams0->z();
 		auto dsax = xferParams0->w();
 		auto dsay = xferParams1->x();
-		auto pixelCount = xferParams1->y();
+		auto xferBufferOffset = xferParams1->y();
+		auto pixelCount = xferParams1->z();
 
 		auto rrx = inputInvocationId->x() % rrw;
 		auto rry = inputInvocationId->x() / rrw;
@@ -292,7 +295,7 @@ Framework::Vulkan::CShaderModule CTransferHost::CreateXferShader(const PIPELINE_
 		case CGSHandler::PSMCT32:
 		case CGSHandler::PSMZ32:
 		{
-			auto input = XferStream_Read32(b, xferBuffer, pixelIndex);
+			auto input = XferStream_Read32(b, xferBuffer, xferBufferOffset, pixelIndex);
 			auto address = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT32>(
 			    b, dstSwizzleTable, bufAddress, bufWidth, NewInt2(trxX, trxY));
 			CMemoryUtils::Memory_Write32(b, memoryBuffer, address, input);
@@ -301,7 +304,7 @@ Framework::Vulkan::CShaderModule CTransferHost::CreateXferShader(const PIPELINE_
 		case CGSHandler::PSMCT24:
 		case CGSHandler::PSMZ24:
 		{
-			auto input = XferStream_Read24(b, xferBuffer, pixelIndex);
+			auto input = XferStream_Read24(b, xferBuffer, xferBufferOffset, pixelIndex);
 			auto address = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT32>(
 			    b, dstSwizzleTable, bufAddress, bufWidth, NewInt2(trxX, trxY));
 #if TRANSFER_USE_8_16_BIT
@@ -314,7 +317,7 @@ Framework::Vulkan::CShaderModule CTransferHost::CreateXferShader(const PIPELINE_
 		case CGSHandler::PSMCT16S:
 		case CGSHandler::PSMCT16:
 		{
-			auto input = XferStream_Read16(b, xferBuffer, pixelIndex);
+			auto input = XferStream_Read16(b, xferBuffer, xferBufferOffset, pixelIndex);
 			auto address = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT16>(
 			    b, dstSwizzleTable, bufAddress, bufWidth, NewInt2(trxX, trxY));
 #if TRANSFER_USE_8_16_BIT
@@ -326,7 +329,7 @@ Framework::Vulkan::CShaderModule CTransferHost::CreateXferShader(const PIPELINE_
 		break;
 		case CGSHandler::PSMT8:
 		{
-			auto input = XferStream_Read8(b, xferBuffer, pixelIndex);
+			auto input = XferStream_Read8(b, xferBuffer, xferBufferOffset, pixelIndex);
 			auto address = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMT8>(
 			    b, dstSwizzleTable, bufAddress, bufWidth, NewInt2(trxX, trxY));
 #if TRANSFER_USE_8_16_BIT
@@ -338,7 +341,7 @@ Framework::Vulkan::CShaderModule CTransferHost::CreateXferShader(const PIPELINE_
 		break;
 		case CGSHandler::PSMT4:
 		{
-			auto input = XferStream_Read4(b, xferBuffer, pixelIndex);
+			auto input = XferStream_Read4(b, xferBuffer, xferBufferOffset, pixelIndex);
 			auto address = CMemoryUtils::GetPixelAddress_PSMT4(
 			    b, dstSwizzleTable, bufAddress, bufWidth, NewInt2(trxX, trxY));
 			CMemoryUtils::Memory_Write4(b, memoryBuffer, address, input);
@@ -346,7 +349,7 @@ Framework::Vulkan::CShaderModule CTransferHost::CreateXferShader(const PIPELINE_
 		break;
 		case CGSHandler::PSMT8H:
 		{
-			auto input = XferStream_Read8(b, xferBuffer, pixelIndex);
+			auto input = XferStream_Read8(b, xferBuffer, xferBufferOffset, pixelIndex);
 			auto address = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT32>(
 			    b, dstSwizzleTable, bufAddress, bufWidth, NewInt2(trxX, trxY));
 #if TRANSFER_USE_8_16_BIT
@@ -358,7 +361,7 @@ Framework::Vulkan::CShaderModule CTransferHost::CreateXferShader(const PIPELINE_
 		break;
 		case CGSHandler::PSMT4HL:
 		{
-			auto input = XferStream_Read4(b, xferBuffer, pixelIndex);
+			auto input = XferStream_Read4(b, xferBuffer, xferBufferOffset, pixelIndex);
 			auto address = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT32>(
 			    b, dstSwizzleTable, bufAddress, bufWidth, NewInt2(trxX, trxY));
 			auto nibAddress = (address + NewInt(b, 3)) * NewInt(b, 2);
@@ -367,7 +370,7 @@ Framework::Vulkan::CShaderModule CTransferHost::CreateXferShader(const PIPELINE_
 		break;
 		case CGSHandler::PSMT4HH:
 		{
-			auto input = XferStream_Read4(b, xferBuffer, pixelIndex);
+			auto input = XferStream_Read4(b, xferBuffer, xferBufferOffset, pixelIndex);
 			auto address = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT32>(
 			    b, dstSwizzleTable, bufAddress, bufWidth, NewInt2(trxX, trxY));
 			auto nibAddress = ((address + NewInt(b, 3)) * NewInt(b, 2)) | NewInt(b, 1);
@@ -386,39 +389,39 @@ Framework::Vulkan::CShaderModule CTransferHost::CreateXferShader(const PIPELINE_
 	return Framework::Vulkan::CShaderModule(m_context->device, shaderStream);
 }
 
-Nuanceur::CUintRvalue CTransferHost::XferStream_Read32(Nuanceur::CShaderBuilder& b, Nuanceur::CArrayUintValue xferBuffer, Nuanceur::CIntValue pixelIndex)
+Nuanceur::CUintRvalue CTransferHost::XferStream_Read32(Nuanceur::CShaderBuilder& b, Nuanceur::CArrayUintValue xferBuffer, Nuanceur::CIntValue xferBufferOffset, Nuanceur::CIntValue pixelIndex)
 {
-	return Load(xferBuffer, pixelIndex);
+	return Load(xferBuffer, xferBufferOffset + pixelIndex);
 }
 
-Nuanceur::CUintRvalue CTransferHost::XferStream_Read24(Nuanceur::CShaderBuilder& b, Nuanceur::CArrayUintValue xferBuffer, Nuanceur::CIntValue pixelIndex)
+Nuanceur::CUintRvalue CTransferHost::XferStream_Read24(Nuanceur::CShaderBuilder& b, Nuanceur::CArrayUintValue xferBuffer, Nuanceur::CIntValue xferBufferOffset, Nuanceur::CIntValue pixelIndex)
 {
 	auto byteOffset = pixelIndex * NewInt(b, 3);
-	auto byte0 = XferStream_Read8(b, xferBuffer, byteOffset + NewInt(b, 0));
-	auto byte1 = XferStream_Read8(b, xferBuffer, byteOffset + NewInt(b, 1));
-	auto byte2 = XferStream_Read8(b, xferBuffer, byteOffset + NewInt(b, 2));
+	auto byte0 = XferStream_Read8(b, xferBuffer, xferBufferOffset, byteOffset + NewInt(b, 0));
+	auto byte1 = XferStream_Read8(b, xferBuffer, xferBufferOffset, byteOffset + NewInt(b, 1));
+	auto byte2 = XferStream_Read8(b, xferBuffer, xferBufferOffset, byteOffset + NewInt(b, 2));
 	return (byte0) | (byte1 << NewUint(b, 8)) | (byte2 << NewUint(b, 16));
 }
 
-Nuanceur::CUintRvalue CTransferHost::XferStream_Read16(Nuanceur::CShaderBuilder& b, Nuanceur::CArrayUintValue xferBuffer, Nuanceur::CIntValue pixelIndex)
+Nuanceur::CUintRvalue CTransferHost::XferStream_Read16(Nuanceur::CShaderBuilder& b, Nuanceur::CArrayUintValue xferBuffer, Nuanceur::CIntValue xferBufferOffset, Nuanceur::CIntValue pixelIndex)
 {
 	auto srcOffset = pixelIndex / NewInt(b, 2);
 	auto srcShift = (ToUint(pixelIndex) & NewUint(b, 1)) * NewUint(b, 16);
-	return (Load(xferBuffer, srcOffset) >> srcShift) & NewUint(b, 0xFFFF);
+	return (Load(xferBuffer, xferBufferOffset + srcOffset) >> srcShift) & NewUint(b, 0xFFFF);
 }
 
-Nuanceur::CUintRvalue CTransferHost::XferStream_Read8(Nuanceur::CShaderBuilder& b, Nuanceur::CArrayUintValue xferBuffer, Nuanceur::CIntValue pixelIndex)
+Nuanceur::CUintRvalue CTransferHost::XferStream_Read8(Nuanceur::CShaderBuilder& b, Nuanceur::CArrayUintValue xferBuffer, Nuanceur::CIntValue xferBufferOffset, Nuanceur::CIntValue pixelIndex)
 {
 	auto srcOffset = pixelIndex / NewInt(b, 4);
 	auto srcShift = (ToUint(pixelIndex) & NewUint(b, 3)) * NewUint(b, 8);
-	return (Load(xferBuffer, srcOffset) >> srcShift) & NewUint(b, 0xFF);
+	return (Load(xferBuffer, xferBufferOffset + srcOffset) >> srcShift) & NewUint(b, 0xFF);
 }
 
-Nuanceur::CUintRvalue CTransferHost::XferStream_Read4(Nuanceur::CShaderBuilder& b, Nuanceur::CArrayUintValue xferBuffer, Nuanceur::CIntValue pixelIndex)
+Nuanceur::CUintRvalue CTransferHost::XferStream_Read4(Nuanceur::CShaderBuilder& b, Nuanceur::CArrayUintValue xferBuffer, Nuanceur::CIntValue xferBufferOffset, Nuanceur::CIntValue pixelIndex)
 {
 	auto srcOffset = pixelIndex / NewInt(b, 8);
 	auto srcShift = (ToUint(pixelIndex) & NewUint(b, 7)) * NewUint(b, 4);
-	return (Load(xferBuffer, srcOffset) >> srcShift) & NewUint(b, 0xF);
+	return (Load(xferBuffer, xferBufferOffset + srcOffset) >> srcShift) & NewUint(b, 0xF);
 }
 
 PIPELINE CTransferHost::CreateXferPipeline(const PIPELINE_CAPS& caps)
@@ -468,7 +471,7 @@ PIPELINE CTransferHost::CreateXferPipeline(const PIPELINE_CAPS& caps)
 		{
 			VkDescriptorSetLayoutBinding binding = {};
 			binding.binding = DESCRIPTOR_LOCATION_XFERBUFFER;
-			binding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC;
+			binding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
 			binding.descriptorCount = 1;
 			binding.stageFlags = VK_SHADER_STAGE_COMPUTE_BIT;
 			bindings.push_back(binding);

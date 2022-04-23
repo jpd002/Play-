@@ -33,8 +33,8 @@ namespace GSH_Vulkan
 			uint32 rrw = 0;
 			uint32 dsax = 0;
 			uint32 dsay = 0;
+			uint32 xferBufferOffset = 0;
 			uint32 pixelCount = 0;
-			uint32 padding1 = 0;
 			uint32 padding2 = 0;
 		};
 		static_assert(sizeof(XFERPARAMS) == 0x20, "XFERPARAMS must be 32 bytes large.");
@@ -75,11 +75,11 @@ namespace GSH_Vulkan
 		Framework::Vulkan::CShaderModule CreateXferShader(const PIPELINE_CAPS&);
 		PIPELINE CreateXferPipeline(const PIPELINE_CAPS&);
 
-		Nuanceur::CUintRvalue XferStream_Read32(Nuanceur::CShaderBuilder&, Nuanceur::CArrayUintValue, Nuanceur::CIntValue);
-		Nuanceur::CUintRvalue XferStream_Read24(Nuanceur::CShaderBuilder&, Nuanceur::CArrayUintValue, Nuanceur::CIntValue);
-		Nuanceur::CUintRvalue XferStream_Read16(Nuanceur::CShaderBuilder&, Nuanceur::CArrayUintValue, Nuanceur::CIntValue);
-		Nuanceur::CUintRvalue XferStream_Read8(Nuanceur::CShaderBuilder&, Nuanceur::CArrayUintValue, Nuanceur::CIntValue);
-		Nuanceur::CUintRvalue XferStream_Read4(Nuanceur::CShaderBuilder&, Nuanceur::CArrayUintValue, Nuanceur::CIntValue);
+		Nuanceur::CUintRvalue XferStream_Read32(Nuanceur::CShaderBuilder&, Nuanceur::CArrayUintValue, Nuanceur::CIntValue, Nuanceur::CIntValue);
+		Nuanceur::CUintRvalue XferStream_Read24(Nuanceur::CShaderBuilder&, Nuanceur::CArrayUintValue, Nuanceur::CIntValue, Nuanceur::CIntValue);
+		Nuanceur::CUintRvalue XferStream_Read16(Nuanceur::CShaderBuilder&, Nuanceur::CArrayUintValue, Nuanceur::CIntValue, Nuanceur::CIntValue);
+		Nuanceur::CUintRvalue XferStream_Read8(Nuanceur::CShaderBuilder&, Nuanceur::CArrayUintValue, Nuanceur::CIntValue, Nuanceur::CIntValue);
+		Nuanceur::CUintRvalue XferStream_Read4(Nuanceur::CShaderBuilder&, Nuanceur::CArrayUintValue, Nuanceur::CIntValue, Nuanceur::CIntValue);
 
 		ContextPtr m_context;
 		FrameCommandBufferPtr m_frameCommandBuffer;
