@@ -13,7 +13,8 @@ jobs:
         cd $RUNNER_WORKSPACE
         curl -L --show-error --output vulkansdk.dmg https://sdk.lunarg.com/sdk/download/${VULKAN_SDK_VERSION}/mac/vulkansdk-macos-${VULKAN_SDK_VERSION}.dmg?Human=true
         hdiutil attach vulkansdk.dmg
-        echo "VULKAN_SDK=/Volumes/vulkansdk-macos-${VULKAN_SDK_VERSION}/macOS" >> $GITHUB_ENV
+        sudo /Volumes/vulkansdk-macos-${VULKAN_SDK_VERSION}/InstallVulkan.app/Contents/MacOS/InstallVulkan in --al --c
+        echo "VULKAN_SDK=~/VulkanSDK/${VULKAN_SDK_VERSION}/macOS" >> $GITHUB_ENV
       env:
         VULKAN_SDK_VERSION: '1.3.204.1'
     - name: Checkout
