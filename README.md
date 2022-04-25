@@ -181,3 +181,41 @@ Please leave an empty new line at the end of the file.
  # or on Windows
  gradlew.bat assembleRelease
  ```
+
+### Building for Web Browsers ###
+
+Building for the web browser environment requires [emscripten](https://emscripten.org/).
+
+Use `emcmake` to generate the project:
+
+```
+mkdir build
+cd build
+emcmake cmake .. -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTS=OFF -DBUILD_PLAY=ON -DBUILD_PSFPLAYER=ON -DUSE_QT=OFF
+```
+
+Upon completion, you can build the JavaScript/WebAssembly files using this command line:
+
+```
+cmake --build . --config Release
+```
+
+This will generate the JavaScript glue code and the WebAssembly module required for the web application located in `js/play_browser`. Here's where the output files from emscripten need to be copied:
+
+```
+build_cmake/build/Source/ui_js/Play.js -> js/play_browser/src/Play.js
+build_cmake/build/Source/ui_js/Play.wasm -> js/play_browser/public/Play.wasm
+build_cmake/build/Source/ui_js/Play.js -> js/play_browser/public/Play.js
+build_cmake/build/Source/ui_js/Play.worker.js -> js/play_browser/public/Play.worker.js
+```
+
+Once this is done, you should be able to go in the `js/play_browser` folder and run the following to get a local version running in your web browser:
+
+```
+npm install
+npm start
+```
+
+##### Browser environment caveats #####
+- Write protection on memory pages is not supported, thus, games loading modules on the EE might not work properly since JIT cache can't be invalidated.
+- No control over floating point environment, default rounding mode is used, which can cause issues in some games.
