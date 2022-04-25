@@ -162,6 +162,7 @@ namespace Iop
 		{
 			MAX_FILES = 5,
 			MAX_PORTS = 2,
+			MAX_SLOTS = 1,
 		};
 
 		class CPathFinder

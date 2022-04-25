@@ -898,7 +898,7 @@ void CMcServ::GetSlotMax(uint32* args, uint32 argsSize, uint32* ret, uint32 retS
 {
 	int port = args[1];
 	CLog::GetInstance().Print(LOG_NAME, "GetSlotMax(port = %i);\r\n", port);
-	ret[0] = 1;
+	ret[0] = MAX_SLOTS;
 }
 
 bool CMcServ::ReadFast(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
@@ -976,13 +976,13 @@ bool CMcServ::HandleInvalidPortOrSlot(uint32 port, uint32 slot, uint32* ret)
 		return true;
 	}
 
-	// Note, we only support one slot for the moment.
-	// See GetSlotMax.
-	if(slot != 0)
+	if(slot >= MAX_SLOTS)
 	{
+		//Just warn if an invalid slot is specified. Should not be a big deal since we never use that parameter
+		//in our functions. It shouldn't also matter since we don't support multitap.
+		//Note that some games specify 'slot = 1' while never checking GetSlotMax:
+		//- Dragon Quest 8
 		CLog::GetInstance().Warn(LOG_NAME, "Called mc function with invalid slot %d\r\n", slot);
-		ret[0] = -1;
-		return true;
 	}
 
 	return false;
