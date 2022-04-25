@@ -165,16 +165,16 @@ Once this is done, you can start the build:
 ##### About Release/Signed builds #####
 Building through Android Studio, you have the option to “Generate Signed APK”.
 
-When building through Gradle, you must create a text file called `Play/build_android/keystore.properties` and add the following properties to it: `storeFile`, `storePassword`, `keyAlias`, and `keyPassword`.
+When building through Gradle, make sure these variables are defined in a `gradle.properties` file, either in your project directory or in your `GRADLE_USER_HOME` directory:
 
-E.g for `keystore.properties`:
  ```
- storeFile=/location/to/my/key.jks
- storePassword=mysuperhardpassword
- keyAlias=myalias
- keyPassword=myevenharderpassword
+ PLAY_RELEASE_STORE_FILE=/location/to/my/key.jks
+ PLAY_RELEASE_STORE_PASSWORD=mysuperhardpassword
+ PLAY_RELEASE_KEY_ALIAS=myalias
+ PLAY_RELEASE_KEY_PASSWORD=myevenharderpassword
  ```
-Please leave an empty new line at the end of the file.
+
+Then, you should be able to use `assembleRelease` to generate a signed release build.
  ```
  cd Play/build_android
  sh gradlew assembleRelease
