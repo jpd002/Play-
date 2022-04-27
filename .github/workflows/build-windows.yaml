@@ -38,7 +38,7 @@ jobs:
       uses: microsoft/setup-msbuild@v1.0.2
     - name: Cache Vulkan SDK
       uses: actions/cache@v2
-      id: cache-vulkansdk-
+      id: cache-vulkansdk
       with:
         path: VulkanSDK.exe
         key: ${{ runner.os }}-VulkanSDK-${{ env.VULKAN_SDK_VERSION }}
