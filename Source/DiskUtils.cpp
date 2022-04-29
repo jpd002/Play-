@@ -108,12 +108,19 @@ static DiskUtils::OpticalMediaPtr CreateOpticalMediaFromChd(const fs::path& imag
 {
 	//Some notes about CHD support:
 	//- We don't support multi track CDs
-	//- CHD doesn't seem to differentiate CDs from DVDs, we can't really guess with
-	//  the info we have in the file, probably more a problem with the creation tool (chdman)
-	//  than a problem with the format itself.
-	//- We're going to assume that we're creating a DVD, but this might break things in some particular cases
 	auto imageStream = std::make_shared<CChdImageStream>(CreateImageStream(imagePath));
-	auto blockProvider = std::make_shared<ISO9660::CBlockProviderCustom<0x990, 0>>(imageStream);
+	auto blockProvider = [&imageStream]() -> COpticalMedia::BlockProviderPtr {
+		switch(imageStream->GetTrack0Type())
+		{
+		default:
+			assert(false);
+			[[fallthrough]];
+		case CChdImageStream::TRACK_TYPE_MODE1:
+			return std::make_shared<ISO9660::CBlockProviderCustom<0x990, 0>>(imageStream);
+		case CChdImageStream::TRACK_TYPE_MODE2_RAW:
+			return std::make_shared<ISO9660::CBlockProviderCustom<0x990, 0x18>>(imageStream);
+		}
+	}();
 	return COpticalMedia::CreateCustomSingleTrack(blockProvider);
 }
 
