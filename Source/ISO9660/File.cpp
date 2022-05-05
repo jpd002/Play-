@@ -22,10 +22,6 @@ CFile::CFile(CBlockProvider* blockProvider, uint64 start, uint64 size)
 	InitBlock();
 }
 
-CFile::~CFile()
-{
-}
-
 void CFile::Seek(int64 amount, Framework::STREAM_SEEK_DIRECTION whence)
 {
 	switch(whence)

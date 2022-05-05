@@ -10,7 +10,7 @@ namespace ISO9660
 	public:
 		CFile(CBlockProvider*, uint64);
 		CFile(CBlockProvider*, uint64, uint64);
-		~CFile();
+		~CFile() = default;
 		void Seek(int64, Framework::STREAM_SEEK_DIRECTION) override;
 		uint64 Tell() override;
 		uint64 Read(void*, uint64) override;
