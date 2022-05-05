@@ -24,26 +24,23 @@ CFile::CFile(CBlockProvider* blockProvider, uint64 start, uint64 size)
 
 void CFile::Seek(int64 amount, Framework::STREAM_SEEK_DIRECTION whence)
 {
+	uint64 size = (m_end != ULLONG_MAX) ? (m_end - m_start) : ULLONG_MAX;
 	switch(whence)
 	{
 	case Framework::STREAM_SEEK_SET:
-		m_isEof = false;
 		m_position = amount;
 		break;
 	case Framework::STREAM_SEEK_CUR:
-		m_isEof = false;
 		m_position += amount;
 		break;
 	case Framework::STREAM_SEEK_END:
-	{
+		//Cannot seek from end with unbounded files
 		assert(m_end != ULLONG_MAX);
-		const auto size = m_end - m_start;
 		m_position = size + amount;
-		m_position = std::min<uint64>(m_position, size);
-		m_isEof = (m_position == size);
+		break;
 	}
-	break;
-	}
+	m_position = std::min<uint64>(m_position, size);
+	m_isEof = false;
 }
 
 uint64 CFile::Tell()
@@ -55,9 +52,18 @@ uint64 CFile::Read(void* data, uint64 length)
 {
 	if(length == 0) return 0;
 
-	assert((m_start + m_position) <= m_end);
-	uint64 remainFileSize = m_end - (m_start + m_position);
-	if(remainFileSize == 0) m_isEof = true;
+	//Pre-condition
+	assert(m_position <= (m_end - m_start));
+
+	//Check if we're at the end of the file
+	uint64 offset = m_start + m_position;
+	if(offset >= m_end)
+	{
+		m_isEof = true;
+		return 0;
+	}
+
+	uint64 remainFileSize = m_end - offset;
 	length = std::min<uint64>(length, remainFileSize);
 
 	uint64 total = length;
@@ -77,6 +83,9 @@ uint64 CFile::Read(void* data, uint64 length)
 
 		if(length == 0) break;
 	}
+
+	//Post-condition
+	assert(m_position <= (m_end - m_start));
 
 	return total;
 }
