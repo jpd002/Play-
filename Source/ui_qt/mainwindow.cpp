@@ -1022,18 +1022,20 @@ void MainWindow::SetupDebugger()
 		connect(debugMenuUi->actionDumpNextFrame, &QAction::triggered, this, std::bind(&MainWindow::DumpNextFrame, this));
 		connect(debugMenuUi->actionGsDrawEnabled, &QAction::triggered, this, std::bind(&MainWindow::ToggleGsDraw, this));
 	}
-	
+
+#if defined(__APPLE__)
 	{
 		auto debugDockMenu = new QMenu(this);
 		debugDockMenuUi = new Ui::DebugDockMenu();
 		debugDockMenuUi->setupUi(debugDockMenu);
-		
+
 		connect(debugDockMenuUi->actionShowMainWindow, &QAction::triggered, this, std::bind(&MainWindow::ShowMainWindow, this));
 		connect(debugDockMenuUi->actionShowDebugger, &QAction::triggered, this, std::bind(&MainWindow::ShowDebugger, this));
 		connect(debugDockMenuUi->actionShowFrameDebugger, &QAction::triggered, this, std::bind(&MainWindow::ShowFrameDebugger, this));
 
 		debugDockMenu->setAsDockMenu();
 	}
-	
-#endif
+#endif //defined(__APPLE__)
+
+#endif //DEBUGGER_INCLUDED
 }
