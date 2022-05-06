@@ -39,6 +39,7 @@ void CFile::Seek(int64 amount, Framework::STREAM_SEEK_DIRECTION whence)
 		m_position = size + amount;
 		break;
 	}
+	m_position = std::max<int64>(m_position, 0);
 	m_position = std::min<uint64>(m_position, size);
 	m_isEof = false;
 }
