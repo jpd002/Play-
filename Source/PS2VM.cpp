@@ -327,20 +327,20 @@ CPS2VM::CPU_UTILISATION_INFO CPS2VM::GetCpuUtilisationInfo() const
 
 #define TAGS_PATH ("tags/")
 
-std::string CPS2VM::MakeDebugTagsPackagePath(const char* packageName)
+fs::path CPS2VM::MakeDebugTagsPackagePath(const char* packageName)
 {
 	auto tagsPath = CAppConfig::GetBasePath() / fs::path(TAGS_PATH);
 	Framework::PathUtils::EnsurePathExists(tagsPath);
 	auto tagsPackagePath = tagsPath / (std::string(packageName) + std::string(".tags.xml"));
-	return tagsPackagePath.string();
+	return tagsPackagePath;
 }
 
 void CPS2VM::LoadDebugTags(const char* packageName)
 {
 	try
 	{
-		std::string packagePath = MakeDebugTagsPackagePath(packageName);
-		Framework::CStdStream stream(packagePath.c_str(), "rb");
+		auto packagePath = MakeDebugTagsPackagePath(packageName);
+		auto stream = Framework::CreateInputStdStream(packagePath.native());
 		std::unique_ptr<Framework::Xml::CNode> document(Framework::Xml::CParser::ParseDocument(stream));
 		Framework::Xml::CNode* tagsNode = document->Select(TAGS_SECTION_TAGS);
 		if(!tagsNode) return;
@@ -367,8 +367,8 @@ void CPS2VM::SaveDebugTags(const char* packageName)
 {
 	try
 	{
-		std::string packagePath = MakeDebugTagsPackagePath(packageName);
-		Framework::CStdStream stream(packagePath.c_str(), "wb");
+		auto packagePath = MakeDebugTagsPackagePath(packageName);
+		auto stream = Framework::CreateOutputStdStream(packagePath.native());
 		std::unique_ptr<Framework::Xml::CNode> document(new Framework::Xml::CNode(TAGS_SECTION_TAGS, true));
 		m_ee->m_EE.m_Functions.Serialize(document.get(), TAGS_SECTION_EE_FUNCTIONS);
 		m_ee->m_EE.m_Comments.Serialize(document.get(), TAGS_SECTION_EE_COMMENTS);

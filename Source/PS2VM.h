@@ -80,7 +80,7 @@ public:
 	CPU_UTILISATION_INFO GetCpuUtilisationInfo() const;
 
 #ifdef DEBUGGER_INCLUDED
-	std::string MakeDebugTagsPackagePath(const char*);
+	fs::path MakeDebugTagsPackagePath(const char*);
 	void LoadDebugTags(const char*);
 	void SaveDebugTags(const char*);
 #endif
