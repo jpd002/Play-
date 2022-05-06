@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>DebugDockMenu</class>
+ <widget class="QMenu" name="DebugDockMenu">
+  <property name="title">
+   <string>Debug Dock Menu</string>
+  </property>
+  <action name="actionShowMainWindow">
+   <property name="text">
+    <string>Show Main Window</string>
+   </property>
+  </action>
+  <action name="actionShowDebugger">
+   <property name="text">
+    <string>Show Debugger</string>
+   </property>
+  </action>
+  <action name="actionShowFrameDebugger">
+   <property name="text">
+    <string>Show Frame Debugger</string>
+   </property>
+  </action>
+  <addaction name="actionShowMainWindow"/>
+  <addaction name="actionShowDebugger"/>
+  <addaction name="actionShowFrameDebugger"/>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

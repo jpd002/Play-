@@ -27,6 +27,7 @@ class QtFramedebugger;
 
 namespace Ui
 {
+	class DebugDockMenu;
 	class DebugMenu;
 }
 #endif
@@ -45,6 +46,7 @@ public:
 	void loadState(int);
 
 #ifdef DEBUGGER_INCLUDED
+	void ShowMainWindow();
 	void ShowDebugger();
 	void ShowFrameDebugger();
 	fs::path GetFrameDumpDirectoryPath();
@@ -89,8 +91,9 @@ private:
 	void resizeWindow(unsigned int, unsigned int);
 	void UpdateGSHandlerLabel(int);
 	void SetupBootableView();
+	void SetupDebugger();
 
-	Ui::MainWindow* ui;
+	Ui::MainWindow* ui = nullptr;
 
 	OutputWindow* m_outputwindow = nullptr;
 	QLabel* m_fpsLabel = nullptr;
@@ -118,6 +121,7 @@ private:
 #ifdef DEBUGGER_INCLUDED
 	std::unique_ptr<QtDebugger> m_debugger;
 	std::unique_ptr<QtFramedebugger> m_frameDebugger;
+	Ui::DebugDockMenu* debugDockMenuUi = nullptr;
 	Ui::DebugMenu* debugMenuUi = nullptr;
 #endif
 
