@@ -97,11 +97,36 @@ void CLibSd::Invoke(CMIPS&, unsigned int)
 {
 }
 
-std::string DecodeParam(uint16 paramId)
+static std::string DecodeAddress(uint16 addressId)
+{
+	std::string result;
+	switch(addressId >> 8)
+	{
+	case 0x22:
+		result = "NAX";
+		break;
+	default:
+		result = string_format("unknown (0x%02X)", addressId >> 8);
+		break;
+	}
+	result += string_format(", CORE%d, VOICE%d", addressId & 1, (addressId & 0x3E) >> 1);
+	return result;
+}
+
+static std::string DecodeParam(uint16 paramId)
 {
 	std::string result;
 	switch(paramId >> 8)
 	{
+	case 0x00:
+		result = "VOLL";
+		break;
+	case 0x01:
+		result = "VOLR";
+		break;
+	case 0x05:
+		result = "ENVX";
+		break;
 	case 0x06:
 		result = "VOLXL";
 		break;
@@ -116,7 +141,7 @@ std::string DecodeParam(uint16 paramId)
 	return result;
 }
 
-std::string DecodeSwitch(uint16 switchId)
+static std::string DecodeSwitch(uint16 switchId)
 {
 	std::string result;
 	switch(switchId >> 8)
@@ -186,7 +211,9 @@ void CLibSd::TraceCall(CMIPS& context, unsigned int functionId)
 		                          context.m_State.nGPR[CMIPS::A0].nV0, context.m_State.nGPR[CMIPS::A1].nV0);
 		break;
 	case 10:
-		CLog::GetInstance().Print(LOG_NAME, FUNCTION_GETADDR "(entry = 0x%04X);\r\n", context.m_State.nGPR[CMIPS::A0].nV0);
+		CLog::GetInstance().Print(LOG_NAME, FUNCTION_GETADDR "(entry = 0x%04X); //(%s)\r\n",
+		                          context.m_State.nGPR[CMIPS::A0].nV0,
+		                          DecodeAddress(static_cast<uint16>(context.m_State.nGPR[CMIPS::A0].nV0)).c_str());
 		break;
 	case 11:
 		CLog::GetInstance().Print(LOG_NAME, FUNCTION_SETCOREATTR "(entry = 0x%04X, value = 0x%04X);\r\n",
