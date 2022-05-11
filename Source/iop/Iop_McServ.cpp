@@ -1157,6 +1157,12 @@ void CMcServ::CPathFinder::Search(const fs::path& basePath, const char* filter)
 		filterPathString = "/" + filterPathString;
 	}
 
+	//Remove slash at end
+	if((filterPathString.size() > 1) && (*filterPathString.rbegin() == '/'))
+	{
+		filterPathString.erase(filterPathString.end() - 1);
+	}
+
 	{
 		std::string filterExpString = filterPathString;
 		filterExpString = StringUtils::ReplaceAll(filterExpString, "\\", "\\\\");
