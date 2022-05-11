@@ -36,6 +36,12 @@ namespace Iop
 			CMD_ID_SETTHREADPRIORITY = 0x14,
 		};
 
+		enum CMD_FLAG
+		{
+			CMD_FLAG_DIRECT = 0x80000000, //Direct method call (ie.: not from SIF RPC)
+			CMD_FLAG_MASK = 0x80000000,
+		};
+
 		enum OPEN_FLAGS
 		{
 			OPEN_FLAG_RDONLY = 0x00000001,

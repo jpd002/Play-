@@ -9,6 +9,8 @@
 #include "StdStreamUtils.h"
 #include "GameTestSheet.h"
 
+#define MCSERV_CMD(a) (Iop::CMcServ::a | Iop::CMcServ::CMD_FLAG_DIRECT)
+
 #define CHECK(condition)        \
 	if(!(condition))            \
 	{                           \
@@ -60,7 +62,7 @@ void ExecuteTest(const CGameTestSheet::TEST& test)
 		assert(test.currentDirectory.size() <= sizeof(cmd.name));
 		strncpy(cmd.name, test.currentDirectory.c_str(), sizeof(cmd.name));
 
-		mcServ->Invoke(Iop::CMcServ::CMD_ID_CHDIR, reinterpret_cast<uint32*>(&cmd), sizeof(cmd), &result, sizeof(uint32), nullptr);
+		mcServ->Invoke(MCSERV_CMD(CMD_ID_CHDIR), reinterpret_cast<uint32*>(&cmd), sizeof(cmd), &result, sizeof(uint32), nullptr);
 
 		CHECK(result == 0);
 	}
@@ -79,7 +81,7 @@ void ExecuteTest(const CGameTestSheet::TEST& test)
 		{
 			entries.resize(cmd.maxEntries);
 		}
-		mcServ->Invoke(Iop::CMcServ::CMD_ID_GETDIR, reinterpret_cast<uint32*>(&cmd), sizeof(cmd), &result, sizeof(uint32), reinterpret_cast<uint8*>(entries.data()));
+		mcServ->Invoke(MCSERV_CMD(CMD_ID_GETDIR), reinterpret_cast<uint32*>(&cmd), sizeof(cmd), &result, sizeof(uint32), reinterpret_cast<uint8*>(entries.data()));
 
 		CHECK(result == test.result);
 

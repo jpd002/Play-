@@ -160,6 +160,9 @@ void CMcServ::Invoke(CMIPS& context, unsigned int functionId)
 
 bool CMcServ::Invoke(uint32 method, uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
 {
+	bool isDirectCall = (method & CMD_FLAG_DIRECT) != 0;
+	method &= ~CMD_FLAG_MASK;
+
 	switch(method)
 	{
 	case CMD_ID_GETINFO:
@@ -237,12 +240,16 @@ bool CMcServ::Invoke(uint32 method, uint32* args, uint32 argsSize, uint32* ret, 
 		return true;
 	}
 
-	// Delay all commands a bit (except ReadFast, which has a different mecanism)
-	// Fixes games which receive the rpc response before they are ready to receive them
-	auto moduleData = reinterpret_cast<MODULEDATA*>(m_ram + m_moduleDataAddr);
-	assert(moduleData->pendingCommand == CMD_ID_NONE);
-	moduleData->pendingCommand = method;
-	moduleData->pendingCommandDelay = CMD_DELAY_DEFAULT;
+	if(!isDirectCall)
+	{
+		// Delay all commands a bit (except ReadFast, which has a different mecanism)
+		// Direct calls also don't require SIF RPC replies
+		// Fixes games which receive the rpc response before they are ready to receive them
+		auto moduleData = reinterpret_cast<MODULEDATA*>(m_ram + m_moduleDataAddr);
+		assert(moduleData->pendingCommand == CMD_ID_NONE);
+		moduleData->pendingCommand = method;
+		moduleData->pendingCommandDelay = CMD_DELAY_DEFAULT;
+	}
 
 	return false;
 }

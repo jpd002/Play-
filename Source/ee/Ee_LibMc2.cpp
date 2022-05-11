@@ -19,6 +19,8 @@ using namespace Ee;
 
 #define MC_PORT 0
 
+#define MCSERV_CMD(a) (Iop::CMcServ::a | Iop::CMcServ::CMD_FLAG_DIRECT)
+
 #define SIGNALSEMA_SYSCALL 0x42
 #define WAITSEMA_SYSCALL 0x44
 #define POLLSEMA_SYSCALL 0x45
@@ -497,7 +499,7 @@ int32 CLibMc2::CreateFileAsync(uint32 socketId, uint32 pathPtr)
 		assert(strlen(path) <= sizeof(cmd.name));
 		strncpy(cmd.name, path, sizeof(cmd.name));
 
-		mcServ->Invoke(Iop::CMcServ::CMD_ID_OPEN, reinterpret_cast<uint32*>(&cmd), sizeof(cmd), reinterpret_cast<uint32*>(&fd), sizeof(uint32), nullptr);
+		mcServ->Invoke(MCSERV_CMD(CMD_ID_OPEN), reinterpret_cast<uint32*>(&cmd), sizeof(cmd), reinterpret_cast<uint32*>(&fd), sizeof(uint32), nullptr);
 
 		assert(fd >= 0);
 	}
@@ -508,7 +510,7 @@ int32 CLibMc2::CreateFileAsync(uint32 socketId, uint32 pathPtr)
 		memset(&cmd, 0, sizeof(cmd));
 		cmd.handle = fd;
 
-		mcServ->Invoke(Iop::CMcServ::CMD_ID_CLOSE, reinterpret_cast<uint32*>(&cmd), sizeof(cmd), reinterpret_cast<uint32*>(&result), sizeof(uint32), nullptr);
+		mcServ->Invoke(MCSERV_CMD(CMD_ID_CLOSE), reinterpret_cast<uint32*>(&cmd), sizeof(cmd), reinterpret_cast<uint32*>(&result), sizeof(uint32), nullptr);
 
 		assert(result >= 0);
 	}
@@ -536,7 +538,7 @@ int32 CLibMc2::DeleteAsync(uint32 socketId, uint32 pathPtr)
 		assert(strlen(path) <= sizeof(cmd.name));
 		strncpy(cmd.name, path, sizeof(cmd.name));
 
-		mcServ->Invoke(Iop::CMcServ::CMD_ID_DELETE, reinterpret_cast<uint32*>(&cmd), sizeof(cmd), reinterpret_cast<uint32*>(&result), sizeof(int32), nullptr);
+		mcServ->Invoke(MCSERV_CMD(CMD_ID_DELETE), reinterpret_cast<uint32*>(&cmd), sizeof(cmd), reinterpret_cast<uint32*>(&result), sizeof(int32), nullptr);
 	}
 
 	if(result >= 0)
@@ -581,7 +583,7 @@ int32 CLibMc2::GetDirAsync(uint32 socketId, uint32 pathPtr, uint32 offset, int32
 	{
 		entries.resize(entriesToFetch);
 	}
-	mcServ->Invoke(Iop::CMcServ::CMD_ID_GETDIR, reinterpret_cast<uint32*>(&cmd), sizeof(cmd), reinterpret_cast<uint32*>(&result), sizeof(uint32), reinterpret_cast<uint8*>(entries.data()));
+	mcServ->Invoke(MCSERV_CMD(CMD_ID_GETDIR), reinterpret_cast<uint32*>(&cmd), sizeof(cmd), reinterpret_cast<uint32*>(&result), sizeof(uint32), reinterpret_cast<uint8*>(entries.data()));
 
 	if(result < 0)
 	{
@@ -633,7 +635,7 @@ int32 CLibMc2::MkDirAsync(uint32 socketId, uint32 pathPtr)
 	assert(strlen(path) <= sizeof(cmd.name));
 	strncpy(cmd.name, path, sizeof(cmd.name));
 
-	mcServ->Invoke(Iop::CMcServ::CMD_ID_OPEN, reinterpret_cast<uint32*>(&cmd), sizeof(cmd), reinterpret_cast<uint32*>(&result), sizeof(uint32), nullptr);
+	mcServ->Invoke(MCSERV_CMD(CMD_ID_OPEN), reinterpret_cast<uint32*>(&cmd), sizeof(cmd), reinterpret_cast<uint32*>(&result), sizeof(uint32), nullptr);
 
 	assert(result >= 0);
 
@@ -660,7 +662,7 @@ int32 CLibMc2::ChDirAsync(uint32 socketId, uint32 pathPtr, uint32 pwdPtr)
 	assert(strlen(path) <= sizeof(cmd.name));
 	strncpy(cmd.name, path, sizeof(cmd.name));
 
-	mcServ->Invoke(Iop::CMcServ::CMD_ID_CHDIR, reinterpret_cast<uint32*>(&cmd), sizeof(cmd), reinterpret_cast<uint32*>(&result), sizeof(uint32), nullptr);
+	mcServ->Invoke(MCSERV_CMD(CMD_ID_CHDIR), reinterpret_cast<uint32*>(&cmd), sizeof(cmd), reinterpret_cast<uint32*>(&result), sizeof(uint32), nullptr);
 
 	if(result < 0)
 	{
@@ -712,7 +714,7 @@ int32 CLibMc2::SearchFileAsync(uint32 socketId, uint32 pathPtr, uint32 dirParamP
 	{
 		entries.resize(cmd.maxEntries);
 	}
-	mcServ->Invoke(Iop::CMcServ::CMD_ID_GETDIR, reinterpret_cast<uint32*>(&cmd), sizeof(cmd), reinterpret_cast<uint32*>(&result), sizeof(uint32), reinterpret_cast<uint8*>(entries.data()));
+	mcServ->Invoke(MCSERV_CMD(CMD_ID_GETDIR), reinterpret_cast<uint32*>(&cmd), sizeof(cmd), reinterpret_cast<uint32*>(&result), sizeof(uint32), reinterpret_cast<uint8*>(entries.data()));
 
 	if(result <= 0)
 	{
@@ -749,7 +751,7 @@ int32 CLibMc2::GetEntSpaceAsync(uint32 socketId, uint32 pathPtr)
 	assert(strlen(path) <= sizeof(cmd.name));
 	strncpy(cmd.name, path, sizeof(cmd.name));
 
-	mcServ->Invoke(Iop::CMcServ::CMD_ID_GETENTSPACE, reinterpret_cast<uint32*>(&cmd), sizeof(cmd), reinterpret_cast<uint32*>(&result), sizeof(uint32), nullptr);
+	mcServ->Invoke(MCSERV_CMD(CMD_ID_GETENTSPACE), reinterpret_cast<uint32*>(&cmd), sizeof(cmd), reinterpret_cast<uint32*>(&result), sizeof(uint32), nullptr);
 
 	if(result < 0)
 	{
@@ -795,7 +797,7 @@ int32 CLibMc2::ReadFileAsync(uint32 socketId, uint32 pathPtr, uint32 bufferPtr, 
 		cmd.port = MC_PORT;
 		assert(strlen(path) <= sizeof(cmd.name));
 		strncpy(cmd.name, path, sizeof(cmd.name));
-		mcServ->Invoke(Iop::CMcServ::CMD_ID_OPEN, reinterpret_cast<uint32*>(&cmd), sizeof(cmd), reinterpret_cast<uint32*>(&fd), sizeof(uint32), nullptr);
+		mcServ->Invoke(MCSERV_CMD(CMD_ID_OPEN), reinterpret_cast<uint32*>(&cmd), sizeof(cmd), reinterpret_cast<uint32*>(&fd), sizeof(uint32), nullptr);
 	}
 
 	if(fd < 0)
@@ -813,7 +815,7 @@ int32 CLibMc2::ReadFileAsync(uint32 socketId, uint32 pathPtr, uint32 bufferPtr, 
 		cmd.handle = fd;
 		cmd.offset = offset;
 		cmd.origin = 0;
-		mcServ->Invoke(Iop::CMcServ::CMD_ID_SEEK, reinterpret_cast<uint32*>(&cmd), sizeof(cmd), reinterpret_cast<uint32*>(&result), sizeof(uint32), nullptr);
+		mcServ->Invoke(MCSERV_CMD(CMD_ID_SEEK), reinterpret_cast<uint32*>(&cmd), sizeof(cmd), reinterpret_cast<uint32*>(&result), sizeof(uint32), nullptr);
 		assert(result == offset);
 	}
 
@@ -825,7 +827,7 @@ int32 CLibMc2::ReadFileAsync(uint32 socketId, uint32 pathPtr, uint32 bufferPtr, 
 		cmd.handle = fd;
 		cmd.size = size;
 		cmd.bufferAddress = bufferPtr;
-		mcServ->Invoke(Iop::CMcServ::CMD_ID_READ, reinterpret_cast<uint32*>(&cmd), sizeof(cmd), reinterpret_cast<uint32*>(&result), sizeof(uint32), m_ram);
+		mcServ->Invoke(MCSERV_CMD(CMD_ID_READ), reinterpret_cast<uint32*>(&cmd), sizeof(cmd), reinterpret_cast<uint32*>(&result), sizeof(uint32), m_ram);
 		assert(result >= 0);
 	}
 
@@ -835,7 +837,7 @@ int32 CLibMc2::ReadFileAsync(uint32 socketId, uint32 pathPtr, uint32 bufferPtr, 
 		Iop::CMcServ::FILECMD cmd;
 		memset(&cmd, 0, sizeof(cmd));
 		cmd.handle = fd;
-		mcServ->Invoke(Iop::CMcServ::CMD_ID_CLOSE, reinterpret_cast<uint32*>(&cmd), sizeof(cmd), reinterpret_cast<uint32*>(&result), sizeof(uint32), nullptr);
+		mcServ->Invoke(MCSERV_CMD(CMD_ID_CLOSE), reinterpret_cast<uint32*>(&cmd), sizeof(cmd), reinterpret_cast<uint32*>(&result), sizeof(uint32), nullptr);
 		assert(result >= 0);
 	}
 
@@ -863,7 +865,7 @@ int32 CLibMc2::WriteFileAsync(uint32 socketId, uint32 pathPtr, uint32 bufferPtr,
 		cmd.port = MC_PORT;
 		assert(strlen(path) <= sizeof(cmd.name));
 		strncpy(cmd.name, path, sizeof(cmd.name));
-		mcServ->Invoke(Iop::CMcServ::CMD_ID_OPEN, reinterpret_cast<uint32*>(&cmd), sizeof(cmd), reinterpret_cast<uint32*>(&fd), sizeof(uint32), nullptr);
+		mcServ->Invoke(MCSERV_CMD(CMD_ID_OPEN), reinterpret_cast<uint32*>(&cmd), sizeof(cmd), reinterpret_cast<uint32*>(&fd), sizeof(uint32), nullptr);
 	}
 
 	assert(fd >= 0);
@@ -876,7 +878,7 @@ int32 CLibMc2::WriteFileAsync(uint32 socketId, uint32 pathPtr, uint32 bufferPtr,
 		cmd.handle = fd;
 		cmd.offset = offset;
 		cmd.origin = 0;
-		mcServ->Invoke(Iop::CMcServ::CMD_ID_SEEK, reinterpret_cast<uint32*>(&cmd), sizeof(cmd), reinterpret_cast<uint32*>(&result), sizeof(uint32), nullptr);
+		mcServ->Invoke(MCSERV_CMD(CMD_ID_SEEK), reinterpret_cast<uint32*>(&cmd), sizeof(cmd), reinterpret_cast<uint32*>(&result), sizeof(uint32), nullptr);
 		assert(result == offset);
 	}
 
@@ -888,7 +890,7 @@ int32 CLibMc2::WriteFileAsync(uint32 socketId, uint32 pathPtr, uint32 bufferPtr,
 		cmd.handle = fd;
 		cmd.size = size;
 		cmd.bufferAddress = bufferPtr;
-		mcServ->Invoke(Iop::CMcServ::CMD_ID_WRITE, reinterpret_cast<uint32*>(&cmd), sizeof(cmd), reinterpret_cast<uint32*>(&result), sizeof(uint32), m_ram);
+		mcServ->Invoke(MCSERV_CMD(CMD_ID_WRITE), reinterpret_cast<uint32*>(&cmd), sizeof(cmd), reinterpret_cast<uint32*>(&result), sizeof(uint32), m_ram);
 		assert(result >= 0);
 	}
 
@@ -898,7 +900,7 @@ int32 CLibMc2::WriteFileAsync(uint32 socketId, uint32 pathPtr, uint32 bufferPtr,
 		Iop::CMcServ::FILECMD cmd;
 		memset(&cmd, 0, sizeof(cmd));
 		cmd.handle = fd;
-		mcServ->Invoke(Iop::CMcServ::CMD_ID_CLOSE, reinterpret_cast<uint32*>(&cmd), sizeof(cmd), reinterpret_cast<uint32*>(&result), sizeof(uint32), nullptr);
+		mcServ->Invoke(MCSERV_CMD(CMD_ID_CLOSE), reinterpret_cast<uint32*>(&cmd), sizeof(cmd), reinterpret_cast<uint32*>(&result), sizeof(uint32), nullptr);
 		assert(result >= 0);
 	}
 
