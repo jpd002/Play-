@@ -9,6 +9,7 @@
 #include "StdStreamUtils.h"
 #include "Log.h"
 
+#define PREF_R2_OBJECTSTREAM_ACCOUNTKEYID "r2.objectstream.accountkeyid"
 #define PREF_S3_OBJECTSTREAM_ACCESSKEYID "s3.objectstream.accesskeyid"
 #define PREF_S3_OBJECTSTREAM_SECRETACCESSKEY "s3.objectstream.secretaccesskey"
 #define CACHE_PATH "Play Data Files/s3objectstream_cache"
@@ -21,6 +22,7 @@ CS3ObjectStream::CConfig::CConfig()
 {
 	CAppConfig::GetInstance().RegisterPreferenceString(PREF_S3_OBJECTSTREAM_ACCESSKEYID, "");
 	CAppConfig::GetInstance().RegisterPreferenceString(PREF_S3_OBJECTSTREAM_SECRETACCESSKEY, "");
+	CAppConfig::GetInstance().RegisterPreferenceString(PREF_R2_OBJECTSTREAM_ACCOUNTKEYID, "");
 }
 
 CAmazonCredentials CS3ObjectStream::CConfig::GetCredentials()
@@ -28,6 +30,7 @@ CAmazonCredentials CS3ObjectStream::CConfig::GetCredentials()
 	CAmazonCredentials credentials;
 	credentials.accessKeyId = CAppConfig::GetInstance().GetPreferenceString(PREF_S3_OBJECTSTREAM_ACCESSKEYID);
 	credentials.secretAccessKey = CAppConfig::GetInstance().GetPreferenceString(PREF_S3_OBJECTSTREAM_SECRETACCESSKEY);
+	credentials.accountKeyId = CAppConfig::GetInstance().GetPreferenceString(PREF_R2_OBJECTSTREAM_ACCOUNTKEYID);
 	return credentials;
 }
 
