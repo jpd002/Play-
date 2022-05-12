@@ -25,13 +25,13 @@ CS3ObjectStream::CConfig::CConfig()
 	CAppConfig::GetInstance().RegisterPreferenceString(PREF_R2_OBJECTSTREAM_ACCOUNTKEYID, "");
 }
 
-CAmazonCredentials CS3ObjectStream::CConfig::GetCredentials()
+CAmazonConfigs CS3ObjectStream::CConfig::GetConfigs()
 {
-	CAmazonCredentials credentials;
-	credentials.accessKeyId = CAppConfig::GetInstance().GetPreferenceString(PREF_S3_OBJECTSTREAM_ACCESSKEYID);
-	credentials.secretAccessKey = CAppConfig::GetInstance().GetPreferenceString(PREF_S3_OBJECTSTREAM_SECRETACCESSKEY);
-	credentials.accountKeyId = CAppConfig::GetInstance().GetPreferenceString(PREF_R2_OBJECTSTREAM_ACCOUNTKEYID);
-	return credentials;
+	CAmazonConfigs configs;
+	configs.accessKeyId = CAppConfig::GetInstance().GetPreferenceString(PREF_S3_OBJECTSTREAM_ACCESSKEYID);
+	configs.secretAccessKey = CAppConfig::GetInstance().GetPreferenceString(PREF_S3_OBJECTSTREAM_SECRETACCESSKEY);
+	configs.accountKeyId = CAppConfig::GetInstance().GetPreferenceString(PREF_R2_OBJECTSTREAM_ACCOUNTKEYID);
+	return configs;
 }
 
 CS3ObjectStream::CS3ObjectStream(const char* bucketName, const char* objectKey)
@@ -136,7 +136,7 @@ void CS3ObjectStream::GetObjectInfo()
 {
 	//Obtain bucket region
 	{
-		CAmazonS3Client client(CConfig::GetInstance().GetCredentials());
+		CAmazonS3Client client(CConfig::GetInstance().GetConfigs());
 
 		GetBucketLocationRequest request;
 		request.bucket = m_bucketName;
@@ -147,7 +147,7 @@ void CS3ObjectStream::GetObjectInfo()
 
 	//Obtain object info
 	{
-		CAmazonS3Client client(CConfig::GetInstance().GetCredentials(), m_bucketRegion);
+		CAmazonS3Client client(CConfig::GetInstance().GetConfigs(), m_bucketRegion);
 
 		HeadObjectRequest request;
 		request.bucket = m_bucketName;
@@ -196,7 +196,7 @@ void CS3ObjectStream::SyncBuffer()
 	if(!cachedReadSucceeded)
 	{
 		assert(size > 0);
-		CAmazonS3Client client(CConfig::GetInstance().GetCredentials(), m_bucketRegion);
+		CAmazonS3Client client(CConfig::GetInstance().GetConfigs(), m_bucketRegion);
 		GetObjectRequest request;
 		request.key = m_objectKey;
 		request.bucket = m_bucketName;
