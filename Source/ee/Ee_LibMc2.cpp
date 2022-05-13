@@ -178,10 +178,18 @@ uint32 CLibMc2::AnalyzeFunction(MODULE_FUNCTIONS& moduleFunctions, uint32 startA
 		}
 		if(syscallsUsed.size() == 2 && (jalCount == 2))
 		{
-			uint32 signalSemaCount = (syscallsUsed.find(SIGNALSEMA_SYSCALL) != std::end(syscallsUsed) ? syscallsUsed[SIGNALSEMA_SYSCALL] : 0);
 			uint32 waitSemaCount = (syscallsUsed.find(WAITSEMA_SYSCALL) != std::end(syscallsUsed) ? syscallsUsed[WAITSEMA_SYSCALL] : 0);
 			uint32 pollSemaCount = (syscallsUsed.find(POLLSEMA_SYSCALL) != std::end(syscallsUsed) ? syscallsUsed[POLLSEMA_SYSCALL] : 0);
 			if((waitSemaCount == 1) && (pollSemaCount == 1))
+			{
+				moduleFunctions.checkAsyncPtr = startAddress;
+			}
+		}
+		if(syscallsUsed.size() == 1 && (jalCount == 5) && (constantsLoaded.size() == 4) && (constantsLoaded[0] == 0xFFFF))
+		{
+			//Alternate version (debug?) used in Sega Ages Fantasy Zone
+			uint32 pollSemaCount = (syscallsUsed.find(POLLSEMA_SYSCALL) != std::end(syscallsUsed) ? syscallsUsed[POLLSEMA_SYSCALL] : 0);
+			if(pollSemaCount == 2)
 			{
 				moduleFunctions.checkAsyncPtr = startAddress;
 			}
