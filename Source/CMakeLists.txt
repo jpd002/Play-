@@ -87,18 +87,13 @@ else()
 	list(APPEND PROJECT_LIBS ${BZIP2_LIBRARIES})
 endif()
 
-find_package(ZLIB)
-if(NOT ZLIB_FOUND)
-	MESSAGE("-- Using Provided zlib source")
-	if(NOT TARGET zlibstatic)
-		add_subdirectory(
-			${CMAKE_CURRENT_SOURCE_DIR}/../deps/Dependencies/build_cmake/zlib-1.2.8
-			${CMAKE_CURRENT_BINARY_DIR}/zlib-1.2.8
-			EXCLUDE_FROM_ALL
-		)
-	endif()
+if(NOT TARGET libzstd_zlibwrapper_static)
+	add_subdirectory(
+		${CMAKE_CURRENT_SOURCE_DIR}/../deps/Dependencies/build_cmake/zstd_zlibwrapper
+		${CMAKE_CURRENT_BINARY_DIR}/zstd_zlibwrapper
+	)
 endif()
-list(APPEND PROJECT_LIBS ZLIB::ZLIB)
+LIST(APPEND PROJECT_LIBS libzstd_zlibwrapper_static)
 
 # If ICU is available, add its libraries because Framework might need its functions
 find_package(ICUUC)

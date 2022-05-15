@@ -4,7 +4,7 @@
 #include <string.h>
 #include <assert.h>
 #include "bzlib.h"
-#include "zlib.h"
+#include "zstd_zlibwrapper.h"
 #include "StdStream.h"
 
 CIszImageStream::CIszImageStream(CStream* baseStream)

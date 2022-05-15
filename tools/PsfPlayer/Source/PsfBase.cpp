@@ -5,7 +5,7 @@
 #include <ctype.h>
 #include <stdexcept>
 #include <algorithm>
-#include <zlib.h>
+#include <zstd_zlibwrapper.h>
 
 using namespace Framework;
 

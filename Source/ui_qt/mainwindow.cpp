@@ -45,7 +45,7 @@
 #include "input/PH_GenericInput.h"
 #include "DiskUtils.h"
 #include "PathUtils.h"
-#include <zlib.h>
+#include <zstd_zlibwrapper.h>
 
 #include "CoverUtils.h"
 #include "PreferenceDefs.h"
