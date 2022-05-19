@@ -384,7 +384,7 @@ void CSubSystem::SaveState(Framework::CZipArchiveWriter& archive)
 
 void CSubSystem::LoadState(Framework::CZipArchiveReader& archive)
 {
-	m_EE.m_executor->Reset();
+	m_EE.m_executor->ClearActiveBlocksInRange(0, PS2::EE_RAM_SIZE, false);
 
 	archive.BeginReadFile(STATE_EE)->Read(&m_EE.m_State, sizeof(MIPSSTATE));
 	archive.BeginReadFile(STATE_VU0)->Read(&m_VU0.m_State, sizeof(MIPSSTATE));
