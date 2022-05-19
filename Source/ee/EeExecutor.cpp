@@ -2,7 +2,7 @@
 #include "../Ps2Const.h"
 #include "AlignedAlloc.h"
 #include "EeBasicBlock.h"
-#include <zlib.h>
+#include <zstd_zlibwrapper.h>
 
 #if defined(__unix__) || defined(__ANDROID__) || defined(__APPLE__)
 #include <sys/mman.h>

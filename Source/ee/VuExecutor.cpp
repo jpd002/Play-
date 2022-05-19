@@ -1,6 +1,6 @@
 #include "VuExecutor.h"
 #include "VuBasicBlock.h"
-#include <zlib.h>
+#include <zstd_zlibwrapper.h>
 
 CVuExecutor::CVuExecutor(CMIPS& context, uint32 maxAddress)
     : CGenericMipsExecutor(context, maxAddress)

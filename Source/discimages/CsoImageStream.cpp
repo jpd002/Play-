@@ -3,7 +3,7 @@
 #include <string.h>
 #include <assert.h>
 #include "CsoImageStream.h"
-#include "zlib.h"
+#include "zstd_zlibwrapper.h"
 
 typedef uint32 uint32_le;
 typedef uint64 uint64_le;

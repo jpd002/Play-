@@ -10,7 +10,7 @@
 
 #ifdef AOT_ENABLED
 
-#include <zlib.h>
+#include <zstd_zlibwrapper.h>
 #include "StdStream.h"
 #include "StdStreamUtils.h"
 
