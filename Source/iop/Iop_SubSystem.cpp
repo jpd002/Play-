@@ -124,8 +124,23 @@ void CSubSystem::SaveState(Framework::CZipArchiveWriter& archive)
 
 void CSubSystem::LoadState(Framework::CZipArchiveReader& archive)
 {
+	//Read and check differences in memory to invalidate executor blocks only if necessary
+	{
+		auto stream = archive.BeginReadFile(STATE_RAM);
+		static const uint32 bufferSize = 0x1000;
+		uint8 buffer[bufferSize];
+		for(uint32 i = 0; i < IOP_RAM_SIZE; i += bufferSize)
+		{
+			stream->Read(buffer, bufferSize);
+			if(memcmp(m_ram + i, buffer, bufferSize))
+			{
+				m_cpu.m_executor->ClearActiveBlocksInRange(i, i + bufferSize, false);
+			}
+			memcpy(m_ram + i, buffer, bufferSize);
+		}
+	}
+
 	archive.BeginReadFile(STATE_CPU)->Read(&m_cpu.m_State, sizeof(MIPSSTATE));
-	archive.BeginReadFile(STATE_RAM)->Read(m_ram, IOP_RAM_SIZE);
 	archive.BeginReadFile(STATE_SCRATCH)->Read(m_scratchPad, IOP_SCRATCH_SIZE);
 	archive.BeginReadFile(STATE_SPURAM)->Read(m_spuRam, SPU_RAM_SIZE);
 	m_intc.LoadState(archive);
