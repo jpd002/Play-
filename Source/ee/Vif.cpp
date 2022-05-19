@@ -17,6 +17,7 @@
 #define STATE_PATH_FIFO_FORMAT ("vpu/vif_%d_fifo")
 
 #define STATE_REGS_STAT ("STAT")
+#define STATE_REGS_ERR ("ERR")
 #define STATE_REGS_CODE ("CODE")
 #define STATE_REGS_CYCLE ("CYCLE")
 #define STATE_REGS_NUM ("NUM")
@@ -38,6 +39,7 @@
 #define STATE_REGS_PENDINGMICROPROGRAM ("pendingMicroProgram")
 #define STATE_REGS_FIFOINDEX ("fifoIndex")
 #define STATE_REGS_INCOMINGFIFODELAY ("incomingFifoDelay")
+#define STATE_REGS_INTERRUPTDELAYTICKS ("interruptDelayTicks")
 
 CVif::CVif(unsigned int number, CVpu& vpu, CINTC& intc, uint8* ram, uint8* spr)
     : m_number(number)
@@ -266,6 +268,7 @@ void CVif::SaveState(Framework::CZipArchiveWriter& archive)
 		auto path = string_format(STATE_PATH_REGS_FORMAT, m_number);
 		auto registerFile = new CRegisterStateFile(path.c_str());
 		registerFile->SetRegister32(STATE_REGS_STAT, m_STAT);
+		registerFile->SetRegister32(STATE_REGS_ERR, m_ERR);
 		registerFile->SetRegister32(STATE_REGS_CODE, m_CODE);
 		registerFile->SetRegister32(STATE_REGS_CYCLE, m_CYCLE);
 		registerFile->SetRegister32(STATE_REGS_NUM, m_NUM);
@@ -287,6 +290,7 @@ void CVif::SaveState(Framework::CZipArchiveWriter& archive)
 		registerFile->SetRegister32(STATE_REGS_PENDINGMICROPROGRAM, m_pendingMicroProgram);
 		registerFile->SetRegister32(STATE_REGS_FIFOINDEX, m_fifoIndex);
 		registerFile->SetRegister32(STATE_REGS_INCOMINGFIFODELAY, m_incomingFifoDelay);
+		registerFile->SetRegister32(STATE_REGS_INTERRUPTDELAYTICKS, m_interruptDelayTicks);
 		archive.InsertFile(registerFile);
 	}
 	{
@@ -301,6 +305,7 @@ void CVif::LoadState(Framework::CZipArchiveReader& archive)
 		auto path = string_format(STATE_PATH_REGS_FORMAT, m_number);
 		CRegisterStateFile registerFile(*archive.BeginReadFile(path.c_str()));
 		m_STAT <<= registerFile.GetRegister32(STATE_REGS_STAT);
+		m_ERR <<= registerFile.GetRegister32(STATE_REGS_ERR);
 		m_CODE <<= registerFile.GetRegister32(STATE_REGS_CODE);
 		m_CYCLE <<= registerFile.GetRegister32(STATE_REGS_CYCLE);
 		m_NUM = static_cast<uint8>(registerFile.GetRegister32(STATE_REGS_NUM));
@@ -322,6 +327,7 @@ void CVif::LoadState(Framework::CZipArchiveReader& archive)
 		m_pendingMicroProgram = registerFile.GetRegister32(STATE_REGS_PENDINGMICROPROGRAM);
 		m_fifoIndex = registerFile.GetRegister32(STATE_REGS_FIFOINDEX);
 		m_incomingFifoDelay = registerFile.GetRegister32(STATE_REGS_INCOMINGFIFODELAY);
+		m_interruptDelayTicks = registerFile.GetRegister32(STATE_REGS_INTERRUPTDELAYTICKS);
 	}
 	{
 		auto path = string_format(STATE_PATH_FIFO_FORMAT, m_number);
