@@ -133,12 +133,12 @@ std::string CMcServ::MakeAbsolutePath(const std::string& inputPath)
 			newFrags.insert(std::begin(newFrags), *fragIterator);
 		}
 	}
-	auto outputPath = std::string("/");
+	auto outputPath = std::string();
 	for(const auto& frag : newFrags)
 	{
 		if(frag.empty()) continue;
-		outputPath += frag;
 		outputPath += "/";
+		outputPath += frag;
 	}
 	return outputPath;
 }
