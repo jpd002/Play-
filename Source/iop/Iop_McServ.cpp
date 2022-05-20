@@ -116,6 +116,33 @@ std::string CMcServ::DecodeMcName(const std::string& inputName)
 	return result;
 }
 
+std::string CMcServ::MakeAbsolutePath(const std::string& inputPath)
+{
+	auto frags = StringUtils::Split(inputPath, '/', true);
+	std::vector<std::string> newFrags;
+	for(auto fragIterator = std::rbegin(frags);
+	    fragIterator != std::rend(frags); fragIterator++)
+	{
+		if(*fragIterator == "..")
+		{
+			fragIterator++;
+			fragIterator++;
+		}
+		else
+		{
+			newFrags.insert(std::begin(newFrags), *fragIterator);
+		}
+	}
+	auto outputPath = std::string("/");
+	for(const auto& frag : newFrags)
+	{
+		if(frag.empty()) continue;
+		outputPath += frag;
+		outputPath += "/";
+	}
+	return outputPath;
+}
+
 std::string CMcServ::GetId() const
 {
 	return MODULE_NAME;
@@ -683,7 +710,7 @@ void CMcServ::ChDir(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, 
 		}
 		else if(fs::exists(hostPath) && fs::is_directory(hostPath))
 		{
-			currentDirectory = newCurrentDirectory;
+			currentDirectory = MakeAbsolutePath(newCurrentDirectory);
 			result = 0;
 		}
 		else

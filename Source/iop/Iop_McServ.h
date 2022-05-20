@@ -128,6 +128,7 @@ namespace Iop
 		static const char* GetMcPathPreference(unsigned int);
 		static std::string EncodeMcName(const std::string&);
 		static std::string DecodeMcName(const std::string&);
+		static std::string MakeAbsolutePath(const std::string&);
 
 		std::string GetId() const override;
 		std::string GetFunctionName(unsigned int) const override;
