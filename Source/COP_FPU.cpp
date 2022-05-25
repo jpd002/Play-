@@ -469,7 +469,10 @@ void CCOP_FPU::C_EQ_S()
 void CCOP_FPU::C_LT_S()
 {
 	m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP1[m_fs]));
+	m_codeGen->FP_Clamp();
+
 	m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP1[m_ft]));
+	m_codeGen->FP_Clamp();
 
 	m_codeGen->FP_Cmp(Jitter::CONDITION_BL);
 
@@ -480,7 +483,10 @@ void CCOP_FPU::C_LT_S()
 void CCOP_FPU::C_LE_S()
 {
 	m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP1[m_fs]));
+	m_codeGen->FP_Clamp();
+
 	m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP1[m_ft]));
+	m_codeGen->FP_Clamp();
 
 	m_codeGen->FP_Cmp(Jitter::CONDITION_BE);
 
