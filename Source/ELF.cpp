@@ -3,7 +3,7 @@
 #include <cstring>
 #include <stdexcept>
 #include "PtrStream.h"
-#include "Endian.h"
+#include "EndianUtils.h"
 
 CELF::CELF(uint8* content)
     : m_content(content)
