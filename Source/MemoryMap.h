@@ -1,5 +1,4 @@
-#ifndef _MEMORYMAP_H_
-#define _MEMORYMAP_H_
+#pragma once
 
 #include "Types.h"
 #include <functional>
@@ -64,11 +63,9 @@ private:
 class CMemoryMap_LSBF : public CMemoryMap
 {
 public:
-	uint16 GetHalf(uint32);
-	uint32 GetWord(uint32);
-	uint32 GetInstruction(uint32);
-	void SetHalf(uint32, uint16);
-	void SetWord(uint32, uint32);
+	uint16 GetHalf(uint32) override;
+	uint32 GetWord(uint32) override;
+	uint32 GetInstruction(uint32) override;
+	void SetHalf(uint32, uint16) override;
+	void SetWord(uint32, uint32) override;
 };
-
-#endif
