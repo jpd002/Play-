@@ -109,19 +109,19 @@ static DiskUtils::OpticalMediaPtr CreateOpticalMediaFromChd(const fs::path& imag
 	//Some notes about CHD support:
 	//- We don't support multi track CDs
 	auto imageStream = std::make_shared<CChdImageStream>(CreateImageStream(imagePath));
-	auto blockProvider = [&imageStream]() -> COpticalMedia::BlockProviderPtr {
+	auto trackInfo = [&imageStream]() -> std::pair<COpticalMedia::BlockProviderPtr, COpticalMedia::TRACK_DATA_TYPE> {
 		switch(imageStream->GetTrack0Type())
 		{
 		default:
 			assert(false);
 			[[fallthrough]];
 		case CChdImageStream::TRACK_TYPE_MODE1:
-			return std::make_shared<ISO9660::CBlockProviderCustom<0x990, 0>>(imageStream);
+			return std::make_pair(std::make_shared<ISO9660::CBlockProviderCustom<0x990, 0>>(imageStream), COpticalMedia::TRACK_DATA_TYPE_MODE1_2048);
 		case CChdImageStream::TRACK_TYPE_MODE2_RAW:
-			return std::make_shared<ISO9660::CBlockProviderCustom<0x990, 0x18>>(imageStream);
+			return std::make_pair(std::make_shared<ISO9660::CBlockProviderCustom<0x990, 0x18>>(imageStream), COpticalMedia::TRACK_DATA_TYPE_MODE2_2352);
 		}
 	}();
-	return COpticalMedia::CreateCustomSingleTrack(blockProvider);
+	return COpticalMedia::CreateCustomSingleTrack(std::move(trackInfo.first), trackInfo.second);
 }
 
 const DiskUtils::ExtensionList& DiskUtils::GetSupportedExtensions()

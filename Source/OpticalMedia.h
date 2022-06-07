@@ -31,7 +31,7 @@ public:
 
 	static std::unique_ptr<COpticalMedia> CreateAuto(StreamPtr&, uint32 = 0);
 	static std::unique_ptr<COpticalMedia> CreateDvd(StreamPtr&, bool = false, uint32 = 0);
-	static std::unique_ptr<COpticalMedia> CreateCustomSingleTrack(BlockProviderPtr);
+	static std::unique_ptr<COpticalMedia> CreateCustomSingleTrack(BlockProviderPtr, TRACK_DATA_TYPE);
 
 	//TODO: Get Track Count
 	TRACK_DATA_TYPE GetTrackDataType(uint32) const;
