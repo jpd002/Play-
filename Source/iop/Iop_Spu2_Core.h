@@ -13,7 +13,7 @@ namespace Iop
 		{
 		public:
 			CCore(unsigned int, CSpuBase&);
-			virtual ~CCore();
+			virtual ~CCore() = default;
 
 			CCore(const CCore&) = delete;
 			CCore& operator=(const CCore&) = delete;
