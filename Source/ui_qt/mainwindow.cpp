@@ -18,14 +18,16 @@
 #include "gs/GSH_Vulkan/GSH_VulkanDeviceInfo.h"
 #endif
 
+#include <ctime>
+
 #include <QDateTime>
 #include <QFileDialog>
 #include <QTimer>
 #include <QWindow>
 #include <QMessageBox>
 #include <QStorageInfo>
-#include <ctime>
 #include <QtGlobal>
+#include <QCheckBox>
 
 #include "StdStreamUtils.h"
 #include "string_format.h"
@@ -644,20 +646,37 @@ void MainWindow::on_actionPause_Resume_triggered()
 
 void MainWindow::closeEvent(QCloseEvent* event)
 {
-	QMessageBox::StandardButton resBtn;
-	if(!ui->bootablesView->IsProcessing())
+	//btnRes is the answer to the "Are you sure you want to exit?" question.
+	auto resBtn = QMessageBox::Yes;
+	
+	if(CAppConfig::GetInstance().GetPreferenceBoolean(PREF_UI_SHOWEXITCONFIRMATION))
 	{
-		resBtn = QMessageBox::question(this, "Close Confirmation?",
-		                               tr("Are you sure you want to exit?\nHave you saved your progress?\n"),
-		                               QMessageBox::Yes | QMessageBox::No,
-		                               QMessageBox::Yes);
-	}
-	else
-	{
-		resBtn = QMessageBox::question(this, "Close Confirmation?",
-		                               tr("Are you sure you want to exit?\nBootables are currently getting processed.\n"),
-		                               QMessageBox::Yes | QMessageBox::No,
-		                               QMessageBox::Yes);
+		auto message =
+			[this]() {
+			if (ui->bootablesView->IsProcessing())
+			{
+				return tr("Are you sure you want to exit?\nBootables are currently getting processed.\n");
+			}
+			else
+			{
+				return tr("Are you sure you want to exit?\nAny progress will be lost if not saved previously.\n");
+			}
+		}();
+
+		QMessageBox messageBox;
+
+		QCheckBox* showAgainCheckBox = new QCheckBox("Show this message next time", &messageBox);
+		showAgainCheckBox->setChecked(true);
+
+		messageBox.setWindowTitle("Close Confirmation");
+		messageBox.setText(message);
+		messageBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+		messageBox.setDefaultButton(QMessageBox::Yes);
+		messageBox.setIcon(QMessageBox::Question);
+		messageBox.setCheckBox(showAgainCheckBox);
+		resBtn = static_cast<QMessageBox::StandardButton>(messageBox.exec());
+
+		CAppConfig::GetInstance().SetPreferenceBoolean(PREF_UI_SHOWEXITCONFIRMATION, showAgainCheckBox->isChecked());
 	}
 
 	if(resBtn != QMessageBox::Yes)
@@ -719,6 +738,7 @@ void MainWindow::RegisterPreferences()
 	CAppConfig::GetInstance().RegisterPreferenceBoolean(PREFERENCE_AUDIO_ENABLEOUTPUT, true);
 	CAppConfig::GetInstance().RegisterPreferenceBoolean(PREF_UI_PAUSEWHENFOCUSLOST, true);
 	CAppConfig::GetInstance().RegisterPreferenceBoolean(PREF_UI_SHOWEECPUUSAGE, false);
+	CAppConfig::GetInstance().RegisterPreferenceBoolean(PREF_UI_SHOWEXITCONFIRMATION, true);
 	CAppConfig::GetInstance().RegisterPreferenceInteger(PREF_VIDEO_GS_HANDLER, SettingsDialog::GS_HANDLERS::OPENGL);
 	CAppConfig::GetInstance().RegisterPreferenceString(PREF_INPUT_PAD1_PROFILE, "default");
 }
