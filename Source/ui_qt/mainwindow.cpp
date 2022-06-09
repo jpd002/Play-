@@ -648,20 +648,20 @@ void MainWindow::closeEvent(QCloseEvent* event)
 {
 	//btnRes is the answer to the "Are you sure you want to exit?" question.
 	auto resBtn = QMessageBox::Yes;
-	
+
 	if(CAppConfig::GetInstance().GetPreferenceBoolean(PREF_UI_SHOWEXITCONFIRMATION))
 	{
 		auto message =
-			[this]() {
-			if (ui->bootablesView->IsProcessing())
-			{
-				return tr("Are you sure you want to exit?\nBootables are currently getting processed.\n");
-			}
-			else
-			{
-				return tr("Are you sure you want to exit?\nAny progress will be lost if not saved previously.\n");
-			}
-		}();
+		    [this]() {
+			    if(ui->bootablesView->IsProcessing())
+			    {
+				    return tr("Are you sure you want to exit?\nBootables are currently getting processed.\n");
+			    }
+			    else
+			    {
+				    return tr("Are you sure you want to exit?\nAny progress will be lost if not saved previously.\n");
+			    }
+		    }();
 
 		QMessageBox messageBox;
 
