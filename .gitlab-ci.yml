@@ -58,7 +58,7 @@ libretro-build-linux-x64:
     - .core-defs
 
 # Linux 32-bit
-libretro-build-linux-x86:
+libretro-build-linux-i686:
   extends:
     - .libretro-linux-cmake-x86
     - .core-defs
