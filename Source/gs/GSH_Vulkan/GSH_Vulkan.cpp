@@ -828,6 +828,8 @@ void CGSH_Vulkan::SetRenderingContext(uint64 primReg)
 	                   scissor.scax1 - scissor.scax0 + 1,
 	                   scissor.scay1 - scissor.scay0 + 1);
 
+	m_fbBasePtr = frame.GetBasePtr();
+
 	m_primOfsX = offset.GetX();
 	m_primOfsY = offset.GetY();
 
@@ -1116,6 +1118,13 @@ void CGSH_Vulkan::Prim_Sprite()
 	};
 	// clang-format on
 
+	{
+		const auto topLeftCorner = vertices;
+		const auto bottomRightCorner = vertices + 5;
+		CGsSpriteRect rect(topLeftCorner->x, topLeftCorner->y, bottomRightCorner->x, bottomRightCorner->y);
+		CheckSpriteCachedClutInvalidation(rect);
+	}
+
 	m_draw->AddVertices(std::begin(vertices), std::end(vertices));
 }
 
@@ -1129,6 +1138,31 @@ int32 CGSH_Vulkan::FindCachedClut(const CLUTKEY& key) const
 		}
 	}
 	return -1;
+}
+
+void CGSH_Vulkan::CheckSpriteCachedClutInvalidation(const CGsSpriteRect& rect)
+{
+	//This is specific to Gran Turismo 4, but could be expanded to work with other games
+	//GT4 writes to an area in GS RAM then uses this as a CLUT in one of its post-processing effects.
+	//We flush the whole CLUT cache if we find a sprite draw that writes to any previous location of cached cluts
+	if((rect.x1 == 0) && (rect.y1 == 0) && (rect.GetWidth() == 8) && (rect.GetHeight() == 16))
+	{
+		bool foundClut = false;
+		for(uint32 i = 0; i < CLUT_CACHE_SIZE; i++)
+		{
+			uint32 cbpBasePtr = m_clutStates[i].cbp * 0x100;
+			if(cbpBasePtr == m_fbBasePtr)
+			{
+				foundClut = true;
+				break;
+			}
+		}
+		if(foundClut)
+		{
+			memset(&m_clutStates, 0, sizeof(m_clutStates));
+			m_draw->FlushVertices();
+		}
+	}
 }
 
 CGSH_Vulkan::CLUTKEY CGSH_Vulkan::MakeCachedClutKey(const TEX0& tex0, const TEXCLUT& texClut)

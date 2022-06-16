@@ -108,6 +108,7 @@ private:
 	void Prim_Sprite();
 
 	int32 FindCachedClut(const CLUTKEY&) const;
+	void CheckSpriteCachedClutInvalidation(const CGsSpriteRect&);
 	static CLUTKEY MakeCachedClutKey(const TEX0&, const TEXCLUT&);
 
 	Framework::CBitmap GetFramebufferImpl(uint64);
@@ -189,6 +190,7 @@ private:
 	uint32 m_vtxCount = 0;
 	uint32 m_primitiveType = 0;
 	PRMODE m_primitiveMode;
+	uint32 m_fbBasePtr = 0;
 	float m_primOfsX = 0;
 	float m_primOfsY = 0;
 	uint32 m_texWidth = 0;

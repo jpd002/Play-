@@ -16,6 +16,16 @@ public:
 		assert(y1 <= y2);
 	}
 
+	inline float GetWidth() const
+	{
+		return x2 - x1;
+	}
+
+	inline float GetHeight() const
+	{
+		return y2 - y1;
+	}
+
 	inline bool Intersects(const CGsSpriteRect& other) const
 	{
 		float rx1 = std::max<float>(x1, other.x1);
