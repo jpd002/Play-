@@ -40,6 +40,8 @@
 #define STATE_REGS_FIFOINDEX ("fifoIndex")
 #define STATE_REGS_INCOMINGFIFODELAY ("incomingFifoDelay")
 #define STATE_REGS_INTERRUPTDELAYTICKS ("interruptDelayTicks")
+#define STATE_REGS_STREAM_BUFFER ("streamBuffer")
+#define STATE_REGS_STREAM_BUFFERPOSITION ("streamBufferPosition")
 
 CVif::CVif(unsigned int number, CVpu& vpu, CINTC& intc, uint8* ram, uint8* spr)
     : m_number(number)
@@ -291,6 +293,8 @@ void CVif::SaveState(Framework::CZipArchiveWriter& archive)
 		registerFile->SetRegister32(STATE_REGS_FIFOINDEX, m_fifoIndex);
 		registerFile->SetRegister32(STATE_REGS_INCOMINGFIFODELAY, m_incomingFifoDelay);
 		registerFile->SetRegister32(STATE_REGS_INTERRUPTDELAYTICKS, m_interruptDelayTicks);
+		registerFile->SetRegister128(STATE_REGS_STREAM_BUFFER, m_stream.GetBuffer());
+		registerFile->SetRegister32(STATE_REGS_STREAM_BUFFERPOSITION, m_stream.GetBufferPosition());
 		archive.InsertFile(registerFile);
 	}
 	{
@@ -328,6 +332,8 @@ void CVif::LoadState(Framework::CZipArchiveReader& archive)
 		m_fifoIndex = registerFile.GetRegister32(STATE_REGS_FIFOINDEX);
 		m_incomingFifoDelay = registerFile.GetRegister32(STATE_REGS_INCOMINGFIFODELAY);
 		m_interruptDelayTicks = registerFile.GetRegister32(STATE_REGS_INTERRUPTDELAYTICKS);
+		m_stream.SetBuffer(registerFile.GetRegister128(STATE_REGS_STREAM_BUFFER));
+		m_stream.SetBufferPosition(registerFile.GetRegister32(STATE_REGS_STREAM_BUFFERPOSITION));
 	}
 	{
 		auto path = string_format(STATE_PATH_FIFO_FORMAT, m_number);
@@ -1034,6 +1040,7 @@ CVif::CFifoStream::CFifoStream(uint8* ram, uint8* spr)
 
 void CVif::CFifoStream::Reset()
 {
+	m_buffer = {};
 	m_bufferPosition = BUFFERSIZE;
 	m_startAddress = 0;
 	m_nextAddress = 0;
@@ -1120,4 +1127,24 @@ void CVif::CFifoStream::Advance(uint32 size)
 		assert((m_nextAddress - m_startAddress) >= 0x10);
 		m_buffer = *reinterpret_cast<uint128*>(&m_source[m_nextAddress - 0x10]);
 	}
+}
+
+uint128 CVif::CFifoStream::GetBuffer() const
+{
+	return m_buffer;
+}
+
+void CVif::CFifoStream::SetBuffer(uint128 buffer)
+{
+	m_buffer = buffer;
+}
+
+uint32 CVif::CFifoStream::GetBufferPosition() const
+{
+	return m_bufferPosition;
+}
+
+void CVif::CFifoStream::SetBufferPosition(uint32 bufferPosition)
+{
+	m_bufferPosition = bufferPosition;
 }

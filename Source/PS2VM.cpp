@@ -34,6 +34,12 @@
 
 #define LOG_NAME ("ps2vm")
 
+#define STATE_VM_TIMING_XML ("vm_timing.xml")
+#define STATE_VM_TIMING_VBLANK_TICKS ("vblankTicks")
+#define STATE_VM_TIMING_IN_VBLANK ("inVblank")
+#define STATE_VM_TIMING_EE_EXECUTION_TICKS ("eeExecutionTicks")
+#define STATE_VM_TIMING_IOP_EXECUTION_TICKS ("iopExecutionTicks")
+
 #define PREF_PS2_ROM0_DIRECTORY_DEFAULT ("vfs/rom0")
 #define PREF_PS2_HOST_DIRECTORY_DEFAULT ("vfs/host")
 #define PREF_PS2_MC0_DIRECTORY_DEFAULT ("vfs/mc0")
@@ -469,6 +475,7 @@ bool CPS2VM::SaveVMState(const fs::path& statePath)
 		m_ee->SaveState(archive);
 		m_iop->SaveState(archive);
 		m_ee->m_gs->SaveState(archive);
+		SaveVmTimingState(archive);
 
 		archive.Write(stateStream);
 	}
@@ -498,6 +505,8 @@ bool CPS2VM::LoadVMState(const fs::path& statePath)
 			m_ee->LoadState(archive);
 			m_iop->LoadState(archive);
 			m_ee->m_gs->LoadState(archive);
+			LoadVmTimingState(archive);
+
 			ReloadFrameRateLimit();
 		}
 		catch(...)
@@ -515,6 +524,25 @@ bool CPS2VM::LoadVMState(const fs::path& statePath)
 	OnMachineStateChange();
 
 	return true;
+}
+
+void CPS2VM::SaveVmTimingState(Framework::CZipArchiveWriter& archive)
+{
+	CRegisterStateFile* registerFile = new CRegisterStateFile(STATE_VM_TIMING_XML);
+	registerFile->SetRegister32(STATE_VM_TIMING_VBLANK_TICKS, m_vblankTicks);
+	registerFile->SetRegister32(STATE_VM_TIMING_IN_VBLANK, m_inVblank);
+	registerFile->SetRegister32(STATE_VM_TIMING_EE_EXECUTION_TICKS, m_eeExecutionTicks);
+	registerFile->SetRegister32(STATE_VM_TIMING_IOP_EXECUTION_TICKS, m_iopExecutionTicks);
+	archive.InsertFile(registerFile);
+}
+
+void CPS2VM::LoadVmTimingState(Framework::CZipArchiveReader& archive)
+{
+	CRegisterStateFile registerFile(*archive.BeginReadFile(STATE_VM_TIMING_XML));
+	m_vblankTicks = registerFile.GetRegister32(STATE_VM_TIMING_VBLANK_TICKS);
+	m_inVblank = registerFile.GetRegister32(STATE_VM_TIMING_IN_VBLANK) != 0;
+	m_eeExecutionTicks = registerFile.GetRegister32(STATE_VM_TIMING_EE_EXECUTION_TICKS);
+	m_iopExecutionTicks = registerFile.GetRegister32(STATE_VM_TIMING_IOP_EXECUTION_TICKS);
 }
 
 void CPS2VM::PauseImpl()

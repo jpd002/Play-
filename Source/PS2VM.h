@@ -106,6 +106,9 @@ private:
 	bool SaveVMState(const fs::path&);
 	bool LoadVMState(const fs::path&);
 
+	void SaveVmTimingState(Framework::CZipArchiveWriter&);
+	void LoadVmTimingState(Framework::CZipArchiveReader&);
+
 	void ReloadExecutable(const char*, const CPS2OS::ArgumentList&);
 	void OnCrtModeChange();
 

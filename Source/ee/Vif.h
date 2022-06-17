@@ -148,6 +148,12 @@ protected:
 		uint8* GetDirectPointer() const;
 		void Advance(uint32);
 
+		uint128 GetBuffer() const;
+		void SetBuffer(uint128);
+
+		uint32 GetBufferPosition() const;
+		void SetBufferPosition(uint32);
+
 	private:
 		inline void SyncBuffer()
 		{
@@ -178,7 +184,7 @@ protected:
 		uint8* m_ram = nullptr;
 		uint8* m_spr = nullptr;
 
-		uint128 m_buffer;
+		uint128 m_buffer = {};
 		uint32 m_bufferPosition = BUFFERSIZE;
 		uint32 m_startAddress = 0;
 		uint32 m_nextAddress = 0;
