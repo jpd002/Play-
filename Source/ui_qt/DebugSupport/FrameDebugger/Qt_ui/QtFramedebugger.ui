@@ -143,6 +143,11 @@
                   </item>
                   <item>
                    <property name="text">
+                    <string>Depthbuffer</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
                     <string>Texture (Base)</string>
                    </property>
                   </item>
@@ -274,6 +279,11 @@
                   <item>
                    <property name="text">
                     <string>Framebuffer</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>Depthbuffer</string>
                    </property>
                   </item>
                   <item>

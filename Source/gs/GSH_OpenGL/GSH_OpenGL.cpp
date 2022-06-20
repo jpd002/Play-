@@ -2212,6 +2212,11 @@ Framework::CBitmap CGSH_OpenGL::GetFramebufferImpl(uint64 frameReg)
 #endif
 }
 
+Framework::CBitmap CGSH_OpenGL::GetDepthbuffer(uint64 frameReg, uint64 zbufReg)
+{
+	return Framework::CBitmap();
+}
+
 Framework::CBitmap CGSH_OpenGL::GetTexture(uint64 tex0Reg, uint32 maxMip, uint64 miptbp1Reg, uint64 miptbp2Reg, uint32 mipLevel)
 {
 	Framework::CBitmap result;

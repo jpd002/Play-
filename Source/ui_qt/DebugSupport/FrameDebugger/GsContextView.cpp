@@ -9,6 +9,7 @@
 enum TAB_IDS
 {
 	TAB_ID_FRAMEBUFFER,
+	TAB_ID_DEPTHBUFFER,
 	TAB_ID_TEXTURE_BASE,
 	TAB_ID_TEXTURE_MIP1,
 	TAB_ID_TEXTURE_MIP2,
@@ -62,6 +63,9 @@ void CGsContextView::UpdateBufferView()
 	{
 	case TAB_ID_FRAMEBUFFER:
 		UpdateFramebufferView();
+		break;
+	case TAB_ID_DEPTHBUFFER:
+		UpdateDepthbufferView();
 		break;
 	case TAB_ID_TEXTURE_BASE:
 	case TAB_ID_TEXTURE_MIP1:
@@ -147,15 +151,7 @@ void CGsContextView::UpdateFramebufferView()
 		return;
 	}
 
-	//Clip framebuffer
-	if(m_fbDisplayMode == FB_DISPLAY_MODE_448P)
-	{
-		framebuffer = framebuffer.ResizeCanvas(640 * fbScale, 448 * fbScale);
-	}
-	else if(m_fbDisplayMode == FB_DISPLAY_MODE_448I)
-	{
-		framebuffer = framebuffer.ResizeCanvas(640 * fbScale, 224 * fbScale);
-	}
+	framebuffer = ClipRenderbuffer(std::move(framebuffer), fbScale);
 
 	Framework::CBitmap alphaFramebuffer;
 	if(frame.nPsm == CGSHandler::PSMCT32)
@@ -164,21 +160,8 @@ void CGsContextView::UpdateFramebufferView()
 		alphaFramebuffer = ExtractAlpha32(framebuffer);
 	}
 
-	auto postProcessFramebuffer =
-	    [this, fbScale](Framework::CBitmap src) {
-		    if(!src.IsEmpty())
-		    {
-			    RenderDrawKick(src);
-			    if(m_fbDisplayMode == FB_DISPLAY_MODE_448I)
-			    {
-				    src = src.Resize(640 * fbScale, 448 * fbScale);
-			    }
-		    }
-		    return src;
-	    };
-
-	framebuffer = postProcessFramebuffer(std::move(framebuffer));
-	alphaFramebuffer = postProcessFramebuffer(std::move(alphaFramebuffer));
+	framebuffer = PostProcessRenderbuffer(std::move(framebuffer), fbScale);
+	alphaFramebuffer = PostProcessRenderbuffer(std::move(alphaFramebuffer), fbScale);
 
 	CPixelBufferView::PixelBufferArray pixelBuffers;
 	pixelBuffers.emplace_back("Raw", std::move(framebuffer));
@@ -187,6 +170,61 @@ void CGsContextView::UpdateFramebufferView()
 		pixelBuffers.emplace_back("Alpha", std::move(alphaFramebuffer));
 	}
 	m_bufferView->SetPixelBuffers(std::move(pixelBuffers));
+}
+
+void CGsContextView::UpdateDepthbufferView()
+{
+	uint64 frameReg = m_gs->GetRegisters()[GS_REG_FRAME_1 + m_contextId];
+	uint64 zbufReg = m_gs->GetRegisters()[GS_REG_ZBUF_1 + m_contextId];
+
+	auto frame = make_convertible<CGSHandler::FRAME>(frameReg);
+	auto zbuf = make_convertible<CGSHandler::ZBUF>(zbufReg);
+
+	Framework::CBitmap depthbuffer;
+	int fbScale = 1;
+	if(auto debuggerInterface = dynamic_cast<CGsDebuggerInterface*>(m_gs.get()))
+	{
+		depthbuffer = debuggerInterface->GetDepthbuffer(frame, zbuf);
+		fbScale = debuggerInterface->GetFramebufferScale();
+	}
+	if(depthbuffer.IsEmpty())
+	{
+		m_bufferView->SetPixelBuffers(CPixelBufferView::PixelBufferArray());
+		return;
+	}
+
+	depthbuffer = ClipRenderbuffer(std::move(depthbuffer), fbScale);
+	depthbuffer = PostProcessRenderbuffer(std::move(depthbuffer), fbScale);
+
+	CPixelBufferView::PixelBufferArray pixelBuffers;
+	pixelBuffers.emplace_back("Raw", std::move(depthbuffer));
+	m_bufferView->SetPixelBuffers(std::move(pixelBuffers));
+}
+
+Framework::CBitmap CGsContextView::ClipRenderbuffer(Framework::CBitmap buffer, float scale)
+{
+	if(m_fbDisplayMode == FB_DISPLAY_MODE_448P)
+	{
+		buffer = buffer.ResizeCanvas(640 * scale, 448 * scale);
+	}
+	else if(m_fbDisplayMode == FB_DISPLAY_MODE_448I)
+	{
+		buffer = buffer.ResizeCanvas(640 * scale, 224 * scale);
+	}
+	return buffer;
+}
+
+Framework::CBitmap CGsContextView::PostProcessRenderbuffer(Framework::CBitmap buffer, float scale)
+{
+	if(!buffer.IsEmpty())
+	{
+		RenderDrawKick(buffer);
+		if(m_fbDisplayMode == FB_DISPLAY_MODE_448I)
+		{
+			buffer = buffer.Resize(640 * scale, 448 * scale);
+		}
+	}
+	return buffer;
 }
 
 void CGsContextView::RenderDrawKick(Framework::CBitmap& bitmap)

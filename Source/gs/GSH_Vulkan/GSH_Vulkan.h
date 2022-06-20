@@ -46,6 +46,7 @@ public:
 	void SetAlphaTestingEnabled(bool) override;
 
 	Framework::CBitmap GetFramebuffer(uint64) override;
+	Framework::CBitmap GetDepthbuffer(uint64, uint64) override;
 	Framework::CBitmap GetTexture(uint64, uint32, uint64, uint64, uint32) override;
 	int GetFramebufferScale() override;
 
@@ -112,6 +113,7 @@ private:
 	static CLUTKEY MakeCachedClutKey(const TEX0&, const TEXCLUT&);
 
 	Framework::CBitmap GetFramebufferImpl(uint64);
+	Framework::CBitmap GetDepthbufferImpl(uint64, uint64);
 	Framework::CBitmap GetTextureImpl(uint64, uint32, uint64, uint64, uint32);
 
 	template <typename PixelIndexor, uint32 mask = ~0U>

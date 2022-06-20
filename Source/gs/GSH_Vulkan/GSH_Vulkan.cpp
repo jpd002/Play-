@@ -1425,6 +1425,13 @@ Framework::CBitmap CGSH_Vulkan::GetFramebuffer(uint64 frameReg)
 	return result;
 }
 
+Framework::CBitmap CGSH_Vulkan::GetDepthbuffer(uint64 frameReg, uint64 zbufReg)
+{
+	Framework::CBitmap result;
+	SendGSCall([&]() { result = GetDepthbufferImpl(frameReg, zbufReg); }, true);
+	return result;
+}
+
 Framework::CBitmap CGSH_Vulkan::GetTexture(uint64 tex0Reg, uint32 maxMip, uint64 miptbp1Reg, uint64 miptbp2Reg, uint32 mipLevel)
 {
 	Framework::CBitmap result;
@@ -1482,6 +1489,39 @@ Framework::CBitmap CGSH_Vulkan::GetFramebufferImpl(uint64 frameReg)
 		assert(false);
 		break;
 	}
+	return bitmap;
+}
+
+Framework::CBitmap CGSH_Vulkan::GetDepthbufferImpl(uint64 frameReg, uint64 zbufReg)
+{
+	auto frame = make_convertible<FRAME>(frameReg);
+	auto zbuf = make_convertible<ZBUF>(zbufReg);
+
+	SyncMemoryCache();
+
+	uint32 frameWidth = frame.GetWidth();
+	uint32 frameHeight = 1024;
+	Framework::CBitmap bitmap;
+
+	switch(zbuf.nPsm | 0x30)
+	{
+	case PSMZ32:
+	{
+		bitmap = ReadImage32<CGsPixelFormats::CPixelIndexorPSMZ32>(GetRam(), zbuf.GetBasePtr(),
+		                                                           frame.nWidth, frameWidth, frameHeight);
+	}
+	break;
+	case PSMZ24:
+	{
+		bitmap = ReadImage32<CGsPixelFormats::CPixelIndexorPSMZ32, 0x00FFFFFF>(GetRam(), zbuf.GetBasePtr(),
+		                                                                       frame.nWidth, frameWidth, frameHeight);
+	}
+	break;
+	default:
+		assert(false);
+		break;
+	}
+
 	return bitmap;
 }
 

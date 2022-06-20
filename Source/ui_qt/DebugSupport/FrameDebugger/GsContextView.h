@@ -34,6 +34,10 @@ private:
 
 	void UpdateBufferView();
 	void UpdateFramebufferView();
+	void UpdateDepthbufferView();
+
+	Framework::CBitmap ClipRenderbuffer(Framework::CBitmap, float);
+	Framework::CBitmap PostProcessRenderbuffer(Framework::CBitmap, float);
 	void RenderDrawKick(Framework::CBitmap&);
 
 	static uint32 Color_Ps2ToRGBA(uint32);

@@ -15,6 +15,7 @@ public:
 	virtual void SetAlphaTestingEnabled(bool) = 0;
 
 	virtual Framework::CBitmap GetFramebuffer(uint64) = 0;
+	virtual Framework::CBitmap GetDepthbuffer(uint64, uint64) = 0;
 	virtual Framework::CBitmap GetTexture(uint64, uint32, uint64, uint64, uint32) = 0;
 
 	virtual int GetFramebufferScale() = 0;
