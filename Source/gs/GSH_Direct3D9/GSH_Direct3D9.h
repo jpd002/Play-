@@ -34,6 +34,7 @@ public:
 	void SetAlphaTestingEnabled(bool) override;
 
 	Framework::CBitmap GetFramebuffer(uint64) override;
+	Framework::CBitmap GetDepthbuffer(uint64, uint64) override;
 	Framework::CBitmap GetTexture(uint64, uint32, uint64, uint64, uint32) override;
 	int GetFramebufferScale() override;
 

@@ -50,6 +50,11 @@ Framework::CBitmap CGSH_Direct3D9::GetFramebuffer(uint64 frameReg)
 	return result;
 }
 
+Framework::CBitmap CGSH_Direct3D9::GetDepthbuffer(uint64 frameReg, uint64 zbufRef)
+{
+	return Framework::CBitmap();
+}
+
 Framework::CBitmap CGSH_Direct3D9::GetTexture(uint64 tex0Reg, uint32 maxMip, uint64 miptbp1Reg, uint64 miptbp2Reg, uint32 mipLevel)
 {
 	Framework::CBitmap result;
