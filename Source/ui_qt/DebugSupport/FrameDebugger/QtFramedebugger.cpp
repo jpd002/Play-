@@ -92,15 +92,18 @@ QtFramedebugger::QtFramedebugger()
 		case GS_HANDLERS::OPENGL:
 			ui->actionGsHandlerOpenGL->setChecked(true);
 			break;
+#if HAS_GSH_VULKAN
 		case GS_HANDLERS::VULKAN:
 			ui->actionGsHandlerVulkan->setChecked(true);
 			break;
+#endif
 		}
 
-		if(!HAS_GSH_VULKAN)
+#if !HAS_GSH_VULKAN
 		{
 			ui->actionGsHandlerVulkan->setVisible(false);
 		}
+#endif
 	}
 }
 
@@ -508,11 +511,13 @@ void QtFramedebugger::on_actionGsHandlerOpenGL_triggered(bool value)
 
 void QtFramedebugger::on_actionGsHandlerVulkan_triggered(bool value)
 {
+#if HAS_GSH_VULKAN
 	ReleaseGsHandler();
 	CAppConfig::GetInstance().SetPreferenceInteger(PREF_FRAMEDEBUGGER_GS_HANDLER, GS_HANDLERS::VULKAN);
 	ui->actionGsHandlerVulkan->setChecked(value);
 	CreateGsHandler();
 	Redraw();
+#endif
 }
 
 void QtFramedebugger::Redraw()

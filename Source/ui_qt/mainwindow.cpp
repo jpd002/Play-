@@ -971,18 +971,18 @@ void MainWindow::on_actionList_Bootables_triggered()
 
 void MainWindow::UpdateGSHandlerLabel(int gs_index)
 {
+#if HAS_GSH_VULKAN
 	switch(gs_index)
 	{
 	default:
 	case SettingsDialog::GS_HANDLERS::OPENGL:
 		m_gsLabel->setText("OpenGL");
 		break;
-#ifdef HAS_GSH_VULKAN
 	case SettingsDialog::GS_HANDLERS::VULKAN:
 		m_gsLabel->setText("Vulkan");
 		break;
-#endif
 	}
+#endif
 }
 
 void MainWindow::SetupBootableView()
