@@ -20,6 +20,7 @@
 #define FUNCTION_SETTIMERCOMPARE "SetTimerCompare"
 #define FUNCTION_GETHARDTIMERINTRCODE "GetHardTimerIntrCode"
 #define FUNCTION_SETTIMERCALLBACK "SetTimerCallback"
+#define FUNCTION_SETOVERFLOWCALLBACK "SetOverflowCallback"
 #define FUNCTION_SETUPHARDTIMER "SetupHardTimer"
 #define FUNCTION_STARTHARDTIMER "StartHardTimer"
 #define FUNCTION_STOPHARDTIMER "StopHardTimer"
@@ -71,6 +72,9 @@ std::string CTimrman::GetFunctionName(unsigned int functionId) const
 		break;
 	case 20:
 		return FUNCTION_SETTIMERCALLBACK;
+		break;
+	case 21:
+		return FUNCTION_SETOVERFLOWCALLBACK;
 		break;
 	case 22:
 		return FUNCTION_SETUPHARDTIMER;
@@ -141,6 +145,13 @@ void CTimrman::Invoke(CMIPS& context, unsigned int functionId)
 		    context.m_State.nGPR[CMIPS::A1].nV0,
 		    context.m_State.nGPR[CMIPS::A2].nV0,
 		    context.m_State.nGPR[CMIPS::A3].nV0);
+		break;
+	case 21:
+		context.m_State.nGPR[CMIPS::V0].nD0 = SetOverflowCallback(
+		    context,
+		    context.m_State.nGPR[CMIPS::A0].nV0,
+		    context.m_State.nGPR[CMIPS::A1].nV0,
+		    context.m_State.nGPR[CMIPS::A2].nV0);
 		break;
 	case 22:
 		context.m_State.nGPR[CMIPS::V0].nD0 = SetupHardTimer(
@@ -318,6 +329,11 @@ int32 CTimrman::SetTimerCallback(CMIPS& context, uint32 timerId, uint32 target, 
 	m_bios.RegisterIntrHandler(timerInterruptLine, 0, handler, arg);
 
 	return 0;
+}
+
+int32 CTimrman::SetOverflowCallback(CMIPS& context, uint32 timerId, uint32 handler, uint32 arg)
+{
+	return SetTimerCallback(context, timerId, 0xFFFF, handler, arg);
 }
 
 int32 CTimrman::SetupHardTimer(CMIPS& context, uint32 timerId, uint32 source, uint32 gateMode, uint32 prescale)

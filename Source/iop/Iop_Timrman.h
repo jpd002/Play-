@@ -29,6 +29,7 @@ namespace Iop
 		void SetTimerCompare(CMIPS&, uint32, uint32);
 		int GetHardTimerIntrCode(uint32);
 		int32 SetTimerCallback(CMIPS&, uint32, uint32, uint32, uint32);
+		int32 SetOverflowCallback(CMIPS&, uint32, uint32, uint32);
 		int32 SetupHardTimer(CMIPS&, uint32, uint32, uint32, uint32);
 		int32 StartHardTimer(CMIPS&, uint32);
 		int32 StopHardTimer(CMIPS&, uint32);
