@@ -2907,7 +2907,7 @@ int32 CIopBios::ReleaseIntrHandler(uint32 line)
 	return KERNEL_RESULT_OK;
 }
 
-uint32 CIopBios::FindIntrHandler(uint32 line)
+int32 CIopBios::FindIntrHandler(uint32 line)
 {
 	for(auto handlerIterator = std::begin(m_intrHandlers); handlerIterator != std::end(m_intrHandlers); handlerIterator++)
 	{

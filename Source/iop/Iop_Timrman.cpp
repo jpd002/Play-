@@ -415,10 +415,13 @@ int32 CTimrman::StartHardTimer(CMIPS& context, uint32 timerId)
 	//Enable interrupts
 	{
 		uint32 timerInterruptLine = CRootCounters::g_counterInterruptLines[hardTimerIndex];
-		uint32 status = context.m_pMemoryMap->GetWord(CIntc::STATUS0);
-		uint32 mask = context.m_pMemoryMap->GetWord(CIntc::MASK0);
-		mask |= (1 << timerInterruptLine);
-		context.m_pMemoryMap->SetWord(CIntc::MASK0, mask);
+		if(m_bios.FindIntrHandler(timerInterruptLine) != -1)
+		{
+			uint32 status = context.m_pMemoryMap->GetWord(CIntc::STATUS0);
+			uint32 mask = context.m_pMemoryMap->GetWord(CIntc::MASK0);
+			mask |= (1 << timerInterruptLine);
+			context.m_pMemoryMap->SetWord(CIntc::MASK0, mask);
+		}
 	}
 
 	return 0;
