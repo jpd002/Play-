@@ -1047,16 +1047,9 @@ void CDMAC::SaveState(Framework::CZipArchiveWriter& archive)
 
 void CDMAC::UpdateCpCond()
 {
-	bool condValue = true;
-	for(unsigned int i = 0; i < 10; i++)
-	{
-		if(!(m_D_PCR & (1 << i))) continue;
-		if(!(m_D_STAT & (1 << i)))
-		{
-			condValue = false;
-		}
-	}
-
+	static const uint32 mask = 0x3FF;
+	uint32 test = (~m_D_PCR | m_D_STAT) & mask;
+	bool condValue = (test == mask);
 	m_ee.m_State.nCOP0[CCOP_SCU::CPCOND0] = condValue;
 }
 
