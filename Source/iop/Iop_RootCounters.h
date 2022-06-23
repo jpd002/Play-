@@ -28,7 +28,7 @@ namespace Iop
 		static_assert(sizeof(MODE) == sizeof(uint32), "MODE structure size is too small");
 
 		CRootCounters(unsigned int, Iop::CIntc&);
-		virtual ~CRootCounters();
+		virtual ~CRootCounters() = default;
 
 		void Reset();
 
@@ -100,7 +100,7 @@ namespace Iop
 			uint32 count;
 			MODE mode;
 			uint32 target;
-			unsigned int clockRemain;
+			uint32 clockRemain;
 		};
 
 		void DisassembleRead(uint32);

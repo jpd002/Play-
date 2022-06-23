@@ -72,10 +72,6 @@ CRootCounters::CRootCounters(unsigned int clockFreq, Iop::CIntc& intc)
 	Reset();
 }
 
-CRootCounters::~CRootCounters()
-{
-}
-
 unsigned int CRootCounters::GetCounterIdByAddress(uint32 address)
 {
 	return (address >= ADDR_BEGIN2) ? ((address - CNT3_BASE) / 0x10) + 3 : ((address - CNT0_BASE) / 0x10);
@@ -119,10 +115,10 @@ void CRootCounters::Update(unsigned int ticks)
 {
 	for(unsigned int i = 0; i < MAX_COUNTERS; i++)
 	{
-		COUNTER& counter = m_counter[i];
+		auto& counter = m_counter[i];
 		if(i == 2 && counter.mode.en) continue;
 		//Compute count increment
-		unsigned int clockRatio = 1;
+		uint32 clockRatio = 1;
 		if(i == 0 && counter.mode.clc)
 		{
 			clockRatio = m_pixelClocks;
@@ -153,11 +149,11 @@ void CRootCounters::Update(unsigned int ticks)
 				break;
 			}
 		}
-		unsigned int totalTicks = counter.clockRemain + ticks;
-		unsigned int countAdd = totalTicks / clockRatio;
+		uint32 totalTicks = counter.clockRemain + ticks;
+		uint64 countAdd = totalTicks / clockRatio;
 		counter.clockRemain = totalTicks % clockRatio;
 		//Update count
-		uint32 counterMax = 0;
+		uint64 counterMax = 0;
 		if(g_counterSizes[i] == 16)
 		{
 			counterMax = counter.mode.tar ? static_cast<uint16>(counter.target) : 0xFFFF;
@@ -166,7 +162,7 @@ void CRootCounters::Update(unsigned int ticks)
 		{
 			counterMax = counter.mode.tar ? counter.target : 0xFFFFFFFF;
 		}
-		uint32 counterTemp = counter.count + countAdd;
+		uint64 counterTemp = static_cast<uint64>(counter.count) + countAdd;
 		if(counterTemp >= counterMax)
 		{
 			counterTemp -= counterMax;
@@ -181,7 +177,7 @@ void CRootCounters::Update(unsigned int ticks)
 		}
 		else
 		{
-			counter.count = counterTemp;
+			counter.count = static_cast<uint32>(counterTemp);
 		}
 	}
 }
