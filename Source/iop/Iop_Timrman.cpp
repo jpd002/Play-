@@ -333,7 +333,12 @@ int32 CTimrman::SetTimerCallback(CMIPS& context, uint32 timerId, uint32 target, 
 
 int32 CTimrman::SetOverflowCallback(CMIPS& context, uint32 timerId, uint32 handler, uint32 arg)
 {
-	return SetTimerCallback(context, timerId, 0xFFFF, handler, arg);
+	uint32 hardTimerIndex = timerId - 1;
+	//Our timer hardware implementation doesn't really differentiate overflow & target interrupts.
+	//Just use the maximum value of the timer as a target to simulate overflow handling.
+	//This would break if there were handlers set for both target and overflow on the same timer.
+	uint32 overflowValue = (CRootCounters::g_counterSizes[hardTimerIndex] == 16) ? 0xFFFF : 0xFFFFFFFF;
+	return SetTimerCallback(context, timerId, overflowValue, handler, arg);
 }
 
 int32 CTimrman::SetupHardTimer(CMIPS& context, uint32 timerId, uint32 source, uint32 gateMode, uint32 prescale)
