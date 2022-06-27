@@ -1145,7 +1145,7 @@ void CGSH_Vulkan::CheckSpriteCachedClutInvalidation(const CGsSpriteRect& rect)
 	//This is specific to Gran Turismo 4, but could be expanded to work with other games
 	//GT4 writes to an area in GS RAM then uses this as a CLUT in one of its post-processing effects.
 	//We flush the whole CLUT cache if we find a sprite draw that writes to any previous location of cached cluts
-	if((rect.x1 == 0) && (rect.y1 == 0) && (rect.GetWidth() == 8) && (rect.GetHeight() == 16))
+	if((rect.left == 0) && (rect.top == 0) && (rect.GetWidth() == 8) && (rect.GetHeight() == 16))
 	{
 		bool foundClut = false;
 		for(uint32 i = 0; i < CLUT_CACHE_SIZE; i++)

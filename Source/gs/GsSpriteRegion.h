@@ -7,31 +7,31 @@ class CGsSpriteRect
 {
 public:
 	CGsSpriteRect(float x1 = 0, float y1 = 0, float x2 = 0, float y2 = 0)
-	    : x1(x1)
-	    , y1(y1)
-	    , x2(x2)
-	    , y2(y2)
+		: left(std::min<float>(x1, x2))
+		, right(std::max<float>(x1, x2))
+		, top(std::min<float>(y1, y2))
+		, bottom(std::max<float>(y1, y2))
 	{
-		assert(x1 <= x2);
-		assert(y1 <= y2);
+		assert(left <= right);
+		assert(top <= bottom);
 	}
 
 	inline float GetWidth() const
 	{
-		return x2 - x1;
+		return right - left;
 	}
 
 	inline float GetHeight() const
 	{
-		return y2 - y1;
+		return bottom - top;
 	}
 
 	inline bool Intersects(const CGsSpriteRect& other) const
 	{
-		float rx1 = std::max<float>(x1, other.x1);
-		float rx2 = std::min<float>(x2, other.x2);
-		float ry1 = std::max<float>(y1, other.y1);
-		float ry2 = std::min<float>(y2, other.y2);
+		float rx1 = std::max<float>(left, other.left);
+		float rx2 = std::min<float>(right, other.right);
+		float ry1 = std::max<float>(top, other.top);
+		float ry2 = std::min<float>(bottom, other.bottom);
 
 		if(rx1 < rx2 && ry1 < ry2)
 		{
@@ -43,10 +43,10 @@ public:
 		}
 	}
 
-	float x1 = 0;
-	float y1 = 0;
-	float x2 = 0;
-	float y2 = 0;
+	float left = 0;
+	float top = 0;
+	float right = 0;
+	float bottom = 0;
 };
 
 class CGsSpriteRegion
@@ -74,21 +74,21 @@ public:
 		for(auto& spriteRect : m_spriteRects)
 		{
 			if(
-			    (spriteRect.x1 == rect.x1) &&
-			    (spriteRect.x2 == rect.x2))
+			    (spriteRect.left == rect.left) &&
+			    (spriteRect.right == rect.right))
 			{
 				//rect & spriteRect share the same horizontal edges
-				spriteRect.y1 = std::min<float>(spriteRect.y1, rect.y1);
-				spriteRect.y2 = std::max<float>(spriteRect.y2, rect.y2);
+				spriteRect.top = std::min<float>(spriteRect.top, rect.top);
+				spriteRect.bottom = std::max<float>(spriteRect.bottom, rect.bottom);
 				return;
 			}
 			if(
-			    (spriteRect.y1 == rect.y1) &&
-			    (spriteRect.y2 == rect.y2))
+			    (spriteRect.top == rect.top) &&
+			    (spriteRect.bottom == rect.bottom))
 			{
 				//rect & spriteRect share the same vertical edges
-				spriteRect.x1 = std::min<float>(spriteRect.x1, rect.x1);
-				spriteRect.x2 = std::max<float>(spriteRect.x2, rect.x2);
+				spriteRect.left = std::min<float>(spriteRect.left, rect.left);
+				spriteRect.right = std::max<float>(spriteRect.right, rect.right);
 				return;
 			}
 		}
