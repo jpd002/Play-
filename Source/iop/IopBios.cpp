@@ -866,8 +866,8 @@ void CIopBios::ProcessModuleReset(const std::string& imagePath)
 	m_sifCmd->ClearServers();
 
 	unsigned int imageVersion = 1000;
-	bool found = TryGetImageVersionFromPath(imagePath, &imageVersion);
-	if(!found) found = TryGetImageVersionFromContents(imagePath, &imageVersion);
+	bool found = TryGetImageVersionFromContents(imagePath, &imageVersion);
+	if(!found) found = TryGetImageVersionFromPath(imagePath, &imageVersion);
 	assert(found);
 	m_loadcore->SetModuleVersion(imageVersion);
 #ifdef _IOP_EMULATE_MODULES
