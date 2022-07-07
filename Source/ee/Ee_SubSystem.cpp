@@ -693,11 +693,11 @@ void CSubSystem::HandleVu1AreaWrite(uint32 offset, uint32 value)
 {
 	assert(!m_vpu1->IsVuRunning());
 	assert(offset < 0x400);
-	if (offset >= 0 && offset <= 0x1FF)
+	if(offset >= 0 && offset <= 0x1FF)
 	{
 		uint32 registerIndex = offset / 0x10;
 		uint32 elementIndex = (offset & 0x0F) / 4;
-		if (registerIndex != 0)
+		if(registerIndex != 0)
 		{
 			m_VU1.m_State.nCOP2[registerIndex].nV[elementIndex] = value;
 		}

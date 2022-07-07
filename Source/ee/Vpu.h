@@ -17,8 +17,8 @@ public:
 	enum
 	{
 		VU_ADDR_VU1AREA_START = 0x4000, //Only on VU0
-		VU_ADDR_TOP = 0x8400, //Only on VU1
-		VU_ADDR_XGKICK = 0x8410, //Only on VU1
+		VU_ADDR_TOP = 0x8400,           //Only on VU1
+		VU_ADDR_XGKICK = 0x8410,        //Only on VU1
 		VU_ADDR_ITOP = 0x8420,
 
 		EE_ADDR_VU1AREA_START = 0x1000FB00,

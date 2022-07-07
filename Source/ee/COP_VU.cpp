@@ -939,7 +939,7 @@ void CCOP_VU::EmitVu1AreaWriteHandler(CMipsJitter* codeGen, uint8 is, uint8 it)
 	codeGen->PushCst(CVpu::EE_ADDR_VU1AREA_START);
 	codeGen->Add();
 
-	for (unsigned int i = 0; i < 4; i++)
+	for(unsigned int i = 0; i < 4; i++)
 	{
 		codeGen->PushCtx();
 		codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2[is].nV[i]));
