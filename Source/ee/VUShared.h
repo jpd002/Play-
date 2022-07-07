@@ -11,6 +11,9 @@
 
 namespace VUShared
 {
+	//Function to emit code to handle accesses to VU1 area mapped in VU0 address space
+	typedef std::function<void(CMipsJitter*, uint8, uint8)> Vu1AreaAccessEmitter;
+
 	enum OP_LATENCY
 	{
 		LATENCY_MAC = 4,
@@ -197,7 +200,7 @@ namespace VUShared
 	void RXOR(CMipsJitter*, uint8, uint8);
 	void SQbase(CMipsJitter*, uint8, uint8);
 	void SQD(CMipsJitter*, uint8, uint8, uint8, uint32);
-	void SQI(CMipsJitter*, uint8, uint8, uint8, uint32);
+	void SQI(CMipsJitter*, uint8, uint8, uint8, uint32, const Vu1AreaAccessEmitter& = Vu1AreaAccessEmitter());
 	void SQRT(CMipsJitter*, uint8, uint8, uint32);
 	void SUB(CMipsJitter*, uint8, uint8, uint8, uint8, uint32, uint32);
 	void SUBbc(CMipsJitter*, uint8, uint8, uint8, uint8, uint8, uint32, uint32);

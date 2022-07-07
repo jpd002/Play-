@@ -16,9 +16,13 @@ class CVpu
 public:
 	enum
 	{
+		VU_ADDR_VU1AREA_START = 0x4000, //Only on VU0
 		VU_ADDR_TOP = 0x8400, //Only on VU1
 		VU_ADDR_XGKICK = 0x8410, //Only on VU1
 		VU_ADDR_ITOP = 0x8420,
+
+		EE_ADDR_VU1AREA_START = 0x1000FB00,
+		EE_ADDR_VU1AREA_END = 0x1000FEFF,
 		EE_ADDR_VU_CMSAR1 = 0x1000FFC0, //This is meant to be used by the EE through CTC2
 	};
 

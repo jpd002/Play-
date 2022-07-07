@@ -168,6 +168,8 @@ private:
 	void VISWR();
 	void VRXOR();
 
+	static void EmitVu1AreaWriteHandler(CMipsJitter*, uint8, uint8);
+
 	uint8 m_nBc = 0;
 	uint8 m_nDest = 0;
 	uint8 m_nFSF = 0;

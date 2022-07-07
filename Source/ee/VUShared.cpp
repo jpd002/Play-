@@ -3,6 +3,7 @@
 #include "offsetof_def.h"
 #include "FpAddTruncate.h"
 #include "../FpUtils.h"
+#include "Vpu.h"
 
 #define STATUS_Z 0x01
 #define STATUS_S 0x02
@@ -1543,13 +1544,29 @@ void VUShared::SQD(CMipsJitter* codeGen, uint8 dest, uint8 is, uint8 it, uint32 
 	VUShared::SQbase(codeGen, dest, is);
 }
 
-void VUShared::SQI(CMipsJitter* codeGen, uint8 dest, uint8 is, uint8 it, uint32 addressMask)
+void VUShared::SQI(CMipsJitter* codeGen, uint8 dest, uint8 is, uint8 it, uint32 addressMask, const Vu1AreaAccessEmitter& vu1AreaAccessEmitter)
 {
+	if(vu1AreaAccessEmitter)
+	{
+		codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[it]));
+		codeGen->PushCst(CVpu::VU_ADDR_VU1AREA_START >> 4);
+		codeGen->BeginIf(Jitter::CONDITION_AE);
+		{
+			vu1AreaAccessEmitter(codeGen, is, it);
+		}
+		codeGen->Else();
+	}
+
 	codeGen->PushRelRef(offsetof(CMIPS, m_vuMem));
 	ComputeMemAccessAddr(codeGen, it, 0, 0, addressMask);
 	codeGen->AddRef();
 
 	VUShared::SQbase(codeGen, dest, is);
+
+	if(vu1AreaAccessEmitter)
+	{
+		codeGen->EndIf();
+	}
 
 	//Increment
 	if(it != 0)

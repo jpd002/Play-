@@ -769,7 +769,7 @@ void CCOP_VU::VMR32()
 //0D
 void CCOP_VU::VSQI()
 {
-	VUShared::SQI(m_codeGen, m_nDest, m_nIS, m_nIT, m_vuMemAddressMask);
+	VUShared::SQI(m_codeGen, m_nDest, m_nIS, m_nIT, m_vuMemAddressMask, &CCOP_VU::EmitVu1AreaWriteHandler);
 }
 
 //0E
@@ -924,6 +924,33 @@ void CCOP_VU::VISWR()
 void CCOP_VU::VRXOR()
 {
 	VUShared::RXOR(m_codeGen, m_nFS, m_nFSF);
+}
+
+//////////////////////////////////////////////////
+//Helpers
+//////////////////////////////////////////////////
+
+void CCOP_VU::EmitVu1AreaWriteHandler(CMipsJitter* codeGen, uint8 is, uint8 it)
+{
+	codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[it]));
+	codeGen->Shl(4);
+	codeGen->PushCst(CVpu::VU_ADDR_VU1AREA_START);
+	codeGen->Sub();
+	codeGen->PushCst(CVpu::EE_ADDR_VU1AREA_START);
+	codeGen->Add();
+
+	for (unsigned int i = 0; i < 4; i++)
+	{
+		codeGen->PushCtx();
+		codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2[is].nV[i]));
+		codeGen->PushIdx(2);
+		codeGen->Call(reinterpret_cast<void*>(&MemoryUtils_SetWordProxy), 3, Jitter::CJitter::RETURN_VALUE_NONE);
+
+		codeGen->PushCst(4);
+		codeGen->Add();
+	}
+
+	codeGen->PullTop();
 }
 
 //////////////////////////////////////////////////
