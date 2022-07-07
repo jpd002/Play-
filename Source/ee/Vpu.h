@@ -14,12 +14,12 @@ class CINTC;
 class CVpu
 {
 public:
-	enum VU1REGISTERS
+	enum
 	{
-		VU_TOP = 0x8400,
-		VU_XGKICK = 0x8410,
-		VU_ITOP = 0x8420,
-		VU_CMSAR1 = 0x1000FFC0, //This is meant to be used by the EE through CTC2
+		VU_ADDR_TOP = 0x8400, //Only on VU1
+		VU_ADDR_XGKICK = 0x8410, //Only on VU1
+		VU_ADDR_ITOP = 0x8420,
+		EE_ADDR_VU_CMSAR1 = 0x1000FFC0, //This is meant to be used by the EE through CTC2
 	};
 
 	struct VPUINIT

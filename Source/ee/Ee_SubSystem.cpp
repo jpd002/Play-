@@ -546,7 +546,7 @@ uint32 CSubSystem::IOPortWriteHandler(uint32 nAddress, uint32 nData)
 	{
 		m_dmac.SetRegister(nAddress, nData);
 	}
-	else if(nAddress == CVpu::VU_CMSAR1)
+	else if(nAddress == CVpu::EE_ADDR_VU_CMSAR1)
 	{
 		bool validAddress = (nData & 0x7) == 0;
 		if(!m_vpu1->IsVuRunning() && validAddress)
@@ -592,7 +592,7 @@ uint32 CSubSystem::Vu0IoPortReadHandler(uint32 address)
 	uint32 result = 0;
 	switch(address)
 	{
-	case CVpu::VU_ITOP:
+	case CVpu::VU_ADDR_ITOP:
 		result = m_vpu0->GetVif().GetITOP();
 		break;
 	default:
@@ -639,10 +639,10 @@ uint32 CSubSystem::Vu1IoPortReadHandler(uint32 address)
 	uint32 result = 0xCCCCCCCC;
 	switch(address)
 	{
-	case CVpu::VU_ITOP:
+	case CVpu::VU_ADDR_ITOP:
 		result = m_vpu1->GetVif().GetITOP();
 		break;
-	case CVpu::VU_TOP:
+	case CVpu::VU_ADDR_TOP:
 		result = m_vpu1->GetVif().GetTOP();
 		break;
 	default:
@@ -656,7 +656,7 @@ uint32 CSubSystem::Vu1IoPortWriteHandler(uint32 address, uint32 value)
 {
 	switch(address)
 	{
-	case CVpu::VU_XGKICK:
+	case CVpu::VU_ADDR_XGKICK:
 		m_vpu1->ProcessXgKick(value);
 		break;
 	default:

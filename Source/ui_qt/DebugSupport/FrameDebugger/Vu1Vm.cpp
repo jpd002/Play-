@@ -99,10 +99,10 @@ uint32 CVu1Vm::Vu1IoPortReadHandler(uint32 address)
 	uint32 result = 0xCCCCCCCC;
 	switch(address)
 	{
-	case CVpu::VU_ITOP:
+	case CVpu::VU_ADDR_ITOP:
 		result = m_vpu1_ITOP;
 		break;
-	case CVpu::VU_TOP:
+	case CVpu::VU_ADDR_TOP:
 		result = m_vpu1_TOP;
 		break;
 	default:
@@ -116,7 +116,7 @@ uint32 CVu1Vm::Vu1IoPortWriteHandler(uint32 address, uint32 value)
 {
 	switch(address)
 	{
-	case CVpu::VU_XGKICK:
+	case CVpu::VU_ADDR_XGKICK:
 		break;
 	default:
 		CLog::GetInstance().Print(LOG_NAME, "Wrote an unhandled VU1 IO port (0x%08X, 0x%08X).\r\n",

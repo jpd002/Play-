@@ -622,7 +622,7 @@ void CMA_VU::CLower::XTOP()
 	m_codeGen->PushCtx();
 
 	//Compute Address
-	m_codeGen->PushCst(CVpu::VU_TOP);
+	m_codeGen->PushCst(CVpu::VU_ADDR_TOP);
 
 	m_codeGen->Call(reinterpret_cast<void*>(&MemoryUtils_GetWordProxy), 2, true);
 	m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
@@ -764,7 +764,7 @@ void CMA_VU::CLower::XITOP()
 	m_codeGen->PushCtx();
 
 	//Compute Address
-	m_codeGen->PushCst(CVpu::VU_ITOP);
+	m_codeGen->PushCst(CVpu::VU_ADDR_ITOP);
 
 	m_codeGen->Call(reinterpret_cast<void*>(&MemoryUtils_GetWordProxy), 2, true);
 	m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));

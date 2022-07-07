@@ -297,7 +297,7 @@ void CCOP_VU::CTC2()
 			//Push value
 			m_codeGen->PushCursor(valueCursor);
 			//Compute Address
-			m_codeGen->PushCst(CVpu::VU_CMSAR1);
+			m_codeGen->PushCst(CVpu::EE_ADDR_VU_CMSAR1);
 			m_codeGen->Call(reinterpret_cast<void*>(&MemoryUtils_SetWordProxy), 3, false);
 			//Clear stack
 			assert(m_codeGen->GetTopCursor() == valueCursor);

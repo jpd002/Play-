@@ -318,7 +318,7 @@ void CVuBasicBlock::EmitXgKick(CMipsJitter* jitter)
 	jitter->PushRel(offsetof(CMIPS, m_State.xgkickAddress));
 
 	//Compute Address
-	jitter->PushCst(CVpu::VU_XGKICK);
+	jitter->PushCst(CVpu::VU_ADDR_XGKICK);
 
 	jitter->Call(reinterpret_cast<void*>(&MemoryUtils_SetWordProxy), 3, false);
 }
