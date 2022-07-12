@@ -543,7 +543,7 @@ void CSifCmd::ProcessInvocation(uint32 serverDataAddr, uint32 methodId, uint32* 
 void CSifCmd::FinishExecRequest(uint32 serverDataAddr, uint32 returnDataAddr)
 {
 	auto serverData = reinterpret_cast<SIFRPCSERVERDATA*>(m_ram + serverDataAddr);
-	auto returnData = m_ram + returnDataAddr;
+	auto returnData = m_ram + (returnDataAddr & (PS2::IOP_RAM_SIZE - 1));
 	m_sifMan.SendCallReply(serverData->serverId, returnData);
 }
 
