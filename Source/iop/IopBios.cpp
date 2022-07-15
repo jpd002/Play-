@@ -1331,6 +1331,12 @@ int32 CIopBios::ChangeThreadPriority(uint32 threadId, uint32 newPrio)
 	                          m_currentThreadId.Get(), threadId, newPrio);
 #endif
 
+	//Priority needs to be between [1, 126]
+	if((newPrio < 1) || (newPrio > 126))
+	{
+		return KERNEL_RESULT_ERROR_ILLEGAL_PRIORITY;
+	}
+
 	if(threadId == 0)
 	{
 		threadId = m_currentThreadId;
