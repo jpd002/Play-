@@ -153,11 +153,6 @@ void CSIF::DeleteModules()
 
 uint32 CSIF::ReceiveDMA5(uint32 srcAddress, uint32 size, uint32 unused, bool isTagIncluded)
 {
-	if(size > m_dmaBufferSize)
-	{
-		throw std::runtime_error("Packet too big.");
-	}
-	memcpy(m_eeRam + srcAddress, m_iopRam + m_dmaBufferAddress, size);
 	return size;
 }
 
@@ -243,12 +238,20 @@ uint32 CSIF::ReceiveDMA6(uint32 nSrcAddr, uint32 nSize, uint32 nDstAddr, bool is
 
 void CSIF::SendPacket(const void* packet, uint32 size)
 {
-	m_packetQueue.insert(m_packetQueue.begin(),
-	                     reinterpret_cast<const uint8*>(packet),
-	                     reinterpret_cast<const uint8*>(packet) + size);
-	m_packetQueue.insert(m_packetQueue.begin(),
+	SendPacketToAddress(packet, size, m_nEERecvAddr);
+}
+
+void CSIF::SendPacketToAddress(const void* packet, uint32 size, uint32 dstAddr)
+{
+	m_packetQueue.insert(m_packetQueue.end(),
 	                     reinterpret_cast<const uint8*>(&size),
 	                     reinterpret_cast<const uint8*>(&size) + 4);
+	m_packetQueue.insert(m_packetQueue.end(),
+	                     reinterpret_cast<const uint8*>(&dstAddr),
+	                     reinterpret_cast<const uint8*>(&dstAddr) + 4);
+	m_packetQueue.insert(m_packetQueue.end(),
+	                     reinterpret_cast<const uint8*>(packet),
+	                     reinterpret_cast<const uint8*>(packet) + size);
 }
 
 void CSIF::CountTicks(uint32 ticks)
@@ -257,10 +260,11 @@ void CSIF::CountTicks(uint32 ticks)
 
 	if(m_packetProcessed && !m_packetQueue.empty())
 	{
-		assert(m_packetQueue.size() > 4);
+		assert(m_packetQueue.size() > 8);
 		uint32 size = *reinterpret_cast<uint32*>(&m_packetQueue[0]);
-		SendDMA(&m_packetQueue[4], size);
-		m_packetQueue.erase(m_packetQueue.begin(), m_packetQueue.begin() + 4 + size);
+		uint32 dstAddr = *reinterpret_cast<uint32*>(&m_packetQueue[4]);
+		SendDMA(&m_packetQueue[8], dstAddr, size);
+		m_packetQueue.erase(m_packetQueue.begin(), m_packetQueue.begin() + 8 + size);
 		m_packetProcessed = false;
 	}
 }
@@ -271,20 +275,13 @@ void CSIF::MarkPacketProcessed()
 	m_packetProcessed = true;
 }
 
-void CSIF::SendDMA(const void* pData, uint32 nSize)
+void CSIF::SendDMA(const void* data, uint32 dstAddr, uint32 size)
 {
-	//Humm, the DMAC doesn't know about our addresses on this side...
+	memcpy(m_eeRam + dstAddr, data, size);
 
-	if(nSize > m_dmaBufferSize)
-	{
-		throw std::runtime_error("Packet too big.");
-	}
-
-	memcpy(m_iopRam + m_dmaBufferAddress, pData, nSize);
-	uint32 nQuads = (nSize + 0x0F) / 0x10;
-
-	m_dmac.SetRegister(CDMAC::D5_MADR, m_nEERecvAddr);
-	m_dmac.SetRegister(CDMAC::D5_QWC, nQuads);
+	uint32 qwc = (size + 0x0F) / 0x10;
+	m_dmac.SetRegister(CDMAC::D5_MADR, dstAddr);
+	m_dmac.SetRegister(CDMAC::D5_QWC, qwc);
 	m_dmac.SetRegister(CDMAC::D5_CHCR, CDMAC::CHCR_STR);
 }
 

@@ -37,8 +37,9 @@ public:
 	uint32 ReceiveDMA6(uint32, uint32, uint32, bool);
 
 	void SendPacket(const void*, uint32);
+	void SendPacketToAddress(const void*, uint32, uint32);
 
-	void SendDMA(const void*, uint32);
+	void SendDMA(const void*, uint32, uint32);
 
 	uint32 GetRegister(uint32);
 	void SetRegister(uint32, uint32);
