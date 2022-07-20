@@ -146,7 +146,6 @@ void CGSHandler::Reset()
 void CGSHandler::ResetBase()
 {
 	memset(m_nReg, 0, sizeof(uint64) * 0x80);
-	m_nReg[GS_REG_PRMODECONT] = 1;
 	memset(m_pRAM, 0, RAMSIZE);
 	memset(m_pCLUT, 0, CLUTSIZE);
 	memset(&m_trxCtx, 0, sizeof(m_trxCtx));
