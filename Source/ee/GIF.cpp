@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <algorithm>
+#include <cstring>
 #include "../uint128.h"
 #include "../Ps2Const.h"
 #include "../Log.h"
