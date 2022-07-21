@@ -28,6 +28,9 @@ public:
 	{
 		REGS_START = 0x10003000,
 		REGS_END = 0x100030B0,
+
+		GIF_FIFO_START = 0x10006000,
+		GIF_FIFO_END = 0x10006FFF,
 	};
 
 	struct TAG
@@ -66,6 +69,11 @@ public:
 	void SaveState(Framework::CZipArchiveWriter&);
 
 private:
+	enum
+	{
+		FIFO_SIZE = 0x10,
+	};
+
 	enum SIGNAL_STATE
 	{
 		SIGNAL_STATE_NONE,
@@ -84,6 +92,8 @@ private:
 	uint32 ProcessRegList(const uint8*, uint32, uint32);
 	uint32 ProcessImage(const uint8*, uint32, uint32, uint32);
 
+	void ProcessFifoWrite(uint32, uint32);
+
 	void DisassembleGet(uint32);
 	void DisassembleSet(uint32, uint32);
 
@@ -101,6 +111,8 @@ private:
 	SIGNAL_STATE m_signalState = SIGNAL_STATE_NONE;
 	MASKED_PATH3_XFER_STATE m_maskedPath3XferState = MASKED_PATH3_XFER_NONE;
 	int32 m_path3XferActiveTicks = 0;
+	uint8 m_fifoBuffer[FIFO_SIZE];
+	uint32 m_fifoIndex = 0;
 	uint8* m_ram;
 	uint8* m_spr;
 	CGSHandler*& m_gs;

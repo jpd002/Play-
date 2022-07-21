@@ -24,6 +24,8 @@
 #define STATE_REGS_EOP ("EOP")
 #define STATE_REGS_QTEMP ("QTEMP")
 #define STATE_REGS_PATH3_XFER_ACTIVE_TICKS ("Path3XferActiveTicks")
+#define STATE_REGS_FIFO_BUFFER ("FifoBuffer")
+#define STATE_REGS_FIFO_INDEX ("FifoIndex")
 
 CGIF::CGIF(CGSHandler*& gs, CDMAC& dmac, uint8* ram, uint8* spr)
     : m_qtemp(QTEMP_INIT)
@@ -50,6 +52,8 @@ void CGIF::Reset()
 	m_signalState = SIGNAL_STATE_NONE;
 	m_maskedPath3XferState = MASKED_PATH3_XFER_NONE;
 	m_path3XferActiveTicks = 0;
+	memset(m_fifoBuffer, 0, sizeof(m_fifoBuffer));
+	m_fifoIndex = 0;
 }
 
 void CGIF::LoadState(Framework::CZipArchiveReader& archive)
@@ -66,6 +70,8 @@ void CGIF::LoadState(Framework::CZipArchiveReader& archive)
 	m_eop = registerFile.GetRegister32(STATE_REGS_EOP) != 0;
 	m_qtemp = registerFile.GetRegister32(STATE_REGS_QTEMP);
 	m_path3XferActiveTicks = registerFile.GetRegister32(STATE_REGS_PATH3_XFER_ACTIVE_TICKS);
+	*reinterpret_cast<uint128*>(&m_fifoBuffer) = registerFile.GetRegister128(STATE_REGS_FIFO_BUFFER);
+	m_fifoIndex = registerFile.GetRegister32(STATE_REGS_FIFO_INDEX);
 }
 
 void CGIF::SaveState(Framework::CZipArchiveWriter& archive)
@@ -82,6 +88,8 @@ void CGIF::SaveState(Framework::CZipArchiveWriter& archive)
 	registerFile->SetRegister32(STATE_REGS_EOP, m_eop ? 1 : 0);
 	registerFile->SetRegister32(STATE_REGS_QTEMP, m_qtemp);
 	registerFile->SetRegister32(STATE_REGS_PATH3_XFER_ACTIVE_TICKS, m_path3XferActiveTicks);
+	registerFile->SetRegister128(STATE_REGS_FIFO_BUFFER, *reinterpret_cast<uint128*>(&m_fifoBuffer));
+	registerFile->SetRegister32(STATE_REGS_FIFO_INDEX, m_fifoIndex);
 	archive.InsertFile(registerFile);
 }
 
@@ -419,6 +427,18 @@ uint32 CGIF::ProcessMultiplePackets(const uint8* memory, uint32 memorySize, uint
 	return address - start;
 }
 
+void CGIF::ProcessFifoWrite(uint32 address, uint32 value)
+{
+	*reinterpret_cast<uint32*>(m_fifoBuffer + m_fifoIndex) = value;
+	m_fifoIndex += 4;
+	if(m_fifoIndex == FIFO_SIZE)
+	{
+		uint32 processed = ProcessMultiplePackets(m_fifoBuffer, FIFO_SIZE, 0, FIFO_SIZE, CGsPacketMetadata(3));
+		assert(processed == FIFO_SIZE);
+		m_fifoIndex = 0;
+	}
+}
+
 uint32 CGIF::ReceiveDMA(uint32 address, uint32 qwc, uint32 unused, bool tagIncluded)
 {
 	uint32 size = qwc * 0x10;
@@ -493,11 +513,18 @@ uint32 CGIF::GetRegister(uint32 address)
 
 void CGIF::SetRegister(uint32 address, uint32 value)
 {
-	switch(address)
+	if(address >= GIF_FIFO_START && address < GIF_FIFO_END)
 	{
-	case GIF_MODE:
-		m_MODE = value;
-		break;
+		ProcessFifoWrite(address, value);
+	}
+	else
+	{
+		switch(address)
+		{
+		case GIF_MODE:
+			m_MODE = value;
+			break;
+		}
 	}
 #ifdef _DEBUG
 	DisassembleSet(address, value);
@@ -539,13 +566,20 @@ void CGIF::DisassembleGet(uint32 address)
 
 void CGIF::DisassembleSet(uint32 address, uint32 value)
 {
-	switch(address)
+	if((address >= GIF_FIFO_START) && (address < GIF_FIFO_END))
 	{
-	case GIF_MODE:
-		CLog::GetInstance().Print(LOG_NAME, "GIF_MODE = 0x%08X.\r\n", value);
-		break;
-	default:
-		CLog::GetInstance().Warn(LOG_NAME, "Writing unknown register 0x%08X, 0x%08X.\r\n", address, value);
-		break;
+		CLog::GetInstance().Print(LOG_NAME, "GIF_FIFO(0x%03X) = 0x%08X.\r\n", address & 0xFFF, value);
+	}
+	else
+	{
+		switch(address)
+		{
+		case GIF_MODE:
+			CLog::GetInstance().Print(LOG_NAME, "GIF_MODE = 0x%08X.\r\n", value);
+			break;
+		default:
+			CLog::GetInstance().Warn(LOG_NAME, "Writing unknown register 0x%08X, 0x%08X.\r\n", address, value);
+			break;
+		}
 	}
 }

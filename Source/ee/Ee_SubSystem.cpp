@@ -523,6 +523,10 @@ uint32 CSubSystem::IOPortWriteHandler(uint32 nAddress, uint32 nData)
 	{
 		m_vpu1->GetVif().SetRegister(nAddress, nData);
 	}
+	else if(nAddress >= CGIF::GIF_FIFO_START && nAddress < CGIF::GIF_FIFO_END)
+	{
+		m_gif.SetRegister(nAddress, nData);
+	}
 	else if(nAddress >= 0x10007000 && nAddress <= 0x1000702F)
 	{
 		m_ipu.SetRegister(nAddress, nData);
