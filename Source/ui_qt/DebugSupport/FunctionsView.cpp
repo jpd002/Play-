@@ -255,7 +255,7 @@ void CFunctionsView::OnImportClick()
 	    std::end(m_modules) != moduleIterator; moduleIterator++)
 	{
 		const auto& module(*moduleIterator);
-		CELF* moduleImage = reinterpret_cast<CELF*>(module.param);
+		CELF32* moduleImage = reinterpret_cast<CELF32*>(module.param);
 
 		if(moduleImage == NULL) continue;
 
@@ -265,8 +265,8 @@ void CFunctionsView::OnImportClick()
 		const char* pStrTab = (const char*)moduleImage->GetSectionData(pSymTab->nIndex);
 		if(pStrTab == NULL) continue;
 
-		auto pSym = reinterpret_cast<const CELF::ELFSYMBOL*>(moduleImage->FindSectionData(".symtab"));
-		unsigned int nCount = pSymTab->nSize / sizeof(CELF::ELFSYMBOL);
+		auto pSym = reinterpret_cast<const CELF32::SYMBOL*>(moduleImage->FindSectionData(".symtab"));
+		unsigned int nCount = pSymTab->nSize / sizeof(CELF32::SYMBOL);
 
 		for(unsigned int i = 0; i < nCount; i++)
 		{

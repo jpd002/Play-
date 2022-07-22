@@ -33,7 +33,7 @@ QtDebugger::QtDebugger(CPS2VM& virtualMachine)
 	RegisterPreferences();
 
 	//ELF View Initialization
-	m_pELFView = new CELFView(ui->mdiArea);
+	m_pELFView = new CELFView<CELF32>(ui->mdiArea);
 
 	//Functions View Initialization
 	m_pFunctionsView = new CFunctionsView(ui->mdiArea);

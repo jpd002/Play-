@@ -13,13 +13,14 @@
 #include "ELFSectionView.h"
 #include "ELFProgramView.h"
 
+template <typename ElfType>
 class CELFView : public QMdiSubWindow
 {
 public:
 	CELFView(QMdiArea*);
 	~CELFView() = default;
 
-	void SetELF(CELF*);
+	void SetELF(ElfType*);
 	void Reset();
 
 protected:
@@ -29,16 +30,16 @@ private:
 	void PopulateList();
 	void itemSelectionChanged();
 
-	CELF* m_pELF = nullptr;
+	ElfType* m_pELF = nullptr;
 	QWidget* m_centralwidget;
 	QHBoxLayout* m_layout;
 	QTreeWidget* m_treeWidget;
 	QGroupBox* m_groupBox;
 
-	CELFHeaderView* m_pHeaderView;
-	CELFSymbolView* m_pSymbolView;
-	CELFSectionView* m_pSectionView;
-	CELFProgramView* m_pProgramView;
+	CELFHeaderView<ElfType>* m_pHeaderView;
+	CELFSymbolView<ElfType>* m_pSymbolView;
+	CELFSectionView<ElfType>* m_pSectionView;
+	CELFProgramView<ElfType>* m_pProgramView;
 
 	std::vector<QLineEdit*> m_editFields;
 	bool m_hasPrograms = false;

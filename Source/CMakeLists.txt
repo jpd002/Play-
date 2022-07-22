@@ -216,8 +216,8 @@ set(COMMON_SRC_FILES
 	ee/VUShared.cpp
 	ee/VUShared.h
 	ee/VUShared_Reflection.cpp
-	ELF.cpp
 	ELF.h
+	ElfDefs.h
 	ElfFile.cpp
 	ElfFile.h
 	FpUtils.cpp

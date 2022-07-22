@@ -6,7 +6,8 @@
 #include <QFontMetrics>
 #include <QHeaderView>
 
-CELFSymbolView::CELFSymbolView(QMdiSubWindow* parent, QLayout* groupBoxLayout)
+template <typename ElfType>
+CELFSymbolView<ElfType>::CELFSymbolView(QMdiSubWindow* parent, QLayout* groupBoxLayout)
     : QWidget(parent)
 {
 
@@ -32,18 +33,21 @@ CELFSymbolView::CELFSymbolView(QMdiSubWindow* parent, QLayout* groupBoxLayout)
 	hide();
 }
 
-void CELFSymbolView::Reset()
+template <typename ElfType>
+void CELFSymbolView<ElfType>::Reset()
 {
 	m_tableWidget->setRowCount(0);
 }
 
-void CELFSymbolView::SetELF(CELF* pELF)
+template <typename ElfType>
+void CELFSymbolView<ElfType>::SetELF(ElfType* pELF)
 {
 	m_pELF = pELF;
 	PopulateList();
 }
 
-void CELFSymbolView::PopulateList()
+template <typename ElfType>
+void CELFSymbolView<ElfType>::PopulateList()
 {
 	// m_sortState = SORT_STATE_NONE;
 	const char* sectionName = ".symtab";
@@ -54,8 +58,8 @@ void CELFSymbolView::PopulateList()
 	const char* pStrTab = (const char*)m_pELF->GetSectionData(pSymTab->nIndex);
 	if(pStrTab == NULL) return;
 
-	auto symbols = reinterpret_cast<const CELF::ELFSYMBOL*>(m_pELF->FindSectionData(sectionName));
-	unsigned int count = pSymTab->nSize / sizeof(CELF::ELFSYMBOL);
+	auto symbols = reinterpret_cast<const ElfType::SYMBOL*>(m_pELF->FindSectionData(sectionName));
+	unsigned int count = pSymTab->nSize / sizeof(ElfType::SYMBOL);
 
 	m_tableWidget->setRowCount(count);
 
@@ -125,3 +129,6 @@ void CELFSymbolView::PopulateList()
 		m_tableWidget->setItem(i, j++, new QTableWidgetItem(sTemp.c_str()));
 	}
 }
+
+template class CELFSymbolView<CELF32>;
+template class CELFSymbolView<CELF64>;

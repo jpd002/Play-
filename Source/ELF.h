@@ -2,253 +2,161 @@
 
 #include <vector>
 #include "Types.h"
+#include "ElfDefs.h"
+#include "PtrStream.h"
 
-#pragma pack(push, 1)
-
-struct ELFSYMBOL32
+struct ELFTRAITS32
 {
-	uint32 nName;
-	uint32 nValue;
-	uint32 nSize;
-	uint8 nInfo;
-	uint8 nOther;
-	uint16 nSectionIndex;
+	typedef ELF::ELFHEADER32 ELFHEADER;
+	typedef ELF::ELFPROGRAMHEADER32 ELFPROGRAMHEADER;
+	typedef ELF::ELFSECTIONHEADER32 ELFSECTIONHEADER;
+	typedef ELF::ELFSYMBOL32 ELFSYMBOL;
+	enum
+	{
+		HEADER_ID_CLASS = ELF::ELFCLASS32
+	};
 };
 
-struct ELFSYMBOL64
+struct ELFTRAITS64
 {
-	uint32 nName;
-	uint8 nInfo;
-	uint8 nOther;
-	uint16 nSectionIndex;
-	uint64 nValue;
-	uint64 nSize;
+	typedef ELF::ELFHEADER64 ELFHEADER;
+	typedef ELF::ELFPROGRAMHEADER64 ELFPROGRAMHEADER;
+	typedef ELF::ELFSECTIONHEADER64 ELFSECTIONHEADER;
+	typedef ELF::ELFSYMBOL64 ELFSYMBOL;
+	enum
+	{
+		HEADER_ID_CLASS = ELF::ELFCLASS64
+	};
 };
 
-struct ELFHEADER32
-{
-	uint8 nId[16];
-	uint16 nType;
-	uint16 nCPU;
-	uint32 nVersion;
-	uint32 nEntryPoint;
-	uint32 nProgHeaderStart;
-	uint32 nSectHeaderStart;
-	uint32 nFlags;
-	uint16 nSize;
-	uint16 nProgHeaderEntrySize;
-	uint16 nProgHeaderCount;
-	uint16 nSectHeaderEntrySize;
-	uint16 nSectHeaderCount;
-	uint16 nSectHeaderStringTableIndex;
-};
-
-struct ELFHEADER64
-{
-	uint8 nId[16];
-	uint16 nType;
-	uint16 nCPU;
-	uint32 nVersion;
-	uint64 nEntryPoint;
-	uint64 nProgHeaderStart;
-	uint64 nSectHeaderStart;
-	uint32 nFlags;
-	uint16 nSize;
-	uint16 nProgHeaderEntrySize;
-	uint16 nProgHeaderCount;
-	uint16 nSectHeaderEntrySize;
-	uint16 nSectHeaderCount;
-	uint16 nSectHeaderStringTableIndex;
-};
-
-struct ELFSECTIONHEADER32
-{
-	uint32 nStringTableIndex;
-	uint32 nType;
-	uint32 nFlags;
-	uint32 nStart;
-	uint32 nOffset;
-	uint32 nSize;
-	uint32 nIndex;
-	uint32 nInfo;
-	uint32 nAlignment;
-	uint32 nOther;
-};
-
-struct ELFSECTIONHEADER64
-{
-	uint32 nStringTableIndex;
-	uint32 nType;
-	uint64 nFlags;
-	uint64 nStart;
-	uint64 nOffset;
-	uint64 nSize;
-	uint32 nIndex;
-	uint32 nInfo;
-	uint64 nAlignment;
-	uint64 nOther;
-};
-
-struct ELFPROGRAMHEADER32
-{
-	uint32 nType;
-	uint32 nOffset;
-	uint32 nVAddress;
-	uint32 nPAddress;
-	uint32 nFileSize;
-	uint32 nMemorySize;
-	uint32 nFlags;
-	uint32 nAlignment;
-};
-
-struct ELFPROGRAMHEADER64
-{
-	uint32 nType;
-	uint32 nFlags;
-	uint64 nOffset;
-	uint64 nVAddress;
-	uint64 nPAddress;
-	uint64 nFileSize;
-	uint64 nMemorySize;
-	uint64 nAlignment;
-};
-
-#pragma pack(pop)
-
+template <typename ElfTraits>
 class CELF
 {
 public:
-	typedef ELFHEADER32 HEADER;
-	typedef ELFPROGRAMHEADER32 PROGRAMHEADER;
-	typedef ELFSECTIONHEADER32 SECTIONHEADER;
-	typedef ELFSYMBOL32 ELFSYMBOL;
+	typedef typename ElfTraits::ELFHEADER HEADER;
+	typedef typename ElfTraits::ELFPROGRAMHEADER PROGRAMHEADER;
+	typedef typename ElfTraits::ELFSECTIONHEADER SECTIONHEADER;
+	typedef typename ElfTraits::ELFSYMBOL SYMBOL;
 
-	enum ELFHEADERID
+	CELF(uint8* content)
+	    : m_content(content)
 	{
-		EI_CLASS = 4,
-		EI_DATA = 5,
-	};
+		Framework::CPtrStream stream(m_content, -1);
 
-	enum ELFCLASS
-	{
-		ELFCLASS32 = 1,
-		ELFCLASS64 = 2,
-	};
+		stream.Read(&m_header, sizeof(m_header));
 
-	enum ELFDATA
-	{
-		ELFDATA2LSB = 1,
-		ELFDATA2MSB = 2,
-	};
+		if(m_header.nId[0] != 0x7F || m_header.nId[1] != 'E' || m_header.nId[2] != 'L' || m_header.nId[3] != 'F')
+		{
+			throw std::runtime_error("This file isn't a valid ELF file.");
+		}
 
-	enum EXECUTABLE_TYPE
-	{
-		ET_NONE = 0,
-		ET_REL = 1,
-		ET_EXEC = 2,
-		ET_DYN = 3,
-		ET_CORE = 4,
-	};
+		if(m_header.nId[ELF::EI_CLASS] != ElfTraits::HEADER_ID_CLASS)
+		{
+			throw std::runtime_error("Failed to load ELF file: wrong bitness.");
+		}
 
-	enum MACHINE_TYPE
-	{
-		EM_NONE = 0,
-		EM_M32 = 1,
-		EM_SPARC = 2,
-		EM_386 = 3,
-		EM_68K = 4,
-		EM_88K = 5,
-		EM_860 = 7,
-		EM_MIPS = 8,
-		EM_PPC64 = 21,
-		EM_ARM = 40,
-	};
+		if(m_header.nId[ELF::EI_DATA] != ELF::ELFDATA2LSB)
+		{
+			throw std::runtime_error("This ELF file format is not supported. Only LSB ordered ELFs are supported.");
+		}
 
-	enum EXECUTABLE_VERSION
-	{
-		EV_NONE = 0,
-		EV_CURRENT = 1,
-	};
+		{
+			m_programs.resize(m_header.nProgHeaderCount);
+			stream.Seek(m_header.nProgHeaderStart, Framework::STREAM_SEEK_SET);
+			for(auto& program : m_programs)
+			{
+				stream.Read(&program, sizeof(program));
+			}
+		}
 
-	enum SECTION_HEADER_TYPE
-	{
-		SHT_NULL = 0,
-		SHT_PROGBITS = 1,
-		SHT_SYMTAB = 2,
-		SHT_STRTAB = 3,
-		SHT_HASH = 5,
-		SHT_DYNAMIC = 6,
-		SHT_NOTE = 7,
-		SHT_NOBITS = 8,
-		SHT_REL = 9,
-		SHT_DYNSYM = 11,
-	};
+		{
+			m_sections.resize(m_header.nSectHeaderCount);
+			stream.Seek(m_header.nSectHeaderStart, Framework::STREAM_SEEK_SET);
+			for(auto& section : m_sections)
+			{
+				stream.Read(&section, sizeof(section));
+			}
+		}
+	}
 
-	enum SECTION_HEADER_FLAG
-	{
-		SHF_WRITE = 0x0001,
-		SHF_ALLOC = 0x0002,
-		SHF_EXECINSTR = 0x0004,
-	};
-
-	enum PROGRAM_HEADER_TYPE
-	{
-		PT_NULL = 0,
-		PT_LOAD = 1,
-		PT_DYNAMIC = 2,
-		PT_INTERP = 3,
-		PT_NOTE = 4,
-		PT_SHLIB = 5,
-		PT_PHDR = 6,
-	};
-
-	enum PROGRAM_HEADER_FLAG
-	{
-		PF_X = 0x01,
-		PF_W = 0x02,
-		PF_R = 0x04,
-	};
-
-	enum DYNAMIC_INFO_TYPE
-	{
-		DT_NONE = 0,
-		DT_NEEDED = 1,
-		DT_PLTRELSZ = 2,
-		DT_PLTGOT = 3,
-		DT_HASH = 4,
-		DT_STRTAB = 5,
-		DT_SYMTAB = 6,
-		DT_SONAME = 14,
-		DT_SYMBOLIC = 16,
-	};
-
-	enum MIPS_RELOCATION_TYPE
-	{
-		R_MIPS_32 = 2,
-		R_MIPS_26 = 4,
-		R_MIPS_HI16 = 5,
-		R_MIPS_LO16 = 6,
-		R_MIPS_GPREL16 = 7,
-	};
-
-	CELF(uint8*);
 	CELF(const CELF&) = delete;
 	virtual ~CELF() = default;
 
 	CELF& operator=(const CELF&) = delete;
 
-	uint8* GetContent() const;
-	const HEADER& GetHeader() const;
+	uint8* GetContent() const
+	{
+		return m_content;
+	}
 
-	SECTIONHEADER* GetSection(unsigned int);
-	const void* GetSectionData(unsigned int);
-	const char* GetSectionName(unsigned int);
+	const HEADER& GetHeader() const
+	{
+		return m_header;
+	}
 
-	SECTIONHEADER* FindSection(const char*);
-	unsigned int FindSectionIndex(const char*);
-	const void* FindSectionData(const char*);
+	SECTIONHEADER* GetSection(unsigned int index)
+	{
+		if(index >= m_header.nSectHeaderCount)
+		{
+			return nullptr;
+		}
+		return &m_sections[index];
+	}
 
-	PROGRAMHEADER* GetProgram(unsigned int);
+	const void* GetSectionData(unsigned int index)
+	{
+		auto section = GetSection(index);
+		if(section == nullptr) return nullptr;
+		return m_content + section->nOffset;
+	}
+
+	const char* GetSectionName(unsigned int sectionIndex)
+	{
+		auto stringTableData = reinterpret_cast<const char*>(GetSectionData(m_header.nSectHeaderStringTableIndex));
+		if(stringTableData == nullptr) return nullptr;
+		auto sectionHeader = GetSection(sectionIndex);
+		if(sectionHeader == nullptr) return nullptr;
+		return stringTableData + sectionHeader->nStringTableIndex;
+	}
+
+	SECTIONHEADER* FindSection(const char* requestedSectionName)
+	{
+		auto sectionIndex = FindSectionIndex(requestedSectionName);
+		if(sectionIndex == 0) return nullptr;
+		return GetSection(sectionIndex);
+	}
+
+	unsigned int FindSectionIndex(const char* requestedSectionName)
+	{
+		auto stringTableData = reinterpret_cast<const char*>(GetSectionData(m_header.nSectHeaderStringTableIndex));
+		if(stringTableData == nullptr) return 0;
+		for(unsigned int i = 0; i < m_header.nSectHeaderCount; i++)
+		{
+			auto sectionHeader = GetSection(i);
+			auto sectionName = stringTableData + sectionHeader->nStringTableIndex;
+			if(!strcmp(sectionName, requestedSectionName))
+			{
+				return i;
+			}
+		}
+		return 0;
+	}
+
+	const void* FindSectionData(const char* requestedSectionName)
+	{
+		auto section = FindSection(requestedSectionName);
+		if(section == nullptr) return nullptr;
+		return m_content + section->nOffset;
+	}
+
+	PROGRAMHEADER* GetProgram(unsigned int index)
+	{
+		if(index >= m_header.nProgHeaderCount)
+		{
+			return nullptr;
+		}
+		return &m_programs[index];
+	}
 
 private:
 	HEADER m_header;
@@ -257,3 +165,6 @@ private:
 	std::vector<SECTIONHEADER> m_sections;
 	std::vector<PROGRAMHEADER> m_programs;
 };
+
+typedef CELF<ELFTRAITS32> CELF32;
+typedef CELF<ELFTRAITS64> CELF64;

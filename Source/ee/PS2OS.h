@@ -40,7 +40,7 @@ public:
 	void BootFromFile(const fs::path&);
 	void BootFromVirtualPath(const char*, const ArgumentList&);
 	void BootFromCDROM();
-	CELF* GetELF();
+	CELF32* GetELF();
 	const char* GetExecutableName() const;
 	std::pair<uint32, uint32> GetExecutableRange() const;
 	uint32 LoadExecutable(const char*, const char*);
@@ -401,7 +401,7 @@ private:
 	uint8* m_bios = nullptr;
 	uint8* m_spr = nullptr;
 
-	std::unique_ptr<CELF> m_elf;
+	std::unique_ptr<CELF32> m_elf;
 	CMIPS& m_ee;
 	ThreadList m_threads;
 	SemaphoreList m_semaphores;

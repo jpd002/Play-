@@ -15,11 +15,18 @@ private:
 	uint8* m_content;
 };
 
-class CElfFile : protected CElfFileContainer, public CELF
+template <typename ElfType>
+class CElfFile : protected CElfFileContainer, public ElfType
 {
 public:
-	CElfFile(Framework::CStream&);
-	virtual ~CElfFile();
+	CElfFile(Framework::CStream& stream)
+	    : CElfFileContainer(stream)
+	    , ElfType(GetFileContent())
+	{
+	}
 
-private:
+	virtual ~CElfFile() = default;
 };
+
+typedef CElfFile<CELF32> CElf32File;
+typedef CElfFile<CELF64> CElf64File;

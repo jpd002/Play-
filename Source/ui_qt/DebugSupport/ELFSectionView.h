@@ -12,14 +12,14 @@
 #include "ELF.h"
 #include "MemoryViewTable.h"
 
+template <typename ElfType>
 class CELFSectionView : public QWidget
 {
-
 public:
 	CELFSectionView(QMdiSubWindow*, QLayout*);
 	~CELFSectionView() = default;
 
-	void SetELF(CELF*);
+	void SetELF(ElfType*);
 	void SetSection(int);
 	void SetBytesPerLine(int);
 	void ResizeEvent();
@@ -32,7 +32,7 @@ private:
 	void FillInformation(int);
 	void FillDynamicSectionListView(int);
 
-	CELF* m_pELF = nullptr;
+	ElfType* m_pELF = nullptr;
 	QVBoxLayout* m_layout;
 	std::vector<QLineEdit*> m_editFields;
 	CMemoryViewTable* m_memView;

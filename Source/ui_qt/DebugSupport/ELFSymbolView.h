@@ -9,20 +9,20 @@
 
 #include "ELF.h"
 
+template <typename ElfType>
 class CELFSymbolView : public QWidget
 {
-
 public:
 	CELFSymbolView(QMdiSubWindow*, QLayout*);
 	~CELFSymbolView() = default;
 
-	void SetELF(CELF*);
+	void SetELF(ElfType*);
 	void Reset();
 
 private:
 	void PopulateList();
 
-	CELF* m_pELF = nullptr;
+	ElfType* m_pELF = nullptr;
 	QVBoxLayout* m_layout;
 	QTableWidget* m_tableWidget;
 };

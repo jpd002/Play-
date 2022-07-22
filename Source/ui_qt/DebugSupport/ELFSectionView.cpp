@@ -11,7 +11,8 @@
 #include <QFontDatabase>
 #include <QFontMetrics>
 
-CELFSectionView::CELFSectionView(QMdiSubWindow* parent, QLayout* groupBoxLayout)
+template <typename ElfType>
+CELFSectionView<ElfType>::CELFSectionView(QMdiSubWindow* parent, QLayout* groupBoxLayout)
     : QWidget(parent)
 {
 
@@ -58,12 +59,14 @@ CELFSectionView::CELFSectionView(QMdiSubWindow* parent, QLayout* groupBoxLayout)
 	hide();
 }
 
-void CELFSectionView::SetSection(int section)
+template <typename ElfType>
+void CELFSectionView<ElfType>::SetSection(int section)
 {
 	FillInformation(section);
 }
 
-void CELFSectionView::Reset()
+template <typename ElfType>
+void CELFSectionView<ElfType>::Reset()
 {
 	for(auto editField : m_editFields)
 	{
@@ -71,28 +74,33 @@ void CELFSectionView::Reset()
 	}
 }
 
-void CELFSectionView::showEvent(QShowEvent* evt)
+template <typename ElfType>
+void CELFSectionView<ElfType>::showEvent(QShowEvent* evt)
 {
 	QWidget::showEvent(evt);
 	m_memView->ShowEvent();
 }
 
-void CELFSectionView::ResizeEvent()
+template <typename ElfType>
+void CELFSectionView<ElfType>::ResizeEvent()
 {
 	m_memView->ResizeEvent();
 }
 
-void CELFSectionView::SetBytesPerLine(int bytesForLine)
+template <typename ElfType>
+void CELFSectionView<ElfType>::SetBytesPerLine(int bytesForLine)
 {
 	m_memView->SetBytesPerLine(bytesForLine);
 }
 
-void CELFSectionView::SetELF(CELF* pELF)
+template <typename ElfType>
+void CELFSectionView<ElfType>::SetELF(ElfType* pELF)
 {
 	m_pELF = pELF;
 }
 
-void CELFSectionView::FillInformation(int section)
+template <typename ElfType>
+void CELFSectionView<ElfType>::FillInformation(int section)
 {
 	int i = 0;
 	std::string sTemp;
@@ -100,34 +108,37 @@ void CELFSectionView::FillInformation(int section)
 
 	switch(pH->nType)
 	{
-	case CELF::SHT_NULL:
+	case ELF::SHT_NULL:
 		sTemp = "SHT_NULL";
 		break;
-	case CELF::SHT_PROGBITS:
+	case ELF::SHT_PROGBITS:
 		sTemp = "SHT_PROGBITS";
 		break;
-	case CELF::SHT_SYMTAB:
+	case ELF::SHT_SYMTAB:
 		sTemp = "SHT_SYMTAB";
 		break;
-	case CELF::SHT_STRTAB:
+	case ELF::SHT_STRTAB:
 		sTemp = "SHT_STRTAB";
 		break;
-	case CELF::SHT_HASH:
+	case ELF::SHT_RELA:
+		sTemp = "SHT_RELA";
+		break;
+	case ELF::SHT_HASH:
 		sTemp = "SHT_HASH";
 		break;
-	case CELF::SHT_DYNAMIC:
+	case ELF::SHT_DYNAMIC:
 		sTemp = "SHT_DYNAMIC";
 		break;
-	case CELF::SHT_NOTE:
+	case ELF::SHT_NOTE:
 		sTemp = "SHT_NOTE";
 		break;
-	case CELF::SHT_NOBITS:
+	case ELF::SHT_NOBITS:
 		sTemp = "SHT_NOBITS";
 		break;
-	case CELF::SHT_REL:
+	case ELF::SHT_REL:
 		sTemp = "SHT_REL";
 		break;
-	case CELF::SHT_DYNSYM:
+	case ELF::SHT_DYNSYM:
 		sTemp = "SHT_DYNSYM";
 		break;
 	default:
@@ -140,7 +151,7 @@ void CELFSectionView::FillInformation(int section)
 	if(pH->nFlags & 0x7)
 	{
 		sTemp += " (";
-		if(pH->nFlags & CELF::SHF_WRITE)
+		if(pH->nFlags & ELF::SHF_WRITE)
 		{
 			sTemp += "SHF_WRITE";
 			if(pH->nFlags & 0x06)
@@ -148,7 +159,7 @@ void CELFSectionView::FillInformation(int section)
 				sTemp += " | ";
 			}
 		}
-		if(pH->nFlags & CELF::SHF_ALLOC)
+		if(pH->nFlags & ELF::SHF_ALLOC)
 		{
 			sTemp += "SHF_ALLOC";
 			if(pH->nFlags & 0x04)
@@ -156,7 +167,7 @@ void CELFSectionView::FillInformation(int section)
 				sTemp += " | ";
 			}
 		}
-		if(pH->nFlags & CELF::SHF_EXECINSTR)
+		if(pH->nFlags & ELF::SHF_EXECINSTR)
 		{
 			sTemp += "SHF_EXECINSTR";
 		}
@@ -185,14 +196,14 @@ void CELFSectionView::FillInformation(int section)
 	sTemp = string_format("0x%08X", pH->nOther);
 	m_editFields[i++]->setText(sTemp.c_str());
 
-	if(pH->nType == CELF::SHT_DYNAMIC)
+	if(pH->nType == ELF::SHT_DYNAMIC)
 	{
 		FillDynamicSectionListView(section);
 		m_dynSecTableWidget->show();
 		m_memView->SetData(nullptr, 0);
 		m_memView->hide();
 	}
-	else if(pH->nType != CELF::SHT_NOBITS)
+	else if(pH->nType != ELF::SHT_NOBITS)
 	{
 		uint8* data = (uint8*)m_pELF->GetSectionData(section);
 		auto getByte = [data](uint32 offset) {
@@ -210,7 +221,8 @@ void CELFSectionView::FillInformation(int section)
 	}
 }
 
-void CELFSectionView::FillDynamicSectionListView(int section)
+template <typename ElfType>
+void CELFSectionView<ElfType>::FillDynamicSectionListView(int section)
 {
 	m_dynSecTableWidget->setRowCount(0);
 
@@ -230,35 +242,35 @@ void CELFSectionView::FillDynamicSectionListView(int section)
 
 		switch(tag)
 		{
-		case CELF::DT_NEEDED:
+		case ELF::DT_NEEDED:
 			tempTag = "DT_NEEDED";
 			tempVal = stringTable + value;
 			break;
-		case CELF::DT_PLTRELSZ:
+		case ELF::DT_PLTRELSZ:
 			tempTag = "DT_PLTRELSZ";
 			tempVal = string_format("0x%08X", value);
 			break;
-		case CELF::DT_PLTGOT:
+		case ELF::DT_PLTGOT:
 			tempTag = "DT_PLTGOT";
 			tempVal = string_format("0x%08X", value);
 			break;
-		case CELF::DT_HASH:
+		case ELF::DT_HASH:
 			tempTag = "DT_HASH";
 			tempVal = string_format("0x%08X", value);
 			break;
-		case CELF::DT_STRTAB:
+		case ELF::DT_STRTAB:
 			tempTag = "DT_STRTAB";
 			tempVal = string_format("0x%08X", value);
 			break;
-		case CELF::DT_SYMTAB:
+		case ELF::DT_SYMTAB:
 			tempTag = "DT_SYMTAB";
 			tempVal = string_format("0x%08X", value);
 			break;
-		case CELF::DT_SONAME:
+		case ELF::DT_SONAME:
 			tempTag = "DT_SONAME";
 			tempVal = stringTable + value;
 			break;
-		case CELF::DT_SYMBOLIC:
+		case ELF::DT_SYMBOLIC:
 			tempTag = "DT_SYMBOLIC";
 			tempVal = "";
 			break;
@@ -273,3 +285,6 @@ void CELFSectionView::FillDynamicSectionListView(int section)
 		m_dynSecTableWidget->setItem((i / 8), 1, new QTableWidgetItem(tempVal.c_str()));
 	}
 }
+
+template class CELFSectionView<CELF32>;
+template class CELFSectionView<CELF64>;

@@ -1,15 +1,5 @@
 #include "ElfFile.h"
 
-CElfFile::CElfFile(Framework::CStream& stream)
-    : CElfFileContainer(stream)
-    , CELF(GetFileContent())
-{
-}
-
-CElfFile::~CElfFile()
-{
-}
-
 CElfFileContainer::CElfFileContainer(Framework::CStream& input)
 {
 	uint32 size = static_cast<uint32>(input.GetLength());

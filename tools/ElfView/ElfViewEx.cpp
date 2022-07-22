@@ -2,16 +2,15 @@
 #include "StdStreamUtils.h"
 #include "ElfFile.h"
 
-CElfViewEx::CElfViewEx(QMdiArea* mdiArea, const fs::path& elfPath)
+template <typename ElfType>
+CElfViewEx<ElfType>::CElfViewEx(QMdiArea* mdiArea, const fs::path& elfPath)
     : CELFView(mdiArea)
 {
 	setWindowTitle(QString::fromStdString(elfPath.filename().string()));
 	auto stream = Framework::CreateInputStdStream(elfPath.native());
-	m_elf = new CElfFile(stream);
-	SetELF(m_elf);
+	m_elf = std::make_unique<CElfFile<ElfType>>(stream);
+	SetELF(m_elf.get());
 }
 
-CElfViewEx::~CElfViewEx()
-{
-	delete m_elf;
-}
+template class CElfViewEx<CELF32>;
+template class CElfViewEx<CELF64>;

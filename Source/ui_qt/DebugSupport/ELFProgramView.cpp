@@ -4,7 +4,8 @@
 #include <QLabel>
 #include <QFontMetrics>
 
-CELFProgramView::CELFProgramView(QMdiSubWindow* parent, QLayout* groupBoxLayout)
+template <typename ElfType>
+CELFProgramView<ElfType>::CELFProgramView(QMdiSubWindow* parent, QLayout* groupBoxLayout)
     : QWidget(parent)
 {
 
@@ -47,7 +48,8 @@ CELFProgramView::CELFProgramView(QMdiSubWindow* parent, QLayout* groupBoxLayout)
 	hide();
 }
 
-void CELFProgramView::Reset()
+template <typename ElfType>
+void CELFProgramView<ElfType>::Reset()
 {
 	for(auto editField : m_editFields)
 	{
@@ -55,17 +57,20 @@ void CELFProgramView::Reset()
 	}
 }
 
-void CELFProgramView::SetProgram(int program)
+template <typename ElfType>
+void CELFProgramView<ElfType>::SetProgram(int program)
 {
 	FillInformation(program);
 }
 
-void CELFProgramView::SetELF(CELF* pELF)
+template <typename ElfType>
+void CELFProgramView<ElfType>::SetELF(ElfType* pELF)
 {
 	m_pELF = pELF;
 }
 
-void CELFProgramView::FillInformation(int program)
+template <typename ElfType>
+void CELFProgramView<ElfType>::FillInformation(int program)
 {
 	int i = 0;
 	std::string sTemp;
@@ -73,25 +78,25 @@ void CELFProgramView::FillInformation(int program)
 
 	switch(pH->nType)
 	{
-	case CELF::PT_NULL:
+	case ELF::PT_NULL:
 		sTemp = "PT_NULL";
 		break;
-	case CELF::PT_LOAD:
+	case ELF::PT_LOAD:
 		sTemp = "PT_LOAD";
 		break;
-	case CELF::PT_DYNAMIC:
+	case ELF::PT_DYNAMIC:
 		sTemp = "PT_DYNAMIC";
 		break;
-	case CELF::PT_INTERP:
+	case ELF::PT_INTERP:
 		sTemp = "PT_INTERP";
 		break;
-	case CELF::PT_NOTE:
+	case ELF::PT_NOTE:
 		sTemp = "PT_NOTE";
 		break;
-	case CELF::PT_SHLIB:
+	case ELF::PT_SHLIB:
 		sTemp = "PT_SHLIB";
 		break;
-	case CELF::PT_PHDR:
+	case ELF::PT_PHDR:
 		sTemp = "PT_PHDR";
 		break;
 	default:
@@ -121,3 +126,6 @@ void CELFProgramView::FillInformation(int program)
 	sTemp = string_format("0x%08X", pH->nAlignment);
 	m_editFields[i++]->setText(sTemp.c_str());
 }
+
+template class CELFProgramView<CELF32>;
+template class CELFProgramView<CELF64>;

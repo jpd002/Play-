@@ -639,23 +639,23 @@ int32 CIopBios::LoadModuleFromPath(const char* path, uint32 loadAddress, bool ow
 	}
 	Iop::Ioman::CScopedFile file(handle, *m_ioman);
 	auto stream = m_ioman->GetFileStream(file);
-	CElfFile module(*stream);
+	CElf32File module(*stream);
 	return LoadModule(module, path, loadAddress, ownsMemory);
 }
 
 int32 CIopBios::LoadModuleFromAddress(uint32 modulePtr, uint32 loadAddress, bool ownsMemory)
 {
-	CELF module(m_ram + modulePtr);
+	CELF32 module(m_ram + modulePtr);
 	return LoadModule(module, "", loadAddress, ownsMemory);
 }
 
 int32 CIopBios::LoadModuleFromHost(uint8* modulePtr)
 {
-	CELF module(modulePtr);
+	CELF32 module(modulePtr);
 	return LoadModule(module, "", ~0U, true);
 }
 
-int32 CIopBios::LoadModule(CELF& elf, const char* path, uint32 loadAddress, bool ownsMemory)
+int32 CIopBios::LoadModule(CELF32& elf, const char* path, uint32 loadAddress, bool ownsMemory)
 {
 	uint32 loadedModuleId = m_loadedModules.Allocate();
 	assert(loadedModuleId != -1);
@@ -3294,7 +3294,7 @@ bool CIopBios::ReleaseModule(const std::string& moduleName)
 	return true;
 }
 
-uint32 CIopBios::LoadExecutable(CELF& elf, ExecutableRange& executableRange, uint32 baseAddress)
+uint32 CIopBios::LoadExecutable(CELF32& elf, ExecutableRange& executableRange, uint32 baseAddress)
 {
 	unsigned int programHeaderIndex = GetElfProgramToLoad(elf);
 	if(programHeaderIndex == -1)
@@ -3318,14 +3318,14 @@ uint32 CIopBios::LoadExecutable(CELF& elf, ExecutableRange& executableRange, uin
 	return baseAddress + elf.GetHeader().nEntryPoint;
 }
 
-unsigned int CIopBios::GetElfProgramToLoad(CELF& elf)
+unsigned int CIopBios::GetElfProgramToLoad(CELF32& elf)
 {
 	unsigned int program = -1;
 	const auto& header = elf.GetHeader();
 	for(unsigned int i = 0; i < header.nProgHeaderCount; i++)
 	{
 		auto programHeader = elf.GetProgram(i);
-		if(programHeader != NULL && programHeader->nType == CELF::PT_LOAD)
+		if(programHeader != NULL && programHeader->nType == ELF::PT_LOAD)
 		{
 			if(program != -1)
 			{
@@ -3337,7 +3337,7 @@ unsigned int CIopBios::GetElfProgramToLoad(CELF& elf)
 	return program;
 }
 
-void CIopBios::RelocateElf(CELF& elf, uint32 programBaseAddress, uint32 programSize)
+void CIopBios::RelocateElf(CELF32& elf, uint32 programBaseAddress, uint32 programSize)
 {
 	//The IOP's ELF loader doesn't seem to follow the ELF standard completely
 	//when it comes to relocations. The relocation function seems to use the
@@ -3353,7 +3353,7 @@ void CIopBios::RelocateElf(CELF& elf, uint32 programBaseAddress, uint32 programS
 	for(unsigned int i = 0; i < header.nSectHeaderCount; i++)
 	{
 		const auto* sectionHeader = elf.GetSection(i);
-		if(sectionHeader != nullptr && sectionHeader->nType == CELF::SHT_REL)
+		if(sectionHeader != nullptr && sectionHeader->nType == ELF::SHT_REL)
 		{
 			int32 lastHi16 = -1;
 			uint32 instructionHi16 = -1;
@@ -3382,23 +3382,23 @@ void CIopBios::RelocateElf(CELF& elf, uint32 programBaseAddress, uint32 programS
 					uint32& instruction = getInstructionRef(relocationAddress);
 					switch(relocationType)
 					{
-					case CELF::R_MIPS_32:
+					case ELF::R_MIPS_32:
 					{
 						instruction += programBaseAddress;
 					}
 					break;
-					case CELF::R_MIPS_26:
+					case ELF::R_MIPS_26:
 					{
 						uint32 offset = (instruction & 0x03FFFFFF) + (programBaseAddress >> 2);
 						instruction &= ~0x03FFFFFF;
 						instruction |= offset;
 					}
 					break;
-					case CELF::R_MIPS_HI16:
+					case ELF::R_MIPS_HI16:
 						if(isVersion2)
 						{
 							assert((record + 1) != recordCount);
-							assert((relocationRecord[3] & 0xFF) == CELF::R_MIPS_LO16);
+							assert((relocationRecord[3] & 0xFF) == ELF::R_MIPS_LO16);
 							int32 nextRelocationAddress = relocationRecord[2] - sectionBase;
 							uint32 nextInstruction = getInstructionRef(nextRelocationAddress);
 							uint32 offset = static_cast<int16>(nextInstruction) + (instruction << 16);
@@ -3414,7 +3414,7 @@ void CIopBios::RelocateElf(CELF& elf, uint32 programBaseAddress, uint32 programS
 							instructionHi16 = instruction;
 						}
 						break;
-					case CELF::R_MIPS_LO16:
+					case ELF::R_MIPS_LO16:
 						if(isVersion2)
 						{
 							uint32 offset = static_cast<int16>(instruction);
@@ -3647,7 +3647,7 @@ BiosDebugThreadInfoArray CIopBios::GetThreadsDebugInfo() const
 	return threadInfos;
 }
 
-void CIopBios::PrepareModuleDebugInfo(CELF& elf, const ExecutableRange& moduleRange, const std::string& moduleName, const std::string& modulePath)
+void CIopBios::PrepareModuleDebugInfo(CELF32& elf, const ExecutableRange& moduleRange, const std::string& moduleName, const std::string& modulePath)
 {
 	//Update module tag
 	{
@@ -3721,8 +3721,8 @@ void CIopBios::PrepareModuleDebugInfo(CELF& elf, const ExecutableRange& moduleRa
 			const char* pStrTab = reinterpret_cast<const char*>(elf.GetSectionData(pSymTab->nIndex));
 			if(pStrTab != NULL)
 			{
-				auto pSym = reinterpret_cast<const CELF::ELFSYMBOL*>(elf.FindSectionData(".symtab"));
-				unsigned int nCount = pSymTab->nSize / sizeof(CELF::ELFSYMBOL);
+				auto pSym = reinterpret_cast<const ELF::ELFSYMBOL32*>(elf.FindSectionData(".symtab"));
+				unsigned int nCount = pSymTab->nSize / sizeof(ELF::ELFSYMBOL32);
 
 				for(unsigned int i = 0; i < nCount; i++)
 				{

@@ -5,10 +5,10 @@
 #include <QLabel>
 #include <QFontMetrics>
 
-CELFView::CELFView(QMdiArea* parent)
+template <typename ElfType>
+CELFView<ElfType>::CELFView(QMdiArea* parent)
     : QMdiSubWindow(parent)
 {
-
 	resize(568, 457);
 	parent->addSubWindow(this);
 	setWindowTitle("ELF File Viewer");
@@ -29,15 +29,16 @@ CELFView::CELFView(QMdiArea* parent)
 	QTreeWidgetItem* colHeader = m_treeWidget->headerItem();
 	colHeader->setText(0, "ELF");
 
-	m_pHeaderView = new CELFHeaderView(this, groupBoxLayout);
-	m_pSymbolView = new CELFSymbolView(this, groupBoxLayout);
-	m_pSectionView = new CELFSectionView(this, groupBoxLayout);
-	m_pProgramView = new CELFProgramView(this, groupBoxLayout);
+	m_pHeaderView = new CELFHeaderView<ElfType>(this, groupBoxLayout);
+	m_pSymbolView = new CELFSymbolView<ElfType>(this, groupBoxLayout);
+	m_pSectionView = new CELFSectionView<ElfType>(this, groupBoxLayout);
+	m_pProgramView = new CELFProgramView<ElfType>(this, groupBoxLayout);
 
 	connect(m_treeWidget, &QTreeWidget::itemSelectionChanged, this, &CELFView::itemSelectionChanged);
 }
 
-void CELFView::Reset()
+template <typename ElfType>
+void CELFView<ElfType>::Reset()
 {
 	m_pHeaderView->Reset();
 	m_pSymbolView->Reset();
@@ -45,7 +46,8 @@ void CELFView::Reset()
 	m_pProgramView->Reset();
 }
 
-void CELFView::SetELF(CELF* pELF)
+template <typename ElfType>
+void CELFView<ElfType>::SetELF(ElfType* pELF)
 {
 	Reset();
 
@@ -60,13 +62,15 @@ void CELFView::SetELF(CELF* pELF)
 	PopulateList();
 }
 
-void CELFView::resizeEvent(QResizeEvent* evt)
+template <typename ElfType>
+void CELFView<ElfType>::resizeEvent(QResizeEvent* evt)
 {
 	QMdiSubWindow::resizeEvent(evt);
 	m_pSectionView->ResizeEvent();
 }
 
-void CELFView::PopulateList()
+template <typename ElfType>
+void CELFView<ElfType>::PopulateList()
 {
 	m_treeWidget->clear();
 
@@ -128,7 +132,8 @@ void CELFView::PopulateList()
 	}
 }
 
-void CELFView::itemSelectionChanged()
+template <typename ElfType>
+void CELFView<ElfType>::itemSelectionChanged()
 {
 	m_pHeaderView->hide();
 	m_pSectionView->hide();
@@ -179,3 +184,6 @@ void CELFView::itemSelectionChanged()
 		}
 	}
 }
+
+template class CELFView<CELF32>;
+template class CELFView<CELF64>;

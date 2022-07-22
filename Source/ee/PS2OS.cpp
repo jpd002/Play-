@@ -402,7 +402,7 @@ void CPS2OS::BootFromCDROM()
 	BootFromVirtualPath(executablePath.c_str(), ArgumentList());
 }
 
-CELF* CPS2OS::GetELF()
+CELF32* CPS2OS::GetELF()
 {
 	return m_elf.get();
 }
@@ -425,7 +425,7 @@ std::pair<uint32, uint32> CPS2OS::GetExecutableRange() const
 		{
 			//Wild Arms: Alter Code F has zero sized program headers
 			if(p->nFileSize == 0) continue;
-			if(!(p->nFlags & CELF::PF_X)) continue;
+			if(!(p->nFlags & ELF::PF_X)) continue;
 			uint32 end = p->nVAddress + p->nFileSize;
 			if(end >= PS2::EE_RAM_SIZE) continue;
 			minAddr = std::min<uint32>(minAddr, p->nVAddress);
@@ -438,16 +438,16 @@ std::pair<uint32, uint32> CPS2OS::GetExecutableRange() const
 
 void CPS2OS::LoadELF(Framework::CStream& stream, const char* executablePath, const ArgumentList& arguments)
 {
-	auto elf = std::make_unique<CElfFile>(stream);
+	auto elf = std::make_unique<CElf32File>(stream);
 	const auto& header = elf->GetHeader();
 
 	//Check for MIPS CPU
-	if(header.nCPU != CELF::EM_MIPS)
+	if(header.nCPU != ELF::EM_MIPS)
 	{
 		throw std::runtime_error("Invalid target CPU. Must be MIPS.");
 	}
 
-	if(header.nType != CELF::ET_EXEC)
+	if(header.nType != ELF::ET_EXEC)
 	{
 		throw std::runtime_error("Not an executable ELF file.");
 	}
@@ -580,7 +580,7 @@ uint32 CPS2OS::LoadExecutable(const char* path, const char* section)
 
 	//Load all program sections
 	{
-		CElfFile executable(*fileStream);
+		CElf32File executable(*fileStream);
 		const auto& header = executable.GetHeader();
 		for(unsigned int i = 0; i < header.nProgHeaderCount; i++)
 		{

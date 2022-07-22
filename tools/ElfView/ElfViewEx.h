@@ -4,12 +4,13 @@
 #include "ELFView.h"
 #include "filesystem_def.h"
 
-class CElfViewEx : public CELFView
+template <typename ElfType>
+class CElfViewEx : public CELFView<ElfType>
 {
 public:
 	CElfViewEx(QMdiArea*, const fs::path&);
-	virtual ~CElfViewEx();
+	virtual ~CElfViewEx() = default;
 
 private:
-	CELF* m_elf = nullptr;
+	std::unique_ptr<ElfType> m_elf;
 };

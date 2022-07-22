@@ -5,10 +5,10 @@
 #include <QLabel>
 #include <QFontMetrics>
 
-CELFHeaderView::CELFHeaderView(QMdiSubWindow* parent, QLayout* groupBoxLayout)
+template <typename ElfType>
+CELFHeaderView<ElfType>::CELFHeaderView(QMdiSubWindow* parent, QLayout* groupBoxLayout)
     : QWidget(parent)
 {
-
 	std::vector<std::string> labelsStr = {"Type:", "Machine:", "Version:", "Entry Point:", "Flags:", "Header Size:", "Program Header Table Offset:", "Program Header Size:", "Program Header Count:", "Section Header Table Offset:", "Section Header Size:", "Section Header Count:", "Section Header String Table Index:"};
 	m_layout = new QVBoxLayout(this);
 
@@ -40,7 +40,8 @@ CELFHeaderView::CELFHeaderView(QMdiSubWindow* parent, QLayout* groupBoxLayout)
 	hide();
 }
 
-void CELFHeaderView::Reset()
+template <typename ElfType>
+void CELFHeaderView<ElfType>::Reset()
 {
 	for(auto editField : m_editFields)
 	{
@@ -48,13 +49,15 @@ void CELFHeaderView::Reset()
 	}
 }
 
-void CELFHeaderView::SetELF(CELF* pELF)
+template <typename ElfType>
+void CELFHeaderView<ElfType>::SetELF(ElfType* pELF)
 {
 	m_pELF = pELF;
 	FillInformation();
 }
 
-void CELFHeaderView::FillInformation()
+template <typename ElfType>
+void CELFHeaderView<ElfType>::FillInformation()
 {
 	int i = 0;
 	std::string sTemp;
@@ -62,19 +65,19 @@ void CELFHeaderView::FillInformation()
 
 	switch(pH->nType)
 	{
-	case CELF::ET_NONE:
+	case ELF::ET_NONE:
 		sTemp = ("ET_NONE");
 		break;
-	case CELF::ET_REL:
+	case ELF::ET_REL:
 		sTemp = ("ET_REL");
 		break;
-	case CELF::ET_EXEC:
+	case ELF::ET_EXEC:
 		sTemp = ("ET_EXEC");
 		break;
-	case CELF::ET_DYN:
+	case ELF::ET_DYN:
 		sTemp = ("ET_DYN");
 		break;
-	case CELF::ET_CORE:
+	case ELF::ET_CORE:
 		sTemp = ("ET_CORE");
 		break;
 	default:
@@ -85,34 +88,34 @@ void CELFHeaderView::FillInformation()
 
 	switch(pH->nCPU)
 	{
-	case CELF::EM_NONE:
+	case ELF::EM_NONE:
 		sTemp = ("EM_NONE");
 		break;
-	case CELF::EM_M32:
+	case ELF::EM_M32:
 		sTemp = ("EM_M32");
 		break;
-	case CELF::EM_SPARC:
+	case ELF::EM_SPARC:
 		sTemp = ("EM_SPARC");
 		break;
-	case CELF::EM_386:
+	case ELF::EM_386:
 		sTemp = ("EM_386");
 		break;
-	case CELF::EM_68K:
+	case ELF::EM_68K:
 		sTemp = ("EM_68K");
 		break;
-	case CELF::EM_88K:
+	case ELF::EM_88K:
 		sTemp = ("EM_88K");
 		break;
-	case CELF::EM_860:
+	case ELF::EM_860:
 		sTemp = ("EM_860");
 		break;
-	case CELF::EM_MIPS:
+	case ELF::EM_MIPS:
 		sTemp = ("EM_MIPS");
 		break;
-	case CELF::EM_PPC64:
+	case ELF::EM_PPC64:
 		sTemp = ("EM_PPC64");
 		break;
-	case CELF::EM_ARM:
+	case ELF::EM_ARM:
 		sTemp = ("EM_ARM");
 		break;
 	default:
@@ -123,10 +126,10 @@ void CELFHeaderView::FillInformation()
 
 	switch(pH->nVersion)
 	{
-	case CELF::EV_NONE:
+	case ELF::EV_NONE:
 		sTemp = ("EV_NONE");
 		break;
-	case CELF::EV_CURRENT:
+	case ELF::EV_CURRENT:
 		sTemp = ("EV_CURRENT");
 		break;
 	default:
@@ -146,3 +149,6 @@ void CELFHeaderView::FillInformation()
 	m_editFields[i++]->setText(lexical_cast_uint<std::string>(pH->nSectHeaderCount).c_str());
 	m_editFields[i++]->setText(lexical_cast_uint<std::string>(pH->nSectHeaderStringTableIndex).c_str());
 }
+
+template class CELFHeaderView<CELF32>;
+template class CELFHeaderView<CELF64>;

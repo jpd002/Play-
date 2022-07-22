@@ -1,11 +1,15 @@
 #pragma once
 
 #include <QMainWindow>
+#include "filesystem_def.h"
 
 namespace Ui
 {
 	class MainWindow;
 }
+
+class QMdiArea;
+class QMdiSubWindow;
 
 class MainWindow : public QMainWindow
 {
@@ -20,5 +24,7 @@ private slots:
 	void on_actionExit_triggered();
 
 private:
+	QMdiSubWindow* CreateElfViewFromPath(QMdiArea*, const fs::path&);
+
 	Ui::MainWindow* ui;
 };

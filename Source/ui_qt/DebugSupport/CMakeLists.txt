@@ -126,7 +126,6 @@ set(QT_DEBUGGER_MOC_HEADERS
 	${SRC_ROOT}/AddressListViewWnd.h
 	${SRC_ROOT}/QtDisAsmTableModel.h
 	${SRC_ROOT}/QtDisAsmVuTableModel.h
-	${SRC_ROOT}/ELFView.h
 	${SRC_ROOT}/QtGenericTableModel.h
 	${SRC_ROOT}/QtDebugger.h
 	${SRC_ROOT}/QtDialogListWidget.h

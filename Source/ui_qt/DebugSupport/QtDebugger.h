@@ -140,7 +140,7 @@ private:
 
 	CDisAsmWnd::FindCallersRequestedEvent::Connection m_findCallersRequestConnection;
 
-	CELFView* m_pELFView = nullptr;
+	CELFView<CELF32>* m_pELFView = nullptr;
 	CFunctionsView* m_pFunctionsView = nullptr;
 	QMdiSubWindow* m_threadsView = nullptr;
 	CDebugView* m_pView[DEBUGVIEW_MAX];

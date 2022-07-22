@@ -601,10 +601,10 @@ private:
 	uint32& ModuleStartRequestHead() const;
 	uint32& ModuleStartRequestFree() const;
 
-	int32 LoadModule(CELF&, const char*, uint32, bool);
-	uint32 LoadExecutable(CELF&, ExecutableRange&, uint32);
-	unsigned int GetElfProgramToLoad(CELF&);
-	void RelocateElf(CELF&, uint32, uint32);
+	int32 LoadModule(CELF32&, const char*, uint32, bool);
+	uint32 LoadExecutable(CELF32&, ExecutableRange&, uint32);
+	unsigned int GetElfProgramToLoad(CELF32&);
+	void RelocateElf(CELF32&, uint32, uint32);
 	std::string ReadModuleName(uint32);
 	void DeleteModules();
 
@@ -628,7 +628,7 @@ private:
 	void PopulateSystemIntcHandlers();
 
 #ifdef DEBUGGER_INCLUDED
-	void PrepareModuleDebugInfo(CELF&, const ExecutableRange&, const std::string&, const std::string&);
+	void PrepareModuleDebugInfo(CELF32&, const ExecutableRange&, const std::string&, const std::string&);
 	BiosDebugModuleInfoIterator FindModuleDebugInfo(const std::string&);
 	BiosDebugModuleInfoIterator FindModuleDebugInfo(uint32, uint32);
 #endif
