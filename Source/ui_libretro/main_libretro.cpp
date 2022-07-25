@@ -47,7 +47,7 @@ static std::vector<struct retro_variable> m_vars =
         {NULL, NULL},
 };
 
-enum BootType
+enum class BootType
 {
 	CD,
 	ELF

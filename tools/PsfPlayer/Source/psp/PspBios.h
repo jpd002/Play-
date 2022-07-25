@@ -219,10 +219,10 @@ namespace Psp
 
 		MODULE* FindModule(const char*);
 		MODULEFUNCTION* FindModuleFunction(MODULE*, uint32);
-		void RelocateElf(CELF&);
-		uint32 FindNextRelocationTarget(CELF&, const uint32*, const uint32*);
+		void RelocateElf(CELF32&);
+		uint32 FindNextRelocationTarget(CELF32&, const uint32*, const uint32*);
 #ifdef _DEBUG
-		uint32 FindRelocationAt(CELF&, uint32, uint32);
+		uint32 FindRelocationAt(CELF32&, uint32, uint32);
 #endif
 
 		void LinkThread(uint32);
@@ -238,7 +238,7 @@ namespace Psp
 
 		void Heap_Init();
 
-		CELF* m_module;
+		CELF32* m_module;
 		uint8* m_ram;
 		uint32 m_ramSize;
 		CMIPS& m_cpu;

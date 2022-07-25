@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <stdexcept>
 #include "Types.h"
 #include "ElfDefs.h"
 #include "PtrStream.h"

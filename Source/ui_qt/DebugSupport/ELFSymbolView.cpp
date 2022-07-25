@@ -58,8 +58,8 @@ void CELFSymbolView<ElfType>::PopulateList()
 	const char* pStrTab = (const char*)m_pELF->GetSectionData(pSymTab->nIndex);
 	if(pStrTab == NULL) return;
 
-	auto symbols = reinterpret_cast<const ElfType::SYMBOL*>(m_pELF->FindSectionData(sectionName));
-	unsigned int count = pSymTab->nSize / sizeof(ElfType::SYMBOL);
+	auto symbols = reinterpret_cast<const typename ElfType::SYMBOL*>(m_pELF->FindSectionData(sectionName));
+	unsigned int count = pSymTab->nSize / sizeof(typename ElfType::SYMBOL);
 
 	m_tableWidget->setRowCount(count);
 

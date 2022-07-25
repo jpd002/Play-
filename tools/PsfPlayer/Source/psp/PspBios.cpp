@@ -367,7 +367,7 @@ void CBios::LoadModule(const char* path)
 			throw std::runtime_error("Couldn't open executable for reading.");
 		}
 		Framework::CStream* stream = m_ioFileMgrForUserModule->GetFileStream(handle);
-		m_module = new CElfFile(*stream);
+		m_module = new CElf32File(*stream);
 		m_ioFileMgrForUserModule->IoClose(handle);
 	}
 
@@ -952,7 +952,7 @@ CBios::MODULEFUNCTION* CBios::FindModuleFunction(MODULE* module, uint32 id)
 	return NULL;
 }
 
-void CBios::RelocateElf(CELF& elf)
+void CBios::RelocateElf(CELF32& elf)
 {
 	const auto& header = elf.GetHeader();
 	for(unsigned int i = 0; i < header.nSectHeaderCount; i++)
@@ -987,19 +987,19 @@ void CBios::RelocateElf(CELF& elf)
 					uint32& instruction = *reinterpret_cast<uint32*>(m_ram + relocationAddress);
 					switch(relocationType)
 					{
-					case CELF::R_MIPS_32:
+					case ELF::R_MIPS_32:
 					{
 						instruction += baseAddress;
 					}
 					break;
-					case CELF::R_MIPS_26:
+					case ELF::R_MIPS_26:
 					{
 						uint32 offset = (instruction & 0x03FFFFFF) + (baseAddress >> 2);
 						instruction &= ~0x03FFFFFF;
 						instruction |= offset;
 					}
 					break;
-					case CELF::R_MIPS_HI16:
+					case ELF::R_MIPS_HI16:
 					{
 						//Find the next LO16 reloc
 						uint32 nextRelocAddress = FindNextRelocationTarget(elf, relocationRecord + 2, relocationRecord + (recordCount - record) * 2);
@@ -1015,7 +1015,7 @@ void CBios::RelocateElf(CELF& elf)
 						}
 					}
 					break;
-					case CELF::R_MIPS_LO16:
+					case ELF::R_MIPS_LO16:
 					{
 						uint32 offset = static_cast<int16>(instruction);
 						offset += baseAddress;
@@ -1034,7 +1034,7 @@ void CBios::RelocateElf(CELF& elf)
 	}
 }
 
-uint32 CBios::FindNextRelocationTarget(CELF& elf, const uint32* begin, const uint32* end)
+uint32 CBios::FindNextRelocationTarget(CELF32& elf, const uint32* begin, const uint32* end)
 {
 	for(const uint32* relocationRecord(begin); relocationRecord != end; relocationRecord += 2)
 	{
@@ -1047,7 +1047,7 @@ uint32 CBios::FindNextRelocationTarget(CELF& elf, const uint32* begin, const uin
 		assert(progOfsBase != NULL);
 		assert(progOfsBase->nType != RELOC_SECTION_ID);
 
-		if(relocationType == CELF::R_MIPS_LO16)
+		if(relocationType == ELF::R_MIPS_LO16)
 		{
 			return relocationRecord[0] + progOfsBase->nVAddress;
 		}
@@ -1057,7 +1057,7 @@ uint32 CBios::FindNextRelocationTarget(CELF& elf, const uint32* begin, const uin
 
 #ifdef _DEBUG
 
-uint32 CBios::FindRelocationAt(CELF& elf, uint32 address, uint32 programSection)
+uint32 CBios::FindRelocationAt(CELF32& elf, uint32 address, uint32 programSection)
 {
 	const auto& header = elf.GetHeader();
 	for(unsigned int i = 0; i < header.nSectHeaderCount; i++)
