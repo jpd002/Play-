@@ -4,6 +4,7 @@
 #include "Types.h"
 #include "ElfDefs.h"
 #include "PtrStream.h"
+#include "EndianUtils.h"
 
 struct ELFTRAITS32
 {
@@ -55,9 +56,21 @@ public:
 			throw std::runtime_error("Failed to load ELF file: wrong bitness.");
 		}
 
-		if(m_header.nId[ELF::EI_DATA] != ELF::ELFDATA2LSB)
+		if(m_header.nId[ELF::EI_DATA] == ELF::ELFDATA2MSB)
 		{
-			throw std::runtime_error("This ELF file format is not supported. Only LSB ordered ELFs are supported.");
+			Framework::CEndian::FromMSBF(m_header.nType);
+			Framework::CEndian::FromMSBF(m_header.nCPU);
+			Framework::CEndian::FromMSBF(m_header.nVersion);
+			Framework::CEndian::FromMSBF(m_header.nEntryPoint);
+			Framework::CEndian::FromMSBF(m_header.nProgHeaderStart);
+			Framework::CEndian::FromMSBF(m_header.nSectHeaderStart);
+			Framework::CEndian::FromMSBF(m_header.nFlags);
+			Framework::CEndian::FromMSBF(m_header.nSize);
+			Framework::CEndian::FromMSBF(m_header.nProgHeaderEntrySize);
+			Framework::CEndian::FromMSBF(m_header.nProgHeaderCount);
+			Framework::CEndian::FromMSBF(m_header.nSectHeaderEntrySize);
+			Framework::CEndian::FromMSBF(m_header.nSectHeaderCount);
+			Framework::CEndian::FromMSBF(m_header.nSectHeaderStringTableIndex);
 		}
 
 		{
@@ -66,6 +79,17 @@ public:
 			for(auto& program : m_programs)
 			{
 				stream.Read(&program, sizeof(program));
+				if(m_header.nId[ELF::EI_DATA] == ELF::ELFDATA2MSB)
+				{
+					Framework::CEndian::FromMSBF(program.nType);
+					Framework::CEndian::FromMSBF(program.nFlags);
+					Framework::CEndian::FromMSBF(program.nOffset);
+					Framework::CEndian::FromMSBF(program.nVAddress);
+					Framework::CEndian::FromMSBF(program.nPAddress);
+					Framework::CEndian::FromMSBF(program.nFileSize);
+					Framework::CEndian::FromMSBF(program.nMemorySize);
+					Framework::CEndian::FromMSBF(program.nAlignment);
+				}
 			}
 		}
 
@@ -75,6 +99,19 @@ public:
 			for(auto& section : m_sections)
 			{
 				stream.Read(&section, sizeof(section));
+				if(m_header.nId[ELF::EI_DATA] == ELF::ELFDATA2MSB)
+				{
+					Framework::CEndian::FromMSBF(section.nStringTableIndex);
+					Framework::CEndian::FromMSBF(section.nType);
+					Framework::CEndian::FromMSBF(section.nFlags);
+					Framework::CEndian::FromMSBF(section.nStart);
+					Framework::CEndian::FromMSBF(section.nOffset);
+					Framework::CEndian::FromMSBF(section.nSize);
+					Framework::CEndian::FromMSBF(section.nIndex);
+					Framework::CEndian::FromMSBF(section.nInfo);
+					Framework::CEndian::FromMSBF(section.nAlignment);
+					Framework::CEndian::FromMSBF(section.nOther);
+				}
 			}
 		}
 	}
