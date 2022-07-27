@@ -158,10 +158,12 @@ private:
 	bool m_singleStepVu0;
 	bool m_singleStepVu1;
 
+#ifdef DEBUGGER_INCLUDED
 	CFrameDump m_frameDump;
 	FrameDumpCallback m_frameDumpCallback;
 	std::mutex m_frameDumpCallbackMutex;
 	bool m_dumpingFrame = false;
+#endif
 
 	OpticalMediaPtr m_cdrom0;
 

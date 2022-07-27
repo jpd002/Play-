@@ -306,6 +306,7 @@ std::future<bool> CPS2VM::LoadState(const fs::path& statePath)
 
 void CPS2VM::TriggerFrameDump(const FrameDumpCallback& frameDumpCallback)
 {
+#ifdef DEBUGGER_INCLUDED
 	m_mailBox.SendCall(
 	    [=]() {
 		    std::unique_lock<std::mutex> frameDumpCallbackMutexLock(m_frameDumpCallbackMutex);
@@ -313,6 +314,7 @@ void CPS2VM::TriggerFrameDump(const FrameDumpCallback& frameDumpCallback)
 		    m_frameDumpCallback = frameDumpCallback;
 	    },
 	    false);
+#endif
 }
 
 CPS2VM::CPU_UTILISATION_INFO CPS2VM::GetCpuUtilisationInfo() const
