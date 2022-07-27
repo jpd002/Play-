@@ -63,6 +63,11 @@ void CELFSymbolView<ElfType>::PopulateList()
 
 	m_tableWidget->setRowCount(count);
 
+#define CASE_ELF_ENUM(enumValue) \
+	case ELF::enumValue:         \
+		sTemp = #enumValue;      \
+		break;
+
 	for(unsigned int i = 0; i < count; i++)
 	{
 		auto symbol = symbols[i];
@@ -76,21 +81,11 @@ void CELFSymbolView<ElfType>::PopulateList()
 
 		switch(symbol.nInfo & 0x0F)
 		{
-		case 0x00:
-			sTemp = "STT_NOTYPE";
-			break;
-		case 0x01:
-			sTemp = "STT_OBJECT";
-			break;
-		case 0x02:
-			sTemp = "STT_FUNC";
-			break;
-		case 0x03:
-			sTemp = "STT_SECTION";
-			break;
-		case 0x04:
-			sTemp = "STT_FILE";
-			break;
+			CASE_ELF_ENUM(STT_NOTYPE)
+			CASE_ELF_ENUM(STT_OBJECT)
+			CASE_ELF_ENUM(STT_FUNC)
+			CASE_ELF_ENUM(STT_SECTION)
+			CASE_ELF_ENUM(STT_FILE)
 		default:
 			sTemp = string_format("%i", symbol.nInfo & 0x0F);
 			break;
@@ -99,15 +94,9 @@ void CELFSymbolView<ElfType>::PopulateList()
 
 		switch((symbol.nInfo >> 4) & 0xF)
 		{
-		case 0x00:
-			sTemp = "STB_LOCAL";
-			break;
-		case 0x01:
-			sTemp = "STB_GLOBAL";
-			break;
-		case 0x02:
-			sTemp = "STB_WEAK";
-			break;
+			CASE_ELF_ENUM(STB_LOCAL)
+			CASE_ELF_ENUM(STB_GLOBAL)
+			CASE_ELF_ENUM(STB_WEAK)
 		default:
 			sTemp = string_format("%i", (symbol.nInfo >> 4) & 0x0F);
 			break;
@@ -116,17 +105,15 @@ void CELFSymbolView<ElfType>::PopulateList()
 
 		switch(symbol.nSectionIndex)
 		{
-		case 0:
-			sTemp = "SHN_UNDEF";
-			break;
-		case 0xFFF1:
-			sTemp = "SHN_ABS";
-			break;
+			CASE_ELF_ENUM(SHN_UNDEF)
+			CASE_ELF_ENUM(SHN_ABS)
 		default:
 			sTemp = string_format("%i", symbol.nSectionIndex);
 			break;
 		}
 		m_tableWidget->setItem(i, j++, new QTableWidgetItem(sTemp.c_str()));
+
+#undef CASE_ELF_ENUM
 	}
 }
 

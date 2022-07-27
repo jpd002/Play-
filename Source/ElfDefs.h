@@ -118,6 +118,9 @@ namespace ELF
 	{
 		EI_CLASS = 4,
 		EI_DATA = 5,
+		EI_VERSION = 6,
+		EI_OSABI = 7,
+		EI_ABIVERSION = 8,
 	};
 
 	enum ELFCLASS
@@ -130,6 +133,11 @@ namespace ELF
 	{
 		ELFDATA2LSB = 1,
 		ELFDATA2MSB = 2,
+	};
+
+	enum ELFOSABI
+	{
+		ELFOSABI_FREEBSD = 9,
 	};
 
 	enum EXECUTABLE_TYPE
@@ -183,6 +191,12 @@ namespace ELF
 		SHF_EXECINSTR = 0x0004,
 	};
 
+	enum SECTION_HEADER_NUMBER
+	{
+		SHN_UNDEF = 0,
+		SHN_ABS = 0xFFF1,
+	};
+
 	enum PROGRAM_HEADER_TYPE
 	{
 		PT_NULL = 0,
@@ -221,5 +235,21 @@ namespace ELF
 		R_MIPS_HI16 = 5,
 		R_MIPS_LO16 = 6,
 		R_MIPS_GPREL16 = 7,
+	};
+
+	enum SYMBOL_TYPE
+	{
+		STT_NOTYPE = 0,
+		STT_OBJECT = 1,
+		STT_FUNC = 2,
+		STT_SECTION = 3,
+		STT_FILE = 4,
+	};
+
+	enum SYMBOL_BINDING
+	{
+		STB_LOCAL = 0,
+		STB_GLOBAL = 1,
+		STB_WEAK = 2,
 	};
 }
