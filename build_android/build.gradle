@@ -7,7 +7,7 @@ buildscript {
 	}
 
 	dependencies {
-		classpath 'com.android.tools.build:gradle:7.1.2'
+		classpath 'com.android.tools.build:gradle:7.2.1'
 		classpath 'org.ajoberstar.grgit:grgit-gradle:4.1.1'
 	}
 }
@@ -29,13 +29,13 @@ android {
 		mavenCentral()
 	}
 
-	compileSdkVersion 'android-30'
+	compileSdkVersion 'android-32'
 
 	defaultConfig {
 		versionCode (100 + gitVersionCode)
 		versionName gitVersionName
 		minSdkVersion 19
-		targetSdkVersion 30
+		targetSdkVersion 32
 		externalNativeBuild {
 			cmake {
 				arguments "-DANDROID_ARM_NEON=TRUE", "-DANDROID_TOOLCHAIN=clang",
@@ -43,7 +43,7 @@ android {
 				cppFlags "-frtti"
 				targets "Play"
 			}
-			ndkVersion "22.1.7171670"
+			ndkVersion "25.0.8775105"
 			ndk {
 				abiFilters 'armeabi-v7a', 'x86', 'x86_64', 'arm64-v8a'
 			}
@@ -52,8 +52,8 @@ android {
 	}
 
 	dependencies {
-		api 'androidx.appcompat:appcompat:1.2.0'
-		api 'androidx.preference:preference:1.1.1'
+		api 'androidx.appcompat:appcompat:1.4.2'
+		api 'androidx.preference:preference:1.2.0'
 		implementation 'androidx.documentfile:documentfile:1.0.1'
 		api 'org.apache.commons:commons-lang3:3.4'
 		api 'commons-io:commons-io:2.5'
@@ -94,7 +94,6 @@ android {
 		}
 	}
 
-
 	task copyPatchesFile(type: Copy) {
 		from '../patches.xml'
 		into 'src/main/assets'
@@ -108,7 +107,7 @@ android {
 	externalNativeBuild {
 		cmake {
 			path '../CMakeLists.txt'
-			version "3.18.1"
+			version "3.22.1"
 		}
 	}
 
