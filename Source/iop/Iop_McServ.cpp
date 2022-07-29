@@ -1,6 +1,7 @@
 #include <assert.h>
 #include <stdio.h>
 #include <algorithm>
+#include <cstring>
 #include <states/XmlStateFile.h>
 #include <xml/Utils.h>
 #include "string_format.h"

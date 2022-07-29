@@ -1,5 +1,6 @@
 #include "Ee_LibMc2.h"
 #include <cassert>
+#include <cstring>
 #include "zip/ZipArchiveWriter.h"
 #include "zip/ZipArchiveReader.h"
 #include "Ps2Const.h"

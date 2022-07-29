@@ -1,4 +1,5 @@
 #include <vector>
+#include <cstring>
 
 #include "string_format.h"
 #include "PtrStream.h"
