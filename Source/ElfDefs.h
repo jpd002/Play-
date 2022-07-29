@@ -112,6 +112,12 @@ namespace ELF
 		uint64 nAlignment;
 	};
 
+	struct ELFRELA64
+	{
+		uint64 offset;
+		uint64 info;
+		int64 addend;
+	};
 #pragma pack(pop)
 
 	enum ELFHEADERID
@@ -235,6 +241,12 @@ namespace ELF
 		R_MIPS_HI16 = 5,
 		R_MIPS_LO16 = 6,
 		R_MIPS_GPREL16 = 7,
+	};
+
+	enum AMD64_RELOCATION_TYPE
+	{
+		R_AMD64_64 = 1,
+		R_AMD64_PLT32 = 4,
 	};
 
 	enum SYMBOL_TYPE
