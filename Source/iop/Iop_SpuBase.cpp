@@ -642,7 +642,7 @@ void CSpuBase::MixSamples(int32 inputSample, int32 volumeLevel, int16* output)
 void CSpuBase::Render(int16* samples, unsigned int sampleCount, unsigned int sampleRate)
 {
 	bool updateReverb = m_reverbEnabled && (m_ctrl & CONTROL_REVERB) && (m_reverbWorkAddrStart < m_reverbWorkAddrEnd);
-	bool checkIrqs = (m_ctrl & CONTROL_IRQ) && (m_irqAddr != INVALID_ADDRESS);
+	bool irqEnabled = (m_ctrl & CONTROL_IRQ);
 
 	assert((sampleCount & 0x01) == 0);
 	//ticks are 44100Hz ticks
@@ -656,8 +656,6 @@ void CSpuBase::Render(int16* samples, unsigned int sampleCount, unsigned int sam
 		for(unsigned int i = 0; i < 24; i++)
 		{
 			auto& channel(m_channel[i]);
-			bool hasDynamicVolume = (channel.volumeLeft.mode.mode != 0) || (channel.volumeRight.mode.mode != 0);
-			if((channel.status == STOPPED) && !checkIrqs && !hasDynamicVolume) continue;
 			auto& reader(m_reader[i]);
 			reader.SetIrqAddress(m_irqAddr);
 			if(channel.status == KEY_ON)
@@ -674,8 +672,6 @@ void CSpuBase::Render(int16* samples, unsigned int sampleCount, unsigned int sam
 					channel.status = STOPPED;
 					channel.adsrVolume = 0;
 					reader.ClearIsDone();
-					//No point in continuing if we don't need to check interrupts
-					if(!checkIrqs) continue;
 				}
 				if(reader.DidChangeRepeat())
 				{
@@ -691,7 +687,7 @@ void CSpuBase::Render(int16* samples, unsigned int sampleCount, unsigned int sam
 			reader.GetSamples(&readSample, 1, sampleRate);
 			channel.current = reader.GetCurrent();
 
-			if(checkIrqs && reader.GetIrqPending())
+			if(irqEnabled && reader.GetIrqPending())
 			{
 				m_irqPending = true;
 			}
