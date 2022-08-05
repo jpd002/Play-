@@ -5,19 +5,17 @@
 class CGSH_Null : public CGSHandler
 {
 public:
-	CGSH_Null();
-	virtual ~CGSH_Null();
+	CGSH_Null() = default;
+	virtual ~CGSH_Null() = default;
 
-	virtual void ProcessHostToLocalTransfer() override;
-	virtual void ProcessLocalToHostTransfer() override;
-	virtual void ProcessLocalToLocalTransfer() override;
-	virtual void ProcessClutTransfer(uint32, uint32) override;
+	void ProcessHostToLocalTransfer() override;
+	void ProcessLocalToHostTransfer() override;
+	void ProcessLocalToLocalTransfer() override;
+	void ProcessClutTransfer(uint32, uint32) override;
 
 	static FactoryFunction GetFactoryFunction();
 
 private:
-	virtual void InitializeImpl() override;
-	virtual void ReleaseImpl() override;
-
-	static CGSHandler* GSHandlerFactory();
+	void InitializeImpl() override;
+	void ReleaseImpl() override;
 };

@@ -1,13 +1,5 @@
 #include "GSH_Null.h"
 
-CGSH_Null::CGSH_Null()
-{
-}
-
-CGSH_Null::~CGSH_Null()
-{
-}
-
 void CGSH_Null::InitializeImpl()
 {
 }
@@ -34,10 +26,5 @@ void CGSH_Null::ProcessClutTransfer(uint32, uint32)
 
 CGSHandler::FactoryFunction CGSH_Null::GetFactoryFunction()
 {
-	return std::bind(&CGSH_Null::GSHandlerFactory);
-}
-
-CGSHandler* CGSH_Null::GSHandlerFactory()
-{
-	return new CGSH_Null();
+	return []() { return new CGSH_Null(); };
 }
