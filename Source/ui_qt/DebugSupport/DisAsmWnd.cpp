@@ -93,6 +93,7 @@ CDisAsmWnd::CDisAsmWnd(QWidget* parent, CVirtualMachine& virtualMachine, CMIPS* 
 
 	QAction* copyAction = new QAction("copy", this);
 	copyAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_C));
+	copyAction->setShortcutContext(Qt::WidgetShortcut);
 	connect(copyAction, &QAction::triggered, this, &CDisAsmWnd::OnCopy);
 	addAction(copyAction);
 
