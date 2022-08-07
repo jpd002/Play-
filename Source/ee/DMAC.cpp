@@ -59,10 +59,11 @@ static uint32 DummyTransferFunction(uint32 address, uint32 size, uint32, bool)
 	throw std::runtime_error("Not implemented.");
 }
 
-CDMAC::CDMAC(uint8* ram, uint8* spr, uint8* vuMem0, CMIPS& ee)
+CDMAC::CDMAC(uint8* ram, uint8* spr, uint8* vuMem0, uint8* vuMem1, CMIPS& ee)
     : m_ram(ram)
     , m_spr(spr)
     , m_vuMem0(vuMem0)
+    , m_vuMem1(vuMem1)
     , m_ee(ee)
     , m_D_STAT(0)
     , m_D_ENABLE(0)
@@ -312,6 +313,12 @@ uint32 CDMAC::ReceiveDMA9(uint32 nSrcAddress, uint32 nCount, uint32 unused, bool
 		nSrcAddress -= PS2::VUMEM0ADDR;
 		nSrcAddress &= (PS2::VUMEM0SIZE - 1);
 		srcPtr = m_vuMem0;
+	}
+	else if((nSrcAddress >= PS2::VUMEM1ADDR) && (nSrcAddress < (PS2::VUMEM1ADDR + PS2::VUMEM1SIZE)))
+	{
+		nSrcAddress -= PS2::VUMEM1ADDR;
+		nSrcAddress &= (PS2::VUMEM1SIZE - 1);
+		srcPtr = m_vuMem1;
 	}
 	else
 	{

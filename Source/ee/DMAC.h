@@ -107,7 +107,7 @@ public:
 		SPR_MADR_WRITE_MASK = ~(0x8000000FU),
 	};
 
-	CDMAC(uint8*, uint8*, uint8*, CMIPS&);
+	CDMAC(uint8*, uint8*, uint8*, uint8*, CMIPS&);
 	virtual ~CDMAC() = default;
 
 	void Reset();
@@ -222,6 +222,7 @@ private:
 	uint8* m_ram;
 	uint8* m_spr;
 	uint8* m_vuMem0;
+	uint8* m_vuMem1;
 
 	CMIPS& m_ee;
 
