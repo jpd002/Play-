@@ -93,6 +93,7 @@ void CTransferHost::DoTransfer(const XferBuffer& inputData)
 		break;
 	case CGSHandler::PSMCT16S:
 	case CGSHandler::PSMCT16:
+	case CGSHandler::PSMZ16S:
 		pixelCount = inputData.size() / 2;
 		break;
 	case CGSHandler::PSMT8:
@@ -316,6 +317,7 @@ Framework::Vulkan::CShaderModule CTransferHost::CreateXferShader(const PIPELINE_
 		break;
 		case CGSHandler::PSMCT16S:
 		case CGSHandler::PSMCT16:
+		case CGSHandler::PSMZ16S:
 		{
 			auto input = XferStream_Read16(b, xferBuffer, xferBufferOffset, pixelIndex);
 			auto address = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT16>(
