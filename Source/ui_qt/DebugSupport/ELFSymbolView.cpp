@@ -10,7 +10,6 @@ template <typename ElfType>
 CELFSymbolView<ElfType>::CELFSymbolView(QMdiSubWindow* parent, QLayout* groupBoxLayout)
     : QWidget(parent)
 {
-
 	QStringList colLabels = {"Name", "Address", "Size", "Type", "Binding", "Section"};
 
 	m_layout = new QVBoxLayout(this);
@@ -19,6 +18,7 @@ CELFSymbolView<ElfType>::CELFSymbolView(QMdiSubWindow* parent, QLayout* groupBox
 	m_tableWidget->setRowCount(0);
 	m_tableWidget->setColumnCount(6);
 	m_tableWidget->setHorizontalHeaderLabels(colLabels);
+	m_tableWidget->setSortingEnabled(true);
 
 	m_tableWidget->verticalHeader()->hide();
 	m_tableWidget->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);
@@ -49,7 +49,6 @@ void CELFSymbolView<ElfType>::SetELF(ElfType* pELF)
 template <typename ElfType>
 void CELFSymbolView<ElfType>::PopulateList()
 {
-	// m_sortState = SORT_STATE_NONE;
 	const char* sectionName = ".symtab";
 
 	auto pSymTab = m_pELF->FindSection(sectionName);
