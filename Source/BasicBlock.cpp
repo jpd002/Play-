@@ -41,9 +41,10 @@ extern "C"
 
 #define INVALID_LINK_SLOT (~0U)
 
-CBasicBlock::CBasicBlock(CMIPS& context, uint32 begin, uint32 end)
+CBasicBlock::CBasicBlock(CMIPS& context, uint32 begin, uint32 end, BLOCK_CATEGORY category)
     : m_begin(begin)
     , m_end(end)
+    , m_category(category)
     , m_context(context)
 #ifdef AOT_USE_CACHE
     , m_function(nullptr)
@@ -154,7 +155,7 @@ void CBasicBlock::Compile()
 	AOT_BLOCK* blocksBegin = &_aot_firstBlock;
 	AOT_BLOCK* blocksEnd = blocksBegin + _aot_blockCount;
 
-	AOT_BLOCK blockRef = {blockChecksum, m_begin, m_end, 0, nullptr};
+	AOT_BLOCK blockRef = {{m_category, blockChecksum, m_begin, m_end}, nullptr};
 
 	static const auto blockComparer =
 	    [](const AOT_BLOCK& item1, const AOT_BLOCK& item2) {
@@ -181,6 +182,7 @@ void CBasicBlock::Compile()
 	{
 		std::lock_guard<std::mutex> lock(m_aotBlockOutputStreamMutex);
 
+		m_aotBlockOutputStream->Write32(m_category);
 		m_aotBlockOutputStream->Write32(blockChecksum);
 		m_aotBlockOutputStream->Write32(m_begin);
 		m_aotBlockOutputStream->Write32(m_end);

@@ -3,7 +3,7 @@
 #include <zstd_zlibwrapper.h>
 
 CVuExecutor::CVuExecutor(CMIPS& context, uint32 maxAddress)
-    : CGenericMipsExecutor(context, maxAddress)
+    : CGenericMipsExecutor(context, maxAddress, BLOCK_CATEGORY_PS2_VU)
 {
 }
 
@@ -49,7 +49,7 @@ BasicBlockPtr CVuExecutor::BlockFactory(CMIPS& context, uint32 begin, uint32 end
 		}
 	}
 
-	auto result = std::make_shared<CVuBasicBlock>(context, begin, end);
+	auto result = std::make_shared<CVuBasicBlock>(context, begin, end, m_blockCategory);
 	result->Compile();
 	m_cachedBlocks.insert(std::make_pair(checksum, result));
 	return result;

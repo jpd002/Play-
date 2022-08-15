@@ -5,7 +5,7 @@
 class CVuBasicBlock : public CBasicBlock
 {
 public:
-	CVuBasicBlock(CMIPS&, uint32, uint32);
+	CVuBasicBlock(CMIPS&, uint32, uint32, BLOCK_CATEGORY);
 	virtual ~CVuBasicBlock() = default;
 
 	bool IsLinkable() const;

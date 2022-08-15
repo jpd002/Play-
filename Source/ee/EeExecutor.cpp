@@ -34,7 +34,7 @@
 static CEeExecutor* g_eeExecutor = nullptr;
 
 CEeExecutor::CEeExecutor(CMIPS& context, uint8* ram)
-    : CGenericMipsExecutor(context, 0x20000000)
+    : CGenericMipsExecutor(context, 0x20000000, BLOCK_CATEGORY_PS2_EE)
     , m_ram(ram)
 {
 	m_pageSize = framework_getpagesize();
@@ -157,7 +157,7 @@ BasicBlockPtr CEeExecutor::BlockFactory(CMIPS& context, uint32 start, uint32 end
 		}
 	}
 
-	auto result = std::make_shared<CEeBasicBlock>(context, start, end);
+	auto result = std::make_shared<CEeBasicBlock>(context, start, end, m_blockCategory);
 	result->Compile();
 	if(!hasBreakpoint)
 	{

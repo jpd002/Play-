@@ -45,7 +45,7 @@ CSubSystem::CSubSystem(bool ps2Mode)
 		m_bios = std::make_shared<CPsxBios>(m_cpu, m_ram, PS2::IOP_RAM_SIZE);
 	}
 
-	m_cpu.m_executor = std::make_unique<CGenericMipsExecutor<BlockLookupOneWay>>(m_cpu, (IOP_RAM_SIZE * 4));
+	m_cpu.m_executor = std::make_unique<CGenericMipsExecutor<BlockLookupOneWay>>(m_cpu, (IOP_RAM_SIZE * 4), BLOCK_CATEGORY_PS2_IOP);
 
 	//Read memory map
 	m_cpu.m_pMemoryMap->InsertReadMap((0 * IOP_RAM_SIZE), (0 * IOP_RAM_SIZE) + IOP_RAM_SIZE - 1, m_ram, 0x01);

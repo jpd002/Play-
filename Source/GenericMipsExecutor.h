@@ -32,11 +32,12 @@ public:
 		RECYCLE_NOLINK_THRESHOLD = 16,
 	};
 
-	CGenericMipsExecutor(CMIPS& context, uint32 maxAddress)
-	    : m_emptyBlock(std::make_shared<CBasicBlock>(context, MIPS_INVALID_PC, MIPS_INVALID_PC))
+	CGenericMipsExecutor(CMIPS& context, uint32 maxAddress, BLOCK_CATEGORY blockCategory)
+	    : m_emptyBlock(std::make_shared<CBasicBlock>(context, MIPS_INVALID_PC, MIPS_INVALID_PC, blockCategory))
 	    , m_context(context)
 	    , m_maxAddress(maxAddress)
 	    , m_addressMask(maxAddress - 1)
+	    , m_blockCategory(blockCategory)
 	    , m_blockLookup(m_emptyBlock.get(), maxAddress)
 	{
 		m_emptyBlock->Compile();
@@ -148,7 +149,7 @@ protected:
 
 	virtual BasicBlockPtr BlockFactory(CMIPS& context, uint32 start, uint32 end)
 	{
-		auto result = std::make_shared<CBasicBlock>(context, start, end);
+		auto result = std::make_shared<CBasicBlock>(context, start, end, m_blockCategory);
 		result->Compile();
 		return result;
 	}
@@ -319,6 +320,7 @@ protected:
 	CMIPS& m_context;
 	uint32 m_maxAddress = 0;
 	uint32 m_addressMask = 0;
+	BLOCK_CATEGORY m_blockCategory = BLOCK_CATEGORY_UNKNOWN;
 
 	BlockLookupType m_blockLookup;
 

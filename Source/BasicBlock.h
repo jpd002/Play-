@@ -7,31 +7,26 @@
 #include <mutex>
 #endif
 
+enum BLOCK_CATEGORY : uint32
+{
+	BLOCK_CATEGORY_UNKNOWN = 0,
+	BLOCK_CATEGORY_PS2_EE = 0x65650000,
+	BLOCK_CATEGORY_PS2_IOP = 0x696F7000,
+	BLOCK_CATEGORY_PS2_VU = 0x76750000,
+};
+
 struct AOT_BLOCK_KEY
 {
+	BLOCK_CATEGORY category;
 	uint32 crc;
 	uint32 begin;
 	uint32 end;
-	uint32 align;
 
 	bool operator<(const AOT_BLOCK_KEY& k2) const
 	{
 		const auto& k1 = (*this);
-		if(k1.crc == k2.crc)
-		{
-			if(k1.begin == k2.begin)
-			{
-				return k1.end < k2.end;
-			}
-			else
-			{
-				return k1.begin < k2.begin;
-			}
-		}
-		else
-		{
-			return k1.crc < k2.crc;
-		}
+		return std::tie(k1.category, k1.crc, k1.begin, k1.end) <
+		       std::tie(k2.category, k2.crc, k2.begin, k2.end);
 	}
 };
 static_assert(sizeof(AOT_BLOCK_KEY) == 0x10, "AOT_BLOCK_KEY must be 16 bytes long.");
@@ -72,7 +67,7 @@ typedef BlockOutLinkMap::iterator BlockOutLinkPointer;
 class CBasicBlock
 {
 public:
-	CBasicBlock(CMIPS&, uint32 = MIPS_INVALID_PC, uint32 = MIPS_INVALID_PC);
+	CBasicBlock(CMIPS&, uint32 = MIPS_INVALID_PC, uint32 = MIPS_INVALID_PC, BLOCK_CATEGORY = BLOCK_CATEGORY_UNKNOWN);
 	virtual ~CBasicBlock() = default;
 	void Execute();
 	void Compile();
@@ -99,6 +94,7 @@ public:
 protected:
 	uint32 m_begin;
 	uint32 m_end;
+	BLOCK_CATEGORY m_category;
 	CMIPS& m_context;
 
 	virtual void CompileProlog(CMipsJitter*);

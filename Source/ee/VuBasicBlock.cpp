@@ -4,8 +4,8 @@
 #include "MemoryUtils.h"
 #include "Vpu.h"
 
-CVuBasicBlock::CVuBasicBlock(CMIPS& context, uint32 begin, uint32 end)
-    : CBasicBlock(context, begin, end)
+CVuBasicBlock::CVuBasicBlock(CMIPS& context, uint32 begin, uint32 end, BLOCK_CATEGORY category)
+    : CBasicBlock(context, begin, end, category)
 {
 }
 
