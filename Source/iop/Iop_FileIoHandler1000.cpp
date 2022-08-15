@@ -124,6 +124,12 @@ bool CFileIoHandler1000::Invoke(uint32 method, uint32* args, uint32 argsSize, ui
 		assert(retSize == 4);
 		*ret = m_ioman->GetStat(reinterpret_cast<const char*>(&args[1]), reinterpret_cast<Ioman::STAT*>(ram + args[0]));
 		break;
+	case 255:
+		//Init
+		//Used by Piposaru 2001 (FileIO v2050)
+		assert(retSize == 4);
+		memcpy(ret, "....", 4);
+		break;
 	default:
 		CLog::GetInstance().Warn(LOG_NAME, "Unknown function (%d) called.\r\n", method);
 		break;
