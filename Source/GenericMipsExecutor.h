@@ -7,6 +7,7 @@
 #include "BlockLookupOneWay.h"
 #include "BlockLookupTwoWay.h"
 
+FRAMEWORK_MAYBE_UNUSED
 static bool RangesOverlap(uint32 x1, uint32 x2, uint32 y1, uint32 y2)
 {
 	assert(x1 <= x2);
