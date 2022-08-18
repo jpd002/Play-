@@ -325,6 +325,18 @@ CVuAssembler::BRANCHOP CVuAssembler::Lower::IBEQ(VI_REGISTER it, VI_REGISTER is,
 	return result;
 }
 
+uint32 CVuAssembler::Lower::ISUBIU(VI_REGISTER it, VI_REGISTER is, uint16 imm)
+{
+	assert(imm <= 0x7FFF);
+	imm &= 0x7FFF;
+	uint32 result = 0x12000000;
+	result |= (it << 16);
+	result |= (is << 11);
+	result |= (imm & 0x7FF);
+	result |= (((imm & 0x7800) >> 11) << 21);
+	return result;
+}
+
 uint32 CVuAssembler::Lower::LQ(DEST dest, VF_REGISTER ft, uint16 imm, VI_REGISTER is)
 {
 	uint32 result = 0x00000000;

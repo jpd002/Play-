@@ -8,6 +8,7 @@
 #include "FlagsTest2.h"
 #include "FlagsTest3.h"
 #include "FlagsTest4.h"
+#include "IntBranchDelayTest.h"
 #include "MinMaxTest.h"
 #include "MinMaxFlagsTest.h"
 #include "StallTest.h"
@@ -28,6 +29,7 @@ static const TestFactoryFunction s_factories[] =
 	[]() { return new CFlagsTest2(); },
 	[]() { return new CFlagsTest3(); },
 	[]() { return new CFlagsTest4(); },
+	[]() { return new CIntBranchDelayTest(); },
 	[]() { return new CMinMaxTest(); },
 	[]() { return new CMinMaxFlagsTest(); },
 	[]() { return new CStallTest(); },

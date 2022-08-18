@@ -22,6 +22,7 @@ add_executable(VuTest
 	FlagsTest2.cpp
 	FlagsTest3.cpp
 	FlagsTest4.cpp
+	IntBranchDelayTest.cpp
 	Main.cpp
 	MinMaxFlagsTest.cpp
 	MinMaxTest.cpp
@@ -40,6 +41,7 @@ add_executable(VuTest
 	FlagsTest2.h
 	FlagsTest3.h
 	FlagsTest4.h
+	IntBranchDelayTest.h
 	MinMaxFlagsTest.h
 	MinMaxTest.h
 	StallTest.h
