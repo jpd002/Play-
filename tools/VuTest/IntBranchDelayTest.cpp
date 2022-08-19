@@ -7,7 +7,7 @@ void CIntBranchDelayTest::Execute(CTestVm& virtualMachine)
 
 	auto microMem = reinterpret_cast<uint32*>(virtualMachine.m_microMem);
 
-	//Inspired by Dawn of Mana (super basic case)
+	//Inspired by Dawn of Mana (FMAC delay right at the moment branch is to be executed)
 
 	{
 		CVuAssembler assembler(microMem);
@@ -17,30 +17,25 @@ void CIntBranchDelayTest::Execute(CTestVm& virtualMachine)
 
 		assembler.Write(
 		    CVuAssembler::Upper::NOP(),
-		    CVuAssembler::Lower::NOP());
+		    CVuAssembler::Lower::LQ(CVuAssembler::DEST_XYZ, CVuAssembler::VF2, 0, CVuAssembler::VI5));
 
 		assembler.Write(
 		    CVuAssembler::Upper::NOP(),
-		    CVuAssembler::Lower::NOP());
-
-		assembler.Write(
-		    CVuAssembler::Upper::NOP(),
-		    CVuAssembler::Lower::NOP());
-
-		assembler.Write(
-		    CVuAssembler::Upper::NOP(),
-		    CVuAssembler::Lower::NOP());
+		    CVuAssembler::Lower::LQ(CVuAssembler::DEST_XYZ, CVuAssembler::VF3, 1, CVuAssembler::VI5));
 
 		assembler.Write(
 		    CVuAssembler::Upper::NOP(),
 		    CVuAssembler::Lower::ISUBIU(CVuAssembler::VI1, CVuAssembler::VI1, 1));
 
+		//Upper instruction stalls here waiting for result from pipeTime 0
+		//This gives enough time for the IBEQ instruction to pick up the result
+		//from the previous ISUBIU instruction
 		assembler.Write(
-		    CVuAssembler::Upper::NOP(),
+		    CVuAssembler::Upper::ITOF12(CVuAssembler::DEST_XYZ, CVuAssembler::VF2, CVuAssembler::VF2),
 		    CVuAssembler::Lower::IBEQ(CVuAssembler::VI1, CVuAssembler::VI0, equalLabel));
 
 		assembler.Write(
-		    CVuAssembler::Upper::NOP(),
+		    CVuAssembler::Upper::ITOF12(CVuAssembler::DEST_XYZ, CVuAssembler::VF3, CVuAssembler::VF3),
 		    CVuAssembler::Lower::NOP());
 
 		assembler.Write(
