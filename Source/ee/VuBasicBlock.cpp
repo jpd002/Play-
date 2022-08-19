@@ -269,7 +269,7 @@ CVuBasicBlock::INTEGER_BRANCH_DELAY_INFO CVuBasicBlock::GetIntegerBranchDelayInf
 				{
 					// we need to use the value of intReg 4 steps prior or use initial value.
 					result.regIndex = priorLoOps.writeI;
-					result.saveRegAddress = std::max(adjustedEnd - 5 * 8, m_begin);
+					result.saveRegAddress = std::max<int32>(adjustedEnd - 5 * 8, m_begin);
 					result.useRegAddress = adjustedEnd - 8;
 				}
 			}
