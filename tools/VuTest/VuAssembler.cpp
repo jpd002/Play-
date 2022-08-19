@@ -325,6 +325,16 @@ CVuAssembler::BRANCHOP CVuAssembler::Lower::IBEQ(VI_REGISTER it, VI_REGISTER is,
 	return result;
 }
 
+CVuAssembler::BRANCHOP CVuAssembler::Lower::IBNE(VI_REGISTER it, VI_REGISTER is, LABEL label)
+{
+	BRANCHOP result;
+	result.label = label;
+	result.op = 0x52000000;
+	result.op |= (it << 16);
+	result.op |= (is << 11);
+	return result;
+}
+
 uint32 CVuAssembler::Lower::ISUBIU(VI_REGISTER it, VI_REGISTER is, uint16 imm)
 {
 	assert(imm <= 0x7FFF);
@@ -341,6 +351,15 @@ uint32 CVuAssembler::Lower::LQ(DEST dest, VF_REGISTER ft, uint16 imm, VI_REGISTE
 {
 	uint32 result = 0x00000000;
 	result |= (imm & 0x7FF);
+	result |= (is << 11);
+	result |= (ft << 16);
+	result |= (dest << 21);
+	return result;
+}
+
+uint32 CVuAssembler::Lower::LQI(DEST dest, VF_REGISTER ft, VI_REGISTER is)
+{
+	uint32 result = 0x8000037C;
 	result |= (is << 11);
 	result |= (ft << 16);
 	result |= (dest << 21);
