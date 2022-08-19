@@ -37,7 +37,7 @@ private:
 		uint32 pipeTime = 0;
 	};
 
-	INTEGER_BRANCH_DELAY_INFO GetIntegerBranchDelayInfo() const;
+	INTEGER_BRANCH_DELAY_INFO ComputeIntegerBranchDelayInfo(const std::vector<uint32>&) const;
 	bool CheckIsSpecialIntegerLoop(unsigned int) const;
 	void ComputeSkipFlagsHints(const std::vector<uint32>&, std::vector<uint32>&) const;
 	BlockFmacPipelineInfo ComputeFmacStallDelays(uint32, uint32, FmacRegWriteTimes = nullptr) const;

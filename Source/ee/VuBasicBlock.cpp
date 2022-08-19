@@ -22,8 +22,6 @@ void CVuBasicBlock::CompileRange(CMipsJitter* jitter)
 	assert(((m_end + 4) & 0x07) == 0);
 	auto arch = static_cast<CMA_VU*>(m_context.m_pArch);
 
-	auto integerBranchDelayInfo = GetIntegerBranchDelayInfo();
-
 	bool hasPendingXgKick = false;
 	const auto clearPendingXgKick =
 	    [&]() {
@@ -41,6 +39,8 @@ void CVuBasicBlock::CompileRange(CMipsJitter* jitter)
 	}
 
 	auto fmacPipelineInfo = ComputeFmacStallDelays(m_begin, m_end, prevBlockFmacPipelineInfo.regWriteTimes);
+
+	auto integerBranchDelayInfo = ComputeIntegerBranchDelayInfo(fmacPipelineInfo.stallDelays);
 
 	uint32 maxInstructions = ((m_end - m_begin) / 8) + 1;
 	std::vector<uint32> hints;
@@ -233,7 +233,7 @@ bool CVuBasicBlock::IsNonConditionalBranch(uint32 opcodeLo)
 	return (id == 0x20);
 }
 
-CVuBasicBlock::INTEGER_BRANCH_DELAY_INFO CVuBasicBlock::GetIntegerBranchDelayInfo() const
+CVuBasicBlock::INTEGER_BRANCH_DELAY_INFO CVuBasicBlock::ComputeIntegerBranchDelayInfo(const std::vector<uint32>& fmacStallDelays) const
 {
 	// Test if the block ends with a conditional branch instruction where the condition variable has been
 	// set in the prior instruction.
@@ -249,13 +249,15 @@ CVuBasicBlock::INTEGER_BRANCH_DELAY_INFO CVuBasicBlock::GetIntegerBranchDelayInf
 	uint32 branchOpcodeLo = m_context.m_pMemoryMap->GetInstruction(branchOpcodeAddr);
 	if(IsConditionalBranch(branchOpcodeLo))
 	{
+		uint32 fmacDelayOnBranch = fmacStallDelays[fmacStallDelays.size() - 2];
+
 		// We have a conditional branch instruction. Now we need to check that the condition register is not written
 		// by the previous instruction.
 		uint32 priorOpcodeAddr = adjustedEnd - 16;
 		uint32 priorOpcodeLo = m_context.m_pMemoryMap->GetInstruction(priorOpcodeAddr);
 
 		auto priorLoOps = arch->GetAffectedOperands(&m_context, priorOpcodeAddr, priorOpcodeLo);
-		if((priorLoOps.writeI != 0) && !priorLoOps.branchValue)
+		if((priorLoOps.writeI != 0) && !priorLoOps.branchValue && (fmacDelayOnBranch == 0))
 		{
 			auto branchLoOps = arch->GetAffectedOperands(&m_context, branchOpcodeAddr, branchOpcodeLo);
 			if(
