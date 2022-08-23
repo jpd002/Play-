@@ -226,7 +226,7 @@ uint32 CSIF::ReceiveDMA6(uint32 nSrcAddr, uint32 nSize, uint32 nDstAddr, bool is
 		nSize &= 0x7FFFFFFF; //Fix for Gregory Horror Show's crash
 		if(nDstAddr >= 0 && nDstAddr <= CIopBios::CONTROL_BLOCK_END)
 		{
-			CLog::GetInstance().Print(LOG_NAME, "Warning: Trying to DMA in Bios Control Area.\r\n");
+			CLog::GetInstance().Warn(LOG_NAME, "Warning: Trying to DMA in Bios Control Area.\r\n");
 		}
 		else
 		{
