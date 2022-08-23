@@ -5,12 +5,10 @@ jobs:
   build_js:
     runs-on: ubuntu-20.04
     steps:
-    - name: Set up Node.js
-      uses: actions/setup-node@v1
-      with:
-        node-version: 16.6
     - name: Setup Emscripten
-      uses: mymindstorm/setup-emsdk@v10
+      uses: mymindstorm/setup-emsdk@v11
+      with:
+        version: 3.1.19
     - name: Checkout
       uses: actions/checkout@v2
       with:
@@ -25,6 +23,11 @@ jobs:
       run: |
         cd build
         cmake --build . --config Release -j $(nproc)
+    # Setup Node.js since Emscripten can override the node's version.
+    - name: Set up Node.js
+      uses: actions/setup-node@v1
+      with:
+        node-version: 16.17
     - name: Build Play Browser
       run: |
         cd js/play_browser
