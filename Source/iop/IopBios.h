@@ -265,6 +265,7 @@ public:
 	uint32 ReferMessageBoxStatus(uint32, uint32);
 
 	uint32 CreateFpl(uint32);
+	uint32 DeleteFpl(uint32);
 	uint32 AllocateFpl(uint32);
 	uint32 pAllocateFpl(uint32);
 	uint32 FreeFpl(uint32, uint32);

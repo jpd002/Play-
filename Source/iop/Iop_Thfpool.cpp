@@ -6,6 +6,7 @@
 using namespace Iop;
 
 #define FUNCTION_CREATEFPL "CreateFpl"
+#define FUNCTION_DELETEFPL "DeleteFpl"
 #define FUNCTION_ALLOCATEFPL "AllocateFpl"
 #define FUNCTION_PALLOCATEFPL "pAllocateFpl"
 #define FUNCTION_IPALLOCATEFPL "ipAllocateFpl"
@@ -27,6 +28,9 @@ std::string CThfpool::GetFunctionName(unsigned int functionId) const
 	{
 	case 4:
 		return FUNCTION_CREATEFPL;
+		break;
+	case 5:
+		return FUNCTION_DELETEFPL;
 		break;
 	case 6:
 		return FUNCTION_ALLOCATEFPL;
@@ -54,6 +58,10 @@ void CThfpool::Invoke(CMIPS& context, unsigned int functionId)
 		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(CreateFpl(
 		    context.m_State.nGPR[CMIPS::A0].nV0));
 		break;
+	case 5:
+		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(DeleteFpl(
+		    context.m_State.nGPR[CMIPS::A0].nV0));
+		break;
 	case 6:
 		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(AllocateFpl(
 		    context.m_State.nGPR[CMIPS::A0].nV0));
@@ -79,6 +87,13 @@ uint32 CThfpool::CreateFpl(uint32 paramPtr)
 	CLog::GetInstance().Print(LOG_NAME, FUNCTION_CREATEFPL "(paramPtr = 0x%08X);\r\n",
 	                          paramPtr);
 	return m_bios.CreateFpl(paramPtr);
+}
+
+uint32 CThfpool::DeleteFpl(uint32 fplId)
+{
+	CLog::GetInstance().Print(LOG_NAME, FUNCTION_DELETEFPL "(fplId = %d);\r\n",
+	                          fplId);
+	return m_bios.DeleteFpl(fplId);
 }
 
 uint32 CThfpool::AllocateFpl(uint32 fplId)

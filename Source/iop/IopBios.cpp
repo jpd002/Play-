@@ -2525,6 +2525,20 @@ uint32 CIopBios::CreateFpl(uint32 paramPtr)
 	return fplId;
 }
 
+uint32 CIopBios::DeleteFpl(uint32 fplId)
+{
+	auto fpl = m_fpls[fplId];
+	if(!fpl)
+	{
+		return KERNEL_RESULT_ERROR_UNKNOWN_FPLID;
+	}
+
+	m_sysmem->FreeMemory(fpl->poolPtr);
+	m_fpls.Free(fplId);
+
+	return KERNEL_RESULT_OK;
+}
+
 uint32 CIopBios::AllocateFpl(uint32 fplId)
 {
 	uint32 result = pAllocateFpl(fplId);
