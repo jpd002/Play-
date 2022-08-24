@@ -244,6 +244,7 @@ void CSpu::WriteRegister(uint32 address, uint16 value)
 			break;
 		case CH_REPEAT:
 			channel.repeat = value * 8;
+			channel.repeatSet = true;
 			break;
 		}
 	}

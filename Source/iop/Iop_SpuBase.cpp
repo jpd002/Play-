@@ -664,6 +664,7 @@ void CSpuBase::Render(int16* samples, unsigned int sampleCount, unsigned int sam
 				reader.ClearEndFlag();
 				channel.status = ATTACK;
 				channel.adsrVolume = 0;
+				channel.repeatSet = false;
 			}
 			else
 			{
@@ -673,7 +674,7 @@ void CSpuBase::Render(int16* samples, unsigned int sampleCount, unsigned int sam
 					channel.adsrVolume = 0;
 					reader.ClearIsDone();
 				}
-				if(reader.DidChangeRepeat())
+				if(reader.DidChangeRepeat() && !channel.repeatSet)
 				{
 					channel.repeat = reader.GetRepeat();
 					reader.ClearDidChangeRepeat();

@@ -371,9 +371,11 @@ uint32 CCore::WriteRegisterChannel(unsigned int channelId, uint32 address, uint3
 		break;
 	case VA_LSAX_HI:
 		channel.repeat = SetAddressHi(channel.repeat, static_cast<uint16>(value));
+		channel.repeatSet = true;
 		break;
 	case VA_LSAX_LO:
 		channel.repeat = SetAddressLo(channel.repeat, static_cast<uint16>(value));
+		channel.repeatSet = true;
 		break;
 	case VA_NAX_HI:
 		channel.current = SetAddressHi(channel.current, static_cast<uint16>(value));
