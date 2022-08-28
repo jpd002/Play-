@@ -1,5 +1,4 @@
-#ifndef _BIOSDEBUGINFOPROVIDER_H_
-#define _BIOSDEBUGINFOPROVIDER_H_
+#pragma once
 
 #include <string>
 #include <vector>
@@ -31,13 +30,9 @@ typedef std::vector<BIOS_DEBUG_THREAD_INFO> BiosDebugThreadInfoArray;
 class CBiosDebugInfoProvider
 {
 public:
-	virtual ~CBiosDebugInfoProvider()
-	{
-	}
+	~CBiosDebugInfoProvider() = default;
 #ifdef DEBUGGER_INCLUDED
 	virtual BiosDebugModuleInfoArray GetModulesDebugInfo() const = 0;
 	virtual BiosDebugThreadInfoArray GetThreadsDebugInfo() const = 0;
 #endif
 };
-
-#endif
