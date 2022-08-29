@@ -126,9 +126,20 @@ bool CFileIoHandler1000::Invoke(uint32 method, uint32* args, uint32 argsSize, ui
 		break;
 	case 255:
 		//Init
-		//Used by Piposaru 2001 (FileIO v2050)
-		assert(retSize == 4);
-		memcpy(ret, "....", 4);
+		if(retSize == 8)
+		{
+			//Used by Gran Turismo 4 (though it's only initializing the FileIO lib before loading another version of it)
+			memcpy(ret, "1000....", 8);
+		}
+		else if(retSize == 4)
+		{
+			//Used by Piposaru 2001 (FileIO v2050)
+			memcpy(ret, "....", 4);
+		}
+		else
+		{
+			assert(0);
+		}
 		break;
 	default:
 		CLog::GetInstance().Warn(LOG_NAME, "Unknown function (%d) called.\r\n", method);
