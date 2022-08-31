@@ -335,6 +335,16 @@ CVuAssembler::BRANCHOP CVuAssembler::Lower::IBNE(VI_REGISTER it, VI_REGISTER is,
 	return result;
 }
 
+uint32 CVuAssembler::Lower::ILW(DEST dest, VI_REGISTER it, uint16 imm, VI_REGISTER is)
+{
+	uint32 result = 0x08000000;
+	result |= (imm & 0x7FF);
+	result |= (is << 11);
+	result |= (it << 16);
+	result |= (dest << 21);
+	return result;
+}
+
 uint32 CVuAssembler::Lower::ISUBIU(VI_REGISTER it, VI_REGISTER is, uint16 imm)
 {
 	assert(imm <= 0x7FFF);
