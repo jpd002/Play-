@@ -15,18 +15,22 @@ void CIntBranchDelayTest::Execute(CTestVm& virtualMachine)
 		auto equalLabel = assembler.CreateLabel();
 		auto doneLabel = assembler.CreateLabel();
 
+		//pipeTime = 0 (LQ result available at pipeTime 4)
 		assembler.Write(
 		    CVuAssembler::Upper::NOP(),
 		    CVuAssembler::Lower::LQ(CVuAssembler::DEST_XYZ, CVuAssembler::VF2, 0, CVuAssembler::VI5));
 
+		//pipeTime = 1
 		assembler.Write(
 		    CVuAssembler::Upper::NOP(),
 		    CVuAssembler::Lower::LQ(CVuAssembler::DEST_XYZ, CVuAssembler::VF3, 1, CVuAssembler::VI5));
 
+		//pipeTime = 2
 		assembler.Write(
 		    CVuAssembler::Upper::NOP(),
 		    CVuAssembler::Lower::ISUBIU(CVuAssembler::VI1, CVuAssembler::VI1, 1));
 
+		//pipeTime = 3, 4
 		//Upper instruction stalls here waiting for result from pipeTime 0
 		//This gives enough time for the IBEQ instruction to pick up the result
 		//from the previous ISUBIU instruction
