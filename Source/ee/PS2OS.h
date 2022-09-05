@@ -34,9 +34,6 @@ public:
 
 	bool IsIdle() const;
 
-	void DumpIntcHandlers();
-	void DumpDmacHandlers();
-
 	void BootFromFile(const fs::path&);
 	void BootFromVirtualPath(const char*, const ArgumentList&);
 	void BootFromCDROM();

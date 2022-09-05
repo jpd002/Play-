@@ -745,16 +745,6 @@ void QtDebugger::on_actionStep_CPU_triggered()
 	StepCPU();
 }
 
-void QtDebugger::on_actionDump_INTC_Handlers_triggered()
-{
-	m_virtualMachine.DumpEEIntcHandlers();
-}
-
-void QtDebugger::on_actionDump_DMAC_Handlers_triggered()
-{
-	m_virtualMachine.DumpEEDmacHandlers();
-}
-
 void QtDebugger::on_actionAssemble_JAL_triggered()
 {
 	AssembleJAL();

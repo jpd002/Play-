@@ -306,40 +306,6 @@ bool CPS2OS::IsIdle() const
 	       ((m_currentThreadId == m_idleThreadId) || m_idleEvaluator.IsIdle());
 }
 
-void CPS2OS::DumpIntcHandlers()
-{
-	printf("INTC Handlers Information\r\n");
-	printf("-------------------------\r\n");
-
-	for(unsigned int i = 0; i < MAX_INTCHANDLER; i++)
-	{
-		auto handler = m_intcHandlers[i + 1];
-		if(handler == nullptr) continue;
-
-		printf("ID: %02i, Line: %i, Address: 0x%08X.\r\n",
-		       i + 1,
-		       handler->cause,
-		       handler->address);
-	}
-}
-
-void CPS2OS::DumpDmacHandlers()
-{
-	printf("DMAC Handlers Information\r\n");
-	printf("-------------------------\r\n");
-
-	for(unsigned int i = 0; i < MAX_DMACHANDLER; i++)
-	{
-		auto handler = m_dmacHandlers[i + 1];
-		if(handler == nullptr) continue;
-
-		printf("ID: %02i, Channel: %i, Address: 0x%08X.\r\n",
-		       i + 1,
-		       handler->channel,
-		       handler->address);
-	}
-}
-
 void CPS2OS::BootFromFile(const fs::path& execPath)
 {
 	auto stream = Framework::CreateInputStdStream(execPath.native());

@@ -242,20 +242,6 @@ void CPS2VM::Reset()
 	ResetVM();
 }
 
-void CPS2VM::DumpEEIntcHandlers()
-{
-	//	if(m_pOS == NULL) return;
-	if(m_nStatus != PAUSED) return;
-	m_ee->m_os->DumpIntcHandlers();
-}
-
-void CPS2VM::DumpEEDmacHandlers()
-{
-	//	if(m_pOS == NULL) return;
-	if(m_nStatus != PAUSED) return;
-	m_ee->m_os->DumpDmacHandlers();
-}
-
 void CPS2VM::Initialize()
 {
 	m_nEnd = false;

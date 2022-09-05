@@ -33,8 +33,6 @@ protected:
 private slots:
 	void on_actionResume_triggered();
 	void on_actionStep_CPU_triggered();
-	void on_actionDump_INTC_Handlers_triggered();
-	void on_actionDump_DMAC_Handlers_triggered();
 	void on_actionAssemble_JAL_triggered();
 	void on_actionReanalyse_ee_triggered();
 	void on_actionFind_Functions_triggered();

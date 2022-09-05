@@ -51,9 +51,6 @@ public:
 
 	STATUS GetStatus() const override;
 
-	void DumpEEIntcHandlers();
-	void DumpEEDmacHandlers();
-
 	void CreateGSHandler(const CGSHandler::FactoryFunction&);
 	CGSHandler* GetGSHandler();
 	void DestroyGSHandler();

@@ -61,8 +61,6 @@
     </property>
     <addaction name="actionResume"/>
     <addaction name="actionStep_CPU"/>
-    <addaction name="actionDump_INTC_Handlers"/>
-    <addaction name="actionDump_DMAC_Handlers"/>
     <addaction name="actionfind_word_value"/>
     <addaction name="actionFind_Word_Half_Value"/>
     <addaction name="actionAssemble_JAL"/>
@@ -116,16 +114,6 @@
    </property>
    <property name="shortcut">
     <string>F10</string>
-   </property>
-  </action>
-  <action name="actionDump_INTC_Handlers">
-   <property name="text">
-    <string>Dump INTC Handlers</string>
-   </property>
-  </action>
-  <action name="actionDump_DMAC_Handlers">
-   <property name="text">
-    <string>Dump DMAC Handlers</string>
    </property>
   </action>
   <action name="actionfind_word_value">
