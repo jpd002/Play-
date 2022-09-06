@@ -6,7 +6,7 @@
 #include "DebugView.h"
 #include "CallStackWnd.h"
 #include "FunctionsView.h"
-#include "ThreadsViewWnd.h"
+#include "KernelObjectListView.h"
 #include "AddressListViewWnd.h"
 #include "PS2VM.h"
 #include "ELFView.h"
@@ -51,6 +51,7 @@ private slots:
 	void on_actionFunctions_triggered();
 	void on_actionELF_File_Information_triggered();
 	void on_actionThreads_triggered();
+	void on_actionViewKernelObject_triggered();
 	void on_actionView_Disassmebly_triggered();
 	void on_actionView_Registers_triggered();
 	void on_actionMemory_triggered();
@@ -118,7 +119,7 @@ private:
 	//Event handlers
 	void OnFunctionsViewFunctionDblClick(uint32);
 	void OnFunctionsViewFunctionsStateChange();
-	void OnThreadsViewAddressDblClick(uint32);
+	void OnKernelObjectsViewAddressDblClick(uint32);
 	void OnExecutableChangeMsg();
 	void OnExecutableUnloadingMsg();
 	void OnMachineStateChangeMsg();
@@ -140,7 +141,8 @@ private:
 
 	CELFView<CELF32>* m_pELFView = nullptr;
 	CFunctionsView* m_pFunctionsView = nullptr;
-	QMdiSubWindow* m_threadsView = nullptr;
+	CKernelObjectListView* m_kernelObjectListView = nullptr;
+	QMdiSubWindow* m_kernelObjectListViewWnd = nullptr;
 	CDebugView* m_pView[DEBUGVIEW_MAX];
 	CAddressListViewWnd* m_addressListView = nullptr;
 	unsigned int m_nCurrentView;

@@ -1,0 +1,212 @@
+#include <QHeaderView>
+#include "string_format.h"
+#include "KernelObjectListView.h"
+#include "DebugUtils.h"
+#include "QtDialogListWidget.h"
+
+#define TEMP_OBJECT_TYPE_ID 3
+
+CKernelObjectListView::CKernelObjectListView(QWidget* parent)
+    : QTableView(parent)
+{
+	setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+	setSelectionBehavior(QAbstractItemView::SelectRows);
+	connect(this, &QTableView::doubleClicked, this, &CKernelObjectListView::tableDoubleClick);
+}
+
+void CKernelObjectListView::HandleMachineStateChange()
+{
+	Update();
+}
+
+void CKernelObjectListView::SetContext(CMIPS* context, CBiosDebugInfoProvider* biosDebugInfoProvider)
+{
+	m_context = context;
+	m_biosDebugInfoProvider = biosDebugInfoProvider;
+	
+	m_schema = m_biosDebugInfoProvider->GetBiosObjectsDebugInfo();
+	if(!m_schema.empty())
+	{
+		auto objectType = m_schema[TEMP_OBJECT_TYPE_ID];
+		assert(!objectType.fields.empty());
+		assert(objectType.fields[0].HasAttribute(BIOS_DEBUG_OBJECT_FIELD_ATTRIBUTE::IDENTIFIER));
+		
+		std::vector<std::string> headers;
+		for(const auto& field : objectType.fields)
+		{
+			if(field.HasAttribute(BIOS_DEBUG_OBJECT_FIELD_ATTRIBUTE::HIDDEN))
+			{
+				continue;
+			}
+			headers.push_back(field.name);
+		}
+		
+		m_model = new CQtGenericTableModel(this, headers);
+		setModel(m_model);
+		
+		auto header = horizontalHeader();
+		header->setSectionResizeMode(0, QHeaderView::ResizeToContents);
+		header->setSectionResizeMode(1, QHeaderView::Interactive);
+		header->setSectionResizeMode(2, QHeaderView::Stretch);
+		header->setSectionResizeMode(3, QHeaderView::Interactive);
+		verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+		verticalHeader()->hide();
+	}
+	else
+	{
+		setModel(nullptr);
+	}
+
+#if 0
+	std::vector<std::string> headers = {"Id", "Priority", "Location", "State"};
+	m_model = new CQtGenericTableModel(this, {"Id", "Priority", "Location", "State"});
+	setModel(m_model);
+	auto header = horizontalHeader();
+	header->setSectionResizeMode(0, QHeaderView::ResizeToContents);
+	header->setSectionResizeMode(1, QHeaderView::Interactive);
+	header->setSectionResizeMode(2, QHeaderView::Stretch);
+	header->setSectionResizeMode(3, QHeaderView::Stretch);
+	verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+	verticalHeader()->hide();
+	setSelectionBehavior(QAbstractItemView::SelectRows);
+
+	QString text("Priority");
+	QFontMetrics fm = fontMetrics();
+	int width = fm.width(text);
+	header->resizeSection(1, width);
+#endif
+
+	Update();
+}
+
+void CKernelObjectListView::Update()
+{
+	m_model->clear();
+
+	if(!m_biosDebugInfoProvider) return;
+
+	auto moduleInfos = m_biosDebugInfoProvider->GetModulesDebugInfo();
+
+	auto objects = m_biosDebugInfoProvider->GetBiosObjects(TEMP_OBJECT_TYPE_ID);
+	auto objectType = m_schema[TEMP_OBJECT_TYPE_ID];
+	for(const auto& object : objects)
+	{
+		assert(object.fields.size() == objectType.fields.size());
+		std::vector<std::string> data;
+		for(int fieldIdx = 0; fieldIdx < object.fields.size(); fieldIdx++)
+		{
+			const auto& fieldType = objectType.fields[fieldIdx];
+			if(fieldType.HasAttribute(BIOS_DEBUG_OBJECT_FIELD_ATTRIBUTE::HIDDEN))
+			{
+				continue;
+			}
+
+			const auto& field = object.fields[fieldIdx];
+			if(auto intValue = std::get_if<uint32>(&field))
+			{
+				assert(fieldType.type == BIOS_DEBUG_OBJECT_FIELD_TYPE::UINT32);
+				if(fieldType.HasAttribute(BIOS_DEBUG_OBJECT_FIELD_ATTRIBUTE::TEXT_ADDRESS))
+				{
+					auto locationString = DebugUtils::PrintAddressLocation(*intValue, m_context, moduleInfos);
+					data.push_back(locationString);
+				}
+				else if(fieldType.HasAttribute(BIOS_DEBUG_OBJECT_FIELD_ATTRIBUTE::DATA_ADDRESS))
+				{
+					data.push_back(string_format("0x%08X", *intValue));
+				}
+				else
+				{
+					data.push_back(string_format("%u", *intValue));
+				}
+			}
+			else if(auto strValue = std::get_if<std::string>(&field))
+			{
+				assert(fieldType.type == BIOS_DEBUG_OBJECT_FIELD_TYPE::STRING);
+				data.push_back(*strValue);
+			}
+		}
+		bool added = m_model->addItem(data);
+		assert(added);
+	}
+}
+
+void CKernelObjectListView::tableDoubleClick(const QModelIndex& indexRow)
+{
+	auto objectType = m_schema[TEMP_OBJECT_TYPE_ID];
+	auto action = objectType.selectionAction;
+	if(action == BIOS_DEBUG_OBJECT_ACTION::NONE)
+	{
+		return;
+	}
+	
+	//Assuming col 0 has id
+	auto index = m_model->index(indexRow.row(), 0);
+	auto objectId = std::stoi(m_model->getItem(index));
+
+	auto objects = m_biosDebugInfoProvider->GetBiosObjects(TEMP_OBJECT_TYPE_ID);
+
+	auto objectIterator = std::find_if(std::begin(objects), std::end(objects),
+	                                       [&](const BIOS_DEBUG_OBJECT& object)
+	{
+		assert(!object.fields.empty());
+		if(auto id = std::get_if<uint32>(&object.fields[0]))
+		{
+			return (*id) == objectId;
+		}
+		return false;
+	});
+	if(objectIterator == std::end(objects)) return;
+
+	const auto& object(*objectIterator);
+
+	switch(action)
+	{
+	case BIOS_DEBUG_OBJECT_ACTION::SHOW_STACK_OR_LOCATION:
+		{
+			int pcFieldIndex = objectType.FindFieldWithAttribute(BIOS_DEBUG_OBJECT_FIELD_ATTRIBUTE::LOCATION);
+			int spFieldIndex = objectType.FindFieldWithAttribute(BIOS_DEBUG_OBJECT_FIELD_ATTRIBUTE::STACK_POINTER);
+			int raFieldIndex = objectType.FindFieldWithAttribute(BIOS_DEBUG_OBJECT_FIELD_ATTRIBUTE::RETURN_ADDRESS);
+			
+			assert(pcFieldIndex != -1);
+			assert(spFieldIndex != -1);
+			assert(raFieldIndex != -1);
+			
+			auto pc = std::get_if<uint32>(&object.fields[pcFieldIndex]);
+			auto sp = std::get_if<uint32>(&object.fields[spFieldIndex]);
+			auto ra = std::get_if<uint32>(&object.fields[raFieldIndex]);
+			
+			assert(pc && sp && ra);
+			
+			auto callStackItems = CMIPSAnalysis::GetCallStack(m_context, *pc, *sp, *ra);
+			if(callStackItems.size() <= 1)
+			{
+				OnGotoAddress(*pc);
+			}
+			else
+			{
+				std::map<std::string, uint32> addrMap;
+				QtDialogListWidget dialog(this);
+				for(auto itemIterator(std::begin(callStackItems));
+					itemIterator != std::end(callStackItems); itemIterator++)
+				{
+					const auto& item(*itemIterator);
+					std::string locationString = DebugUtils::PrintAddressLocation(item, m_context, m_biosDebugInfoProvider->GetModulesDebugInfo());
+					dialog.addItem(locationString);
+					addrMap.insert({locationString, item});
+				}
+
+				dialog.exec();
+				auto locationString = dialog.getResult();
+				if(!locationString.empty())
+				{
+					auto address = addrMap.at(locationString);
+					OnGotoAddress(address);
+				}
+			}
+		}
+		break;
+	default:
+		assert(false);
+		break;
+	}
+}

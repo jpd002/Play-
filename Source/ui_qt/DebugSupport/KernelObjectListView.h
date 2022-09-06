@@ -10,15 +10,16 @@
 #include "Types.h"
 #include "VirtualMachineStateView.h"
 
-class CThreadsViewWnd : public QTableView, public CVirtualMachineStateView
+class CKernelObjectListView : public QTableView, public CVirtualMachineStateView
 {
 public:
-	CThreadsViewWnd(QWidget*);
-	virtual ~CThreadsViewWnd() = default;
+	CKernelObjectListView(QWidget*);
+	virtual ~CKernelObjectListView() = default;
 
 	void HandleMachineStateChange() override;
 
 	void SetContext(CMIPS*, CBiosDebugInfoProvider*);
+	void SetObjectType(uint32);
 
 	Framework::CSignal<void(uint32)> OnGotoAddress;
 
@@ -28,8 +29,10 @@ public slots:
 private:
 	void Update();
 
-	CMIPS* m_context;
-	CBiosDebugInfoProvider* m_biosDebugInfoProvider;
-	QTableView* m_tableView;
-	CQtGenericTableModel* m_model;
+	CMIPS* m_context = nullptr;
+	CBiosDebugInfoProvider* m_biosDebugInfoProvider = nullptr;
+	BiosDebugObjectInfoArray m_schema;
+	QTableView* m_tableView = nullptr;
+	CQtGenericTableModel* m_model = nullptr;
+	uint32 m_objectType = 0;
 };

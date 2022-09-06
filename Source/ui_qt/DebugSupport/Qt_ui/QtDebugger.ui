@@ -71,12 +71,18 @@
     <property name="title">
      <string>View</string>
     </property>
+    <widget class="QMenu" name="menuKernelObjects">
+      <property name="title">
+        <string>Kernel Objects</string>
+      </property>
+    </widget>
     <addaction name="actionView_Disassmebly"/>
     <addaction name="actionMemory"/>
     <addaction name="actionCall_Stack"/>
     <addaction name="actionFunctions"/>
     <addaction name="actionELF_File_Information"/>
     <addaction name="actionThreads"/>
+    <addaction name="menuKernelObjects"/>
     <addaction name="actionView_Registers"/>
     <addaction name="separator"/>
     <addaction name="actionEmotionEngine_View"/>

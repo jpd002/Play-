@@ -90,6 +90,8 @@ set(SRC_FILES
 	${SRC_ROOT}/FrameDebugger/Vu1ProgramView.h
 	${SRC_ROOT}/FrameDebugger/Vu1Vm.cpp
 	${SRC_ROOT}/FrameDebugger/Vu1Vm.h
+	${SRC_ROOT}/KernelObjectListView.cpp
+	${SRC_ROOT}/KernelObjectListView.h
 	${SRC_ROOT}/MemoryViewMIPSWnd.cpp
 	${SRC_ROOT}/MemoryViewMIPSWnd.h
 	${SRC_ROOT}/MemoryViewTable.cpp
@@ -108,8 +110,6 @@ set(SRC_FILES
 	${SRC_ROOT}/RegViewVU.h
 	${SRC_ROOT}/RegViewWnd.cpp
 	${SRC_ROOT}/RegViewWnd.h
-	${SRC_ROOT}/ThreadsViewWnd.cpp
-	${SRC_ROOT}/ThreadsViewWnd.h
 	${SRC_ROOT}/QtDisAsmTableModel.cpp
 	${SRC_ROOT}/QtDisAsmTableModel.h
 	${SRC_ROOT}/QtDisAsmVuTableModel.cpp

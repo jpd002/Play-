@@ -3698,62 +3698,205 @@ BiosDebugModuleInfoArray CPS2OS::GetModulesDebugInfo() const
 BiosDebugThreadInfoArray CPS2OS::GetThreadsDebugInfo() const
 {
 	BiosDebugThreadInfoArray threadInfos;
-
-	for(auto threadIterator = std::begin(m_threads); threadIterator != std::end(m_threads); threadIterator++)
-	{
-		auto thread = *threadIterator;
-		if(!thread) continue;
-
-		auto threadContext = reinterpret_cast<THREADCONTEXT*>(GetStructPtr(thread->contextPtr));
-
-		BIOS_DEBUG_THREAD_INFO threadInfo;
-		threadInfo.id = threadIterator;
-		threadInfo.priority = thread->currPriority;
-		if(m_currentThreadId == threadIterator)
-		{
-			threadInfo.pc = m_ee.m_State.nPC;
-			threadInfo.ra = m_ee.m_State.nGPR[CMIPS::RA].nV0;
-			threadInfo.sp = m_ee.m_State.nGPR[CMIPS::SP].nV0;
-		}
-		else
-		{
-			threadInfo.pc = thread->epc;
-			threadInfo.ra = threadContext->gpr[CMIPS::RA].nV0;
-			threadInfo.sp = threadContext->gpr[CMIPS::SP].nV0;
-		}
-
-		switch(thread->status)
-		{
-		case THREAD_RUNNING:
-			threadInfo.stateDescription = "Running";
-			break;
-		case THREAD_SLEEPING:
-			threadInfo.stateDescription = "Sleeping";
-			break;
-		case THREAD_WAITING:
-			threadInfo.stateDescription = string_format("Waiting (Semaphore: %d)", thread->semaWait);
-			break;
-		case THREAD_SUSPENDED:
-			threadInfo.stateDescription = "Suspended";
-			break;
-		case THREAD_SUSPENDED_SLEEPING:
-			threadInfo.stateDescription = "Suspended+Sleeping";
-			break;
-		case THREAD_SUSPENDED_WAITING:
-			threadInfo.stateDescription = string_format("Suspended+Waiting (Semaphore: %d)", thread->semaWait);
-			break;
-		case THREAD_ZOMBIE:
-			threadInfo.stateDescription = "Zombie";
-			break;
-		default:
-			threadInfo.stateDescription = "Unknown";
-			break;
-		}
-
-		threadInfos.push_back(threadInfo);
-	}
-
 	return threadInfos;
+}
+
+#define BIOS_OBJECT_TYPE_SEMAPHORES 0
+#define BIOS_OBJECT_TYPE_INTCHANDLERS 1
+#define BIOS_OBJECT_TYPE_DMACHANDLERS 2
+#define BIOS_OBJECT_TYPE_THREADS 3
+
+BiosDebugObjectInfoArray CPS2OS::GetBiosObjectsDebugInfo() const
+{
+	static BiosDebugObjectInfoArray objectDebugInfo = []
+	{
+		BiosDebugObjectInfoArray result;
+		{
+			BIOS_DEBUG_OBJECT_INFO info;
+			info.name = "Semaphores";
+			info.typeId = BIOS_OBJECT_TYPE_SEMAPHORES;
+			info.fields =
+			{
+				{ "Id" },
+				{ "Count" },
+				{ "Max Count" },
+				{ "Wait Count" },
+			};
+			result.push_back(info);
+		}
+		{
+			BIOS_DEBUG_OBJECT_INFO info;
+			info.name = "INTC Handlers";
+			info.typeId = BIOS_OBJECT_TYPE_INTCHANDLERS;
+			info.fields =
+			{
+				{ "Id", BIOS_DEBUG_OBJECT_FIELD_TYPE::UINT32 },
+				{ "Cause", BIOS_DEBUG_OBJECT_FIELD_TYPE::UINT32 },
+				{ "Address", BIOS_DEBUG_OBJECT_FIELD_TYPE::UINT32, BIOS_DEBUG_OBJECT_FIELD_ATTRIBUTE::TEXT_ADDRESS },
+				{ "Parameter", BIOS_DEBUG_OBJECT_FIELD_TYPE::UINT32 },
+				{ "GP", BIOS_DEBUG_OBJECT_FIELD_TYPE::UINT32, BIOS_DEBUG_OBJECT_FIELD_ATTRIBUTE::DATA_ADDRESS },
+				{ "Next Id", BIOS_DEBUG_OBJECT_FIELD_TYPE::UINT32 },
+			};
+			result.push_back(info);
+		}
+		{
+			BIOS_DEBUG_OBJECT_INFO info;
+			info.name = "DMAC Handlers";
+			info.typeId = BIOS_OBJECT_TYPE_DMACHANDLERS;
+			info.fields =
+			{
+				{ "Id", BIOS_DEBUG_OBJECT_FIELD_TYPE::UINT32 },
+				{ "Channel", BIOS_DEBUG_OBJECT_FIELD_TYPE::UINT32 },
+				{ "Address", BIOS_DEBUG_OBJECT_FIELD_TYPE::UINT32, BIOS_DEBUG_OBJECT_FIELD_ATTRIBUTE::TEXT_ADDRESS },
+				{ "Parameter", BIOS_DEBUG_OBJECT_FIELD_TYPE::UINT32 },
+				{ "GP", BIOS_DEBUG_OBJECT_FIELD_TYPE::UINT32, BIOS_DEBUG_OBJECT_FIELD_ATTRIBUTE::DATA_ADDRESS },
+				{ "Next Id", BIOS_DEBUG_OBJECT_FIELD_TYPE::UINT32 },
+			};
+			result.push_back(info);
+		}
+		{
+			BIOS_DEBUG_OBJECT_INFO info;
+			info.name = "Threads";
+			info.typeId = BIOS_OBJECT_TYPE_THREADS;
+			info.selectionAction = BIOS_DEBUG_OBJECT_ACTION::SHOW_STACK_OR_LOCATION;
+			info.fields =
+			{
+				{ "Id", BIOS_DEBUG_OBJECT_FIELD_TYPE::UINT32, BIOS_DEBUG_OBJECT_FIELD_ATTRIBUTE::IDENTIFIER },
+				{ "Priority", BIOS_DEBUG_OBJECT_FIELD_TYPE::UINT32 },
+				{ "Location", BIOS_DEBUG_OBJECT_FIELD_TYPE::UINT32, BIOS_DEBUG_OBJECT_FIELD_ATTRIBUTE::LOCATION | BIOS_DEBUG_OBJECT_FIELD_ATTRIBUTE::TEXT_ADDRESS },
+				{ "RA", BIOS_DEBUG_OBJECT_FIELD_TYPE::UINT32, BIOS_DEBUG_OBJECT_FIELD_ATTRIBUTE::RETURN_ADDRESS | BIOS_DEBUG_OBJECT_FIELD_ATTRIBUTE::HIDDEN },
+				{ "SP", BIOS_DEBUG_OBJECT_FIELD_TYPE::UINT32, BIOS_DEBUG_OBJECT_FIELD_ATTRIBUTE::STACK_POINTER | BIOS_DEBUG_OBJECT_FIELD_ATTRIBUTE::HIDDEN },
+				{ "State", BIOS_DEBUG_OBJECT_FIELD_TYPE::STRING },
+			};
+			result.push_back(info);
+		}
+		return result;
+	}();
+	return objectDebugInfo;
+}
+
+BiosDebugObjectArray CPS2OS::GetBiosObjects(uint32 typeId) const
+{
+	BiosDebugObjectArray result;
+	switch(typeId)
+	{
+	case BIOS_OBJECT_TYPE_SEMAPHORES:
+		for(auto it = std::begin(m_semaphores); it != std::end(m_semaphores); it++)
+		{
+			auto semaphore = (*it);
+			if(!semaphore) continue;
+			BIOS_DEBUG_OBJECT obj;
+			obj.fields = {
+				BIOS_DEBUG_OBJECT_FIELD(std::in_place_type<uint32>, it),
+				BIOS_DEBUG_OBJECT_FIELD(std::in_place_type<uint32>, semaphore->count),
+				BIOS_DEBUG_OBJECT_FIELD(std::in_place_type<uint32>, semaphore->maxCount),
+				BIOS_DEBUG_OBJECT_FIELD(std::in_place_type<uint32>, semaphore->waitCount),
+			};
+			result.push_back(obj);
+		}
+		break;
+	case BIOS_OBJECT_TYPE_INTCHANDLERS:
+		for(auto it = std::begin(m_intcHandlers); it != std::end(m_intcHandlers); it++)
+		{
+			auto handler = (*it);
+			if(!handler) continue;
+			BIOS_DEBUG_OBJECT obj;
+			obj.fields = {
+				BIOS_DEBUG_OBJECT_FIELD(std::in_place_type<uint32>, it),
+				BIOS_DEBUG_OBJECT_FIELD(std::in_place_type<uint32>, handler->cause),
+				BIOS_DEBUG_OBJECT_FIELD(std::in_place_type<uint32>, handler->address),
+				BIOS_DEBUG_OBJECT_FIELD(std::in_place_type<uint32>, handler->arg),
+				BIOS_DEBUG_OBJECT_FIELD(std::in_place_type<uint32>, handler->gp),
+				BIOS_DEBUG_OBJECT_FIELD(std::in_place_type<uint32>, handler->nextId),
+			};
+			result.push_back(obj);
+		}
+		break;
+	case BIOS_OBJECT_TYPE_DMACHANDLERS:
+		for(auto it = std::begin(m_dmacHandlers); it != std::end(m_dmacHandlers); it++)
+		{
+			auto handler = (*it);
+			if(!handler) continue;
+			BIOS_DEBUG_OBJECT obj;
+			obj.fields = {
+				BIOS_DEBUG_OBJECT_FIELD(std::in_place_type<uint32>, it),
+				BIOS_DEBUG_OBJECT_FIELD(std::in_place_type<uint32>, handler->channel),
+				BIOS_DEBUG_OBJECT_FIELD(std::in_place_type<uint32>, handler->address),
+				BIOS_DEBUG_OBJECT_FIELD(std::in_place_type<uint32>, handler->arg),
+				BIOS_DEBUG_OBJECT_FIELD(std::in_place_type<uint32>, handler->gp),
+				BIOS_DEBUG_OBJECT_FIELD(std::in_place_type<uint32>, handler->nextId),
+			};
+			result.push_back(obj);
+		}
+		break;
+	case BIOS_OBJECT_TYPE_THREADS:
+		for(auto it = std::begin(m_threads); it != std::end(m_threads); it++)
+		{
+			auto thread = *it;
+			if(!thread) continue;
+			
+			auto threadContext = reinterpret_cast<THREADCONTEXT*>(GetStructPtr(thread->contextPtr));
+
+			uint32 pc = 0;
+			uint32 ra = 0;
+			uint32 sp = 0;
+			
+			if(m_currentThreadId == it)
+			{
+				pc = m_ee.m_State.nPC;
+				ra = m_ee.m_State.nGPR[CMIPS::RA].nV0;
+				sp = m_ee.m_State.nGPR[CMIPS::SP].nV0;
+			}
+			else
+			{
+				pc = thread->epc;
+				ra = threadContext->gpr[CMIPS::RA].nV0;
+				sp = threadContext->gpr[CMIPS::SP].nV0;
+			}
+
+			std::string stateDescription;
+			switch(thread->status)
+			{
+			case THREAD_RUNNING:
+				stateDescription = "Running";
+				break;
+			case THREAD_SLEEPING:
+				stateDescription = "Sleeping";
+				break;
+			case THREAD_WAITING:
+				stateDescription = string_format("Waiting (Semaphore: %d)", thread->semaWait);
+				break;
+			case THREAD_SUSPENDED:
+				stateDescription = "Suspended";
+				break;
+			case THREAD_SUSPENDED_SLEEPING:
+				stateDescription = "Suspended+Sleeping";
+				break;
+			case THREAD_SUSPENDED_WAITING:
+				stateDescription = string_format("Suspended+Waiting (Semaphore: %d)", thread->semaWait);
+				break;
+			case THREAD_ZOMBIE:
+				stateDescription = "Zombie";
+				break;
+			default:
+				stateDescription = "Unknown";
+				break;
+			}
+
+			BIOS_DEBUG_OBJECT obj;
+			obj.fields = {
+				BIOS_DEBUG_OBJECT_FIELD(std::in_place_type<uint32>, it),
+				BIOS_DEBUG_OBJECT_FIELD(std::in_place_type<uint32>, thread->currPriority),
+				BIOS_DEBUG_OBJECT_FIELD(std::in_place_type<uint32>, pc),
+				BIOS_DEBUG_OBJECT_FIELD(std::in_place_type<uint32>, ra),
+				BIOS_DEBUG_OBJECT_FIELD(std::in_place_type<uint32>, sp),
+				BIOS_DEBUG_OBJECT_FIELD(std::in_place_type<std::string>, stateDescription),
+			};
+			result.push_back(obj);
+		}
+		break;
+	}
+	return result;
 }
 
 #endif

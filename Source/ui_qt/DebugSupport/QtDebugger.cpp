@@ -42,13 +42,16 @@ QtDebugger::QtDebugger(CPS2VM& virtualMachine)
 	m_OnFunctionsStateChangeConnection = m_pFunctionsView->OnFunctionsStateChange.Connect(std::bind(&QtDebugger::OnFunctionsViewFunctionsStateChange, this));
 
 	//Threads View Initialization
-	auto threadsView = new CThreadsViewWnd(ui->mdiArea);
-	m_threadsView = new QMdiSubWindow(ui->mdiArea);
-	m_threadsView->setWidget(threadsView);
-	m_threadsView->setWindowTitle("Threads");
+	{
+		m_kernelObjectListView = new CKernelObjectListView(ui->mdiArea);
+		m_kernelObjectListViewWnd = new QMdiSubWindow(ui->mdiArea);
+		m_kernelObjectListViewWnd->setWidget(m_kernelObjectListView);
+		m_kernelObjectListViewWnd->setWindowTitle("Kernel Objects");
 
-	m_threadsView->hide();
-	m_OnGotoAddressConnection = threadsView->OnGotoAddress.Connect(std::bind(&QtDebugger::OnThreadsViewAddressDblClick, this, std::placeholders::_1));
+		m_kernelObjectListViewWnd->resize(700, 300);
+		m_kernelObjectListViewWnd->hide();
+		m_OnGotoAddressConnection = m_kernelObjectListView->OnGotoAddress.Connect(std::bind(&QtDebugger::OnKernelObjectsViewAddressDblClick, this, std::placeholders::_1));
+	}
 
 	//Address List View Initialization
 	m_addressListView = new CAddressListViewWnd(ui->mdiArea);
@@ -487,7 +490,22 @@ void QtDebugger::ActivateView(unsigned int nView)
 	{
 		auto biosDebugInfoProvider = GetCurrentView()->GetBiosDebugInfoProvider();
 		m_pFunctionsView->SetContext(GetCurrentView()->GetContext(), biosDebugInfoProvider);
-		static_cast<CThreadsViewWnd*>(m_threadsView->widget())->SetContext(GetCurrentView()->GetContext(), biosDebugInfoProvider);
+		m_kernelObjectListView->SetContext(GetCurrentView()->GetContext(), biosDebugInfoProvider);
+
+		ui->menuKernelObjects->clear();
+		if(biosDebugInfoProvider)
+		{
+			auto objects = biosDebugInfoProvider->GetBiosObjectsDebugInfo();
+			for(const auto& object : objects)
+			{
+				QAction* objectAction = new QAction(this);
+				objectAction->setText(QString::fromStdString(object.name));
+				objectAction->setData(object.typeId);
+				//objectAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_O));
+				connect(objectAction, SIGNAL(triggered()), this, SLOT(on_actionViewKernelObject_triggered()));
+				ui->menuKernelObjects->addAction(objectAction);
+			}
+		}
 	}
 
 	if(GetDisassemblyWindow()->isVisible())
@@ -641,7 +659,7 @@ void QtDebugger::OnFunctionsViewFunctionsStateChange()
 	GetCallStackWindow()->HandleMachineStateChange();
 }
 
-void QtDebugger::OnThreadsViewAddressDblClick(uint32 address)
+void QtDebugger::OnKernelObjectsViewAddressDblClick(uint32 address)
 {
 	auto disAsm = GetDisassemblyWindow();
 	disAsm->SetCenterAtAddress(address);
@@ -702,7 +720,7 @@ void QtDebugger::OnMachineStateChangeMsg()
 	{
 		view->HandleMachineStateChange();
 	}
-	static_cast<CThreadsViewWnd*>(m_threadsView->widget())->HandleMachineStateChange();
+	m_kernelObjectListView->HandleMachineStateChange();
 }
 
 void QtDebugger::OnRunningStateChangeMsg()
@@ -712,7 +730,7 @@ void QtDebugger::OnRunningStateChangeMsg()
 	{
 		view->HandleRunningStateChange(newState);
 	}
-	static_cast<CThreadsViewWnd*>(m_threadsView->widget())->HandleRunningStateChange(newState);
+	m_kernelObjectListView->HandleRunningStateChange(newState);
 }
 
 void QtDebugger::LoadDebugTags()
@@ -821,9 +839,15 @@ void QtDebugger::on_actionELF_File_Information_triggered()
 
 void QtDebugger::on_actionThreads_triggered()
 {
-	static_cast<CThreadsViewWnd*>(m_threadsView->widget())->show();
-	m_threadsView->show();
-	m_threadsView->setFocus(Qt::ActiveWindowFocusReason);
+	m_kernelObjectListView->show();
+	m_kernelObjectListViewWnd->show();
+	m_kernelObjectListViewWnd->setFocus(Qt::ActiveWindowFocusReason);
+}
+
+void QtDebugger::on_actionViewKernelObject_triggered()
+{
+	QAction* source = static_cast<QAction*>(sender());
+	uint32 objectTypeId = source->data().toInt();
 }
 
 void QtDebugger::on_actionView_Disassmebly_triggered()
