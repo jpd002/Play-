@@ -3695,26 +3695,19 @@ BiosDebugModuleInfoArray CPS2OS::GetModulesDebugInfo() const
 	return result;
 }
 
-BiosDebugThreadInfoArray CPS2OS::GetThreadsDebugInfo() const
-{
-	BiosDebugThreadInfoArray threadInfos;
-	return threadInfos;
-}
-
 #define BIOS_OBJECT_TYPE_SEMAPHORES 0
 #define BIOS_OBJECT_TYPE_INTCHANDLERS 1
 #define BIOS_OBJECT_TYPE_DMACHANDLERS 2
 #define BIOS_OBJECT_TYPE_THREADS 3
 
-BiosDebugObjectInfoArray CPS2OS::GetBiosObjectsDebugInfo() const
+BiosDebugObjectInfoMap CPS2OS::GetBiosObjectsDebugInfo() const
 {
-	static BiosDebugObjectInfoArray objectDebugInfo = []
+	static BiosDebugObjectInfoMap objectDebugInfo = []
 	{
-		BiosDebugObjectInfoArray result;
+		BiosDebugObjectInfoMap result;
 		{
 			BIOS_DEBUG_OBJECT_INFO info;
 			info.name = "Semaphores";
-			info.typeId = BIOS_OBJECT_TYPE_SEMAPHORES;
 			info.fields =
 			{
 				{ "Id" },
@@ -3722,12 +3715,11 @@ BiosDebugObjectInfoArray CPS2OS::GetBiosObjectsDebugInfo() const
 				{ "Max Count" },
 				{ "Wait Count" },
 			};
-			result.push_back(info);
+			result.emplace(std::make_pair(BIOS_OBJECT_TYPE_SEMAPHORES, std::move(info)));
 		}
 		{
 			BIOS_DEBUG_OBJECT_INFO info;
 			info.name = "INTC Handlers";
-			info.typeId = BIOS_OBJECT_TYPE_INTCHANDLERS;
 			info.fields =
 			{
 				{ "Id", BIOS_DEBUG_OBJECT_FIELD_TYPE::UINT32 },
@@ -3737,12 +3729,11 @@ BiosDebugObjectInfoArray CPS2OS::GetBiosObjectsDebugInfo() const
 				{ "GP", BIOS_DEBUG_OBJECT_FIELD_TYPE::UINT32, BIOS_DEBUG_OBJECT_FIELD_ATTRIBUTE::DATA_ADDRESS },
 				{ "Next Id", BIOS_DEBUG_OBJECT_FIELD_TYPE::UINT32 },
 			};
-			result.push_back(info);
+			result.emplace(std::make_pair(BIOS_OBJECT_TYPE_INTCHANDLERS, std::move(info)));
 		}
 		{
 			BIOS_DEBUG_OBJECT_INFO info;
 			info.name = "DMAC Handlers";
-			info.typeId = BIOS_OBJECT_TYPE_DMACHANDLERS;
 			info.fields =
 			{
 				{ "Id", BIOS_DEBUG_OBJECT_FIELD_TYPE::UINT32 },
@@ -3752,12 +3743,11 @@ BiosDebugObjectInfoArray CPS2OS::GetBiosObjectsDebugInfo() const
 				{ "GP", BIOS_DEBUG_OBJECT_FIELD_TYPE::UINT32, BIOS_DEBUG_OBJECT_FIELD_ATTRIBUTE::DATA_ADDRESS },
 				{ "Next Id", BIOS_DEBUG_OBJECT_FIELD_TYPE::UINT32 },
 			};
-			result.push_back(info);
+			result.emplace(std::make_pair(BIOS_OBJECT_TYPE_DMACHANDLERS, std::move(info)));
 		}
 		{
 			BIOS_DEBUG_OBJECT_INFO info;
 			info.name = "Threads";
-			info.typeId = BIOS_OBJECT_TYPE_THREADS;
 			info.selectionAction = BIOS_DEBUG_OBJECT_ACTION::SHOW_STACK_OR_LOCATION;
 			info.fields =
 			{
@@ -3768,7 +3758,7 @@ BiosDebugObjectInfoArray CPS2OS::GetBiosObjectsDebugInfo() const
 				{ "SP", BIOS_DEBUG_OBJECT_FIELD_TYPE::UINT32, BIOS_DEBUG_OBJECT_FIELD_ATTRIBUTE::STACK_POINTER | BIOS_DEBUG_OBJECT_FIELD_ATTRIBUTE::HIDDEN },
 				{ "State", BIOS_DEBUG_OBJECT_FIELD_TYPE::STRING },
 			};
-			result.push_back(info);
+			result.emplace(std::make_pair(BIOS_OBJECT_TYPE_THREADS, std::move(info)));
 		}
 		return result;
 	}();

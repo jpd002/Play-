@@ -189,11 +189,6 @@ BiosDebugModuleInfoArray CPsxBios::GetModulesDebugInfo() const
 	return BiosDebugModuleInfoArray();
 }
 
-BiosDebugThreadInfoArray CPsxBios::GetThreadsDebugInfo() const
-{
-	return BiosDebugThreadInfoArray();
-}
-
 #endif
 
 void CPsxBios::CountTicks(uint32 ticks)

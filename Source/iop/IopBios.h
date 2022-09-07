@@ -291,7 +291,8 @@ public:
 	void SaveDebugTags(Framework::Xml::CNode*) override;
 
 	BiosDebugModuleInfoArray GetModulesDebugInfo() const override;
-	BiosDebugThreadInfoArray GetThreadsDebugInfo() const override;
+	BiosDebugObjectInfoMap GetBiosObjectsDebugInfo() const override;
+	BiosDebugObjectArray GetBiosObjects(uint32) const override;
 #endif
 
 	typedef Framework::CSignal<void(const char*)> ModuleLoadedEvent;

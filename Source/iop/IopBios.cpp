@@ -3598,74 +3598,116 @@ BiosDebugModuleInfoArray CIopBios::GetModulesDebugInfo() const
 	return m_moduleTags;
 }
 
-BiosDebugThreadInfoArray CIopBios::GetThreadsDebugInfo() const
+#define BIOS_OBJECT_TYPE_THREADS 3
+
+BiosDebugObjectInfoMap CIopBios::GetBiosObjectsDebugInfo() const
 {
-	BiosDebugThreadInfoArray threadInfos;
-
-	for(auto thread : m_threads)
+	static BiosDebugObjectInfoMap objectDebugInfo = []
 	{
-		if(!thread) continue;
-
-		BIOS_DEBUG_THREAD_INFO threadInfo;
-		threadInfo.id = thread->id;
-		threadInfo.priority = thread->priority;
-		if(m_currentThreadId == threadInfo.id)
+		BiosDebugObjectInfoMap result;
 		{
-			threadInfo.pc = m_cpu.m_State.nPC;
-			threadInfo.ra = m_cpu.m_State.nGPR[CMIPS::RA].nV0;
-			threadInfo.sp = m_cpu.m_State.nGPR[CMIPS::SP].nV0;
-		}
-		else
-		{
-			threadInfo.pc = thread->context.epc;
-			threadInfo.ra = thread->context.gpr[CMIPS::RA];
-			threadInfo.sp = thread->context.gpr[CMIPS::SP];
-		}
-
-		int64 deltaTime = thread->nextActivateTime - GetCurrentTime();
-
-		switch(thread->status)
-		{
-		case THREAD_STATUS_DORMANT:
-			threadInfo.stateDescription = "Dormant";
-			break;
-		case THREAD_STATUS_RUNNING:
-			if(deltaTime <= 0)
+			BIOS_DEBUG_OBJECT_INFO info;
+			info.name = "Threads";
+			info.selectionAction = BIOS_DEBUG_OBJECT_ACTION::SHOW_STACK_OR_LOCATION;
+			info.fields =
 			{
-				threadInfo.stateDescription = "Running";
+				{ "Id", BIOS_DEBUG_OBJECT_FIELD_TYPE::UINT32, BIOS_DEBUG_OBJECT_FIELD_ATTRIBUTE::IDENTIFIER },
+				{ "Priority", BIOS_DEBUG_OBJECT_FIELD_TYPE::UINT32 },
+				{ "Location", BIOS_DEBUG_OBJECT_FIELD_TYPE::UINT32, BIOS_DEBUG_OBJECT_FIELD_ATTRIBUTE::LOCATION | BIOS_DEBUG_OBJECT_FIELD_ATTRIBUTE::TEXT_ADDRESS },
+				{ "RA", BIOS_DEBUG_OBJECT_FIELD_TYPE::UINT32, BIOS_DEBUG_OBJECT_FIELD_ATTRIBUTE::RETURN_ADDRESS | BIOS_DEBUG_OBJECT_FIELD_ATTRIBUTE::HIDDEN },
+				{ "SP", BIOS_DEBUG_OBJECT_FIELD_TYPE::UINT32, BIOS_DEBUG_OBJECT_FIELD_ATTRIBUTE::STACK_POINTER | BIOS_DEBUG_OBJECT_FIELD_ATTRIBUTE::HIDDEN },
+				{ "State", BIOS_DEBUG_OBJECT_FIELD_TYPE::STRING },
+			};
+			result.emplace(std::make_pair(BIOS_OBJECT_TYPE_THREADS, std::move(info)));
+		}
+		return result;
+	}();
+	return objectDebugInfo;
+}
+
+BiosDebugObjectArray CIopBios::GetBiosObjects(uint32 typeId) const
+{
+	BiosDebugObjectArray result;
+	switch(typeId)
+	{
+	case BIOS_OBJECT_TYPE_THREADS:
+		for(auto it = std::begin(m_threads); it != std::end(m_threads); it++)
+		{
+			auto thread = *it;
+			if(!thread) continue;
+			
+			uint32 pc = 0;
+			uint32 ra = 0;
+			uint32 sp = 0;
+			
+			if(m_currentThreadId == it)
+			{
+				pc = m_cpu.m_State.nPC;
+				ra = m_cpu.m_State.nGPR[CMIPS::RA].nV0;
+				sp = m_cpu.m_State.nGPR[CMIPS::SP].nV0;
 			}
 			else
 			{
-				threadInfo.stateDescription = string_format("Delayed (%ld ticks)", deltaTime);
+				pc = thread->context.epc;
+				ra = thread->context.gpr[CMIPS::RA];
+				sp = thread->context.gpr[CMIPS::SP];
 			}
-			break;
-		case THREAD_STATUS_SLEEPING:
-			threadInfo.stateDescription = "Sleeping";
-			break;
-		case THREAD_STATUS_WAITING_SEMAPHORE:
-			threadInfo.stateDescription = string_format("Waiting (Semaphore: %d)", thread->waitSemaphore);
-			break;
-		case THREAD_STATUS_WAITING_EVENTFLAG:
-			threadInfo.stateDescription = string_format("Waiting (Event Flag: %d)", thread->waitEventFlag);
-			break;
-		case THREAD_STATUS_WAITING_MESSAGEBOX:
-			threadInfo.stateDescription = string_format("Waiting (Message Box: %d)", thread->waitMessageBox);
-			break;
-		case THREAD_STATUS_WAIT_VBLANK_START:
-			threadInfo.stateDescription = "Waiting (Vblank Start)";
-			break;
-		case THREAD_STATUS_WAIT_VBLANK_END:
-			threadInfo.stateDescription = "Waiting (Vblank End)";
-			break;
-		default:
-			threadInfo.stateDescription = "Unknown";
-			break;
+
+			std::string stateDescription;
+			int64 deltaTime = thread->nextActivateTime - GetCurrentTime();
+
+			switch(thread->status)
+			{
+			case THREAD_STATUS_DORMANT:
+				stateDescription = "Dormant";
+				break;
+			case THREAD_STATUS_RUNNING:
+				if(deltaTime <= 0)
+				{
+					stateDescription = "Running";
+				}
+				else
+				{
+					stateDescription = string_format("Delayed (%ld ticks)", deltaTime);
+				}
+				break;
+			case THREAD_STATUS_SLEEPING:
+				stateDescription = "Sleeping";
+				break;
+			case THREAD_STATUS_WAITING_SEMAPHORE:
+				stateDescription = string_format("Waiting (Semaphore: %d)", thread->waitSemaphore);
+				break;
+			case THREAD_STATUS_WAITING_EVENTFLAG:
+				stateDescription = string_format("Waiting (Event Flag: %d)", thread->waitEventFlag);
+				break;
+			case THREAD_STATUS_WAITING_MESSAGEBOX:
+				stateDescription = string_format("Waiting (Message Box: %d)", thread->waitMessageBox);
+				break;
+			case THREAD_STATUS_WAIT_VBLANK_START:
+				stateDescription = "Waiting (Vblank Start)";
+				break;
+			case THREAD_STATUS_WAIT_VBLANK_END:
+				stateDescription = "Waiting (Vblank End)";
+				break;
+			default:
+				stateDescription = "Unknown";
+				break;
+			}
+
+			BIOS_DEBUG_OBJECT obj;
+			obj.fields = {
+				BIOS_DEBUG_OBJECT_FIELD(std::in_place_type<uint32>, it),
+				BIOS_DEBUG_OBJECT_FIELD(std::in_place_type<uint32>, thread->priority),
+				BIOS_DEBUG_OBJECT_FIELD(std::in_place_type<uint32>, pc),
+				BIOS_DEBUG_OBJECT_FIELD(std::in_place_type<uint32>, ra),
+				BIOS_DEBUG_OBJECT_FIELD(std::in_place_type<uint32>, sp),
+				BIOS_DEBUG_OBJECT_FIELD(std::in_place_type<std::string>, stateDescription),
+			};
+			result.push_back(obj);
 		}
-
-		threadInfos.push_back(threadInfo);
+		break;
 	}
-
-	return threadInfos;
+	return result;
 }
 
 void CIopBios::PrepareModuleDebugInfo(CELF32& elf, const ExecutableRange& moduleRange, const std::string& moduleName, const std::string& modulePath)

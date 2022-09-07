@@ -121,6 +121,7 @@ set(COMMON_SRC_FILES
 	AppConfig.h
 	BasicBlock.cpp
 	BasicBlock.h
+	BiosDebugInfoProvider.h
 	BlockLookupOneWay.h
 	BlockLookupTwoWay.h
 	ControllerInfo.cpp

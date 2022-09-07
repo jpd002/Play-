@@ -63,8 +63,7 @@ public:
 
 #ifdef DEBUGGER_INCLUDED
 	BiosDebugModuleInfoArray GetModulesDebugInfo() const override;
-	BiosDebugThreadInfoArray GetThreadsDebugInfo() const override;
-	BiosDebugObjectInfoArray GetBiosObjectsDebugInfo() const override;
+	BiosDebugObjectInfoMap GetBiosObjectsDebugInfo() const override;
 	BiosDebugObjectArray GetBiosObjects(uint32) const override;
 #endif
 

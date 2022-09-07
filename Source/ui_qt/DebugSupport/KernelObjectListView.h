@@ -31,7 +31,7 @@ private:
 
 	CMIPS* m_context = nullptr;
 	CBiosDebugInfoProvider* m_biosDebugInfoProvider = nullptr;
-	BiosDebugObjectInfoArray m_schema;
+	BiosDebugObjectInfoMap m_schema;
 	QTableView* m_tableView = nullptr;
 	CQtGenericTableModel* m_model = nullptr;
 	uint32 m_objectType = 0;

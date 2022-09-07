@@ -495,12 +495,13 @@ void QtDebugger::ActivateView(unsigned int nView)
 		ui->menuKernelObjects->clear();
 		if(biosDebugInfoProvider)
 		{
-			auto objects = biosDebugInfoProvider->GetBiosObjectsDebugInfo();
-			for(const auto& object : objects)
+			auto objectTypes = biosDebugInfoProvider->GetBiosObjectsDebugInfo();
+			for(const auto& objectTypePair : objectTypes)
 			{
+				const auto& objectType = objectTypePair.second;
 				QAction* objectAction = new QAction(this);
-				objectAction->setText(QString::fromStdString(object.name));
-				objectAction->setData(object.typeId);
+				objectAction->setText(QString::fromStdString(objectType.name));
+				objectAction->setData(objectTypePair.first);
 				//objectAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_O));
 				connect(objectAction, SIGNAL(triggered()), this, SLOT(on_actionViewKernelObject_triggered()));
 				ui->menuKernelObjects->addAction(objectAction);

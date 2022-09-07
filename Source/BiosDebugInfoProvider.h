@@ -2,6 +2,7 @@
 
 #include <string>
 #include <vector>
+#include <map>
 #include <variant>
 #include "Types.h"
 
@@ -15,18 +16,6 @@ struct BIOS_DEBUG_MODULE_INFO
 
 typedef std::vector<BIOS_DEBUG_MODULE_INFO> BiosDebugModuleInfoArray;
 typedef BiosDebugModuleInfoArray::iterator BiosDebugModuleInfoIterator;
-
-struct BIOS_DEBUG_THREAD_INFO
-{
-	uint32 id;
-	uint32 priority;
-	uint32 pc;
-	uint32 ra;
-	uint32 sp;
-	std::string stateDescription;
-};
-
-typedef std::vector<BIOS_DEBUG_THREAD_INFO> BiosDebugThreadInfoArray;
 
 typedef std::variant<uint32, std::string> BIOS_DEBUG_OBJECT_FIELD;
 
@@ -83,7 +72,6 @@ typedef std::vector<BIOS_DEBUG_OBJECT_FIELD_INFO> BiosDebugObjectFieldInfoArray;
 
 struct BIOS_DEBUG_OBJECT_INFO
 {
-	uint32 typeId = 0;
 	std::string name;
 	BiosDebugObjectFieldInfoArray fields;
 	BIOS_DEBUG_OBJECT_ACTION selectionAction = BIOS_DEBUG_OBJECT_ACTION::NONE;
@@ -101,7 +89,7 @@ struct BIOS_DEBUG_OBJECT_INFO
 		return -1;
 	}
 };
-typedef std::vector<BIOS_DEBUG_OBJECT_INFO> BiosDebugObjectInfoArray;
+typedef std::map<uint32, BIOS_DEBUG_OBJECT_INFO> BiosDebugObjectInfoMap;
 
 class CBiosDebugInfoProvider
 {
@@ -109,10 +97,9 @@ public:
 	~CBiosDebugInfoProvider() = default;
 #ifdef DEBUGGER_INCLUDED
 	virtual BiosDebugModuleInfoArray GetModulesDebugInfo() const = 0;
-	virtual BiosDebugThreadInfoArray GetThreadsDebugInfo() const = 0;
-	virtual BiosDebugObjectInfoArray GetBiosObjectsDebugInfo() const
+	virtual BiosDebugObjectInfoMap GetBiosObjectsDebugInfo() const
 	{
-		return BiosDebugObjectInfoArray();
+		return BiosDebugObjectInfoMap();
 	}
 	virtual BiosDebugObjectArray GetBiosObjects(uint32 typeId) const
 	{

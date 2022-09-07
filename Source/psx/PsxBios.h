@@ -53,7 +53,6 @@ public:
 	void SaveDebugTags(Framework::Xml::CNode*) override;
 
 	BiosDebugModuleInfoArray GetModulesDebugInfo() const override;
-	BiosDebugThreadInfoArray GetThreadsDebugInfo() const override;
 #endif
 
 private:
