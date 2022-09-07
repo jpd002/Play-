@@ -418,19 +418,20 @@ CVuBasicBlock::BlockFmacPipelineInfo CVuBasicBlock::ComputeFmacStallDelays(uint3
 
 	uint32 relativePipeTime = 0;
 	FmacRegWriteTimes writeFTime = {};
+	FmacRegWriteTimes writeITime = {};
 	if(initWriteFTime != nullptr)
 	{
 		memcpy(writeFTime, initWriteFTime, sizeof(writeFTime));
 	}
 
 	auto adjustPipeTime =
-	    [&writeFTime](uint32 pipeTime, uint32 dest, uint32 regIndex) {
+	    [](uint32 pipeTime, const FmacRegWriteTimes& writeTime, uint32 dest, uint32 regIndex) {
 		    if(regIndex == 0) return pipeTime;
 		    for(unsigned int i = 0; i < 4; i++)
 		    {
 			    if(dest & (1 << i))
 			    {
-				    pipeTime = std::max<uint32>(pipeTime, writeFTime[regIndex][i]);
+				    pipeTime = std::max<uint32>(pipeTime, writeTime[regIndex][i]);
 			    }
 		    }
 		    return pipeTime;
@@ -458,10 +459,13 @@ CVuBasicBlock::BlockFmacPipelineInfo CVuBasicBlock::ComputeFmacStallDelays(uint3
 		relativePipeTime++;
 		uint32 prevRelativePipeTime = relativePipeTime;
 
-		relativePipeTime = adjustPipeTime(relativePipeTime, loOps.readElemF0, loOps.readF0);
-		relativePipeTime = adjustPipeTime(relativePipeTime, loOps.readElemF1, loOps.readF1);
-		relativePipeTime = adjustPipeTime(relativePipeTime, hiOps.readElemF0, hiOps.readF0);
-		relativePipeTime = adjustPipeTime(relativePipeTime, hiOps.readElemF1, hiOps.readF1);
+		relativePipeTime = adjustPipeTime(relativePipeTime, writeFTime, loOps.readElemF0, loOps.readF0);
+		relativePipeTime = adjustPipeTime(relativePipeTime, writeFTime, loOps.readElemF1, loOps.readF1);
+		relativePipeTime = adjustPipeTime(relativePipeTime, writeFTime, hiOps.readElemF0, hiOps.readF0);
+		relativePipeTime = adjustPipeTime(relativePipeTime, writeFTime, hiOps.readElemF1, hiOps.readF1);
+
+		relativePipeTime = adjustPipeTime(relativePipeTime, writeITime, 0xF, loOps.readI0);
+		relativePipeTime = adjustPipeTime(relativePipeTime, writeITime, 0xF, loOps.readI1);
 
 		if(prevRelativePipeTime != relativePipeTime)
 		{
@@ -480,6 +484,16 @@ CVuBasicBlock::BlockFmacPipelineInfo CVuBasicBlock::ComputeFmacStallDelays(uint3
 				{
 					writeFTime[loOps.writeF][i] = relativePipeTime + VUShared::LATENCY_MAC;
 				}
+			}
+		}
+
+		//Not FMAC, but we consider LSU (load/store unit) stalls here too
+		if(loOps.writeILsu != 0)
+		{
+			assert(loOps.writeILsu < 32);
+			for(uint32 i = 0; i < 4; i++)
+			{
+				writeITime[loOps.writeILsu][i] = relativePipeTime + VUShared::LATENCY_MAC;
 			}
 		}
 

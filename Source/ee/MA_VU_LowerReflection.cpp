@@ -317,6 +317,7 @@ void CMA_VU::CLower::ReflOpAffWrItBvRdIs(VUINSTRUCTION*, CMIPS*, uint32, uint32 
 	auto is = static_cast<uint8>((opcode >> 11) & 0x001F);
 
 	operandSet.writeI = it;
+	operandSet.writeILsu = it;
 	operandSet.readI0 = is;
 	operandSet.branchValue = true;
 }
