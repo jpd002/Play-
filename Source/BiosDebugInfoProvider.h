@@ -2,6 +2,7 @@
 
 #include <string>
 #include <vector>
+#include <variant>
 #include "Types.h"
 
 struct BIOS_DEBUG_MODULE_INFO
