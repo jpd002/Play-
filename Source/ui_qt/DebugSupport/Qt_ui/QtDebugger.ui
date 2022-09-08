@@ -81,7 +81,6 @@
     <addaction name="actionCall_Stack"/>
     <addaction name="actionFunctions"/>
     <addaction name="actionELF_File_Information"/>
-    <addaction name="actionThreads"/>
     <addaction name="menuKernelObjects"/>
     <addaction name="actionView_Registers"/>
     <addaction name="separator"/>
@@ -176,14 +175,6 @@
   <action name="actionELF_File_Information">
    <property name="text">
     <string>ELF File Information</string>
-   </property>
-  </action>
-  <action name="actionThreads">
-   <property name="text">
-    <string>Threads</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+T</string>
    </property>
   </action>
   <action name="actionEmotionEngine_View">

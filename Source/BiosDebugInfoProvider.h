@@ -91,6 +91,13 @@ struct BIOS_DEBUG_OBJECT_INFO
 };
 typedef std::map<uint32, BIOS_DEBUG_OBJECT_INFO> BiosDebugObjectInfoMap;
 
+enum BIOS_DEBUG_OBJECT_TYPE
+{
+	BIOS_DEBUG_OBJECT_TYPE_NULL,
+	BIOS_DEBUG_OBJECT_TYPE_THREAD,
+	BIOS_DEBUG_OBJECT_TYPE_CUSTOM_START,
+};
+
 class CBiosDebugInfoProvider
 {
 public:

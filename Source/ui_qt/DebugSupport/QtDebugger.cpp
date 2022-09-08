@@ -502,7 +502,10 @@ void QtDebugger::ActivateView(unsigned int nView)
 				QAction* objectAction = new QAction(this);
 				objectAction->setText(QString::fromStdString(objectType.name));
 				objectAction->setData(objectTypePair.first);
-				//objectAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_O));
+				if(objectTypePair.first == BIOS_DEBUG_OBJECT_TYPE_THREAD)
+				{
+					objectAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_T));
+				}
 				connect(objectAction, SIGNAL(triggered()), this, SLOT(on_actionViewKernelObject_triggered()));
 				ui->menuKernelObjects->addAction(objectAction);
 			}
@@ -838,17 +841,14 @@ void QtDebugger::on_actionELF_File_Information_triggered()
 	m_pELFView->setFocus(Qt::ActiveWindowFocusReason);
 }
 
-void QtDebugger::on_actionThreads_triggered()
-{
-	m_kernelObjectListView->show();
-	m_kernelObjectListViewWnd->show();
-	m_kernelObjectListViewWnd->setFocus(Qt::ActiveWindowFocusReason);
-}
-
 void QtDebugger::on_actionViewKernelObject_triggered()
 {
 	QAction* source = static_cast<QAction*>(sender());
 	uint32 objectTypeId = source->data().toInt();
+	m_kernelObjectListView->SetObjectType(objectTypeId);
+	m_kernelObjectListView->show();
+	m_kernelObjectListViewWnd->show();
+	m_kernelObjectListViewWnd->setFocus(Qt::ActiveWindowFocusReason);
 }
 
 void QtDebugger::on_actionView_Disassmebly_triggered()

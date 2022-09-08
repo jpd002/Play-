@@ -34,5 +34,5 @@ private:
 	BiosDebugObjectInfoMap m_schema;
 	QTableView* m_tableView = nullptr;
 	CQtGenericTableModel* m_model = nullptr;
-	uint32 m_objectType = 0;
+	uint32 m_objectType = BIOS_DEBUG_OBJECT_TYPE_NULL;
 };

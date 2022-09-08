@@ -3598,8 +3598,6 @@ BiosDebugModuleInfoArray CIopBios::GetModulesDebugInfo() const
 	return m_moduleTags;
 }
 
-#define BIOS_OBJECT_TYPE_THREADS 3
-
 BiosDebugObjectInfoMap CIopBios::GetBiosObjectsDebugInfo() const
 {
 	static BiosDebugObjectInfoMap objectDebugInfo = []
@@ -3618,7 +3616,7 @@ BiosDebugObjectInfoMap CIopBios::GetBiosObjectsDebugInfo() const
 				{ "SP", BIOS_DEBUG_OBJECT_FIELD_TYPE::UINT32, BIOS_DEBUG_OBJECT_FIELD_ATTRIBUTE::STACK_POINTER | BIOS_DEBUG_OBJECT_FIELD_ATTRIBUTE::HIDDEN },
 				{ "State", BIOS_DEBUG_OBJECT_FIELD_TYPE::STRING },
 			};
-			result.emplace(std::make_pair(BIOS_OBJECT_TYPE_THREADS, std::move(info)));
+			result.emplace(std::make_pair(BIOS_DEBUG_OBJECT_TYPE_THREAD, std::move(info)));
 		}
 		return result;
 	}();
@@ -3630,7 +3628,7 @@ BiosDebugObjectArray CIopBios::GetBiosObjects(uint32 typeId) const
 	BiosDebugObjectArray result;
 	switch(typeId)
 	{
-	case BIOS_OBJECT_TYPE_THREADS:
+	case BIOS_DEBUG_OBJECT_TYPE_THREAD:
 		for(auto it = std::begin(m_threads); it != std::end(m_threads); it++)
 		{
 			auto thread = *it;

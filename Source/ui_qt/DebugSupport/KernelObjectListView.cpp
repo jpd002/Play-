@@ -4,8 +4,6 @@
 #include "DebugUtils.h"
 #include "QtDialogListWidget.h"
 
-#define TEMP_OBJECT_TYPE_ID 3
-
 CKernelObjectListView::CKernelObjectListView(QWidget* parent)
     : QTableView(parent)
 {
@@ -23,11 +21,18 @@ void CKernelObjectListView::SetContext(CMIPS* context, CBiosDebugInfoProvider* b
 {
 	m_context = context;
 	m_biosDebugInfoProvider = biosDebugInfoProvider;
-	
+	SetObjectType(BIOS_DEBUG_OBJECT_TYPE_NULL);
+	Update();
+}
+
+void CKernelObjectListView::SetObjectType(uint32 objectType)
+{
+	m_objectType = objectType;
+
 	m_schema = m_biosDebugInfoProvider->GetBiosObjectsDebugInfo();
-	if(!m_schema.empty())
+	if(!m_schema.empty() && (m_objectType != BIOS_DEBUG_OBJECT_TYPE_NULL))
 	{
-		auto objectType = m_schema[TEMP_OBJECT_TYPE_ID];
+		auto objectType = m_schema[m_objectType];
 		assert(!objectType.fields.empty());
 		assert(objectType.fields[0].HasAttribute(BIOS_DEBUG_OBJECT_FIELD_ATTRIBUTE::IDENTIFIER));
 		
@@ -56,39 +61,23 @@ void CKernelObjectListView::SetContext(CMIPS* context, CBiosDebugInfoProvider* b
 	{
 		setModel(nullptr);
 	}
-
-#if 0
-	std::vector<std::string> headers = {"Id", "Priority", "Location", "State"};
-	m_model = new CQtGenericTableModel(this, {"Id", "Priority", "Location", "State"});
-	setModel(m_model);
-	auto header = horizontalHeader();
-	header->setSectionResizeMode(0, QHeaderView::ResizeToContents);
-	header->setSectionResizeMode(1, QHeaderView::Interactive);
-	header->setSectionResizeMode(2, QHeaderView::Stretch);
-	header->setSectionResizeMode(3, QHeaderView::Stretch);
-	verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
-	verticalHeader()->hide();
-	setSelectionBehavior(QAbstractItemView::SelectRows);
-
-	QString text("Priority");
-	QFontMetrics fm = fontMetrics();
-	int width = fm.width(text);
-	header->resizeSection(1, width);
-#endif
-
+	
 	Update();
 }
 
 void CKernelObjectListView::Update()
 {
-	m_model->clear();
+	if(m_model)
+	{
+		m_model->clear();
+	}
 
-	if(!m_biosDebugInfoProvider) return;
+	if(!m_biosDebugInfoProvider || (m_objectType == BIOS_DEBUG_OBJECT_TYPE_NULL) || (m_schema.empty())) return;
 
 	auto moduleInfos = m_biosDebugInfoProvider->GetModulesDebugInfo();
 
-	auto objects = m_biosDebugInfoProvider->GetBiosObjects(TEMP_OBJECT_TYPE_ID);
-	auto objectType = m_schema[TEMP_OBJECT_TYPE_ID];
+	auto objects = m_biosDebugInfoProvider->GetBiosObjects(m_objectType);
+	auto objectType = m_schema[m_objectType];
 	for(const auto& object : objects)
 	{
 		assert(object.fields.size() == objectType.fields.size());
@@ -132,7 +121,7 @@ void CKernelObjectListView::Update()
 
 void CKernelObjectListView::tableDoubleClick(const QModelIndex& indexRow)
 {
-	auto objectType = m_schema[TEMP_OBJECT_TYPE_ID];
+	auto objectType = m_schema[m_objectType];
 	auto action = objectType.selectionAction;
 	if(action == BIOS_DEBUG_OBJECT_ACTION::NONE)
 	{
@@ -143,7 +132,7 @@ void CKernelObjectListView::tableDoubleClick(const QModelIndex& indexRow)
 	auto index = m_model->index(indexRow.row(), 0);
 	auto objectId = std::stoi(m_model->getItem(index));
 
-	auto objects = m_biosDebugInfoProvider->GetBiosObjects(TEMP_OBJECT_TYPE_ID);
+	auto objects = m_biosDebugInfoProvider->GetBiosObjects(m_objectType);
 
 	auto objectIterator = std::find_if(std::begin(objects), std::end(objects),
 	                                       [&](const BIOS_DEBUG_OBJECT& object)
@@ -161,6 +150,15 @@ void CKernelObjectListView::tableDoubleClick(const QModelIndex& indexRow)
 
 	switch(action)
 	{
+	case BIOS_DEBUG_OBJECT_ACTION::SHOW_LOCATION:
+		{
+			int locationFieldIndex = objectType.FindFieldWithAttribute(BIOS_DEBUG_OBJECT_FIELD_ATTRIBUTE::LOCATION);
+			assert(locationFieldIndex != -1);
+			auto location = std::get_if<uint32>(&object.fields[locationFieldIndex]);
+			assert(location);
+			OnGotoAddress(*location);
+		}
+		break;
 	case BIOS_DEBUG_OBJECT_ACTION::SHOW_STACK_OR_LOCATION:
 		{
 			int pcFieldIndex = objectType.FindFieldWithAttribute(BIOS_DEBUG_OBJECT_FIELD_ATTRIBUTE::LOCATION);
