@@ -311,7 +311,7 @@ void CMIPSAnalysis::ExpandSubroutines(uint32 executableStart, uint32 executableE
 	}
 }
 
-static bool TryGetStringAtAddress(CMIPS* context, uint32 address, std::string& result)
+bool CMIPSAnalysis::TryGetStringAtAddress(CMIPS* context, uint32 address, std::string& result)
 {
 	uint8 byteBefore = context->m_pMemoryMap->GetByte(address - 1);
 	if(byteBefore != 0) return false;

@@ -103,6 +103,18 @@ void CKernelObjectListView::Update()
 				{
 					data.push_back(string_format("0x%08X", *intValue));
 				}
+				else if(fieldType.HasAttribute(BIOS_DEBUG_OBJECT_FIELD_ATTRIBUTE::POSSIBLE_STR_POINTER))
+				{
+					std::string value;
+					if(CMIPSAnalysis::TryGetStringAtAddress(m_context, *intValue, value))
+					{
+						data.push_back(string_format("0x%08X (%s)", *intValue, value.c_str()));
+					}
+					else
+					{
+						data.push_back(string_format("0x%08X", *intValue));
+					}
+				}
 				else
 				{
 					data.push_back(string_format("%u", *intValue));

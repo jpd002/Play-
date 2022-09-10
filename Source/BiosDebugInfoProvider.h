@@ -34,14 +34,15 @@ enum class BIOS_DEBUG_OBJECT_FIELD_TYPE
 
 enum class BIOS_DEBUG_OBJECT_FIELD_ATTRIBUTE
 {
-	NONE           = 0,
-	IDENTIFIER     = (1 << 0),
-	TEXT_ADDRESS   = (1 << 1),
-	DATA_ADDRESS   = (1 << 2),
-	HIDDEN         = (1 << 3),
-	LOCATION       = (1 << 4),
-	STACK_POINTER  = (1 << 5),
-	RETURN_ADDRESS = (1 << 6),
+	NONE                 = 0,
+	IDENTIFIER           = (1 << 0),
+	TEXT_ADDRESS         = (1 << 1),
+	DATA_ADDRESS         = (1 << 2),
+	HIDDEN               = (1 << 3),
+	LOCATION             = (1 << 4),
+	STACK_POINTER        = (1 << 5),
+	RETURN_ADDRESS       = (1 << 6),
+	POSSIBLE_STR_POINTER = (1 << 7)
 };
 
 static BIOS_DEBUG_OBJECT_FIELD_ATTRIBUTE operator |(BIOS_DEBUG_OBJECT_FIELD_ATTRIBUTE lhs, BIOS_DEBUG_OBJECT_FIELD_ATTRIBUTE rhs)

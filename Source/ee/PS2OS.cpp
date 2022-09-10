@@ -3713,6 +3713,7 @@ BiosDebugObjectInfoMap CPS2OS::GetBiosObjectsDebugInfo() const
 			info.fields =
 			{
 				{ "Id", BIOS_DEBUG_OBJECT_FIELD_TYPE::UINT32, BIOS_DEBUG_OBJECT_FIELD_ATTRIBUTE::IDENTIFIER },
+				{ "Option", BIOS_DEBUG_OBJECT_FIELD_TYPE::UINT32, BIOS_DEBUG_OBJECT_FIELD_ATTRIBUTE::POSSIBLE_STR_POINTER },
 				{ "Count", BIOS_DEBUG_OBJECT_FIELD_TYPE::UINT32 },
 				{ "Max Count", BIOS_DEBUG_OBJECT_FIELD_TYPE::UINT32 },
 				{ "Wait Count", BIOS_DEBUG_OBJECT_FIELD_TYPE::UINT32 },
@@ -3782,6 +3783,7 @@ BiosDebugObjectArray CPS2OS::GetBiosObjects(uint32 typeId) const
 			BIOS_DEBUG_OBJECT obj;
 			obj.fields = {
 				BIOS_DEBUG_OBJECT_FIELD(std::in_place_type<uint32>, it),
+				BIOS_DEBUG_OBJECT_FIELD(std::in_place_type<uint32>, semaphore->option),
 				BIOS_DEBUG_OBJECT_FIELD(std::in_place_type<uint32>, semaphore->count),
 				BIOS_DEBUG_OBJECT_FIELD(std::in_place_type<uint32>, semaphore->maxCount),
 				BIOS_DEBUG_OBJECT_FIELD(std::in_place_type<uint32>, semaphore->waitCount),
