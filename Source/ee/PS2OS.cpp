@@ -3712,10 +3712,10 @@ BiosDebugObjectInfoMap CPS2OS::GetBiosObjectsDebugInfo() const
 			info.name = "Semaphores";
 			info.fields =
 			{
-				{ "Id" },
-				{ "Count" },
-				{ "Max Count" },
-				{ "Wait Count" },
+				{ "Id", BIOS_DEBUG_OBJECT_FIELD_TYPE::UINT32, BIOS_DEBUG_OBJECT_FIELD_ATTRIBUTE::IDENTIFIER },
+				{ "Count", BIOS_DEBUG_OBJECT_FIELD_TYPE::UINT32 },
+				{ "Max Count", BIOS_DEBUG_OBJECT_FIELD_TYPE::UINT32 },
+				{ "Wait Count", BIOS_DEBUG_OBJECT_FIELD_TYPE::UINT32 },
 			};
 			result.emplace(std::make_pair(EE_BIOS_DEBUG_OBJECT_TYPE_SEMAPHORE, std::move(info)));
 		}
