@@ -29,7 +29,7 @@ void CKernelObjectListView::SetObjectType(uint32 objectType)
 {
 	m_objectType = objectType;
 
-	m_schema = m_biosDebugInfoProvider->GetBiosObjectsDebugInfo();
+	m_schema = m_biosDebugInfoProvider ? m_biosDebugInfoProvider->GetBiosObjectsDebugInfo() : BiosDebugObjectInfoMap();
 	if(!m_schema.empty() && (m_objectType != BIOS_DEBUG_OBJECT_TYPE_NULL))
 	{
 		auto objectType = m_schema[m_objectType];
