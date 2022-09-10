@@ -15,7 +15,7 @@ class CKernelObjectListView : public QTableView, public CVirtualMachineStateView
 public:
 	typedef Framework::CSignal<void(uint32)> OnGotoAddressSignal;
 	typedef Framework::CSignal<void(const char*)> OnObjectTypeChangedSignal;
-	
+
 	CKernelObjectListView(QWidget*);
 	virtual ~CKernelObjectListView() = default;
 

@@ -34,18 +34,18 @@ enum class BIOS_DEBUG_OBJECT_FIELD_TYPE
 
 enum class BIOS_DEBUG_OBJECT_FIELD_ATTRIBUTE
 {
-	NONE                 = 0,
-	IDENTIFIER           = (1 << 0),
-	TEXT_ADDRESS         = (1 << 1),
-	DATA_ADDRESS         = (1 << 2),
-	HIDDEN               = (1 << 3),
-	LOCATION             = (1 << 4),
-	STACK_POINTER        = (1 << 5),
-	RETURN_ADDRESS       = (1 << 6),
+	NONE = 0,
+	IDENTIFIER = (1 << 0),
+	TEXT_ADDRESS = (1 << 1),
+	DATA_ADDRESS = (1 << 2),
+	HIDDEN = (1 << 3),
+	LOCATION = (1 << 4),
+	STACK_POINTER = (1 << 5),
+	RETURN_ADDRESS = (1 << 6),
 	POSSIBLE_STR_POINTER = (1 << 7)
 };
 
-static BIOS_DEBUG_OBJECT_FIELD_ATTRIBUTE operator |(BIOS_DEBUG_OBJECT_FIELD_ATTRIBUTE lhs, BIOS_DEBUG_OBJECT_FIELD_ATTRIBUTE rhs)
+static BIOS_DEBUG_OBJECT_FIELD_ATTRIBUTE operator|(BIOS_DEBUG_OBJECT_FIELD_ATTRIBUTE lhs, BIOS_DEBUG_OBJECT_FIELD_ATTRIBUTE rhs)
 {
 	auto result = static_cast<uint32>(lhs) | (static_cast<uint32>(rhs));
 	return static_cast<BIOS_DEBUG_OBJECT_FIELD_ATTRIBUTE>(result);
@@ -63,7 +63,7 @@ struct BIOS_DEBUG_OBJECT_FIELD_INFO
 	std::string name;
 	BIOS_DEBUG_OBJECT_FIELD_TYPE type = BIOS_DEBUG_OBJECT_FIELD_TYPE::UNKNOWN;
 	BIOS_DEBUG_OBJECT_FIELD_ATTRIBUTE attributes = BIOS_DEBUG_OBJECT_FIELD_ATTRIBUTE::NONE;
-	
+
 	bool HasAttribute(BIOS_DEBUG_OBJECT_FIELD_ATTRIBUTE attr) const
 	{
 		return (static_cast<uint32>(attributes) & static_cast<uint32>(attr)) != 0;
@@ -76,7 +76,7 @@ struct BIOS_DEBUG_OBJECT_INFO
 	std::string name;
 	BiosDebugObjectFieldInfoArray fields;
 	BIOS_DEBUG_OBJECT_ACTION selectionAction = BIOS_DEBUG_OBJECT_ACTION::NONE;
-	
+
 	int32 FindFieldWithAttribute(BIOS_DEBUG_OBJECT_FIELD_ATTRIBUTE attribute)
 	{
 		for(int fieldIndex = 0; fieldIndex < fields.size(); fieldIndex++)

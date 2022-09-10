@@ -35,24 +35,24 @@ void CKernelObjectListView::SetObjectType(uint32 objectType)
 		auto objectType = m_schema[m_objectType];
 		assert(!objectType.fields.empty());
 		assert(objectType.fields[0].HasAttribute(BIOS_DEBUG_OBJECT_FIELD_ATTRIBUTE::IDENTIFIER));
-		
+
 		std::vector<std::string> headers;
 		for(const auto& field : objectType.fields)
 		{
 			headers.push_back(field.name);
 		}
-		
+
 		m_model = new CQtGenericTableModel(this, headers);
 		setModel(m_model);
-		
+
 		auto header = horizontalHeader();
 		for(int i = 0; i < objectType.fields.size(); i++)
 		{
 			const auto& field = objectType.fields[i];
 			header->setSectionHidden(i, field.HasAttribute(BIOS_DEBUG_OBJECT_FIELD_ATTRIBUTE::HIDDEN));
 			if(
-			   field.HasAttribute(BIOS_DEBUG_OBJECT_FIELD_ATTRIBUTE::LOCATION) ||
-			   field.HasAttribute(BIOS_DEBUG_OBJECT_FIELD_ATTRIBUTE::POSSIBLE_STR_POINTER))
+			    field.HasAttribute(BIOS_DEBUG_OBJECT_FIELD_ATTRIBUTE::LOCATION) ||
+			    field.HasAttribute(BIOS_DEBUG_OBJECT_FIELD_ATTRIBUTE::POSSIBLE_STR_POINTER))
 			{
 				header->setSectionResizeMode(i, QHeaderView::Stretch);
 			}
@@ -71,7 +71,7 @@ void CKernelObjectListView::SetObjectType(uint32 objectType)
 		setModel(nullptr);
 		OnObjectTypeChanged("No Object Type");
 	}
-	
+
 	Update();
 }
 
@@ -144,7 +144,7 @@ void CKernelObjectListView::tableDoubleClick(const QModelIndex& indexRow)
 	{
 		return;
 	}
-	
+
 	//Assuming col 0 has id
 	auto index = m_model->index(indexRow.row(), 0);
 	auto objectId = std::stoi(m_model->getItem(index));
@@ -152,15 +152,14 @@ void CKernelObjectListView::tableDoubleClick(const QModelIndex& indexRow)
 	auto objects = m_biosDebugInfoProvider->GetBiosObjects(m_objectType);
 
 	auto objectIterator = std::find_if(std::begin(objects), std::end(objects),
-	                                       [&](const BIOS_DEBUG_OBJECT& object)
-	{
-		assert(!object.fields.empty());
-		if(auto id = std::get_if<uint32>(&object.fields[0]))
-		{
-			return (*id) == objectId;
-		}
-		return false;
-	});
+	                                   [&](const BIOS_DEBUG_OBJECT& object) {
+		                                   assert(!object.fields.empty());
+		                                   if(auto id = std::get_if<uint32>(&object.fields[0]))
+		                                   {
+			                                   return (*id) == objectId;
+		                                   }
+		                                   return false;
+	                                   });
 	if(objectIterator == std::end(objects)) return;
 
 	const auto& object(*objectIterator);
@@ -168,58 +167,58 @@ void CKernelObjectListView::tableDoubleClick(const QModelIndex& indexRow)
 	switch(action)
 	{
 	case BIOS_DEBUG_OBJECT_ACTION::SHOW_LOCATION:
-		{
-			int locationFieldIndex = objectType.FindFieldWithAttribute(BIOS_DEBUG_OBJECT_FIELD_ATTRIBUTE::LOCATION);
-			assert(locationFieldIndex != -1);
-			auto location = std::get_if<uint32>(&object.fields[locationFieldIndex]);
-			assert(location);
-			OnGotoAddress(*location);
-		}
-		break;
+	{
+		int locationFieldIndex = objectType.FindFieldWithAttribute(BIOS_DEBUG_OBJECT_FIELD_ATTRIBUTE::LOCATION);
+		assert(locationFieldIndex != -1);
+		auto location = std::get_if<uint32>(&object.fields[locationFieldIndex]);
+		assert(location);
+		OnGotoAddress(*location);
+	}
+	break;
 	case BIOS_DEBUG_OBJECT_ACTION::SHOW_STACK_OR_LOCATION:
-		{
-			int pcFieldIndex = objectType.FindFieldWithAttribute(BIOS_DEBUG_OBJECT_FIELD_ATTRIBUTE::LOCATION);
-			int spFieldIndex = objectType.FindFieldWithAttribute(BIOS_DEBUG_OBJECT_FIELD_ATTRIBUTE::STACK_POINTER);
-			int raFieldIndex = objectType.FindFieldWithAttribute(BIOS_DEBUG_OBJECT_FIELD_ATTRIBUTE::RETURN_ADDRESS);
-			
-			assert(pcFieldIndex != -1);
-			assert(spFieldIndex != -1);
-			assert(raFieldIndex != -1);
-			
-			auto pc = std::get_if<uint32>(&object.fields[pcFieldIndex]);
-			auto sp = std::get_if<uint32>(&object.fields[spFieldIndex]);
-			auto ra = std::get_if<uint32>(&object.fields[raFieldIndex]);
-			
-			assert(pc && sp && ra);
-			
-			auto callStackItems = CMIPSAnalysis::GetCallStack(m_context, *pc, *sp, *ra);
-			if(callStackItems.size() <= 1)
-			{
-				OnGotoAddress(*pc);
-			}
-			else
-			{
-				std::map<std::string, uint32> addrMap;
-				QtDialogListWidget dialog(this);
-				for(auto itemIterator(std::begin(callStackItems));
-					itemIterator != std::end(callStackItems); itemIterator++)
-				{
-					const auto& item(*itemIterator);
-					std::string locationString = DebugUtils::PrintAddressLocation(item, m_context, m_biosDebugInfoProvider->GetModulesDebugInfo());
-					dialog.addItem(locationString);
-					addrMap.insert({locationString, item});
-				}
+	{
+		int pcFieldIndex = objectType.FindFieldWithAttribute(BIOS_DEBUG_OBJECT_FIELD_ATTRIBUTE::LOCATION);
+		int spFieldIndex = objectType.FindFieldWithAttribute(BIOS_DEBUG_OBJECT_FIELD_ATTRIBUTE::STACK_POINTER);
+		int raFieldIndex = objectType.FindFieldWithAttribute(BIOS_DEBUG_OBJECT_FIELD_ATTRIBUTE::RETURN_ADDRESS);
 
-				dialog.exec();
-				auto locationString = dialog.getResult();
-				if(!locationString.empty())
-				{
-					auto address = addrMap.at(locationString);
-					OnGotoAddress(address);
-				}
+		assert(pcFieldIndex != -1);
+		assert(spFieldIndex != -1);
+		assert(raFieldIndex != -1);
+
+		auto pc = std::get_if<uint32>(&object.fields[pcFieldIndex]);
+		auto sp = std::get_if<uint32>(&object.fields[spFieldIndex]);
+		auto ra = std::get_if<uint32>(&object.fields[raFieldIndex]);
+
+		assert(pc && sp && ra);
+
+		auto callStackItems = CMIPSAnalysis::GetCallStack(m_context, *pc, *sp, *ra);
+		if(callStackItems.size() <= 1)
+		{
+			OnGotoAddress(*pc);
+		}
+		else
+		{
+			std::map<std::string, uint32> addrMap;
+			QtDialogListWidget dialog(this);
+			for(auto itemIterator(std::begin(callStackItems));
+			    itemIterator != std::end(callStackItems); itemIterator++)
+			{
+				const auto& item(*itemIterator);
+				std::string locationString = DebugUtils::PrintAddressLocation(item, m_context, m_biosDebugInfoProvider->GetModulesDebugInfo());
+				dialog.addItem(locationString);
+				addrMap.insert({locationString, item});
+			}
+
+			dialog.exec();
+			auto locationString = dialog.getResult();
+			if(!locationString.empty())
+			{
+				auto address = addrMap.at(locationString);
+				OnGotoAddress(address);
 			}
 		}
-		break;
+	}
+	break;
 	default:
 		assert(false);
 		break;

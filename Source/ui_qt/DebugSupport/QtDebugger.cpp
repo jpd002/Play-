@@ -52,7 +52,7 @@ QtDebugger::QtDebugger(CPS2VM& virtualMachine)
 		m_kernelObjectListViewWnd->resize(700, 300);
 		m_kernelObjectListViewWnd->hide();
 		m_OnGotoAddressConnection = m_kernelObjectListView->OnGotoAddress.Connect(std::bind(&QtDebugger::OnKernelObjectsViewAddressDblClick, this, std::placeholders::_1));
-		m_OnKernelObjectListViewTypeChangedConnection = m_kernelObjectListView->OnObjectTypeChanged.Connect([&](const char* typeName) {m_kernelObjectListViewWnd->setWindowTitle(typeName);});
+		m_OnKernelObjectListViewTypeChangedConnection = m_kernelObjectListView->OnObjectTypeChanged.Connect([&](const char* typeName) { m_kernelObjectListViewWnd->setWindowTitle(typeName); });
 	}
 
 	//Address List View Initialization

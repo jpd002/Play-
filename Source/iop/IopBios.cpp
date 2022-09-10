@@ -3600,22 +3600,21 @@ BiosDebugModuleInfoArray CIopBios::GetModulesDebugInfo() const
 
 BiosDebugObjectInfoMap CIopBios::GetBiosObjectsDebugInfo() const
 {
-	static BiosDebugObjectInfoMap objectDebugInfo = []
-	{
+	static BiosDebugObjectInfoMap objectDebugInfo = [] {
 		BiosDebugObjectInfoMap result;
 		{
 			BIOS_DEBUG_OBJECT_INFO info;
 			info.name = "Threads";
 			info.selectionAction = BIOS_DEBUG_OBJECT_ACTION::SHOW_STACK_OR_LOCATION;
 			info.fields =
-			{
-				{ "Id", BIOS_DEBUG_OBJECT_FIELD_TYPE::UINT32, BIOS_DEBUG_OBJECT_FIELD_ATTRIBUTE::IDENTIFIER },
-				{ "Priority", BIOS_DEBUG_OBJECT_FIELD_TYPE::UINT32 },
-				{ "Location", BIOS_DEBUG_OBJECT_FIELD_TYPE::UINT32, BIOS_DEBUG_OBJECT_FIELD_ATTRIBUTE::LOCATION | BIOS_DEBUG_OBJECT_FIELD_ATTRIBUTE::TEXT_ADDRESS },
-				{ "RA", BIOS_DEBUG_OBJECT_FIELD_TYPE::UINT32, BIOS_DEBUG_OBJECT_FIELD_ATTRIBUTE::RETURN_ADDRESS | BIOS_DEBUG_OBJECT_FIELD_ATTRIBUTE::HIDDEN },
-				{ "SP", BIOS_DEBUG_OBJECT_FIELD_TYPE::UINT32, BIOS_DEBUG_OBJECT_FIELD_ATTRIBUTE::STACK_POINTER | BIOS_DEBUG_OBJECT_FIELD_ATTRIBUTE::HIDDEN },
-				{ "State", BIOS_DEBUG_OBJECT_FIELD_TYPE::STRING },
-			};
+			    {
+			        {"Id", BIOS_DEBUG_OBJECT_FIELD_TYPE::UINT32, BIOS_DEBUG_OBJECT_FIELD_ATTRIBUTE::IDENTIFIER},
+			        {"Priority", BIOS_DEBUG_OBJECT_FIELD_TYPE::UINT32},
+			        {"Location", BIOS_DEBUG_OBJECT_FIELD_TYPE::UINT32, BIOS_DEBUG_OBJECT_FIELD_ATTRIBUTE::LOCATION | BIOS_DEBUG_OBJECT_FIELD_ATTRIBUTE::TEXT_ADDRESS},
+			        {"RA", BIOS_DEBUG_OBJECT_FIELD_TYPE::UINT32, BIOS_DEBUG_OBJECT_FIELD_ATTRIBUTE::RETURN_ADDRESS | BIOS_DEBUG_OBJECT_FIELD_ATTRIBUTE::HIDDEN},
+			        {"SP", BIOS_DEBUG_OBJECT_FIELD_TYPE::UINT32, BIOS_DEBUG_OBJECT_FIELD_ATTRIBUTE::STACK_POINTER | BIOS_DEBUG_OBJECT_FIELD_ATTRIBUTE::HIDDEN},
+			        {"State", BIOS_DEBUG_OBJECT_FIELD_TYPE::STRING},
+			    };
 			result.emplace(std::make_pair(BIOS_DEBUG_OBJECT_TYPE_THREAD, std::move(info)));
 		}
 		return result;
@@ -3633,11 +3632,11 @@ BiosDebugObjectArray CIopBios::GetBiosObjects(uint32 typeId) const
 		{
 			auto thread = *it;
 			if(!thread) continue;
-			
+
 			uint32 pc = 0;
 			uint32 ra = 0;
 			uint32 sp = 0;
-			
+
 			if(m_currentThreadId == it)
 			{
 				pc = m_cpu.m_State.nPC;
@@ -3694,12 +3693,12 @@ BiosDebugObjectArray CIopBios::GetBiosObjects(uint32 typeId) const
 
 			BIOS_DEBUG_OBJECT obj;
 			obj.fields = {
-				BIOS_DEBUG_OBJECT_FIELD(std::in_place_type<uint32>, it),
-				BIOS_DEBUG_OBJECT_FIELD(std::in_place_type<uint32>, thread->priority),
-				BIOS_DEBUG_OBJECT_FIELD(std::in_place_type<uint32>, pc),
-				BIOS_DEBUG_OBJECT_FIELD(std::in_place_type<uint32>, ra),
-				BIOS_DEBUG_OBJECT_FIELD(std::in_place_type<uint32>, sp),
-				BIOS_DEBUG_OBJECT_FIELD(std::in_place_type<std::string>, stateDescription),
+			    BIOS_DEBUG_OBJECT_FIELD(std::in_place_type<uint32>, it),
+			    BIOS_DEBUG_OBJECT_FIELD(std::in_place_type<uint32>, thread->priority),
+			    BIOS_DEBUG_OBJECT_FIELD(std::in_place_type<uint32>, pc),
+			    BIOS_DEBUG_OBJECT_FIELD(std::in_place_type<uint32>, ra),
+			    BIOS_DEBUG_OBJECT_FIELD(std::in_place_type<uint32>, sp),
+			    BIOS_DEBUG_OBJECT_FIELD(std::in_place_type<std::string>, stateDescription),
 			};
 			result.push_back(obj);
 		}
