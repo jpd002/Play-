@@ -63,10 +63,13 @@ void CKernelObjectListView::SetObjectType(uint32 objectType)
 		}
 		verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
 		verticalHeader()->hide();
+
+		OnObjectTypeChanged(objectType.name.c_str());
 	}
 	else
 	{
 		setModel(nullptr);
+		OnObjectTypeChanged("No Object Type");
 	}
 	
 	Update();

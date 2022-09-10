@@ -128,7 +128,8 @@ private:
 
 	Framework::CSignal<void(uint32)>::Connection m_OnFunctionDblClickConnection;
 	Framework::CSignal<void()>::Connection m_OnFunctionsStateChangeConnection;
-	Framework::CSignal<void(uint32)>::Connection m_OnGotoAddressConnection;
+	CKernelObjectListView::OnGotoAddressSignal::Connection m_OnGotoAddressConnection;
+	CKernelObjectListView::OnObjectTypeChangedSignal::Connection m_OnKernelObjectListViewTypeChangedConnection;
 
 	CAddressListViewWnd::AddressSelectedEvent::Connection m_AddressSelectedConnection;
 	Framework::CSignal<void()>::Connection m_OnExecutableChangeConnection;

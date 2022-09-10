@@ -43,14 +43,16 @@ QtDebugger::QtDebugger(CPS2VM& virtualMachine)
 
 	//Threads View Initialization
 	{
-		m_kernelObjectListView = new CKernelObjectListView(ui->mdiArea);
 		m_kernelObjectListViewWnd = new QMdiSubWindow(ui->mdiArea);
+		m_kernelObjectListView = new CKernelObjectListView(m_kernelObjectListViewWnd);
 		m_kernelObjectListViewWnd->setWidget(m_kernelObjectListView);
 		m_kernelObjectListViewWnd->setWindowTitle("Kernel Objects");
 
+		m_kernelObjectListViewWnd->move(0, 0);
 		m_kernelObjectListViewWnd->resize(700, 300);
 		m_kernelObjectListViewWnd->hide();
 		m_OnGotoAddressConnection = m_kernelObjectListView->OnGotoAddress.Connect(std::bind(&QtDebugger::OnKernelObjectsViewAddressDblClick, this, std::placeholders::_1));
+		m_OnKernelObjectListViewTypeChangedConnection = m_kernelObjectListView->OnObjectTypeChanged.Connect([&](const char* typeName) {m_kernelObjectListViewWnd->setWindowTitle(typeName);});
 	}
 
 	//Address List View Initialization

@@ -13,6 +13,9 @@
 class CKernelObjectListView : public QTableView, public CVirtualMachineStateView
 {
 public:
+	typedef Framework::CSignal<void(uint32)> OnGotoAddressSignal;
+	typedef Framework::CSignal<void(const char*)> OnObjectTypeChangedSignal;
+	
 	CKernelObjectListView(QWidget*);
 	virtual ~CKernelObjectListView() = default;
 
@@ -21,7 +24,8 @@ public:
 	void SetContext(CMIPS*, CBiosDebugInfoProvider*);
 	void SetObjectType(uint32);
 
-	Framework::CSignal<void(uint32)> OnGotoAddress;
+	OnGotoAddressSignal OnGotoAddress;
+	OnObjectTypeChangedSignal OnObjectTypeChanged;
 
 public slots:
 	void tableDoubleClick(const QModelIndex&);
