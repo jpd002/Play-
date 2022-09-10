@@ -39,10 +39,6 @@ void CKernelObjectListView::SetObjectType(uint32 objectType)
 		std::vector<std::string> headers;
 		for(const auto& field : objectType.fields)
 		{
-			if(field.HasAttribute(BIOS_DEBUG_OBJECT_FIELD_ATTRIBUTE::HIDDEN))
-			{
-				continue;
-			}
 			headers.push_back(field.name);
 		}
 		
@@ -50,10 +46,21 @@ void CKernelObjectListView::SetObjectType(uint32 objectType)
 		setModel(m_model);
 		
 		auto header = horizontalHeader();
-		header->setSectionResizeMode(0, QHeaderView::ResizeToContents);
-		header->setSectionResizeMode(1, QHeaderView::Interactive);
-		header->setSectionResizeMode(2, QHeaderView::Stretch);
-		header->setSectionResizeMode(3, QHeaderView::Interactive);
+		for(int i = 0; i < objectType.fields.size(); i++)
+		{
+			const auto& field = objectType.fields[i];
+			header->setSectionHidden(i, field.HasAttribute(BIOS_DEBUG_OBJECT_FIELD_ATTRIBUTE::HIDDEN));
+			if(
+			   field.HasAttribute(BIOS_DEBUG_OBJECT_FIELD_ATTRIBUTE::LOCATION) ||
+			   field.HasAttribute(BIOS_DEBUG_OBJECT_FIELD_ATTRIBUTE::POSSIBLE_STR_POINTER))
+			{
+				header->setSectionResizeMode(i, QHeaderView::Stretch);
+			}
+			else
+			{
+				header->setSectionResizeMode(i, QHeaderView::ResizeToContents);
+			}
+		}
 		verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
 		verticalHeader()->hide();
 	}
@@ -85,11 +92,6 @@ void CKernelObjectListView::Update()
 		for(int fieldIdx = 0; fieldIdx < object.fields.size(); fieldIdx++)
 		{
 			const auto& fieldType = objectType.fields[fieldIdx];
-			if(fieldType.HasAttribute(BIOS_DEBUG_OBJECT_FIELD_ATTRIBUTE::HIDDEN))
-			{
-				continue;
-			}
-
 			const auto& field = object.fields[fieldIdx];
 			if(auto intValue = std::get_if<uint32>(&field))
 			{
