@@ -173,14 +173,20 @@ uint32 CSIF::ReceiveDMA6(uint32 nSrcAddr, uint32 nSize, uint32 nDstAddr, bool is
 	else if(nDstAddr == SIF_RESETADDR)
 	{
 		auto commandData = m_eeRam + nSrcAddr;
-		if(commandData[0] == 0x68)
+		auto hdr = reinterpret_cast<const SIFCMDHEADER*>(commandData);
+		if((hdr->packetSize == sizeof(SIFCMDRESET)) && (hdr->commandId == SIF_CMD_RESET))
 		{
-			auto pathSize = *reinterpret_cast<uint32*>(commandData + 0x10);
-			auto path = std::string(commandData + 0x18, commandData + 0x18 + pathSize);
+			auto resetCmd = reinterpret_cast<const SIFCMDRESET*>(commandData);
+			assert(resetCmd->argsSize <= SIFCMDRESET::ARGS_SIZE_MAX);
+			auto path = std::string(resetCmd->args, resetCmd->args + resetCmd->argsSize);
 			if(m_moduleResetHandler)
 			{
 				m_moduleResetHandler(path);
 			}
+		}
+		else
+		{
+			CLog::GetInstance().Warn(LOG_NAME, "Warning: Trying to DMA to address 0 from EE address 0x%08X.\r\n", nSrcAddr);
 		}
 		return nSize;
 	}

@@ -6,6 +6,7 @@ enum CONST_SIF_CMD
 {
 	SIF_CMD_SETSREG = 0x80000001,
 	SIF_CMD_INIT = 0x80000002,
+	SIF_CMD_RESET = 0x80000003,
 	SIF_CMD_REND = 0x80000008,
 	SIF_CMD_BIND = 0x80000009,
 	SIF_CMD_CALL = 0x8000000A,
@@ -35,6 +36,20 @@ struct SIFCMDHEADER
 	uint32 optional;
 };
 static_assert(sizeof(SIFCMDHEADER) == 0x10, "sizeof(SIFCMDHEADER) must be 16 bytes.");
+
+struct SIFCMDRESET
+{
+	enum
+	{
+		ARGS_SIZE_MAX = 79,
+	};
+
+	SIFCMDHEADER header;
+	uint32 argsSize;
+	uint32 mode;
+	char args[ARGS_SIZE_MAX + 1];
+};
+static_assert(sizeof(SIFCMDRESET) == 0x68, "sizeof(SIFCMDRESET) must be 104 bytes.");
 
 struct SIFSETSREG
 {
