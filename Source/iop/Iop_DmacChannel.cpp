@@ -91,7 +91,6 @@ uint32 CChannel::ReadRegister(uint32 address)
 
 void CChannel::WriteRegister(uint32 address, uint32 value)
 {
-	assert(m_CHCR.tr == 0);
 	switch(address - m_baseAddress)
 	{
 	case REG_MADR:
