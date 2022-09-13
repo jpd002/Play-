@@ -1,5 +1,6 @@
-#include <stdio.h>
-#include <assert.h>
+#include <cstdio>
+#include <cassert>
+#include <cstring>
 #include "iop/IopBios.h"
 #include "iop/Iop_McServ.h"
 #include "iop/Iop_PathUtils.h"
