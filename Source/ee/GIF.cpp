@@ -493,6 +493,12 @@ uint32 CGIF::GetRegister(uint32 address)
 			result |= (0x1F << 24);
 		}
 
+		//Wizardry: Tale of the Forsaken Land expects bit to be set.
+		if(m_activePath != 0)
+		{
+			result |= GIF_STAT_OPH;
+		}
+
 		if(m_path3XferActiveTicks > 0)
 		{
 			result |= GIF_STAT_OPH;
