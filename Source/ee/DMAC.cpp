@@ -629,6 +629,10 @@ void CDMAC::SetRegister(uint32 nAddress, uint32 nData)
 	case D2_CHCR + 0x0:
 		m_D2.WriteCHCR(nData);
 		break;
+	case D2_CHCR + 0x1:
+		//This is done by La Pucelle Tactics
+		m_D2.WriteCHCR((m_D2.ReadCHCR() & ~0xFF00) | ((nData & 0xFF) << 8));
+		break;
 	case D2_CHCR + 0x4:
 	case D2_CHCR + 0x8:
 	case D2_CHCR + 0xC:
