@@ -436,6 +436,8 @@ set(COMMON_SRC_FILES
 	saves/Icon.h
 	saves/MaxSaveImporter.cpp
 	saves/MaxSaveImporter.h
+	saves/McDumpReader.cpp
+	saves/McDumpReader.h
 	saves/MemoryCard.cpp
 	saves/PsuSaveImporter.cpp
 	saves/PsuSaveImporter.h
