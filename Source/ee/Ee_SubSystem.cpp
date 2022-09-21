@@ -69,7 +69,7 @@ CSubSystem::CSubSystem(uint8* iopRam, CIopBios& iopBios)
 		m_EE.m_executor = std::make_unique<CEeExecutor>(m_EE, m_ram);
 
 		//Read map
-		m_EE.m_pMemoryMap->InsertReadMap(0x00000000, 0x01FFFFFF, m_ram, 0x00);
+		m_EE.m_pMemoryMap->InsertReadMap(0x00000000, PS2::EE_RAM_SIZE - 1, m_ram, 0x00);
 		m_EE.m_pMemoryMap->InsertReadMap(PS2::EE_SPR_ADDR, PS2::EE_SPR_ADDR + PS2::EE_SPR_SIZE - 1, m_spr, 0x01);
 		m_EE.m_pMemoryMap->InsertReadMap(0x10000000, 0x10FFFFFF, std::bind(&CSubSystem::IOPortReadHandler, this, PLACEHOLDER_1), 0x02);
 		m_EE.m_pMemoryMap->InsertReadMap(PS2::MICROMEM0ADDR, PS2::MICROMEM0ADDR + PS2::MICROMEM0SIZE - 1, m_microMem0, 0x03);
@@ -81,7 +81,7 @@ CSubSystem::CSubSystem(uint8* iopRam, CIopBios& iopBios)
 		m_EE.m_pMemoryMap->InsertReadMap(PS2::EE_BIOS_ADDR, PS2::EE_BIOS_ADDR + PS2::EE_BIOS_SIZE - 1, m_bios, 0x09);
 
 		//Write map
-		m_EE.m_pMemoryMap->InsertWriteMap(0x00000000, 0x01FFFFFF, m_ram, 0x00);
+		m_EE.m_pMemoryMap->InsertWriteMap(0x00000000, PS2::EE_RAM_SIZE - 1, m_ram, 0x00);
 		m_EE.m_pMemoryMap->InsertWriteMap(PS2::EE_SPR_ADDR, PS2::EE_SPR_ADDR + PS2::EE_SPR_SIZE - 1, m_spr, 0x01);
 		m_EE.m_pMemoryMap->InsertWriteMap(0x10000000, 0x10FFFFFF, std::bind(&CSubSystem::IOPortWriteHandler, this, PLACEHOLDER_1, PLACEHOLDER_2), 0x02);
 		m_EE.m_pMemoryMap->InsertWriteMap(PS2::MICROMEM0ADDR, PS2::MICROMEM0ADDR + PS2::MICROMEM0SIZE - 1, std::bind(&CSubSystem::Vu0MicroMemWriteHandler, this, PLACEHOLDER_1, PLACEHOLDER_2), 0x03);
@@ -91,7 +91,7 @@ CSubSystem::CSubSystem(uint8* iopRam, CIopBios& iopBios)
 		m_EE.m_pMemoryMap->InsertWriteMap(0x12000000, 0x12FFFFFF, std::bind(&CSubSystem::IOPortWriteHandler, this, PLACEHOLDER_1, PLACEHOLDER_2), 0x07);
 
 		//Instruction map
-		m_EE.m_pMemoryMap->InsertInstructionMap(0x00000000, 0x01FFFFFF, m_ram, 0x00);
+		m_EE.m_pMemoryMap->InsertInstructionMap(0x00000000, PS2::EE_RAM_SIZE - 1, m_ram, 0x00);
 		m_EE.m_pMemoryMap->InsertInstructionMap(PS2::EE_BIOS_ADDR, PS2::EE_BIOS_ADDR + PS2::EE_BIOS_SIZE - 1, m_bios, 0x01);
 
 		m_EE.m_pArch = &m_EEArch;
