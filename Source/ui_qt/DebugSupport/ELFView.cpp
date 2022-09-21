@@ -140,7 +140,8 @@ void CELFView<ElfType>::itemSelectionChanged()
 	m_pProgramView->hide();
 	m_pSymbolView->hide();
 
-	auto item = m_treeWidget->selectedItems().at(0);
+	auto selectedItems = m_treeWidget->selectedItems();
+	auto item = !selectedItems.empty() ? selectedItems.at(0) : nullptr;
 	if(!item)
 		return;
 
