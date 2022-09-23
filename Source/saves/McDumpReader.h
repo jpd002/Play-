@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <map>
 #include "Stream.h"
 
 class CMcDumpReader
@@ -62,25 +63,32 @@ public:
 	std::vector<uint8> ReadFile(uint32, uint32);
 
 private:
+	typedef std::vector<uint8> Cluster;
+	typedef std::map<uint32, Cluster> ClusterMap;
+	
+	void ReadCluster(uint32, void*);
+	void ReadClusterCached(uint32, void*);
+
 	class CFatReader
 	{
 	public:
-		CFatReader(Framework::CStream&, const HEADER&, uint32);
+		CFatReader(CMcDumpReader&, uint32);
 		
 		uint32 Read(void*, uint32);
 		
 	private:
 		enum
 		{
-			CLUSTER_SIZE = 0x400,
+			PAGE_SIZE = 0x200,
+			PAGES_PER_CLUSTER = 2,
+			CLUSTER_SIZE = PAGE_SIZE * PAGES_PER_CLUSTER,
 			INVALID_CLUSTER_IDX = -1,
 		};
 		
 		uint32 GetNextFatClusterEntry(uint32);
 		void ReadFatCluster(uint32);
 
-		Framework::CStream& m_stream;
-		const HEADER& m_header;
+		CMcDumpReader& m_parent;
 		uint32 m_cluster = 0;
 		uint32 m_bufferIndex = 0;
 		uint8 m_buffer[CLUSTER_SIZE];
@@ -88,5 +96,7 @@ private:
 	
 	Framework::CStream& m_stream;
 	HEADER m_header = {};
+	uint32 m_rawPageSize = 0;
+	ClusterMap m_clusterCache;
 };
 
