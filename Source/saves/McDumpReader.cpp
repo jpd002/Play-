@@ -8,20 +8,20 @@
 static const char g_magic[29] = "Sony PS2 Memory Card Format ";
 
 CMcDumpReader::CMcDumpReader(Framework::CStream& stream)
-: m_stream(stream)
+    : m_stream(stream)
 {
 	m_stream.Read(&m_header, sizeof(HEADER));
 	if(memcmp(m_header.magic, g_magic, sizeof(m_header.magic)))
 	{
 		throw std::exception();
 	}
-	
+
 	assert(m_header.pageSize == 0x200);
 	assert(m_header.pagesPerCluster == 2);
-	
+
 	//Some cards have ECC which are not taken in consideration by pageSize.
 	//Compute raw page size which contains ECC codes
-	
+
 	uint32 totalPageCount = m_header.pagesPerCluster * m_header.clustersPerCard;
 	size_t expectedSize = m_header.pageSize * totalPageCount;
 	size_t actualSize = m_stream.GetLength();
@@ -90,14 +90,14 @@ void CMcDumpReader::ReadClusterCached(uint32 clusterIndex, void* buffer)
 		auto result = m_clusterCache.emplace(std::make_pair(clusterIndex, std::move(cluster)));
 		clusterIterator = result.first;
 	}
-	
+
 	const auto& cluster = clusterIterator->second;
 	assert(cluster.size() == clusterSize);
 	memcpy(buffer, cluster.data(), cluster.size());
 }
 
 CMcDumpReader::CFatReader::CFatReader(CMcDumpReader& parent, uint32 cluster)
-: m_parent(parent)
+    : m_parent(parent)
 {
 	assert(m_parent.m_header.pageSize == PAGE_SIZE);
 	assert(m_parent.m_header.pagesPerCluster == PAGES_PER_CLUSTER);
@@ -154,16 +154,16 @@ void CMcDumpReader::CFatReader::ReadFatCluster(uint32 clusterIndex)
 uint32 CMcDumpReader::CFatReader::GetNextFatClusterEntry(uint32 clusterIndex)
 {
 	uint32 clusterTemp[CLUSTER_SIZE / sizeof(uint32)];
-	
+
 	uint32 fatOffset = clusterIndex & 0xFF;
 	uint32 indirectIndex = clusterIndex / 256;
 	uint32 indirectOffset = indirectIndex & 0xFF;
 	uint32 dblIndirectIndex = indirectIndex / 256;
 	uint32 indirectClusterNum = m_parent.m_header.ifcList[dblIndirectIndex];
-	
+
 	m_parent.ReadClusterCached(indirectClusterNum, clusterTemp);
 	uint32 fatClusterNum = clusterTemp[indirectOffset];
-	
+
 	m_parent.ReadClusterCached(fatClusterNum, clusterTemp);
 	uint32 entry = clusterTemp[fatOffset];
 

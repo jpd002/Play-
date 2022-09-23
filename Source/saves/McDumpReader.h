@@ -12,7 +12,7 @@ public:
 		DF_FILE = 0x10,
 		DF_DIRECTORY = 0x20,
 	};
-	
+
 #pragma pack(push, 1)
 	struct HEADER
 	{
@@ -36,7 +36,7 @@ public:
 		uint8 padding[2];
 	};
 	static_assert(sizeof(HEADER) == 340);
-	
+
 	struct DIRENTRY
 	{
 		uint16 mode;
@@ -53,7 +53,7 @@ public:
 	};
 	static_assert(sizeof(DIRENTRY) == 512);
 #pragma pack(pop)
-	
+
 	typedef std::vector<DIRENTRY> Directory;
 
 	CMcDumpReader(Framework::CStream&);
@@ -65,7 +65,7 @@ public:
 private:
 	typedef std::vector<uint8> Cluster;
 	typedef std::map<uint32, Cluster> ClusterMap;
-	
+
 	void ReadCluster(uint32, void*);
 	void ReadClusterCached(uint32, void*);
 
@@ -73,9 +73,9 @@ private:
 	{
 	public:
 		CFatReader(CMcDumpReader&, uint32);
-		
+
 		uint32 Read(void*, uint32);
-		
+
 	private:
 		enum
 		{
@@ -84,7 +84,7 @@ private:
 			CLUSTER_SIZE = PAGE_SIZE * PAGES_PER_CLUSTER,
 			INVALID_CLUSTER_IDX = -1,
 		};
-		
+
 		uint32 GetNextFatClusterEntry(uint32);
 		void ReadFatCluster(uint32);
 
@@ -93,10 +93,9 @@ private:
 		uint32 m_bufferIndex = 0;
 		uint8 m_buffer[CLUSTER_SIZE];
 	};
-	
+
 	Framework::CStream& m_stream;
 	HEADER m_header = {};
 	uint32 m_rawPageSize = 0;
 	ClusterMap m_clusterCache;
 };
-
