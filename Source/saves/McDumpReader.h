@@ -79,9 +79,9 @@ private:
 	private:
 		enum
 		{
-			PAGE_SIZE = 0x200,
-			PAGES_PER_CLUSTER = 2,
-			CLUSTER_SIZE = PAGE_SIZE * PAGES_PER_CLUSTER,
+			MC_PAGE_SIZE = 0x200,
+			MC_PAGES_PER_CLUSTER = 2,
+			MC_CLUSTER_SIZE = MC_PAGE_SIZE * MC_PAGES_PER_CLUSTER,
 			INVALID_CLUSTER_IDX = -1,
 		};
 
@@ -91,7 +91,7 @@ private:
 		CMcDumpReader& m_parent;
 		uint32 m_cluster = 0;
 		uint32 m_bufferIndex = 0;
-		uint8 m_buffer[CLUSTER_SIZE];
+		uint8 m_buffer[MC_CLUSTER_SIZE];
 	};
 
 	Framework::CStream& m_stream;

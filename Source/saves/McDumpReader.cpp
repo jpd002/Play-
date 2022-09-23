@@ -99,8 +99,8 @@ void CMcDumpReader::ReadClusterCached(uint32 clusterIndex, void* buffer)
 CMcDumpReader::CFatReader::CFatReader(CMcDumpReader& parent, uint32 cluster)
     : m_parent(parent)
 {
-	assert(m_parent.m_header.pageSize == PAGE_SIZE);
-	assert(m_parent.m_header.pagesPerCluster == PAGES_PER_CLUSTER);
+	assert(m_parent.m_header.pageSize == MC_PAGE_SIZE);
+	assert(m_parent.m_header.pagesPerCluster == MC_PAGES_PER_CLUSTER);
 	ReadFatCluster(cluster);
 }
 
@@ -114,7 +114,7 @@ uint32 CMcDumpReader::CFatReader::Read(void* buffer, uint32 size)
 	uint8* byteBuffer = reinterpret_cast<uint8*>(buffer);
 	while(1)
 	{
-		if(m_bufferIndex == CLUSTER_SIZE)
+		if(m_bufferIndex == MC_CLUSTER_SIZE)
 		{
 			uint32 entry = GetNextFatClusterEntry(m_cluster);
 			static const uint32 nextValidBit = (1 << 31);
@@ -128,8 +128,8 @@ uint32 CMcDumpReader::CFatReader::Read(void* buffer, uint32 size)
 				break;
 			}
 		}
-		assert(m_bufferIndex < CLUSTER_SIZE);
-		uint32 amountAvail = CLUSTER_SIZE - m_bufferIndex;
+		assert(m_bufferIndex < MC_CLUSTER_SIZE);
+		uint32 amountAvail = MC_CLUSTER_SIZE - m_bufferIndex;
 		uint32 toRead = std::min(amountAvail, size);
 		memcpy(byteBuffer, m_buffer + m_bufferIndex, toRead);
 		m_bufferIndex += toRead;
@@ -153,7 +153,7 @@ void CMcDumpReader::CFatReader::ReadFatCluster(uint32 clusterIndex)
 
 uint32 CMcDumpReader::CFatReader::GetNextFatClusterEntry(uint32 clusterIndex)
 {
-	uint32 clusterTemp[CLUSTER_SIZE / sizeof(uint32)];
+	uint32 clusterTemp[MC_CLUSTER_SIZE / sizeof(uint32)];
 
 	uint32 fatOffset = clusterIndex & 0xFF;
 	uint32 indirectIndex = clusterIndex / 256;
