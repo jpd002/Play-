@@ -136,7 +136,7 @@ void CBasicBlock::Compile()
 	{
 		for(uint32 i = 0; i < blockSize; i++)
 		{
-			blockData[i] = m_context.m_pMemoryMap->GetWord(m_begin + (i * 4));
+			blockData[i] = m_context.m_pMemoryMap->GetInstruction(m_begin + (i * 4));
 		}
 	}
 	else
