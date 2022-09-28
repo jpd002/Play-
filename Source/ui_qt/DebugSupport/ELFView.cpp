@@ -82,7 +82,7 @@ void CELFView<ElfType>::PopulateList()
 	const auto& header = m_pELF->GetHeader();
 
 	const char* sStrTab = (const char*)m_pELF->GetSectionData(header.nSectHeaderStringTableIndex);
-	for(unsigned int i = 0; i < header.nSectHeaderCount; i++)
+	for(unsigned int i = 0; i < m_pELF->GetSectionHeaderCount(); i++)
 	{
 		std::string sDisplay;
 		const char* sName(NULL);
