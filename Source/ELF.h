@@ -74,47 +74,8 @@ public:
 			Framework::CEndian::FromMSBF(m_header.nSectHeaderStringTableIndex);
 		}
 
-		{
-			m_programs.resize(m_header.nProgHeaderCount);
-			stream.Seek(m_header.nProgHeaderStart, Framework::STREAM_SEEK_SET);
-			for(auto& program : m_programs)
-			{
-				stream.Read(&program, sizeof(program));
-				if(m_header.nId[ELF::EI_DATA] == ELF::ELFDATA2MSB)
-				{
-					Framework::CEndian::FromMSBF(program.nType);
-					Framework::CEndian::FromMSBF(program.nFlags);
-					Framework::CEndian::FromMSBF(program.nOffset);
-					Framework::CEndian::FromMSBF(program.nVAddress);
-					Framework::CEndian::FromMSBF(program.nPAddress);
-					Framework::CEndian::FromMSBF(program.nFileSize);
-					Framework::CEndian::FromMSBF(program.nMemorySize);
-					Framework::CEndian::FromMSBF(program.nAlignment);
-				}
-			}
-		}
-
-		{
-			m_sections.resize(m_header.nSectHeaderCount);
-			stream.Seek(m_header.nSectHeaderStart, Framework::STREAM_SEEK_SET);
-			for(auto& section : m_sections)
-			{
-				stream.Read(&section, sizeof(section));
-				if(m_header.nId[ELF::EI_DATA] == ELF::ELFDATA2MSB)
-				{
-					Framework::CEndian::FromMSBF(section.nStringTableIndex);
-					Framework::CEndian::FromMSBF(section.nType);
-					Framework::CEndian::FromMSBF(section.nFlags);
-					Framework::CEndian::FromMSBF(section.nStart);
-					Framework::CEndian::FromMSBF(section.nOffset);
-					Framework::CEndian::FromMSBF(section.nSize);
-					Framework::CEndian::FromMSBF(section.nIndex);
-					Framework::CEndian::FromMSBF(section.nInfo);
-					Framework::CEndian::FromMSBF(section.nAlignment);
-					Framework::CEndian::FromMSBF(section.nOther);
-				}
-			}
-		}
+		ReadProgramHeaders(stream);
+		ReadSectionHeaders(stream);
 	}
 
 	CELF(const CELF&) = delete;
@@ -132,9 +93,14 @@ public:
 		return m_header;
 	}
 
+	uint64 GetSectionHeaderCount() const
+	{
+		return m_sections.size();
+	}
+
 	SECTIONHEADER* GetSection(unsigned int index)
 	{
-		if(index >= m_header.nSectHeaderCount)
+		if(index >= m_sections.size())
 		{
 			return nullptr;
 		}
@@ -168,7 +134,7 @@ public:
 	{
 		auto stringTableData = reinterpret_cast<const char*>(GetSectionData(m_header.nSectHeaderStringTableIndex));
 		if(stringTableData == nullptr) return 0;
-		for(unsigned int i = 0; i < m_header.nSectHeaderCount; i++)
+		for(unsigned int i = 0; i < GetSectionHeaderCount(); i++)
 		{
 			auto sectionHeader = GetSection(i);
 			auto sectionName = stringTableData + sectionHeader->nStringTableIndex;
@@ -197,6 +163,70 @@ public:
 	}
 
 private:
+	void ReadSectionHeaders(Framework::CStream& stream)
+	{
+		//Fetch extended section header count if needed
+		decltype(SECTIONHEADER::nSize) sectionHeaderCount = 0;
+		if((m_header.nSectHeaderCount == 0) && (m_header.nSectHeaderStart != 0))
+		{
+			SECTIONHEADER zeroSectionHeader = {};
+			stream.Seek(m_header.nSectHeaderStart, Framework::STREAM_SEEK_SET);
+			stream.Read(&zeroSectionHeader, sizeof(zeroSectionHeader));
+			if(m_header.nId[ELF::EI_DATA] == ELF::ELFDATA2MSB)
+			{
+				Framework::CEndian::FromMSBF(zeroSectionHeader.nSize);
+			}
+			assert(zeroSectionHeader.nSize != 0);
+			sectionHeaderCount = zeroSectionHeader.nSize;
+		}
+		else
+		{
+			sectionHeaderCount = m_header.nSectHeaderCount;
+		}
+
+		m_sections.resize(sectionHeaderCount);
+		stream.Seek(m_header.nSectHeaderStart, Framework::STREAM_SEEK_SET);
+		for(auto& section : m_sections)
+		{
+			auto readAmount = stream.Read(&section, sizeof(section));
+			assert(readAmount == sizeof(section));
+			if(m_header.nId[ELF::EI_DATA] == ELF::ELFDATA2MSB)
+			{
+				Framework::CEndian::FromMSBF(section.nStringTableIndex);
+				Framework::CEndian::FromMSBF(section.nType);
+				Framework::CEndian::FromMSBF(section.nFlags);
+				Framework::CEndian::FromMSBF(section.nStart);
+				Framework::CEndian::FromMSBF(section.nOffset);
+				Framework::CEndian::FromMSBF(section.nSize);
+				Framework::CEndian::FromMSBF(section.nIndex);
+				Framework::CEndian::FromMSBF(section.nInfo);
+				Framework::CEndian::FromMSBF(section.nAlignment);
+				Framework::CEndian::FromMSBF(section.nOther);
+			}
+		}
+	}
+
+	void ReadProgramHeaders(Framework::CStream& stream)
+	{
+		m_programs.resize(m_header.nProgHeaderCount);
+		stream.Seek(m_header.nProgHeaderStart, Framework::STREAM_SEEK_SET);
+		for(auto& program : m_programs)
+		{
+			stream.Read(&program, sizeof(program));
+			if(m_header.nId[ELF::EI_DATA] == ELF::ELFDATA2MSB)
+			{
+				Framework::CEndian::FromMSBF(program.nType);
+				Framework::CEndian::FromMSBF(program.nFlags);
+				Framework::CEndian::FromMSBF(program.nOffset);
+				Framework::CEndian::FromMSBF(program.nVAddress);
+				Framework::CEndian::FromMSBF(program.nPAddress);
+				Framework::CEndian::FromMSBF(program.nFileSize);
+				Framework::CEndian::FromMSBF(program.nMemorySize);
+				Framework::CEndian::FromMSBF(program.nAlignment);
+			}
+		}
+	}
+
 	HEADER m_header;
 	uint8* m_content = nullptr;
 
