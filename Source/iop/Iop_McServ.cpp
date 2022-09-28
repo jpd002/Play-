@@ -709,7 +709,7 @@ void CMcServ::ChDir(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, 
 			//Some games (EA games) will try to ChDir('..') from the MC's root
 			//Kim Possible: What's the Switch will also attempt this and rely on the result
 			//to consider other MC operations to be successes
-			result = -1;
+			result = 0;
 		}
 		else if(fs::exists(hostPath) && fs::is_directory(hostPath))
 		{
