@@ -4,7 +4,7 @@
 #include <vector>
 
 typedef struct _chd_file chd_file;
-typedef struct _core_file core_file;
+typedef struct chd_core_file core_file;
 
 class CChdImageStream : public Framework::CStream
 {

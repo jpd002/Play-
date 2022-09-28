@@ -4,7 +4,7 @@ namespace Framework
 {
 	class CStream;
 };
-typedef struct _core_file core_file;
+typedef struct chd_core_file core_file;
 
 namespace ChdStreamSupport
 {
