@@ -106,46 +106,32 @@ void CELFSectionView<ElfType>::FillInformation(int section)
 	std::string sTemp;
 	auto pH = m_pELF->GetSection(section);
 
+#define CASE_ELF_ENUM(enumValue) \
+	case ELF::enumValue:         \
+		sTemp = #enumValue;      \
+		break;
+
 	switch(pH->nType)
 	{
-	case ELF::SHT_NULL:
-		sTemp = "SHT_NULL";
-		break;
-	case ELF::SHT_PROGBITS:
-		sTemp = "SHT_PROGBITS";
-		break;
-	case ELF::SHT_SYMTAB:
-		sTemp = "SHT_SYMTAB";
-		break;
-	case ELF::SHT_STRTAB:
-		sTemp = "SHT_STRTAB";
-		break;
-	case ELF::SHT_RELA:
-		sTemp = "SHT_RELA";
-		break;
-	case ELF::SHT_HASH:
-		sTemp = "SHT_HASH";
-		break;
-	case ELF::SHT_DYNAMIC:
-		sTemp = "SHT_DYNAMIC";
-		break;
-	case ELF::SHT_NOTE:
-		sTemp = "SHT_NOTE";
-		break;
-	case ELF::SHT_NOBITS:
-		sTemp = "SHT_NOBITS";
-		break;
-	case ELF::SHT_REL:
-		sTemp = "SHT_REL";
-		break;
-	case ELF::SHT_DYNSYM:
-		sTemp = "SHT_DYNSYM";
-		break;
+		CASE_ELF_ENUM(SHT_NULL)
+		CASE_ELF_ENUM(SHT_PROGBITS)
+		CASE_ELF_ENUM(SHT_SYMTAB)
+		CASE_ELF_ENUM(SHT_STRTAB)
+		CASE_ELF_ENUM(SHT_RELA)
+		CASE_ELF_ENUM(SHT_HASH)
+		CASE_ELF_ENUM(SHT_DYNAMIC)
+		CASE_ELF_ENUM(SHT_NOTE)
+		CASE_ELF_ENUM(SHT_NOBITS)
+		CASE_ELF_ENUM(SHT_REL)
+		CASE_ELF_ENUM(SHT_DYNSYM)
+		CASE_ELF_ENUM(SHT_SYMTAB_SHNDX)
 	default:
 		sTemp = string_format("Unknown (0x%08X)", pH->nType);
 		break;
 	}
 	m_editFields[i++]->setText(sTemp.c_str());
+
+#undef CASE_ELF_ENUM
 
 	sTemp = string_format("0x%08X", pH->nFlags);
 	if(pH->nFlags & 0x7)

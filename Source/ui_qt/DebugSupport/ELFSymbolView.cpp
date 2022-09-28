@@ -106,6 +106,7 @@ void CELFSymbolView<ElfType>::PopulateList()
 		{
 			CASE_ELF_ENUM(SHN_UNDEF)
 			CASE_ELF_ENUM(SHN_ABS)
+			CASE_ELF_ENUM(SHN_XINDEX)
 		default:
 			sTemp = string_format("%i", symbol.nSectionIndex);
 			break;
