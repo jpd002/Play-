@@ -4,6 +4,7 @@
 
 #include <QLabel>
 #include <QFontMetrics>
+#include <QSplitter>
 
 template <typename ElfType>
 CELFView<ElfType>::CELFView(QMdiArea* parent)
@@ -14,18 +15,25 @@ CELFView<ElfType>::CELFView(QMdiArea* parent)
 	setWindowTitle("ELF File Viewer");
 
 	m_centralwidget = new QWidget(this);
-	m_treeWidget = new QTreeWidget(m_centralwidget);
 	m_layout = new QHBoxLayout(m_centralwidget);
-	m_groupBox = new QGroupBox(m_centralwidget);
+	m_treeWidget = new QTreeWidget(m_centralwidget);
 
-	m_layout->addWidget(m_treeWidget);
-	m_layout->addWidget(m_groupBox);
+	m_groupBox = new QGroupBox(m_centralwidget);
 	auto groupBoxLayout = new QHBoxLayout();
 	m_groupBox->setLayout(groupBoxLayout);
 
+	{
+		QSplitter* splitter = new QSplitter(m_centralwidget);
+		splitter->addWidget(m_treeWidget);
+		splitter->addWidget(m_groupBox);
+		splitter->setSizes({200, 368});
+		splitter->setStretchFactor(0, 0);
+		splitter->setStretchFactor(1, 1);
+		m_layout->addWidget(splitter);
+	}
+
 	setWidget(m_centralwidget);
 
-	m_treeWidget->setMaximumSize(QSize(200, 2000));
 	QTreeWidgetItem* colHeader = m_treeWidget->headerItem();
 	colHeader->setText(0, "ELF");
 
