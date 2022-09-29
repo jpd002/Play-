@@ -53,6 +53,12 @@ bool IsBootableDiscImagePath(const fs::path& filePath)
 	return extensionIterator != std::end(supportedExtensions);
 }
 
+bool IsBootableArcadeDefPath(const fs::path& filePath)
+{
+	auto extension = filePath.extension().string();
+	return (extension == ".arcadedef");
+}
+
 bool DoesBootableExist(const fs::path& filePath)
 {
 	//TODO: Properly support S3 paths. Also, beware when implementing this because Android
@@ -76,7 +82,8 @@ bool TryRegisterBootable(const fs::path& path)
 		if(
 		    !BootablesDb::CClient::GetInstance().BootableExists(path) &&
 		    !IsBootableExecutablePath(path) &&
-		    !(IsBootableDiscImagePath(path) && DiskUtils::TryGetDiskId(path, &serial)))
+		    !(IsBootableDiscImagePath(path) && DiskUtils::TryGetDiskId(path, &serial)) &&
+		    !IsBootableArcadeDefPath(path))
 		{
 			return false;
 		}

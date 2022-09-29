@@ -37,6 +37,7 @@ namespace BootablesDb
 			SORT_METHOD_RECENT,
 			SORT_METHOD_HOMEBREW,
 			SORT_METHOD_NONE,
+			SORT_METHOD_ARCADE,
 		};
 
 		CClient();

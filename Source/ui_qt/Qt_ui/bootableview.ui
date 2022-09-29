@@ -216,6 +216,11 @@
          <string>Unsorted</string>
         </property>
        </item>
+       <item>
+        <property name="text">
+         <string>Arcade Machines</string>
+        </property>
+       </item>
       </widget>
      </item>
     </layout>
