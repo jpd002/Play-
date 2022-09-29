@@ -79,6 +79,7 @@ MainWindow::MainWindow(QWidget* parent)
 	buildResizeWindowMenu();
 
 	RegisterPreferences();
+	ScanBootables("./arcadedefs/");
 
 	m_continuationChecker = new CContinuationChecker(this);
 
