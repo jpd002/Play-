@@ -262,6 +262,8 @@ set(COMMON_SRC_FILES
 	iop/ArgumentIterator.h
 	iop/ioman/DirectoryDevice.cpp
 	iop/ioman/DirectoryDevice.h
+	iop/ioman/McDumpDevice.cpp
+	iop/ioman/McDumpDevice.h
 	iop/ioman/HardDiskDevice.cpp
 	iop/ioman/HardDiskDevice.h
 	iop/ioman/OpticalMediaDevice.cpp
