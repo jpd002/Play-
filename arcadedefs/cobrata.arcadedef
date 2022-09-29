@@ -4,12 +4,12 @@
 	"dongle":
 	{
 		"name": "cbr1verb.ic002",
-		"crc": "0x1234566a",
+		"crc": "0x1234566a"
 	},
 	"hdd":
 	{
 		"name": "cbr1-ha.chd",
-		"crc": "0x1234566a",
+		"crc": "0x1234566a"
 	},
 	"boot": "mc0:CBRLOAD",
 	"patches":

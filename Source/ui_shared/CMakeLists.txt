@@ -48,6 +48,8 @@ endif()
 list(APPEND SHARED_UI_PROJECT_LIBS PlayCore)
 
 set(SHARED_UI_SRC_FILES
+	ArcadeUtils.cpp
+	ArcadeUtils.h
 	BootablesDbClient.cpp
 	BootablesDbClient.h
 	BootablesProcesses.cpp

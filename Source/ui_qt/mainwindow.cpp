@@ -5,6 +5,7 @@
 #ifdef HAS_AMAZON_S3
 #include "S3FileBrowser.h"
 #endif
+#include "ui_shared/ArcadeUtils.h"
 #include "ui_shared/BootablesProcesses.h"
 #include "ui_shared/StatsManager.h"
 #include "QtUtils.h"
@@ -1003,6 +1004,10 @@ void MainWindow::SetupBootableView()
 			else if(IsBootableExecutablePath(filePath))
 			{
 				BootElf(filePath);
+			}
+			else if(IsBootableArcadeDefPath(filePath))
+			{
+				ArcadeUtils::BootArcadeMachine(m_virtualMachine, filePath);
 			}
 			else
 			{
