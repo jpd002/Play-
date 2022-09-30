@@ -11,7 +11,21 @@
 	},
 	"boot": "mc0:START",
 	"patches":
-	{
-		
-	}
+	[
+		{
+			"address": "0x00236D84",
+			"value": "0x0",
+			"description": "Disable iLink init"
+		},
+		{
+			"address": "0x00236DA0",
+			"value": "0x0",
+			"description": ""
+		},
+		{
+			"address": "0x0026CE38",
+			"value": "0x0",
+			"description": ""
+		}
+	]
 }

@@ -11,14 +11,42 @@
 
 struct ARCADE_MACHINE_DEF
 {
+	struct PATCH
+	{
+		uint32 address = 0;
+		uint32 value = 0;
+	};
+
 	std::string id;
 	std::string dongleFileName;
 	std::string cdvdFileName;
 	std::string boot;
+	std::vector<PATCH> patches;
 };
+
+uint32 ParseHexStringValue(const std::string& value)
+{
+	uint32 result = 0;
+	int scanCount = sscanf(value.c_str(), "0x%x", &result);
+	assert(scanCount == 1);
+	return result;
+}
 
 ARCADE_MACHINE_DEF ReadArcadeMachineDefinition(const fs::path& arcadeDefPath)
 {
+	auto parsePatches =
+	    [](const nlohmann::json& patchesArray) {
+		    std::vector<ARCADE_MACHINE_DEF::PATCH> patches;
+		    for(const auto& jsonPatch : patchesArray)
+		    {
+			    ARCADE_MACHINE_DEF::PATCH patch;
+			    patch.address = ParseHexStringValue(jsonPatch["address"]);
+			    patch.value = ParseHexStringValue(jsonPatch["value"]);
+			    patches.emplace_back(std::move(patch));
+		    }
+		    return patches;
+	    };
+
 	auto defString =
 	    [&arcadeDefPath]() {
 		    auto defStream = Framework::CreateInputStdStream(arcadeDefPath.native());
@@ -34,6 +62,10 @@ ARCADE_MACHINE_DEF ReadArcadeMachineDefinition(const fs::path& arcadeDefPath)
 		def.cdvdFileName = defJson["cdvd"]["name"];
 	}
 	def.boot = defJson["boot"];
+	if(defJson.contains("patches"))
+	{
+		def.patches = parsePatches(defJson["patches"]);
+	}
 	return def;
 }
 
@@ -99,6 +131,11 @@ void ArcadeUtils::BootArcadeMachine(CPS2VM* virtualMachine, const fs::path& arca
 	virtualMachine->m_ee->m_os->BootFromVirtualPath(def.boot.c_str(), CPS2OS::ArgumentList());
 
 	//Apply Patches
+	for(const auto& patch : def.patches)
+	{
+		assert(patch.address < PS2::EE_RAM_SIZE);
+		*reinterpret_cast<uint32*>(virtualMachine->m_ee->m_ram + patch.address) = patch.value;
+	}
 
 	TryUpdateLastBootedTime(arcadeDefPath);
 }
