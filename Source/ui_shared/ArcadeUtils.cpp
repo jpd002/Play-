@@ -4,6 +4,7 @@
 #include "StdStreamUtils.h"
 #include "PS2VM.h"
 #include "PS2VM_Preferences.h"
+#include "DiskUtils.h"
 #include "AppConfig.h"
 #include "BootablesProcesses.h"
 #include "iop/ioman/McDumpDevice.h"
@@ -12,6 +13,7 @@ struct ARCADE_MACHINE_DEF
 {
 	std::string id;
 	std::string dongleFileName;
+	std::string cdvdFileName;
 	std::string boot;
 };
 
@@ -27,6 +29,10 @@ ARCADE_MACHINE_DEF ReadArcadeMachineDefinition(const fs::path& arcadeDefPath)
 	ARCADE_MACHINE_DEF def;
 	def.id = defJson["id"];
 	def.dongleFileName = defJson["dongle"]["name"];
+	if(defJson.contains("cdvd"))
+	{
+		def.cdvdFileName = defJson["cdvd"]["name"];
+	}
 	def.boot = defJson["boot"];
 	return def;
 }
@@ -47,6 +53,24 @@ void ArcadeUtils::BootArcadeMachine(CPS2VM* virtualMachine, const fs::path& arca
 	if(!fs::exists(arcadeRomArchivePath))
 	{
 		throw std::runtime_error(string_format("Failed to find '%s' in arcade ROMs directory.", romArchiveFileName.c_str()));
+	}
+
+	//Mount CDVD or HDD
+	if(!def.cdvdFileName.empty())
+	{
+		fs::path cdvdPath = arcadeRomPath / def.id / def.cdvdFileName;
+		if(!fs::exists(cdvdPath))
+		{
+			throw std::runtime_error(string_format("Failed to find '%s' in game's directory.", def.cdvdFileName.c_str()));
+		}
+
+		//Try to create the optical media for sanity checks (will throw exceptions on errors).
+		DiskUtils::CreateOpticalMediaFromPath(cdvdPath);
+
+		CAppConfig::GetInstance().SetPreferencePath(PREF_PS2_CDROM0_PATH, cdvdPath);
+
+		//We need to reset again to make sure updated CDVD has been picked up
+		virtualMachine->Reset();
 	}
 
 	std::vector<uint8> mcDumpContents;
@@ -74,7 +98,6 @@ void ArcadeUtils::BootArcadeMachine(CPS2VM* virtualMachine, const fs::path& arca
 	//Boot mc0:/BOOT (from def)
 	virtualMachine->m_ee->m_os->BootFromVirtualPath(def.boot.c_str(), CPS2OS::ArgumentList());
 
-	//Mount CHD DVD or HDD
 	//Apply Patches
 
 	TryUpdateLastBootedTime(arcadeDefPath);
