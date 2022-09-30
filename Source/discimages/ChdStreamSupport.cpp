@@ -1,4 +1,5 @@
 #include "ChdStreamSupport.h"
+#include <cassert>
 #include <libchdr/chd.h>
 #include "Stream.h"
 
