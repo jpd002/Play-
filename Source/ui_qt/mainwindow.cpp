@@ -75,11 +75,12 @@ MainWindow::MainWindow(QWidget* parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
+	ScanBootables("./arcadedefs/");
+
 	ui->setupUi(this);
 	buildResizeWindowMenu();
 
 	RegisterPreferences();
-	ScanBootables("./arcadedefs/");
 
 	m_continuationChecker = new CContinuationChecker(this);
 
@@ -1009,6 +1010,7 @@ void MainWindow::SetupBootableView()
 			else if(IsBootableArcadeDefPath(filePath))
 			{
 				ArcadeUtils::BootArcadeMachine(m_virtualMachine, filePath);
+				m_msgLabel->setText(QString("Started arcade machine '%1'.").arg(filePath.filename().c_str()));
 			}
 			else
 			{
