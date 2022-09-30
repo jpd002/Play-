@@ -1,4 +1,6 @@
 #include "McDumpDevice.h"
+#include <cassert>
+#include <cstring>
 #include "MemStream.h"
 
 using namespace Iop;
