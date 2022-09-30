@@ -1,0 +1,17 @@
+{
+	"id": "rrvac",
+	"name": "Ridge Racer V: Arcade Battle",
+	"dongle":
+	{
+		"name": "rrv3vera.ic002"
+	},
+	"cdvd":
+	{
+		"name": "rrv1-a.chd"
+	},
+	"boot": "mc0:START",
+	"patches":
+	{
+		
+	}
+}

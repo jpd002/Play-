@@ -3,13 +3,11 @@
 	"name": "Cobra: The Arcade",
 	"dongle":
 	{
-		"name": "cbr1verb.ic002",
-		"crc": "0x1234566a"
+		"name": "cbr1verb.ic002"
 	},
 	"hdd":
 	{
-		"name": "cbr1-ha.chd",
-		"crc": "0x1234566a"
+		"name": "cbr1-ha.chd"
 	},
 	"boot": "mc0:CBRLOAD",
 	"patches":
