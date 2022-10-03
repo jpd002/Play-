@@ -28,6 +28,7 @@ public:
 		int32 iopIdleTicks = 0;
 	};
 
+	typedef std::unique_ptr<COpticalMedia> OpticalMediaPtr;
 	typedef std::unique_ptr<Ee::CSubSystem> EeSubSystemPtr;
 	typedef std::unique_ptr<Iop::CSubSystem> IopSubSystemPtr;
 	typedef std::function<void(const CFrameDump&)> FrameDumpCallback;
@@ -82,7 +83,8 @@ public:
 	void SaveDebugTags(const char*);
 #endif
 
-	CPadHandler* m_pad;
+	OpticalMediaPtr m_cdrom0;
+	CPadHandler* m_pad = nullptr;
 
 	EeSubSystemPtr m_ee;
 	IopSubSystemPtr m_iop;
@@ -96,8 +98,6 @@ protected:
 	CMailBox m_mailBox;
 
 private:
-	typedef std::unique_ptr<COpticalMedia> OpticalMediaPtr;
-
 	void ResetVM();
 	void DestroyVM();
 	bool SaveVMState(const fs::path&);
@@ -161,8 +161,6 @@ private:
 	std::mutex m_frameDumpCallbackMutex;
 	bool m_dumpingFrame = false;
 #endif
-
-	OpticalMediaPtr m_cdrom0;
 
 	//SPU update parameters
 	enum

@@ -8,6 +8,7 @@
 #include "AppConfig.h"
 #include "BootablesProcesses.h"
 #include "iop/ioman/McDumpDevice.h"
+#include "iop/Iop_NamcoArcade.h"
 
 struct ARCADE_MACHINE_DEF
 {
@@ -125,6 +126,12 @@ void ArcadeUtils::BootArcadeMachine(CPS2VM* virtualMachine, const fs::path& arca
 		auto device = std::make_shared<Iop::Ioman::CMcDumpDevice>(std::move(mcDumpContents));
 		auto iopBios = dynamic_cast<CIopBios*>(virtualMachine->m_iop->m_bios.get());
 		iopBios->GetIoman()->RegisterDevice("mc0", device);
+		
+		{
+			auto namcoArcadeModule = std::make_shared<Iop::CNamcoArcade>(*iopBios->GetSifman(), *iopBios->GetCdvdman(), virtualMachine->m_iop->m_ram);
+			namcoArcadeModule->SetOpticalMedia(virtualMachine->m_cdrom0.get());
+			iopBios->RegisterModule(namcoArcadeModule);
+		}
 	}
 
 	//Boot mc0:/BOOT (from def)
