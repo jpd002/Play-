@@ -37,6 +37,10 @@ void CFileIo::SetModuleVersion(unsigned int moduleVersion)
 
 void CFileIo::SyncHandler()
 {
+	//Honorable mentions regarding FileIO versions:
+	//- FileIO version 2050 seems to be working the same as version 1000 (used by Piposaru 2001).
+	//- Maximo: Ghosts to Glory attempts to use EE lib version 2200 with stock BIOS version 1000 (this is assumed to fail).
+	//- Gran Turismo 4 will uses version 1000 before rebooting IOP with a newer version.
 	m_handler.reset();
 	if(m_moduleVersion >= 2100 && m_moduleVersion < 2200)
 	{
@@ -71,6 +75,28 @@ void CFileIo::Invoke(CMIPS& context, unsigned int functionId)
 //SIF Invoke
 bool CFileIo::Invoke(uint32 method, uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
 {
+	if(method == 255)
+	{
+		//Init
+		//All FileIO modules have this SIF RPC call id. We need to properly report the version number currently
+		//in the IOP to make sure we avoid some mismatch between EE/IOP versions.
+		assert((m_moduleVersion >= 1000) && (m_moduleVersion <= 9999));
+		char versionString[16] = {};
+		if(retSize == 8)
+		{
+			sprintf(versionString, "%d....", m_moduleVersion);
+			memcpy(ret, versionString, 8);
+		}
+		else if(retSize == 4)
+		{
+			sprintf(versionString, "%d", m_moduleVersion);
+			memcpy(ret, versionString, 4);
+		}
+		else
+		{
+			assert(0);
+		}
+	}
 	return m_handler->Invoke(method, args, argsSize, ret, retSize, ram);
 }
 

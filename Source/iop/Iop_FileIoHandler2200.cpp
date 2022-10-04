@@ -95,19 +95,7 @@ bool CFileIoHandler2200::Invoke(uint32 method, uint32* args, uint32 argsSize, ui
 		*ret = InvokeIoctl2(args, argsSize, ret, retSize, ram);
 		break;
 	case 255:
-		//Not really sure about that...
-		if(retSize == 8)
-		{
-			memcpy(ret, "....rawr", 8);
-		}
-		else if(retSize == 4)
-		{
-			memcpy(ret, "....", 4);
-		}
-		else
-		{
-			assert(0);
-		}
+		//Init - Common part taken care of by owner (CFileIo)
 		m_resultPtr[0] = args[0];
 		m_resultPtr[1] = args[1];
 		break;

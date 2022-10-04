@@ -45,19 +45,7 @@ bool CFileIoHandler2100::Invoke(uint32 method, uint32* args, uint32 argsSize, ui
 	}
 	break;
 	case 255:
-		//Not really sure about that...
-		if(retSize == 8)
-		{
-			memcpy(ret, "....rawr", 8);
-		}
-		else if(retSize == 4)
-		{
-			memcpy(ret, "....", 4);
-		}
-		else
-		{
-			assert(0);
-		}
+		//Init - Taken care of by owner (CFileIo)
 		break;
 	default:
 		CLog::GetInstance().Warn(LOG_NAME, "Unknown function (%d) called.\r\n", method);
