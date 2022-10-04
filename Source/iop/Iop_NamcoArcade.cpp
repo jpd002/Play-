@@ -60,6 +60,10 @@ bool CNamcoArcade::Invoke002(uint32 method, uint32* args, uint32 argsSize, uint3
 {
 	switch(method)
 	{
+	case 0x02:
+		//CdStatus?
+		ret[0x01] = 0; //Result?
+		break;
 	case 0x07:
 		//Init?
 		ret[0x01] = 1; //Result?
@@ -92,9 +96,16 @@ bool CNamcoArcade::Invoke002(uint32 method, uint32* args, uint32 argsSize, uint3
 			uint32 result = m_cdvdman.CdLayerSearchFileDirect(m_opticalMedia, &fileInfo, path, 0);
 			ret[0x01] = result; //Result?
 			ret[0x04] = fileInfo.sector;
+			ret[0x05] = fileInfo.size;
 			ret[0x0A] = ~0;
 			ret[0x0B] = ~0;
 		}
+		break;
+	case 0x0D:
+		//Seek?
+		ret[0x01] = 1; //Result?
+		//args[0] = Sector Index
+		//args[1] = ? 0xF
 		break;
 	default:
 		CLog::GetInstance().Warn(LOG_NAME, "Unknown method invoked (0x%08X, 0x%08X).\r\n", 0x002, method);
