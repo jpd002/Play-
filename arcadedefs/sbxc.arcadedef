@@ -1,0 +1,33 @@
+{
+	"id": "sbxc",
+	"name": "Sengoku Basara X Cross",
+	"dongle":
+	{
+		"name": "bax1vera.ic002"
+	},
+	"cdvd":
+	{
+		"name": "bax1_dvd0.chd"
+	},
+	"boot": "mc0:BASLOAD",
+	"patches":
+	[
+		{
+			"address": "0x00141AB0",
+			"value": "0x0"
+		},
+		{
+			"address": "0x00141AB8",
+			"value": "0x0"
+		},
+		{
+			"address": "0x0013DAF0",
+			"value": "0x0",
+			"description": "Skip JVIO boot"
+		},
+		{
+			"address": "0x002F5400",
+			"value": "0x0"
+		}
+	]
+}
