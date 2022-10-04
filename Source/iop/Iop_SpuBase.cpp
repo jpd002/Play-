@@ -1112,8 +1112,8 @@ void CSpuBase::CSampleReader::SaveState(CRegisterStateFile* registerFile, const 
 void CSpuBase::CSampleReader::SetParams(uint32 address, uint32 repeat)
 {
 	m_srcSampleIdx = 0;
-	m_nextSampleAddr = address;
-	m_repeatAddr = repeat;
+	m_nextSampleAddr = address & (m_ramSize - 1);
+	m_repeatAddr = repeat & (m_ramSize - 1);
 	m_s1 = 0;
 	m_s2 = 0;
 	m_nextValid = false;
