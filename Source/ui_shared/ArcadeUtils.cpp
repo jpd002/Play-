@@ -41,6 +41,7 @@ ARCADE_MACHINE_DEF ReadArcadeMachineDefinition(const fs::path& arcadeDefPath)
 		    for(const auto& jsonPatch : patchesArray)
 		    {
 			    ARCADE_MACHINE_DEF::PATCH patch;
+			    if(!jsonPatch.contains("address") || !jsonPatch.contains("value")) continue;
 			    patch.address = ParseHexStringValue(jsonPatch["address"]);
 			    patch.value = ParseHexStringValue(jsonPatch["value"]);
 			    patches.emplace_back(std::move(patch));
