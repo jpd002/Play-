@@ -553,6 +553,12 @@ uint32 CSysclib::__strtol(uint32 stringPtr, uint32 endPtrPtr, uint32 radix)
 {
 	auto string = reinterpret_cast<const char*>(GetPtr(stringPtr, 0));
 	char* end = nullptr;
+	//True Fortune will provide radix = 10 but stills input a string starting with '0x'.
+	//The only way the game can work is if we autodetect the radix even if it's not 0.
+	if(strstr(string, "0x") || strstr(string, "0X"))
+	{
+		radix = 16;
+	}
 	uint32 result = strtol(string, &end, radix);
 	if(endPtrPtr != 0)
 	{
