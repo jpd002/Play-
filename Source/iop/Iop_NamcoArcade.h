@@ -39,6 +39,8 @@ namespace Iop
 		uint8* m_iopRam = nullptr;
 		COpticalMedia* m_opticalMedia = nullptr;
 
+		uint32 m_streamPos = 0;
+		
 		CSifModuleAdapter m_module001;
 		CSifModuleAdapter m_module002;
 		CSifModuleAdapter m_module003;
