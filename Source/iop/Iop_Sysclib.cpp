@@ -306,7 +306,7 @@ uint8* CSysclib::GetPtr(uint32 ptr, uint32 size) const
 	// Handle RAM mirroring
 	ptr = CMIPS::TranslateAddress64(nullptr, ptr);
 
-	assert(ptr != 0);
+	assert(!((ptr == 0) && (size != 0)));
 	if(ptr >= PS2::IOP_SCRATCH_ADDR)
 	{
 		//Some games (Phantasy Star Collection) seem to address areas beyond the SPR's limits
