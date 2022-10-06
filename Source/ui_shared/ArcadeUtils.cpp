@@ -145,5 +145,9 @@ void ArcadeUtils::BootArcadeMachine(CPS2VM* virtualMachine, const fs::path& arca
 		*reinterpret_cast<uint32*>(virtualMachine->m_ee->m_ram + patch.address) = patch.value;
 	}
 
+#ifndef DEBUGGER_INCLUDED
+	virtualMachine->Resume();
+#endif
+
 	TryUpdateLastBootedTime(arcadeDefPath);
 }
