@@ -188,6 +188,7 @@ namespace ELF
 		SHT_NOBITS = 8,
 		SHT_REL = 9,
 		SHT_DYNSYM = 11,
+		SHT_SYMTAB_SHNDX = 18,
 	};
 
 	enum SECTION_HEADER_FLAG
