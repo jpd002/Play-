@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <stdexcept>
+#include <cassert>
 #include "Types.h"
 #include "ElfDefs.h"
 #include "PtrStream.h"
