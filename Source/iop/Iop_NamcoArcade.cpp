@@ -68,12 +68,12 @@ bool CNamcoArcade::Invoke002(uint32 method, uint32* args, uint32 argsSize, uint3
 		break;
 	case 0x05:
 		//Unknown, used by Ridge Racer
-		CLog::GetInstance().Warn(LOG_NAME, "Cmd5(unknown = 0x%08X);\r\n", args[0]);
+		CLog::GetInstance().Warn(LOG_NAME, "Cmd5();\r\n");
 		ret[0x01] = 1; //Result?
 		break;
 	case 0x07:
 		//Init?
-		CLog::GetInstance().Warn(LOG_NAME, "Cmd7(unknown = 0x%08X);\r\n", args[0]);
+		CLog::GetInstance().Warn(LOG_NAME, "Cmd7();\r\n");
 		ret[0x01] = 1; //Result?
 		break;
 	case 0x09:
@@ -97,7 +97,7 @@ bool CNamcoArcade::Invoke002(uint32 method, uint32* args, uint32 argsSize, uint3
 	case 0x0B:
 		//Load backup ram?
 		ret[0x01] = 1;
-		CLog::GetInstance().Warn(LOG_NAME, "Cmd11(unknown = 0x%08X);\r\n", args[0]);
+		CLog::GetInstance().Warn(LOG_NAME, "Cmd11();\r\n");
 		break;
 	case 0x0C:
 		//SearchFile?
@@ -109,7 +109,7 @@ bool CNamcoArcade::Invoke002(uint32 method, uint32* args, uint32 argsSize, uint3
 			ret[0x01] = result; //Result?
 			ret[0x04] = fileInfo.sector;
 			ret[0x05] = fileInfo.size;
-			ret[0x0A] = ~0;
+			ret[0x0A] = ~0; //Some date/time info
 			ret[0x0B] = ~0;
 		}
 		break;
@@ -122,7 +122,7 @@ bool CNamcoArcade::Invoke002(uint32 method, uint32* args, uint32 argsSize, uint3
 		break;
 	case 0x0F:
 		ret[0x01] = 2; //Result? (needs to be not 1 or 0x20)
-		CLog::GetInstance().Warn(LOG_NAME, "Cmd15(unknown = 0x%08X);\r\n", args[0]);
+		CLog::GetInstance().Warn(LOG_NAME, "Cmd15();\r\n");
 		break;
 	case 0x13:
 		{
