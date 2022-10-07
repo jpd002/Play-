@@ -1,0 +1,26 @@
+{
+	"id": "timecrs3",
+	"name": "Time Crisis 3",
+	"dongle":
+	{
+		"name": "tst1vera.ic002"
+	},
+	"cdvd":
+	{
+		"name": "tst1dvd0.chd"
+	},
+	"boot": "mc0:TC3LOAD",
+	"patches":
+	[
+		{
+			"address": "0x00199848",
+			"value": "0x0",
+			"description": "Skip JVIO boot"
+		},
+		{
+			"address": "0x00100250",
+			"value": "0x0",
+			"description": "Skip write bufram"
+		}
+	]
+}
