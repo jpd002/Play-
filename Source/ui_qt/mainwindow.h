@@ -43,6 +43,7 @@ public:
 	void BootElf(fs::path);
 	void BootCDROM();
 	void LoadCDROM(fs::path filePath);
+	void BootArcadeMachine(fs::path);
 	void loadState(int);
 
 #ifdef DEBUGGER_INCLUDED
@@ -58,7 +59,8 @@ private:
 	enum class BootType
 	{
 		CD,
-		ELF
+		ELF,
+		ARCADE,
 	};
 
 	struct LastOpenCommand

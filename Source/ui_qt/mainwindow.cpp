@@ -425,6 +425,14 @@ void MainWindow::BootCDROM()
 	                        .arg(m_virtualMachine->m_ee->m_os->GetExecutableName()));
 }
 
+void MainWindow::BootArcadeMachine(fs::path arcadeDefPath)
+{
+	ArcadeUtils::BootArcadeMachine(m_virtualMachine, arcadeDefPath);
+	m_lastOpenCommand = LastOpenCommand(BootType::ARCADE, arcadeDefPath);
+	m_msgLabel->setText(QString("Started arcade machine '%1'.").arg(arcadeDefPath.filename().c_str()));
+	UpdateUI();
+}
+
 void MainWindow::on_actionExit_triggered()
 {
 	close();
@@ -927,13 +935,20 @@ void MainWindow::on_actionReset_triggered()
 {
 	if(!m_lastOpenCommand.path.empty())
 	{
-		if(m_lastOpenCommand.type == BootType::CD)
+		switch(m_lastOpenCommand.type)
 		{
+		case BootType::CD:
 			BootCDROM();
-		}
-		else if(m_lastOpenCommand.type == BootType::ELF)
-		{
+			break;
+		case BootType::ELF:
 			BootElf(m_lastOpenCommand.path);
+			break;
+		case BootType::ARCADE:
+			BootArcadeMachine(m_lastOpenCommand.path);
+			break;
+		default:
+			assert(false);
+			break;
 		}
 	}
 }
@@ -1009,8 +1024,7 @@ void MainWindow::SetupBootableView()
 			}
 			else if(IsBootableArcadeDefPath(filePath))
 			{
-				ArcadeUtils::BootArcadeMachine(m_virtualMachine, filePath);
-				m_msgLabel->setText(QString("Started arcade machine '%1'.").arg(filePath.filename().c_str()));
+				BootArcadeMachine(filePath);
 			}
 			else
 			{
