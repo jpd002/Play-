@@ -4,12 +4,13 @@
 #include "Iop_SifMan.h"
 #include "../SifModuleAdapter.h"
 #include "../OpticalMedia.h"
+#include "../PadListener.h"
 
 namespace Iop
 {
 	class CCdvdman;
 
-	class CNamcoArcade : public CModule
+	class CNamcoArcade : public CModule, public CPadListener
 	{
 	public:
 		CNamcoArcade(CSifMan&, CCdvdman&, uint8*);
@@ -20,6 +21,9 @@ namespace Iop
 		std::string GetId() const override;
 		std::string GetFunctionName(unsigned int) const override;
 		void Invoke(CMIPS&, unsigned int) override;
+
+		void SetButtonState(unsigned int, PS2::CControllerInfo::BUTTON, bool, uint8*) override;
+		void SetAxisState(unsigned int, PS2::CControllerInfo::BUTTON, uint8, uint8*) override;
 
 	private:
 		enum MODULE_ID

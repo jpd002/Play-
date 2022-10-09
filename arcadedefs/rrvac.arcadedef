@@ -18,14 +18,9 @@
 			"description": "Disable iLink init"
 		},
 		{
-			"address": "0x00236DA0",
+			"address": "0x00229BD8",
 			"value": "0x0",
-			"description": ""
+			"description": "skip brake & gaz check"
 		},
-		{
-			"address": "0x0026CE38",
-			"value": "0x0",
-			"description": ""
-		}
 	]
 }

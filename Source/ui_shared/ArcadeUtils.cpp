@@ -132,6 +132,7 @@ void ArcadeUtils::BootArcadeMachine(CPS2VM* virtualMachine, const fs::path& arca
 			auto namcoArcadeModule = std::make_shared<Iop::CNamcoArcade>(*iopBios->GetSifman(), *iopBios->GetCdvdman(), virtualMachine->m_iop->m_ram);
 			namcoArcadeModule->SetOpticalMedia(virtualMachine->m_cdrom0.get());
 			iopBios->RegisterModule(namcoArcadeModule);
+			virtualMachine->m_pad->InsertListener(namcoArcadeModule.get());
 		}
 	}
 

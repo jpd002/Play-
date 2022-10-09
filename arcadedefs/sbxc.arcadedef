@@ -13,19 +13,6 @@
 	"patches":
 	[
 		{
-			"address": "0x00141AB0",
-			"value": "0x0"
-		},
-		{
-			"address": "0x00141AB8",
-			"value": "0x0"
-		},
-		{
-			"address": "0x0013DAF0",
-			"value": "0x0",
-			"description": "Skip JVIO boot"
-		},
-		{
 			"address": "0x002F5400",
 			"value": "0x0"
 		}

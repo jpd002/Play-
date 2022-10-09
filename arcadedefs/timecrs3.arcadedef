@@ -13,11 +13,6 @@
 	"patches":
 	[
 		{
-			"address": "0x00199848",
-			"value": "0x0",
-			"description": "Skip JVIO boot"
-		},
-		{
 			"address": "0x00100250",
 			"value": "0x0",
 			"description": "Skip write bufram"
