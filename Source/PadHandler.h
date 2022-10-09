@@ -10,8 +10,8 @@ class CPadHandler
 public:
 	typedef std::function<CPadHandler*(void)> FactoryFunction;
 
-	CPadHandler();
-	virtual ~CPadHandler();
+	CPadHandler() = default;
+	virtual ~CPadHandler() = default;
 	virtual void Update(uint8*) = 0;
 	void InsertListener(CPadListener*);
 	void RemoveAllListeners();
