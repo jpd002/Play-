@@ -972,7 +972,12 @@ bool CIopBios::TryGetImageVersionFromContents(const std::string& imagePath, unsi
 		static const unsigned int moduleVersionStringSize = 0x10;
 		char moduleVersionString[moduleVersionStringSize + 1];
 		auto currentPos = stream->Tell();
-		stream->Read(moduleVersionString, moduleVersionStringSize);
+		auto readAmount = stream->Read(moduleVersionString, moduleVersionStringSize);
+		if(readAmount != moduleVersionStringSize)
+		{
+			//We've hit the end
+			break;
+		}
 		moduleVersionString[moduleVersionStringSize] = 0;
 		if(tryMatchVersionPattern(moduleVersionString, fileIoPatternString))
 		{
