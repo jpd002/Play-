@@ -1,0 +1,36 @@
+{
+	"id": "wanganmr",
+	"name": "Wangan Midnight R",
+	"dongle":
+	{
+		"name": "wmr1vera.ic002"
+	},
+	"cdvd":
+	{
+		"name": "wmr1-a.chd"
+	},
+	"boot": "mc0:AL3LOAD",
+	"patches":
+	[
+		{
+			"address": "0x001090FC",
+			"value": "0x10000005",
+			"description": "Skip version check"
+		},
+		{
+			"address": "0x001385E4",
+			"value": "0x0",
+			"description": "Skip JVIO stuff"
+		},
+		{
+			"address": "0x0013864C",
+			"value": "0x0",
+			"description": "Skip JVIO stuff"
+		},
+		{
+			"address": "0x00138974",
+			"value": "0x0",
+			"description": "Skip JVIO stuff"
+		}
+	]
+}
