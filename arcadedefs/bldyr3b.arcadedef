@@ -1,0 +1,12 @@
+{
+	"id": "bldyr3b",
+	"name": "Bloody Roar 3",
+	"dongle":
+	{
+		"name": "br3-dongle.bin"
+	},
+	"boot": "mc0:BDRGAME",
+	"patches":
+	[
+	]
+}
