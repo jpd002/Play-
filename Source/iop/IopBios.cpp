@@ -6,6 +6,7 @@
 #include "xml/FilteringNodeIterator.h"
 #include "lexical_cast_ex.h"
 #include "BitManip.h"
+#include "StringUtils.h"
 
 #include "IopBios.h"
 #include "../COP_SCU.h"
@@ -861,15 +862,29 @@ int32 CIopBios::ReferModuleStatus(uint32 moduleId, uint32 statusPtr)
 	return KERNEL_RESULT_OK;
 }
 
-void CIopBios::ProcessModuleReset(const std::string& imagePath)
+void CIopBios::ProcessModuleReset(const std::string& initCommand)
 {
-	CLog::GetInstance().Print(LOGNAME, "ProcessModuleReset(%s);\r\n", imagePath.c_str());
+	CLog::GetInstance().Print(LOGNAME, "ProcessModuleReset(%s);\r\n", initCommand.c_str());
 	m_sifCmd->ClearServers();
 
 	unsigned int imageVersion = 1000;
-	bool found = TryGetImageVersionFromContents(imagePath, &imageVersion);
-	if(!found) found = TryGetImageVersionFromPath(imagePath, &imageVersion);
-	assert(found);
+	
+	auto initArguments = StringUtils::Split(initCommand);
+	assert(initArguments.size() >= 1);
+	if(initArguments.size() >= 1)
+	{
+		auto loaderPath = initArguments[0];
+		assert(loaderPath.find("UDNL") != std::string::npos);
+		if(initArguments.size() >= 2)
+		{
+			auto imagePath = initArguments[1];
+			bool found = false;
+			found = TryGetImageVersionFromContents(imagePath, &imageVersion);
+			if(!found) found = TryGetImageVersionFromPath(imagePath, &imageVersion);
+			assert(found);
+		}
+	}
+	
 	m_loadcore->SetModuleVersion(imageVersion);
 #ifdef _IOP_EMULATE_MODULES
 	m_fileIo->SetModuleVersion(imageVersion);
@@ -921,11 +936,7 @@ bool CIopBios::TryGetImageVersionFromPath(const std::string& imagePath, unsigned
 
 bool CIopBios::TryGetImageVersionFromContents(const std::string& imagePath, unsigned int* result)
 {
-	//Format of imagePath can be something like 'rom0:/UDNL cdrom0:/something;1'
-	auto imagePathStart = strstr(imagePath.c_str(), "cdrom0:");
-	if(!imagePathStart) return false;
-
-	int32 fd = m_ioman->Open(Iop::Ioman::CDevice::OPEN_FLAG_RDONLY, imagePathStart);
+	int32 fd = m_ioman->Open(Iop::Ioman::CDevice::OPEN_FLAG_RDONLY, imagePath.c_str());
 	if(fd < 0) return false;
 
 	//Some notes about this:
