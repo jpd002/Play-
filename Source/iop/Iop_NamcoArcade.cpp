@@ -144,6 +144,11 @@ bool CNamcoArcade::Invoke002(uint32 method, uint32* args, uint32 argsSize, uint3
 		//Game seems to want this to be 2 before proceeding
 		ret[0x01] = 2;
 		break;
+	case 0x03:
+		//CdType
+		CLog::GetInstance().Print(LOG_NAME, "CdType();\r\n");
+		ret[0x01] = m_cdvdman.CdGetDiskTypeDirect(m_opticalMedia);
+		break;
 	case 0x05:
 		//Unknown, used by Ridge Racer
 		CLog::GetInstance().Warn(LOG_NAME, "Cmd5();\r\n");
