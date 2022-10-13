@@ -1,4 +1,5 @@
 #include "Iop_NamcoArcade.h"
+#include <cstring>
 #include "../Log.h"
 
 using namespace Iop;
