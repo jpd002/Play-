@@ -78,11 +78,10 @@ bool CAcCdvd::Invoke(uint32 method, uint32* args, uint32 argsSize, uint32* ret, 
 		}
 		break;
 	case 0x0B:
-		//Load backup ram?
 		//Ridge Racer V uses this
 		//Time Crisis 3 uses this, fails to proceed if this doesn't return 0
 		ret[0x01] = 0;
-		CLog::GetInstance().Warn(LOG_NAME, "Cmd11();\r\n");
+		CLog::GetInstance().Warn(LOG_NAME, "CdSync();\r\n");
 		break;
 	case 0x0C:
 		//SearchFile?
