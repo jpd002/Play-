@@ -48,6 +48,9 @@ void CNamcoArcade::SetAxisState(unsigned int padNumber, PS2::CControllerInfo::BU
 {
 }
 
+static const uint32_t backupRamSize = 0x4000000;
+uint8 backupRam[backupRamSize];
+
 bool CNamcoArcade::Invoke001(uint32 method, uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
 {
 	//JVIO stuff?
@@ -60,14 +63,18 @@ bool CNamcoArcade::Invoke001(uint32 method, uint32* args, uint32 argsSize, uint3
 			//Ridge Racer 5 have argsSize = 0x18 (module name seems different)
 			if(argsSize == 0x18)
 			{
-				//loadbackupram?
-				//args[3] = ram ptr?
-				//args[4] = src
-				//args[5] = size
-				uint32 infoPtr = args[4];
-				uint32* info = reinterpret_cast<uint32*>(ram + infoPtr);
-				int i = 0;
-				i++;
+				uint32 ramAddr = args[2];
+				uint32 dstPtr = args[4];
+				uint32 size = args[5];
+				CLog::GetInstance().Warn(LOG_NAME, "ReadBackupRam(ramAddr = 0x%08X, dstPtr = 0x%08X, size = %d);\r\n",
+										 ramAddr, dstPtr, size);
+				if(ramAddr >= 0x40000000 && ramAddr < 0x50000000)
+				{
+					uint32 offset = ramAddr - 0x40000000;
+					assert(offset < backupRamSize);
+					memcpy(ram + dstPtr, backupRam + offset, size);
+				}
+				ret[0] = 0;
 			}
 			//Sengoku Basara & Time Crisis have argsSize == 0x10
 			else if(argsSize == 0x10)
@@ -114,6 +121,24 @@ bool CNamcoArcade::Invoke001(uint32 method, uint32* args, uint32 argsSize, uint3
 			{
 				CLog::GetInstance().Warn(LOG_NAME, "Unknown args size for method 2: %d.\r\n", argsSize);
 			}
+		}
+		break;
+	case 0x03:
+		if(argsSize == 0x18)
+		{
+			uint32 ramAddr = args[2];
+			uint32 srcPtr = args[4];
+			uint32 size = args[5];
+			CLog::GetInstance().Warn(LOG_NAME, "WriteBackupRam(ramAddr = 0x%08X, srcPtr = 0x%08X, size = %d);\r\n",
+									 ramAddr, srcPtr, size);
+			if(ramAddr >= 0x40000000 && ramAddr < 0x50000000)
+			{
+				uint32 offset = ramAddr - 0x40000000;
+				assert(offset < backupRamSize);
+				memcpy(backupRam + offset, ram + srcPtr, size);
+			}
+			ret[0] = 0;
+			ret[1] = size;
 		}
 		break;
 	default:
