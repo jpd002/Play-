@@ -21,6 +21,11 @@
 			"address": "0x00229BD8",
 			"value": "0x0",
 			"description": "skip brake & gaz check"
+		},
+		{
+			"address": "0x0026CE38",
+			"value": "0x0",
+			"description": "Fix hang preventing attract mode from starting"
 		}
 	]
 }
