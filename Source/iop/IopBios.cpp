@@ -881,7 +881,10 @@ void CIopBios::ProcessModuleReset(const std::string& initCommand)
 			bool found = false;
 			found = TryGetImageVersionFromContents(imagePath, &imageVersion);
 			if(!found) found = TryGetImageVersionFromPath(imagePath, &imageVersion);
-			assert(found);
+			if(!found)
+			{
+				CLog::GetInstance().Warn(LOGNAME, "Failed to find IOP module version from '%s'.\r\n", imagePath.c_str());
+			}
 		}
 	}
 	
