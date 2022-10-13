@@ -75,6 +75,7 @@ bool CNamcoArcade::Invoke001(uint32 method, uint32* args, uint32 argsSize, uint3
 					memcpy(ram + dstPtr, backupRam + offset, size);
 				}
 				ret[0] = 0;
+				ret[1] = size;
 			}
 			//Sengoku Basara & Time Crisis have argsSize == 0x10
 			else if(argsSize == 0x10)
