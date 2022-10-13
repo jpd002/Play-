@@ -722,6 +722,7 @@ Framework::Vulkan::CShaderModule CDrawDesktop::CreateFragmentShader(const PIPELI
 			}
 			break;
 			case CGSHandler::PSMCT24:
+			case CGSHandler::PSMZ24:
 			{
 				dstPixel = CMemoryUtils::Memory_Read24(b, memoryBuffer, fbAddress);
 				dstIColor = CMemoryUtils::PSM32ToIVec4(b, dstPixel);
