@@ -868,7 +868,7 @@ void CIopBios::ProcessModuleReset(const std::string& initCommand)
 	m_sifCmd->ClearServers();
 
 	unsigned int imageVersion = 1000;
-	
+
 	auto initArguments = StringUtils::Split(initCommand);
 	assert(initArguments.size() >= 1);
 	if(initArguments.size() >= 1)
@@ -887,7 +887,7 @@ void CIopBios::ProcessModuleReset(const std::string& initCommand)
 			}
 		}
 	}
-	
+
 	m_loadcore->SetModuleVersion(imageVersion);
 #ifdef _IOP_EMULATE_MODULES
 	m_fileIo->SetModuleVersion(imageVersion);
