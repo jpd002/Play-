@@ -35,14 +35,147 @@ void CNamcoArcade::Invoke(CMIPS& context, unsigned int functionId)
 	throw std::runtime_error("Not implemented.");
 }
 
-static uint32 registerPtr = 0;
+static uint32 g_recvAddr = 0;
+static uint32 g_sendAddr = 0;
+
+//Ref: http://daifukkat.su/files/jvs_wip.pdf
+enum
+{
+	JVS_SYNC = 0xE0,
+	
+	JVS_CMD_IOIDENT = 0x10,
+	JVS_CMD_CMDREV = 0x11,
+	JVS_CMD_JVSREV = 0x12,
+	JVS_CMD_COMMVER = 0x13,
+	JVS_CMD_FEATCHK = 0x14,
+	JVS_CMD_RESET = 0xF0,
+	JVS_CMD_SETADDR = 0xF1,
+};
+
+void ProcessJvsPacket(const uint8* input, uint8* output)
+{
+	assert(*input == JVS_SYNC);
+	input++;
+	uint8 inDest = *input++;
+	uint8 inSize = *input++;
+	uint8 outSize = 0;
+	uint32 inWorkChecksum = inDest + inSize;
+	inSize--;
+	
+	(*output++) = JVS_SYNC;
+	(*output++) = 0x00; //Master ID?
+	uint8* dstSize = output++;
+	(*dstSize) = 1;
+	(*output++) = 0x01; //Packet Success
+
+	while(inSize != 0)
+	{
+		uint8 cmd = (*input++);
+		inSize--;
+		inWorkChecksum += cmd;
+		switch(cmd)
+		{
+		case JVS_CMD_RESET:
+			{
+				assert(inSize != 0);
+				uint8 param = (*input++);
+				assert(param == 0xD9);
+				inSize--;
+				inWorkChecksum += param;
+			}
+			break;
+		case JVS_CMD_IOIDENT:
+			{
+				(*output++) = 0x01; //Command success
+				
+				(*output++) = 'B';
+				(*output++) = 'L';
+				(*output++) = 'A';
+				(*output++) = 'H';
+				(*output++) = 0;
+
+				(*dstSize) += 6;
+			}
+			break;
+		case JVS_CMD_SETADDR:
+			{
+				assert(inSize != 0);
+				uint8 param = (*input++);
+				inSize--;
+				inWorkChecksum += param;
+				(*output++) = 0x01; //Command success
+				(*dstSize)++;
+			}
+			break;
+		case JVS_CMD_CMDREV:
+			{
+				(*output++) = 0x01; //Command success
+				(*output++) = 0x13; //Revision 1.3
+				(*dstSize) += 2;
+			}
+			break;
+		case JVS_CMD_JVSREV:
+			{
+				(*output++) = 0x01; //Command success
+				(*output++) = 0x30; //Revision 3.0
+				(*dstSize) += 2;
+			}
+			break;
+		case JVS_CMD_COMMVER:
+			{
+				(*output++) = 0x01; //Command success
+				(*output++) = 0x10; //Version 1.0
+				(*dstSize) += 2;
+			}
+			break;
+		case JVS_CMD_FEATCHK:
+			{
+				(*output++) = 0x01; //Command success
+				(*output++) = 0x00; //No features here.
+				(*dstSize) += 2;
+			}
+			break;
+		default:
+			//Unknown command
+			assert(false);
+			break;
+		}
+	}
+	uint8 inChecksum = (*input);
+	assert(inChecksum == (inWorkChecksum & 0xFF));
+}
 
 void CNamcoArcade::SetButtonState(unsigned int padNumber, PS2::CControllerInfo::BUTTON button, bool pressed, uint8* ram)
 {
-	if(pressed && (registerPtr != 0))
+	//For Ridge Racer V (coin button)
+	if(pressed && (g_recvAddr != 0))
 	{
-		*reinterpret_cast<uint16*>(ram + registerPtr + 0xC0) += 1;
+		*reinterpret_cast<uint16*>(ram + g_recvAddr + 0xC0) += 1;
 	}
+	static int delay = 0;
+	if((delay == 0x1) && g_recvAddr && g_sendAddr)
+	{
+		delay = 0;
+		auto sendData = reinterpret_cast<const uint16*>(ram + g_sendAddr);
+		auto recvData = reinterpret_cast<uint16*>(ram + g_recvAddr);
+		recvData[0] = sendData[0];
+		if(sendData[0] == 0x3E6F)
+		{
+			//sendData + 0x18 (bytes) -> some command id
+			//sendData + 0x22 (bytes) -> Start of packet
+			//recvData + 0x40 (needs to be the same command id)
+			//recvData + 0x5A packet starts here
+			recvData[1] = 0x100; //JVS version
+			uint16 pktId = sendData[0x0C];
+			if(pktId != 0)
+			{
+				CLog::GetInstance().Warn(LOG_NAME, "PktId: 0x%04X\r\n", pktId);
+				ProcessJvsPacket(reinterpret_cast<const uint8*>(sendData) + 0x22, reinterpret_cast<uint8*>(recvData) + 0x5A);
+				recvData[0x20] = pktId;
+			}
+		}
+	}
+	delay++;
 }
 
 void CNamcoArcade::SetAxisState(unsigned int padNumber, PS2::CControllerInfo::BUTTON button, uint8 axisValue, uint8* ram)
@@ -161,7 +294,13 @@ bool CNamcoArcade::Invoke003(uint32 method, uint32* args, uint32 argsSize, uint3
 		{
 			CLog::GetInstance().Warn(LOG_NAME, "jvsif_registers(0x%08X, 0x%08X);\r\n", args[0], args[1]);
 			uint32* params = reinterpret_cast<uint32*>(ram + args[0]);
-			registerPtr = params[3];
+			uint32 recvSize = params[2];
+			uint32 recvAddr = params[3];
+			uint32 sendSize = params[6];
+			uint32 sendAddr = params[7];
+			CLog::GetInstance().Warn(LOG_NAME, "Setting JVIO params: recvSize = %d, recvAddr = 0x%08X, sendSize = %d, sendAddr = 0x%08X\r\n", recvSize, recvAddr, sendSize, sendAddr);
+			g_recvAddr = recvAddr;
+			g_sendAddr = sendAddr;
 			//Set break and gaz values?
 			//*reinterpret_cast<uint16*>(ram + registerPtr + 0x0E) = 0x0800;
 			//*reinterpret_cast<uint16*>(ram + registerPtr + 0xC0) = 0x22;
