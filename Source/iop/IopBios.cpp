@@ -130,6 +130,7 @@ CIopBios::~CIopBios()
 
 void CIopBios::Reset(const Iop::SifManPtr& sifMan)
 {
+	SetDefaultImageVersion(DEFAULT_IMAGE_VERSION);
 	PopulateSystemIntcHandlers();
 
 	//Assemble handlers
@@ -867,7 +868,7 @@ void CIopBios::ProcessModuleReset(const std::string& initCommand)
 	CLog::GetInstance().Print(LOGNAME, "ProcessModuleReset(%s);\r\n", initCommand.c_str());
 	m_sifCmd->ClearServers();
 
-	unsigned int imageVersion = 1000;
+	uint32 imageVersion = m_defaultImageVersion;
 
 	auto initArguments = StringUtils::Split(initCommand);
 	assert(initArguments.size() >= 1);
@@ -892,6 +893,11 @@ void CIopBios::ProcessModuleReset(const std::string& initCommand)
 #ifdef _IOP_EMULATE_MODULES
 	m_fileIo->SetModuleVersion(imageVersion);
 #endif
+}
+
+void CIopBios::SetDefaultImageVersion(uint32 defaultImageVersion)
+{
+	m_defaultImageVersion = defaultImageVersion;
 }
 
 bool CIopBios::TryGetImageVersionFromPath(const std::string& imagePath, unsigned int* result)
