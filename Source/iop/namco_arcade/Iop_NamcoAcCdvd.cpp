@@ -32,7 +32,7 @@ std::string CAcCdvd::GetFunctionName(unsigned int) const
 
 void CAcCdvd::Invoke(CMIPS& context, unsigned int functionId)
 {
-	throw std::runtime_error("Not implemented.");
+	CLog::GetInstance().Warn(LOG_NAME, "Unknown IOP method invoked (0x%08X).\r\n", functionId);
 }
 
 bool CAcCdvd::Invoke(uint32 method, uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
@@ -138,7 +138,7 @@ bool CAcCdvd::Invoke(uint32 method, uint32* args, uint32 argsSize, uint32* ret, 
 		}
 		break;
 	default:
-		CLog::GetInstance().Warn(LOG_NAME, "Unknown method invoked (0x%08X, 0x%08X).\r\n", 0x002, method);
+		CLog::GetInstance().Warn(LOG_NAME, "Unknown SIF method invoked (0x%08X).\r\n", method);
 		break;
 	}
 	return true;
