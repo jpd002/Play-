@@ -3361,6 +3361,13 @@ bool CIopBios::ReleaseModule(const std::string& moduleName)
 	return true;
 }
 
+void CIopBios::RegisterHleModuleReplacement(const std::string& path, const Iop::ModulePtr& module)
+{
+	//Not definitive function, needs to support filtering by module name
+	//Can also screwup some things with saved states
+	m_hleModules.insert(std::make_pair(path, module));
+}
+
 uint32 CIopBios::LoadExecutable(CELF32& elf, ExecutableRange& executableRange, uint32 baseAddress)
 {
 	unsigned int programHeaderIndex = GetElfProgramToLoad(elf);

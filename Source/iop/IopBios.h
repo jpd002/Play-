@@ -214,6 +214,8 @@ public:
 #endif
 	bool RegisterModule(const Iop::ModulePtr&);
 	bool ReleaseModule(const std::string&);
+	
+	void RegisterHleModuleReplacement(const std::string&, const Iop::ModulePtr&);
 
 	uint32 CreateThread(uint32, uint32, uint32, uint32, uint32);
 	int32 DeleteThread(uint32);
