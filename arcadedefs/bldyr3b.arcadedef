@@ -5,6 +5,10 @@
 	{
 		"name": "br3-dongle.bin"
 	},
+	"cdvd":
+	{
+		"name": "bldyr3b.chd"
+	},
 	"boot": "mc0:BDRGAME",
 	"patches":
 	[
