@@ -44,7 +44,7 @@ namespace Iop
 
 		bool LoadModule(uint32*, uint32, uint32*, uint32);
 		void LoadExecutable(uint32*, uint32, uint32*, uint32);
-		void LoadModuleFromMemory(uint32*, uint32, uint32*, uint32);
+		bool LoadModuleFromMemory(uint32*, uint32, uint32*, uint32);
 		bool StopModule(uint32*, uint32, uint32*, uint32);
 		void UnloadModule(uint32*, uint32, uint32*, uint32);
 		void SearchModuleByName(uint32*, uint32, uint32*, uint32);

@@ -660,16 +660,6 @@ int32 CIopBios::LoadModuleFromHost(uint8* modulePtr)
 
 int32 CIopBios::LoadModule(CELF32& elf, const char* path, uint32 loadAddress, bool ownsMemory)
 {
-	uint32 loadedModuleId = m_loadedModules.Allocate();
-	assert(loadedModuleId != -1);
-	if(loadedModuleId == -1) return -1;
-
-	auto loadedModule = m_loadedModules[loadedModuleId];
-	loadedModule->ownsMemory = ownsMemory;
-
-	ExecutableRange moduleRange;
-	uint32 entryPoint = LoadExecutable(elf, moduleRange, loadAddress);
-
 	//Find .iopmod section
 	const auto& header = elf.GetHeader();
 	const IOPMOD* iopMod = NULL;
@@ -679,6 +669,30 @@ int32 CIopBios::LoadModule(CELF32& elf, const char* path, uint32 loadAddress, bo
 		if(sectionHeader->nType != IOPMOD_SECTION_ID) continue;
 		iopMod = reinterpret_cast<const IOPMOD*>(elf.GetSectionData(i));
 	}
+
+	std::string moduleName = iopMod ? iopMod->moduleName : "";
+	if(moduleName.empty())
+	{
+		moduleName = path;
+	}
+
+#ifdef _IOP_EMULATE_MODULES
+	auto hleModuleIterator = m_hleModules.find(moduleName);
+	if(hleModuleIterator != std::end(m_hleModules))
+	{
+		return LoadHleModule(hleModuleIterator->second);
+	}
+#endif
+
+	uint32 loadedModuleId = m_loadedModules.Allocate();
+	assert(loadedModuleId != -1);
+	if(loadedModuleId == -1) return -1;
+
+	auto loadedModule = m_loadedModules[loadedModuleId];
+	loadedModule->ownsMemory = ownsMemory;
+
+	ExecutableRange moduleRange;
+	uint32 entryPoint = LoadExecutable(elf, moduleRange, loadAddress);
 
 	assert(iopMod);
 	if(iopMod != nullptr)
@@ -702,12 +716,6 @@ int32 CIopBios::LoadModule(CELF32& elf, const char* path, uint32 loadAddress, bo
 			assert(totalSize == moduleSize);
 		}
 		memset(m_ram + moduleRange.first + bssSectPos, 0, bssSectSize);
-	}
-
-	std::string moduleName = iopMod ? iopMod->moduleName : "";
-	if(moduleName.empty())
-	{
-		moduleName = path;
 	}
 
 	//Fill in module info

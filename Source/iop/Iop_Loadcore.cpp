@@ -112,8 +112,7 @@ bool CLoadcore::Invoke(uint32 method, uint32* args, uint32 argsSize, uint32* ret
 		LoadExecutable(args, argsSize, ret, retSize);
 		break;
 	case 0x06:
-		LoadModuleFromMemory(args, argsSize, ret, retSize);
-		return false; //Block EE till module is loaded
+		return LoadModuleFromMemory(args, argsSize, ret, retSize);
 		break;
 	case 0x07:
 		return StopModule(args, argsSize, ret, retSize);
@@ -264,7 +263,7 @@ void CLoadcore::LoadExecutable(uint32* args, uint32 argsSize, uint32* ret, uint3
 	ret[1] = 0x00000000; //gp
 }
 
-void CLoadcore::LoadModuleFromMemory(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize)
+bool CLoadcore::LoadModuleFromMemory(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize)
 {
 	const char* moduleArgs = reinterpret_cast<const char*>(args) + 8 + PATH_MAX_SIZE;
 	uint32 moduleArgsSize = args[1];
@@ -276,6 +275,14 @@ void CLoadcore::LoadModuleFromMemory(uint32* args, uint32 argsSize, uint32* ret,
 	}
 	ret[0] = moduleId;
 	ret[1] = 0; //Result of module's start() function
+	if(m_bios.IsModuleHle(moduleId))
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
 }
 
 bool CLoadcore::StopModule(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize)

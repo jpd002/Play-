@@ -144,6 +144,8 @@ void ArcadeUtils::BootArcadeMachine(CPS2VM* virtualMachine, const fs::path& arca
 			auto acCdvdModule = std::make_shared<Iop::Namco::CAcCdvd>(*iopBios->GetSifman(), *iopBios->GetCdvdman(), virtualMachine->m_iop->m_ram);
 			acCdvdModule->SetOpticalMedia(virtualMachine->m_cdrom0.get());
 			iopBios->RegisterModule(acCdvdModule);
+			iopBios->RegisterHleModuleReplacement("ATA/ATAPI_driver", acCdvdModule);
+			iopBios->RegisterHleModuleReplacement("CD/DVD_Compatible", acCdvdModule);
 		}
 	}
 
