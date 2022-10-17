@@ -17,7 +17,7 @@ CPsfSubSystem::CPsfSubSystem(uint32 ramSize)
     , m_spuCore1(m_spuRam, SPURAMSIZE, 1)
     , m_bios(m_cpu, m_ram, ramSize)
 {
-	m_cpu.m_executor = std::make_unique<CGenericMipsExecutor<BlockLookupTwoWay>>(m_cpu, ramSize);
+	m_cpu.m_executor = std::make_unique<CGenericMipsExecutor<BlockLookupTwoWay>>(m_cpu, ramSize, BLOCK_CATEGORY_PSP);
 
 	//Read memory map
 	m_cpu.m_pMemoryMap->InsertReadMap(0x00000000, m_ramSize, m_ram, 0x01);
