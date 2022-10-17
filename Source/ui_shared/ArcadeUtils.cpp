@@ -150,7 +150,7 @@ void ArcadeUtils::BootArcadeMachine(CPS2VM* virtualMachine, const fs::path& arca
 	}
 
 	//Boot mc0:/BOOT (from def)
-	virtualMachine->m_ee->m_os->BootFromVirtualPath(def.boot.c_str(), CPS2OS::ArgumentList());
+	virtualMachine->m_ee->m_os->BootFromVirtualPath(def.boot.c_str(), { "DANGLE" });
 
 	//Apply Patches
 	for(const auto& patch : def.patches)
