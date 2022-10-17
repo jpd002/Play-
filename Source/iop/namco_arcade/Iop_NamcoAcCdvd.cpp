@@ -8,6 +8,15 @@ using namespace Iop::Namco;
 
 #define LOG_NAME ("iop_namco_accdvd")
 
+#define FUNCTION_CDSEARCHFILE "IopCdSearchFile"
+#define FUNCTION_CDREAD "IopCdRead"
+#define FUNCTION_CDUNKNOWN_16 "IopCdUnknown_16"
+#define FUNCTION_CDUNKNOWN_17 "IopCdUnknown_17"
+#define FUNCTION_CDUNKNOWN_19 "IopCdUnknown_19"
+#define FUNCTION_CDGETERROR "IopCdGetError"
+#define FUNCTION_CDGETDISKTYPE "IopCdGetDiskType"
+#define FUNCTION_CDUNKNOWN_37 "IopCdUnknown_37"
+
 CAcCdvd::CAcCdvd(CSifMan& sif, CCdvdman& cdvdman, uint8* iopRam)
 : m_cdvdman(cdvdman)
 , m_iopRam(iopRam)
@@ -25,14 +34,101 @@ std::string CAcCdvd::GetId() const
 	return "accdvd";
 }
 
-std::string CAcCdvd::GetFunctionName(unsigned int) const
+std::string CAcCdvd::GetFunctionName(unsigned int functionId) const
 {
-	return "unknown";
+	switch(functionId)
+	{
+	case 10:
+		return FUNCTION_CDSEARCHFILE;
+	case 11:
+		return FUNCTION_CDREAD;
+	case 16:
+		return FUNCTION_CDUNKNOWN_16;
+	case 17:
+		return FUNCTION_CDUNKNOWN_17;
+	case 19:
+		return FUNCTION_CDUNKNOWN_19;
+	case 20:
+		return FUNCTION_CDGETERROR;
+	case 21:
+		return FUNCTION_CDGETDISKTYPE;
+	case 37:
+		return FUNCTION_CDUNKNOWN_37;
+	default:
+		return "unknown";
+	}
 }
 
 void CAcCdvd::Invoke(CMIPS& context, unsigned int functionId)
 {
-	CLog::GetInstance().Warn(LOG_NAME, "Unknown IOP method invoked (0x%08X).\r\n", functionId);
+	switch(functionId)
+	{
+	case 10:
+		{
+			uint32 fileInfoPtr = context.m_State.nGPR[CMIPS::A0].nV0;
+			uint32 pathPtr = context.m_State.nGPR[CMIPS::A1].nV0;
+			CLog::GetInstance().Warn(LOG_NAME, FUNCTION_CDSEARCHFILE "(fileInfoPtr = 0x%08X, pathPtr = %s);\r\n",
+									 fileInfoPtr,
+									 PrintStringParameter(m_iopRam, pathPtr).c_str());
+			auto path = reinterpret_cast<const char*>(m_iopRam + pathPtr);
+			auto fileInfo = reinterpret_cast<CCdvdman::FILEINFO*>(m_iopRam + fileInfoPtr);
+			uint32 result = m_cdvdman.CdLayerSearchFileDirect(m_opticalMedia, fileInfo, path, 0);
+			context.m_State.nGPR[CMIPS::V0].nV0 = result;
+		}
+		break;
+	case 11:
+		{
+			uint32 startSector = context.m_State.nGPR[CMIPS::A0].nV0;
+			uint32 sectorCount = context.m_State.nGPR[CMIPS::A1].nV0;
+			uint32 bufferPtr = context.m_State.nGPR[CMIPS::A2].nV0;
+			uint32 modePtr = context.m_State.nGPR[CMIPS::A3].nV0;
+			CLog::GetInstance().Warn(LOG_NAME, FUNCTION_CDREAD "(startSector = 0x%X, sectorCount = 0x%X, bufferPtr = 0x%08X, modePtr = 0x%08X);\r\n",
+									  startSector, sectorCount, bufferPtr, modePtr);
+			auto buffer = reinterpret_cast<uint8*>(m_iopRam + (bufferPtr & (PS2::IOP_RAM_SIZE - 1)));
+			static const uint32 sectorSize = 2048;
+			auto fileSystem = m_opticalMedia->GetFileSystem();
+			for(unsigned int i = 0; i < sectorCount; i++)
+			{
+				fileSystem->ReadBlock(startSector + i, buffer);
+				buffer += sectorSize;
+			}
+			context.m_State.nGPR[CMIPS::V0].nV0 = 1;
+		}
+		break;
+	case 16:
+		//CdSync?
+		CLog::GetInstance().Warn(LOG_NAME, FUNCTION_CDUNKNOWN_16 "(param0 = %d);\r\n",
+								 context.m_State.nGPR[CMIPS::A0].nV0);
+		context.m_State.nGPR[CMIPS::V0].nV0 = 0;
+		break;
+	case 17:
+		CLog::GetInstance().Warn(LOG_NAME, FUNCTION_CDUNKNOWN_17 "(param0 = %d);\r\n",
+								 context.m_State.nGPR[CMIPS::A0].nV0);
+		context.m_State.nGPR[CMIPS::V0].nV0 = 1;
+		break;
+	case 19:
+		//CdDiskReady
+		CLog::GetInstance().Warn(LOG_NAME, FUNCTION_CDUNKNOWN_19 "(param0 = %d);\r\n",
+								 context.m_State.nGPR[CMIPS::A0].nV0);
+		context.m_State.nGPR[CMIPS::V0].nV0 = 2;
+		break;
+	case 20:
+		CLog::GetInstance().Warn(LOG_NAME, FUNCTION_CDGETERROR "();\r\n");
+		context.m_State.nGPR[CMIPS::V0].nV0 = 0;
+		break;
+	case 21:
+		CLog::GetInstance().Warn(LOG_NAME, FUNCTION_CDGETDISKTYPE "();\r\n");
+		context.m_State.nGPR[CMIPS::V0].nV0 = m_cdvdman.CdGetDiskTypeDirect(m_opticalMedia);
+		break;
+	case 37:
+		CLog::GetInstance().Warn(LOG_NAME, FUNCTION_CDUNKNOWN_37 "(param0 = %d);\r\n",
+								 context.m_State.nGPR[CMIPS::A0].nV0);
+		context.m_State.nGPR[CMIPS::V0].nV0 = 1;
+		break;
+	default:
+		CLog::GetInstance().Warn(LOG_NAME, "Unknown IOP method invoked (0x%08X).\r\n", functionId);
+		break;
+	}
 }
 
 bool CAcCdvd::Invoke(uint32 method, uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
