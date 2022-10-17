@@ -158,7 +158,7 @@ AotBlockMap GetBlocksFromCache(const fs::path& blockCachePath, const char* cache
 		while(fileSize != 0)
 		{
 			AOT_BLOCK_KEY key = {};
-			key.category = blockCacheStream.Read32();
+			key.category = static_cast<BLOCK_CATEGORY>(blockCacheStream.Read32());
 			key.crc = blockCacheStream.Read32();
 			key.begin = blockCacheStream.Read32();
 			key.end = blockCacheStream.Read32();
