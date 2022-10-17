@@ -158,6 +158,7 @@ AotBlockMap GetBlocksFromCache(const fs::path& blockCachePath, const char* cache
 		while(fileSize != 0)
 		{
 			AOT_BLOCK_KEY key = {};
+			key.category = blockCacheStream.Read32();
 			key.crc = blockCacheStream.Read32();
 			key.begin = blockCacheStream.Read32();
 			key.end = blockCacheStream.Read32();
@@ -347,10 +348,10 @@ void Compile(const char* databasePathName, const char* cpuArchName, const char* 
 
 		for(const auto& functionTableItem : functionTable)
 		{
+			blockTableStream.Write32(functionTableItem.key.category);
 			blockTableStream.Write32(functionTableItem.key.crc);
 			blockTableStream.Write32(functionTableItem.key.begin);
 			blockTableStream.Write32(functionTableItem.key.end);
-			blockTableStream.Write32(functionTableItem.key.align);
 
 			{
 				Jitter::CObjectFile::SYMBOL_REFERENCE ref;
