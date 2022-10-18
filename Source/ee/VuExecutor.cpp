@@ -50,7 +50,7 @@ BasicBlockPtr CVuExecutor::BlockFactory(CMIPS& context, uint32 begin, uint32 end
 				}
 			}
 			auto result = std::make_shared<CVuBasicBlock>(context, begin, end, m_blockCategory);
-			result->CopyFunction(basicBlock);
+			result->CopyFunctionFrom(basicBlock);
 			return result;
 		}
 	}

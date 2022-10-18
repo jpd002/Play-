@@ -160,7 +160,7 @@ BasicBlockPtr CEeExecutor::BlockFactory(CMIPS& context, uint32 start, uint32 end
 			else
 			{
 				auto result = std::make_shared<CEeBasicBlock>(context, start, end, m_blockCategory);
-				result->CopyFunction(basicBlock);
+				result->CopyFunctionFrom(basicBlock);
 				return result;
 			}
 		}

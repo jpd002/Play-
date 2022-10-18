@@ -92,7 +92,7 @@ public:
 	static void SetAotBlockOutputStream(Framework::CStdStream*);
 #endif
 
-	void CopyFunction(std::shared_ptr<CBasicBlock> basicBlock);
+	void CopyFunctionFrom(const std::shared_ptr<CBasicBlock>& basicBlock);
 
 protected:
 	uint32 m_begin;

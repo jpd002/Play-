@@ -409,10 +409,26 @@ void CBasicBlock::HandleExternalFunctionReference(uintptr_t symbol, uint32 offse
 	}
 }
 
-void CBasicBlock::CopyFunction(std::shared_ptr<CBasicBlock> basicBlock)
+void CBasicBlock::CopyFunctionFrom(const std::shared_ptr<CBasicBlock>& other)
 {
 #ifndef AOT_USE_CACHE
-	m_function = CMemoryFunction(basicBlock->m_function.GetCode(), basicBlock->m_function.GetSize());
+	m_function = CMemoryFunction(other->m_function.GetCode(), other->m_function.GetSize());
+	std::copy(std::begin(other->m_linkBlockTrampolineOffset), std::end(other->m_linkBlockTrampolineOffset), m_linkBlockTrampolineOffset);
+#ifdef _DEBUG
+	std::copy(std::begin(other->m_linkBlock), std::end(other->m_linkBlock), m_linkBlock);
+#endif
+#ifdef _DEBUG
+	if(m_linkBlock[LINK_SLOT_NEXT])
+#endif
+	{
+		UnlinkBlock(LINK_SLOT_NEXT);
+	}
+#ifdef _DEBUG
+	if(m_linkBlock[LINK_SLOT_BRANCH])
+#endif
+	{
+		UnlinkBlock(LINK_SLOT_BRANCH);
+	}
 #else
 	m_function = basicBlock->m_function;
 #endif
