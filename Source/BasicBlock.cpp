@@ -409,6 +409,15 @@ void CBasicBlock::HandleExternalFunctionReference(uintptr_t symbol, uint32 offse
 	}
 }
 
+void CBasicBlock::CopyFunction(std::shared_ptr<CBasicBlock> basicBlock)
+{
+#ifndef AOT_USE_CACHE
+	m_function = CMemoryFunction(basicBlock->m_function.GetCode(), basicBlock->m_function.GetSize());
+#else
+	m_function = basicBlock->m_function;
+#endif
+}
+
 #ifdef DEBUGGER_INCLUDED
 
 bool CBasicBlock::HasBreakpoint() const

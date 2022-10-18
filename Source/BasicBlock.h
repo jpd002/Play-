@@ -92,6 +92,8 @@ public:
 	static void SetAotBlockOutputStream(Framework::CStdStream*);
 #endif
 
+	void CopyFunction(std::shared_ptr<CBasicBlock> basicBlock);
+
 protected:
 	uint32 m_begin;
 	uint32 m_end;
