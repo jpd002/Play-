@@ -263,7 +263,14 @@ void CMA_MIPSIV::REGIMM()
 //02
 void CMA_MIPSIV::J()
 {
-	m_codeGen->PushCst((m_nAddress & 0xF0000000) | ((m_nOpcode & 0x03FFFFFF) << 2));
+	m_codeGen->PushRel(offsetof(CMIPS, m_State.nPC));
+	m_codeGen->PushCst(m_instrPosition);
+	m_codeGen->Add();
+	m_codeGen->PushCst(0xF0000000);
+	m_codeGen->And();
+	m_codeGen->PushCst((m_nOpcode & 0x03FFFFFF) << 2);
+	m_codeGen->Or();
+
 	m_codeGen->PullRel(offsetof(CMIPS, m_State.nDelayedJumpAddr));
 }
 
@@ -273,11 +280,19 @@ void CMA_MIPSIV::JAL()
 	//64-bit addresses?
 
 	//Save the address in RA
-	m_codeGen->PushCst(m_nAddress + 8);
+	m_codeGen->PushRel(offsetof(CMIPS, m_State.nPC));
+	m_codeGen->PushCst(m_instrPosition + 8);
+	m_codeGen->Add();
 	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[31].nV[0]));
 
 	//Update jump address
-	m_codeGen->PushCst((m_nAddress & 0xF0000000) | ((m_nOpcode & 0x03FFFFFF) << 2));
+	m_codeGen->PushRel(offsetof(CMIPS, m_State.nPC));
+	m_codeGen->PushCst(m_instrPosition);
+	m_codeGen->Add();
+	m_codeGen->PushCst(0xF0000000);
+	m_codeGen->And();
+	m_codeGen->PushCst((m_nOpcode & 0x03FFFFFF) << 2);
+	m_codeGen->Or();
 	m_codeGen->PullRel(offsetof(CMIPS, m_State.nDelayedJumpAddr));
 }
 
@@ -328,7 +343,10 @@ void CMA_MIPSIV::ADDIU()
 	if(m_nRT == 0 && m_nRS == 0)
 	{
 		//Hack: PS2 IOP uses ADDIU R0, R0, $x for dynamic linking
-		m_codeGen->PushCst(m_nAddress);
+		m_codeGen->PushRel(offsetof(CMIPS, m_State.nPC));
+		m_codeGen->PushCst(m_instrPosition);
+		m_codeGen->Add();
+
 		m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP0[CCOP_SCU::EPC]));
 
 		m_codeGen->PushCst(MIPS_EXCEPTION_SYSCALL);
@@ -885,7 +903,9 @@ void CMA_MIPSIV::JALR()
 	if(m_nRD != 0)
 	{
 		//Save address in register
-		m_codeGen->PushCst(m_nAddress + 8);
+		m_codeGen->PushRel(offsetof(CMIPS, m_State.nPC));
+		m_codeGen->PushCst(m_instrPosition + 8);
+		m_codeGen->Add();
 		m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[0]));
 	}
 }
@@ -906,7 +926,10 @@ void CMA_MIPSIV::MOVN()
 void CMA_MIPSIV::SYSCALL()
 {
 	//Save current EPC
-	m_codeGen->PushCst(m_nAddress);
+	m_codeGen->PushRel(offsetof(CMIPS, m_State.nPC));
+	m_codeGen->PushCst(m_instrPosition);
+	m_codeGen->Add();
+
 	m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP0[CCOP_SCU::EPC]));
 	m_codeGen->PushCst(MIPS_EXCEPTION_SYSCALL);
 	m_codeGen->PullRel(offsetof(CMIPS, m_State.nHasException));
@@ -1279,7 +1302,9 @@ void CMA_MIPSIV::BGEZL()
 //10
 void CMA_MIPSIV::BLTZAL()
 {
-	m_codeGen->PushCst(m_nAddress + 8);
+	m_codeGen->PushRel(offsetof(CMIPS, m_State.nPC));
+	m_codeGen->PushCst(m_instrPosition + 8);
+	m_codeGen->Add();
 	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[CMIPS::RA].nV[0]));
 
 	BLTZ();
@@ -1288,7 +1313,9 @@ void CMA_MIPSIV::BLTZAL()
 //11
 void CMA_MIPSIV::BGEZAL()
 {
-	m_codeGen->PushCst(m_nAddress + 8);
+	m_codeGen->PushRel(offsetof(CMIPS, m_State.nPC));
+	m_codeGen->PushCst(m_instrPosition + 8);
+	m_codeGen->Add();
 	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[CMIPS::RA].nV[0]));
 
 	BGEZ();
@@ -1297,7 +1324,9 @@ void CMA_MIPSIV::BGEZAL()
 //12
 void CMA_MIPSIV::BLTZALL()
 {
-	m_codeGen->PushCst(m_nAddress + 8);
+	m_codeGen->PushRel(offsetof(CMIPS, m_State.nPC));
+	m_codeGen->PushCst(m_instrPosition + 8);
+	m_codeGen->Add();
 	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[CMIPS::RA].nV[0]));
 
 	BLTZL();
@@ -1306,7 +1335,9 @@ void CMA_MIPSIV::BLTZALL()
 //13
 void CMA_MIPSIV::BGEZALL()
 {
-	m_codeGen->PushCst(m_nAddress + 8);
+	m_codeGen->PushRel(offsetof(CMIPS, m_State.nPC));
+	m_codeGen->PushCst(m_instrPosition + 8);
+	m_codeGen->Add();
 	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[CMIPS::RA].nV[0]));
 
 	BGEZL();
