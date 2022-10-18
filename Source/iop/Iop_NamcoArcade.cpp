@@ -149,10 +149,8 @@ void CNamcoArcade::SetButtonState(unsigned int padNumber, PS2::CControllerInfo::
 	//{
 	//	*reinterpret_cast<uint16*>(ram + g_recvAddr + 0xC0) += 1;
 	//}
-	static int delay = 0;
-	if((delay == 0x1) && m_recvAddr && m_sendAddr)
+	if(m_recvAddr && m_sendAddr)
 	{
-		delay = 0;
 		auto sendData = reinterpret_cast<const uint16*>(ram + m_sendAddr);
 		auto recvData = reinterpret_cast<uint16*>(ram + m_recvAddr);
 		recvData[0] = sendData[0];
@@ -172,7 +170,6 @@ void CNamcoArcade::SetButtonState(unsigned int padNumber, PS2::CControllerInfo::
 			}
 		}
 	}
-	delay++;
 }
 
 void CNamcoArcade::SetAxisState(unsigned int padNumber, PS2::CControllerInfo::BUTTON button, uint8 axisValue, uint8* ram)
