@@ -71,6 +71,7 @@ Section "Play! (required)"
   CreateDirectory $INSTDIR\platforms
   CreateDirectory $INSTDIR\styles
   CreateDirectory $INSTDIR\imageformats
+  CreateDirectory $INSTDIR\arcadedefs
   
   ; Put file there
   File "${BINARY_INPUT_PATH}\Play.exe"
@@ -83,6 +84,9 @@ Section "Play! (required)"
   File "..\Readme.html"
   File "..\Patches.xml"
   File "..\states.db"
+
+  SetOutPath $INSTDIR\arcadedefs
+  File "..\arcadedefs\*.arcadedef"
   
   ; Write the installation path into the registry
   WriteRegStr HKLM SOFTWARE\NSIS_Play "Install_Dir" "$INSTDIR"
@@ -136,12 +140,14 @@ Section "Uninstall"
   Delete $INSTDIR\Readme.html
   Delete $INSTDIR\Patches.xml
   Delete $INSTDIR\states.db
+  Delete $INSTDIR\arcadedefs\*
   Delete $INSTDIR\uninstall.exe
   
   ; Remove directories used
   RMDir $INSTDIR\platforms
   RMDir $INSTDIR\styles
   RMDir $INSTDIR\imageformats
+  RMDir $INSTDIR\arcadedefs
   RMDir "$SMPROGRAMS\Play!"
   RMDir "$INSTDIR"
 
