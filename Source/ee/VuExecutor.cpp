@@ -40,12 +40,18 @@ BasicBlockPtr CVuExecutor::BlockFactory(CMIPS& context, uint32 begin, uint32 end
 	for(; equalRange.first != equalRange.second; ++equalRange.first)
 	{
 		const auto& basicBlock(equalRange.first->second);
-		if(basicBlock->GetBeginAddress() == begin)
+		if(basicBlock->GetEndAddress() - basicBlock->GetBeginAddress() == end - begin)
 		{
-			if(basicBlock->GetEndAddress() == end)
+			if(basicBlock->GetBeginAddress() == begin)
 			{
-				return basicBlock;
+				if(basicBlock->GetEndAddress() == end)
+				{
+					return basicBlock;
+				}
 			}
+			auto result = std::make_shared<CVuBasicBlock>(context, begin, end, m_blockCategory);
+			result->CopyFunction(basicBlock);
+			return result;
 		}
 	}
 

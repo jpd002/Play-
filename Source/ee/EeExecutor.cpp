@@ -142,7 +142,7 @@ BasicBlockPtr CEeExecutor::BlockFactory(CMIPS& context, uint32 start, uint32 end
 	}
 
 	uint32 checksum = crc32(0, reinterpret_cast<Bytef*>(blockMemory), blockSize);
-	auto blockKey = std::make_tuple(checksum, start, end);
+	auto blockKey = std::make_pair(checksum, end - start);
 
 	bool hasBreakpoint = m_context.HasBreakpointInRange(start, end);
 	if(!hasBreakpoint)
@@ -151,9 +151,18 @@ BasicBlockPtr CEeExecutor::BlockFactory(CMIPS& context, uint32 start, uint32 end
 		if(blockIterator != std::end(m_cachedBlocks))
 		{
 			const auto& basicBlock(blockIterator->second);
-			uint32 recycleCount = basicBlock->GetRecycleCount();
-			basicBlock->SetRecycleCount(std::min<uint32>(RECYCLE_NOLINK_THRESHOLD, recycleCount + 1));
-			return basicBlock;
+			if(basicBlock->GetBeginAddress() == start && basicBlock->GetEndAddress() == end)
+			{
+				uint32 recycleCount = basicBlock->GetRecycleCount();
+				basicBlock->SetRecycleCount(std::min<uint32>(RECYCLE_NOLINK_THRESHOLD, recycleCount + 1));
+				return basicBlock;
+			}
+			else
+			{
+				auto result = std::make_shared<CEeBasicBlock>(context, start, end, m_blockCategory);
+				result->CopyFunction(basicBlock);
+				return result;
+			}
 		}
 	}
 
