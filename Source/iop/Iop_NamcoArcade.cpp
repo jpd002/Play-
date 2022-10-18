@@ -35,9 +35,6 @@ void CNamcoArcade::Invoke(CMIPS& context, unsigned int functionId)
 	throw std::runtime_error("Not implemented.");
 }
 
-static uint32 g_recvAddr = 0;
-static uint32 g_sendAddr = 0;
-
 //Ref: http://daifukkat.su/files/jvs_wip.pdf
 enum
 {
@@ -148,16 +145,16 @@ void ProcessJvsPacket(const uint8* input, uint8* output)
 void CNamcoArcade::SetButtonState(unsigned int padNumber, PS2::CControllerInfo::BUTTON button, bool pressed, uint8* ram)
 {
 	//For Ridge Racer V (coin button)
-	if(pressed && (g_recvAddr != 0))
-	{
-		*reinterpret_cast<uint16*>(ram + g_recvAddr + 0xC0) += 1;
-	}
+	//if(pressed && (g_recvAddr != 0))
+	//{
+	//	*reinterpret_cast<uint16*>(ram + g_recvAddr + 0xC0) += 1;
+	//}
 	static int delay = 0;
-	if((delay == 0x1) && g_recvAddr && g_sendAddr)
+	if((delay == 0x1) && m_recvAddr && m_sendAddr)
 	{
 		delay = 0;
-		auto sendData = reinterpret_cast<const uint16*>(ram + g_sendAddr);
-		auto recvData = reinterpret_cast<uint16*>(ram + g_recvAddr);
+		auto sendData = reinterpret_cast<const uint16*>(ram + m_sendAddr);
+		auto recvData = reinterpret_cast<uint16*>(ram + m_recvAddr);
 		recvData[0] = sendData[0];
 		if(sendData[0] == 0x3E6F)
 		{
@@ -188,8 +185,6 @@ uint8 backupRam[backupRamSize];
 bool CNamcoArcade::Invoke001(uint32 method, uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
 {
 	//JVIO stuff?
-	static uint16 valueToHold = 0;
-	static uint16 otherImportantValue = 0;
 	switch(method)
 	{
 	case 0x02:
@@ -223,25 +218,36 @@ bool CNamcoArcade::Invoke001(uint32 method, uint32* args, uint32 argsSize, uint3
 				if(info[2] == 0x60002300)
 				{
 					//Send?
-					uint32 dataPtr = info[1];
-					uint16* data = reinterpret_cast<uint16*>(ram + dataPtr);
-					valueToHold = data[0];
-					otherImportantValue = data[3];
-					CLog::GetInstance().Warn(LOG_NAME, "sending (0x%04X, 0x%04X, 0x%04X, 0x%04X, 0x%04X, 0x%04X, 0x%04X, 0x%04X);\r\n",
-											 data[0], data[1], data[2], data[3],
-											 data[4], data[5], data[6], data[7]);
+					m_sendAddr = info[1];
+					//uint16* data = reinterpret_cast<uint16*>(ram + dataPtr);
+					//valueToHold = data[0];
+					//packetId = data[8];
+					//CLog::GetInstance().Warn(LOG_NAME, "sending (0x%04X, 0x%04X, 0x%04X, 0x%04X, 0x%04X, 0x%04X, 0x%04X, 0x%04X);\r\n",
+					//						 data[0], data[1], data[2], data[3],
+					//						 data[4], data[5], data[6], data[7]);
 				}
 				else if(info[1] == 0x60002000)
 				{
 					//Recv?
-					uint32 dataPtr = info[2];
-					uint16* data = reinterpret_cast<uint16*>(ram + dataPtr);
-					CLog::GetInstance().Warn(LOG_NAME, "recving (dataPtr = 0x%08X);\r\n", dataPtr);
-					data[0] = valueToHold;
-					if(valueToHold == 0x3E6F)
+					//Don't set/use m_recvAddr yet. Need to figure out how other JVSIF pulls data in.
+					uint32 recvDataPtr = info[2];
+					auto sendData = reinterpret_cast<const uint16*>(ram + m_sendAddr);
+					auto recvData = reinterpret_cast<uint16*>(ram + recvDataPtr);
+					//CLog::GetInstance().Warn(LOG_NAME, "recving (dataPtr = 0x%08X);\r\n", dataPtr);
+					recvData[0] = sendData[0];
+					uint16 rootPktId = sendData[8];
+					if((sendData[0] == 0x3E6F) && (rootPktId != 0))
 					{
-						data[1] = 0x208; //firmware version?
-						//data[0x18] = 0x01; //Some size?
+						recvData[1] = 0x208; //firmware version?
+						recvData[0x14] = rootPktId; //Xored with value at 0x10 in send packet, needs to be the same
+						recvData[0x21] = sendData[0x0D];
+						uint16 pktId = sendData[0x0C];
+						if(pktId != 0)
+						{
+							CLog::GetInstance().Warn(LOG_NAME, "PktId: 0x%04X\r\n", pktId);
+							ProcessJvsPacket(reinterpret_cast<const uint8*>(sendData) + 0x22, reinterpret_cast<uint8*>(recvData) + 0x5A);
+							recvData[0x20] = pktId;
+						}
 					}
 				}
 				else
@@ -299,8 +305,8 @@ bool CNamcoArcade::Invoke003(uint32 method, uint32* args, uint32 argsSize, uint3
 			uint32 sendSize = params[6];
 			uint32 sendAddr = params[7];
 			CLog::GetInstance().Warn(LOG_NAME, "Setting JVIO params: recvSize = %d, recvAddr = 0x%08X, sendSize = %d, sendAddr = 0x%08X\r\n", recvSize, recvAddr, sendSize, sendAddr);
-			g_recvAddr = recvAddr;
-			g_sendAddr = sendAddr;
+			m_recvAddr = recvAddr;
+			m_sendAddr = sendAddr;
 			//Set break and gaz values?
 			//*reinterpret_cast<uint16*>(ram + registerPtr + 0x0E) = 0x0800;
 			//*reinterpret_cast<uint16*>(ram + registerPtr + 0xC0) = 0x22;

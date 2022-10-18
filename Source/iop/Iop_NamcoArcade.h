@@ -35,5 +35,8 @@ namespace Iop
 		CSifModuleAdapter m_module001;
 		CSifModuleAdapter m_module003;
 		CSifModuleAdapter m_module004;
+		
+		uint32 m_recvAddr = 0;
+		uint32 m_sendAddr = 0;
 	};
 }
