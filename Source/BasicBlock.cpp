@@ -206,7 +206,7 @@ void CBasicBlock::CompileRange(CMipsJitter* jitter)
 		m_context.m_pArch->CompileInstruction(
 		    address,
 		    jitter,
-		    &m_context);
+		    &m_context, address - m_begin);
 		//Sanity check
 		assert(jitter->IsStackEmpty());
 	}
@@ -275,7 +275,9 @@ void CBasicBlock::CompileEpilog(CMipsJitter* jitter)
 	}
 	jitter->Else();
 	{
-		jitter->PushCst(m_end + 4);
+		jitter->PushRel(offsetof(CMIPS, m_State.nPC));
+		jitter->PushCst(m_end - m_begin + 4);
+		jitter->Add();
 		jitter->PullRel(offsetof(CMIPS, m_State.nPC));
 
 #if !defined(AOT_BUILD_CACHE) && !defined(__EMSCRIPTEN__)

@@ -11,11 +11,12 @@ CMIPSInstructionFactory::CMIPSInstructionFactory(MIPS_REGSIZE nRegSize)
 {
 }
 
-void CMIPSInstructionFactory::SetupQuickVariables(uint32 nAddress, CMipsJitter* codeGen, CMIPS* pCtx)
+void CMIPSInstructionFactory::SetupQuickVariables(uint32 nAddress, CMipsJitter* codeGen, CMIPS* pCtx, uint32 instrPosition)
 {
 	m_pCtx = pCtx;
 	m_codeGen = codeGen;
 	m_nAddress = nAddress;
+	m_instrPosition = instrPosition;
 
 	m_nOpcode = m_pCtx->m_pMemoryMap->GetInstruction(m_nAddress);
 }

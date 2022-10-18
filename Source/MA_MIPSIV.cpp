@@ -225,9 +225,9 @@ void CMA_MIPSIV::SetupInstructionTables()
 	}
 }
 
-void CMA_MIPSIV::CompileInstruction(uint32 address, CMipsJitter* codeGen, CMIPS* ctx)
+void CMA_MIPSIV::CompileInstruction(uint32 address, CMipsJitter* codeGen, CMIPS* ctx, uint32 instrPosition)
 {
-	SetupQuickVariables(address, codeGen, ctx);
+	SetupQuickVariables(address, codeGen, ctx, instrPosition);
 
 	m_nRS = (uint8)((m_nOpcode >> 21) & 0x1F);
 	m_nRT = (uint8)((m_nOpcode >> 16) & 0x1F);
@@ -435,7 +435,7 @@ void CMA_MIPSIV::COP0()
 {
 	if(m_pCtx->m_pCOP[0] != NULL)
 	{
-		m_pCtx->m_pCOP[0]->CompileInstruction(m_nAddress, m_codeGen, m_pCtx);
+		m_pCtx->m_pCOP[0]->CompileInstruction(m_nAddress, m_codeGen, m_pCtx, m_instrPosition);
 	}
 	else
 	{
@@ -448,7 +448,7 @@ void CMA_MIPSIV::COP1()
 {
 	if(m_pCtx->m_pCOP[1] != NULL)
 	{
-		m_pCtx->m_pCOP[1]->CompileInstruction(m_nAddress, m_codeGen, m_pCtx);
+		m_pCtx->m_pCOP[1]->CompileInstruction(m_nAddress, m_codeGen, m_pCtx, m_instrPosition);
 	}
 	else
 	{
@@ -461,7 +461,7 @@ void CMA_MIPSIV::COP2()
 {
 	if(m_pCtx->m_pCOP[2] != NULL)
 	{
-		m_pCtx->m_pCOP[2]->CompileInstruction(m_nAddress, m_codeGen, m_pCtx);
+		m_pCtx->m_pCOP[2]->CompileInstruction(m_nAddress, m_codeGen, m_pCtx, m_instrPosition);
 	}
 	else
 	{
@@ -706,7 +706,7 @@ void CMA_MIPSIV::LWC1()
 {
 	if(m_pCtx->m_pCOP[1] != NULL)
 	{
-		m_pCtx->m_pCOP[1]->CompileInstruction(m_nAddress, m_codeGen, m_pCtx);
+		m_pCtx->m_pCOP[1]->CompileInstruction(m_nAddress, m_codeGen, m_pCtx, m_instrPosition);
 	}
 	else
 	{
@@ -725,7 +725,7 @@ void CMA_MIPSIV::LDC2()
 {
 	if(m_pCtx->m_pCOP[2] != NULL)
 	{
-		m_pCtx->m_pCOP[2]->CompileInstruction(m_nAddress, m_codeGen, m_pCtx);
+		m_pCtx->m_pCOP[2]->CompileInstruction(m_nAddress, m_codeGen, m_pCtx, m_instrPosition);
 	}
 	else
 	{
@@ -769,7 +769,7 @@ void CMA_MIPSIV::SWC1()
 {
 	if(m_pCtx->m_pCOP[1] != NULL)
 	{
-		m_pCtx->m_pCOP[1]->CompileInstruction(m_nAddress, m_codeGen, m_pCtx);
+		m_pCtx->m_pCOP[1]->CompileInstruction(m_nAddress, m_codeGen, m_pCtx, m_instrPosition);
 	}
 	else
 	{
@@ -782,7 +782,7 @@ void CMA_MIPSIV::SDC2()
 {
 	if(m_pCtx->m_pCOP[2] != NULL)
 	{
-		m_pCtx->m_pCOP[2]->CompileInstruction(m_nAddress, m_codeGen, m_pCtx);
+		m_pCtx->m_pCOP[2]->CompileInstruction(m_nAddress, m_codeGen, m_pCtx, m_instrPosition);
 	}
 	else
 	{

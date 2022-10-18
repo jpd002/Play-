@@ -52,9 +52,9 @@ CCOP_SCU::CCOP_SCU(MIPS_REGSIZE nRegSize)
 	SetupReflectionTables();
 }
 
-void CCOP_SCU::CompileInstruction(uint32 nAddress, CMipsJitter* codeGen, CMIPS* pCtx)
+void CCOP_SCU::CompileInstruction(uint32 nAddress, CMipsJitter* codeGen, CMIPS* pCtx, uint32 instrPosition)
 {
-	SetupQuickVariables(nAddress, codeGen, pCtx);
+	SetupQuickVariables(nAddress, codeGen, pCtx, instrPosition);
 
 	m_nRT = (uint8)((m_nOpcode >> 16) & 0x1F);
 	m_nRD = (uint8)((m_nOpcode >> 11) & 0x1F);

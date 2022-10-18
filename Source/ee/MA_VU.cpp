@@ -8,17 +8,17 @@ CMA_VU::CMA_VU(uint32 vuMemAddressMask)
 	SetupReflectionTables();
 }
 
-void CMA_VU::CompileInstruction(uint32 nAddress, CMipsJitter* codeGen, CMIPS* pCtx)
+void CMA_VU::CompileInstruction(uint32 nAddress, CMipsJitter* codeGen, CMIPS* pCtx, uint32 instrPosition)
 {
-	SetupQuickVariables(nAddress, codeGen, pCtx);
+	SetupQuickVariables(nAddress, codeGen, pCtx, instrPosition);
 
 	if(nAddress & 0x04)
 	{
-		m_Upper.CompileInstruction(nAddress, codeGen, pCtx);
+		m_Upper.CompileInstruction(nAddress, codeGen, pCtx, instrPosition);
 	}
 	else
 	{
-		m_Lower.CompileInstruction(nAddress, codeGen, pCtx);
+		m_Lower.CompileInstruction(nAddress, codeGen, pCtx, instrPosition);
 	}
 }
 

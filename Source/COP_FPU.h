@@ -7,7 +7,7 @@ class CCOP_FPU : public CMIPSCoprocessor
 {
 public:
 	CCOP_FPU(MIPS_REGSIZE);
-	void CompileInstruction(uint32, CMipsJitter*, CMIPS*) override;
+	void CompileInstruction(uint32, CMipsJitter*, CMIPS*, uint32) override;
 	void GetInstruction(uint32, char*) override;
 	void GetArguments(uint32, uint32, char*) override;
 	uint32 GetEffectiveAddress(uint32, uint32) override;

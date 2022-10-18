@@ -12,7 +12,7 @@ class CMA_VU : public CMIPSArchitecture
 public:
 	CMA_VU(uint32);
 
-	void CompileInstruction(uint32, CMipsJitter*, CMIPS*) override;
+	void CompileInstruction(uint32, CMipsJitter*, CMIPS*, uint32) override;
 	void GetInstructionMnemonic(CMIPS*, uint32, uint32, char*, unsigned int) override;
 	void GetInstructionOperands(CMIPS*, uint32, uint32, char*, unsigned int) override;
 	MIPS_BRANCH_TYPE IsInstructionBranch(CMIPS*, uint32, uint32) override;
@@ -30,7 +30,7 @@ private:
 		CUpper();
 
 		void SetupReflectionTables();
-		void CompileInstruction(uint32, CMipsJitter*, CMIPS*) override;
+		void CompileInstruction(uint32, CMipsJitter*, CMIPS*, uint32) override;
 		void GetInstructionMnemonic(CMIPS*, uint32, uint32, char*, unsigned int);
 		void GetInstructionOperands(CMIPS*, uint32, uint32, char*, unsigned int);
 		VUShared::OPERANDSET GetAffectedOperands(CMIPS*, uint32, uint32);
@@ -177,7 +177,7 @@ private:
 		CLower(uint32);
 
 		void SetupReflectionTables();
-		void CompileInstruction(uint32, CMipsJitter*, CMIPS*) override;
+		void CompileInstruction(uint32, CMipsJitter*, CMIPS*, uint32) override;
 		void GetInstructionMnemonic(CMIPS*, uint32, uint32, char*, unsigned int);
 		void GetInstructionOperands(CMIPS*, uint32, uint32, char*, unsigned int);
 		MIPS_BRANCH_TYPE IsInstructionBranch(CMIPS*, uint32, uint32);

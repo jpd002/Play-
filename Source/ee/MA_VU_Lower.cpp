@@ -24,9 +24,9 @@ CMA_VU::CLower::CLower(uint32 vuMemAddressMask)
 {
 }
 
-void CMA_VU::CLower::CompileInstruction(uint32 address, CMipsJitter* codeGen, CMIPS* context)
+void CMA_VU::CLower::CompileInstruction(uint32 address, CMipsJitter* codeGen, CMIPS* context, uint32 instrPosition)
 {
-	SetupQuickVariables(address, codeGen, context);
+	SetupQuickVariables(address, codeGen, context, instrPosition);
 
 	if(IsLOI(context, address))
 	{
@@ -65,8 +65,9 @@ void CMA_VU::CLower::SetBranchAddress(bool nCondition, int32 nOffset)
 	m_codeGen->PushCst(0);
 	m_codeGen->BeginIf(nCondition ? Jitter::CONDITION_NE : Jitter::CONDITION_EQ);
 	{
-		const uint32 maxIAddr = 0x3FFF;
-		m_codeGen->PushCst((m_nAddress + nOffset + 4) & maxIAddr);
+		m_codeGen->PushRel(offsetof(CMIPS, m_State.nPC));
+		m_codeGen->PushCst(m_instrPosition + nOffset + 4);
+		m_codeGen->Add();
 		m_codeGen->PullRel(offsetof(CMIPS, m_State.nDelayedJumpAddr));
 	}
 	m_codeGen->EndIf();
@@ -382,7 +383,10 @@ void CMA_VU::CLower::B()
 void CMA_VU::CLower::BAL()
 {
 	//Save PC
-	m_codeGen->PushCst((m_nAddress + 0x10) / 0x8);
+	m_codeGen->PushRel(offsetof(CMIPS, m_State.nPC));
+	m_codeGen->PushCst(m_instrPosition + 0x10);
+	m_codeGen->Add();
+	m_codeGen->Sra(3);
 	m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
 
 	m_codeGen->PushCst(1);
@@ -411,7 +415,10 @@ void CMA_VU::CLower::JALR()
 	m_codeGen->PullRel(offsetof(CMIPS, m_State.nDelayedJumpAddr));
 
 	//Save PC
-	m_codeGen->PushCst((m_nAddress + 0x10) / 0x8);
+	m_codeGen->PushRel(offsetof(CMIPS, m_State.nPC));
+	m_codeGen->PushCst(m_instrPosition + 0x10);
+	m_codeGen->Add();
+	m_codeGen->Sra(3);
 	m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
 }
 
