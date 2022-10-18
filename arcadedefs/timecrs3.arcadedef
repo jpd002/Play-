@@ -12,10 +12,5 @@
 	"boot": "mc0:TC3LOAD",
 	"patches":
 	[
-		{
-			"address": "0x00100250",
-			"value": "0x0",
-			"description": "Skip write bufram"
-		}
 	]
 }

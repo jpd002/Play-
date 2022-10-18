@@ -1,0 +1,16 @@
+{
+	"id": "tekken4",
+	"name": "Tekken 4",
+	"dongle":
+	{
+		"name": "tef3verc.ic002"
+	},
+	"cdvd":
+	{
+		"name": "tef1dvd0.chd"
+	},
+	"boot": "mc0:TK4LOAD",
+	"patches":
+	[
+	]
+}
