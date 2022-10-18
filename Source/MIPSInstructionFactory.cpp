@@ -173,8 +173,6 @@ void CMIPSInstructionFactory::BranchLikely(Jitter::CONDITION condition)
 	}
 	m_codeGen->Else();
 	{
-		m_codeGen->PushCst(m_nAddress + 8);
-		m_codeGen->PullRel(offsetof(CMIPS, m_State.nPC));
 		m_codeGen->Goto(m_codeGen->GetFinalBlockLabel());
 	}
 	m_codeGen->EndIf();
