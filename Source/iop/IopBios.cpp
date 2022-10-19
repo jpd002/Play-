@@ -961,6 +961,7 @@ bool CIopBios::TryGetImageVersionFromContents(const std::string& imagePath, unsi
 	//  and it also doesn't have a fileio string that lets us find the required version,
 	//  thus, we rely on the ioprp pattern for this game.
 	static const std::string fileIoPatternString = "PsIIfileio  ";
+	static const std::string sysmemPatternString = "PsIIsysmem  ";
 	static const std::string ioprpPatternString = "ioprp";
 
 	auto tryMatchVersionPattern =
@@ -997,6 +998,10 @@ bool CIopBios::TryGetImageVersionFromContents(const std::string& imagePath, unsi
 		}
 		moduleVersionString[moduleVersionStringSize] = 0;
 		if(tryMatchVersionPattern(moduleVersionString, fileIoPatternString))
+		{
+			return true;
+		}
+		else if(tryMatchVersionPattern(moduleVersionString, sysmemPatternString))
 		{
 			return true;
 		}
