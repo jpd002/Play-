@@ -128,6 +128,7 @@ void ArcadeUtils::BootArcadeMachine(CPS2VM* virtualMachine, const fs::path& arca
 		auto device = std::make_shared<Iop::Ioman::CMcDumpDevice>(std::move(mcDumpContents));
 		auto iopBios = dynamic_cast<CIopBios*>(virtualMachine->m_iop->m_bios.get());
 		iopBios->GetIoman()->RegisterDevice("mc0", device);
+		iopBios->GetIoman()->RegisterDevice("ac0", device);
 
 		//Ridge Racer 5: Arcade Battle doesn't have any FILEIO in its IOPRP
 		//Assuming that the BIOS image for arcade boards is version 2.0.5

@@ -1,0 +1,16 @@
+{
+	"id": "tekken5d",
+	"name": "Tekken 5: Dark Resurrection",
+	"dongle":
+	{
+		"name": "ted1vera.ic002"
+	},
+	"cdvd":
+	{
+		"name": "ted1dvd0b.chd"
+	},
+	"boot": "ac0:T55LOAD",
+	"patches":
+	[
+	]
+}
