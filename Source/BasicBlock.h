@@ -16,6 +16,7 @@ enum BLOCK_CATEGORY : uint32
 	BLOCK_CATEGORY_PSP = 0x50535000,
 };
 
+#pragma pack(push, 1)
 struct AOT_BLOCK_KEY
 {
 	BLOCK_CATEGORY category;
@@ -29,7 +30,8 @@ struct AOT_BLOCK_KEY
 		       std::tie(k2.category, k2.hash, k2.size);
 	}
 };
-static_assert(sizeof(AOT_BLOCK_KEY) == 0x20, "AOT_BLOCK_KEY must be 32 bytes long.");
+#pragma pack(pop)
+static_assert(sizeof(AOT_BLOCK_KEY) == 0x18, "AOT_BLOCK_KEY must be 24 bytes long.");
 
 namespace Jitter
 {
