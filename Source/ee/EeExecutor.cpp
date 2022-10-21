@@ -4,6 +4,9 @@
 #include "EeBasicBlock.h"
 #include <zstd_zlibwrapper.h>
 
+#define XXH_INLINE_ALL
+#include "xxhash.h"
+
 #if defined(__unix__) || defined(__ANDROID__) || defined(__APPLE__)
 #include <sys/mman.h>
 #endif
@@ -141,8 +144,11 @@ BasicBlockPtr CEeExecutor::BlockFactory(CMIPS& context, uint32 start, uint32 end
 		blockMemory[index] = opcode;
 	}
 
-	uint32 checksum = crc32(0, reinterpret_cast<Bytef*>(blockMemory), blockSize);
-	auto blockKey = std::make_pair(checksum, end - start);
+	auto xxHash = XXH3_128bits(blockMemory, blockSize);
+	uint128 hash;
+	memcpy(&hash, &xxHash, sizeof(xxHash));
+	static_assert(sizeof(hash) == sizeof(xxHash));
+	auto blockKey = std::make_pair(hash, end - start);
 
 	bool hasBreakpoint = m_context.HasBreakpointInRange(start, end);
 	if(!hasBreakpoint)

@@ -12,10 +12,10 @@ public:
 	void Reset() override;
 
 protected:
-	typedef std::unordered_multimap<uint32, BasicBlockPtr> CachedBlockMap;
+	typedef std::pair<uint128, uint32> CachedBlockKey;
+	typedef std::map<CachedBlockKey, BasicBlockPtr> CachedBlockMap;
+	CachedBlockMap m_cachedBlocks;
 
 	BasicBlockPtr BlockFactory(CMIPS&, uint32, uint32) override;
 	void PartitionFunction(uint32) override;
-
-	CachedBlockMap m_cachedBlocks;
 };

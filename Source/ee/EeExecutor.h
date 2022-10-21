@@ -28,7 +28,7 @@ public:
 	BasicBlockPtr BlockFactory(CMIPS&, uint32, uint32) override;
 
 private:
-	typedef std::pair<uint32, uint32> CachedBlockKey;
+	typedef std::pair<uint128, uint32> CachedBlockKey;
 	typedef std::map<CachedBlockKey, BasicBlockPtr> CachedBlockMap;
 	CachedBlockMap m_cachedBlocks;
 

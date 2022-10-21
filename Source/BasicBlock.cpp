@@ -11,6 +11,10 @@
 #ifdef AOT_ENABLED
 
 #include <zstd_zlibwrapper.h>
+
+#define XXH_INLINE_ALL
+#include "xxhash.h"
+
 #include "StdStream.h"
 #include "StdStreamUtils.h"
 
@@ -146,7 +150,9 @@ void CBasicBlock::Compile()
 		blockData[0] = ~0;
 	}
 
-	uint32 blockChecksum = crc32(0, reinterpret_cast<Bytef*>(blockData), blockSize * 4);
+	auto xxHash = XXH3_128bits(blockData, blockSize * 4);
+	uint128 hash;
+	memcpy(&hash, &xxHash, sizeof(xxHash));
 
 #endif
 
@@ -155,7 +161,7 @@ void CBasicBlock::Compile()
 	AOT_BLOCK* blocksBegin = &_aot_firstBlock;
 	AOT_BLOCK* blocksEnd = blocksBegin + _aot_blockCount;
 
-	AOT_BLOCK blockRef = {{m_category, blockChecksum, m_begin, m_end}, nullptr};
+	AOT_BLOCK blockRef = {{m_category, hash, m_begin, m_end}, nullptr};
 
 	static const auto blockComparer =
 	    [](const AOT_BLOCK& item1, const AOT_BLOCK& item2) {
@@ -169,7 +175,7 @@ void CBasicBlock::Compile()
 
 	assert(blockExists);
 	assert(blockIterator != blocksEnd);
-	assert(blockIterator->key.crc == blockChecksum);
+	assert(blockIterator->key.hash == hash);
 	assert(blockIterator->key.begin == m_begin);
 	assert(blockIterator->key.end == m_end);
 
