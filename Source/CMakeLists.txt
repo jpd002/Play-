@@ -327,6 +327,8 @@ set(COMMON_SRC_FILES
 	iop/Iop_MtapMan.h
 	iop/namco_arcade/Iop_NamcoAcCdvd.cpp
 	iop/namco_arcade/Iop_NamcoAcCdvd.h
+	iop/namco_arcade/Iop_NamcoAcRam.cpp
+	iop/namco_arcade/Iop_NamcoAcRam.h
 	iop/Iop_NamcoArcade.cpp
 	iop/Iop_NamcoArcade.h
 	iop/Iop_PadMan.cpp

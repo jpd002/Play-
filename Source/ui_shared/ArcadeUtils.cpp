@@ -10,6 +10,7 @@
 #include "iop/ioman/McDumpDevice.h"
 #include "iop/Iop_NamcoArcade.h"
 #include "iop/namco_arcade/Iop_NamcoAcCdvd.h"
+#include "iop/namco_arcade/Iop_NamcoAcRam.h"
 
 struct ARCADE_MACHINE_DEF
 {
@@ -147,6 +148,12 @@ void ArcadeUtils::BootArcadeMachine(CPS2VM* virtualMachine, const fs::path& arca
 			iopBios->RegisterModule(acCdvdModule);
 			iopBios->RegisterHleModuleReplacement("ATA/ATAPI_driver", acCdvdModule);
 			iopBios->RegisterHleModuleReplacement("CD/DVD_Compatible", acCdvdModule);
+		}
+		
+		{
+			auto acRam = std::make_shared<Iop::Namco::CAcRam>(virtualMachine->m_iop->m_ram);
+			iopBios->RegisterModule(acRam);
+			iopBios->RegisterHleModuleReplacement("Arcade_Ext._Memory", acRam);
 		}
 	}
 
