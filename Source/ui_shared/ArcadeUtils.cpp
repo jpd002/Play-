@@ -135,25 +135,21 @@ void ArcadeUtils::BootArcadeMachine(CPS2VM* virtualMachine, const fs::path& arca
 		//Assuming that the BIOS image for arcade boards is version 2.0.5
 		iopBios->SetDefaultImageVersion(2050);
 		
+		auto acCdvdModule = std::make_shared<Iop::Namco::CAcCdvd>(*iopBios->GetSifman(), *iopBios->GetCdvdman(), virtualMachine->m_iop->m_ram);
+		acCdvdModule->SetOpticalMedia(virtualMachine->m_cdrom0.get());
+		iopBios->RegisterModule(acCdvdModule);
+		iopBios->RegisterHleModuleReplacement("ATA/ATAPI_driver", acCdvdModule);
+		iopBios->RegisterHleModuleReplacement("CD/DVD_Compatible", acCdvdModule);
+		
+		auto acRam = std::make_shared<Iop::Namco::CAcRam>(virtualMachine->m_iop->m_ram);
+		iopBios->RegisterModule(acRam);
+		iopBios->RegisterHleModuleReplacement("Arcade_Ext._Memory", acRam);
+		
 		{
-			auto namcoArcadeModule = std::make_shared<Iop::CNamcoArcade>(*iopBios->GetSifman());
+			auto namcoArcadeModule = std::make_shared<Iop::CNamcoArcade>(*iopBios->GetSifman(), *acRam);
 			iopBios->RegisterModule(namcoArcadeModule);
 			iopBios->RegisterHleModuleReplacement("rom0:DAEMON", namcoArcadeModule);
 			virtualMachine->m_pad->InsertListener(namcoArcadeModule.get());
-		}
-		
-		{
-			auto acCdvdModule = std::make_shared<Iop::Namco::CAcCdvd>(*iopBios->GetSifman(), *iopBios->GetCdvdman(), virtualMachine->m_iop->m_ram);
-			acCdvdModule->SetOpticalMedia(virtualMachine->m_cdrom0.get());
-			iopBios->RegisterModule(acCdvdModule);
-			iopBios->RegisterHleModuleReplacement("ATA/ATAPI_driver", acCdvdModule);
-			iopBios->RegisterHleModuleReplacement("CD/DVD_Compatible", acCdvdModule);
-		}
-		
-		{
-			auto acRam = std::make_shared<Iop::Namco::CAcRam>(virtualMachine->m_iop->m_ram);
-			iopBios->RegisterModule(acRam);
-			iopBios->RegisterHleModuleReplacement("Arcade_Ext._Memory", acRam);
 		}
 	}
 

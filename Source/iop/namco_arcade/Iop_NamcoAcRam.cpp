@@ -62,9 +62,7 @@ void CAcRam::Invoke(CMIPS& context, unsigned int functionId)
 			uint32 size = context.m_State.nGPR[CMIPS::A3].nV0;
 			CLog::GetInstance().Warn(LOG_NAME, "Read(infoPtr = 0x%08X, ramAddr = 0x%08X, iopAddr = 0x%08X, size = %d);\r\n",
 									 handlePtr, ramAddr, iopAddr, size);
-			assert((ramAddr + size) <= g_extRamSize);
-			memcpy(m_iopRam + iopAddr, m_extRam + ramAddr, size);
-
+			Read(ramAddr, m_iopRam + iopAddr, size);
 			uint32 otherResultPtr = context.m_pMemoryMap->GetWord(handlePtr + 0x0C);
 			context.m_pMemoryMap->SetWord(otherResultPtr, ~0U);
 			context.m_State.nGPR[CMIPS::V0].nV0 = 1; //?
@@ -78,8 +76,7 @@ void CAcRam::Invoke(CMIPS& context, unsigned int functionId)
 			uint32 size = context.m_State.nGPR[CMIPS::A3].nV0;
 			CLog::GetInstance().Warn(LOG_NAME, "Write(infoPtr = 0x%08X, dstAddr = 0x%08X, srcAddr = 0x%08X, size = %d);\r\n",
 									 handlePtr, ramAddr, iopAddr, size);
-			assert((ramAddr + size) <= g_extRamSize);
-			memcpy(m_extRam + ramAddr, m_iopRam + iopAddr, size);
+			Write(ramAddr, m_iopRam + iopAddr, size);
 			uint32 otherResultPtr = context.m_pMemoryMap->GetWord(handlePtr + 0x0C);
 			context.m_pMemoryMap->SetWord(otherResultPtr, ~0U);
 			context.m_State.nGPR[CMIPS::V0].nV0 = 1; //?
@@ -89,4 +86,16 @@ void CAcRam::Invoke(CMIPS& context, unsigned int functionId)
 		CLog::GetInstance().Warn(LOG_NAME, "Unknown method invoked (0x%08X).\r\n", functionId);
 		break;
 	}
+}
+
+void CAcRam::Read(uint32 extRamAddr, uint8* buffer, uint32 size)
+{
+	assert((extRamAddr + size) <= g_extRamSize);
+	memcpy(buffer, m_extRam + extRamAddr, size);
+}
+
+void CAcRam::Write(uint32 extRamAddr, const uint8* buffer, uint32 size)
+{
+	assert((extRamAddr + size) <= g_extRamSize);
+	memcpy(m_extRam + extRamAddr, buffer, size);
 }

@@ -4,8 +4,6 @@
 
 namespace Iop
 {
-	class CCdvdman;
-
 	namespace Namco
 	{
 		class CAcRam : public CModule
@@ -17,6 +15,9 @@ namespace Iop
 			std::string GetId() const override;
 			std::string GetFunctionName(unsigned int) const override;
 			void Invoke(CMIPS&, unsigned int) override;
+
+			void Read(uint32, uint8*, uint32);
+			void Write(uint32, const uint8*, uint32);
 
 		private:
 			static const uint32_t g_extRamSize = 0x4000000;

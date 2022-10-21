@@ -7,10 +7,15 @@
 
 namespace Iop
 {
+	namespace Namco
+	{
+		class CAcRam;
+	}
+
 	class CNamcoArcade : public CModule, public CPadListener
 	{
 	public:
-		CNamcoArcade(CSifMan&);
+		CNamcoArcade(CSifMan&, Namco::CAcRam&);
 		virtual ~CNamcoArcade() = default;
 
 		std::string GetId() const override;
@@ -32,6 +37,8 @@ namespace Iop
 		bool Invoke003(uint32, uint32*, uint32, uint32*, uint32, uint8*);
 		bool Invoke004(uint32, uint32*, uint32, uint32*, uint32, uint8*);
 
+		Namco::CAcRam& m_acRam;
+		
 		CSifModuleAdapter m_module001;
 		CSifModuleAdapter m_module003;
 		CSifModuleAdapter m_module004;

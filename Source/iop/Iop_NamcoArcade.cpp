@@ -1,12 +1,14 @@
 #include "Iop_NamcoArcade.h"
 #include <cstring>
 #include "../Log.h"
+#include "namco_arcade/Iop_NamcoAcRam.h"
 
 using namespace Iop;
 
 #define LOG_NAME "iop_namcoarcade"
 
-CNamcoArcade::CNamcoArcade(CSifMan& sif)
+CNamcoArcade::CNamcoArcade(CSifMan& sif, Namco::CAcRam& acRam)
+	: m_acRam(acRam)
 {
 	m_module001 = CSifModuleAdapter(std::bind(&CNamcoArcade::Invoke001, this,
 											  std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5, std::placeholders::_6));
@@ -176,9 +178,6 @@ void CNamcoArcade::SetAxisState(unsigned int padNumber, PS2::CControllerInfo::BU
 {
 }
 
-static const uint32_t backupRamSize = 0x4000000;
-uint8 backupRam[backupRamSize];
-
 bool CNamcoArcade::Invoke001(uint32 method, uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
 {
 	//JVIO stuff?
@@ -196,9 +195,7 @@ bool CNamcoArcade::Invoke001(uint32 method, uint32* args, uint32 argsSize, uint3
 										 ramAddr, dstPtr, size);
 				if(ramAddr >= 0x40000000 && ramAddr < 0x50000000)
 				{
-					uint32 offset = ramAddr - 0x40000000;
-					assert(offset < backupRamSize);
-					memcpy(ram + dstPtr, backupRam + offset, size);
+					m_acRam.Read(ramAddr - 0x40000000, ram + dstPtr, size);
 				}
 				ret[0] = 0;
 				ret[1] = size;
@@ -271,9 +268,7 @@ bool CNamcoArcade::Invoke001(uint32 method, uint32* args, uint32 argsSize, uint3
 									 ramAddr, srcPtr, size);
 			if(ramAddr >= 0x40000000 && ramAddr < 0x50000000)
 			{
-				uint32 offset = ramAddr - 0x40000000;
-				assert(offset < backupRamSize);
-				memcpy(backupRam + offset, ram + srcPtr, size);
+				m_acRam.Write(ramAddr - 0x40000000, ram + srcPtr, size);
 			}
 			ret[0] = 0;
 			ret[1] = size;
