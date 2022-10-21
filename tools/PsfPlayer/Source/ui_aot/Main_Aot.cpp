@@ -158,19 +158,9 @@ AotBlockMap GetBlocksFromCache(const fs::path& blockCachePath, const char* cache
 		while(fileSize != 0)
 		{
 			AOT_BLOCK_KEY key = {};
-			key.category = static_cast<BLOCK_CATEGORY>(blockCacheStream.Read32());
-			key.crc = blockCacheStream.Read32();
-			key.begin = blockCacheStream.Read32();
-			key.end = blockCacheStream.Read32();
+			blockCacheStream.Read(&key, sizeof(AOT_BLOCK_KEY));
 
-			if(key.begin > key.end)
-			{
-				assert(0);
-				throw std::runtime_error("Consistency error in block ranges.");
-			}
-
-			uint32 blockSize = (key.end - key.begin) + 4;
-
+			uint32 blockSize = key.size + 4;
 			std::vector<uint32> blockCode(blockSize / 4);
 			blockCacheStream.Read(blockCode.data(), blockSize);
 
@@ -203,11 +193,11 @@ void CompileFunctions(CPsfVm& virtualMachine, const AotBlockMap& blocks, CMipsJi
 	{
 		const auto& blockKey = blockCachePair.first;
 
-		auto functionName = "aotblock_" + std::to_string(blockKey.crc) + "_" + std::to_string(blockKey.begin) + "_" + std::to_string(blockKey.end);
+		auto functionName = "aotblock_" + std::to_string(blockKey.hash.nD1) + std::to_string(blockKey.hash.nD0) + "_" + std::to_string(blockKey.size);
 
 		try
 		{
-			unsigned int functionSymbolIndex = CompileFunction(virtualMachine, jitter, blockCachePair.second, objectFile, functionName, blockKey.begin, blockKey.end);
+			unsigned int functionSymbolIndex = CompileFunction(virtualMachine, jitter, blockCachePair.second, objectFile, functionName, 0, blockKey.size);
 
 			FUNCTION_TABLE_ITEM tableItem = {blockKey, functionSymbolIndex};
 			functionTable.push_back(tableItem);
@@ -349,9 +339,8 @@ void Compile(const char* databasePathName, const char* cpuArchName, const char* 
 		for(const auto& functionTableItem : functionTable)
 		{
 			blockTableStream.Write32(functionTableItem.key.category);
-			blockTableStream.Write32(functionTableItem.key.crc);
-			blockTableStream.Write32(functionTableItem.key.begin);
-			blockTableStream.Write32(functionTableItem.key.end);
+			blockTableStream.Write(&functionTableItem.key.hash, sizeof(functionTableItem.key.hash));
+			blockTableStream.Write32(functionTableItem.key.size);
 
 			{
 				Jitter::CObjectFile::SYMBOL_REFERENCE ref;

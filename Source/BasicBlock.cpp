@@ -161,7 +161,7 @@ void CBasicBlock::Compile()
 	AOT_BLOCK* blocksBegin = &_aot_firstBlock;
 	AOT_BLOCK* blocksEnd = blocksBegin + _aot_blockCount;
 
-	AOT_BLOCK blockRef = {{m_category, hash, m_begin, m_end}, nullptr};
+	AOT_BLOCK blockRef = {{m_category, hash, m_end - m_begin}, nullptr};
 
 	static const auto blockComparer =
 	    [](const AOT_BLOCK& item1, const AOT_BLOCK& item2) {
@@ -176,8 +176,7 @@ void CBasicBlock::Compile()
 	assert(blockExists);
 	assert(blockIterator != blocksEnd);
 	assert(blockIterator->key.hash == hash);
-	assert(blockIterator->key.begin == m_begin);
-	assert(blockIterator->key.end == m_end);
+	assert(blockIterator->key.size == m_end - m_begin);
 
 	m_function = reinterpret_cast<void (*)(void*)>(blockIterator->fct);
 
@@ -189,7 +188,7 @@ void CBasicBlock::Compile()
 		std::lock_guard<std::mutex> lock(m_aotBlockOutputStreamMutex);
 
 		m_aotBlockOutputStream->Write32(m_category);
-		m_aotBlockOutputStream->Write32(blockChecksum);
+		m_aotBlockOutputStream->Write(&hash, sizeof(hash));
 		m_aotBlockOutputStream->Write32(m_begin);
 		m_aotBlockOutputStream->Write32(m_end);
 		m_aotBlockOutputStream->Write(blockData, blockSize * 4);

@@ -20,14 +20,13 @@ struct AOT_BLOCK_KEY
 {
 	BLOCK_CATEGORY category;
 	uint128 hash;
-	uint32 begin;
-	uint32 end;
+	uint32 size;
 
 	bool operator<(const AOT_BLOCK_KEY& k2) const
 	{
 		const auto& k1 = (*this);
-		return std::tie(k1.category, k1.hash, k1.begin, k1.end) <
-		       std::tie(k2.category, k2.hash, k2.begin, k2.end);
+		return std::tie(k1.category, k1.hash, k1.size) <
+		       std::tie(k2.category, k2.hash, k2.size);
 	}
 };
 static_assert(sizeof(AOT_BLOCK_KEY) == 0x20, "AOT_BLOCK_KEY must be 32 bytes long.");
