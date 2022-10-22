@@ -37,6 +37,8 @@ void CNamcoArcade::Invoke(CMIPS& context, unsigned int functionId)
 	throw std::runtime_error("Not implemented.");
 }
 
+uint16 g_jvsButtonState = 0;
+
 //Ref: http://daifukkat.su/files/jvs_wip.pdf
 enum
 {
@@ -47,6 +49,10 @@ enum
 	JVS_CMD_JVSREV = 0x12,
 	JVS_CMD_COMMVER = 0x13,
 	JVS_CMD_FEATCHK = 0x14,
+	
+	JVS_CMD_SWINP = 0x20,
+	JVS_CMD_COININP = 0x21,
+	
 	JVS_CMD_RESET = 0xF0,
 	JVS_CMD_SETADDR = 0xF1,
 };
@@ -130,8 +136,60 @@ void ProcessJvsPacket(const uint8* input, uint8* output)
 		case JVS_CMD_FEATCHK:
 			{
 				(*output++) = 0x01; //Command success
-				(*output++) = 0x00; //No features here.
-				(*dstSize) += 2;
+
+				(*output++) = 0x02; //Coin input
+				(*output++) = 0x02; //2 Coin slots
+				(*output++) = 0x00;
+				(*output++) = 0x00;
+
+				(*output++) = 0x01; //Switch input
+				(*output++) = 0x02; //2 players
+				(*output++) = 0x0C; //12 switches
+				(*output++) = 0x00;
+
+				(*output++) = 0x00; //End of features
+				
+				(*dstSize) += 10;
+			}
+			break;
+		case JVS_CMD_SWINP:
+			{
+				assert(inSize >= 2);
+				uint8 playerCount = (*input++);
+				uint8 byteCount = (*input++);
+				assert(playerCount == 2);
+				assert(byteCount == 2);
+				inWorkChecksum += playerCount;
+				inWorkChecksum += byteCount;
+				inSize -= 2;
+
+				(*output++) = 0x01; //Command success
+
+				(*output++) = 0x00; //Test
+				(*output++) = static_cast<uint8>(g_jvsButtonState); //Player 1
+				(*output++) = static_cast<uint8>(g_jvsButtonState >> 8); //Player 1
+				(*output++) = 0x00; //Player 2
+				(*output++) = 0x00; //Player 2
+
+				(*dstSize) += 6;
+			}
+			break;
+		case JVS_CMD_COININP:
+			{
+				assert(inSize != 0);
+				uint8 slotCount = (*input++);
+				assert(slotCount == 2);
+				inWorkChecksum += slotCount;
+				inSize--;
+
+				(*output++) = 0x01; //Command success
+
+				(*output++) = 0x00; //Coin 1 MSB
+				(*output++) = 0x04; //Coin 1 LSB
+				(*output++) = 0x00; //Coin 2 MSB
+				(*output++) = 0x04; //Coin 2 LSB
+
+				(*dstSize) += 5;
 			}
 			break;
 		default:
@@ -151,6 +209,31 @@ void CNamcoArcade::SetButtonState(unsigned int padNumber, PS2::CControllerInfo::
 	//{
 	//	*reinterpret_cast<uint16*>(ram + g_recvAddr + 0xC0) += 1;
 	//}
+	static uint16 buttonBits[PS2::CControllerInfo::MAX_BUTTONS] =
+	{
+		0x0000,
+		0x0000,
+		0x0000,
+		0x0000,
+		0x0020, //DPAD_UP,
+		0x0010, //DPAD_DOWN,
+		0x0008, //DPAD_LEFT,
+		0x0004, //DPAD_RIGHT,
+		0x0040, //SELECT,
+		0x0080, //START,
+		0x4000, //SQUARE,
+		0x8000, //TRIANGLE,
+		0x0001, //CIRCLE,
+		0x0002, //CROSS,
+		0x0000, //L1,
+		0x0000, //L2,
+		0x0000, //L3,
+		0x0000, //R1,
+		0x0000, //R2,
+		0x0000, //R3,
+	};
+	g_jvsButtonState &= ~buttonBits[button];
+	g_jvsButtonState |= (pressed ? buttonBits[button] : 0);
 	if(m_recvAddr && m_sendAddr)
 	{
 		auto sendData = reinterpret_cast<const uint16*>(ram + m_sendAddr);
@@ -167,7 +250,14 @@ void CNamcoArcade::SetButtonState(unsigned int padNumber, PS2::CControllerInfo::
 			if(pktId != 0)
 			{
 				CLog::GetInstance().Warn(LOG_NAME, "PktId: 0x%04X\r\n", pktId);
-				ProcessJvsPacket(reinterpret_cast<const uint8*>(sendData) + 0x22, reinterpret_cast<uint8*>(recvData) + 0x5A);
+				if(reinterpret_cast<const uint8*>(sendData)[0x122] == JVS_SYNC)
+				{
+					ProcessJvsPacket(reinterpret_cast<const uint8*>(sendData) + 0x122, reinterpret_cast<uint8*>(recvData) + 0x15A);
+				}
+				else
+				{
+					ProcessJvsPacket(reinterpret_cast<const uint8*>(sendData) + 0x22, reinterpret_cast<uint8*>(recvData) + 0x5A);
+				}
 				recvData[0x20] = pktId;
 			}
 		}
@@ -239,7 +329,14 @@ bool CNamcoArcade::Invoke001(uint32 method, uint32* args, uint32 argsSize, uint3
 						if(pktId != 0)
 						{
 							CLog::GetInstance().Warn(LOG_NAME, "PktId: 0x%04X\r\n", pktId);
-							ProcessJvsPacket(reinterpret_cast<const uint8*>(sendData) + 0x22, reinterpret_cast<uint8*>(recvData) + 0x5A);
+							if(reinterpret_cast<const uint8*>(sendData)[0x122] == JVS_SYNC)
+							{
+								ProcessJvsPacket(reinterpret_cast<const uint8*>(sendData) + 0x122, reinterpret_cast<uint8*>(recvData) + 0x15A);
+							}
+							else
+							{
+								ProcessJvsPacket(reinterpret_cast<const uint8*>(sendData) + 0x22, reinterpret_cast<uint8*>(recvData) + 0x5A);
+							}
 							recvData[0x20] = pktId;
 						}
 					}
