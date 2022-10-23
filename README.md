@@ -27,6 +27,40 @@ You can also build the emulator yourself and launch it through Xcode's debugger,
 
 **If you try to play a game without JIT enabled, you will experience a crash when you launch the game.**
 
+## Namco System 2x6 Arcade Support ##
+
+### Placing dongle images and disc images
+
+The files required to run arcade games should be placed inside the `arcaderoms` subdirectory of your `Play! Data Files` directory.
+
+```
+arcaderoms/
+  bldyr3b.zip
+  bldyr3b/
+    bldyr3b.chd
+  tekken4.zip
+  tekken4/
+    tef1dvd0.chd  
+```
+
+## General Troubleshooting ##
+
+#### Failed to open CHD file ####
+
+Please make sure your CHD files are in the proper format. It's possible to use `chdman` to verify wether your CDVD image is really a CDVD image.
+
+```
+chdman info -i image.chd
+```
+
+If you see a `GDDD` metadata in there, it means your CDVD image needs to be converted. It can be done this way:
+
+```
+mv image.chd image.chd.orig
+chdman extracthd -i image.chd.orig -o image.iso
+chdman createcd -i image.iso -o image.chd
+```
+
 ## Building ##
 
 ### Getting Started ###
