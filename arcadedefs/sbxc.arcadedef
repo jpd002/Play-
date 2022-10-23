@@ -12,9 +12,5 @@
 	"boot": "mc0:BASLOAD",
 	"patches":
 	[
-		{
-			"address": "0x002F5400",
-			"value": "0x0"
-		}
 	]
 }
