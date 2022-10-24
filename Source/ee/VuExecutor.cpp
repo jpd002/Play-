@@ -40,26 +40,28 @@ BasicBlockPtr CVuExecutor::BlockFactory(CMIPS& context, uint32 begin, uint32 end
 	uint128 hash;
 	memcpy(&hash, &xxHash, sizeof(xxHash));
 	static_assert(sizeof(hash) == sizeof(xxHash));
-	auto blockKey = std::make_pair(hash, end - begin);
+	auto blockKey = std::make_pair(hash, blockSizeByte);
 
-	auto blockIterator = m_cachedBlocks.find(blockKey);
-	if(blockIterator != std::end(m_cachedBlocks))
+	auto beginBlockIterator = m_cachedBlocks.lower_bound(blockKey);
+	auto endBlockIterator = m_cachedBlocks.upper_bound(blockKey);
+	for(auto blockIterator = beginBlockIterator; blockIterator != endBlockIterator; blockIterator++)
 	{
 		const auto& basicBlock(blockIterator->second);
 		if(basicBlock->GetBeginAddress() == begin && basicBlock->GetEndAddress() == end)
 		{
 			return basicBlock;
 		}
-		else
-		{
-			auto result = std::make_shared<CVuBasicBlock>(context, begin, end, m_blockCategory);
-			result->CopyFunctionFrom(basicBlock);
-			return result;
-		}
 	}
 
 	auto result = std::make_shared<CVuBasicBlock>(context, begin, end, m_blockCategory);
-	result->Compile();
+	if(beginBlockIterator != endBlockIterator)
+	{
+		result->CopyFunctionFrom(beginBlockIterator->second);
+	}
+	else
+	{
+		result->Compile();
+	}
 	m_cachedBlocks.insert(std::make_pair(blockKey, result));
 	return result;
 }

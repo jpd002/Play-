@@ -1,6 +1,6 @@
 #pragma once
 
-#include <unordered_map>
+#include <map>
 #include "../GenericMipsExecutor.h"
 
 class CVuExecutor : public CGenericMipsExecutor<BlockLookupOneWay, 8>
@@ -13,7 +13,7 @@ public:
 
 protected:
 	typedef std::pair<uint128, uint32> CachedBlockKey;
-	typedef std::map<CachedBlockKey, BasicBlockPtr> CachedBlockMap;
+	typedef std::multimap<CachedBlockKey, BasicBlockPtr> CachedBlockMap;
 	CachedBlockMap m_cachedBlocks;
 
 	BasicBlockPtr BlockFactory(CMIPS&, uint32, uint32) override;

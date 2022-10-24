@@ -147,7 +147,7 @@ BasicBlockPtr CEeExecutor::BlockFactory(CMIPS& context, uint32 start, uint32 end
 	uint128 hash;
 	memcpy(&hash, &xxHash, sizeof(xxHash));
 	static_assert(sizeof(hash) == sizeof(xxHash));
-	auto blockKey = std::make_pair(hash, end - start);
+	auto blockKey = std::make_pair(hash, blockSize);
 
 	bool hasBreakpoint = m_context.HasBreakpointInRange(start, end);
 	if(!hasBreakpoint)
