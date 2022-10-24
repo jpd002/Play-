@@ -2,7 +2,6 @@
 #include "../Ps2Const.h"
 #include "AlignedAlloc.h"
 #include "EeBasicBlock.h"
-#include <zstd_zlibwrapper.h>
 
 #define XXH_INLINE_ALL
 #include "xxhash.h"

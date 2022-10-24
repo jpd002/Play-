@@ -1,6 +1,5 @@
 #include "VuExecutor.h"
 #include "VuBasicBlock.h"
-#include <zstd_zlibwrapper.h>
 
 #define XXH_INLINE_ALL
 #include "xxhash.h"
