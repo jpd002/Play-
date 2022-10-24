@@ -132,6 +132,7 @@ void CBasicBlock::Compile()
 #ifdef AOT_ENABLED
 
 	size_t blockSize = ((m_end - m_begin) / 4) + 1;
+	size_t blockSizeByte = blockSize * 4;
 	auto blockData = new uint32[blockSize];
 
 	if(!IsEmpty())
@@ -148,7 +149,7 @@ void CBasicBlock::Compile()
 		blockData[0] = ~0;
 	}
 
-	auto xxHash = XXH3_128bits(blockData, blockSize * 4);
+	auto xxHash = XXH3_128bits(blockData, blockSizeByte);
 	uint128 hash;
 	memcpy(&hash, &xxHash, sizeof(xxHash));
 
@@ -159,7 +160,7 @@ void CBasicBlock::Compile()
 	AOT_BLOCK* blocksBegin = &_aot_firstBlock;
 	AOT_BLOCK* blocksEnd = blocksBegin + _aot_blockCount;
 
-	AOT_BLOCK blockRef = {{m_category, hash, m_end - m_begin}, nullptr};
+	AOT_BLOCK blockRef = {{m_category, hash, blockSizeByte}, nullptr};
 
 	static const auto blockComparer =
 	    [](const AOT_BLOCK& item1, const AOT_BLOCK& item2) {
@@ -174,7 +175,7 @@ void CBasicBlock::Compile()
 	assert(blockExists);
 	assert(blockIterator != blocksEnd);
 	assert(blockIterator->key.hash == hash);
-	assert(blockIterator->key.size == m_end - m_begin);
+	assert(blockIterator->key.size == blockSizeByte);
 
 	m_function = reinterpret_cast<void (*)(void*)>(blockIterator->fct);
 
@@ -187,9 +188,8 @@ void CBasicBlock::Compile()
 
 		m_aotBlockOutputStream->Write32(m_category);
 		m_aotBlockOutputStream->Write(&hash, sizeof(hash));
-		m_aotBlockOutputStream->Write32(m_begin);
-		m_aotBlockOutputStream->Write32(m_end);
-		m_aotBlockOutputStream->Write(blockData, blockSize * 4);
+		m_aotBlockOutputStream->Write32(blockSizeByte);
+		m_aotBlockOutputStream->Write(blockData, blockSizeByte);
 	}
 #endif
 }
