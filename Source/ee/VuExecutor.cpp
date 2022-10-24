@@ -1,7 +1,5 @@
 #include "VuExecutor.h"
 #include "VuBasicBlock.h"
-
-#define XXH_INLINE_ALL
 #include "xxhash.h"
 
 CVuExecutor::CVuExecutor(CMIPS& context, uint32 maxAddress)

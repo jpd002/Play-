@@ -2,8 +2,6 @@
 #include "../Ps2Const.h"
 #include "AlignedAlloc.h"
 #include "EeBasicBlock.h"
-
-#define XXH_INLINE_ALL
 #include "xxhash.h"
 
 #if defined(__unix__) || defined(__ANDROID__) || defined(__APPLE__)
