@@ -28,6 +28,13 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: 16.17
+    - name: Run CodeGenTestSuite
+      run: |
+        cd $GITHUB_WORKSPACE/deps/CodeGen/js
+        npm install
+        tsc
+        cd $GITHUB_WORKSPACE/build/Source/ui_js/Source/CodeGen
+        node --experimental-wasm-threads --experimental-wasm-simd $GITHUB_WORKSPACE/deps/CodeGen/js/out/index.js
     - name: Build Play Browser
       run: |
         cd js/play_browser
