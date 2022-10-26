@@ -121,7 +121,7 @@ void CVuBasicBlock::CompileRange(CMipsJitter* jitter)
 
 		uint32 compileHints = hints[instructionIndex];
 		arch->SetRelativePipeTime(relativePipeTime, compileHints);
-		arch->CompileInstruction(addressHi, jitter, &m_context);
+		arch->CompileInstruction(addressHi, jitter, &m_context, addressHi - m_begin);
 
 		if(savedReg != 0)
 		{
@@ -149,7 +149,7 @@ void CVuBasicBlock::CompileRange(CMipsJitter* jitter)
 			clearPendingXgKick();
 		}
 
-		arch->CompileInstruction(addressLo, jitter, &m_context);
+		arch->CompileInstruction(addressLo, jitter, &m_context, addressLo - m_begin);
 
 		if(address == integerBranchDelayInfo.useRegAddress)
 		{
@@ -194,7 +194,7 @@ void CVuBasicBlock::CompileRange(CMipsJitter* jitter)
 				//We need to compile the instruction at the branch target because it will be executed
 				//before the branch is taken
 				uint32 branchTgtAddress = branchOpcodeAddr + VUShared::GetBranch(branchOpcodeLo & 0x7FF) + 8;
-				arch->CompileInstruction(branchTgtAddress, jitter, &m_context);
+				arch->CompileInstruction(branchTgtAddress, jitter, &m_context, address - m_begin);
 			}
 		}
 

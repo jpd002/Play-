@@ -9,7 +9,7 @@ class CMA_MIPSIV : public CMIPSArchitecture
 public:
 	CMA_MIPSIV(MIPS_REGSIZE);
 	virtual ~CMA_MIPSIV() = default;
-	void CompileInstruction(uint32, CMipsJitter*, CMIPS*) override;
+	void CompileInstruction(uint32, CMipsJitter*, CMIPS*, uint32) override;
 	void GetInstructionMnemonic(CMIPS*, uint32, uint32, char*, unsigned int) override;
 	void GetInstructionOperands(CMIPS*, uint32, uint32, char*, unsigned int) override;
 	MIPS_BRANCH_TYPE IsInstructionBranch(CMIPS*, uint32, uint32) override;

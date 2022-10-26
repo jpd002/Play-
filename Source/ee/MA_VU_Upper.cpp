@@ -17,9 +17,9 @@ CMA_VU::CUpper::CUpper()
 {
 }
 
-void CMA_VU::CUpper::CompileInstruction(uint32 nAddress, CMipsJitter* codeGen, CMIPS* pCtx)
+void CMA_VU::CUpper::CompileInstruction(uint32 nAddress, CMipsJitter* codeGen, CMIPS* pCtx, uint32 instrPositon)
 {
-	SetupQuickVariables(nAddress, codeGen, pCtx);
+	SetupQuickVariables(nAddress, codeGen, pCtx, instrPositon);
 
 	m_nDest = (uint8)((m_nOpcode >> 21) & 0x000F);
 	m_nFT = (uint8)((m_nOpcode >> 16) & 0x001F);

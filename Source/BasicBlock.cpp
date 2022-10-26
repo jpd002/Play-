@@ -10,7 +10,8 @@
 
 #ifdef AOT_ENABLED
 
-#include <zstd_zlibwrapper.h>
+#include "xxhash.h"
+
 #include "StdStream.h"
 #include "StdStreamUtils.h"
 
@@ -130,6 +131,7 @@ void CBasicBlock::Compile()
 #ifdef AOT_ENABLED
 
 	size_t blockSize = ((m_end - m_begin) / 4) + 1;
+	size_t blockSizeByte = blockSize * 4;
 	auto blockData = new uint32[blockSize];
 
 	if(!IsEmpty())
@@ -146,7 +148,9 @@ void CBasicBlock::Compile()
 		blockData[0] = ~0;
 	}
 
-	uint32 blockChecksum = crc32(0, reinterpret_cast<Bytef*>(blockData), blockSize * 4);
+	auto xxHash = XXH3_128bits(blockData, blockSizeByte);
+	uint128 hash;
+	memcpy(&hash, &xxHash, sizeof(xxHash));
 
 #endif
 
@@ -155,7 +159,7 @@ void CBasicBlock::Compile()
 	AOT_BLOCK* blocksBegin = &_aot_firstBlock;
 	AOT_BLOCK* blocksEnd = blocksBegin + _aot_blockCount;
 
-	AOT_BLOCK blockRef = {{m_category, blockChecksum, m_begin, m_end}, nullptr};
+	AOT_BLOCK blockRef = {{m_category, hash, blockSizeByte}, nullptr};
 
 	static const auto blockComparer =
 	    [](const AOT_BLOCK& item1, const AOT_BLOCK& item2) {
@@ -169,9 +173,8 @@ void CBasicBlock::Compile()
 
 	assert(blockExists);
 	assert(blockIterator != blocksEnd);
-	assert(blockIterator->key.crc == blockChecksum);
-	assert(blockIterator->key.begin == m_begin);
-	assert(blockIterator->key.end == m_end);
+	assert(blockIterator->key.hash == hash);
+	assert(blockIterator->key.size == blockSizeByte);
 
 	m_function = reinterpret_cast<void (*)(void*)>(blockIterator->fct);
 
@@ -183,10 +186,9 @@ void CBasicBlock::Compile()
 		std::lock_guard<std::mutex> lock(m_aotBlockOutputStreamMutex);
 
 		m_aotBlockOutputStream->Write32(m_category);
-		m_aotBlockOutputStream->Write32(blockChecksum);
-		m_aotBlockOutputStream->Write32(m_begin);
-		m_aotBlockOutputStream->Write32(m_end);
-		m_aotBlockOutputStream->Write(blockData, blockSize * 4);
+		m_aotBlockOutputStream->Write(&hash, sizeof(hash));
+		m_aotBlockOutputStream->Write32(blockSizeByte);
+		m_aotBlockOutputStream->Write(blockData, blockSizeByte);
 	}
 #endif
 }
@@ -206,7 +208,7 @@ void CBasicBlock::CompileRange(CMipsJitter* jitter)
 		m_context.m_pArch->CompileInstruction(
 		    address,
 		    jitter,
-		    &m_context);
+		    &m_context, address - m_begin);
 		//Sanity check
 		assert(jitter->IsStackEmpty());
 	}
@@ -275,7 +277,9 @@ void CBasicBlock::CompileEpilog(CMipsJitter* jitter)
 	}
 	jitter->Else();
 	{
-		jitter->PushCst(m_end + 4);
+		jitter->PushRel(offsetof(CMIPS, m_State.nPC));
+		jitter->PushCst(m_end - m_begin + 4);
+		jitter->Add();
 		jitter->PullRel(offsetof(CMIPS, m_State.nPC));
 
 #if !defined(AOT_BUILD_CACHE) && !defined(__EMSCRIPTEN__)
@@ -405,6 +409,31 @@ void CBasicBlock::HandleExternalFunctionReference(uintptr_t symbol, uint32 offse
 			m_linkBlockTrampolineOffset[LINK_SLOT_NEXT] = offset;
 		}
 	}
+}
+
+void CBasicBlock::CopyFunctionFrom(const std::shared_ptr<CBasicBlock>& other)
+{
+#ifndef AOT_USE_CACHE
+	m_function = other->m_function.CreateInstance();
+	std::copy(std::begin(other->m_linkBlockTrampolineOffset), std::end(other->m_linkBlockTrampolineOffset), m_linkBlockTrampolineOffset);
+#ifdef _DEBUG
+	std::copy(std::begin(other->m_linkBlock), std::end(other->m_linkBlock), m_linkBlock);
+#endif
+#ifdef _DEBUG
+	if(m_linkBlock[LINK_SLOT_NEXT])
+#endif
+	{
+		UnlinkBlock(LINK_SLOT_NEXT);
+	}
+#ifdef _DEBUG
+	if(m_linkBlock[LINK_SLOT_BRANCH])
+#endif
+	{
+		UnlinkBlock(LINK_SLOT_BRANCH);
+	}
+#else
+	m_function = basicBlock->m_function;
+#endif
 }
 
 #ifdef DEBUGGER_INCLUDED

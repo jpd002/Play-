@@ -62,7 +62,7 @@ public:
 	static_assert(sizeof(PCCR) == 4, "PCCR must be 4 bytes long.");
 
 	CCOP_SCU(MIPS_REGSIZE);
-	virtual void CompileInstruction(uint32, CMipsJitter*, CMIPS*) override;
+	virtual void CompileInstruction(uint32, CMipsJitter*, CMIPS*, uint32) override;
 	virtual void GetInstruction(uint32, char*) override;
 	virtual void GetArguments(uint32, uint32, char*) override;
 	virtual uint32 GetEffectiveAddress(uint32, uint32) override;

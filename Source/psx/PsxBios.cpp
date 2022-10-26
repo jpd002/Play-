@@ -434,7 +434,7 @@ void CPsxBios::HandleInterrupt()
 void CPsxBios::HandleException()
 {
 	assert(m_cpu.m_State.nHasException);
-	uint32 searchAddress = m_cpu.m_State.nCOP0[CCOP_SCU::EPC];
+	uint32 searchAddress = m_cpu.m_pAddrTranslator(&m_cpu, m_cpu.m_State.nCOP0[CCOP_SCU::EPC]);
 	uint32 callInstruction = m_cpu.m_pMemoryMap->GetWord(searchAddress);
 	if(callInstruction != 0x0000000C)
 	{

@@ -1,6 +1,6 @@
 #include "VuExecutor.h"
 #include "VuBasicBlock.h"
-#include <zstd_zlibwrapper.h>
+#include "xxhash.h"
 
 CVuExecutor::CVuExecutor(CMIPS& context, uint32 maxAddress)
     : CGenericMipsExecutor(context, maxAddress, BLOCK_CATEGORY_PS2_VU)
@@ -34,24 +34,33 @@ BasicBlockPtr CVuExecutor::BlockFactory(CMIPS& context, uint32 begin, uint32 end
 		blockMemory[index + 1] = opcodeHi;
 	}
 
-	uint32 checksum = crc32(0, reinterpret_cast<Bytef*>(blockMemory), blockSizeByte);
+	auto xxHash = XXH3_128bits(blockMemory, blockSizeByte);
+	uint128 hash;
+	memcpy(&hash, &xxHash, sizeof(xxHash));
+	static_assert(sizeof(hash) == sizeof(xxHash));
+	auto blockKey = std::make_pair(hash, blockSizeByte);
 
-	auto equalRange = m_cachedBlocks.equal_range(checksum);
-	for(; equalRange.first != equalRange.second; ++equalRange.first)
+	auto beginBlockIterator = m_cachedBlocks.lower_bound(blockKey);
+	auto endBlockIterator = m_cachedBlocks.upper_bound(blockKey);
+	for(auto blockIterator = beginBlockIterator; blockIterator != endBlockIterator; blockIterator++)
 	{
-		const auto& basicBlock(equalRange.first->second);
-		if(basicBlock->GetBeginAddress() == begin)
+		const auto& basicBlock(blockIterator->second);
+		if(basicBlock->GetBeginAddress() == begin && basicBlock->GetEndAddress() == end)
 		{
-			if(basicBlock->GetEndAddress() == end)
-			{
-				return basicBlock;
-			}
+			return basicBlock;
 		}
 	}
 
 	auto result = std::make_shared<CVuBasicBlock>(context, begin, end, m_blockCategory);
-	result->Compile();
-	m_cachedBlocks.insert(std::make_pair(checksum, result));
+	if(beginBlockIterator != endBlockIterator)
+	{
+		result->CopyFunctionFrom(beginBlockIterator->second);
+	}
+	else
+	{
+		result->Compile();
+	}
+	m_cachedBlocks.insert(std::make_pair(blockKey, result));
 	return result;
 }
 

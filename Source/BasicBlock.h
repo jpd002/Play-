@@ -16,21 +16,22 @@ enum BLOCK_CATEGORY : uint32
 	BLOCK_CATEGORY_PSP = 0x50535000,
 };
 
+#pragma pack(push, 1)
 struct AOT_BLOCK_KEY
 {
 	BLOCK_CATEGORY category;
-	uint32 crc;
-	uint32 begin;
-	uint32 end;
+	uint128 hash;
+	uint32 size;
 
 	bool operator<(const AOT_BLOCK_KEY& k2) const
 	{
 		const auto& k1 = (*this);
-		return std::tie(k1.category, k1.crc, k1.begin, k1.end) <
-		       std::tie(k2.category, k2.crc, k2.begin, k2.end);
+		return std::tie(k1.category, k1.hash, k1.size) <
+		       std::tie(k2.category, k2.hash, k2.size);
 	}
 };
-static_assert(sizeof(AOT_BLOCK_KEY) == 0x10, "AOT_BLOCK_KEY must be 16 bytes long.");
+#pragma pack(pop)
+static_assert(sizeof(AOT_BLOCK_KEY) == 0x18, "AOT_BLOCK_KEY must be 24 bytes long.");
 
 namespace Jitter
 {
@@ -91,6 +92,8 @@ public:
 #ifdef AOT_BUILD_CACHE
 	static void SetAotBlockOutputStream(Framework::CStdStream*);
 #endif
+
+	void CopyFunctionFrom(const std::shared_ptr<CBasicBlock>& basicBlock);
 
 protected:
 	uint32 m_begin;

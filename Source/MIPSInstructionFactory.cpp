@@ -11,11 +11,12 @@ CMIPSInstructionFactory::CMIPSInstructionFactory(MIPS_REGSIZE nRegSize)
 {
 }
 
-void CMIPSInstructionFactory::SetupQuickVariables(uint32 nAddress, CMipsJitter* codeGen, CMIPS* pCtx)
+void CMIPSInstructionFactory::SetupQuickVariables(uint32 nAddress, CMipsJitter* codeGen, CMIPS* pCtx, uint32 instrPosition)
 {
 	m_pCtx = pCtx;
 	m_codeGen = codeGen;
 	m_nAddress = nAddress;
+	m_instrPosition = instrPosition;
 
 	m_nOpcode = m_pCtx->m_pMemoryMap->GetInstruction(m_nAddress);
 }
@@ -53,7 +54,9 @@ void CMIPSInstructionFactory::CheckTLBExceptions(bool isWrite)
 	m_codeGen->PushCst(MIPS_EXCEPTION_NONE);
 	m_codeGen->BeginIf(Jitter::CONDITION_NE);
 	{
-		m_codeGen->PushCst(m_nAddress);
+		m_codeGen->PushRel(offsetof(CMIPS, m_State.nPC));
+		m_codeGen->PushCst(m_instrPosition);
+		m_codeGen->Add();
 		m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP0[CCOP_SCU::EPC]));
 		m_codeGen->JumpTo(reinterpret_cast<void*>(&HandleTLBException));
 	}
@@ -153,7 +156,9 @@ void CMIPSInstructionFactory::Branch(Jitter::CONDITION condition)
 
 	m_codeGen->BeginIf(condition);
 	{
-		m_codeGen->PushCst((m_nAddress + 4) + CMIPS::GetBranch(nImmediate));
+		m_codeGen->PushRel(offsetof(CMIPS, m_State.nPC));
+		m_codeGen->PushCst((m_instrPosition + 4) + CMIPS::GetBranch(nImmediate));
+		m_codeGen->Add();
 		m_codeGen->PullRel(offsetof(CMIPS, m_State.nDelayedJumpAddr));
 	}
 	m_codeGen->EndIf();
@@ -168,13 +173,13 @@ void CMIPSInstructionFactory::BranchLikely(Jitter::CONDITION condition)
 
 	m_codeGen->BeginIf(condition);
 	{
-		m_codeGen->PushCst((m_nAddress + 4) + CMIPS::GetBranch(nImmediate));
+		m_codeGen->PushRel(offsetof(CMIPS, m_State.nPC));
+		m_codeGen->PushCst((m_instrPosition + 4) + CMIPS::GetBranch(nImmediate));
+		m_codeGen->Add();
 		m_codeGen->PullRel(offsetof(CMIPS, m_State.nDelayedJumpAddr));
 	}
 	m_codeGen->Else();
 	{
-		m_codeGen->PushCst(m_nAddress + 8);
-		m_codeGen->PullRel(offsetof(CMIPS, m_State.nPC));
 		m_codeGen->Goto(m_codeGen->GetFinalBlockLabel());
 	}
 	m_codeGen->EndIf();

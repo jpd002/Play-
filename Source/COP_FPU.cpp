@@ -24,9 +24,9 @@ CCOP_FPU::CCOP_FPU(MIPS_REGSIZE regSize)
 	SetupReflectionTables();
 }
 
-void CCOP_FPU::CompileInstruction(uint32 address, CMipsJitter* codeGen, CMIPS* ctx)
+void CCOP_FPU::CompileInstruction(uint32 address, CMipsJitter* codeGen, CMIPS* ctx, uint32 instrPosition)
 {
-	SetupQuickVariables(address, codeGen, ctx);
+	SetupQuickVariables(address, codeGen, ctx, instrPosition);
 
 	m_ft = static_cast<uint8>((m_nOpcode >> 16) & 0x1F);
 	m_fs = static_cast<uint8>((m_nOpcode >> 11) & 0x1F);

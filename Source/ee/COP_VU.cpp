@@ -30,9 +30,9 @@ CCOP_VU::CCOP_VU(MIPS_REGSIZE nRegSize)
 	SetupReflectionTables();
 }
 
-void CCOP_VU::CompileInstruction(uint32 nAddress, CMipsJitter* codeGen, CMIPS* pCtx)
+void CCOP_VU::CompileInstruction(uint32 nAddress, CMipsJitter* codeGen, CMIPS* pCtx, uint32 instrPosition)
 {
-	SetupQuickVariables(nAddress, codeGen, pCtx);
+	SetupQuickVariables(nAddress, codeGen, pCtx, instrPosition);
 
 	m_nDest = (uint8)((m_nOpcode >> 21) & 0x0F);
 

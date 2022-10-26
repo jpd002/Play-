@@ -2,7 +2,7 @@
 #include "../Ps2Const.h"
 #include "AlignedAlloc.h"
 #include "EeBasicBlock.h"
-#include <zstd_zlibwrapper.h>
+#include "xxhash.h"
 
 #if defined(__unix__) || defined(__ANDROID__) || defined(__APPLE__)
 #include <sys/mman.h>
@@ -141,8 +141,11 @@ BasicBlockPtr CEeExecutor::BlockFactory(CMIPS& context, uint32 start, uint32 end
 		blockMemory[index] = opcode;
 	}
 
-	uint32 checksum = crc32(0, reinterpret_cast<Bytef*>(blockMemory), blockSize);
-	auto blockKey = std::make_tuple(checksum, start, end);
+	auto xxHash = XXH3_128bits(blockMemory, blockSize);
+	uint128 hash;
+	memcpy(&hash, &xxHash, sizeof(xxHash));
+	static_assert(sizeof(hash) == sizeof(xxHash));
+	auto blockKey = std::make_pair(hash, blockSize);
 
 	bool hasBreakpoint = m_context.HasBreakpointInRange(start, end);
 	if(!hasBreakpoint)
@@ -151,9 +154,18 @@ BasicBlockPtr CEeExecutor::BlockFactory(CMIPS& context, uint32 start, uint32 end
 		if(blockIterator != std::end(m_cachedBlocks))
 		{
 			const auto& basicBlock(blockIterator->second);
-			uint32 recycleCount = basicBlock->GetRecycleCount();
-			basicBlock->SetRecycleCount(std::min<uint32>(RECYCLE_NOLINK_THRESHOLD, recycleCount + 1));
-			return basicBlock;
+			if(basicBlock->GetBeginAddress() == start && basicBlock->GetEndAddress() == end)
+			{
+				uint32 recycleCount = basicBlock->GetRecycleCount();
+				basicBlock->SetRecycleCount(std::min<uint32>(RECYCLE_NOLINK_THRESHOLD, recycleCount + 1));
+				return basicBlock;
+			}
+			else
+			{
+				auto result = std::make_shared<CEeBasicBlock>(context, start, end, m_blockCategory);
+				result->CopyFunctionFrom(basicBlock);
+				return result;
+			}
 		}
 	}
 

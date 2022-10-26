@@ -23,7 +23,7 @@ class CMIPSInstructionFactory
 public:
 	CMIPSInstructionFactory(MIPS_REGSIZE);
 	virtual ~CMIPSInstructionFactory() = default;
-	virtual void CompileInstruction(uint32, CMipsJitter*, CMIPS*) = 0;
+	virtual void CompileInstruction(uint32, CMipsJitter*, CMIPS*, uint32) = 0;
 	void Illegal();
 
 protected:
@@ -36,11 +36,12 @@ protected:
 	void Branch(Jitter::CONDITION);
 	void BranchLikely(Jitter::CONDITION);
 
-	void SetupQuickVariables(uint32, CMipsJitter*, CMIPS*);
+	void SetupQuickVariables(uint32, CMipsJitter*, CMIPS*, uint32);
 
 	CMipsJitter* m_codeGen = nullptr;
 	CMIPS* m_pCtx = nullptr;
 	uint32 m_nOpcode = 0;
 	uint32 m_nAddress = 0;
+	uint32 m_instrPosition = 0;
 	MIPS_REGSIZE m_regSize;
 };

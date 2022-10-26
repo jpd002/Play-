@@ -95,6 +95,18 @@ if(NOT TARGET libzstd_zlibwrapper_static)
 endif()
 LIST(APPEND PROJECT_LIBS libzstd_zlibwrapper_static)
 
+if(NOT TARGET xxHash::xxhash)
+	option(BUILD_SHARED_LIBS "Build shared libs" OFF)
+	set(XXHASH_BUILD_ENABLE_INLINE_API ON)
+	set(XXHASH_BUILD_XXHSUM OFF)
+	add_subdirectory(
+		${CMAKE_CURRENT_SOURCE_DIR}/../deps/Dependencies/xxHash/cmake_unofficial/
+		${CMAKE_CURRENT_BINARY_DIR}/xxHash
+		EXCLUDE_FROM_ALL
+	)
+endif()
+LIST(APPEND PROJECT_LIBS xxHash::xxhash)
+
 # If ICU is available, add its libraries because Framework might need its functions
 find_package(ICUUC)
 if(ICUUC_FOUND)
