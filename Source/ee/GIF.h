@@ -63,6 +63,7 @@ public:
 
 	CGSHandler* GetGsHandler();
 
+	uint32 GetActivePath() const;
 	void SetPath3Masked(bool);
 
 	void LoadState(Framework::CZipArchiveReader&);

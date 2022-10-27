@@ -543,6 +543,11 @@ CGSHandler* CGIF::GetGsHandler()
 	return m_gs;
 }
 
+uint32 CGIF::GetActivePath() const
+{
+	return m_activePath;
+}
+
 void CGIF::SetPath3Masked(bool masked)
 {
 	bool unmasking = m_path3Masked && !masked;
