@@ -124,6 +124,7 @@ set(SRC_FILES
 
 set(QT_DEBUGGER_MOC_HEADERS
 	${SRC_ROOT}/AddressListViewWnd.h
+	${SRC_ROOT}/FunctionsView.h
 	${SRC_ROOT}/QtDisAsmTableModel.h
 	${SRC_ROOT}/QtDisAsmVuTableModel.h
 	${SRC_ROOT}/QtGenericTableModel.h

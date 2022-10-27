@@ -18,7 +18,6 @@
 CFunctionsView::CFunctionsView(QMdiArea* parent)
     : QMdiSubWindow(parent)
 {
-
 	resize(300, 700);
 
 	parent->addSubWindow(this);
@@ -30,6 +29,7 @@ CFunctionsView::CFunctionsView(QMdiArea* parent)
 	auto btnDelete = new QPushButton("Delete", this);
 	auto btnImport = new QPushButton("Load ELF symbols", this);
 
+	connect(this, &CFunctionsView::OnTagListChange, this, &CFunctionsView::RefreshList);
 	connect(m_treeWidget, &QTreeWidget::itemDoubleClicked, this, &CFunctionsView::OnListDblClick);
 	connect(btnNew, &QPushButton::clicked, this, &CFunctionsView::OnNewClick);
 	connect(btnRename, &QPushButton::clicked, this, &CFunctionsView::OnRenameClick);
@@ -137,8 +137,8 @@ void CFunctionsView::SetContext(CMIPS* context, CBiosDebugInfoProvider* biosDebu
 	m_biosDebugInfoProvider = biosDebugInfoProvider;
 
 	m_functionTagsChangeConnection = m_context->m_Functions.OnTagListChange.Connect(
-	    std::bind(&CFunctionsView::RefreshList, this));
-	RefreshList();
+	    std::bind(&CFunctionsView::OnTagListChange, this));
+	OnTagListChange();
 }
 
 void CFunctionsView::OnListDblClick(QTreeWidgetItem* item, int column)

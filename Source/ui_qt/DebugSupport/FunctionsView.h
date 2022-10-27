@@ -12,6 +12,8 @@
 
 class CFunctionsView : public QMdiSubWindow
 {
+	Q_OBJECT
+
 public:
 	CFunctionsView(QMdiArea*);
 	virtual ~CFunctionsView() = default;
@@ -28,6 +30,9 @@ public slots:
 	void OnRenameClick();
 	void OnDeleteClick();
 	void OnImportClick();
+
+signals:
+	void OnTagListChange();
 
 protected:
 	void showEvent(QShowEvent*) Q_DECL_OVERRIDE;
