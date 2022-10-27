@@ -213,8 +213,10 @@ void CVpu::ProcessXgKick(uint32 address)
 	address += m_gif.ProcessSinglePacket(GetVuMemory(), PS2::VUMEM1SIZE, address, PS2::VUMEM1SIZE, metadata);
 	if((address == PS2::VUMEM1SIZE) && (m_gif.GetActivePath() == 1))
 	{
-		m_gif.ProcessSinglePacket(GetVuMemory(), PS2::VUMEM1SIZE, 0, PS2::VUMEM1SIZE, metadata);
+		address = 0;
+		address += m_gif.ProcessSinglePacket(GetVuMemory(), PS2::VUMEM1SIZE, address, PS2::VUMEM1SIZE, metadata);
 	}
+	assert(m_gif.GetActivePath() == 0);
 
 #ifdef DEBUGGER_INCLUDED
 	SaveMiniState();
