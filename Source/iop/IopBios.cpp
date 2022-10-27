@@ -2986,9 +2986,25 @@ uint32 CIopBios::AssembleModuleStarterProc(CMIPSAssembler& assembler)
 {
 	uint32 address = BIOS_HANDLERS_BASE + assembler.GetProgramSize() * 4;
 
+	//PROCESSMODULESTART sets some state in S0, S1, S2, S3 that is required by FINISHMODULESTART
+
 	assembler.ADDIU(CMIPS::V0, CMIPS::R0, SYSCALL_PROCESSMODULESTART);
 	assembler.SYSCALL();
-	assembler.ADDU(CMIPS::A0, CMIPS::V0, CMIPS::R0);
+
+	//Save module start/stop result
+	assembler.ADDIU(CMIPS::S4, CMIPS::V0, CMIPS::R0);
+
+	//Wait a little bit before reporting result. If we initialize/load modules too fast,
+	//there's a chance the current module won't have time to complete its init (through threads)
+	//properly before another module starts. Capcom vs SNK2 has this problem where multiple
+	//modules will call SdInit, but the order in which they are called is important.
+	assembler.LI(CMIPS::A0, 0x40000);
+	assembler.ADDIU(CMIPS::V0, CMIPS::R0, SYSCALL_DELAYTHREADTICKS);
+	assembler.SYSCALL();
+
+	//Restore module start/stop result
+	assembler.ADDU(CMIPS::A0, CMIPS::S4, CMIPS::R0);
+
 	assembler.ADDIU(CMIPS::V0, CMIPS::R0, SYSCALL_FINISHMODULESTART);
 	assembler.SYSCALL();
 
