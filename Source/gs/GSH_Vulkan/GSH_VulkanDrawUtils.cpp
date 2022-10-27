@@ -11,6 +11,7 @@ Nuanceur::CUintRvalue CDrawUtils::GetDepth(Nuanceur::CShaderBuilder& b, uint32 d
 	{
 	default:
 		assert(false);
+		[[fallthrough]];
 	case CGSHandler::PSMZ32:
 		return CMemoryUtils::Memory_Read32(b, memoryBuffer, depthAddress);
 	case CGSHandler::PSMZ24:
@@ -30,6 +31,7 @@ Nuanceur::CIntRvalue CDrawUtils::ClampTexCoord(Nuanceur::CShaderBuilder& b, uint
 	{
 	default:
 		assert(false);
+		[[fallthrough]];
 	case CGSHandler::CLAMP_MODE_REPEAT:
 		return texCoord & (texSize - NewInt(b, 1));
 	case CGSHandler::CLAMP_MODE_CLAMP:
@@ -65,6 +67,7 @@ static Nuanceur::CFloat4Rvalue GetClutColor(Nuanceur::CShaderBuilder& b,
 	{
 	default:
 		assert(false);
+		[[fallthrough]];
 	case CGSHandler::PSMCT32:
 	case CGSHandler::PSMCT24:
 	{
@@ -212,6 +215,7 @@ Nuanceur::CInt3Rvalue CDrawUtils::GetAlphaABD(Nuanceur::CShaderBuilder& b, uint3
 	{
 	default:
 		assert(false);
+		[[fallthrough]];
 	case CGSHandler::ALPHABLEND_ABD_CS:
 		return srcColor->xyz();
 	case CGSHandler::ALPHABLEND_ABD_CD:
@@ -228,6 +232,7 @@ Nuanceur::CInt3Rvalue CDrawUtils::GetAlphaC(Nuanceur::CShaderBuilder& b, uint32 
 	{
 	default:
 		assert(false);
+		[[fallthrough]];
 	case CGSHandler::ALPHABLEND_C_AS:
 		return srcColor->www();
 	case CGSHandler::ALPHABLEND_C_AD:
@@ -250,6 +255,7 @@ void CDrawUtils::AlphaTest(Nuanceur::CShaderBuilder& b,
 	{
 	default:
 		assert(false);
+		[[fallthrough]];
 	case CGSHandler::ALPHA_TEST_ALWAYS:
 		alphaTestResult = NewBool(b, true);
 		break;
@@ -282,6 +288,7 @@ void CDrawUtils::AlphaTest(Nuanceur::CShaderBuilder& b,
 		{
 		default:
 			assert(false);
+			[[fallthrough]];
 		case CGSHandler::ALPHA_TEST_FAIL_KEEP:
 			writeColor = NewBool(b, false);
 			writeDepth = NewBool(b, false);
