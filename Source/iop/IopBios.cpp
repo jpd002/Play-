@@ -960,8 +960,9 @@ bool CIopBios::TryGetImageVersionFromContents(const std::string& imagePath, unsi
 	//- FFXI/POLViewer resets the IOP with a image without version in the filename
 	//  and it also doesn't have a fileio string that lets us find the required version,
 	//  thus, we rely on the ioprp pattern for this game.
-	static const std::string fileIoPatternString = "PsIIfileio  ";
-	static const std::string sysmemPatternString = "PsIIsysmem  ";
+	static const std::string fileIoPatternString   = "PsIIfileio  ";
+	static const std::string sysmemPatternString   = "PsIIsysmem  ";
+	static const std::string loadcorePatternString = "PsIIloadcore";
 	static const std::string ioprpPatternString = "ioprp";
 
 	auto tryMatchVersionPattern =
@@ -1002,6 +1003,10 @@ bool CIopBios::TryGetImageVersionFromContents(const std::string& imagePath, unsi
 			return true;
 		}
 		else if(tryMatchVersionPattern(moduleVersionString, sysmemPatternString))
+		{
+			return true;
+		}
+		else if(tryMatchVersionPattern(moduleVersionString, loadcorePatternString))
 		{
 			return true;
 		}
