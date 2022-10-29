@@ -18,6 +18,7 @@ Framework::CStream* CMcDumpDevice::GetFile(uint32 flags, const char* path)
 	assert(flags == OPEN_FLAG_RDONLY);
 
 	//We don't support subdirs here
+	if(*path == '/') path++;
 	const char* next = strchr(path, '/');
 	assert(!next);
 
