@@ -1,0 +1,16 @@
+{
+	"id": "soulclb2",
+	"name": "Soul Calibur 2",
+	"dongle":
+	{
+		"name": "sc23vera.ic002"
+	},
+	"cdvd":
+	{
+		"name": "sc21-dvd0d.chd"
+	},
+	"boot": "mc0:SCSLOAD",
+	"patches":
+	[
+	]
+}
