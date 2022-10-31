@@ -619,6 +619,8 @@ private:
 	std::string ReadModuleName(uint32);
 	void DeleteModules();
 
+	void UnloadUserComponents();
+
 	int32 LoadHleModule(const Iop::ModulePtr&);
 	void RegisterHleModule(const Iop::ModulePtr&);
 

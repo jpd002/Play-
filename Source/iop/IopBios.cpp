@@ -7,6 +7,7 @@
 #include "lexical_cast_ex.h"
 #include "BitManip.h"
 #include "StringUtils.h"
+#include "std_experimental_map.h"
 
 #include "IopBios.h"
 #include "../COP_SCU.h"
@@ -874,8 +875,9 @@ int32 CIopBios::ReferModuleStatus(uint32 moduleId, uint32 statusPtr)
 void CIopBios::ProcessModuleReset(const std::string& initCommand)
 {
 	CLog::GetInstance().Print(LOGNAME, "ProcessModuleReset(%s);\r\n", initCommand.c_str());
-	m_sifCmd->ClearServers();
 
+	UnloadUserComponents();
+	
 	uint32 imageVersion = m_defaultImageVersion;
 
 	auto initArguments = StringUtils::Split(initCommand);
@@ -3291,6 +3293,36 @@ void CIopBios::DeleteModules()
 	m_ioman.reset();
 	m_sysmem.reset();
 	m_modload.reset();
+}
+
+void CIopBios::UnloadUserComponents()
+{
+	//This will attempt to get rid of most things a game might have loaded
+	//This also adds some constraints that could be annoying, like the inability
+	//for HLE modules to create threads or semaphores
+	//This won't get rid of some stuff such as memory allocations
+	assert(m_currentThreadId == -1);
+	for(auto thread : m_threads)
+	{
+		if(!thread) continue;
+		TerminateThread(thread->id);
+		DeleteThread(thread->id);
+	}
+	for(auto loadedModuleIterator = std::begin(m_loadedModules);
+		loadedModuleIterator != std::end(m_loadedModules); loadedModuleIterator++)
+	{
+		auto loadedModule = *loadedModuleIterator;
+		if(!loadedModule) continue;
+		if(loadedModule->state == MODULE_STATE::STARTED)
+		{
+			loadedModule->state = MODULE_STATE::STOPPED;
+		}
+		UnloadModule(loadedModuleIterator);
+	}
+	std::experimental::erase_if(m_modules, [](const auto& modulePair) { return std::dynamic_pointer_cast<Iop::CDynamic>(modulePair.second); });
+	m_intrHandlers.FreeAll();
+	m_semaphores.FreeAll();
+	m_sifCmd->ClearServers();
 }
 
 int32 CIopBios::LoadHleModule(const Iop::ModulePtr& module)
