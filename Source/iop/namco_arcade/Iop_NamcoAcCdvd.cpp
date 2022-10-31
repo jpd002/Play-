@@ -186,6 +186,7 @@ bool CAcCdvd::Invoke(uint32 method, uint32* args, uint32 argsSize, uint32* ret, 
 			CCdvdman::FILEINFO fileInfo = {};
 			uint32 result = m_cdvdman.CdLayerSearchFileDirect(m_opticalMedia, &fileInfo, path, 0);
 			CLog::GetInstance().Warn(LOG_NAME, "SearchFile(path = '%s');\r\n", path);
+			ret[0x00] = 0; //Soul Calibur 2 requires this to be 0
 			ret[0x01] = result; //Result?
 			ret[0x04] = fileInfo.sector;
 			ret[0x05] = fileInfo.size;
