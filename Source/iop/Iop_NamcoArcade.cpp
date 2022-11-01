@@ -341,6 +341,14 @@ bool CNamcoArcade::Invoke001(uint32 method, uint32* args, uint32 argsSize, uint3
 						}
 					}
 				}
+				else if((info[1] >= 0x40000000) && (info[1] < 0x50000000))
+				{
+					m_acRam.Read(info[1] - 0x40000000, ram + info[2], info[3]);
+				}
+				else if((info[2] >= 0x40000000) && (info[2] < 0x50000000))
+				{
+					m_acRam.Write(info[2] - 0x40000000, ram + info[1], info[3]);
+				}
 				else
 				{
 					CLog::GetInstance().Warn(LOG_NAME, "Unknown Packet\r\n");
