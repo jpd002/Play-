@@ -22,6 +22,7 @@
 #include "xml/Parser.h"
 #include "AppConfig.h"
 #include "PathUtils.h"
+#include "ThreadUtils.h"
 #include "iop/IopBios.h"
 #include "iop/ioman/HardDiskDevice.h"
 #include "iop/ioman/OpticalMediaDevice.h"
@@ -246,6 +247,7 @@ void CPS2VM::Initialize()
 {
 	m_nEnd = false;
 	m_thread = std::thread([&]() { EmuThread(); });
+	Framework::ThreadUtils::SetThreadName(m_thread, "PS2VM Thread");
 }
 
 void CPS2VM::Destroy()

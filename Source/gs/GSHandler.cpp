@@ -10,6 +10,7 @@
 #include "GSHandler.h"
 #include "GsPixelFormats.h"
 #include "string_format.h"
+#include "ThreadUtils.h"
 
 //Shadow Hearts 2 looks for this specific value
 #define GS_REVISION (7)
@@ -105,6 +106,7 @@ CGSHandler::CGSHandler(bool gsThreaded)
 	if(m_gsThreaded)
 	{
 		m_thread = std::thread([&]() { ThreadProc(); });
+		Framework::ThreadUtils::SetThreadName(m_thread, "GS Thread");
 	}
 }
 
