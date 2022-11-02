@@ -5,6 +5,7 @@
 #include <map>
 #include <variant>
 #include "Types.h"
+#include "maybe_unused.h"
 
 struct BIOS_DEBUG_MODULE_INFO
 {
@@ -45,6 +46,7 @@ enum class BIOS_DEBUG_OBJECT_FIELD_ATTRIBUTE
 	POSSIBLE_STR_POINTER = (1 << 7)
 };
 
+FRAMEWORK_MAYBE_UNUSED
 static BIOS_DEBUG_OBJECT_FIELD_ATTRIBUTE operator|(BIOS_DEBUG_OBJECT_FIELD_ATTRIBUTE lhs, BIOS_DEBUG_OBJECT_FIELD_ATTRIBUTE rhs)
 {
 	auto result = static_cast<uint32>(lhs) | (static_cast<uint32>(rhs));
