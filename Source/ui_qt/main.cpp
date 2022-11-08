@@ -38,6 +38,9 @@ int main(int argc, char* argv[])
 	QCommandLineOption elf_image_option("elf", "Boot supported elf image", "elf_image");
 	parser.addOption(elf_image_option);
 
+	QCommandLineOption arcade_id_option("arcade", "Boot arcade game with specified id", "arcade_id");
+	parser.addOption(arcade_id_option);
+	
 	QCommandLineOption load_state_option("state", "Load state at index", "state_index");
 	parser.addOption(load_state_option);
 
@@ -67,6 +70,11 @@ int main(int argc, char* argv[])
 	{
 		QString elf_image = parser.value(elf_image_option);
 		w.BootElf(QStringToPath(elf_image));
+	}
+	else if(parser.isSet(arcade_id_option))
+	{
+		QString arcade_id = parser.value(arcade_id_option);
+		w.BootArcadeMachine("./arcadedefs/" + arcade_id.toStdString() + ".arcadedef");
 	}
 
 	if(parser.isSet(load_state_option))
