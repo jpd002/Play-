@@ -15,7 +15,7 @@ namespace Iop
 	class CNamcoArcade : public CModule, public CPadListener
 	{
 	public:
-		CNamcoArcade(CSifMan&, Namco::CAcRam&);
+		CNamcoArcade(CSifMan&, Namco::CAcRam&, const std::string&);
 		virtual ~CNamcoArcade() = default;
 
 		std::string GetId() const override;
@@ -32,10 +32,18 @@ namespace Iop
 			MODULE_ID_3 = 0x76500003,
 			MODULE_ID_4 = 0x76500004,
 		};
+		
+		enum
+		{
+			BACKUP_RAM_SIZE = 0x10000,
+		};
 
 		bool Invoke001(uint32, uint32*, uint32, uint32*, uint32, uint8*);
 		bool Invoke003(uint32, uint32*, uint32, uint32*, uint32, uint8*);
 		bool Invoke004(uint32, uint32*, uint32, uint32*, uint32, uint8*);
+
+		void ReadBackupRam(uint32, uint8*, uint32);
+		void WriteBackupRam(uint32, const uint8*, uint32);
 
 		Namco::CAcRam& m_acRam;
 		
@@ -43,6 +51,7 @@ namespace Iop
 		CSifModuleAdapter m_module003;
 		CSifModuleAdapter m_module004;
 		
+		std::string m_gameId;
 		uint32 m_recvAddr = 0;
 		uint32 m_sendAddr = 0;
 	};

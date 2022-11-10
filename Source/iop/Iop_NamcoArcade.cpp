@@ -1,5 +1,6 @@
 #include "Iop_NamcoArcade.h"
 #include <cstring>
+#include "../AppConfig.h"
 #include "../Log.h"
 #include "namco_arcade/Iop_NamcoAcRam.h"
 
@@ -7,8 +8,9 @@ using namespace Iop;
 
 #define LOG_NAME "iop_namcoarcade"
 
-CNamcoArcade::CNamcoArcade(CSifMan& sif, Namco::CAcRam& acRam)
+CNamcoArcade::CNamcoArcade(CSifMan& sif, Namco::CAcRam& acRam, const std::string& gameId)
 	: m_acRam(acRam)
+	, m_gameId(gameId)
 {
 	m_module001 = CSifModuleAdapter(std::bind(&CNamcoArcade::Invoke001, this,
 											  std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5, std::placeholders::_6));
@@ -309,7 +311,7 @@ bool CNamcoArcade::Invoke001(uint32 method, uint32* args, uint32 argsSize, uint3
 				uint32 ramAddr = args[2];
 				uint32 dstPtr = args[4];
 				uint32 size = args[5];
-				CLog::GetInstance().Warn(LOG_NAME, "ReadBackupRam(ramAddr = 0x%08X, dstPtr = 0x%08X, size = %d);\r\n",
+				CLog::GetInstance().Warn(LOG_NAME, "ReadExtRam(ramAddr = 0x%08X, dstPtr = 0x%08X, size = %d);\r\n",
 										 ramAddr, dstPtr, size);
 				if(ramAddr >= 0x40000000 && ramAddr < 0x50000000)
 				{
@@ -373,9 +375,17 @@ bool CNamcoArcade::Invoke001(uint32 method, uint32* args, uint32 argsSize, uint3
 				{
 					m_acRam.Read(info[1] - 0x40000000, ram + info[2], info[3]);
 				}
+				else if((info[1] >= 0x50000000) && (info[1] < 0x60000000))
+				{
+					ReadBackupRam(info[1] - 0x50000000, ram + info[2], info[3]);
+				}
 				else if((info[2] >= 0x40000000) && (info[2] < 0x50000000))
 				{
 					m_acRam.Write(info[2] - 0x40000000, ram + info[1], info[3]);
+				}
+				else if((info[2] >= 0x50000000) && (info[1] < 0x60000000))
+				{
+					WriteBackupRam(info[2] - 0x50000000, ram + info[1], info[3]);
 				}
 				else
 				{
@@ -397,7 +407,7 @@ bool CNamcoArcade::Invoke001(uint32 method, uint32* args, uint32 argsSize, uint3
 			uint32 ramAddr = args[2];
 			uint32 srcPtr = args[4];
 			uint32 size = args[5];
-			CLog::GetInstance().Warn(LOG_NAME, "WriteBackupRam(ramAddr = 0x%08X, srcPtr = 0x%08X, size = %d);\r\n",
+			CLog::GetInstance().Warn(LOG_NAME, "WriteExtRam(ramAddr = 0x%08X, srcPtr = 0x%08X, size = %d);\r\n",
 									 ramAddr, srcPtr, size);
 			if(ramAddr >= 0x40000000 && ramAddr < 0x50000000)
 			{
@@ -461,4 +471,36 @@ bool CNamcoArcade::Invoke004(uint32 method, uint32* args, uint32 argsSize, uint3
 		break;
 	}
 	return true;
+}
+
+void CNamcoArcade::ReadBackupRam(uint32 backupRamAddr, uint8* buffer, uint32 size)
+{
+	memset(buffer, 0, size);
+	if((backupRamAddr >= BACKUP_RAM_SIZE) || ((backupRamAddr + size) > BACKUP_RAM_SIZE))
+	{
+		CLog::GetInstance().Warn(LOG_NAME, "Reading outside of backup RAM bounds.\r\n");
+		return;
+	}
+	auto backupRamPath = CAppConfig::GetBasePath() / (m_gameId + ".backupram");
+	if(!fs::exists(backupRamPath))
+	{
+		return;
+	}
+	Framework::CStdStream stream(backupRamPath.native().c_str(), "rb");
+	stream.Seek(backupRamAddr, Framework::STREAM_SEEK_SET);
+	stream.Read(buffer, size);
+}
+
+void CNamcoArcade::WriteBackupRam(uint32 backupRamAddr, const uint8* buffer, uint32 size)
+{
+	if((backupRamAddr >= BACKUP_RAM_SIZE) || ((backupRamAddr + size) > BACKUP_RAM_SIZE))
+	{
+		CLog::GetInstance().Warn(LOG_NAME, "Writing outside of backup RAM bounds.\r\n");
+		return;
+	}
+	auto backupRamPath = CAppConfig::GetBasePath() / (m_gameId + ".backupram");
+	const char* mode = fs::exists(backupRamPath) ? "r+b" : "wb";
+	Framework::CStdStream stream(backupRamPath.native().c_str(), mode);
+	stream.Seek(backupRamAddr, Framework::STREAM_SEEK_SET);
+	stream.Write(buffer, size);
 }
