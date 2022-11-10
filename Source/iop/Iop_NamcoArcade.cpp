@@ -38,6 +38,7 @@ void CNamcoArcade::Invoke(CMIPS& context, unsigned int functionId)
 }
 
 uint16 g_jvsButtonState = 0;
+uint16 g_jvsSystemButtonState = 0;
 
 //Ref: http://daifukkat.su/files/jvs_wip.pdf
 enum
@@ -167,7 +168,7 @@ void ProcessJvsPacket(const uint8* input, uint8* output)
 
 				(*output++) = 0x01; //Command success
 
-				(*output++) = 0x00; //Test
+				(*output++) = (g_jvsSystemButtonState == 0x03) ? 0x80 : 0; //Test
 				(*output++) = static_cast<uint8>(g_jvsButtonState); //Player 1
 				(*output++) = static_cast<uint8>(g_jvsButtonState >> 8); //Player 1
 				(*output++) = 0x00; //Player 2
@@ -187,9 +188,9 @@ void ProcessJvsPacket(const uint8* input, uint8* output)
 				(*output++) = 0x01; //Command success
 
 				(*output++) = 0x00; //Coin 1 MSB
-				(*output++) = 0x04; //Coin 1 LSB
+				(*output++) = 0x00; //Coin 1 LSB
 				(*output++) = 0x00; //Coin 2 MSB
-				(*output++) = 0x04; //Coin 2 LSB
+				(*output++) = 0x00; //Coin 2 LSB
 
 				(*dstSize) += 5;
 			}
@@ -211,7 +212,7 @@ void CNamcoArcade::SetButtonState(unsigned int padNumber, PS2::CControllerInfo::
 	//{
 	//	*reinterpret_cast<uint16*>(ram + g_recvAddr + 0xC0) += 1;
 	//}
-	static uint16 buttonBits[PS2::CControllerInfo::MAX_BUTTONS] =
+	static const uint16 buttonBits[PS2::CControllerInfo::MAX_BUTTONS] =
 	{
 		0x0000,
 		0x0000,
@@ -234,8 +235,33 @@ void CNamcoArcade::SetButtonState(unsigned int padNumber, PS2::CControllerInfo::
 		0x0000, //R2,
 		0x0000, //R3,
 	};
+	static const uint16 systemButtonBits[PS2::CControllerInfo::MAX_BUTTONS] =
+	{
+		0x0000,
+		0x0000,
+		0x0000,
+		0x0000,
+		0x0000, //DPAD_UP,
+		0x0000, //DPAD_DOWN,
+		0x0000, //DPAD_LEFT,
+		0x0000, //DPAD_RIGHT,
+		0x0000, //SELECT,
+		0x0000, //START,
+		0x0000, //SQUARE,
+		0x0000, //TRIANGLE,
+		0x0000, //CIRCLE,
+		0x0000, //CROSS,
+		0x0000, //L1,
+		0x0000, //L2,
+		0x0002, //L3,
+		0x0000, //R1,
+		0x0000, //R2,
+		0x0001, //R3,
+	};
 	g_jvsButtonState &= ~buttonBits[button];
 	g_jvsButtonState |= (pressed ? buttonBits[button] : 0);
+	g_jvsSystemButtonState &= ~systemButtonBits[button];
+	g_jvsSystemButtonState |= (pressed ? systemButtonBits[button] : 0);
 	if(m_recvAddr && m_sendAddr)
 	{
 		auto sendData = reinterpret_cast<const uint16*>(ram + m_sendAddr);
