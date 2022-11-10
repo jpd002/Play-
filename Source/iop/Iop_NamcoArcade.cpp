@@ -97,14 +97,17 @@ void ProcessJvsPacket(const uint8* input, uint8* output)
 		case JVS_CMD_IOIDENT:
 			{
 				(*output++) = 0x01; //Command success
+				(*dstSize)++;
 				
-				(*output++) = 'B';
-				(*output++) = 'L';
-				(*output++) = 'A';
-				(*output++) = 'H';
-				(*output++) = 0;
-
-				(*dstSize) += 6;
+				//const char* boardName = "namco ltd.;RAYS PCB;";
+				const char* boardName = "namco ltd.;TSS-I/O;";
+				size_t length = strlen(boardName);
+				
+				for(int i = 0; i < length + 1; i++)
+				{
+					(*output++) = boardName[i];
+					(*dstSize)++;
+				}
 			}
 			break;
 		case JVS_CMD_SETADDR:
