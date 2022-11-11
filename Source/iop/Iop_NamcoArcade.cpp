@@ -1,5 +1,6 @@
 #include "Iop_NamcoArcade.h"
 #include <cstring>
+#include "StdStreamUtils.h"
 #include "../AppConfig.h"
 #include "../Log.h"
 #include "PathUtils.h"
@@ -507,7 +508,7 @@ void CNamcoArcade::ReadBackupRam(uint32 backupRamAddr, uint8* buffer, uint32 siz
 	{
 		return;
 	}
-	Framework::CStdStream stream(backupRamPath.native().c_str(), "rb");
+	auto stream = Framework::CreateInputStdStream(backupRamPath.native());
 	stream.Seek(backupRamAddr, Framework::STREAM_SEEK_SET);
 	stream.Read(buffer, size);
 }
@@ -522,8 +523,9 @@ void CNamcoArcade::WriteBackupRam(uint32 backupRamAddr, const uint8* buffer, uin
 	auto arcadeSavePath = GetArcadeSavePath();
 	auto backupRamPath = arcadeSavePath / (m_gameId + ".backupram");
 	Framework::PathUtils::EnsurePathExists(arcadeSavePath);
-	const char* mode = fs::exists(backupRamPath) ? "r+b" : "wb";
-	Framework::CStdStream stream(backupRamPath.native().c_str(), mode);
+	auto stream = fs::exists(backupRamPath) ?
+		Framework::CreateUpdateExistingStdStream(backupRamPath.native()) :
+		Framework::CreateOutputStdStream(backupRamPath.native());
 	stream.Seek(backupRamAddr, Framework::STREAM_SEEK_SET);
 	stream.Write(buffer, size);
 }
