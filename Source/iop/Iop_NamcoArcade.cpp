@@ -2,6 +2,7 @@
 #include <cstring>
 #include "../AppConfig.h"
 #include "../Log.h"
+#include "PathUtils.h"
 #include "namco_arcade/Iop_NamcoAcRam.h"
 
 using namespace Iop;
@@ -476,6 +477,11 @@ bool CNamcoArcade::Invoke004(uint32 method, uint32* args, uint32 argsSize, uint3
 	return true;
 }
 
+fs::path CNamcoArcade::GetArcadeSavePath()
+{
+	return CAppConfig::GetBasePath() / fs::path("arcadesaves");
+}
+
 void CNamcoArcade::ReadBackupRam(uint32 backupRamAddr, uint8* buffer, uint32 size)
 {
 	memset(buffer, 0, size);
@@ -484,7 +490,7 @@ void CNamcoArcade::ReadBackupRam(uint32 backupRamAddr, uint8* buffer, uint32 siz
 		CLog::GetInstance().Warn(LOG_NAME, "Reading outside of backup RAM bounds.\r\n");
 		return;
 	}
-	auto backupRamPath = CAppConfig::GetBasePath() / (m_gameId + ".backupram");
+	auto backupRamPath = GetArcadeSavePath() / (m_gameId + ".backupram");
 	if(!fs::exists(backupRamPath))
 	{
 		return;
@@ -501,7 +507,9 @@ void CNamcoArcade::WriteBackupRam(uint32 backupRamAddr, const uint8* buffer, uin
 		CLog::GetInstance().Warn(LOG_NAME, "Writing outside of backup RAM bounds.\r\n");
 		return;
 	}
-	auto backupRamPath = CAppConfig::GetBasePath() / (m_gameId + ".backupram");
+	auto arcadeSavePath = GetArcadeSavePath();
+	auto backupRamPath = arcadeSavePath / (m_gameId + ".backupram");
+	Framework::PathUtils::EnsurePathExists(arcadeSavePath);
 	const char* mode = fs::exists(backupRamPath) ? "r+b" : "wb";
 	Framework::CStdStream stream(backupRamPath.native().c_str(), mode);
 	stream.Seek(backupRamAddr, Framework::STREAM_SEEK_SET);

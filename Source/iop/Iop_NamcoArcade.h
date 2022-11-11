@@ -4,6 +4,7 @@
 #include "Iop_SifMan.h"
 #include "../SifModuleAdapter.h"
 #include "../PadListener.h"
+#include "filesystem_def.h"
 
 namespace Iop
 {
@@ -42,6 +43,7 @@ namespace Iop
 		bool Invoke003(uint32, uint32*, uint32, uint32*, uint32, uint8*);
 		bool Invoke004(uint32, uint32*, uint32, uint32*, uint32, uint8*);
 
+		static fs::path GetArcadeSavePath();
 		void ReadBackupRam(uint32, uint8*, uint32);
 		void WriteBackupRam(uint32, const uint8*, uint32);
 
