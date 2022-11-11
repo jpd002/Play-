@@ -242,6 +242,8 @@ void CPS2VM::PauseAsync()
 void CPS2VM::Reset()
 {
 	assert(m_nStatus == PAUSED);
+	BeforeExecutableReloaded = ExecutableReloadedHandler();
+	AfterExecutableReloaded = ExecutableReloadedHandler();
 	ResetVM();
 }
 
@@ -789,7 +791,15 @@ void CPS2VM::ReloadExecutable(const char* executablePath, const CPS2OS::Argument
 		ResetVM();
 		memcpy(m_iop->m_spuRam, savedSpuRam.data(), PS2::SPU_RAM_SIZE);
 	}
+	if(BeforeExecutableReloaded)
+	{
+		BeforeExecutableReloaded(this);
+	}
 	m_ee->m_os->BootFromVirtualPath(executablePath, arguments);
+	if(AfterExecutableReloaded)
+	{
+		AfterExecutableReloaded(this);
+	}
 }
 
 void CPS2VM::OnCrtModeChange()

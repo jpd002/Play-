@@ -73,14 +73,8 @@ ARCADE_MACHINE_DEF ReadArcadeMachineDefinition(const fs::path& arcadeDefPath)
 	return def;
 }
 
-void ArcadeUtils::BootArcadeMachine(CPS2VM* virtualMachine, const fs::path& arcadeDefPath)
+void PrepareArcadeEnvironment(CPS2VM* virtualMachine, const ARCADE_MACHINE_DEF& def)
 {
-	auto def = ReadArcadeMachineDefinition(arcadeDefPath);
-
-	//Reset PS2VM
-	virtualMachine->Pause();
-	virtualMachine->Reset();
-
 	auto romArchiveFileName = string_format("%s.zip", def.id.c_str());
 
 	fs::path arcadeRomPath = CAppConfig::GetInstance().GetPreferencePath(PREF_PS2_ARCADEROMS_DIRECTORY);
@@ -105,8 +99,7 @@ void ArcadeUtils::BootArcadeMachine(CPS2VM* virtualMachine, const fs::path& arca
 
 		CAppConfig::GetInstance().SetPreferencePath(PREF_PS2_CDROM0_PATH, cdvdPath);
 
-		//We need to reset again to make sure updated CDVD has been picked up
-		virtualMachine->Reset();
+		virtualMachine->CDROM0_SyncPath();
 	}
 
 	std::vector<uint8> mcDumpContents;
@@ -152,16 +145,43 @@ void ArcadeUtils::BootArcadeMachine(CPS2VM* virtualMachine, const fs::path& arca
 			virtualMachine->m_pad->InsertListener(namcoArcadeModule.get());
 		}
 	}
+}
 
-	//Boot mc0:/BOOT (from def)
-	virtualMachine->m_ee->m_os->BootFromVirtualPath(def.boot.c_str(), { "DANGLE" });
-
-	//Apply Patches
+void ApplyPatchesFromArcadeDefinition(CPS2VM* virtualMachine, const ARCADE_MACHINE_DEF& def)
+{
 	for(const auto& patch : def.patches)
 	{
 		assert(patch.address < PS2::EE_RAM_SIZE);
 		*reinterpret_cast<uint32*>(virtualMachine->m_ee->m_ram + patch.address) = patch.value;
 	}
+}
+
+void ArcadeUtils::BootArcadeMachine(CPS2VM* virtualMachine, const fs::path& arcadeDefPath)
+{
+	auto def = ReadArcadeMachineDefinition(arcadeDefPath);
+
+	//Reset PS2VM
+	virtualMachine->Pause();
+	virtualMachine->Reset();
+
+	PrepareArcadeEnvironment(virtualMachine, def);
+	
+	//Boot mc0:/BOOT (from def)
+	virtualMachine->m_ee->m_os->BootFromVirtualPath(def.boot.c_str(), { "DANGLE" });
+
+	ApplyPatchesFromArcadeDefinition(virtualMachine, def);
+	
+	virtualMachine->BeforeExecutableReloaded =
+		[def](CPS2VM* virtualMachine)
+		{
+			PrepareArcadeEnvironment(virtualMachine, def);
+		};
+	
+	virtualMachine->AfterExecutableReloaded =
+		[def](CPS2VM* virtualMachine)
+		{
+			ApplyPatchesFromArcadeDefinition(virtualMachine, def);
+		};
 
 #ifndef DEBUGGER_INCLUDED
 	virtualMachine->Resume();

@@ -33,6 +33,7 @@ public:
 	typedef std::unique_ptr<Iop::CSubSystem> IopSubSystemPtr;
 	typedef std::function<void(const CFrameDump&)> FrameDumpCallback;
 	typedef Framework::CSignal<void(const CProfiler::ZoneArray&)> ProfileFrameDoneSignal;
+	typedef std::function<void(CPS2VM*)> ExecutableReloadedHandler;
 
 	CPS2VM();
 	virtual ~CPS2VM() = default;
@@ -65,6 +66,9 @@ public:
 	void DestroySoundHandler();
 	void ReloadSpuBlockCount();
 
+	void CDROM0_SyncPath();
+	void CDROM0_Reset();
+
 	void ReloadFrameRateLimit();
 
 	static fs::path GetStateDirectoryPath();
@@ -90,7 +94,10 @@ public:
 	IopSubSystemPtr m_iop;
 
 	ProfileFrameDoneSignal ProfileFrameDone;
-
+	
+	ExecutableReloadedHandler BeforeExecutableReloaded;
+	ExecutableReloadedHandler AfterExecutableReloaded;
+	
 protected:
 	virtual void CreateVM();
 	void ResumeImpl();
@@ -127,8 +134,6 @@ private:
 
 	void OnGsNewFrame();
 
-	void CDROM0_SyncPath();
-	void CDROM0_Reset();
 	void SetIopOpticalMedia(COpticalMedia*);
 
 	void RegisterModulesInPadHandler();
