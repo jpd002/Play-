@@ -43,6 +43,13 @@ arcaderoms/
     tef1dvd0.chd  
 ```
 
+## Arcade Specific Controls ##
+
+Some arcade specific actions are mapped to these buttons on the PS2 controller mappings:
+
+- Service/Coin: SELECT
+- Test: L3 & R3 pressed at the same time
+
 ## General Troubleshooting ##
 
 #### Failed to open CHD file ####
