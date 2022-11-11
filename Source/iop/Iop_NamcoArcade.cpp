@@ -161,6 +161,18 @@ void ProcessJvsPacket(const uint8* input, uint8* output)
 				(*dstSize) += 10;
 			}
 			break;
+		case JVS_CMD_MAINID:
+			{
+				while(1)
+				{
+					uint8 value = (*input++);
+					assert(inSize != 0);
+					inSize--;
+					inWorkChecksum += value;
+					if(value == 0) break;
+				}
+			}
+			break;
 		case JVS_CMD_SWINP:
 			{
 				assert(inSize >= 2);
