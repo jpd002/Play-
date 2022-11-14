@@ -371,14 +371,14 @@ void CGSHandler::SetVBlank()
 		Finish();
 	}
 
-	std::lock_guard<std::recursive_mutex> registerMutexLock(m_registerMutex);
+	std::lock_guard registerMutexLock(m_registerMutex);
 	m_nCSR |= CSR_VSYNC_INT;
 	NotifyEvent(CSR_VSYNC_INT);
 }
 
 void CGSHandler::ResetVBlank()
 {
-	std::lock_guard<std::recursive_mutex> registerMutexLock(m_registerMutex);
+	std::lock_guard registerMutexLock(m_registerMutex);
 
 	//Alternate current field
 	m_nCSR ^= CSR_FIELD;
@@ -408,7 +408,7 @@ uint32 CGSHandler::ReadPrivRegister(uint32 nAddress)
 	case GS_CSR_ALT:
 		//Force CSR to have the H-Blank bit set.
 		{
-			std::lock_guard<std::recursive_mutex> registerMutexLock(m_registerMutex);
+			std::lock_guard registerMutexLock(m_registerMutex);
 			m_nCSR |= CSR_HSYNC_INT;
 			NotifyEvent(CSR_HSYNC_INT);
 			R_REG(nAddress, nData, m_nCSR);
@@ -463,7 +463,7 @@ void CGSHandler::WritePrivRegister(uint32 nAddress, uint32 nData)
 	{
 		if(!(nAddress & 0x04))
 		{
-			std::lock_guard<std::recursive_mutex> registerMutexLock(m_registerMutex);
+			std::lock_guard registerMutexLock(m_registerMutex);
 			if(nData & CSR_SIGNAL_EVENT)
 			{
 				m_nCSR &= ~CSR_SIGNAL_EVENT;
@@ -1307,7 +1307,7 @@ CGSHandler::DISPLAY_RECT CGSHandler::GetDisplayRect(uint64 displayReg) const
 
 CGSHandler::DISPLAY_INFO CGSHandler::GetCurrentDisplayInfo()
 {
-	std::lock_guard<std::recursive_mutex> registerMutexLock(m_registerMutex);
+	std::lock_guard registerMutexLock(m_registerMutex);
 	auto makeInfoFromRc = [this](unsigned int readCircuit) {
 		assert(readCircuit < 2);
 		auto dispFb = make_convertible<DISPFB>((readCircuit == 0) ? m_nDISPFB1.value.q : m_nDISPFB2.value.q);
@@ -2093,7 +2093,7 @@ void CGSHandler::WriteToDelayedRegister(uint32 address, uint32 value, DELAYED_RE
 {
 	if(address & 0x04)
 	{
-		std::lock_guard<std::recursive_mutex> registerMutexLock(m_registerMutex);
+		std::lock_guard registerMutexLock(m_registerMutex);
 		delayedRegister.value.d0 = delayedRegister.heldValue;
 		delayedRegister.value.d1 = value;
 	}
