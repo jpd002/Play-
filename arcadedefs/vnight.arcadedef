@@ -1,0 +1,16 @@
+{
+	"id": "vnight",
+	"name": "Vampire Night",
+	"dongle":
+	{
+		"name": "vpn3verb.ic002"
+	},
+	"cdvd":
+	{
+		"name": "vpn1cd0.chd"
+	},
+	"boot": "mc0:VPNGAME",
+	"patches":
+	[
+	]
+}
