@@ -20,7 +20,8 @@ namespace Iop
 			void Write(uint32, const uint8*, uint32);
 
 		private:
-			static const uint32_t g_extRamSize = 0x4000000;
+			//TODO: Make this configurable per game
+			static const uint32_t g_extRamSize = 0x6000000;
 			uint8 m_extRam[g_extRamSize];
 			uint8* m_iopRam = nullptr;
 		};

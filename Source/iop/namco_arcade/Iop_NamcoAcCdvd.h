@@ -3,6 +3,7 @@
 #include "../Iop_Module.h"
 #include "../Iop_SifMan.h"
 #include "../../OpticalMedia.h"
+#include "Iop_NamcoAcRam.h"
 
 namespace Iop
 {
@@ -13,7 +14,7 @@ namespace Iop
 		class CAcCdvd : public CModule, public CSifModule
 		{
 		public:
-			CAcCdvd(CSifMan&, CCdvdman&, uint8*);
+			CAcCdvd(CSifMan&, CCdvdman&, uint8*, CAcRam&);
 			virtual ~CAcCdvd() = default;
 
 			void SetOpticalMedia(COpticalMedia*);
@@ -31,6 +32,7 @@ namespace Iop
 			
 			CCdvdman& m_cdvdman;
 			uint8* m_iopRam = nullptr;
+			CAcRam& m_acRam;
 			COpticalMedia* m_opticalMedia = nullptr;
 
 			uint32 m_streamPos = 0;

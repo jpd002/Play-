@@ -17,9 +17,10 @@ using namespace Iop::Namco;
 #define FUNCTION_CDGETDISKTYPE "IopCdGetDiskType"
 #define FUNCTION_CDUNKNOWN_37 "IopCdUnknown_37"
 
-CAcCdvd::CAcCdvd(CSifMan& sif, CCdvdman& cdvdman, uint8* iopRam)
+CAcCdvd::CAcCdvd(CSifMan& sif, CCdvdman& cdvdman, uint8* iopRam, CAcRam& acRam)
 : m_cdvdman(cdvdman)
 , m_iopRam(iopRam)
+, m_acRam(acRam)
 {
 	sif.RegisterModule(MODULE_ID, this);
 }
@@ -163,13 +164,25 @@ bool CAcCdvd::Invoke(uint32 method, uint32* args, uint32 argsSize, uint32* ret, 
 			uint32 startSector = args[0];
 			uint32 sectorCount = args[1];
 			uint32 dstAddr = args[2];
+			static const size_t sectorSize = 0x800;
 			CLog::GetInstance().Warn(LOG_NAME, "Read%d(start = 0x%08X, count = %d, dstAddr = 0x%08X);\r\n",
 									 method, startSector, sectorCount, dstAddr);
 			auto fileSystem = m_opticalMedia->GetFileSystem();
 			auto dst = (method == 0x0A) ? m_iopRam : ram;
 			for(unsigned int i = 0; i < sectorCount; i++)
 			{
-				fileSystem->ReadBlock(startSector + i, dst + (dstAddr + (i * 0x800)));
+				uint32 dstOffset = (dstAddr + (i * sectorSize));
+				uint32 sectorIndex = startSector + i;
+				if((method == 0x0A) && (dstAddr >= 0x40000000))
+				{
+					uint8 sectorData[sectorSize];
+					fileSystem->ReadBlock(sectorIndex, sectorData);
+					m_acRam.Write(dstOffset - 0x40000000, sectorData, sectorSize);
+				}
+				else
+				{
+					fileSystem->ReadBlock(sectorIndex, dst + dstOffset);
+				}
 			}
 		}
 		break;
