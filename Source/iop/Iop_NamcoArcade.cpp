@@ -281,6 +281,7 @@ void CNamcoArcade::SetButtonState(unsigned int padNumber, PS2::CControllerInfo::
 	g_jvsButtonState |= (pressed ? buttonBits[button] : 0);
 	g_jvsSystemButtonState &= ~systemButtonBits[button];
 	g_jvsSystemButtonState |= (pressed ? systemButtonBits[button] : 0);
+	//The following code path is for handling JVSIF which only earlier games use
 	if(m_recvAddr && m_sendAddr)
 	{
 		auto sendData = reinterpret_cast<const uint16*>(ram + m_sendAddr);
@@ -288,12 +289,23 @@ void CNamcoArcade::SetButtonState(unsigned int padNumber, PS2::CControllerInfo::
 		recvData[0] = sendData[0];
 		if(sendData[0] == 0x3E6F)
 		{
+			//sendData + 0x10 (bytes) -> some command id (used by Vampire Night)
 			//sendData + 0x18 (bytes) -> some command id
+			//sendData + 0x1A (bytes) -> some command id (used by Vampire Night)
 			//sendData + 0x22 (bytes) -> Start of packet
+
+			//recvData + 0x28 (needs to be the same command id) (used by Vampire Night)
+			//recvData + 0x2A needs to be >= 0x5210 (used by Vampire Night)
+			//recvData + 0x2C needs to be >= 0x5210 (used by Vampire Night)
+			//recvData + 0x2E needs to be >= 0x5210 (used by Vampire Night)
 			//recvData + 0x40 (needs to be the same command id)
+			//recvData + 0x42 (needs to be the same command id) (used by Vampire Night)
 			//recvData + 0x5A packet starts here
+
 			recvData[1] = 0x100; //JVS version
 			uint16 pktId = sendData[0x0C];
+			uint16 pktId2 = sendData[0x0D];
+			uint16 pktId3 = sendData[0x08];
 			if(pktId != 0)
 			{
 				CLog::GetInstance().Warn(LOG_NAME, "PktId: 0x%04X\r\n", pktId);
@@ -306,6 +318,11 @@ void CNamcoArcade::SetButtonState(unsigned int padNumber, PS2::CControllerInfo::
 					ProcessJvsPacket(reinterpret_cast<const uint8*>(sendData) + 0x22, reinterpret_cast<uint8*>(recvData) + 0x5A);
 				}
 				recvData[0x20] = pktId;
+				recvData[0x21] = pktId2;
+				recvData[0x14] = pktId3;
+				recvData[0x15] = 0x5210;
+				recvData[0x16] = 0x5210;
+				recvData[0x17] = 0x5210;
 			}
 		}
 	}
