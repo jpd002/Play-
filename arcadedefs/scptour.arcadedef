@@ -1,0 +1,16 @@
+{
+	"id": "scptour",
+	"name": "Smash Court Pro Tournament",
+	"dongle":
+	{
+		"name": "scp1vera.ic002"
+	},
+	"cdvd":
+	{
+		"name": "scp1cd0.chd"
+	},
+	"boot": "ac0:SCPTLOAD",
+	"patches":
+	[
+	]
+}
