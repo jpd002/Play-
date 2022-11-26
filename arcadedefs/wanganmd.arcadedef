@@ -1,0 +1,16 @@
+{
+	"id": "wanganmd",
+	"name": "Wangan Midnight",
+	"dongle":
+	{
+		"name": "wmn1vera.ic002"
+	},
+	"cdvd":
+	{
+		"name": "wmn1-a.chd"
+	},
+	"boot": "ac0:WGNLOAD",
+	"patches":
+	[
+	]
+}
