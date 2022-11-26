@@ -57,7 +57,10 @@ CMcDumpReader::Directory CMcDumpReader::ReadDirectory(uint32 dirCluster)
 	{
 		DIRENTRY dirEntry = {};
 		readAmount = reader.Read(&dirEntry, sizeof(DIRENTRY));
-		assert(readAmount == sizeof(DIRENTRY));
+		if(readAmount != sizeof(DIRENTRY))
+		{
+			throw std::runtime_error("Failed to read directory entry.");
+		}
 		result.push_back(dirEntry);
 	}
 	return result;
