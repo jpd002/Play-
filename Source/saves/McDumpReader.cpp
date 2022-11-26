@@ -28,6 +28,19 @@ CMcDumpReader::CMcDumpReader(Framework::CStream& stream)
 	assert(actualSize >= expectedSize);
 
 	uint32 pageSpareSize = (actualSize - expectedSize) / totalPageCount;
+
+	//Some other card dumps have ECC but have a wrong size which makes the above check fail
+	//If we have 0 at 0x20C, we most likely have a dump that has ECC interleaved with pages
+	//Problematic dumps: Smash Court Pro Tournament
+	{
+		m_stream.Seek(0x20C, Framework::STREAM_SEEK_SET);
+		uint32 spareAreaCheck = m_stream.Read32();
+		if(spareAreaCheck == 0)
+		{
+			pageSpareSize = 0x10;
+		}
+	}
+	
 	m_rawPageSize = m_header.pageSize + pageSpareSize;
 }
 
