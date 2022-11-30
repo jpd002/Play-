@@ -312,12 +312,6 @@ void Compile(const char* databasePathName, const char* cpuArchName, const char* 
 
 	//Initialize Jitter Service
 	auto jitter = new CMipsJitter(codeGen);
-	for(unsigned int i = 0; i < 4; i++)
-	{
-		jitter->SetVariableAsConstant(
-		    offsetof(CMIPS, m_State.nGPR[CMIPS::R0].nV[i]),
-		    0);
-	}
 
 	FunctionTable functionTable;
 

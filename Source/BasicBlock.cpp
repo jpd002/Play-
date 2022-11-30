@@ -89,13 +89,6 @@ void CBasicBlock::Compile()
 		{
 			Jitter::CCodeGen* codeGen = Jitter::CreateCodeGen();
 			jitter = new CMipsJitter(codeGen);
-
-			for(unsigned int i = 0; i < 4; i++)
-			{
-				jitter->SetVariableAsConstant(
-				    offsetof(CMIPS, m_State.nGPR[CMIPS::R0].nV[i]),
-				    0);
-			}
 		}
 
 		jitter->GetCodeGen()->SetExternalSymbolReferencedHandler([&](auto symbol, auto offset, auto refType) { this->HandleExternalFunctionReference(symbol, offset, refType); });

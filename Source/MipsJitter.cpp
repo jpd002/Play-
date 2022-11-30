@@ -1,10 +1,17 @@
 #include <assert.h>
 #include "MipsJitter.h"
+#include "MIPS.h"
 
 CMipsJitter::CMipsJitter(Jitter::CCodeGen* codeGen)
     : CJitter(codeGen)
     , m_lastBlockLabel(-1)
 {
+	for(unsigned int i = 0; i < 4; i++)
+	{
+		SetVariableAsConstant(
+		    offsetof(CMIPS, m_State.nGPR[CMIPS::R0].nV[i]),
+		    0);
+	}
 }
 
 void CMipsJitter::Begin()
