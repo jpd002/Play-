@@ -479,7 +479,7 @@ void CMA_MIPSIV::Template_BranchEq(bool condition, bool likely)
 		m_codeGen->PushCst(0);
 	}
 
-	Jitter::CONDITION branchCondition = condition ? Jitter::CONDITION_EQ : Jitter::CONDITION_NE;
+	auto branchCondition = condition ? Jitter::CONDITION_EQ : Jitter::CONDITION_NE;
 
 	if(likely)
 	{
