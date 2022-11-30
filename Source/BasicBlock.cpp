@@ -194,7 +194,23 @@ void CBasicBlock::CompileRange(CMipsJitter* jitter)
 		return;
 	}
 
+	bool loopsOnItself = [&]() {
+		if(m_begin == m_end)
+		{
+			return false;
+		}
+		uint32 branchInstAddr = m_end - 4;
+		uint32 inst = m_context.m_pMemoryMap->GetInstruction(branchInstAddr);
+		if(m_context.m_pArch->IsInstructionBranch(&m_context, branchInstAddr, inst) != MIPS_BRANCH_NORMAL)
+		{
+			return false;
+		}
+		uint32 target = m_context.m_pArch->GetInstructionEffectiveAddress(&m_context, branchInstAddr, inst);
+		return target == m_begin;
+	}();
+
 	CompileProlog(jitter);
+	jitter->MarkFirstBlockLabel();
 
 	for(uint32 address = m_begin; address <= m_end; address += 4)
 	{
@@ -206,8 +222,8 @@ void CBasicBlock::CompileRange(CMipsJitter* jitter)
 		assert(jitter->IsStackEmpty());
 	}
 
-	jitter->MarkFinalBlockLabel();
-	CompileEpilog(jitter);
+	jitter->MarkLastBlockLabel();
+	CompileEpilog(jitter, loopsOnItself);
 }
 
 void CBasicBlock::CompileProlog(CMipsJitter* jitter)
@@ -228,7 +244,7 @@ void CBasicBlock::CompileProlog(CMipsJitter* jitter)
 #endif
 }
 
-void CBasicBlock::CompileEpilog(CMipsJitter* jitter)
+void CBasicBlock::CompileEpilog(CMipsJitter* jitter, bool loopsOnItself)
 {
 	//Update cycle quota
 	jitter->PushRel(offsetof(CMIPS, m_State.cycleQuota));
@@ -258,15 +274,28 @@ void CBasicBlock::CompileEpilog(CMipsJitter* jitter)
 		jitter->PushCst(MIPS_INVALID_PC);
 		jitter->PullRel(offsetof(CMIPS, m_State.nDelayedJumpAddr));
 
-#if !defined(AOT_BUILD_CACHE) && !defined(__EMSCRIPTEN__)
-		jitter->PushRel(offsetof(CMIPS, m_State.nHasException));
-		jitter->PushCst(0);
-		jitter->BeginIf(Jitter::CONDITION_EQ);
+		if(loopsOnItself)
 		{
-			jitter->JumpToDynamic(reinterpret_cast<void*>(&NextBlockTrampoline));
+			jitter->PushRel(offsetof(CMIPS, m_State.nHasException));
+			jitter->PushCst(0);
+			jitter->BeginIf(Jitter::CONDITION_EQ);
+			{
+				jitter->Goto(jitter->GetFirstBlockLabel());
+			}
+			jitter->EndIf();
 		}
-		jitter->EndIf();
+		else
+		{
+#if !defined(AOT_BUILD_CACHE) && !defined(__EMSCRIPTEN__)
+			jitter->PushRel(offsetof(CMIPS, m_State.nHasException));
+			jitter->PushCst(0);
+			jitter->BeginIf(Jitter::CONDITION_EQ);
+			{
+				jitter->JumpToDynamic(reinterpret_cast<void*>(&NextBlockTrampoline));
+			}
+			jitter->EndIf();
 #endif
+		}
 	}
 	jitter->Else();
 	{

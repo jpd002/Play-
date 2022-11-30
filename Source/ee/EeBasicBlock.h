@@ -8,7 +8,7 @@ public:
 	using CBasicBlock::CBasicBlock;
 
 protected:
-	void CompileEpilog(CMipsJitter*) override;
+	void CompileEpilog(CMipsJitter*, bool) override;
 
 private:
 	bool IsIdleLoopBlock() const;

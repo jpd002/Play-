@@ -4,6 +4,7 @@
 
 CMipsJitter::CMipsJitter(Jitter::CCodeGen* codeGen)
     : CJitter(codeGen)
+    , m_firstBlockLabel(-1)
     , m_lastBlockLabel(-1)
 {
 	for(unsigned int i = 0; i < 4; i++)
@@ -17,6 +18,7 @@ CMipsJitter::CMipsJitter(Jitter::CCodeGen* codeGen)
 void CMipsJitter::Begin()
 {
 	CJitter::Begin();
+	m_firstBlockLabel = -1;
 	m_lastBlockLabel = -1;
 }
 
@@ -63,7 +65,13 @@ void CMipsJitter::PushRel64(size_t offset)
 	}
 }
 
-Jitter::CJitter::LABEL CMipsJitter::GetFinalBlockLabel()
+Jitter::CJitter::LABEL CMipsJitter::GetFirstBlockLabel()
+{
+	assert(m_firstBlockLabel != -1);
+	return m_firstBlockLabel;
+}
+
+Jitter::CJitter::LABEL CMipsJitter::GetLastBlockLabel()
 {
 	if(m_lastBlockLabel == -1)
 	{
@@ -72,7 +80,13 @@ Jitter::CJitter::LABEL CMipsJitter::GetFinalBlockLabel()
 	return m_lastBlockLabel;
 }
 
-void CMipsJitter::MarkFinalBlockLabel()
+void CMipsJitter::MarkFirstBlockLabel()
+{
+	m_firstBlockLabel = CreateLabel();
+	MarkLabel(m_firstBlockLabel);
+}
+
+void CMipsJitter::MarkLastBlockLabel()
 {
 	if(m_lastBlockLabel != -1)
 	{

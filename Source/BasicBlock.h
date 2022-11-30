@@ -102,7 +102,7 @@ protected:
 	CMIPS& m_context;
 
 	virtual void CompileProlog(CMipsJitter*);
-	virtual void CompileEpilog(CMipsJitter*);
+	virtual void CompileEpilog(CMipsJitter*, bool);
 
 private:
 	void HandleExternalFunctionReference(uintptr_t, uint32, Jitter::CCodeGen::SYMBOL_REF_TYPE);

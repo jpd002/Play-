@@ -15,8 +15,11 @@ public:
 
 	void SetVariableAsConstant(size_t, uint32);
 
-	LABEL GetFinalBlockLabel();
-	void MarkFinalBlockLabel();
+	LABEL GetFirstBlockLabel();
+	LABEL GetLastBlockLabel();
+
+	void MarkFirstBlockLabel();
+	void MarkLastBlockLabel();
 
 private:
 	struct VARIABLESTATUS
@@ -31,5 +34,6 @@ private:
 	void SetVariableStatus(size_t, const VARIABLESTATUS&);
 
 	VariableStatusMap m_variableStatus;
-	LABEL m_lastBlockLabel;
+	LABEL m_firstBlockLabel = -1;
+	LABEL m_lastBlockLabel = -1;
 };

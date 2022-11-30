@@ -180,7 +180,7 @@ void CMIPSInstructionFactory::BranchLikely(Jitter::CONDITION condition)
 	}
 	m_codeGen->Else();
 	{
-		m_codeGen->Goto(m_codeGen->GetFinalBlockLabel());
+		m_codeGen->Goto(m_codeGen->GetLastBlockLabel());
 	}
 	m_codeGen->EndIf();
 }

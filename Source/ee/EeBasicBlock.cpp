@@ -1,6 +1,6 @@
 #include "EeBasicBlock.h"
 
-void CEeBasicBlock::CompileEpilog(CMipsJitter* jitter)
+void CEeBasicBlock::CompileEpilog(CMipsJitter* jitter, bool loopsOnItself)
 {
 	if(IsIdleLoopBlock())
 	{
@@ -8,7 +8,7 @@ void CEeBasicBlock::CompileEpilog(CMipsJitter* jitter)
 		jitter->PullRel(offsetof(CMIPS, m_State.nHasException));
 	}
 
-	CBasicBlock::CompileEpilog(jitter);
+	CBasicBlock::CompileEpilog(jitter, loopsOnItself);
 }
 
 bool CEeBasicBlock::IsIdleLoopBlock() const
