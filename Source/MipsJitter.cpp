@@ -1,6 +1,7 @@
 #include <assert.h>
 #include "MipsJitter.h"
 #include "MIPS.h"
+#include "offsetof_def.h"
 
 CMipsJitter::CMipsJitter(Jitter::CCodeGen* codeGen)
     : CJitter(codeGen)
