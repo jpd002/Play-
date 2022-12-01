@@ -1,0 +1,16 @@
+{
+	"id": "prdgp03",
+	"name": "Pride GP 2003",
+	"dongle":
+	{
+		"name": "pr21vera.ic002"
+	},
+	"cdvd":
+	{
+		"name": "pr21dvd0.chd"
+	},
+	"boot": "ac0:FGTLOAD",
+	"patches":
+	[
+	]
+}
