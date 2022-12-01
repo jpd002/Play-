@@ -17,6 +17,7 @@ bool CVuBasicBlock::IsLinkable() const
 void CVuBasicBlock::CompileRange(CMipsJitter* jitter)
 {
 	CompileProlog(jitter);
+	jitter->MarkFirstBlockLabel();
 
 	assert((m_begin & 0x07) == 0);
 	assert(((m_end + 4) & 0x07) == 0);
@@ -217,7 +218,28 @@ void CVuBasicBlock::CompileRange(CMipsJitter* jitter)
 		jitter->PullRel(offsetof(CMIPS, m_State.pipeTime));
 	}
 
-	CompileEpilog(jitter, false);
+	bool loopsOnItself = [&]() {
+		if(m_begin == m_end)
+		{
+			return false;
+		}
+		uint32 branchInstAddr = m_end - 0xC;
+		uint32 inst = m_context.m_pMemoryMap->GetInstruction(branchInstAddr);
+		if(m_context.m_pArch->IsInstructionBranch(&m_context, branchInstAddr, inst) != MIPS_BRANCH_NORMAL)
+		{
+			return false;
+		}
+		uint32 target = m_context.m_pArch->GetInstructionEffectiveAddress(&m_context, branchInstAddr, inst);
+		//TODO: GetInstructionEffectiveAddress should return something else when the EA can't be computed
+		//statically as 0 is a valid address. There's some other implications to this though.
+		if(target == 0)
+		{
+			return false;
+		}
+		return target == m_begin;
+	}();
+
+	CompileEpilog(jitter, loopsOnItself && m_isLinkable);
 }
 
 bool CVuBasicBlock::IsConditionalBranch(uint32 opcodeLo)
