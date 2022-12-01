@@ -291,7 +291,7 @@ void CBasicBlock::CompileEpilog(CMipsJitter* jitter, bool loopsOnItself)
 			jitter->PushCst(0);
 			jitter->BeginIf(Jitter::CONDITION_EQ);
 			{
-				jitter->JumpToDynamic(reinterpret_cast<void*>(&NextBlockTrampoline));
+				jitter->JumpToDynamic(reinterpret_cast<void*>(&BranchBlockTrampoline));
 			}
 			jitter->EndIf();
 #endif
@@ -368,6 +368,11 @@ void CBasicBlock::SetRecycleCount(uint32 recycleCount)
 	m_recycleCount = recycleCount;
 }
 
+bool CBasicBlock::HasLinkSlot(LINK_SLOT linkSlot) const
+{
+	return m_linkBlockTrampolineOffset[linkSlot] != INVALID_LINK_SLOT;
+}
+
 BlockOutLinkPointer CBasicBlock::GetOutLink(LINK_SLOT linkSlot) const
 {
 	assert(linkSlot < LINK_SLOT_MAX);
@@ -409,7 +414,7 @@ void CBasicBlock::UnlinkBlock(LINK_SLOT linkSlot)
 	assert(m_linkBlock[linkSlot] != nullptr);
 	m_linkBlock[linkSlot] = nullptr;
 #endif
-	auto patchValue = reinterpret_cast<uintptr_t>(&NextBlockTrampoline);
+	auto patchValue = (linkSlot == LINK_SLOT_NEXT) ? reinterpret_cast<uintptr_t>(&NextBlockTrampoline) : reinterpret_cast<uintptr_t>(&BranchBlockTrampoline);
 	auto code = reinterpret_cast<uint8*>(m_function.GetCode());
 	m_function.BeginModify();
 	*reinterpret_cast<uintptr_t*>(code + m_linkBlockTrampolineOffset[linkSlot]) = patchValue;
@@ -422,14 +427,14 @@ void CBasicBlock::HandleExternalFunctionReference(uintptr_t symbol, uint32 offse
 	if(symbol == reinterpret_cast<uintptr_t>(&NextBlockTrampoline))
 	{
 		assert(refType == Jitter::CCodeGen::SYMBOL_REF_TYPE::NATIVE_POINTER);
-		if(m_linkBlockTrampolineOffset[LINK_SLOT_BRANCH] == INVALID_LINK_SLOT)
-		{
-			m_linkBlockTrampolineOffset[LINK_SLOT_BRANCH] = offset;
-		}
-		else
-		{
-			m_linkBlockTrampolineOffset[LINK_SLOT_NEXT] = offset;
-		}
+		assert(m_linkBlockTrampolineOffset[LINK_SLOT_NEXT] == INVALID_LINK_SLOT);
+		m_linkBlockTrampolineOffset[LINK_SLOT_NEXT] = offset;
+	}
+	else if(symbol == reinterpret_cast<uintptr_t>(&BranchBlockTrampoline))
+	{
+		assert(refType == Jitter::CCodeGen::SYMBOL_REF_TYPE::NATIVE_POINTER);
+		assert(m_linkBlockTrampolineOffset[LINK_SLOT_BRANCH] == INVALID_LINK_SLOT);
+		m_linkBlockTrampolineOffset[LINK_SLOT_BRANCH] = offset;
 	}
 }
 
@@ -484,5 +489,9 @@ void EmptyBlockHandler(CMIPS* context)
 }
 
 void NextBlockTrampoline(CMIPS* context)
+{
+}
+
+void BranchBlockTrampoline(CMIPS* context)
 {
 }

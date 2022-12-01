@@ -172,7 +172,7 @@ protected:
 			}
 		}
 
-		if(branchAddress != 0)
+		if((branchAddress != 0) && block->HasLinkSlot(LINK_SLOT_BRANCH))
 		{
 			branchAddress &= m_addressMask;
 			const auto linkSlot = LINK_SLOT_BRANCH;

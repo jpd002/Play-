@@ -42,6 +42,7 @@ extern "C"
 {
 	void EmptyBlockHandler(CMIPS*);
 	void NextBlockTrampoline(CMIPS*);
+	void BranchBlockTrampoline(CMIPS*);
 }
 
 enum LINK_SLOT
@@ -83,6 +84,7 @@ public:
 	uint32 GetRecycleCount() const;
 	void SetRecycleCount(uint32);
 
+	bool HasLinkSlot(LINK_SLOT) const;
 	BlockOutLinkPointer GetOutLink(LINK_SLOT) const;
 	void SetOutLink(LINK_SLOT, BlockOutLinkPointer);
 
