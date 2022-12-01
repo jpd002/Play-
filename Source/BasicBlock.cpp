@@ -446,15 +446,21 @@ void CBasicBlock::CopyFunctionFrom(const std::shared_ptr<CBasicBlock>& other)
 #ifdef _DEBUG
 	std::copy(std::begin(other->m_linkBlock), std::end(other->m_linkBlock), m_linkBlock);
 #endif
+	if(
+	    HasLinkSlot(LINK_SLOT_NEXT)
 #ifdef _DEBUG
-	if(m_linkBlock[LINK_SLOT_NEXT])
+	    && m_linkBlock[LINK_SLOT_NEXT]
 #endif
+	)
 	{
 		UnlinkBlock(LINK_SLOT_NEXT);
 	}
+	if(
+	    HasLinkSlot(LINK_SLOT_BRANCH)
 #ifdef _DEBUG
-	if(m_linkBlock[LINK_SLOT_BRANCH])
+	    && m_linkBlock[LINK_SLOT_BRANCH]
 #endif
+	)
 	{
 		UnlinkBlock(LINK_SLOT_BRANCH);
 	}
