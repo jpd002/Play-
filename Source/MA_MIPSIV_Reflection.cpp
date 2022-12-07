@@ -498,9 +498,6 @@ MIPS_BRANCH_TYPE CMA_MIPSIV::IsInstructionBranch(CMIPS* pCtx, uint32 nAddress, u
 uint32 CMA_MIPSIV::GetInstructionEffectiveAddress(CMIPS* pCtx, uint32 nAddress, uint32 nOpcode)
 {
 	INSTRUCTION Instr;
-
-	if(nOpcode == 0) return 0;
-
 	Instr.pGetEffectiveAddress = SubTableEffAddr;
 	Instr.pSubTable = &m_ReflGeneralTable;
 	return Instr.pGetEffectiveAddress(&Instr, pCtx, nAddress, nOpcode);

@@ -448,10 +448,8 @@ MIPS_BRANCH_TYPE CCOP_FPU::IsBranch(uint32 nOpcode)
 
 uint32 CCOP_FPU::GetEffectiveAddress(uint32 nAddress, uint32 nOpcode)
 {
-	if(nOpcode == 0) return 0;
-
 	INSTRUCTION Instr;
 	Instr.pGetEffectiveAddress = SubTableEffAddr;
 	Instr.pSubTable = &m_reflGeneralTable;
-	return Instr.pGetEffectiveAddress(&Instr, NULL, nAddress, nOpcode);
+	return Instr.pGetEffectiveAddress(&Instr, nullptr, nAddress, nOpcode);
 }

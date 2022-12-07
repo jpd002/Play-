@@ -560,12 +560,8 @@ MIPS_BRANCH_TYPE CCOP_VU::IsBranch(uint32 nOpcode)
 
 uint32 CCOP_VU::GetEffectiveAddress(uint32 nAddress, uint32 nOpcode)
 {
-	if(nOpcode == 0) return 0;
-
-	CMIPS* pCtx = NULL;
-
 	INSTRUCTION Instr;
 	Instr.pGetEffectiveAddress = SubTableEffAddr;
 	Instr.pSubTable = &m_ReflGeneralTable;
-	return Instr.pGetEffectiveAddress(&Instr, pCtx, nAddress, nOpcode);
+	return Instr.pGetEffectiveAddress(&Instr, nullptr, nAddress, nOpcode);
 }
