@@ -105,7 +105,7 @@ void CVuAnalysis::Analyse(CMIPS* ctx, uint32 begin, uint32 end)
 		if(branchType == MIPS_BRANCH_NORMAL)
 		{
 			uint32 branchTarget = ctx->m_pArch->GetInstructionEffectiveAddress(ctx, address, lowerInstruction);
-			if(branchTarget != 0)
+			if(branchTarget != MIPS_INVALID_PC)
 			{
 				auto subroutine = ctx->m_analysis->FindSubroutine(branchTarget);
 				if(subroutine)

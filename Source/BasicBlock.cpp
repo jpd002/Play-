@@ -206,6 +206,10 @@ void CBasicBlock::CompileRange(CMipsJitter* jitter)
 			return false;
 		}
 		uint32 target = m_context.m_pArch->GetInstructionEffectiveAddress(&m_context, branchInstAddr, inst);
+		if(target == MIPS_INVALID_PC)
+		{
+			return false;
+		}
 		return target == m_begin;
 	}();
 

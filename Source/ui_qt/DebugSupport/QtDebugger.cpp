@@ -632,6 +632,7 @@ std::vector<uint32> QtDebugger::FindCallers(CMIPS* context, uint32 address)
 	{
 		uint32 opcode = context->m_pMemoryMap->GetInstruction(i);
 		uint32 ea = context->m_pArch->GetInstructionEffectiveAddress(context, i, opcode);
+		if(ea == MIPS_INVALID_PC) continue;
 		if(ea == address)
 		{
 			callers.push_back(i);

@@ -269,6 +269,7 @@ void CMIPSAnalysis::ExpandSubroutines(uint32 executableStart, uint32 executableE
 			if(branchType != MIPS_BRANCH_NORMAL) continue;
 
 			uint32 branchTarget = m_ctx->m_pArch->GetInstructionEffectiveAddress(m_ctx, address, opcode);
+			if(branchTarget == MIPS_INVALID_PC) continue;
 
 			//Check if pointing inside our subroutine. If so, don't bother
 			if(branchTarget >= subroutine.start && branchTarget <= subroutine.end) continue;

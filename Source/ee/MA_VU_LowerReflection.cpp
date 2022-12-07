@@ -1349,12 +1349,12 @@ uint32 CMA_VU::CLower::GetInstructionEffectiveAddress(CMIPS* context, uint32 add
 {
 	if(IsLOI(context, address))
 	{
-		return 0;
+		return MIPS_INVALID_PC;
 	}
 
 	if(opcode == OPCODE_NOP)
 	{
-		return 0;
+		return MIPS_INVALID_PC;
 	}
 
 	INSTRUCTION instr;

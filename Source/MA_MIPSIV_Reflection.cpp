@@ -230,7 +230,7 @@ uint32 CMA_MIPSIV::ReflCOPEffeAddr(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAdd
 	}
 	else
 	{
-		return 0;
+		return MIPS_INVALID_PC;
 	}
 }
 

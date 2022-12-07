@@ -312,12 +312,15 @@ std::string CQtDisAsmTableModel::GetInstructionMetadata(uint32 address) const
 		if(m_ctx->m_pArch->IsInstructionBranch(m_ctx, address, opcode) == MIPS_BRANCH_NORMAL)
 		{
 			uint32 effAddr = m_ctx->m_pArch->GetInstructionEffectiveAddress(m_ctx, address, opcode);
-			const char* tag = m_ctx->m_Functions.Find(effAddr);
-			if(tag != nullptr)
+			if(effAddr != MIPS_INVALID_PC)
 			{
-				disAsm += ("-> ");
-				disAsm += tag;
-				commentDrawn = true;
+				const char* tag = m_ctx->m_Functions.Find(effAddr);
+				if(tag != nullptr)
+				{
+					disAsm += ("-> ");
+					disAsm += tag;
+					commentDrawn = true;
+				}
 			}
 		}
 	}

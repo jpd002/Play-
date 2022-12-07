@@ -40,6 +40,7 @@ bool CEeBasicBlock::IsIdleLoopBlock() const
 
 	//Check that the branch target is ourself
 	uint32 branchTarget = m_context.m_pArch->GetInstructionEffectiveAddress(&m_context, endInstructionAddress, endInstruction);
+	if(branchTarget == MIPS_INVALID_PC) return false;
 	if(branchTarget != m_begin) return false;
 
 	uint32 compareRs = 0;

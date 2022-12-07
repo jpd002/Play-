@@ -172,7 +172,7 @@ protected:
 			}
 		}
 
-		if((branchAddress != 0) && block->HasLinkSlot(LINK_SLOT_BRANCH))
+		if((branchAddress != MIPS_INVALID_PC) && block->HasLinkSlot(LINK_SLOT_BRANCH))
 		{
 			branchAddress &= m_addressMask;
 			const auto linkSlot = LINK_SLOT_BRANCH;
@@ -210,7 +210,7 @@ protected:
 	virtual void PartitionFunction(uint32 startAddress)
 	{
 		uint32 endAddress = startAddress + MAX_BLOCK_SIZE;
-		uint32 branchAddress = 0;
+		uint32 branchAddress = MIPS_INVALID_PC;
 		for(uint32 address = startAddress; address < endAddress; address += 4)
 		{
 			uint32 opcode = m_context.m_pMemoryMap->GetInstruction(address);

@@ -70,7 +70,7 @@ BasicBlockPtr CVuExecutor::BlockFactory(CMIPS& context, uint32 begin, uint32 end
 void CVuExecutor::PartitionFunction(uint32 startAddress)
 {
 	uint32 endAddress = startAddress + MAX_BLOCK_SIZE - 4;
-	uint32 branchAddress = 0;
+	uint32 branchAddress = MIPS_INVALID_PC;
 	for(uint32 address = startAddress; address < endAddress; address += 8)
 	{
 		uint32 addrLo = address + 0;

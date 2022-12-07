@@ -186,11 +186,14 @@ void CDisAsmWnd::ShowContextMenu(const QPoint& pos)
 			{
 				char sTemp[256];
 				uint32 nAddress = m_ctx->m_pArch->GetInstructionEffectiveAddress(m_ctx, m_selected, nOpcode);
-				snprintf(sTemp, countof(sTemp), ("Go to 0x%08X"), nAddress);
-				QAction* goToEaAction = new QAction(this);
-				goToEaAction->setText(sTemp);
-				connect(goToEaAction, &QAction::triggered, std::bind(&CDisAsmWnd::GotoEA, this));
-				rightClickMenu->addAction(goToEaAction);
+				if(nAddress != MIPS_INVALID_PC)
+				{
+					snprintf(sTemp, countof(sTemp), ("Go to 0x%08X"), nAddress);
+					QAction* goToEaAction = new QAction(this);
+					goToEaAction->setText(sTemp);
+					connect(goToEaAction, &QAction::triggered, std::bind(&CDisAsmWnd::GotoEA, this));
+					rightClickMenu->addAction(goToEaAction);
+				}
 			}
 		}
 	}
@@ -368,6 +371,7 @@ void CDisAsmWnd::GotoEA()
 	if(m_ctx->m_pArch->IsInstructionBranch(m_ctx, m_selected, nOpcode) == MIPS_BRANCH_NORMAL)
 	{
 		uint32 nAddress = m_ctx->m_pArch->GetInstructionEffectiveAddress(m_ctx, m_selected, nOpcode);
+		assert(nAddress != MIPS_INVALID_PC);
 
 		if(m_address != nAddress)
 		{

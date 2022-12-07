@@ -230,9 +230,7 @@ void CVuBasicBlock::CompileRange(CMipsJitter* jitter)
 			return false;
 		}
 		uint32 target = m_context.m_pArch->GetInstructionEffectiveAddress(&m_context, branchInstAddr, inst);
-		//TODO: GetInstructionEffectiveAddress should return something else when the EA can't be computed
-		//statically as 0 is a valid address. There's some other implications to this though.
-		if(target == 0)
+		if(target == MIPS_INVALID_PC)
 		{
 			return false;
 		}
@@ -321,6 +319,7 @@ bool CVuBasicBlock::CheckIsSpecialIntegerLoop(unsigned int regI) const
 		{
 			assert(IsConditionalBranch(opcodeLo));
 			uint32 branchTarget = arch->GetInstructionEffectiveAddress(&m_context, address, opcodeLo);
+			if(branchTarget == MIPS_INVALID_PC) return false;
 			if(branchTarget != m_begin) return false;
 		}
 		else

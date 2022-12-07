@@ -1,7 +1,6 @@
 #include "MIPSReflection.h"
 #include <string.h>
-
-class CMIPS;
+#include "MIPS.h"
 
 using namespace MIPSReflection;
 
@@ -64,7 +63,7 @@ uint32 MIPSReflection::SubTableEffAddr(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 
 	pInstr = DereferenceInstruction(pInstr->pSubTable, nOpcode);
 	if(pInstr->pGetEffectiveAddress == NULL)
 	{
-		return 0;
+		return MIPS_INVALID_PC;
 	}
 	return pInstr->pGetEffectiveAddress(pInstr, pCtx, nAddress, nOpcode);
 }
