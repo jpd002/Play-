@@ -67,11 +67,10 @@ jobs:
       env:
         LONG_HASH: ${{ github.sha }}
     - name: Generate CMake Project
-      #Apply workaround for https://github.com/actions/runner-images/issues/6627, remove when it's fixed
       run: |
         mkdir build
         cd build
-        cmake .. -G"${{ matrix.build-type }}" -A ${{ matrix.target-platform }} -T v141_xp -DUSE_QT=on -DBUILD_LIBRETRO_CORE=yes -DCMAKE_IGNORE_PATH="C:/Strawberry/perl/bin;C:/Strawberry/c/lib"
+        cmake .. -G"${{ matrix.build-type }}" -A ${{ matrix.target-platform }} -T v141_xp -DUSE_QT=on -DBUILD_LIBRETRO_CORE=yes
     - name: Build
       run: |
         cd build
