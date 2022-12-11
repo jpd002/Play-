@@ -31,7 +31,7 @@ QBootablesView::QBootablesView(QWidget* parent)
 	m_proxyModel = new BootableModelProxy(this);
 	ui->listView->setModel(m_proxyModel);
 
-	CAppConfig::GetInstance().RegisterPreferenceInteger("ui.sortmethod", 2);
+	CAppConfig::GetInstance().RegisterPreferenceInteger("ui.sortmethod", BootablesDb::CClient::SORT_METHOD_NONE);
 	m_sortingMethod = CAppConfig::GetInstance().GetPreferenceInteger("ui.sortmethod");
 	ui->comboBox->setCurrentIndex(m_sortingMethod);
 
