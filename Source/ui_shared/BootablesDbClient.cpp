@@ -83,7 +83,7 @@ std::vector<Bootable> CClient::GetBootables(int32_t sortMethod)
 		query += "WHERE path LIKE '%.elf' COLLATE NOCASE ";
 		break;
 	case SORT_METHOD_ARCADE:
-		query += "WHERE path LIKE '%.arcadedef' COLLATE NOCASE ";
+		query += "WHERE path LIKE '%.arcadedef' COLLATE NOCASE ORDER BY title";
 		break;
 	case SORT_METHOD_NONE:
 		break;

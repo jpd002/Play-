@@ -75,7 +75,7 @@ MainWindow::MainWindow(QWidget* parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
-	ScanBootables("./arcadedefs/");
+	ArcadeUtils::RegisterArcadeMachines();
 
 	ui->setupUi(this);
 	buildResizeWindowMenu();

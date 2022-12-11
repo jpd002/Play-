@@ -1,11 +1,13 @@
 #include "ArcadeUtils.h"
 #include <nlohmann/json.hpp>
 #include "string_format.h"
+#include "PathUtils.h"
 #include "StdStreamUtils.h"
 #include "PS2VM.h"
 #include "PS2VM_Preferences.h"
 #include "DiskUtils.h"
 #include "AppConfig.h"
+#include "BootablesDbClient.h"
 #include "BootablesProcesses.h"
 #include "iop/ioman/McDumpDevice.h"
 #include "iop/Iop_NamcoArcade.h"
@@ -21,6 +23,7 @@ struct ARCADE_MACHINE_DEF
 	};
 
 	std::string id;
+	std::string name;
 	std::string dongleFileName;
 	std::string cdvdFileName;
 	std::string boot;
@@ -60,6 +63,7 @@ ARCADE_MACHINE_DEF ReadArcadeMachineDefinition(const fs::path& arcadeDefPath)
 	auto defJson = nlohmann::json::parse(defString);
 	ARCADE_MACHINE_DEF def;
 	def.id = defJson["id"];
+	def.name = defJson["name"];
 	def.dongleFileName = defJson["dongle"]["name"];
 	if(defJson.contains("cdvd"))
 	{
@@ -156,9 +160,44 @@ void ApplyPatchesFromArcadeDefinition(CPS2VM* virtualMachine, const ARCADE_MACHI
 	}
 }
 
-void ArcadeUtils::BootArcadeMachine(CPS2VM* virtualMachine, const fs::path& arcadeDefPath)
+void ArcadeUtils::RegisterArcadeMachines()
 {
-	auto def = ReadArcadeMachineDefinition(arcadeDefPath);
+	auto arcadeDefsPath = Framework::PathUtils::GetAppResourcesPath() / "arcadedefs";
+
+	//Remove any arcade bootable registered the old way
+	//TEMP: Remove this when merging back to main
+	{
+		auto arcadeBootables = BootablesDb::CClient::GetInstance().GetBootables(BootablesDb::CClient::SORT_METHOD_ARCADE);
+		for(const auto& bootable : arcadeBootables)
+		{
+			if(bootable.path.has_parent_path())
+			{
+				BootablesDb::CClient::GetInstance().UnregisterBootable(bootable.path);
+			}
+		}
+	}
+	
+	for(const auto& entry : fs::directory_iterator(arcadeDefsPath))
+	{
+		auto arcadeDefPath = entry.path();
+		auto arcadeDefFilename = arcadeDefPath.filename();
+		try
+		{
+			auto def = ReadArcadeMachineDefinition(arcadeDefsPath / arcadeDefFilename);
+			BootablesDb::CClient::GetInstance().RegisterBootable(arcadeDefFilename, "", "");
+			BootablesDb::CClient::GetInstance().SetTitle(arcadeDefFilename, def.name.c_str());
+		}
+		catch(...)
+		{
+			assert(false);
+		}
+	}
+}
+
+void ArcadeUtils::BootArcadeMachine(CPS2VM* virtualMachine, const fs::path& arcadeDefFilename)
+{
+	auto arcadeDefsPath = Framework::PathUtils::GetAppResourcesPath() / "arcadedefs";
+	auto def = ReadArcadeMachineDefinition(arcadeDefsPath / arcadeDefFilename);
 
 	//Reset PS2VM
 	virtualMachine->Pause();
@@ -187,5 +226,5 @@ void ArcadeUtils::BootArcadeMachine(CPS2VM* virtualMachine, const fs::path& arca
 	virtualMachine->Resume();
 #endif
 
-	TryUpdateLastBootedTime(arcadeDefPath);
+	TryUpdateLastBootedTime(arcadeDefFilename);
 }

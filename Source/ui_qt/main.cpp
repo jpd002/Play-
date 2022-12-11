@@ -74,7 +74,7 @@ int main(int argc, char* argv[])
 	else if(parser.isSet(arcade_id_option))
 	{
 		QString arcade_id = parser.value(arcade_id_option);
-		w.BootArcadeMachine("./arcadedefs/" + arcade_id.toStdString() + ".arcadedef");
+		w.BootArcadeMachine(arcade_id.toStdString() + ".arcadedef");
 	}
 
 	if(parser.isSet(load_state_option))
