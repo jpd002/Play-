@@ -265,9 +265,11 @@ if(TARGET_PLATFORM_MACOS)
 		macos/InputProviderMacOsHid.cpp
 		macos/InputProviderMacOsHid.h
 	)
+	FILE(GLOB ARCADE_DEFS ${CMAKE_CURRENT_SOURCE_DIR}/../../arcadedefs/*.arcadedef)
 	set(OSX_RES
 		${CMAKE_CURRENT_SOURCE_DIR}/macos/AppIcon.icns
 		${CMAKE_CURRENT_SOURCE_DIR}/../../patches.xml
+		${ARCADE_DEFS}
 	)
 	if(DEBUGGER_INCLUDED)
 		list(APPEND OSX_RES ${CMAKE_CURRENT_SOURCE_DIR}/../../ee_functions.xml)
@@ -292,8 +294,10 @@ if(TARGET_PLATFORM_MACOS)
 			MACOSX_BUNDLE_COPYRIGHT "© Virtual Applications, 2019"
 			MACOSX_BUNDLE_ICON_FILE "AppIcon.icns"
 			MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/macos/Info.plist.in"
-		RESOURCE "${OSX_RES}"
+		RESOURCE ${OSX_RES}
 	)
+	SET_SOURCE_FILES_PROPERTIES(${OSX_RES} PROPERTIES MACOSX_PACKAGE_LOCATION "Resources")
+	SET_SOURCE_FILES_PROPERTIES(${ARCADE_DEFS} PROPERTIES MACOSX_PACKAGE_LOCATION "Resources/arcadedefs")
 	list(APPEND PROJECT_LIBS "-framework IOKit -framework CoreFoundation")
 	if(USE_GSH_VULKAN)
 		target_include_directories(Play PRIVATE $ENV{VULKAN_SDK}/../MoltenVK/include)
