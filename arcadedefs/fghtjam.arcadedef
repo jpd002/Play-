@@ -1,0 +1,16 @@
+{
+	"id": "fghtjam",
+	"name": "Capcom Fighting Jam",
+	"dongle":
+	{
+		"name": "jam1vera.ic002"
+	},
+	"cdvd":
+	{
+		"name": "jam1-dvd0.chd"
+	},
+	"boot": "ac0:FJMLOAD",
+	"patches":
+	[
+	]
+}
