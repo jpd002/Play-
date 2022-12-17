@@ -427,10 +427,19 @@ void MainWindow::BootCDROM()
 
 void MainWindow::BootArcadeMachine(fs::path arcadeDefPath)
 {
-	ArcadeUtils::BootArcadeMachine(m_virtualMachine, arcadeDefPath);
-	m_lastOpenCommand = LastOpenCommand(BootType::ARCADE, arcadeDefPath);
-	m_msgLabel->setText(QString("Started arcade machine '%1'.").arg(arcadeDefPath.filename().c_str()));
-	UpdateUI();
+	try
+	{
+		ArcadeUtils::BootArcadeMachine(m_virtualMachine, arcadeDefPath);
+		m_lastOpenCommand = LastOpenCommand(BootType::ARCADE, arcadeDefPath);
+		m_msgLabel->setText(QString("Started arcade machine '%1'.").arg(arcadeDefPath.filename().c_str()));
+		UpdateUI();
+	}
+	catch(const std::exception& e)
+	{
+		QMessageBox messageBox;
+		messageBox.critical(nullptr, "Error", e.what());
+		messageBox.show();
+	}
 }
 
 void MainWindow::on_actionExit_triggered()
