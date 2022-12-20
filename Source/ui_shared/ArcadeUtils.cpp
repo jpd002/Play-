@@ -131,7 +131,7 @@ void PrepareArcadeEnvironment(CPS2VM* virtualMachine, const ARCADE_MACHINE_DEF& 
 		//Ridge Racer 5: Arcade Battle doesn't have any FILEIO in its IOPRP
 		//Assuming that the BIOS image for arcade boards is version 2.0.5
 		iopBios->SetDefaultImageVersion(2050);
-		
+
 		auto acRam = std::make_shared<Iop::Namco::CAcRam>(virtualMachine->m_iop->m_ram);
 		iopBios->RegisterModule(acRam);
 		iopBios->RegisterHleModuleReplacement("Arcade_Ext._Memory", acRam);
@@ -141,7 +141,7 @@ void PrepareArcadeEnvironment(CPS2VM* virtualMachine, const ARCADE_MACHINE_DEF& 
 		iopBios->RegisterModule(acCdvdModule);
 		iopBios->RegisterHleModuleReplacement("ATA/ATAPI_driver", acCdvdModule);
 		iopBios->RegisterHleModuleReplacement("CD/DVD_Compatible", acCdvdModule);
-		
+
 		{
 			auto namcoArcadeModule = std::make_shared<Iop::CNamcoArcade>(*iopBios->GetSifman(), *acRam, def.id);
 			iopBios->RegisterModule(namcoArcadeModule);
@@ -176,7 +176,7 @@ void ArcadeUtils::RegisterArcadeMachines()
 			}
 		}
 	}
-	
+
 	for(const auto& entry : fs::directory_iterator(arcadeDefsPath))
 	{
 		auto arcadeDefPath = entry.path();
@@ -204,23 +204,21 @@ void ArcadeUtils::BootArcadeMachine(CPS2VM* virtualMachine, const fs::path& arca
 	virtualMachine->Reset();
 
 	PrepareArcadeEnvironment(virtualMachine, def);
-	
+
 	//Boot mc0:/BOOT (from def)
-	virtualMachine->m_ee->m_os->BootFromVirtualPath(def.boot.c_str(), { "DANGLE" });
+	virtualMachine->m_ee->m_os->BootFromVirtualPath(def.boot.c_str(), {"DANGLE"});
 
 	ApplyPatchesFromArcadeDefinition(virtualMachine, def);
-	
+
 	virtualMachine->BeforeExecutableReloaded =
-		[def](CPS2VM* virtualMachine)
-		{
-			PrepareArcadeEnvironment(virtualMachine, def);
-		};
-	
+	    [def](CPS2VM* virtualMachine) {
+		    PrepareArcadeEnvironment(virtualMachine, def);
+	    };
+
 	virtualMachine->AfterExecutableReloaded =
-		[def](CPS2VM* virtualMachine)
-		{
-			ApplyPatchesFromArcadeDefinition(virtualMachine, def);
-		};
+	    [def](CPS2VM* virtualMachine) {
+		    ApplyPatchesFromArcadeDefinition(virtualMachine, def);
+	    };
 
 #ifndef DEBUGGER_INCLUDED
 	virtualMachine->Resume();

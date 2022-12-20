@@ -18,9 +18,9 @@ using namespace Iop::Namco;
 #define FUNCTION_CDUNKNOWN_37 "IopCdUnknown_37"
 
 CAcCdvd::CAcCdvd(CSifMan& sif, CCdvdman& cdvdman, uint8* iopRam, CAcRam& acRam)
-: m_cdvdman(cdvdman)
-, m_iopRam(iopRam)
-, m_acRam(acRam)
+    : m_cdvdman(cdvdman)
+    , m_iopRam(iopRam)
+    , m_acRam(acRam)
 {
 	sif.RegisterModule(MODULE_ID, this);
 }
@@ -65,52 +65,52 @@ void CAcCdvd::Invoke(CMIPS& context, unsigned int functionId)
 	switch(functionId)
 	{
 	case 10:
-		{
-			uint32 fileInfoPtr = context.m_State.nGPR[CMIPS::A0].nV0;
-			uint32 pathPtr = context.m_State.nGPR[CMIPS::A1].nV0;
-			CLog::GetInstance().Warn(LOG_NAME, FUNCTION_CDSEARCHFILE "(fileInfoPtr = 0x%08X, pathPtr = %s);\r\n",
-									 fileInfoPtr,
-									 PrintStringParameter(m_iopRam, pathPtr).c_str());
-			auto path = reinterpret_cast<const char*>(m_iopRam + pathPtr);
-			auto fileInfo = reinterpret_cast<CCdvdman::FILEINFO*>(m_iopRam + fileInfoPtr);
-			uint32 result = m_cdvdman.CdLayerSearchFileDirect(m_opticalMedia, fileInfo, path, 0);
-			context.m_State.nGPR[CMIPS::V0].nV0 = result;
-		}
-		break;
+	{
+		uint32 fileInfoPtr = context.m_State.nGPR[CMIPS::A0].nV0;
+		uint32 pathPtr = context.m_State.nGPR[CMIPS::A1].nV0;
+		CLog::GetInstance().Warn(LOG_NAME, FUNCTION_CDSEARCHFILE "(fileInfoPtr = 0x%08X, pathPtr = %s);\r\n",
+		                         fileInfoPtr,
+		                         PrintStringParameter(m_iopRam, pathPtr).c_str());
+		auto path = reinterpret_cast<const char*>(m_iopRam + pathPtr);
+		auto fileInfo = reinterpret_cast<CCdvdman::FILEINFO*>(m_iopRam + fileInfoPtr);
+		uint32 result = m_cdvdman.CdLayerSearchFileDirect(m_opticalMedia, fileInfo, path, 0);
+		context.m_State.nGPR[CMIPS::V0].nV0 = result;
+	}
+	break;
 	case 11:
+	{
+		uint32 startSector = context.m_State.nGPR[CMIPS::A0].nV0;
+		uint32 sectorCount = context.m_State.nGPR[CMIPS::A1].nV0;
+		uint32 bufferPtr = context.m_State.nGPR[CMIPS::A2].nV0;
+		uint32 modePtr = context.m_State.nGPR[CMIPS::A3].nV0;
+		CLog::GetInstance().Warn(LOG_NAME, FUNCTION_CDREAD "(startSector = 0x%X, sectorCount = 0x%X, bufferPtr = 0x%08X, modePtr = 0x%08X);\r\n",
+		                         startSector, sectorCount, bufferPtr, modePtr);
+		auto buffer = reinterpret_cast<uint8*>(m_iopRam + (bufferPtr & (PS2::IOP_RAM_SIZE - 1)));
+		static const uint32 sectorSize = 2048;
+		auto fileSystem = m_opticalMedia->GetFileSystem();
+		for(unsigned int i = 0; i < sectorCount; i++)
 		{
-			uint32 startSector = context.m_State.nGPR[CMIPS::A0].nV0;
-			uint32 sectorCount = context.m_State.nGPR[CMIPS::A1].nV0;
-			uint32 bufferPtr = context.m_State.nGPR[CMIPS::A2].nV0;
-			uint32 modePtr = context.m_State.nGPR[CMIPS::A3].nV0;
-			CLog::GetInstance().Warn(LOG_NAME, FUNCTION_CDREAD "(startSector = 0x%X, sectorCount = 0x%X, bufferPtr = 0x%08X, modePtr = 0x%08X);\r\n",
-									  startSector, sectorCount, bufferPtr, modePtr);
-			auto buffer = reinterpret_cast<uint8*>(m_iopRam + (bufferPtr & (PS2::IOP_RAM_SIZE - 1)));
-			static const uint32 sectorSize = 2048;
-			auto fileSystem = m_opticalMedia->GetFileSystem();
-			for(unsigned int i = 0; i < sectorCount; i++)
-			{
-				fileSystem->ReadBlock(startSector + i, buffer);
-				buffer += sectorSize;
-			}
-			context.m_State.nGPR[CMIPS::V0].nV0 = 1;
+			fileSystem->ReadBlock(startSector + i, buffer);
+			buffer += sectorSize;
 		}
-		break;
+		context.m_State.nGPR[CMIPS::V0].nV0 = 1;
+	}
+	break;
 	case 16:
 		//CdSync?
 		CLog::GetInstance().Warn(LOG_NAME, FUNCTION_CDUNKNOWN_16 "(param0 = %d);\r\n",
-								 context.m_State.nGPR[CMIPS::A0].nV0);
+		                         context.m_State.nGPR[CMIPS::A0].nV0);
 		context.m_State.nGPR[CMIPS::V0].nV0 = 0;
 		break;
 	case 17:
 		CLog::GetInstance().Warn(LOG_NAME, FUNCTION_CDUNKNOWN_17 "(param0 = %d);\r\n",
-								 context.m_State.nGPR[CMIPS::A0].nV0);
+		                         context.m_State.nGPR[CMIPS::A0].nV0);
 		context.m_State.nGPR[CMIPS::V0].nV0 = 1;
 		break;
 	case 19:
 		//CdDiskReady
 		CLog::GetInstance().Warn(LOG_NAME, FUNCTION_CDUNKNOWN_19 "(param0 = %d);\r\n",
-								 context.m_State.nGPR[CMIPS::A0].nV0);
+		                         context.m_State.nGPR[CMIPS::A0].nV0);
 		context.m_State.nGPR[CMIPS::V0].nV0 = 2;
 		break;
 	case 20:
@@ -123,7 +123,7 @@ void CAcCdvd::Invoke(CMIPS& context, unsigned int functionId)
 		break;
 	case 37:
 		CLog::GetInstance().Warn(LOG_NAME, FUNCTION_CDUNKNOWN_37 "(param0 = %d);\r\n",
-								 context.m_State.nGPR[CMIPS::A0].nV0);
+		                         context.m_State.nGPR[CMIPS::A0].nV0);
 		context.m_State.nGPR[CMIPS::V0].nV0 = 1;
 		break;
 	default:
@@ -166,7 +166,7 @@ bool CAcCdvd::Invoke(uint32 method, uint32* args, uint32 argsSize, uint32* ret, 
 			uint32 dstAddr = args[2];
 			static const size_t sectorSize = 0x800;
 			CLog::GetInstance().Warn(LOG_NAME, "Read%d(start = 0x%08X, count = %d, dstAddr = 0x%08X);\r\n",
-									 method, startSector, sectorCount, dstAddr);
+			                         method, startSector, sectorCount, dstAddr);
 			auto fileSystem = m_opticalMedia->GetFileSystem();
 			auto dst = (method == 0x0A) ? m_iopRam : ram;
 			for(unsigned int i = 0; i < sectorCount; i++)
@@ -199,7 +199,7 @@ bool CAcCdvd::Invoke(uint32 method, uint32* args, uint32 argsSize, uint32* ret, 
 			CCdvdman::FILEINFO fileInfo = {};
 			uint32 result = m_cdvdman.CdLayerSearchFileDirect(m_opticalMedia, &fileInfo, path, 0);
 			CLog::GetInstance().Warn(LOG_NAME, "SearchFile(path = '%s');\r\n", path);
-			ret[0x00] = 0; //Soul Calibur 2 requires this to be 0
+			ret[0x00] = 0;      //Soul Calibur 2 requires this to be 0
 			ret[0x01] = result; //Result?
 			ret[0x04] = fileInfo.sector;
 			ret[0x05] = fileInfo.size;
@@ -219,34 +219,34 @@ bool CAcCdvd::Invoke(uint32 method, uint32* args, uint32 argsSize, uint32* ret, 
 		CLog::GetInstance().Warn(LOG_NAME, "Cmd15();\r\n");
 		break;
 	case 0x13:
+	{
+		uint32 sectorCount = args[0];
+		uint32 mode = args[1];
+		uint32 dstAddr = args[2] & (PS2::EE_RAM_SIZE - 1);
+		uint32 errAddr = args[3];
+		CLog::GetInstance().Warn(LOG_NAME, "StRead(count = %d, mode = %d, dstAddr = 0x%08X, errAddr = 0x%08X);\r\n",
+		                         sectorCount, mode, dstAddr, errAddr);
+		auto fileSystem = m_opticalMedia->GetFileSystem();
+		for(unsigned int i = 0; i < sectorCount; i++)
 		{
-			uint32 sectorCount = args[0];
-			uint32 mode = args[1];
-			uint32 dstAddr = args[2] & (PS2::EE_RAM_SIZE - 1);
-			uint32 errAddr = args[3];
-			CLog::GetInstance().Warn(LOG_NAME, "StRead(count = %d, mode = %d, dstAddr = 0x%08X, errAddr = 0x%08X);\r\n",
-									 sectorCount, mode, dstAddr, errAddr);
-			auto fileSystem = m_opticalMedia->GetFileSystem();
-			for(unsigned int i = 0; i < sectorCount; i++)
-			{
-				fileSystem->ReadBlock(m_streamPos + i, ram + (dstAddr + (i * 0x800)));
-				m_streamPos++;
-			}
-			if(errAddr != 0)
-			{
-				auto err = reinterpret_cast<uint32*>(ram + errAddr);
-				(*err) = 0; //No error
-			}
+			fileSystem->ReadBlock(m_streamPos + i, ram + (dstAddr + (i * 0x800)));
+			m_streamPos++;
 		}
-		break;
+		if(errAddr != 0)
+		{
+			auto err = reinterpret_cast<uint32*>(ram + errAddr);
+			(*err) = 0; //No error
+		}
+	}
+	break;
 	case 0x15:
-		{
-			//Stream Seek?
-			CLog::GetInstance().Warn(LOG_NAME, "StSeek(sector = 0x%08X);\r\n", args[0]);
-			m_streamPos = args[0];
-			ret[0x01] = 1;
-		}
-		break;
+	{
+		//Stream Seek?
+		CLog::GetInstance().Warn(LOG_NAME, "StSeek(sector = 0x%08X);\r\n", args[0]);
+		m_streamPos = args[0];
+		ret[0x01] = 1;
+	}
+	break;
 	default:
 		CLog::GetInstance().Warn(LOG_NAME, "Unknown SIF method invoked (0x%08X).\r\n", method);
 		break;

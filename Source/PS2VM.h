@@ -94,10 +94,10 @@ public:
 	IopSubSystemPtr m_iop;
 
 	ProfileFrameDoneSignal ProfileFrameDone;
-	
+
 	ExecutableReloadedHandler BeforeExecutableReloaded;
 	ExecutableReloadedHandler AfterExecutableReloaded;
-	
+
 protected:
 	virtual void CreateVM();
 	void ResumeImpl();

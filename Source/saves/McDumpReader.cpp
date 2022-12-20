@@ -40,7 +40,7 @@ CMcDumpReader::CMcDumpReader(Framework::CStream& stream)
 			pageSpareSize = 0x10;
 		}
 	}
-	
+
 	m_rawPageSize = m_header.pageSize + pageSpareSize;
 }
 

@@ -33,7 +33,7 @@ namespace Iop
 			MODULE_ID_3 = 0x76500003,
 			MODULE_ID_4 = 0x76500004,
 		};
-		
+
 		enum
 		{
 			BACKUP_RAM_SIZE = 0x10000,
@@ -48,11 +48,11 @@ namespace Iop
 		void WriteBackupRam(uint32, const uint8*, uint32);
 
 		Namco::CAcRam& m_acRam;
-		
+
 		CSifModuleAdapter m_module001;
 		CSifModuleAdapter m_module003;
 		CSifModuleAdapter m_module004;
-		
+
 		std::string m_gameId;
 		uint32 m_recvAddr = 0;
 		uint32 m_sendAddr = 0;

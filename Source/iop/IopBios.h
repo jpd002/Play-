@@ -214,7 +214,7 @@ public:
 #endif
 	bool RegisterModule(const Iop::ModulePtr&);
 	bool ReleaseModule(const std::string&);
-	
+
 	void RegisterHleModuleReplacement(const std::string&, const Iop::ModulePtr&);
 
 	uint32 CreateThread(uint32, uint32, uint32, uint32, uint32);
@@ -310,7 +310,7 @@ private:
 	{
 		DEFAULT_IMAGE_VERSION = 1000,
 	};
-	
+
 	enum DEFAULT_STACKSIZE
 	{
 		DEFAULT_STACKSIZE = 0x4000,
@@ -658,7 +658,7 @@ private:
 	uint32 m_vblankHandlerAddress;
 
 	uint32 m_defaultImageVersion = DEFAULT_IMAGE_VERSION;
-	
+
 	bool m_rescheduleNeeded = false;
 	LoadedModuleList m_loadedModules;
 	ThreadList m_threads;

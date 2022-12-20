@@ -29,7 +29,7 @@ namespace Iop
 			{
 				MODULE_ID = 0x76500002,
 			};
-			
+
 			CCdvdman& m_cdvdman;
 			uint8* m_iopRam = nullptr;
 			CAcRam& m_acRam;

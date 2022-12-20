@@ -877,7 +877,7 @@ void CIopBios::ProcessModuleReset(const std::string& initCommand)
 	CLog::GetInstance().Print(LOGNAME, "ProcessModuleReset(%s);\r\n", initCommand.c_str());
 
 	UnloadUserComponents();
-	
+
 	uint32 imageVersion = m_defaultImageVersion;
 
 	auto initArguments = StringUtils::Split(initCommand);
@@ -962,8 +962,8 @@ bool CIopBios::TryGetImageVersionFromContents(const std::string& imagePath, unsi
 	//- FFXI/POLViewer resets the IOP with a image without version in the filename
 	//  and it also doesn't have a fileio string that lets us find the required version,
 	//  thus, we rely on the ioprp pattern for this game.
-	static const std::string fileIoPatternString   = "PsIIfileio  ";
-	static const std::string sysmemPatternString   = "PsIIsysmem  ";
+	static const std::string fileIoPatternString = "PsIIfileio  ";
+	static const std::string sysmemPatternString = "PsIIsysmem  ";
 	static const std::string loadcorePatternString = "PsIIloadcore";
 	static const std::string ioprpPatternString = "ioprp";
 
@@ -3309,7 +3309,7 @@ void CIopBios::UnloadUserComponents()
 		DeleteThread(thread->id);
 	}
 	for(auto loadedModuleIterator = std::begin(m_loadedModules);
-		loadedModuleIterator != std::end(m_loadedModules); loadedModuleIterator++)
+	    loadedModuleIterator != std::end(m_loadedModules); loadedModuleIterator++)
 	{
 		auto loadedModule = *loadedModuleIterator;
 		if(!loadedModule) continue;

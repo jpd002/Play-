@@ -40,7 +40,7 @@ int main(int argc, char* argv[])
 
 	QCommandLineOption arcade_id_option("arcade", "Boot arcade game with specified id", "arcade_id");
 	parser.addOption(arcade_id_option);
-	
+
 	QCommandLineOption load_state_option("state", "Load state at index", "state_index");
 	parser.addOption(load_state_option);
 
