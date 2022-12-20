@@ -83,9 +83,10 @@ Section "Play! (required)"
   File "..\Readme.html"
   File "..\Patches.xml"
   File "..\states.db"
-
+  
   SetOutPath $INSTDIR\arcadedefs
   File "..\arcadedefs\*.arcadedef"
+  SetOutPath $INSTDIR
   
   ; Write the installation path into the registry
   WriteRegStr HKLM SOFTWARE\NSIS_Play "Install_Dir" "$INSTDIR"
