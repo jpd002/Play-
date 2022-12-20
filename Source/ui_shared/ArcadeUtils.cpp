@@ -162,8 +162,6 @@ void ApplyPatchesFromArcadeDefinition(CPS2VM* virtualMachine, const ARCADE_MACHI
 
 void ArcadeUtils::RegisterArcadeMachines()
 {
-	auto arcadeDefsPath = Framework::PathUtils::GetAppResourcesPath() / "arcadedefs";
-
 	//Remove any arcade bootable registered the old way
 	//TEMP: Remove this when merging back to main
 	{
@@ -175,6 +173,12 @@ void ArcadeUtils::RegisterArcadeMachines()
 				BootablesDb::CClient::GetInstance().UnregisterBootable(bootable.path);
 			}
 		}
+	}
+
+	auto arcadeDefsPath = Framework::PathUtils::GetAppResourcesPath() / "arcadedefs";
+	if(!fs::exists(arcadeDefsPath))
+	{
+		return;
 	}
 
 	for(const auto& entry : fs::directory_iterator(arcadeDefsPath))
