@@ -108,6 +108,10 @@ void CCdvdfsv::ProcessCommands(CSifMan* sifMan)
 		{
 			//Result already set, just return normally
 		}
+		else if(m_pendingCommand == COMMAND_READCHAIN)
+		{
+			//Nothing to do, everything has been read already
+		}
 
 		m_pendingCommand = COMMAND_NONE;
 		sifMan->SendCallReply(MODULE_ID_4, nullptr);
@@ -307,6 +311,7 @@ bool CCdvdfsv::Invoke595(uint32 method, uint32* args, uint32 argsSize, uint32* r
 
 	case 0x0F:
 		ReadChain(args, argsSize, ret, retSize, ram);
+		return false;
 		break;
 
 	default:
@@ -527,6 +532,9 @@ void CCdvdfsv::ReadChain(uint32* args, uint32 argsSize, uint32* ret, uint32 retS
 			fileSystem->ReadBlock(sectorPos + sector, ram + (dstAddress + (sector * sectorSize)));
 		}
 	}
+
+	//DBZ: Budokai Tenkaichi hangs in its loading screen if this command's result is not delayed.
+	m_pendingCommand = COMMAND_READCHAIN;
 }
 
 void CCdvdfsv::SearchFile(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
