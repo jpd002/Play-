@@ -782,7 +782,17 @@ void QtDebugger::on_actionReanalyse_ee_triggered()
 
 void QtDebugger::on_actionFind_Functions_triggered()
 {
-	FindEeFunctions();
+	try
+	{
+		FindEeFunctions();
+	}
+	catch(const std::exception& ex)
+	{
+		QMessageBox messageBox(this);
+		messageBox.setText(ex.what());
+		messageBox.setIcon(QMessageBox::Critical);
+		messageBox.exec();
+	}
 }
 
 void QtDebugger::on_actionCascade_triggered()
