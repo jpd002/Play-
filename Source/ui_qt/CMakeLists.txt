@@ -330,6 +330,10 @@ elseif(TARGET_PLATFORM_UNIX)
 	install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/../../installer_unix/org.purei.Play.metainfo.xml
 		DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/metainfo
 	)
+	FILE(GLOB ARCADE_DEFS ${CMAKE_CURRENT_SOURCE_DIR}/../../arcadedefs/*.arcadedef)
+	install(FILES ${ARCADE_DEFS}
+		DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/arcadedefs
+	)
 	if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/../../states.db")
 		install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/../../states.db
 			DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/
