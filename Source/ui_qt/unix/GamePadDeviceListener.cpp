@@ -56,7 +56,8 @@ void CGamePadDeviceListener::DisconnectInputEventCallback()
 
 void CGamePadDeviceListener::UpdateDeviceList()
 {
-	std::string path = "/dev/input/";
+	auto path = fs::path("/dev/input/");
+	if(!fs::exists(path)) return;
 	for(auto& p : fs::directory_iterator(path))
 	{
 		if(p.path().filename().string().find("event") != std::string::npos)
