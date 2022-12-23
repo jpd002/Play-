@@ -76,8 +76,10 @@ export const loadArchive = createAsyncThunk<string[] | undefined, File>('loadArc
         fileList = fileList.filter(path => 
             path.endsWith(".psf") ||
             path.endsWith(".psf2") ||
+            path.endsWith(".psfp") ||
             path.endsWith(".minipsf") ||
-            path.endsWith(".minipsf2"));
+            path.endsWith(".minipsf2") ||
+            path.endsWith(".minipsfp"));
         return fileList;
     }
 );
