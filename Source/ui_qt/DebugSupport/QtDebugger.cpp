@@ -41,7 +41,7 @@ QtDebugger::QtDebugger(CPS2VM& virtualMachine)
 	m_OnFunctionDblClickConnection = m_pFunctionsView->OnFunctionDblClick.Connect(std::bind(&QtDebugger::OnFunctionsViewFunctionDblClick, this, std::placeholders::_1));
 	m_OnFunctionsStateChangeConnection = m_pFunctionsView->OnFunctionsStateChange.Connect(std::bind(&QtDebugger::OnFunctionsViewFunctionsStateChange, this));
 
-	//Threads View Initialization
+	//Kernel Objects View Initialization
 	{
 		m_kernelObjectListViewWnd = new QMdiSubWindow(ui->mdiArea);
 		m_kernelObjectListView = new CKernelObjectListView(m_kernelObjectListViewWnd);
