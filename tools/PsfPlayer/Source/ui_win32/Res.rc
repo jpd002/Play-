@@ -1,0 +1,292 @@
+// Microsoft Visual C++ generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include <windows.h>
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// English (United States) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE 
+BEGIN
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE 
+BEGIN
+    "\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Bitmap
+//
+
+IDB_ARROW               BITMAP                  "images\\arrow.bmp"
+IDB_BREAKPOINT          BITMAP                  "images\\bpoint.bmp"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDI_MAIN                ICON                    "images\\PsfPlayer.ico"
+IDI_PLAYONCE            ICON                    "images\\play_once.ico"
+IDI_REPEAT_LIST         ICON                    "images\\repeat_list.ico"
+IDI_REPEAT_TRACK        ICON                    "images\\repeat_track.ico"
+IDI_CONFIG              ICON                    "images\\config.ico"
+IDI_PAUSE               ICON                    "images\\pause.ico"
+IDI_PLAY                ICON                    "images\\play.ico"
+IDI_NEXT_TRACK          ICON                    "images\\next_track.ico"
+IDI_PREV_TRACK          ICON                    "images\\prev_track.ico"
+IDI_SHUFFLE_LIST        ICON                    "images\\shuffle_list.ico"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Menu
+//
+
+IDR_CONFIG_POPUP MENU
+BEGIN
+    POPUP "File"
+    BEGIN
+        MENUITEM "Audio Plugin",                ID_FILE_AUDIOPLUGIN
+        MENUITEM "Character Encoding",          ID_FILE_CHARACTERENCODING
+        MENUITEM "Reverb Enabled",              ID_FILE_ENABLEREVERB
+        MENUITEM SEPARATOR
+        MENUITEM "About...",                    ID_FILE_ABOUT
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_MAINWINDOW DIALOGEX 0, 0, 214, 297
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_MINIMIZEBOX | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "PsfPlayer"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "Eject",IDC_EJECT_BUTTON,6,270,204,21
+    PUSHBUTTON      "3",IDC_PREVTAB_BUTTON,6,30,24,18
+    CONTROL         "",IDC_CONFIG_BUTTON,"Button",BS_AUTOCHECKBOX | BS_ICON | BS_PUSHLIKE | WS_TABSTOP,78,30,24,18
+    PUSHBUTTON      "",IDC_REPEAT_BUTTON,109,30,24,18,BS_ICON
+    PUSHBUTTON      "4",IDC_NEXTTAB_BUTTON,186,30,24,18
+    PUSHBUTTON      "7",ID_FILE_PREVIOUSTRACK,6,246,66,21
+    PUSHBUTTON      "4",IDC_PAUSE_BUTTON,75,246,66,21
+    PUSHBUTTON      "8",ID_FILE_NEXTTRACK,144,246,66,21
+    CONTROL         "",IDC_PLACEHOLDER,"Static",SS_OWNERDRAW | NOT WS_VISIBLE,6,54,204,186
+    CTEXT           "Timer Label",IDC_TIMER_LABEL,6,18,204,8
+    CTEXT           "Title Label",IDC_TITLE_LABEL,6,6,204,8,SS_NOPREFIX
+END
+
+IDD_PLAYLISTPANEL DIALOGEX 0, 0, 236, 236
+STYLE DS_SETFONT | DS_FIXEDSYS | DS_CONTROL | WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_SYSMENU
+EXSTYLE WS_EX_CONTROLPARENT
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    CONTROL         "",IDC_PLAYLIST_LISTVIEW,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_ALIGNLEFT | WS_BORDER | WS_TABSTOP,0,0,234,210
+    PUSHBUTTON      "Up",IDC_UP_BUTTON,6,216,18,14
+    PUSHBUTTON      "Dn",IDC_DOWN_BUTTON,24,216,18,14
+    PUSHBUTTON      "+",IDC_ADD_BUTTON,174,216,18,14
+    PUSHBUTTON      "-",IDC_REMOVE_BUTTON,192,216,18,14
+    PUSHBUTTON      "S",IDC_SAVE_BUTTON,210,216,18,14
+END
+
+IDD_FILEINFORMATIONPANEL DIALOGEX 0, 0, 254, 242
+STYLE DS_SETFONT | DS_FIXEDSYS | DS_CONTROL | WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_SYSMENU
+EXSTYLE WS_EX_CONTROLPARENT
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    EDITTEXT        IDC_TITLE_EDIT,78,6,168,12,ES_AUTOHSCROLL | ES_READONLY
+    EDITTEXT        IDC_ARTIST_EDIT,78,24,168,12,ES_AUTOHSCROLL | ES_READONLY
+    EDITTEXT        IDC_GAME_EDIT,78,42,168,12,ES_AUTOHSCROLL | ES_READONLY
+    EDITTEXT        IDC_YEAR_EDIT,78,60,168,12,ES_AUTOHSCROLL | ES_READONLY
+    EDITTEXT        IDC_GENRE_EDIT,78,78,168,12,ES_AUTOHSCROLL | ES_READONLY
+    EDITTEXT        IDC_COMMENT_EDIT,78,96,168,12,ES_AUTOHSCROLL | ES_READONLY
+    EDITTEXT        IDC_COPYRIGHT_EDIT,78,114,168,12,ES_AUTOHSCROLL | ES_READONLY
+    EDITTEXT        IDC_PSFBY_EDIT,78,132,168,12,ES_AUTOHSCROLL | ES_READONLY
+    EDITTEXT        IDC_RAWTAGS_EDIT,6,168,240,66,ES_MULTILINE | ES_AUTOHSCROLL | ES_READONLY | WS_VSCROLL
+    LTEXT           "Title:",IDC_TITLE_LABEL,6,6,66,8
+    LTEXT           "Artist:",IDC_ARTIST_LABEL,6,24,66,8
+    LTEXT           "Year:",IDC_YEAR_LABEL,6,60,66,8
+    LTEXT           "Game:",IDC_GAME_LABEL,6,42,66,8
+    LTEXT           "Genre:",IDC_GENRE_LABEL,6,78,66,8
+    LTEXT           "Comment:",IDC_COMMENT_LABEL,6,96,66,8
+    LTEXT           "Psf by:",IDC_PSFBY_LABEL,6,132,66,8
+    LTEXT           "Copyright:",IDC_COPYRIGHT_LABEL,6,114,66,8
+    LTEXT           "Raw Tags View:",IDC_RAWTAGS_LABEL,6,156,66,8
+    CONTROL         "",IDC_VERTICAL_SEPARATOR,"Static",SS_ETCHEDHORZ,6,150,240,1
+END
+
+IDD_SPUREGVIEW DIALOGEX 0, 0, 253, 323
+STYLE DS_SETFONT | DS_FIXEDSYS | DS_CONTROL | WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_SYSMENU
+EXSTYLE WS_EX_CONTROLPARENT
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO
+BEGIN
+    IDD_MAINWINDOW, DIALOG
+    BEGIN
+    END
+
+    IDD_PLAYLISTPANEL, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 229
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 229
+    END
+
+    IDD_FILEINFORMATIONPANEL, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 247
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 235
+    END
+
+    IDD_SPUREGVIEW, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 243
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 313
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+#endif    // English (United States) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////
+// French (Canada) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_FRC)
+LANGUAGE LANG_FRENCH, SUBLANG_FRENCH_CANADIAN
+#pragma code_page(1252)
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Menu
+//
+
+IDR_TRAY_POPUP MENU
+BEGIN
+    POPUP "File"
+    BEGIN
+        MENUITEM "Previous Track",              ID_FILE_PREVIOUSTRACK
+        MENUITEM "Next Track",                  ID_FILE_NEXTTRACK
+        MENUITEM "Pause",                       ID_FILE_PAUSE
+        MENUITEM SEPARATOR
+        MENUITEM "Quit",                        ID_FILE_EXIT
+    END
+END
+
+#endif    // French (Canada) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////
+// English (Canada) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENC)
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_CAN
+#pragma code_page(1252)
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 1,0,2,0
+ PRODUCTVERSION 1,0,2,0
+ FILEFLAGSMASK 0x17L
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS 0x4L
+ FILETYPE 0x0L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "100904b0"
+        BEGIN
+            VALUE "Comments", "PsfPlayer - PlayStation Sound Format Player"
+            VALUE "CompanyName", "Virtual Applications"
+            VALUE "FileDescription", "PsfPlayer"
+            VALUE "FileVersion", "1.0.2.0"
+            VALUE "InternalName", "PsfPlayer"
+            VALUE "LegalCopyright", "Copyright (C) 2010 Virtual Applications"
+            VALUE "OriginalFilename", "PsfPlayer.exe"
+            VALUE "ProductName", "PsfPlayer - PlayStation Sound Format Player"
+            VALUE "ProductVersion", "1.0.2.0"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x1009, 1200
+    END
+END
+
+#endif    // English (Canada) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+
