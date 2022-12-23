@@ -74,9 +74,14 @@ BiosDebugModuleInfoArray CPsfBios::GetModulesDebugInfo() const
 	return m_bios.GetModulesDebugInfo();
 }
 
-BiosDebugThreadInfoArray CPsfBios::GetThreadsDebugInfo() const
+BiosDebugObjectInfoMap CPsfBios::GetBiosObjectsDebugInfo() const
 {
-	return m_bios.GetThreadsDebugInfo();
+	return m_bios.GetBiosObjectsDebugInfo();
+}
+
+BiosDebugObjectArray CPsfBios::GetBiosObjects(uint32 typeId) const
+{
+	return m_bios.GetBiosObjects(typeId);
 }
 
 #endif

@@ -30,7 +30,8 @@ namespace Psp
 		void SaveDebugTags(Framework::Xml::CNode*);
 
 		BiosDebugModuleInfoArray GetModulesDebugInfo() const override;
-		BiosDebugThreadInfoArray GetThreadsDebugInfo() const override;
+		BiosDebugObjectInfoMap GetBiosObjectsDebugInfo() const override;
+		BiosDebugObjectArray GetBiosObjects(uint32) const override;
 #endif
 
 	private:

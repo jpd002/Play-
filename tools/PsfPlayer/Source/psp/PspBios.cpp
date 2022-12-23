@@ -350,9 +350,14 @@ BiosDebugModuleInfoArray CBios::GetModulesDebugInfo() const
 	return m_moduleTags;
 }
 
-BiosDebugThreadInfoArray CBios::GetThreadsDebugInfo() const
+BiosDebugObjectInfoMap CBios::GetBiosObjectsDebugInfo() const
 {
-	return BiosDebugThreadInfoArray();
+	return BiosDebugObjectInfoMap();
+}
+
+BiosDebugObjectArray CBios::GetBiosObjects(uint32 typeId) const
+{
+	return BiosDebugObjectArray();
 }
 
 #endif
