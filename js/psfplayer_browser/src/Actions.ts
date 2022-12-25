@@ -1,6 +1,6 @@
 import { configureStore, createAsyncThunk, createReducer } from "@reduxjs/toolkit";
 import { TypedUseSelectorHook, useDispatch, useSelector } from "react-redux";
-import { PsfPlayerModule, initPsfPlayerModule, resumePsf, pausePsf, getPsfArchiveFileList, loadPsfFromArchive, getCurrentPsfTags } from "./PsfPlayerModule";
+import { PsfPlayerModule, initPsfPlayerModule, resumePsf, pausePsf, getPsfArchiveFileList, getPsfArchiveItemTags, loadPsfFromArchive, getCurrentPsfTags } from "./PsfPlayerModule";
 
 const invalidPlayingIndex = -1;
 
@@ -26,6 +26,7 @@ export type AudioState = {
     playing: boolean
     playingIndex: number
     archiveFileList : string[]
+    archiveItemTitles : string[]
     archiveFileListVersion : number;
     currentPsfTags : any | undefined
 };
@@ -41,6 +42,7 @@ let initialState : AudioState = {
     playing: false,
     playingIndex: invalidPlayingIndex,
     archiveFileList: [],
+    archiveItemTitles: [],
     archiveFileListVersion: 0,
     currentPsfTags: undefined
 };
@@ -84,6 +86,20 @@ export const loadArchive = createAsyncThunk<string[] | undefined, File>('loadArc
     }
 );
 
+export const fetchArchiveItemTitle = createAsyncThunk<string, number>('fetchArchiveItemTitle',
+    async (archiveFileIndex : number, thunkAPI) => {
+        let state = thunkAPI.getState() as RootState;
+        let psfFilePath = state.player.archiveFileList[archiveFileIndex] as string;
+        let tags = getPsfArchiveItemTags(archiveFilePath, psfFilePath);
+        let title = tags.get("title");
+        if(title) {
+            return title;
+        } else {
+            return psfFilePath;
+        }
+    }
+);
+
 export const loadPsf = createAsyncThunk<LoadPsfResult, number>('loadPsf',
     async (archiveFileIndex : number, thunkAPI) => {
         let state = thunkAPI.getState() as RootState;
@@ -122,8 +138,10 @@ const reducer = createReducer(initialState, (builder) => (
             state.currentPsfTags = undefined;
             if(action.payload) {
                 state.archiveFileList = action.payload;
+                state.archiveItemTitles = [...action.payload];
             } else {
                 state.archiveFileList = [];
+                state.archiveItemTitles = [];
             }
             state.archiveFileListVersion = state.archiveFileListVersion + 1;
             return state;
@@ -132,8 +150,13 @@ const reducer = createReducer(initialState, (builder) => (
             state.playingIndex = invalidPlayingIndex;
             state.currentPsfTags = undefined;
             state.archiveFileList = [];
+            state.archiveItemTitles = [];
             state.archiveFileListVersion = state.archiveFileListVersion + 1;
             state.value = `loading failed: ${action.error.message}`;
+            return state;
+        })
+        .addCase(fetchArchiveItemTitle.fulfilled, (state, action) => {
+            state.archiveItemTitles[action.meta.arg] = action.payload;
             return state;
         })
         .addCase(loadPsf.fulfilled, (state, action) => {

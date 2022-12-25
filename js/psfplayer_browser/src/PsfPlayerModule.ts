@@ -53,6 +53,11 @@ export let getPsfArchiveFileList = function(archivePath : string) {
     return convertStringVectorToArray(fileList);
 }
 
+export let getPsfArchiveItemTags = function(archivePath : string, psfPath : string) {
+    let tags = convertStringMapToDictionary(PsfPlayerModule.getPsfArchiveItemTags(archivePath, psfPath));
+    return tags;
+}
+
 export let loadPsfFromArchive = async function(archivePath : string, psfPath : string) {
     PsfPlayerModule.loadPsf(archivePath, psfPath);
 }

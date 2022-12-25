@@ -2,7 +2,7 @@ import './App.css';
 import { ChangeEvent, useEffect, useRef } from 'react';
 import { FixedSizeList, ListChildComponentProps } from 'react-window';
 import { ListItem, ListItemButton, ListItemText } from '@mui/material';
-import { useAppDispatch, useAppSelector, loadArchive, loadPsf, play, pause } from "./Actions";
+import { useAppDispatch, useAppSelector, loadArchive, fetchArchiveItemTitle, loadPsf, play, pause } from "./Actions";
 import { PsfPlayerModule } from './PsfPlayerModule';
 
 function RenderRow(props: ListChildComponentProps) {
@@ -10,6 +10,7 @@ function RenderRow(props: ListChildComponentProps) {
 
   const state = useAppSelector((state) => state.player);
   let archiveFile = state.archiveFileList[index];
+  let archiveItemTitle = state.archiveItemTitles[index];
 
   const dispatch = useAppDispatch();  
   const handleClick = function(archiveFileIndex : number) {
@@ -24,7 +25,7 @@ function RenderRow(props: ListChildComponentProps) {
   return (
     <ListItem style={style} key={index} component="div" disablePadding>
       <ListItemButton onClick={(e) => handleClick(index)}>
-        <ListItemText primary={archiveFile} primaryTypographyProps={{style: itemStyle}} />
+        <ListItemText primary={archiveItemTitle} primaryTypographyProps={{style: itemStyle}} />
       </ListItemButton>
     </ListItem>
   );
@@ -37,6 +38,8 @@ function usePrevious<Type>(value : Type) : Type | undefined {
   });
   return ref.current;
 }
+
+let fetchTitleAbortController = new AbortController();
 
 export default function App() {
     const dispatch = useAppDispatch();
@@ -82,13 +85,36 @@ export default function App() {
 
     const handleChange = function(event : ChangeEvent<HTMLInputElement>) {
       if(event.target && event.target.files && event.target.files.length !== 0) {
+        fetchTitleAbortController.abort();
         dispatch(loadArchive(event.target.files[0]));
       }
     }
 
+    const fetchTitles = async function(signal : AbortSignal) {
+      function sleep(ms : number) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+      }
+      let fetchPromiseAbortFunction : Function | null = null;
+      signal.addEventListener("abort", (ev: Event) => {
+        if(fetchPromiseAbortFunction) {
+          fetchPromiseAbortFunction();
+        }
+      });
+      for(let i = 0; i < state.archiveFileList.length; i++) {
+        await sleep(100);
+        if(signal.aborted) {
+          break;
+        }
+        let fetchPromise = dispatch(fetchArchiveItemTitle(i));
+        fetchPromiseAbortFunction = fetchPromise.abort;
+      }
+    }
+    
     useEffect(() => {
       if(state.archiveFileListVersion !== prevArchiveFileListVersion) {
         listRef.current?.scrollTo(0);
+        fetchTitleAbortController = new AbortController();
+        fetchTitles(fetchTitleAbortController.signal);
       }
       if(state.playing !== prevPlaying) {
         if(state.playing) {

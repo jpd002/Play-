@@ -2,6 +2,7 @@
 #include <cstdio>
 #include "filesystem_def.h"
 #include "PsfArchive.h"
+#include "PsfStreamProvider.h"
 #include "SH_OpenALProxy.h"
 #include "SH_FileOutput.h"
 #include "../SH_OpenAL.h"
@@ -79,6 +80,15 @@ std::vector<std::string> getPsfArchiveFileList(std::string rawArchivePath)
 	return result;
 }
 
+CPsfBase::TagMap getPsfArchiveItemTags(std::string rawArchivePath, std::string psfPath)
+{
+	fs::path archivePath(rawArchivePath);
+	auto streamProvider = CreatePsfStreamProvider(archivePath);
+	std::unique_ptr<Framework::CStream> inputStream(streamProvider->GetStreamForPath(psfPath));
+	CPsfBase psfFile(*inputStream);
+	return CPsfBase::TagMap(psfFile.GetTagsBegin(), psfFile.GetTagsEnd());
+}
+
 CPsfBase::TagMap getCurrentPsfTags()
 {
 	return g_tags;
@@ -95,5 +105,6 @@ EMSCRIPTEN_BINDINGS(PsfPlayer)
 	function("resumePsf", &resumePsf);
 	function("loadPsf", &loadPsf);
 	function("getPsfArchiveFileList", &getPsfArchiveFileList);
+	function("getPsfArchiveItemTags", &getPsfArchiveItemTags);
 	function("getCurrentPsfTags", &getCurrentPsfTags);
 }
