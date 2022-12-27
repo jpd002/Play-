@@ -9,7 +9,6 @@ function RenderRow(props: ListChildComponentProps) {
   const { index, style } = props;
 
   const state = useAppSelector((state) => state.player);
-  let archiveFile = state.archiveFileList[index];
   let archiveItemTitle = state.archiveItemTitles[index];
 
   const dispatch = useAppDispatch();  
