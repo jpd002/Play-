@@ -21,14 +21,14 @@ struct CsoHeader
 	uint8 reserved[2];
 };
 
-CCsoImageStream::CCsoImageStream(CStream* baseStream)
-    : m_baseStream(baseStream)
+CCsoImageStream::CCsoImageStream(std::unique_ptr<CStream> baseStream)
+    : m_baseStream(std::move(baseStream))
     , m_readBuffer(nullptr)
     , m_zlibBuffer(nullptr)
     , m_index(nullptr)
     , m_position(0)
 {
-	if(baseStream == nullptr)
+	if(!m_baseStream)
 	{
 		throw std::runtime_error("Null base stream supplied.");
 	}

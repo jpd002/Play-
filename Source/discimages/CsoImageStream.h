@@ -6,7 +6,7 @@
 class CCsoImageStream : public Framework::CStream
 {
 public:
-	CCsoImageStream(Framework::CStream* baseStream);
+	CCsoImageStream(std::unique_ptr<Framework::CStream> baseStream);
 	virtual ~CCsoImageStream();
 
 	virtual void Seek(int64 pos, Framework::STREAM_SEEK_DIRECTION whence) override;
@@ -23,7 +23,7 @@ private:
 	uint64 ReadBaseAt(uint64 pos, uint8* dest, uint64 bytes);
 	void DecompressFrame(uint32 frame, uint64 readBufferSize);
 
-	Framework::CStream* m_baseStream;
+	std::unique_ptr<Framework::CStream> m_baseStream;
 	uint32 m_frameSize;
 	uint8 m_frameShift;
 	uint8 m_indexShift;

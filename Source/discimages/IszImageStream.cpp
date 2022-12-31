@@ -7,10 +7,10 @@
 #include "zstd_zlibwrapper.h"
 #include "StdStream.h"
 
-CIszImageStream::CIszImageStream(CStream* baseStream)
-    : m_baseStream(baseStream)
+CIszImageStream::CIszImageStream(std::unique_ptr<CStream> baseStream)
+    : m_baseStream(std::move(baseStream))
 {
-	if(baseStream == nullptr)
+	if(!m_baseStream)
 	{
 		throw std::runtime_error("Null base stream supplied.");
 	}
@@ -39,7 +39,6 @@ CIszImageStream::~CIszImageStream()
 	delete[] m_cachedBlock;
 	delete[] m_readBuffer;
 	delete[] m_blockDescriptorTable;
-	delete m_baseStream;
 }
 
 void CIszImageStream::Seek(int64 position, Framework::STREAM_SEEK_DIRECTION origin)

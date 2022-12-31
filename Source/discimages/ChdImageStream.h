@@ -9,7 +9,7 @@ typedef struct chd_core_file core_file;
 class CChdImageStream : public Framework::CStream
 {
 public:
-	CChdImageStream(Framework::CStream* baseStream);
+	CChdImageStream(std::unique_ptr<Framework::CStream> baseStream);
 	virtual ~CChdImageStream();
 
 	uint32 GetUnitSize() const;
@@ -23,7 +23,7 @@ public:
 protected:
 	uint64 GetTotalSize() const;
 
-	Framework::CStream* m_baseStream = nullptr;
+	std::unique_ptr<Framework::CStream> m_baseStream;
 	core_file* m_file = nullptr;
 	chd_file* m_chd = nullptr;
 	uint32 m_unitSize = 0;

@@ -11,7 +11,7 @@ public:
 		TRACK_TYPE_MODE2_RAW,
 	};
 	
-	CChdCdImageStream(Framework::CStream*);
+	CChdCdImageStream(std::unique_ptr<Framework::CStream>);
 
 	TRACK_TYPE GetTrack0Type() const;
 	

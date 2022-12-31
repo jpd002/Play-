@@ -5,10 +5,11 @@
 #include <stdexcept>
 #include "ChdStreamSupport.h"
 
-CChdImageStream::CChdImageStream(Framework::CStream* baseStream)
-    : m_baseStream(baseStream)
+//Should probably take a shared_ptr instead of raw
+CChdImageStream::CChdImageStream(std::unique_ptr<Framework::CStream> baseStream)
+    : m_baseStream(std::move(baseStream))
 {
-	m_file = ChdStreamSupport::CreateFileFromStream(baseStream);
+	m_file = ChdStreamSupport::CreateFileFromStream(m_baseStream.get());
 	chd_error result = chd_open_core_file(m_file, CHD_OPEN_READ, nullptr, &m_chd);
 	if(result != CHDERR_NONE)
 	{
