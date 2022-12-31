@@ -15,13 +15,10 @@ CChdImageStream::CChdImageStream(Framework::CStream* baseStream)
 		throw std::runtime_error("Failed to open CHD file.");
 	}
 	auto header = chd_get_header(m_chd);
-	//We only support 2448 bytes units
-	assert(header->unitbytes == 2448);
+	m_unitSize = header->unitbytes;
 	m_hunkCount = header->hunkcount;
 	m_hunkSize = header->hunkbytes;
 	m_hunkBuffer.resize(m_hunkSize);
-
-	ReadMetadata();
 }
 
 CChdImageStream::~CChdImageStream()
@@ -29,35 +26,9 @@ CChdImageStream::~CChdImageStream()
 	chd_close(m_chd);
 }
 
-CChdImageStream::TRACK_TYPE CChdImageStream::GetTrack0Type() const
+uint32 CChdImageStream::GetUnitSize() const
 {
-	return m_track0Type;
-}
-
-void CChdImageStream::ReadMetadata()
-{
-	static const size_t bufferSize = 256;
-	char metadata[bufferSize];
-	UINT32 outlen = 0;
-	if(chd_get_metadata(m_chd, CDROM_TRACK_METADATA2_TAG, 0, &metadata, sizeof(metadata), &outlen, nullptr, nullptr) == CHDERR_NONE)
-	{
-		metadata[outlen] = 0;
-
-		int track = 0, frames = 0, preGap = 0, postGap = 0;
-		char type[bufferSize], subType[bufferSize], pgType[bufferSize], pgSub[bufferSize];
-		if(sscanf(metadata, CDROM_TRACK_METADATA2_FORMAT, &track, type, subType, &frames, &preGap, pgType, pgSub, &postGap) == 8)
-		{
-			type[bufferSize - 1] = 0;
-			if(!strcmp(type, "MODE2_RAW"))
-			{
-				m_track0Type = TRACK_TYPE_MODE2_RAW;
-			}
-			else
-			{
-				m_track0Type = TRACK_TYPE_MODE1;
-			}
-		}
-	}
+	return m_unitSize;
 }
 
 void CChdImageStream::Seek(int64 position, Framework::STREAM_SEEK_DIRECTION origin)
@@ -94,7 +65,8 @@ uint64 CChdImageStream::Read(void* buffer, uint64 size)
 	uint32 hunkIdx = m_position / m_hunkSize;
 	if(hunkIdx != m_hunkBufferIdx)
 	{
-		chd_read(m_chd, hunkIdx, m_hunkBuffer.data());
+		chd_error error = chd_read(m_chd, hunkIdx, m_hunkBuffer.data());
+		assert(error == CHDERR_NONE);
 		m_hunkBufferIdx = hunkIdx;
 	}
 	memcpy(buffer, m_hunkBuffer.data() + hunkPosition, size);
