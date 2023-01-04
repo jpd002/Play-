@@ -14,7 +14,7 @@ namespace Iop
 
 			Framework::CStream* GetFile(uint32, const char*) override;
 			DirectoryIteratorPtr GetDirectory(const char*) override;
-			fs::path GetMountPath(const char*) override;
+			DevicePtr Mount(const char*) override;
 
 		private:
 			void CreatePartition(const std::vector<std::string>&);

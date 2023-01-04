@@ -33,8 +33,6 @@ namespace Iop
 		{
 		};
 
-		typedef std::shared_ptr<Ioman::CDevice> DevicePtr;
-
 		CIoman(CIopBios&, uint8*);
 		virtual ~CIoman();
 
@@ -45,7 +43,7 @@ namespace Iop
 		void SaveState(Framework::CZipArchiveWriter&) const override;
 		void LoadState(Framework::CZipArchiveReader&) override;
 
-		void RegisterDevice(const char*, const DevicePtr&);
+		void RegisterDevice(const char*, const Ioman::DevicePtr&);
 
 		uint32 Open(uint32, const char*);
 		uint32 Close(uint32);
@@ -133,7 +131,7 @@ namespace Iop
 
 		typedef std::map<int32, FileInfo> FileMapType;
 		typedef std::map<uint32, Ioman::DirectoryIteratorPtr> DirectoryMapType;
-		typedef std::map<std::string, DevicePtr> DeviceMapType;
+		typedef std::map<std::string, Ioman::DevicePtr> DeviceMapType;
 		typedef std::map<std::string, uint32> UserDeviceMapType;
 
 		void PrepareOpenThunk();

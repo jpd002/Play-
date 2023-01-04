@@ -4,6 +4,7 @@
 #include "PathUtils.h"
 #include "PS2VM_Preferences.h"
 #include "StringUtils.h"
+#include "PathDirectoryDevice.h"
 #include "PathDirectoryIterator.h"
 
 using namespace Iop::Ioman;
@@ -53,7 +54,7 @@ DirectoryIteratorPtr CHardDiskDevice::GetDirectory(const char* devicePath)
 	return std::make_unique<CPathDirectoryIterator>(m_basePath);
 }
 
-fs::path CHardDiskDevice::GetMountPath(const char* devicePath)
+DevicePtr CHardDiskDevice::Mount(const char* devicePath)
 {
 	auto mountParams = StringUtils::Split(devicePath, ',', true);
 	assert(!mountParams.empty());
@@ -62,7 +63,8 @@ fs::path CHardDiskDevice::GetMountPath(const char* devicePath)
 	{
 		throw std::runtime_error("Partition doesn't exist.");
 	}
-	return m_basePath / mountParams[0];
+	auto mountPath = m_basePath / mountParams[0];
+	return std::make_shared<CPathDirectoryDevice>(mountPath);
 }
 
 void CHardDiskDevice::CreatePartition(const std::vector<std::string>& createParams)

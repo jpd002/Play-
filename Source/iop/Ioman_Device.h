@@ -29,10 +29,12 @@ namespace Iop
 			{
 				throw std::runtime_error("Directory creation not supported.");
 			}
-			virtual fs::path GetMountPath(const char*)
+			virtual std::shared_ptr<CDevice> Mount(const char*)
 			{
 				throw std::runtime_error("Mounting not supported.");
 			}
 		};
+	
+		typedef std::shared_ptr<CDevice> DevicePtr;
 	}
 }

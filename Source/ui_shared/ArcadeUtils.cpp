@@ -9,7 +9,10 @@
 #include "AppConfig.h"
 #include "BootablesDbClient.h"
 #include "BootablesProcesses.h"
+#include "hdd/HddDefs.h"
+#include "discimages/ChdImageStream.h"
 #include "iop/ioman/McDumpDevice.h"
+#include "iop/ioman/HardDiskDumpDevice.h"
 #include "iop/Iop_NamcoArcade.h"
 #include "iop/namco_arcade/Iop_NamcoAcCdvd.h"
 #include "iop/namco_arcade/Iop_NamcoAcRam.h"
@@ -26,6 +29,7 @@ struct ARCADE_MACHINE_DEF
 	std::string name;
 	std::string dongleFileName;
 	std::string cdvdFileName;
+	std::string hddFileName;
 	std::string boot;
 	std::vector<PATCH> patches;
 };
@@ -69,6 +73,10 @@ ARCADE_MACHINE_DEF ReadArcadeMachineDefinition(const fs::path& arcadeDefPath)
 	{
 		def.cdvdFileName = defJson["cdvd"]["name"];
 	}
+	if(defJson.contains("hdd"))
+	{
+		def.hddFileName = defJson["hdd"]["name"];
+	}
 	def.boot = defJson["boot"];
 	if(defJson.contains("patches"))
 	{
@@ -89,7 +97,7 @@ void PrepareArcadeEnvironment(CPS2VM* virtualMachine, const ARCADE_MACHINE_DEF& 
 		throw std::runtime_error(string_format("Failed to find '%s' in arcade ROMs directory.", romArchiveFileName.c_str()));
 	}
 
-	//Mount CDVD or HDD
+	//Mount CDVD
 	if(!def.cdvdFileName.empty())
 	{
 		fs::path cdvdPath = arcadeRomPath / def.id / def.cdvdFileName;
@@ -104,6 +112,23 @@ void PrepareArcadeEnvironment(CPS2VM* virtualMachine, const ARCADE_MACHINE_DEF& 
 		CAppConfig::GetInstance().SetPreferencePath(PREF_PS2_CDROM0_PATH, cdvdPath);
 
 		virtualMachine->CDROM0_SyncPath();
+	}
+
+	//Mount HDD
+	if(!def.hddFileName.empty())
+	{
+		fs::path hddPath = arcadeRomPath / def.id / def.hddFileName;
+		if(!fs::exists(hddPath))
+		{
+			throw std::runtime_error(string_format("Failed to find '%s' in game's directory.", def.hddFileName.c_str()));
+		}
+
+		auto imageStream = std::make_unique<CChdImageStream>(std::make_unique<Framework::CStdStream>(hddPath.string().c_str(), "rb"));
+		assert(imageStream->GetUnitSize() == Hdd::g_sectorSize);
+		auto device = std::make_shared<Iop::Ioman::CHardDiskDumpDevice>(std::move(imageStream));
+
+		auto iopBios = dynamic_cast<CIopBios*>(virtualMachine->m_iop->m_bios.get());
+		iopBios->GetIoman()->RegisterDevice("hdd0", device);
 	}
 
 	std::vector<uint8> mcDumpContents;

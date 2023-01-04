@@ -211,7 +211,7 @@ std::string CIoman::GetFunctionName(unsigned int functionId) const
 	}
 }
 
-void CIoman::RegisterDevice(const char* name, const DevicePtr& device)
+void CIoman::RegisterDevice(const char* name, const Ioman::DevicePtr& device)
 {
 	m_devices[name] = device;
 }
@@ -530,8 +530,7 @@ int32 CIoman::Mount(const char* fsName, const char* devicePath)
 		mountedDeviceName.erase(std::remove(mountedDeviceName.begin(), mountedDeviceName.end(), ':'), mountedDeviceName.end());
 		assert(m_devices.find(mountedDeviceName) == std::end(m_devices));
 
-		auto partitionPath = device->GetMountPath(pathInfo.devicePath.c_str());
-		auto mountedDevice = std::make_shared<Ioman::CPathDirectoryDevice>(partitionPath);
+		auto mountedDevice = device->Mount(pathInfo.devicePath.c_str());
 		m_devices[mountedDeviceName] = mountedDevice;
 	}
 	catch(const std::exception& except)

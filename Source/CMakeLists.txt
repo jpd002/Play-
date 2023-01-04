@@ -255,6 +255,13 @@ set(COMMON_SRC_FILES
 	gs/GsPixelFormats.h
 	gs/GsSpriteRegion.h
 	gs/GsTextureCache.h
+	hdd/ApaDefs.h
+	hdd/ApaReader.cpp
+	hdd/ApaReader.h
+	hdd/HddDefs.h
+	hdd/PfsDefs.h
+	hdd/PfsReader.cpp
+	hdd/PfsReader.h
 	input/InputBindingManager.cpp
 	input/InputBindingManager.h
 	input/InputProvider.h
@@ -268,6 +275,8 @@ set(COMMON_SRC_FILES
 	iop/ioman/McDumpDevice.h
 	iop/ioman/HardDiskDevice.cpp
 	iop/ioman/HardDiskDevice.h
+	iop/ioman/HardDiskDumpDevice.cpp
+	iop/ioman/HardDiskDumpDevice.h
 	iop/ioman/OpticalMediaDevice.cpp
 	iop/ioman/OpticalMediaDevice.h
 	iop/ioman/OpticalMediaDirectoryIterator.cpp
