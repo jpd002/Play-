@@ -1,5 +1,4 @@
 #include "ApaReader.h"
-#include "ApaDefs.h"
 #include "HddDefs.h"
 
 using namespace Hdd;
@@ -10,7 +9,7 @@ CApaReader::CApaReader(Framework::CStream& stream)
 	
 }
 
-uint32 CApaReader::FindPartition(const char* partitionId)
+bool CApaReader::TryFindPartition(const char* partitionId, APA_HEADER& partitionHeader)
 {
 	uint32_t lba = 0;
 	while(1)
@@ -21,10 +20,11 @@ uint32 CApaReader::FindPartition(const char* partitionId)
 		assert(header.magic == APA_HEADER_MAGIC);
 		if(!strcmp(header.id, partitionId))
 		{
-			return header.start;
+			partitionHeader = header;
+			return true;
 		}
 		lba = header.next;
 		if(lba == 0) break;
 	}
-	return -1;
+	return false;
 }

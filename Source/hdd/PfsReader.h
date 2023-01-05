@@ -2,24 +2,26 @@
 
 #include "Stream.h"
 #include "PfsDefs.h"
+#include "ApaDefs.h"
 
 namespace Hdd
 {
 	class CPfsReader
 	{
 	public:
-		CPfsReader(Framework::CStream&, uint32);
+		CPfsReader(Framework::CStream&, const APA_HEADER&);
 		
 		class CPfsFileReader* GetFileStream(const char*);
 
-		uint32 GetBlockLba(uint32, uint32);
+		uint32 GetZoneSize() const;
+		uint32 GetBlockLba(uint32, uint32) const;
 
 	private:
 		PFS_INODE ReadInode(uint32, uint32);
 		
 		Framework::CStream& m_stream;
 
-		uint32 m_baseLba = 0;
+		APA_HEADER m_partitionHeader = {};
 		PFS_SUPERBLOCK m_superBlock = {};
 		uint32 m_inodeScale = 0;
 	};

@@ -24,7 +24,7 @@ namespace Iop
 		class CHardDiskDumpPartitionDevice : public CDevice
 		{
 		public:
-			CHardDiskDumpPartitionDevice(Framework::CStream&, uint32);
+			CHardDiskDumpPartitionDevice(Framework::CStream&, const Hdd::APA_HEADER&);
 			virtual ~CHardDiskDumpPartitionDevice() = default;
 			
 			Framework::CStream* GetFile(uint32, const char*) override;

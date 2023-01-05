@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Stream.h"
+#include "ApaDefs.h"
 
 namespace Hdd
 {
@@ -9,7 +10,7 @@ namespace Hdd
 	public:
 		CApaReader(Framework::CStream&);
 
-		uint32 FindPartition(const char*);
+		bool TryFindPartition(const char*, APA_HEADER&);
 
 	private:
 		Framework::CStream& m_stream;

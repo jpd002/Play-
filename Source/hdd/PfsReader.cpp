@@ -13,11 +13,11 @@ static uint32_t GetScale(uint32_t num, uint32_t size)
 	return scale;
 }
 
-CPfsReader::CPfsReader(Framework::CStream& stream, uint32 baseLba)
+CPfsReader::CPfsReader(Framework::CStream& stream, const APA_HEADER& partitionHeader)
 	: m_stream(stream)
-	, m_baseLba(baseLba)
+	, m_partitionHeader(partitionHeader)
 {
-	uint32_t superBlockLba = m_baseLba + PFS_SUPERBLOCK_LBA;
+	uint32_t superBlockLba = partitionHeader.start + PFS_SUPERBLOCK_LBA;
 	m_stream.Seek(superBlockLba * g_sectorSize, Framework::STREAM_SEEK_SET);
 	m_stream.Read(&m_superBlock, sizeof(PFS_SUPERBLOCK));
 	assert(m_superBlock.magic == PFS_SUPERBLOCK_MAGIC);
@@ -74,10 +74,25 @@ CPfsFileReader* CPfsReader::GetFileStream(const char* path)
 	return new CPfsFileReader(*this, m_stream, fileInode);
 }
 
-uint32 CPfsReader::GetBlockLba(uint32 number, uint32 subPart)
+uint32 CPfsReader::GetZoneSize() const
 {
-	assert(subPart == 0);
-	return m_baseLba + ((number << m_inodeScale) << PFS_BLOCK_SCALE);
+	return m_superBlock.zoneSize;
+}
+
+uint32 CPfsReader::GetBlockLba(uint32 number, uint32 subPart) const
+{
+	uint32 baseLba = 0;
+	if(subPart == 0)
+	{
+		baseLba = m_partitionHeader.start;
+	}
+	else
+	{
+		subPart--;
+		assert(subPart < m_partitionHeader.subPartCount);
+		baseLba = m_partitionHeader.subParts[subPart].start;
+	}
+	return baseLba + ((number << m_inodeScale) << PFS_BLOCK_SCALE);
 }
 
 PFS_INODE CPfsReader::ReadInode(uint32 number, uint32 subPart)
@@ -133,12 +148,47 @@ uint64 CPfsFileReader::Read(void* buffer, uint64 length)
 	uint64 remainFileSize = fileSize - m_position;
 	length = std::min<uint64>(length, remainFileSize);
 
-	assert(m_inode.dataCount == 2);
-	uint32 fileLba = m_reader.GetBlockLba(m_inode.data[1].number, m_inode.data[1].subPart);
+	uint64 zoneSize = m_reader.GetZoneSize();
+	assert((zoneSize % g_sectorSize) == 0);
+	assert(m_inode.dataCount >= 2);
 
-	m_stream.Seek(fileLba * g_sectorSize, Framework::STREAM_SEEK_SET);
-	m_stream.Read(buffer, length);
+	uint64 segmentPosition = m_position;
+	uint32 segmentIndex = 1;
+	for(uint32 i = 1; i < m_inode.dataCount; i++)
+	{
+		uint64_t segmentSize = m_inode.data[i].count * zoneSize;
+		if(segmentPosition < segmentSize)
+		{
+			segmentIndex = i;
+			break;
+		}
+		segmentPosition -= segmentSize;
+	}
 
+	uint8* charBuffer = reinterpret_cast<uint8*>(buffer);
+	uint64 readRemain = length;
+	while(readRemain != 0)
+	{
+		assert(segmentIndex < m_inode.dataCount);
+		uint64 segmentSize = m_inode.data[segmentIndex].count * zoneSize;
+		uint64 segmentRemain = segmentSize - segmentPosition;
+		uint64 blockPosition = segmentPosition % g_sectorSize;
+		uint64 blockRemain = g_sectorSize - blockPosition;
+		uint32 segmentLba = m_reader.GetBlockLba(m_inode.data[segmentIndex].number, m_inode.data[segmentIndex].subPart);
+		uint64 toRead = std::min<uint64>(blockRemain, readRemain);
+		m_stream.Seek((segmentLba * g_sectorSize) + segmentPosition, Framework::STREAM_SEEK_SET);
+		m_stream.Read(charBuffer, toRead);
+		readRemain -= toRead;
+		charBuffer += toRead;
+		segmentPosition += toRead;
+		if(segmentPosition >= segmentSize)
+		{
+			segmentPosition -= segmentSize;
+			segmentIndex++;
+		}
+	}
+	
+	m_position += length;
 	return length;
 }
 
