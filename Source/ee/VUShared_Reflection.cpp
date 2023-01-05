@@ -423,6 +423,22 @@ void VUShared::ReflOpAffWrFdMfRdFsFt(VUINSTRUCTION*, CMIPS*, uint32, uint32 opco
 	operandSet.writeMACflags = true;
 }
 
+void VUShared::ReflOpAffWrFdMfRdFsFtBc(VUINSTRUCTION*, CMIPS*, uint32, uint32 opcode, OPERANDSET& operandSet)
+{
+	auto dest = static_cast<uint8>((opcode >> 21) & 0x000F);
+	auto ft = static_cast<uint8>((opcode >> 16) & 0x001F);
+	auto fs = static_cast<uint8>((opcode >> 11) & 0x001F);
+	auto fd = static_cast<uint8>((opcode >> 6) & 0x001F);
+	auto bc = static_cast<uint8>((opcode >> 0) & 0x0003);
+
+	operandSet.writeF = fd;
+	operandSet.readF0 = fs;
+	operandSet.readElemF0 = dest;
+	operandSet.readF1 = ft;
+	operandSet.readElemF1 = MakeDestFromComponent(bc);
+	operandSet.writeMACflags = true;
+}
+
 void VUShared::ReflOpAffWrFdMfRdFsI(VUINSTRUCTION*, CMIPS*, uint32, uint32 opcode, OPERANDSET& operandSet)
 {
 	auto dest = static_cast<uint8>((opcode >> 21) & 0x000F);
