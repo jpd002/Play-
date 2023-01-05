@@ -1,0 +1,21 @@
+{
+	"id": "motogp",
+	"name": "Moto GP",
+	"dongle":
+	{
+		"name": "mgp1004-na-b.ic002"
+	},
+	"hdd":
+	{
+		"name": "mgp1004-na-hdd0-a.chd"
+	},
+	"boot": "ac0:MGPLOAD",
+	"patches":
+	[
+		{
+			"address": "0x00102558",
+			"value": "0x1000000C",
+			"description": "Disable clock check"
+		}
+	]
+}
