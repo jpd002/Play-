@@ -1,4 +1,6 @@
 #include "PfsReader.h"
+#include <cassert>
+#include <cstring>
 #include "HddDefs.h"
 
 using namespace Hdd;
@@ -130,7 +132,7 @@ void CPfsFileReader::Seek(int64 position, Framework::STREAM_SEEK_DIRECTION whenc
 	m_isEof = false;
 }
 
-uint64_t CPfsFileReader::Tell()
+uint64 CPfsFileReader::Tell()
 {
 	return m_position;
 }

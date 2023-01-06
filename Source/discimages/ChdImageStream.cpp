@@ -1,8 +1,8 @@
 #include "ChdImageStream.h"
-#include <libchdr/chd.h>
 #include <cstring>
 #include <cassert>
 #include <stdexcept>
+#include <libchdr/chd.h>
 #include "ChdStreamSupport.h"
 
 //Should probably take a shared_ptr instead of raw

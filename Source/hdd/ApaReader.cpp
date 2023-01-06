@@ -1,4 +1,6 @@
 #include "ApaReader.h"
+#include <cassert>
+#include <cstring>
 #include "HddDefs.h"
 
 using namespace Hdd;
