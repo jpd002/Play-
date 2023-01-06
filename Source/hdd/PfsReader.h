@@ -10,7 +10,7 @@ namespace Hdd
 	{
 	public:
 		CPfsReader(Framework::CStream&, const APA_HEADER&);
-		
+
 		class CPfsFileReader* GetFileStream(const char*);
 
 		uint32 GetZoneSize() const;
@@ -18,7 +18,7 @@ namespace Hdd
 
 	private:
 		PFS_INODE ReadInode(uint32, uint32);
-		
+
 		Framework::CStream& m_stream;
 
 		APA_HEADER m_partitionHeader = {};
@@ -31,7 +31,7 @@ namespace Hdd
 	public:
 		CPfsFileReader(CPfsReader&, Framework::CStream&, PFS_INODE);
 		~CPfsFileReader() = default;
-		
+
 		void Seek(int64, Framework::STREAM_SEEK_DIRECTION) override;
 		uint64 Tell() override;
 		uint64 Read(void*, uint64) override;
@@ -42,7 +42,7 @@ namespace Hdd
 		CPfsReader& m_reader;
 		Framework::CStream& m_stream;
 		PFS_INODE m_inode;
-		
+
 		uint64 m_position = 0;
 		bool m_isEof = false;
 	};

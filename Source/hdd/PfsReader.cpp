@@ -14,8 +14,8 @@ static uint32_t GetScale(uint32_t num, uint32_t size)
 }
 
 CPfsReader::CPfsReader(Framework::CStream& stream, const APA_HEADER& partitionHeader)
-	: m_stream(stream)
-	, m_partitionHeader(partitionHeader)
+    : m_stream(stream)
+    , m_partitionHeader(partitionHeader)
 {
 	uint32_t superBlockLba = partitionHeader.start + PFS_SUPERBLOCK_LBA;
 	m_stream.Seek(superBlockLba * g_sectorSize, Framework::STREAM_SEEK_SET);
@@ -29,11 +29,11 @@ CPfsFileReader* CPfsReader::GetFileStream(const char* path)
 	assert(path[0] == '/');
 	path++;
 	assert(strchr(path, '/') == nullptr);
-	
+
 	auto rootInode = ReadInode(m_superBlock.rootBlock.number, m_superBlock.rootBlock.subPart);
 	assert(rootInode.dataCount == 2);
 	uint32 dirLba = GetBlockLba(rootInode.data[1].number, rootInode.data[1].subPart);
-	
+
 	static const uint32_t dirBlockSize = g_sectorSize << PFS_BLOCK_SCALE;
 	uint8 dirBlock[dirBlockSize];
 	m_stream.Seek(dirLba * g_sectorSize, Framework::STREAM_SEEK_SET);
@@ -63,12 +63,12 @@ CPfsFileReader* CPfsReader::GetFileStream(const char* path)
 		}
 		dirBlockCurr += entryLength;
 	}
-	
+
 	if(dirBlockCurr == dirBlockEnd)
 	{
 		return nullptr;
 	}
-	
+
 	auto dirEntry = reinterpret_cast<const PFS_DIRENTRY*>(dirBlockCurr);
 	auto fileInode = ReadInode(dirEntry->inode, dirEntry->subPart);
 	return new CPfsFileReader(*this, m_stream, fileInode);
@@ -106,11 +106,10 @@ PFS_INODE CPfsReader::ReadInode(uint32 number, uint32 subPart)
 }
 
 CPfsFileReader::CPfsFileReader(CPfsReader& reader, Framework::CStream& stream, PFS_INODE inode)
-	: m_reader(reader)
-	, m_stream(stream)
-	, m_inode(inode)
+    : m_reader(reader)
+    , m_stream(stream)
+    , m_inode(inode)
 {
-	
 }
 
 void CPfsFileReader::Seek(int64 position, Framework::STREAM_SEEK_DIRECTION whence)
@@ -144,7 +143,7 @@ uint64 CPfsFileReader::Read(void* buffer, uint64 length)
 		m_isEof = true;
 		return 0;
 	}
-	
+
 	uint64 remainFileSize = fileSize - m_position;
 	length = std::min<uint64>(length, remainFileSize);
 
@@ -187,7 +186,7 @@ uint64 CPfsFileReader::Read(void* buffer, uint64 length)
 			segmentIndex++;
 		}
 	}
-	
+
 	m_position += length;
 	return length;
 }

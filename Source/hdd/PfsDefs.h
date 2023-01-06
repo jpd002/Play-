@@ -4,7 +4,7 @@ namespace Hdd
 {
 	enum
 	{
-		PFS_SUPERBLOCK_MAGIC = 0x50465300, //'/0sfp'
+		PFS_SUPERBLOCK_MAGIC = 0x50465300,           //'/0sfp'
 		PFS_INODE_SEGDESC_DIRECT_MAGIC = 0x53454744, //'dges'
 
 		PFS_SUPERBLOCK_LBA = 8192,
@@ -52,7 +52,7 @@ namespace Hdd
 		{
 			DATA_SIZE = 114,
 		};
-		
+
 		uint32_t checksum;
 		uint32_t magic;
 		PFS_BLOCKINFO inodeBlock;

@@ -14,7 +14,7 @@ public:
 	virtual ~CChdImageStream();
 
 	uint32 GetUnitSize() const;
-	
+
 	virtual void Seek(int64 pos, Framework::STREAM_SEEK_DIRECTION whence) override;
 	virtual uint64 Tell() override;
 	virtual bool IsEOF() override;

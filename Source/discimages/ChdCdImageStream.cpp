@@ -3,7 +3,7 @@
 #include <cassert>
 
 CChdCdImageStream::CChdCdImageStream(std::unique_ptr<Framework::CStream> baseStream)
-	: CChdImageStream(std::move(baseStream))
+    : CChdImageStream(std::move(baseStream))
 {
 	//We only support 2448 bytes units
 	assert(m_unitSize == 2448);

@@ -47,12 +47,12 @@ namespace Hdd
 			PASSWORD_SIZE = 8,
 			SUBPART_SIZE = 64,
 		};
-		
+
 		enum TYPE
 		{
 			TYPE_PFS = 0x100,
 		};
-		
+
 		uint32_t checksum;
 		uint32_t magic;
 		uint32_t next;

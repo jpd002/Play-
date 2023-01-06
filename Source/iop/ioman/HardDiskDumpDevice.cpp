@@ -8,9 +8,8 @@ using namespace Iop;
 using namespace Iop::Ioman;
 
 CHardDiskDumpDevice::CHardDiskDumpDevice(std::unique_ptr<Framework::CStream> stream)
-	: m_stream(std::move(stream))
+    : m_stream(std::move(stream))
 {
-	
 }
 
 Framework::CStream* CHardDiskDumpDevice::GetFile(uint32 flags, const char* path)
@@ -62,9 +61,8 @@ bool CHardDiskDumpDevice::TryGetStat(const char* path, bool& succeeded, STAT& st
 }
 
 CHardDiskDumpPartitionDevice::CHardDiskDumpPartitionDevice(Framework::CStream& stream, const Hdd::APA_HEADER& partitionHeader)
-	: m_pfsReader(stream, partitionHeader)
+    : m_pfsReader(stream, partitionHeader)
 {
-	
 }
 
 Framework::CStream* CHardDiskDumpPartitionDevice::GetFile(uint32 accessType, const char* path)

@@ -4,9 +4,8 @@
 using namespace Hdd;
 
 CApaReader::CApaReader(Framework::CStream& stream)
-	: m_stream(stream)
+    : m_stream(stream)
 {
-	
 }
 
 bool CApaReader::TryFindPartition(const char* partitionId, APA_HEADER& partitionHeader)

@@ -40,7 +40,7 @@ namespace Iop
 				return false;
 			}
 		};
-	
+
 		typedef std::shared_ptr<CDevice> DevicePtr;
 	}
 }

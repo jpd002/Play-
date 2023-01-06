@@ -444,7 +444,7 @@ uint32 CIoman::GetStat(const char* path, Ioman::STAT* stat)
 			return succeeded ? 0 : -1;
 		}
 	}
-	
+
 	//Try with a directory
 	{
 		int32 fd = Dopen(path);
