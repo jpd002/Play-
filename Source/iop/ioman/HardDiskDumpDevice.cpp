@@ -49,10 +49,18 @@ CHardDiskDumpPartitionDevice::CHardDiskDumpPartitionDevice(Framework::CStream& s
 	
 }
 
-Framework::CStream* CHardDiskDumpPartitionDevice::GetFile(uint32 flags, const char* path)
+Framework::CStream* CHardDiskDumpPartitionDevice::GetFile(uint32 accessType, const char* path)
 {
-	assert((flags & OPEN_FLAG_ACCMODE) == OPEN_FLAG_RDONLY);
-	return m_pfsReader.GetFileStream(path);
+	accessType &= ~OPEN_FLAG_NOWAIT;
+	assert(accessType == OPEN_FLAG_RDONLY);
+	std::string absPath = path;
+	assert(!absPath.empty());
+	if(absPath[0] != '/')
+	{
+		//TODO: Append current directory
+		absPath = '/' + absPath;
+	}
+	return m_pfsReader.GetFileStream(absPath.c_str());
 }
 
 DirectoryIteratorPtr CHardDiskDumpPartitionDevice::GetDirectory(const char*)
