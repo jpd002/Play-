@@ -43,6 +43,24 @@ DevicePtr CHardDiskDumpDevice::Mount(const char* path)
 	return std::make_shared<CHardDiskDumpPartitionDevice>(*m_stream, partitionHeader);
 }
 
+bool CHardDiskDumpDevice::TryGetStat(const char* path, bool& succeeded, STAT& stat)
+{
+	auto mountParams = StringUtils::Split(path, ',', true);
+	Hdd::APA_HEADER partitionHeader = {};
+	Hdd::CApaReader reader(*m_stream);
+	if(!reader.TryFindPartition(mountParams[0].c_str(), partitionHeader))
+	{
+		succeeded = false;
+		return true;
+	}
+	succeeded = true;
+	stat = {};
+	stat.mode = partitionHeader.type;
+	stat.attr = partitionHeader.flags;
+	stat.loSize = partitionHeader.length;
+	return true;
+}
+
 CHardDiskDumpPartitionDevice::CHardDiskDumpPartitionDevice(Framework::CStream& stream, const Hdd::APA_HEADER& partitionHeader)
 	: m_pfsReader(stream, partitionHeader)
 {

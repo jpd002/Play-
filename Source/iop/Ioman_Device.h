@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Stream.h"
+#include "Ioman_Defs.h"
 #include "Ioman_DirectoryIterator.h"
 #include "filesystem_def.h"
 
@@ -32,6 +33,11 @@ namespace Iop
 			virtual std::shared_ptr<CDevice> Mount(const char*)
 			{
 				throw std::runtime_error("Mounting not supported.");
+			}
+			virtual bool TryGetStat(const char*, bool&, STAT&)
+			{
+				//Return false to indicate that device doesn't support GetStat.
+				return false;
 			}
 		};
 	

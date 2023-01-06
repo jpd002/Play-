@@ -433,6 +433,18 @@ uint32 CIoman::GetStat(const char* path, Ioman::STAT* stat)
 {
 	CLog::GetInstance().Print(LOG_NAME, "GetStat(path = '%s', stat = ptr);\r\n", path);
 
+	//Try with device's built-in GetStat
+	auto pathInfo = SplitPath(path);
+	auto deviceIterator = m_devices.find(pathInfo.deviceName);
+	if(deviceIterator != m_devices.end())
+	{
+		bool succeeded = false;
+		if(deviceIterator->second->TryGetStat(pathInfo.devicePath.c_str(), succeeded, *stat))
+		{
+			return succeeded ? 0 : -1;
+		}
+	}
+	
 	//Try with a directory
 	{
 		int32 fd = Dopen(path);

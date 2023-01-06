@@ -16,6 +16,7 @@ namespace Iop
 			Framework::CStream* GetFile(uint32, const char*) override;
 			DirectoryIteratorPtr GetDirectory(const char*) override;
 			DevicePtr Mount(const char*) override;
+			bool TryGetStat(const char*, bool&, STAT&) override;
 			
 		private:
 			std::unique_ptr<Framework::CStream> m_stream;
