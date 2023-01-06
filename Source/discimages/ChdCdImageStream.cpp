@@ -1,5 +1,6 @@
 #include "ChdCdImageStream.h"
 #include <libchdr/chd.h>
+#include <cassert>
 
 CChdCdImageStream::CChdCdImageStream(std::unique_ptr<Framework::CStream> baseStream)
 	: CChdImageStream(std::move(baseStream))
