@@ -275,9 +275,12 @@ void CIopBios::Reset(const Iop::SifManPtr& sifMan)
 	m_hleModules.insert(std::make_pair("rom0:XPADMAN", m_padman));
 	m_hleModules.insert(std::make_pair("rom0:XMTAPMAN", m_mtapman));
 	m_hleModules.insert(std::make_pair("rom0:MCMAN", m_mcserv));
+	m_hleModules.insert(std::make_pair("rom0:MCMANO", m_mcserv));
 	m_hleModules.insert(std::make_pair("rom0:MCSERV", m_mcserv));
 	m_hleModules.insert(std::make_pair("rom0:XMCMAN", m_mcserv));
 	m_hleModules.insert(std::make_pair("rom0:XMCSERV", m_mcserv));
+	m_hleModules.insert(std::make_pair("rom0:CDVDMAN", m_cdvdman));
+	m_hleModules.insert(std::make_pair("rom0:CDVDFSV", m_cdvdfsv));
 
 #endif
 
