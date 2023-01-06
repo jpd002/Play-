@@ -402,10 +402,10 @@ bool CNamcoArcade::Invoke001(uint32 method, uint32* args, uint32 argsSize, uint3
 							ProcessJvsPacket(reinterpret_cast<const uint8*>(sendData) + 0x22, reinterpret_cast<uint8*>(recvData) + 0x5A);
 						}
 						recvData[0x20] = pktId;
-						recvData[0x15] = 0x5210;
-						recvData[0x16] = 0x5210;
-						recvData[0x17] = 0x5210;
 					}
+					recvData[0x15] = 0x5210;
+					recvData[0x16] = 0x5210;
+					recvData[0x17] = 0x5210;
 				}
 			}
 			else if((info[1] >= 0x40000000) && (info[1] < 0x50000000))
