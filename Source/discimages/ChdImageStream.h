@@ -2,6 +2,7 @@
 
 #include "Stream.h"
 #include <vector>
+#include <memory>
 
 typedef struct _chd_file chd_file;
 typedef struct chd_core_file core_file;
