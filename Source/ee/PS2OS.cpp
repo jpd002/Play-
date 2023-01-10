@@ -452,6 +452,7 @@ void CPS2OS::LoadExecutableInternal()
 		auto p = m_elf->GetProgram(i);
 		if(p != nullptr)
 		{
+			if(p->nFileSize == 0) continue;
 			if(p->nVAddress >= PS2::EE_RAM_SIZE)
 			{
 				assert(false);
