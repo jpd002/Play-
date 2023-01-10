@@ -9,7 +9,7 @@
 	{
 		"name": "wmr1-a.chd"
 	},
-	"boot": "mc0:AL3LOAD",
+	"boot": "ac0:AL3LOAD",
 	"patches":
 	[
 	]

@@ -9,7 +9,7 @@
 	{
 		"name": "bldyr3b.chd"
 	},
-	"boot": "mc0:BDRGAME",
+	"boot": "ac0:BDRGAME",
 	"patches":
 	[
 	]

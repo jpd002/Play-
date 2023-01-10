@@ -9,7 +9,7 @@
 	{
 		"name": "sc21-dvd0d.chd"
 	},
-	"boot": "mc0:SCSLOAD",
+	"boot": "ac0:SCSLOAD",
 	"patches":
 	[
 	]

@@ -9,7 +9,7 @@
 	{
 		"name": "rrv1-a.chd"
 	},
-	"boot": "mc0:START",
+	"boot": "ac0:START",
 	"patches":
 	[
 		{

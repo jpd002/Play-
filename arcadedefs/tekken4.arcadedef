@@ -9,7 +9,7 @@
 	{
 		"name": "tef1dvd0.chd"
 	},
-	"boot": "mc0:TK4LOAD",
+	"boot": "ac0:TK4LOAD",
 	"patches":
 	[
 	]

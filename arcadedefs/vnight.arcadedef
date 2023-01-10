@@ -9,7 +9,7 @@
 	{
 		"name": "vpn1cd0.chd"
 	},
-	"boot": "mc0:VPNGAME",
+	"boot": "ac0:VPNGAME",
 	"patches":
 	[
 	]

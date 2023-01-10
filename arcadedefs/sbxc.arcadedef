@@ -9,7 +9,7 @@
 	{
 		"name": "bax1_dvd0.chd"
 	},
-	"boot": "mc0:BASLOAD",
+	"boot": "ac0:BASLOAD",
 	"patches":
 	[
 	]
