@@ -12,10 +12,24 @@ using namespace Iop;
 #define FUNCTION_LOADMODULEBUFFER "LoadModuleBuffer"
 #define FUNCTION_GETMODULEIDLIST "GetModuleIdList"
 #define FUNCTION_REFERMODULESTATUS "ReferModuleStatus"
+#define FUNCTION_LOADMODULEWITHOPTION "LoadModuleWithOption"
 #define FUNCTION_STOPMODULE "StopModule"
 #define FUNCTION_UNLOADMODULE "UnloadModule"
 #define FUNCTION_SEARCHMODULEBYNAME "SearchModuleByName"
 #define FUNCTION_ALLOCLOADMEMORY "AllocLoadMemory"
+
+struct LMWO_OPTION
+{
+	uint8 position;
+	uint8 access;
+	uint8 reserved1[2];
+	uint32 distAddrPtr;
+	uint32 distOffset;
+	uint32 funcTablePtr;
+	uint32 funcOpt;
+	uint32 reserved2[3];
+};
+static_assert(sizeof(LMWO_OPTION) == 0x20);
 
 CModload::CModload(CIopBios& bios, uint8* ram)
     : m_bios(bios)
@@ -49,6 +63,9 @@ std::string CModload::GetFunctionName(unsigned int functionId) const
 		break;
 	case 17:
 		return FUNCTION_REFERMODULESTATUS;
+		break;
+	case 19:
+		return FUNCTION_LOADMODULEWITHOPTION;
 		break;
 	case 20:
 		return FUNCTION_STOPMODULE;
@@ -105,6 +122,11 @@ void CModload::Invoke(CMIPS& context, unsigned int functionId)
 		break;
 	case 17:
 		context.m_State.nGPR[CMIPS::V0].nD0 = ReferModuleStatus(
+		    context.m_State.nGPR[CMIPS::A0].nV0,
+		    context.m_State.nGPR[CMIPS::A1].nV0);
+		break;
+	case 19:
+		context.m_State.nGPR[CMIPS::V0].nD0 = LoadModuleWithOption(
 		    context.m_State.nGPR[CMIPS::A0].nV0,
 		    context.m_State.nGPR[CMIPS::A1].nV0);
 		break;
@@ -202,6 +224,17 @@ int32 CModload::ReferModuleStatus(uint32 moduleId, uint32 moduleStatusPtr)
 	CLog::GetInstance().Print(LOG_NAME, FUNCTION_REFERMODULESTATUS "(moduleId = %d, moduleStatusPtr = 0x%08X);\r\n",
 	                          moduleId, moduleStatusPtr);
 	return m_bios.ReferModuleStatus(moduleId, moduleStatusPtr);
+}
+
+int32 CModload::LoadModuleWithOption(uint32 pathPtr, uint32 optionPtr)
+{
+	CLog::GetInstance().Print(LOG_NAME, FUNCTION_LOADMODULEWITHOPTION "(pathPtr = 0x%08X, optionPtr = 0x%08X);\r\n",
+	                          pathPtr, optionPtr);
+	const char* path = reinterpret_cast<const char*>(m_ram + pathPtr);
+	auto option = reinterpret_cast<const LMWO_OPTION*>(m_ram + optionPtr);
+	//We don't support custom loader functions
+	assert(option->funcTablePtr == 0);
+	return m_bios.LoadModuleFromPath(path);
 }
 
 int32 CModload::StopModule(uint32 moduleId, uint32 argsLength, uint32 argsPtr, uint32 resultPtr)

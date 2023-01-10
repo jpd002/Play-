@@ -23,6 +23,7 @@ namespace Iop
 		uint32 LoadModuleBuffer(uint32);
 		uint32 GetModuleIdList(uint32, uint32, uint32);
 		int32 ReferModuleStatus(uint32, uint32);
+		int32 LoadModuleWithOption(uint32, uint32);
 		int32 StopModule(uint32, uint32, uint32, uint32);
 		int32 UnloadModule(uint32);
 		int32 SearchModuleByName(uint32);
