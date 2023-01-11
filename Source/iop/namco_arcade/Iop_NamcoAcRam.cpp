@@ -1,11 +1,16 @@
 #include "Iop_NamcoAcRam.h"
 #include <cstring>
+#include "zip/ZipArchiveReader.h"
+#include "zip/ZipArchiveWriter.h"
+#include "../../states/MemoryStateFile.h"
 #include "../../Log.h"
 
 using namespace Iop;
 using namespace Iop::Namco;
 
 #define LOG_NAME ("iop_namco_acram")
+
+#define STATE_EXTRAM_FILE ("iop_namco_acram/extram")
 
 #define FUNCTION_INIT "Init"
 #define FUNCTION_READ "Read"
@@ -87,6 +92,16 @@ void CAcRam::Invoke(CMIPS& context, unsigned int functionId)
 		CLog::GetInstance().Warn(LOG_NAME, "Unknown method invoked (0x%08X).\r\n", functionId);
 		break;
 	}
+}
+
+void CAcRam::SaveState(Framework::CZipArchiveWriter& archive) const
+{
+	archive.InsertFile(new CMemoryStateFile(STATE_EXTRAM_FILE, m_extRam, g_extRamSize));
+}
+
+void CAcRam::LoadState(Framework::CZipArchiveReader& archive)
+{
+	archive.BeginReadFile(STATE_EXTRAM_FILE)->Read(m_extRam, g_extRamSize);
 }
 
 void CAcRam::Read(uint32 extRamAddr, uint8* buffer, uint32 size)

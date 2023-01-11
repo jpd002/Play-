@@ -16,6 +16,9 @@ namespace Iop
 			std::string GetFunctionName(unsigned int) const override;
 			void Invoke(CMIPS&, unsigned int) override;
 
+			void SaveState(Framework::CZipArchiveWriter&) const override;
+			void LoadState(Framework::CZipArchiveReader&) override;
+
 			void Read(uint32, uint8*, uint32);
 			void Write(uint32, const uint8*, uint32);
 
