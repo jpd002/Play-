@@ -31,6 +31,12 @@ using namespace Iop;
 #define STATE_USERDEVICES_DEVICENODE_NAMEATTRIBUTE ("Name")
 #define STATE_USERDEVICES_DEVICENODE_DESCPTRATTRIBUTE ("DescPtr")
 
+#define STATE_MOUNTEDDEVICES_FILENAME ("iop_ioman/mounteddevices.xml")
+#define STATE_MOUNTEDDEVICES_DEVICESNODE "Devices"
+#define STATE_MOUNTEDDEVICES_DEVICENODE "Device"
+#define STATE_MOUNTEDDEVICES_DEVICENODE_NAMEATTRIBUTE ("Name")
+#define STATE_MOUNTEDDEVICES_DEVICENODE_PATHATTRIBUTE ("Path")
+
 #define PREF_IOP_FILEIO_STDLOGGING ("iop.fileio.stdlogging")
 
 #define FUNCTION_WRITE "Write"
@@ -541,9 +547,11 @@ int32 CIoman::Mount(const char* fsName, const char* devicePath)
 		//Strip any colons we might have in the string
 		mountedDeviceName.erase(std::remove(mountedDeviceName.begin(), mountedDeviceName.end(), ':'), mountedDeviceName.end());
 		assert(m_devices.find(mountedDeviceName) == std::end(m_devices));
+		assert(m_mountedDevices.find(mountedDeviceName) == std::end(m_mountedDevices));
 
 		auto mountedDevice = device->Mount(pathInfo.devicePath.c_str());
 		m_devices[mountedDeviceName] = mountedDevice;
+		m_mountedDevices[mountedDeviceName] = devicePath;
 	}
 	catch(const std::exception& except)
 	{
@@ -570,6 +578,12 @@ int32 CIoman::Umount(const char* deviceName)
 
 	//We maybe need to make sure we don't have outstanding fds?
 	m_devices.erase(deviceIterator);
+	
+	{
+		auto mountedDeviceIterator = m_mountedDevices.find(mountedDeviceName);
+		assert(mountedDeviceIterator != std::end(m_mountedDevices));
+		m_mountedDevices.erase(mountedDeviceIterator);
+	}
 
 	return 0;
 }
@@ -1006,12 +1020,14 @@ void CIoman::Invoke(CMIPS& context, unsigned int functionId)
 
 void CIoman::SaveState(Framework::CZipArchiveWriter& archive) const
 {
+	SaveMountedDevicesState(archive);
 	SaveFilesState(archive);
 	SaveUserDevicesState(archive);
 }
 
 void CIoman::LoadState(Framework::CZipArchiveReader& archive)
 {
+	LoadMountedDevicesState(archive);
 	LoadFilesState(archive);
 	LoadUserDevicesState(archive);
 }
@@ -1049,6 +1065,22 @@ void CIoman::SaveUserDevicesState(Framework::CZipArchiveWriter& archive) const
 		auto deviceStateNode = new Framework::Xml::CNode(STATE_USERDEVICES_DEVICENODE, true);
 		deviceStateNode->InsertAttribute(Framework::Xml::CreateAttributeStringValue(STATE_USERDEVICES_DEVICENODE_NAMEATTRIBUTE, devicePair.first.c_str()));
 		deviceStateNode->InsertAttribute(Framework::Xml::CreateAttributeIntValue(STATE_USERDEVICES_DEVICENODE_DESCPTRATTRIBUTE, devicePair.second));
+		devicesStateNode->InsertNode(deviceStateNode);
+	}
+
+	archive.InsertFile(deviceStateFile);
+}
+
+void CIoman::SaveMountedDevicesState(Framework::CZipArchiveWriter& archive) const
+{
+	auto deviceStateFile = new CXmlStateFile(STATE_MOUNTEDDEVICES_FILENAME, STATE_MOUNTEDDEVICES_DEVICESNODE);
+	auto devicesStateNode = deviceStateFile->GetRoot();
+
+	for(const auto& devicePair : m_mountedDevices)
+	{
+		auto deviceStateNode = new Framework::Xml::CNode(STATE_MOUNTEDDEVICES_DEVICENODE, true);
+		deviceStateNode->InsertAttribute(Framework::Xml::CreateAttributeStringValue(STATE_MOUNTEDDEVICES_DEVICENODE_NAMEATTRIBUTE, devicePair.first.c_str()));
+		deviceStateNode->InsertAttribute(Framework::Xml::CreateAttributeStringValue(STATE_MOUNTEDDEVICES_DEVICENODE_PATHATTRIBUTE, devicePair.second.c_str()));
 		devicesStateNode->InsertNode(deviceStateNode);
 	}
 
@@ -1104,5 +1136,28 @@ void CIoman::LoadUserDevicesState(Framework::CZipArchiveReader& archive)
 		if(!Framework::Xml::GetAttributeIntValue(deviceNode, STATE_USERDEVICES_DEVICENODE_DESCPTRATTRIBUTE, &descPtr)) break;
 
 		m_userDevices[name] = descPtr;
+	}
+}
+
+void CIoman::LoadMountedDevicesState(Framework::CZipArchiveReader& archive)
+{
+	std::experimental::erase_if(m_devices,
+								[this](const auto& devicePair) {
+									return (m_mountedDevices.find(devicePair.first) != std::end(m_mountedDevices));
+								});
+	m_mountedDevices.clear();
+
+	auto deviceStateFile = CXmlStateFile(*archive.BeginReadFile(STATE_MOUNTEDDEVICES_FILENAME));
+	auto deviceStateNode = deviceStateFile.GetRoot();
+
+	auto deviceNodes = deviceStateNode->SelectNodes(STATE_MOUNTEDDEVICES_DEVICESNODE "/" STATE_MOUNTEDDEVICES_DEVICENODE);
+	for(auto deviceNode : deviceNodes)
+	{
+		std::string name;
+		std::string path;
+		if(!Framework::Xml::GetAttributeStringValue(deviceNode, STATE_MOUNTEDDEVICES_DEVICENODE_NAMEATTRIBUTE, &name)) break;
+		if(!Framework::Xml::GetAttributeStringValue(deviceNode, STATE_MOUNTEDDEVICES_DEVICENODE_PATHATTRIBUTE, &path)) break;
+		
+		Mount(name.c_str(), path.c_str());
 	}
 }

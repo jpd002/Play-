@@ -133,6 +133,7 @@ namespace Iop
 		typedef std::map<uint32, Ioman::DirectoryIteratorPtr> DirectoryMapType;
 		typedef std::map<std::string, Ioman::DevicePtr> DeviceMapType;
 		typedef std::map<std::string, uint32> UserDeviceMapType;
+		typedef std::map<std::string, std::string> MountedDeviceMapType;
 
 		void PrepareOpenThunk();
 		Framework::CStream* OpenInternal(uint32, const char*);
@@ -149,14 +150,17 @@ namespace Iop
 
 		void SaveFilesState(Framework::CZipArchiveWriter&) const;
 		void SaveUserDevicesState(Framework::CZipArchiveWriter&) const;
+		void SaveMountedDevicesState(Framework::CZipArchiveWriter&) const;
 
 		void LoadFilesState(Framework::CZipArchiveReader&);
 		void LoadUserDevicesState(Framework::CZipArchiveReader&);
+		void LoadMountedDevicesState(Framework::CZipArchiveReader&);
 
 		FileMapType m_files;
 		DirectoryMapType m_directories;
 		DeviceMapType m_devices;
 		UserDeviceMapType m_userDevices;
+		MountedDeviceMapType m_mountedDevices;
 		CIopBios& m_bios;
 		uint8* m_ram;
 		uint32 m_nextFileHandle;
