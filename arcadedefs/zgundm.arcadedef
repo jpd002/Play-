@@ -1,0 +1,16 @@
+{
+	"id": "zgundm",
+	"name": "Mobile Suit Z-Gundam: A.E.U.G. vs Titans",
+	"dongle":
+	{
+		"name": "zga1vera.ic002"
+	},
+	"cdvd":
+	{
+		"name": "zga1dvd0.chd"
+	},
+	"boot": "ac0:GDMLOAD",
+	"patches":
+	[
+	]
+}
