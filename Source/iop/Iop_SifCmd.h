@@ -14,36 +14,6 @@ namespace Iop
 	class CSifCmd : public CModule
 	{
 	public:
-		CSifCmd(CIopBios&, CSifMan&, CSysmem&, uint8*);
-		virtual ~CSifCmd();
-
-		std::string GetId() const override;
-		std::string GetFunctionName(unsigned int) const override;
-		void Invoke(CMIPS&, unsigned int) override;
-
-		void ProcessInvocation(uint32, uint32, uint32*, uint32);
-
-		void LoadState(Framework::CZipArchiveReader&) override;
-		void SaveState(Framework::CZipArchiveWriter&) const override;
-
-		void SifBindRpc(CMIPS&);
-		void SifCallRpc(CMIPS&);
-
-		void ClearServers();
-
-	private:
-		typedef std::list<CSifDynamic*> DynamicModuleList;
-
-		struct SIFRPCQUEUEDATA
-		{
-			uint32 threadId;
-			uint32 active;
-			uint32 serverDataLink;  //Set when there's a pending request
-			uint32 serverDataStart; //Set when a RPC server has been registered on the queue
-			uint32 serverDataEnd;
-			uint32 queueNext;
-		};
-
 		struct SIFRPCSERVERDATA
 		{
 			uint32 serverId;
@@ -66,6 +36,37 @@ namespace Iop
 		};
 		static_assert(sizeof(SIFRPCSERVERDATA) <= 0x44, "Size of SIFRPCSERVERDATA must be less or equal to 68 bytes.");
 
+		struct SIFRPCQUEUEDATA
+		{
+			uint32 threadId;
+			uint32 active;
+			uint32 serverDataLink;  //Set when there's a pending request
+			uint32 serverDataStart; //Set when a RPC server has been registered on the queue
+			uint32 serverDataEnd;
+			uint32 queueNext;
+		};
+
+		typedef std::list<CSifDynamic*> DynamicModuleList;
+
+		CSifCmd(CIopBios&, CSifMan&, CSysmem&, uint8*);
+		virtual ~CSifCmd();
+
+		std::string GetId() const override;
+		std::string GetFunctionName(unsigned int) const override;
+		void Invoke(CMIPS&, unsigned int) override;
+
+		void ProcessInvocation(uint32, uint32, uint32*, uint32);
+
+		void LoadState(Framework::CZipArchiveReader&) override;
+		void SaveState(Framework::CZipArchiveWriter&) const override;
+
+		void SifBindRpc(CMIPS&);
+		void SifCallRpc(CMIPS&);
+
+		const DynamicModuleList& GetServers() const;
+		void ClearServers();
+
+	private:
 		struct SIFCMDDATA
 		{
 			//There might be an additional GP member in here, but some games such as

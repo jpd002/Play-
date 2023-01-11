@@ -320,6 +320,11 @@ void CSifCmd::Invoke(CMIPS& context, unsigned int functionId)
 	}
 }
 
+const CSifCmd::DynamicModuleList& CSifCmd::GetServers() const
+{
+	return m_servers;
+}
+
 void CSifCmd::ClearServers()
 {
 	for(const auto& server : m_servers)

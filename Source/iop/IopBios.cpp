@@ -3633,6 +3633,11 @@ BiosDebugModuleInfoArray CIopBios::GetModulesDebugInfo() const
 	return m_moduleTags;
 }
 
+enum IOP_BIOS_DEBUG_OBJECT_TYPE
+{
+	IOP_BIOS_DEBUG_OBJECT_TYPE_SIFRPCSERVER = BIOS_DEBUG_OBJECT_TYPE_CUSTOM_START,
+};
+
 BiosDebugObjectInfoMap CIopBios::GetBiosObjectsDebugInfo() const
 {
 	static BiosDebugObjectInfoMap objectDebugInfo = [] {
@@ -3651,6 +3656,18 @@ BiosDebugObjectInfoMap CIopBios::GetBiosObjectsDebugInfo() const
 			        {"State", BIOS_DEBUG_OBJECT_FIELD_TYPE::STRING},
 			    };
 			result.emplace(std::make_pair(BIOS_DEBUG_OBJECT_TYPE_THREAD, std::move(info)));
+		}
+		{
+			BIOS_DEBUG_OBJECT_INFO info;
+			info.name = "SIF RPC Servers";
+			info.selectionAction = BIOS_DEBUG_OBJECT_ACTION::SHOW_LOCATION;
+			info.fields =
+			    {
+			        {"Id", BIOS_DEBUG_OBJECT_FIELD_TYPE::UINT32, BIOS_DEBUG_OBJECT_FIELD_ATTRIBUTE::IDENTIFIER | BIOS_DEBUG_OBJECT_FIELD_ATTRIBUTE::DATA_ADDRESS},
+			        {"Handler", BIOS_DEBUG_OBJECT_FIELD_TYPE::UINT32, BIOS_DEBUG_OBJECT_FIELD_ATTRIBUTE::LOCATION | BIOS_DEBUG_OBJECT_FIELD_ATTRIBUTE::TEXT_ADDRESS},
+			        {"Queue Thread Id", BIOS_DEBUG_OBJECT_FIELD_TYPE::UINT32, BIOS_DEBUG_OBJECT_FIELD_ATTRIBUTE::NONE},
+			    };
+			result.emplace(std::make_pair(IOP_BIOS_DEBUG_OBJECT_TYPE_SIFRPCSERVER, std::move(info)));
 		}
 		return result;
 	}();
@@ -3738,6 +3755,29 @@ BiosDebugObjectArray CIopBios::GetBiosObjects(uint32 typeId) const
 			result.push_back(obj);
 		}
 		break;
+	case IOP_BIOS_DEBUG_OBJECT_TYPE_SIFRPCSERVER:
+	{
+		const auto& servers = m_sifCmd->GetServers();
+		for(const auto& server : servers)
+		{
+			uint32 serverDataAddr = server->GetServerDataAddress();
+			uint32 queueThreadId = -1;
+			auto serverData = reinterpret_cast<const Iop::CSifCmd::SIFRPCSERVERDATA*>(m_ram + serverDataAddr);
+			if(serverData->queueAddr != 0)
+			{
+				auto queueData = reinterpret_cast<const Iop::CSifCmd::SIFRPCQUEUEDATA*>(m_ram + serverData->queueAddr);
+				queueThreadId = queueData->threadId;
+			}
+			BIOS_DEBUG_OBJECT obj;
+			obj.fields = {
+			    BIOS_DEBUG_OBJECT_FIELD(std::in_place_type<uint32>, serverData->serverId),
+			    BIOS_DEBUG_OBJECT_FIELD(std::in_place_type<uint32>, serverData->function),
+			    BIOS_DEBUG_OBJECT_FIELD(std::in_place_type<uint32>, queueThreadId),
+			};
+			result.push_back(obj);
+		}
+	}
+	break;
 	}
 	return result;
 }

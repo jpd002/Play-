@@ -145,9 +145,21 @@ void CKernelObjectListView::tableDoubleClick(const QModelIndex& indexRow)
 		return;
 	}
 
-	//Assuming col 0 has id
+	//Assuming col 0 has id (verified in SetObjectType)
+	auto fieldType = objectType.fields[0];
 	auto index = m_model->index(indexRow.row(), 0);
-	auto objectId = std::stoi(m_model->getItem(index));
+	uint32 objectId = 0;
+
+	//TODO: Find a better way to fetch the id/key from the indexRow.
+	auto idCellValue = m_model->getItem(index);
+	if(fieldType.HasAttribute(BIOS_DEBUG_OBJECT_FIELD_ATTRIBUTE::DATA_ADDRESS))
+	{
+		objectId = std::strtoul(idCellValue.c_str(), nullptr, 16);
+	}
+	else
+	{
+		objectId = std::strtoul(idCellValue.c_str(), nullptr, 10);
+	}
 
 	auto objects = m_biosDebugInfoProvider->GetBiosObjects(m_objectType);
 
