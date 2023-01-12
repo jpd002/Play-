@@ -578,7 +578,7 @@ int32 CIoman::Umount(const char* deviceName)
 
 	//We maybe need to make sure we don't have outstanding fds?
 	m_devices.erase(deviceIterator);
-	
+
 	{
 		auto mountedDeviceIterator = m_mountedDevices.find(mountedDeviceName);
 		assert(mountedDeviceIterator != std::end(m_mountedDevices));
@@ -1142,9 +1142,9 @@ void CIoman::LoadUserDevicesState(Framework::CZipArchiveReader& archive)
 void CIoman::LoadMountedDevicesState(Framework::CZipArchiveReader& archive)
 {
 	std::experimental::erase_if(m_devices,
-								[this](const auto& devicePair) {
-									return (m_mountedDevices.find(devicePair.first) != std::end(m_mountedDevices));
-								});
+	                            [this](const auto& devicePair) {
+		                            return (m_mountedDevices.find(devicePair.first) != std::end(m_mountedDevices));
+	                            });
 	m_mountedDevices.clear();
 
 	auto deviceStateFile = CXmlStateFile(*archive.BeginReadFile(STATE_MOUNTEDDEVICES_FILENAME));
@@ -1157,7 +1157,7 @@ void CIoman::LoadMountedDevicesState(Framework::CZipArchiveReader& archive)
 		std::string path;
 		if(!Framework::Xml::GetAttributeStringValue(deviceNode, STATE_MOUNTEDDEVICES_DEVICENODE_NAMEATTRIBUTE, &name)) break;
 		if(!Framework::Xml::GetAttributeStringValue(deviceNode, STATE_MOUNTEDDEVICES_DEVICENODE_PATHATTRIBUTE, &path)) break;
-		
+
 		Mount(name.c_str(), path.c_str());
 	}
 }
