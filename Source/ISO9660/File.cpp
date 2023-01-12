@@ -36,11 +36,7 @@ void CFile::Seek(int64 amount, Framework::STREAM_SEEK_DIRECTION whence)
 	case Framework::STREAM_SEEK_END:
 		//Cannot seek from end with unbounded files
 		assert(m_end != ULLONG_MAX);
-		// We need to abs the amount, as the seek end works with both
-		// positive and negative offsets, which do the same.
-		// e.g. Shadow of Ganymede uses a positive offset, while it
-		// should be negative.
-		m_position = size - std::abs(amount);
+		m_position = size + amount;
 		break;
 	}
 	m_position = std::max<int64>(m_position, 0);

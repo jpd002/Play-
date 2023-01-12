@@ -40,7 +40,12 @@ Framework::CStream* COpticalMediaDevice::GetFile(uint32 mode, const char* device
 	std::transform(fixedString.begin(), fixedString.end(), fixedString.begin(), &COpticalMediaDevice::FixSlashes);
 	fixedString = RemoveExtraVersionSpecifiers(fixedString);
 	auto fileSystem = m_opticalMedia->GetFileSystem();
-	return fileSystem->Open(fixedString.c_str());
+	auto fileStream = std::unique_ptr<Framework::CStream>(fileSystem->Open(fixedString.c_str()));
+	if(!fileStream)
+	{
+		return nullptr;
+	}
+	return new COpticalMediaFile(std::move(fileStream));
 }
 
 DirectoryIteratorPtr COpticalMediaDevice::GetDirectory(const char* devicePath)
@@ -57,4 +62,41 @@ DirectoryIteratorPtr COpticalMediaDevice::GetDirectory(const char* devicePath)
 		throw std::runtime_error("Directory not found.");
 	}
 	return std::make_unique<COpticalMediaDirectoryIterator>(directoryStream);
+}
+
+COpticalMediaFile::COpticalMediaFile(std::unique_ptr<Framework::CStream> baseStream)
+    : m_baseStream(std::move(baseStream))
+{
+}
+
+void COpticalMediaFile::Seek(int64 offset, Framework::STREAM_SEEK_DIRECTION whence)
+{
+	if((whence == Framework::STREAM_SEEK_END) && (offset > 0))
+	{
+		//Some games from Phoenix Games relies on a positive offset seeking backwards when using SEEK_END:
+		//- Shadow of Ganymede
+		//- Guerrilla Strike
+		offset = -offset;
+	}
+	m_baseStream->Seek(offset, whence);
+}
+
+uint64 COpticalMediaFile::Tell()
+{
+	return m_baseStream->Tell();
+}
+
+uint64 COpticalMediaFile::Read(void* buffer, uint64 size)
+{
+	return m_baseStream->Read(buffer, size);
+}
+
+uint64 COpticalMediaFile::Write(const void* buffer, uint64 size)
+{
+	return m_baseStream->Write(buffer, size);
+}
+
+bool COpticalMediaFile::IsEOF()
+{
+	return m_baseStream->IsEOF();
 }
