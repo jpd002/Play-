@@ -1,14 +1,21 @@
 #include "Iop_NamcoArcade.h"
 #include <cstring>
 #include "StdStreamUtils.h"
+#include "zip/ZipArchiveReader.h"
+#include "zip/ZipArchiveWriter.h"
 #include "../AppConfig.h"
 #include "../Log.h"
+#include "../states/RegisterStateFile.h"
 #include "PathUtils.h"
 #include "namco_arcade/Iop_NamcoAcRam.h"
 
 using namespace Iop;
 
 #define LOG_NAME "iop_namcoarcade"
+
+#define STATE_FILE ("iop_namcoarcade/state.xml")
+#define STATE_RECV_ADDR ("recvAddr")
+#define STATE_SEND_ADDR ("sendAddr")
 
 CNamcoArcade::CNamcoArcade(CSifMan& sif, Namco::CAcRam& acRam, const std::string& gameId)
     : m_acRam(acRam)
@@ -222,6 +229,21 @@ void ProcessJvsPacket(const uint8* input, uint8* output)
 	}
 	uint8 inChecksum = (*input);
 	assert(inChecksum == (inWorkChecksum & 0xFF));
+}
+
+void CNamcoArcade::SaveState(Framework::CZipArchiveWriter& archive) const
+{
+	auto registerFile = new CRegisterStateFile(STATE_FILE);
+	registerFile->SetRegister32(STATE_RECV_ADDR, m_recvAddr);
+	registerFile->SetRegister32(STATE_SEND_ADDR, m_sendAddr);
+	archive.InsertFile(registerFile);
+}
+
+void CNamcoArcade::LoadState(Framework::CZipArchiveReader& archive)
+{
+	auto registerFile = CRegisterStateFile(*archive.BeginReadFile(STATE_FILE));
+	m_recvAddr = registerFile.GetRegister32(STATE_RECV_ADDR);
+	m_sendAddr = registerFile.GetRegister32(STATE_SEND_ADDR);
 }
 
 void CNamcoArcade::SetButtonState(unsigned int padNumber, PS2::CControllerInfo::BUTTON button, bool pressed, uint8* ram)

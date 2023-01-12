@@ -23,6 +23,9 @@ namespace Iop
 		std::string GetFunctionName(unsigned int) const override;
 		void Invoke(CMIPS&, unsigned int) override;
 
+		void SaveState(Framework::CZipArchiveWriter&) const override;
+		void LoadState(Framework::CZipArchiveReader&) override;
+
 		void SetButtonState(unsigned int, PS2::CControllerInfo::BUTTON, bool, uint8*) override;
 		void SetAxisState(unsigned int, PS2::CControllerInfo::BUTTON, uint8, uint8*) override;
 
