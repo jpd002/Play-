@@ -15,7 +15,7 @@ CIszImageStream::CIszImageStream(std::unique_ptr<CStream> baseStream)
 		throw std::runtime_error("Null base stream supplied.");
 	}
 
-	baseStream->Read(&m_header, sizeof(HEADER));
+	m_baseStream->Read(&m_header, sizeof(HEADER));
 
 	assert(m_header.hasPassword == 0);
 	assert(m_header.segmentPtrOffset == 0);
