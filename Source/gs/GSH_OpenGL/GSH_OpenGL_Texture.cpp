@@ -196,10 +196,10 @@ CGSH_OpenGL::TEXTURE_INFO CGSH_OpenGL::PrepareTexture(const TEX0& tex0)
 		//Validate texture dimensions to prevent problems
 		auto texWidth = tex0.GetWidth();
 		auto texHeight = tex0.GetHeight();
-		assert(texWidth <= 1024);
-		assert(texHeight <= 1024);
-		texWidth = std::min<uint32>(texWidth, 1024);
-		texHeight = std::min<uint32>(texHeight, 1024);
+		assert(texWidth <= TEX0_MAX_TEXTURE_SIZE);
+		assert(texHeight <= TEX0_MAX_TEXTURE_SIZE);
+		texWidth = std::min<uint32>(texWidth, TEX0_MAX_TEXTURE_SIZE);
+		texHeight = std::min<uint32>(texHeight, TEX0_MAX_TEXTURE_SIZE);
 		auto texFormat = GetTextureFormatInfo(tex0.nPsm);
 
 		{

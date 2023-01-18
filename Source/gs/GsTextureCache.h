@@ -69,10 +69,11 @@ public:
 		uint32 bufSize = tex0.GetBufWidth();
 		if(bufSize == 0)
 		{
-			bufSize = tex0.GetWidth();
+			bufSize = std::min<uint32>(tex0.GetWidth(), CGSHandler::TEX0_MAX_TEXTURE_SIZE);
 		}
+		uint32 texHeight = std::min<uint32>(tex0.GetHeight(), CGSHandler::TEX0_MAX_TEXTURE_SIZE);
 
-		texture->m_cachedArea.SetArea(tex0.nPsm, tex0.GetBufPtr(), bufSize, tex0.GetHeight());
+		texture->m_cachedArea.SetArea(tex0.nPsm, tex0.GetBufPtr(), bufSize, texHeight);
 
 		texture->m_tex0 = static_cast<uint64>(tex0) & TEX0_CLUTINFO_MASK;
 		texture->m_textureHandle = std::move(textureHandle);

@@ -240,6 +240,11 @@ public:
 		TEX0_FUNCTION_MAX
 	};
 
+	enum
+	{
+		TEX0_MAX_TEXTURE_SIZE = 1024,
+	};
+
 	enum CLAMP_MODE
 	{
 		CLAMP_MODE_REPEAT,

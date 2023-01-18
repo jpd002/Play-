@@ -28,6 +28,12 @@ void CGsCachedArea::SetArea(uint32 psm, uint32 bufPtr, uint32 bufWidth, uint32 h
 	m_bufPtr = bufPtr;
 	m_bufWidth = bufWidth;
 	m_height = height;
+
+	//Check that we have enough bits to represent page dirtyness in m_dirtyPages
+	{
+		auto pageRect = GetAreaPageRect();
+		assert((pageRect.width * pageRect.height) <= MAX_DIRTYPAGES);
+	}
 }
 
 CGsCachedArea::PageRect CGsCachedArea::GetAreaPageRect() const
@@ -125,7 +131,11 @@ void CGsCachedArea::Invalidate(uint32 memoryStart, uint32 memorySize)
 
 bool CGsCachedArea::IsPageDirty(uint32 pageIndex) const
 {
-	assert(pageIndex < sizeof(m_dirtyPages) * 8);
+	if(pageIndex >= MAX_DIRTYPAGES)
+	{
+		assert(false);
+		return false;
+	}
 	unsigned int dirtyPageSection = pageIndex / (sizeof(m_dirtyPages[0]) * 8);
 	unsigned int dirtyPageIndex = pageIndex % (sizeof(m_dirtyPages[0]) * 8);
 	return (m_dirtyPages[dirtyPageSection] & (1ULL << dirtyPageIndex)) != 0;
@@ -133,7 +143,11 @@ bool CGsCachedArea::IsPageDirty(uint32 pageIndex) const
 
 void CGsCachedArea::SetPageDirty(uint32 pageIndex)
 {
-	assert(pageIndex < sizeof(m_dirtyPages) * 8);
+	if(pageIndex >= MAX_DIRTYPAGES)
+	{
+		assert(false);
+		return;
+	}
 	unsigned int dirtyPageSection = pageIndex / (sizeof(m_dirtyPages[0]) * 8);
 	unsigned int dirtyPageIndex = pageIndex % (sizeof(m_dirtyPages[0]) * 8);
 	m_dirtyPages[dirtyPageSection] |= (1ULL << dirtyPageIndex);

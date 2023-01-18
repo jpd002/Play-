@@ -18,8 +18,8 @@ public:
 
 	enum
 	{
-		MAX_DIRTYPAGES_SECTIONS = 8,
-		MAX_DIRTYPAGES = sizeof(DirtyPageHolder) * 8 * MAX_DIRTYPAGES_SECTIONS
+		MAX_DIRTYPAGES_SECTIONS = 8, //Needs to be enough to cover a 4MB area (4MB / 8192 = 512 = sizeof(uint64) * MAX_DIRTYPAGES_SECTIONS * 8)
+		MAX_DIRTYPAGES = sizeof(DirtyPageHolder) * MAX_DIRTYPAGES_SECTIONS * 8
 	};
 
 	CGsCachedArea();
