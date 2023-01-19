@@ -1089,7 +1089,7 @@ uint32 CIopBios::CreateThread(uint32 threadProc, uint32 priority, uint32 stackSi
 	}
 
 	auto thread = m_threads[threadId];
-	memset(&thread->context, 0, sizeof(thread->context));
+	thread->context = {};
 	thread->context.delayJump = MIPS_INVALID_PC;
 	thread->stackSize = stackSize;
 	thread->stackBase = stackBase;
