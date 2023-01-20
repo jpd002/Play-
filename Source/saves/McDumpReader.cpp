@@ -1,6 +1,7 @@
 #include "McDumpReader.h"
 #include <cstring>
 #include <cassert>
+#include <stdexcept>
 
 //Source:
 //http://www.csclub.uwaterloo.ca:11068/mymc/ps2mcfs.html
