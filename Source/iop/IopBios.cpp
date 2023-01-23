@@ -1647,6 +1647,10 @@ int32 CIopBios::ReleaseWaitThread(uint32 threadId, bool inInterrupt)
 		thread->waitSemaphore = 0;
 	}
 	break;
+	case THREAD_STATUS_WAITING_EVENTFLAG:
+		thread->waitEventFlag = 0;
+		thread->waitEventFlagResultPtr = 0;
+		break;
 	default:
 		assert(false);
 		break;
