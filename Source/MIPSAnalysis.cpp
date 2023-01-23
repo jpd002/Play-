@@ -192,6 +192,8 @@ void CMIPSAnalysis::FindSubroutinesByJumpTargets(uint32 start, uint32 end, uint3
 		subroutineAddresses.insert(entryPoint);
 	}
 
+	static const uint32 searchLimit = 0x1000;
+
 	for(const auto& subroutineAddress : subroutineAddresses)
 	{
 		if(subroutineAddress == 0) continue;
@@ -202,6 +204,8 @@ void CMIPSAnalysis::FindSubroutinesByJumpTargets(uint32 start, uint32 end, uint3
 		//Otherwise, try to find a function that already exists
 		for(uint32 address = subroutineAddress; address <= end; address += 4)
 		{
+			if(address >= (subroutineAddress + searchLimit)) break;
+			
 			uint32 opcode = m_ctx->m_pMemoryMap->GetInstruction(address);
 
 			//Check for JR RA or J
