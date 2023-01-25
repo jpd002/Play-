@@ -1,0 +1,16 @@
+{
+	"id": "tekken51",
+	"name": "Tekken 5.1",
+	"dongle":
+	{
+		"name": "te51verb.ic002"
+	},
+	"cdvd":
+	{
+		"name": "te51-dvd0.chd"
+	},
+	"boot": "ac0:TK5LOAD",
+	"patches":
+	[
+	]
+}
