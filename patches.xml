@@ -2,4 +2,8 @@
 	<Executable Name="SLES_501.76;1" Title="Oni" Region="EU">
 		<Patch Address="0x001cef7c" Value="0x00000000 // bc0f $001cef7c" Description="Fix hang by skip branch if copro 0 condition false." />
 	</Executable>
+	<Executable Name="SLUS_200.24;1" Title="Legacy of Kain - Blood Omen 2" Region="US">
+		<Patch Address="0x00297DA8" Value="0x10000006" Description="Skip debugger hook" />
+		<Patch Address="0x00297DA0" Value="0x00000000" Description="Skip debugger hook" />
+	</Executable>
 </Patches>
