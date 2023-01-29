@@ -1,0 +1,16 @@
+{
+	"id": "gdvsgdnx",
+	"name": "Gundam vs. Gundam Next",
+	"dongle":
+	{
+		"name": "gnx1001-na-a.ic002"
+	},
+	"hdd":
+	{
+		"name": "gnx100-1na-a.chd"
+	},
+	"boot": "ac0:GNXLOAD",
+	"patches":
+	[
+	]
+}
