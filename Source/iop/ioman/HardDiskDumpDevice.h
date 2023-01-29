@@ -1,5 +1,6 @@
 #pragma once
 
+#include <vector>
 #include "../Ioman_Device.h"
 #include "hdd/PfsReader.h"
 

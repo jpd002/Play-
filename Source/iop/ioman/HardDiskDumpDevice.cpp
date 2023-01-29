@@ -1,5 +1,6 @@
 #include "HardDiskDumpDevice.h"
 #include <cassert>
+#include <cstring>
 #include "HardDiskDevice.h"
 #include "hdd/ApaReader.h"
 #include "StringUtils.h"
