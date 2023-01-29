@@ -1,5 +1,6 @@
 #pragma once
 
+#include <vector>
 #include "Stream.h"
 #include "ApaDefs.h"
 
@@ -10,6 +11,7 @@ namespace Hdd
 	public:
 		CApaReader(Framework::CStream&);
 
+		std::vector<APA_HEADER> GetPartitions();
 		bool TryFindPartition(const char*, APA_HEADER&);
 
 	private:

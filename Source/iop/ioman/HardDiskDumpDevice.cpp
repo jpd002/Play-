@@ -25,9 +25,12 @@ Framework::CStream* CHardDiskDumpDevice::GetFile(uint32 flags, const char* path)
 	return new CHardDiskPartition();
 }
 
-DirectoryIteratorPtr CHardDiskDumpDevice::GetDirectory(const char*)
+DirectoryIteratorPtr CHardDiskDumpDevice::GetDirectory(const char* path)
 {
-	return DirectoryIteratorPtr();
+	assert(strlen(path) == 0);
+	Hdd::CApaReader reader(*m_stream);
+	auto partitions = reader.GetPartitions();
+	return std::make_unique<CHardDiskDumpDirectoryIterator>(std::move(partitions));
 }
 
 DevicePtr CHardDiskDumpDevice::Mount(const char* path)
@@ -59,6 +62,31 @@ bool CHardDiskDumpDevice::TryGetStat(const char* path, bool& succeeded, STAT& st
 	stat.attr = partitionHeader.flags;
 	stat.loSize = partitionHeader.length;
 	return true;
+}
+
+CHardDiskDumpDirectoryIterator::CHardDiskDumpDirectoryIterator(std::vector<Hdd::APA_HEADER> partitions)
+: m_partitions(std::move(partitions))
+{
+	
+}
+
+void CHardDiskDumpDirectoryIterator::ReadEntry(DIRENTRY* entry)
+{
+	*entry = {};
+	while(!IsDone())
+	{
+		const auto& partition = m_partitions[m_index++];
+		if(strlen(partition.id) == 0) continue;
+		static_assert(sizeof(entry->name) >= sizeof(partition.id));
+		strncpy(entry->name, partition.id, Hdd::APA_HEADER::ID_SIZE);
+		entry->name[Hdd::APA_HEADER::ID_SIZE - 1] = 0;
+		break;
+	}
+}
+
+bool CHardDiskDumpDirectoryIterator::IsDone()
+{
+	return (m_index == m_partitions.size());
 }
 
 CHardDiskDumpPartitionDevice::CHardDiskDumpPartitionDevice(Framework::CStream& stream, const Hdd::APA_HEADER& partitionHeader)

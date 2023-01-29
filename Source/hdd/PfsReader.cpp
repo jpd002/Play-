@@ -2,6 +2,7 @@
 #include <cassert>
 #include <cstring>
 #include "HddDefs.h"
+#include "StringUtils.h"
 
 using namespace Hdd;
 
@@ -30,50 +31,58 @@ CPfsFileReader* CPfsReader::GetFileStream(const char* path)
 {
 	assert(path[0] == '/');
 	path++;
-	assert(strchr(path, '/') == nullptr);
+	auto sections = StringUtils::Split(path, '/');
 
-	auto rootInode = ReadInode(m_superBlock.rootBlock.number, m_superBlock.rootBlock.subPart);
-	assert(rootInode.dataCount == 2);
-	uint32 dirLba = GetBlockLba(rootInode.data[1].number, rootInode.data[1].subPart);
-
-	static const uint32_t dirBlockSize = g_sectorSize << PFS_BLOCK_SCALE;
-	uint8 dirBlock[dirBlockSize];
-	m_stream.Seek(dirLba * g_sectorSize, Framework::STREAM_SEEK_SET);
-	m_stream.Read(dirBlock, sizeof(dirBlock));
-	auto dirBlockCurr = dirBlock;
-	auto dirBlockEnd = dirBlock + dirBlockSize;
-	while(1)
+	auto sectionInode = ReadInode(m_superBlock.rootBlock.number, m_superBlock.rootBlock.subPart);
+	for(unsigned int i = 0; i < sections.size(); i++)
 	{
-		assert((dirBlockEnd - dirBlockCurr) >= sizeof(PFS_DIRENTRY));
+		assert((sectionInode.mode & 0xF000) == 0x1000);
+		assert(sectionInode.dataCount == 2);
+		uint32 dirLba = GetBlockLba(sectionInode.data[1].number, sectionInode.data[1].subPart);
+
+		static const uint32_t dirBlockSize = g_sectorSize << PFS_BLOCK_SCALE;
+		const auto& section = sections[i];
+		uint8 dirBlock[dirBlockSize];
+		m_stream.Seek(dirLba * g_sectorSize, Framework::STREAM_SEEK_SET);
+		m_stream.Read(dirBlock, sizeof(dirBlock));
+		auto dirBlockCurr = dirBlock;
+		auto dirBlockEnd = dirBlock + dirBlockSize;
+		while(1)
+		{
+			assert((dirBlockEnd - dirBlockCurr) >= sizeof(PFS_DIRENTRY));
+			auto dirEntry = reinterpret_cast<const PFS_DIRENTRY*>(dirBlockCurr);
+			uint32_t entryLength = dirEntry->allocatedLength & 0xFFF;
+			if(entryLength == 0)
+			{
+				//We're done
+				dirBlockCurr = dirBlockEnd;
+				break;
+			}
+			assert((dirBlockEnd - dirBlockCurr) >= entryLength);
+			std::string entryName;
+			for(int i = 0; i < dirEntry->pathLength; i++)
+			{
+				entryName += dirBlockCurr[sizeof(PFS_DIRENTRY) + i];
+			}
+			if(!strcmp(entryName.c_str(), section.c_str()))
+			{
+				break;
+			}
+			dirBlockCurr += entryLength;
+		}
+
+		if(dirBlockCurr == dirBlockEnd)
+		{
+			//Not found
+			return nullptr;
+		}
+		
 		auto dirEntry = reinterpret_cast<const PFS_DIRENTRY*>(dirBlockCurr);
-		uint32_t entryLength = dirEntry->allocatedLength & 0xFFF;
-		if(entryLength == 0)
-		{
-			//We're done
-			dirBlockCurr = dirBlockEnd;
-			break;
-		}
-		assert((dirBlockEnd - dirBlockCurr) >= entryLength);
-		std::string entryName;
-		for(int i = 0; i < dirEntry->pathLength; i++)
-		{
-			entryName += dirBlockCurr[sizeof(PFS_DIRENTRY) + i];
-		}
-		if(!strcmp(entryName.c_str(), path))
-		{
-			break;
-		}
-		dirBlockCurr += entryLength;
+		sectionInode = ReadInode(dirEntry->inode, dirEntry->subPart);
 	}
 
-	if(dirBlockCurr == dirBlockEnd)
-	{
-		return nullptr;
-	}
-
-	auto dirEntry = reinterpret_cast<const PFS_DIRENTRY*>(dirBlockCurr);
-	auto fileInode = ReadInode(dirEntry->inode, dirEntry->subPart);
-	return new CPfsFileReader(*this, m_stream, fileInode);
+	assert((sectionInode.mode & 0xF000) == 0x2000);
+	return new CPfsFileReader(*this, m_stream, sectionInode);
 }
 
 uint32 CPfsReader::GetZoneSize() const
