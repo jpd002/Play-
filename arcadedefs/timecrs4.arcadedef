@@ -1,0 +1,16 @@
+{
+	"id": "timecrs4",
+	"name": "Time Crisis 4",
+	"dongle":
+	{
+		"name": "tsf1002-na-a.ic002"
+	},
+	"hdd":
+	{
+		"name": "tsf1-ha.chd"
+	},
+	"boot": "ac0:TC4LOAD",
+	"patches":
+	[
+	]
+}

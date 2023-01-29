@@ -1,0 +1,16 @@
+{
+	"id": "gdvsgd",
+	"name": "Gundam vs. Gundam",
+	"dongle":
+	{
+		"name": "gvs1vera.ic002"
+	},
+	"cdvd":
+	{
+		"name": "gvs1dvd0b.chd"
+	},
+	"boot": "ac0:GDNLOAD",
+	"patches":
+	[
+	]
+}
