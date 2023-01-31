@@ -9,6 +9,7 @@
 	{
 		"name": "gvs1dvd0b.chd"
 	},
+	"eeFrequencyScale": [4, 3],
 	"boot": "ac0:GDNLOAD",
 	"patches":
 	[
