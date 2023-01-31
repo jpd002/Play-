@@ -174,6 +174,13 @@ void CPS2VM::DestroySoundHandler()
 	m_mailBox.SendCall([this]() { DestroySoundHandlerImpl(); }, true);
 }
 
+void CPS2VM::SetEeFrequencyScale(uint32 numerator, uint32 denominator)
+{
+	m_eeFreqScaleNumerator = numerator;
+	m_eeFreqScaleDenominator = denominator;
+	ReloadFrameRateLimit();
+}
+
 void CPS2VM::ReloadFrameRateLimit()
 {
 	uint32 frameRate = 60;
@@ -184,7 +191,11 @@ void CPS2VM::ReloadFrameRateLimit()
 	bool limitFrameRate = CAppConfig::GetInstance().GetPreferenceBoolean(PREF_PS2_LIMIT_FRAMERATE);
 	m_frameLimiter.SetFrameRate(limitFrameRate ? frameRate : 0);
 
-	uint32 frameTicks = PS2::EE_CLOCK_FREQ / frameRate;
+	//At 1x scale, IOP runs 8 times slower than EE
+	uint32 eeFreqScaled = PS2::EE_CLOCK_FREQ * m_eeFreqScaleNumerator / m_eeFreqScaleDenominator;
+	m_iopTickStep = (m_eeTickStep / 8) * m_eeFreqScaleDenominator / m_eeFreqScaleNumerator;
+
+	uint32 frameTicks = eeFreqScaled / frameRate;
 	m_onScreenTicksTotal = frameTicks * 9 / 10;
 	m_vblankTicksTotal = frameTicks / 10;
 }
@@ -444,6 +455,8 @@ void CPS2VM::ResetVM()
 
 	CDROM0_SyncPath();
 
+	SetEeFrequencyScale(1, 1);
+	
 	m_vblankTicks = m_onScreenTicksTotal;
 	m_inVblank = false;
 
@@ -899,10 +912,8 @@ void CPS2VM::EmuThread()
 					}
 				}
 
-				//EE CPU is 8 times faster than the IOP CPU
-				static const int tickStep = 4800;
-				m_eeExecutionTicks += tickStep;
-				m_iopExecutionTicks += tickStep / 8;
+				m_eeExecutionTicks += m_eeTickStep;
+				m_iopExecutionTicks += m_iopTickStep;
 
 				UpdateEe();
 				UpdateIop();

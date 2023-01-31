@@ -9,6 +9,7 @@
 	{
 		"name": "gnx100-1na-a.chd"
 	},
+	"eeFrequencyScale": [3, 2],
 	"boot": "ac0:GNXLOAD",
 	"patches":
 	[

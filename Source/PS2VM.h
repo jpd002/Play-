@@ -70,6 +70,7 @@ public:
 	void CDROM0_SyncPath();
 	void CDROM0_Reset();
 
+	void SetEeFrequencyScale(uint32, uint32);
 	void ReloadFrameRateLimit();
 
 	static fs::path GetStateDirectoryPath();
@@ -149,6 +150,8 @@ private:
 	STATUS m_nStatus = PAUSED;
 	bool m_nEnd = false;
 
+	uint32 m_eeFreqScaleNumerator = 1;
+	uint32 m_eeFreqScaleDenominator = 1;
 	uint32 m_onScreenTicksTotal = 0;
 	uint32 m_vblankTicksTotal = 0;
 	int m_vblankTicks = 0;
@@ -156,6 +159,8 @@ private:
 	int m_spuUpdateTicks = SPU_UPDATE_TICKS;
 	int m_eeExecutionTicks = 0;
 	int m_iopExecutionTicks = 0;
+	static const int m_eeTickStep = 4800;
+	int m_iopTickStep = 0;
 	CFrameLimiter m_frameLimiter;
 
 	CPU_UTILISATION_INFO m_cpuUtilisation;

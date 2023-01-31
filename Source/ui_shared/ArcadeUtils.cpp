@@ -34,6 +34,8 @@ struct ARCADE_MACHINE_DEF
 	std::map<unsigned int, PS2::CControllerInfo::BUTTON> buttons;
 	bool hasLightGun = false;
 	std::array<float, 4> lightGunXform = {65535, 0, 65535, 0};
+	uint32 eeFreqScaleNumerator = 1;
+	uint32 eeFreqScaleDenominator = 1;
 	std::string boot;
 	std::vector<PATCH> patches;
 };
@@ -151,6 +153,15 @@ ARCADE_MACHINE_DEF ReadArcadeMachineDefinition(const fs::path& arcadeDefPath)
 			}
 		}
 	}
+	if(defJson.contains("eeFrequencyScale"))
+	{
+		auto eeFreqScaleArray = defJson["eeFrequencyScale"];
+		if(eeFreqScaleArray.is_array() && (eeFreqScaleArray.size() >= 2))
+		{
+			def.eeFreqScaleNumerator = eeFreqScaleArray[0];
+			def.eeFreqScaleDenominator = eeFreqScaleArray[1];
+		}
+	}
 	def.boot = defJson["boot"];
 	if(defJson.contains("patches"))
 	{
@@ -258,6 +269,8 @@ void PrepareArcadeEnvironment(CPS2VM* virtualMachine, const ARCADE_MACHINE_DEF& 
 			}
 		}
 	}
+	
+	virtualMachine->SetEeFrequencyScale(def.eeFreqScaleNumerator, def.eeFreqScaleDenominator);
 }
 
 void ApplyPatchesFromArcadeDefinition(CPS2VM* virtualMachine, const ARCADE_MACHINE_DEF& def)

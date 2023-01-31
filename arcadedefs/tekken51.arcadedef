@@ -9,6 +9,7 @@
 	{
 		"name": "te51-dvd0.chd"
 	},
+	"eeFrequencyScale": [4, 3],
 	"boot": "ac0:TK5LOAD",
 	"patches":
 	[
