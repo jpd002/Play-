@@ -1,0 +1,16 @@
+{
+	"id": "gundzaft",
+	"name": "Mobile Suit Gundam SEED: O.M.N.I. vs Z.A.F.T",
+	"dongle":
+	{
+		"name": "sed1vera.ic002"
+	},
+	"cdvd":
+	{
+		"name": "sed1dvd0.chd"
+	},
+	"boot": "ac0:SEDLOAD",
+	"patches":
+	[
+	]
+}
