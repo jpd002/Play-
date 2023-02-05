@@ -1,0 +1,17 @@
+{
+	"id": "kinniku",
+	"name": "Kinnikuman Muscle Grand Prix",
+	"dongle":
+	{
+		"name": "kn1vera.ic002"
+	},
+	"cdvd":
+	{
+		"name": "kn1-b.chd"
+	},
+	"eeFrequencyScale": [4, 3],
+	"boot": "ac0:KINLOAD",
+	"patches":
+	[
+	]
+}
