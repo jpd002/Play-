@@ -3,7 +3,7 @@ name: Build Linux
 on: [push, pull_request]
 jobs:
   build_linux:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     steps:
     - name: Cache Qt
       id: cache-qt
@@ -34,7 +34,7 @@ jobs:
         sudo apt update
         sudo apt install gcc-9 g++-9 libcurl4-openssl-dev libgl1-mesa-dev libglu1-mesa-dev libalut-dev libevdev-dev
         # The following packages are necessary for linuxdeployqt to work
-        sudo apt install libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-render-util0 libxcb-xinerama0
+        sudo apt install libfuse2 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-render-util0 libxcb-xinerama0
     - name: Checkout
       uses: actions/checkout@v2
       with:

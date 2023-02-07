@@ -3,7 +3,7 @@ name: Build JavaScript
 on: [push, pull_request]
 jobs:
   build_js:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
     - name: Setup Emscripten
       uses: mymindstorm/setup-emsdk@v11

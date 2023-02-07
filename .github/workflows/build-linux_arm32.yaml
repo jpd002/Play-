@@ -3,7 +3,7 @@ name: Build Linux ARM32
 on: [push, pull_request]
 jobs:
   build_linux_arm32:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
       - name: Install Dependencies
         run: |
