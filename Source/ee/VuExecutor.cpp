@@ -40,27 +40,38 @@ BasicBlockPtr CVuExecutor::BlockFactory(CMIPS& context, uint32 begin, uint32 end
 	static_assert(sizeof(hash) == sizeof(xxHash));
 	auto blockKey = std::make_pair(hash, blockSizeByte);
 
-	auto beginBlockIterator = m_cachedBlocks.lower_bound(blockKey);
-	auto endBlockIterator = m_cachedBlocks.upper_bound(blockKey);
-	for(auto blockIterator = beginBlockIterator; blockIterator != endBlockIterator; blockIterator++)
+	//Don't use the cached blocks of we have a breakpoint in our block range.
+	bool hasBreakpoint = m_context.HasBreakpointInRange(begin, end);
+	if(!hasBreakpoint)
 	{
-		const auto& basicBlock(blockIterator->second);
-		if(basicBlock->GetBeginAddress() == begin && basicBlock->GetEndAddress() == end)
+		auto beginBlockIterator = m_cachedBlocks.lower_bound(blockKey);
+		auto endBlockIterator = m_cachedBlocks.upper_bound(blockKey);
+		//Check if we have a block that has the same contents and the same range.
+		for(auto blockIterator = beginBlockIterator; blockIterator != endBlockIterator; blockIterator++)
 		{
-			return basicBlock;
+			const auto& basicBlock(blockIterator->second);
+			if(basicBlock->GetBeginAddress() == begin && basicBlock->GetEndAddress() == end)
+			{
+				return basicBlock;
+			}
+		}
+		//Check if we have a block that has the same contents but not the same range. Reuse the code of that block if that's the case.
+		if(beginBlockIterator != endBlockIterator)
+		{
+			auto result = std::make_shared<CVuBasicBlock>(context, begin, end, m_blockCategory);
+			result->CopyFunctionFrom(beginBlockIterator->second);
+			m_cachedBlocks.insert(std::make_pair(blockKey, result));
+			return result;
 		}
 	}
 
+	//Totally new block, build it from scratch
 	auto result = std::make_shared<CVuBasicBlock>(context, begin, end, m_blockCategory);
-	if(beginBlockIterator != endBlockIterator)
+	result->Compile();
+	if(!hasBreakpoint)
 	{
-		result->CopyFunctionFrom(beginBlockIterator->second);
+		m_cachedBlocks.insert(std::make_pair(blockKey, result));
 	}
-	else
-	{
-		result->Compile();
-	}
-	m_cachedBlocks.insert(std::make_pair(blockKey, result));
 	return result;
 }
 
