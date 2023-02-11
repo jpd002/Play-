@@ -10,7 +10,7 @@ using namespace Iop::Namco;
 
 #define FUNCTION_CDSEARCHFILE "IopCdSearchFile"
 #define FUNCTION_CDREAD "IopCdRead"
-#define FUNCTION_CDUNKNOWN_16 "IopCdUnknown_16"
+#define FUNCTION_CDSYNC "IopCdSync"
 #define FUNCTION_CDUNKNOWN_17 "IopCdUnknown_17"
 #define FUNCTION_CDUNKNOWN_19 "IopCdUnknown_19"
 #define FUNCTION_CDGETERROR "IopCdGetError"
@@ -44,7 +44,7 @@ std::string CAcCdvd::GetFunctionName(unsigned int functionId) const
 	case 11:
 		return FUNCTION_CDREAD;
 	case 16:
-		return FUNCTION_CDUNKNOWN_16;
+		return FUNCTION_CDSYNC;
 	case 17:
 		return FUNCTION_CDUNKNOWN_17;
 	case 19:
@@ -97,10 +97,13 @@ void CAcCdvd::Invoke(CMIPS& context, unsigned int functionId)
 	}
 	break;
 	case 16:
-		//CdSync?
-		CLog::GetInstance().Warn(LOG_NAME, FUNCTION_CDUNKNOWN_16 "(param0 = %d);\r\n",
-		                         context.m_State.nGPR[CMIPS::A0].nV0);
-		context.m_State.nGPR[CMIPS::V0].nV0 = 0;
+		//CdSync
+		{
+			uint32 mode = context.m_State.nGPR[CMIPS::A0].nV0;
+			CLog::GetInstance().Warn(LOG_NAME, FUNCTION_CDSYNC "(mode = %d);\r\n",
+									 mode);
+			context.m_State.nGPR[CMIPS::V0].nV0 = 0;
+		}
 		break;
 	case 17:
 		CLog::GetInstance().Warn(LOG_NAME, FUNCTION_CDUNKNOWN_17 "(param0 = %d);\r\n",
