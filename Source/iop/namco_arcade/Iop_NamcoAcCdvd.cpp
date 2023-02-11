@@ -247,6 +247,15 @@ bool CAcCdvd::Invoke(uint32 method, uint32* args, uint32 argsSize, uint32* ret, 
 		ret[0x01] = 1;
 	}
 	break;
+	case 0x1A:
+	{
+		assert(retSize >= 0xC);
+		CLog::GetInstance().Print(LOG_NAME, "ReadRtc();\r\n");
+
+		auto clockBuffer = reinterpret_cast<uint8*>(ret + 1);
+		(*ret) = m_cdvdman.CdReadClockDirect(clockBuffer);
+	}
+	break;
 	default:
 		CLog::GetInstance().Warn(LOG_NAME, "Unknown SIF method invoked (0x%08X).\r\n", method);
 		break;
