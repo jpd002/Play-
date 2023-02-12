@@ -85,15 +85,7 @@ void CAcCdvd::Invoke(CMIPS& context, unsigned int functionId)
 		uint32 modePtr = context.m_State.nGPR[CMIPS::A3].nV0;
 		CLog::GetInstance().Warn(LOG_NAME, FUNCTION_CDREAD "(startSector = 0x%X, sectorCount = 0x%X, bufferPtr = 0x%08X, modePtr = 0x%08X);\r\n",
 		                         startSector, sectorCount, bufferPtr, modePtr);
-		auto buffer = reinterpret_cast<uint8*>(m_iopRam + (bufferPtr & (PS2::IOP_RAM_SIZE - 1)));
-		static const uint32 sectorSize = 2048;
-		auto fileSystem = m_opticalMedia->GetFileSystem();
-		for(unsigned int i = 0; i < sectorCount; i++)
-		{
-			fileSystem->ReadBlock(startSector + i, buffer);
-			buffer += sectorSize;
-		}
-		context.m_State.nGPR[CMIPS::V0].nV0 = 1;
+		context.m_State.nGPR[CMIPS::V0].nV0 = m_cdvdman.CdRead(startSector, sectorCount, bufferPtr, modePtr);
 	}
 	break;
 	case 16:
@@ -102,7 +94,7 @@ void CAcCdvd::Invoke(CMIPS& context, unsigned int functionId)
 			uint32 mode = context.m_State.nGPR[CMIPS::A0].nV0;
 			CLog::GetInstance().Warn(LOG_NAME, FUNCTION_CDSYNC "(mode = %d);\r\n",
 			                         mode);
-			context.m_State.nGPR[CMIPS::V0].nV0 = 0;
+			context.m_State.nGPR[CMIPS::V0].nV0 = m_cdvdman.CdSync(mode);
 		}
 		break;
 	case 17:
