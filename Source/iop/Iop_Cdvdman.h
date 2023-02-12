@@ -49,7 +49,7 @@ namespace Iop
 		virtual std::string GetFunctionName(unsigned int) const override;
 		virtual void Invoke(CMIPS&, unsigned int) override;
 
-		void ProcessCommands();
+		void CountTicks(uint32);
 		void SetOpticalMedia(COpticalMedia*);
 
 		void LoadState(Framework::CZipArchiveReader&) override;
@@ -111,6 +111,7 @@ namespace Iop
 		uint32 m_streamPos = 0;
 		uint32 m_streamBufferSize = 0;
 		COMMAND m_pendingCommand = COMMAND_NONE;
+		int32 m_pendingCommandDelay = 0;
 	};
 
 	typedef std::shared_ptr<CCdvdman> CdvdmanPtr;

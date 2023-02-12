@@ -12,6 +12,7 @@
 #define STATE_STATUS ("Status")
 #define STATE_DISCCHANGED ("DiscChanged")
 #define STATE_PENDING_COMMAND ("PendingCommand")
+#define STATE_PENDING_COMMAND_DELAY ("PendingCommandDelay")
 
 #define FUNCTION_CDINIT "CdInit"
 #define FUNCTION_CDSTANDBY "CdStandby"
@@ -40,6 +41,8 @@
 #define FUNCTION_CDREADDVDDUALINFO "CdReadDvdDualInfo"
 #define FUNCTION_CDLAYERSEARCHFILE "CdLayerSearchFile"
 
+#define COMMAND_BASE_DELAY 0x100000
+
 using namespace Iop;
 
 CCdvdman::CCdvdman(CIopBios& bios, uint8* ram)
@@ -55,6 +58,7 @@ void CCdvdman::LoadState(Framework::CZipArchiveReader& archive)
 	m_status = registerFile.GetRegister32(STATE_STATUS);
 	m_discChanged = registerFile.GetRegister32(STATE_DISCCHANGED);
 	m_pendingCommand = static_cast<COMMAND>(registerFile.GetRegister32(STATE_PENDING_COMMAND));
+	m_pendingCommandDelay = registerFile.GetRegister32(STATE_PENDING_COMMAND_DELAY);
 }
 
 void CCdvdman::SaveState(Framework::CZipArchiveWriter& archive) const
@@ -64,6 +68,7 @@ void CCdvdman::SaveState(Framework::CZipArchiveWriter& archive) const
 	registerFile->SetRegister32(STATE_STATUS, m_status);
 	registerFile->SetRegister32(STATE_DISCCHANGED, m_discChanged);
 	registerFile->SetRegister32(STATE_PENDING_COMMAND, m_pendingCommand);
+	registerFile->SetRegister32(STATE_PENDING_COMMAND_DELAY, m_pendingCommandDelay);
 	archive.InsertFile(registerFile);
 }
 
@@ -389,31 +394,35 @@ void CCdvdman::Invoke(CMIPS& ctx, unsigned int functionId)
 	}
 }
 
-void CCdvdman::ProcessCommands()
+void CCdvdman::CountTicks(uint32 ticks)
 {
 	if(m_pendingCommand != COMMAND_NONE)
 	{
-		switch(m_pendingCommand)
+		m_pendingCommandDelay = std::max<int32>(0, m_pendingCommandDelay - ticks);
+		if(m_pendingCommandDelay == 0)
 		{
-		case COMMAND_READ:
-			if(m_callbackPtr != 0)
+			switch(m_pendingCommand)
 			{
-				m_bios.TriggerCallback(m_callbackPtr, CDVD_FUNCTION_READ);
+			case COMMAND_READ:
+				if(m_callbackPtr != 0)
+				{
+					m_bios.TriggerCallback(m_callbackPtr, CDVD_FUNCTION_READ);
+				}
+				break;
+			case COMMAND_SEEK:
+				if(m_callbackPtr != 0)
+				{
+					m_bios.TriggerCallback(m_callbackPtr, CDVD_FUNCTION_SEEK);
+				}
+				break;
+			default:
+				assert(false);
+				break;
 			}
-			break;
-		case COMMAND_SEEK:
-			if(m_callbackPtr != 0)
-			{
-				m_bios.TriggerCallback(m_callbackPtr, CDVD_FUNCTION_SEEK);
-			}
-			break;
-		default:
-			assert(false);
-			break;
+			m_bios.ReleaseWaitCdSync();
+			m_status = CDVD_STATUS_PAUSED;
+			m_pendingCommand = COMMAND_NONE;
 		}
-		m_bios.ReleaseWaitCdSync();
-		m_status = CDVD_STATUS_PAUSED;
-		m_pendingCommand = COMMAND_NONE;
 	}
 }
 
@@ -470,6 +479,7 @@ uint32 CCdvdman::CdRead(uint32 startSector, uint32 sectorCount, uint32 bufferPtr
 		}
 	}
 	m_pendingCommand = COMMAND_READ;
+	m_pendingCommandDelay = COMMAND_BASE_DELAY + (sectorCount * 0x100);
 	m_status = CDVD_STATUS_READING;
 	return 1;
 }
@@ -480,6 +490,7 @@ uint32 CCdvdman::CdSeek(uint32 sector)
 	                          sector);
 	assert(m_pendingCommand == COMMAND_NONE);
 	m_pendingCommand = COMMAND_SEEK;
+	m_pendingCommandDelay = COMMAND_BASE_DELAY;
 	return 1;
 }
 
