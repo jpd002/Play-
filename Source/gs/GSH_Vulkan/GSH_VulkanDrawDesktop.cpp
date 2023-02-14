@@ -812,7 +812,7 @@ Framework::Vulkan::CShaderModule CDrawDesktop::CreateFragmentShader(const PIPELI
 		{
 			BeginIf(b, !writeAlpha);
 			{
-				finalIColor = NewInt4(finalIColor->xyz(), dstIColor->x());
+				finalIColor = NewInt4(finalIColor->xyz(), dstIColor->w());
 			}
 			EndIf(b);
 		}
