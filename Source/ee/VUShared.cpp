@@ -162,23 +162,6 @@ void VUShared::PushIntegerRegister(CMipsJitter* codeGen, unsigned int nRegister)
 	}
 }
 
-void VUShared::ClampVector(CMipsJitter* codeGen)
-{
-	//This will transform any NaN/INF (exponent == 0xFF) into a number with exponent == 0xFE
-	//and will leave all other numbers intact
-	static const uint32 exponentMask = 0x7F800000;
-	uint32 valueToClamp = codeGen->GetTopCursor();
-	codeGen->MD_PushCstExpand(exponentMask);
-	codeGen->PushTop();
-	codeGen->PushCursor(valueToClamp);
-	codeGen->MD_And();
-	codeGen->MD_CmpEqW();
-	codeGen->MD_SrlW(31);
-	codeGen->MD_SllW(23);
-	codeGen->MD_Not();
-	codeGen->MD_And();
-}
-
 void VUShared::TestSZFlags(CMipsJitter* codeGen, uint8 dest, size_t regOffset, uint32 relativePipeTime, uint32 compileHints)
 {
 	codeGen->MD_PushRel(regOffset);
@@ -347,7 +330,7 @@ void VUShared::SetStatus(CMipsJitter* codeGen, size_t srcOffset)
 void VUShared::ADD_base(CMipsJitter* codeGen, uint8 dest, size_t fd, size_t fs, size_t ft, bool expand, uint32 relativePipeTime, uint32 compileHints)
 {
 	codeGen->MD_PushRel(fs);
-	ClampVector(codeGen);
+	codeGen->MD_ClampS();
 	if(expand)
 	{
 		codeGen->MD_PushRelExpand(ft);
@@ -382,11 +365,11 @@ void VUShared::MADD_base(CMipsJitter* codeGen, uint8 dest, size_t fd, size_t fs,
 	codeGen->MD_PushRel(offsetof(CMIPS, m_State.nCOP2A));
 	codeGen->MD_PushRel(fs);
 	//Clamping is needed by Baldur's Gate Deadly Alliance here because it multiplies junk values (potentially NaN/INF) by 0
-	ClampVector(codeGen);
+	codeGen->MD_ClampS();
 	if(expand)
 	{
 		codeGen->MD_PushRelExpand(ft);
-		ClampVector(codeGen); //Fatal Frame 1's door-blocking bug can be fixed by this
+		codeGen->MD_ClampS(); //Fatal Frame 1's door-blocking bug can be fixed by this
 	}
 	else
 	{
@@ -403,7 +386,7 @@ void VUShared::MADDA_base(CMipsJitter* codeGen, uint8 dest, size_t fs, size_t ft
 	codeGen->MD_PushRel(offsetof(CMIPS, m_State.nCOP2A));
 	codeGen->MD_PushRel(fs);
 	//Clamping is needed by Dynasty Warriors 2 here because it multiplies junk values (potentially NaN/INF) by some other value
-	ClampVector(codeGen);
+	codeGen->MD_ClampS();
 	if(expand)
 	{
 		codeGen->MD_PushRelExpand(ft);
@@ -489,7 +472,7 @@ void VUShared::MSUBA_base(CMipsJitter* codeGen, uint8 dest, size_t fs, size_t ft
 void VUShared::MUL_base(CMipsJitter* codeGen, uint8 dest, size_t fd, size_t fs, size_t ft, bool expand, uint32 relativePipeTime, uint32 compileHints)
 {
 	codeGen->MD_PushRel(fs);
-	ClampVector(codeGen);
+	codeGen->MD_ClampS();
 	if(expand)
 	{
 		codeGen->MD_PushRelExpand(ft);
@@ -533,9 +516,9 @@ void VUShared::MINI_base(CMipsJitter* codeGen, uint8 dest, size_t fd, size_t fs,
 	};
 
 	codeGen->MD_PushRel(fs);
-	ClampVector(codeGen);
+	codeGen->MD_ClampS();
 	pushFt();
-	ClampVector(codeGen);
+	codeGen->MD_ClampS();
 
 	codeGen->MD_CmpLtS();
 	auto cmp = codeGen->GetTopCursor();
@@ -571,9 +554,9 @@ void VUShared::MAX_base(CMipsJitter* codeGen, uint8 dest, size_t fd, size_t fs, 
 	};
 
 	codeGen->MD_PushRel(fs);
-	ClampVector(codeGen);
+	codeGen->MD_ClampS();
 	pushFt();
-	ClampVector(codeGen);
+	codeGen->MD_ClampS();
 
 	codeGen->MD_CmpGtS();
 	auto cmp = codeGen->GetTopCursor();
