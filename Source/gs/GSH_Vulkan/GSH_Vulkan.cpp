@@ -1517,6 +1517,12 @@ Framework::CBitmap CGSH_Vulkan::GetDepthbufferImpl(uint64 frameReg, uint64 zbufR
 		                                                                       frame.nWidth, frameWidth, frameHeight);
 	}
 	break;
+	case PSMZ16S:
+	{
+		bitmap = ReadImage16<CGsPixelFormats::CPixelIndexorPSMCT16S>(GetRam(), zbuf.GetBasePtr(),
+		                                                             frame.nWidth, frameWidth, frameHeight);
+	}
+	break;
 	default:
 		assert(false);
 		break;
