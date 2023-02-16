@@ -252,11 +252,12 @@ bool CAcCdvd::Invoke(uint32 method, uint32* args, uint32 argsSize, uint32* ret, 
 	break;
 	case 0x1A:
 	{
-		assert(retSize >= 0xC);
+		assert(retSize >= 0x10);
 		CLog::GetInstance().Print(LOG_NAME, "ReadRtc();\r\n");
 
-		auto clockBuffer = reinterpret_cast<uint8*>(ret + 1);
-		(*ret) = m_cdvdman.CdReadClockDirect(clockBuffer);
+		auto clockBuffer = reinterpret_cast<uint8*>(ret + 2);
+		ret[0x00] = 0;
+		ret[0x01] = m_cdvdman.CdReadClockDirect(clockBuffer);
 	}
 	break;
 	default:
