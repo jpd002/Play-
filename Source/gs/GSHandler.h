@@ -321,11 +321,11 @@ public:
 		unsigned int nZ : 24;
 		unsigned int nF : 8;
 
-		float GetX()
+		float GetX() const
 		{
 			return static_cast<float>(nX) / 16.0f;
 		}
-		float GetY()
+		float GetY() const
 		{
 			return static_cast<float>(nY) / 16.0f;
 		}
@@ -339,17 +339,13 @@ public:
 		unsigned int nY : 16;
 		uint32 nZ;
 
-		float GetX()
+		float GetX() const
 		{
 			return static_cast<float>(nX) / 16.0f;
 		}
-		float GetY()
+		float GetY() const
 		{
 			return static_cast<float>(nY) / 16.0f;
-		}
-		float GetZ()
-		{
-			return static_cast<float>(nZ);
 		}
 	};
 	static_assert(sizeof(XYZ) == sizeof(uint64), "Size of XYZ struct must be 8 bytes.");

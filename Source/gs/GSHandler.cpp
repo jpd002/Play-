@@ -1731,8 +1731,8 @@ std::string CGSHandler::DisassembleWrite(uint8 registerId, uint64 data)
 	case GS_REG_XYZ3:
 	{
 		auto xyz = make_convertible<XYZ>(data);
-		result = string_format("%s(%f, %f, %f)",
-		                       (registerId == GS_REG_XYZ2) ? "XYZ2" : "XYZ3", xyz.GetX(), xyz.GetY(), xyz.GetZ());
+		result = string_format("%s(%f, %f, %u)",
+		                       (registerId == GS_REG_XYZ2) ? "XYZ2" : "XYZ3", xyz.GetX(), xyz.GetY(), xyz.nZ);
 	}
 	break;
 	case GS_REG_XYZF2:

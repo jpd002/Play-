@@ -717,7 +717,7 @@ void CGSH_Direct3D9::Prim_Line()
 
 	float nX1 = vertex[0].GetX(), nX2 = vertex[1].GetX();
 	float nY1 = vertex[0].GetY(), nY2 = vertex[1].GetY();
-	float nZ1 = vertex[0].GetZ(), nZ2 = vertex[1].GetZ();
+	float nZ1 = vertex[0].nZ, nZ2 = vertex[1].nZ;
 
 	RGBAQ rgbaq[2];
 	rgbaq[0] <<= m_vtxBuffer[1].rgbaq;
@@ -827,7 +827,7 @@ void CGSH_Direct3D9::Prim_Triangle()
 
 	float nX1 = vertex[0].GetX(), nX2 = vertex[1].GetX(), nX3 = vertex[2].GetX();
 	float nY1 = vertex[0].GetY(), nY2 = vertex[1].GetY(), nY3 = vertex[2].GetY();
-	float nZ1 = vertex[0].GetZ(), nZ2 = vertex[1].GetZ(), nZ3 = vertex[2].GetZ();
+	float nZ1 = vertex[0].nZ, nZ2 = vertex[1].nZ, nZ3 = vertex[2].nZ;
 
 	RGBAQ rgbaq[3];
 	rgbaq[0] <<= m_vtxBuffer[2].rgbaq;
@@ -951,7 +951,7 @@ void CGSH_Direct3D9::Prim_Sprite()
 	vertex[1] <<= m_vtxBuffer[0].position;
 
 	float nX1 = vertex[0].GetX(), nY1 = vertex[0].GetY();
-	float nX2 = vertex[1].GetX(), nY2 = vertex[1].GetY(), nZ = vertex[1].GetZ();
+	float nX2 = vertex[1].GetX(), nY2 = vertex[1].GetY(), nZ = vertex[1].nZ;
 
 	RGBAQ rgbaq[2];
 	rgbaq[0] <<= m_vtxBuffer[1].rgbaq;
