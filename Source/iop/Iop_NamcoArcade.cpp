@@ -411,6 +411,14 @@ bool CNamcoArcade::Invoke001(uint32 method, uint32* args, uint32 argsSize, uint3
 					recvData[1] = 0x208;        //firmware version?
 					recvData[0x14] = rootPktId; //Xored with value at 0x10 in send packet, needs to be the same
 					recvData[0x21] = sendData[0x0D];
+
+					//Dipswitches (from https://www.arcade-projects.com/threads/yet-another-256-display-issue.2792/#post-37365):
+					//0x80 -> Test Mode
+					//0x40 -> Output Level (Voltage) of Video Signal
+					//0x20 -> Monitor Sync Frequency (1: 31Khz or 0: 15Khz)
+					//0x10 -> Video Sync Signal (1: Composite Sync or 0: Separate Sync)
+					//ram[recvDataPtr + 0x30] = 0;
+
 					uint16 pktId = sendData[0x0C];
 					if(pktId != 0)
 					{
