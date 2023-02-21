@@ -26,6 +26,7 @@ struct ARCADE_MACHINE_DEF
 	};
 
 	std::string id;
+	std::string parent;
 	std::string name;
 	std::string dongleFileName;
 	std::string cdvdFileName;
@@ -67,6 +68,10 @@ ARCADE_MACHINE_DEF ReadArcadeMachineDefinition(const fs::path& arcadeDefPath)
 	auto defJson = nlohmann::json::parse(defString);
 	ARCADE_MACHINE_DEF def;
 	def.id = defJson["id"];
+	if(defJson.contains("parent"))
+	{
+		def.parent = defJson["parent"];
+	}
 	def.name = defJson["name"];
 	def.dongleFileName = defJson["dongle"]["name"];
 	if(defJson.contains("cdvd"))
@@ -87,7 +92,8 @@ ARCADE_MACHINE_DEF ReadArcadeMachineDefinition(const fs::path& arcadeDefPath)
 
 void PrepareArcadeEnvironment(CPS2VM* virtualMachine, const ARCADE_MACHINE_DEF& def)
 {
-	auto romArchiveFileName = string_format("%s.zip", def.id.c_str());
+	auto baseId = def.parent.empty() ? def.id : def.parent;
+	auto romArchiveFileName = string_format("%s.zip", baseId.c_str());
 
 	fs::path arcadeRomPath = CAppConfig::GetInstance().GetPreferencePath(PREF_PS2_ARCADEROMS_DIRECTORY);
 	fs::path arcadeRomArchivePath = arcadeRomPath / romArchiveFileName;
@@ -100,7 +106,7 @@ void PrepareArcadeEnvironment(CPS2VM* virtualMachine, const ARCADE_MACHINE_DEF& 
 	//Mount CDVD
 	if(!def.cdvdFileName.empty())
 	{
-		fs::path cdvdPath = arcadeRomPath / def.id / def.cdvdFileName;
+		fs::path cdvdPath = arcadeRomPath / baseId / def.cdvdFileName;
 		if(!fs::exists(cdvdPath))
 		{
 			throw std::runtime_error(string_format("Failed to find '%s' in game's directory.", def.cdvdFileName.c_str()));
@@ -117,7 +123,7 @@ void PrepareArcadeEnvironment(CPS2VM* virtualMachine, const ARCADE_MACHINE_DEF& 
 	//Mount HDD
 	if(!def.hddFileName.empty())
 	{
-		fs::path hddPath = arcadeRomPath / def.id / def.hddFileName;
+		fs::path hddPath = arcadeRomPath / baseId / def.hddFileName;
 		if(!fs::exists(hddPath))
 		{
 			throw std::runtime_error(string_format("Failed to find '%s' in game's directory.", def.hddFileName.c_str()));
@@ -139,7 +145,7 @@ void PrepareArcadeEnvironment(CPS2VM* virtualMachine, const ARCADE_MACHINE_DEF& 
 		auto header = archiveReader.GetFileHeader(def.dongleFileName.c_str());
 		if(!header)
 		{
-			throw std::runtime_error("Failed to get header from ZIP archive.");
+			throw std::runtime_error(string_format("Failed to find file '%s' in archive '%s'.", def.dongleFileName.c_str(), romArchiveFileName.c_str()));
 		}
 		auto fileStream = archiveReader.BeginReadFile(def.dongleFileName.c_str());
 		mcDumpContents.resize(header->uncompressedSize);
