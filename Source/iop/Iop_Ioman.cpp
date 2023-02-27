@@ -439,16 +439,25 @@ uint32 CIoman::GetStat(const char* path, Ioman::STAT* stat)
 {
 	CLog::GetInstance().Print(LOG_NAME, "GetStat(path = '%s', stat = ptr);\r\n", path);
 
-	//Try with device's built-in GetStat
-	auto pathInfo = SplitPath(path);
-	auto deviceIterator = m_devices.find(pathInfo.deviceName);
-	if(deviceIterator != m_devices.end())
+	try
 	{
-		bool succeeded = false;
-		if(deviceIterator->second->TryGetStat(pathInfo.devicePath.c_str(), succeeded, *stat))
+		//Try with device's built-in GetStat
+		auto pathInfo = SplitPath(path);
+		auto deviceIterator = m_devices.find(pathInfo.deviceName);
+		if(deviceIterator != m_devices.end())
 		{
-			return succeeded ? 0 : -1;
+			bool succeeded = false;
+			if(deviceIterator->second->TryGetStat(pathInfo.devicePath.c_str(), succeeded, *stat))
+			{
+				return succeeded ? 0 : -1;
+			}
 		}
+	}
+	catch(const std::exception& except)
+	{
+		//Warn, but carry on even if failed this
+		CLog::GetInstance().Warn(LOG_NAME, "%s: Error occured while trying device's GetStat for '%s'. : %s\r\n",
+		                         __FUNCTION__, path, except.what());
 	}
 
 	//Try with a directory
