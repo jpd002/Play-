@@ -111,17 +111,17 @@ namespace GSH_Vulkan
 
 		void SetBufferName(VkBuffer buffer, const char* name)
 		{
-			SetObjectName(reinterpret_cast<uint64_t>(buffer), name, VK_OBJECT_TYPE_BUFFER);
+			SetObjectName((uint64_t)buffer, name, VK_OBJECT_TYPE_BUFFER);
 		}
 
 		void SetImageName(VkImage image, const char* name)
 		{
-			SetObjectName(reinterpret_cast<uint64_t>(image), name, VK_OBJECT_TYPE_IMAGE);
+			SetObjectName((uint64_t)image, name, VK_OBJECT_TYPE_IMAGE);
 		}
 
 		void SetImageViewName(VkImageView imageView, const char* name)
 		{
-			SetObjectName(reinterpret_cast<uint64_t>(imageView), name, VK_OBJECT_TYPE_IMAGE_VIEW);
+			SetObjectName((uint64_t)imageView, name, VK_OBJECT_TYPE_IMAGE_VIEW);
 		}
 	};
 
