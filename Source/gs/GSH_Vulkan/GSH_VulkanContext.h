@@ -1,10 +1,17 @@
 #pragma once
 
 #include "vulkan/VulkanDef.h"
+#include "vulkan/StructDefs.h"
 #include "vulkan/Device.h"
 #include "vulkan/Buffer.h"
 #include "vulkan/CommandBufferPool.h"
 #include "../GSHandler.h"
+
+#ifdef _DEBUG
+#define GSH_VULKAN_USE_ANNOTATIONS 1
+#else
+#define GSH_VULKAN_USE_ANNOTATIONS 0
+#endif
 
 namespace GSH_Vulkan
 {
@@ -67,6 +74,54 @@ namespace GSH_Vulkan
 				return swizzleTablePSMCT16SView;
 				break;
 			}
+		}
+
+		void SetObjectName(uint64_t objectHandle, const char* objectName, VkObjectType objectType)
+		{
+#if GSH_VULKAN_USE_ANNOTATIONS
+			auto objectNameInfo = Framework::Vulkan::DebugUtilsObjectNameInfoEXT();
+			objectNameInfo.objectType = objectType;
+			objectNameInfo.objectHandle = objectHandle;
+			objectNameInfo.pObjectName = objectName;
+
+			VkResult result = instance->vkSetDebugUtilsObjectNameEXT(device, &objectNameInfo);
+			CHECKVULKANERROR(result);
+#endif
+		}
+
+		void PushCommandLabel(VkCommandBuffer commandBuffer, const char* labelName)
+		{
+#if GSH_VULKAN_USE_ANNOTATIONS
+			auto labelInfo = Framework::Vulkan::DebugUtilsLabelEXT();
+			labelInfo.pLabelName = labelName;
+			labelInfo.color[0] = 1.0f;
+			labelInfo.color[1] = 1.0f;
+			labelInfo.color[2] = 1.0f;
+			labelInfo.color[3] = 1.0f;
+			instance->vkCmdBeginDebugUtilsLabelEXT(commandBuffer, &labelInfo);
+#endif
+		}
+
+		void PopCommandLabel(VkCommandBuffer commandBuffer)
+		{
+#if GSH_VULKAN_USE_ANNOTATIONS
+			instance->vkCmdEndDebugUtilsLabelEXT(commandBuffer);
+#endif
+		}
+
+		void SetBufferName(VkBuffer buffer, const char* name)
+		{
+			SetObjectName(reinterpret_cast<uint64_t>(buffer), name, VK_OBJECT_TYPE_BUFFER);
+		}
+
+		void SetImageName(VkImage image, const char* name)
+		{
+			SetObjectName(reinterpret_cast<uint64_t>(image), name, VK_OBJECT_TYPE_IMAGE);
+		}
+
+		void SetImageViewName(VkImageView imageView, const char* name)
+		{
+			SetObjectName(reinterpret_cast<uint64_t>(imageView), name, VK_OBJECT_TYPE_IMAGE_VIEW);
 		}
 	};
 

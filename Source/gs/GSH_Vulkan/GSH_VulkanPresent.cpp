@@ -126,6 +126,8 @@ void CPresent::UpdateBackbuffer(uint32 imageIndex, uint32 bufPsm, uint32 bufAddr
 	result = m_context->device.vkBeginCommandBuffer(commandBuffer, &commandBufferBeginInfo);
 	CHECKVULKANERROR(result);
 
+	m_context->PushCommandLabel(commandBuffer, "Present");
+
 	//Transition image from present to color attachment
 	{
 		auto imageMemoryBarrier = Framework::Vulkan::ImageMemoryBarrier();
@@ -207,6 +209,8 @@ void CPresent::UpdateBackbuffer(uint32 imageIndex, uint32 bufPsm, uint32 bufAddr
 		m_context->device.vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
 		                                       0, 0, nullptr, 0, nullptr, 1, &imageMemoryBarrier);
 	}
+
+	m_context->PopCommandLabel(commandBuffer);
 
 	m_context->device.vkEndCommandBuffer(commandBuffer);
 

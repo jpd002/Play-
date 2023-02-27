@@ -56,6 +56,9 @@ Framework::Vulkan::CInstance CGSH_Vulkan::CreateInstance(bool useValidationLayer
 	std::vector<const char*> extensions;
 	extensions.push_back(VK_KHR_SURFACE_EXTENSION_NAME);
 	extensions.push_back(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME);
+#if GSH_VULKAN_USE_ANNOTATIONS
+	extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+#endif
 #ifdef _WIN32
 	extensions.push_back(VK_KHR_WIN32_SURFACE_EXTENSION_NAME);
 #endif
@@ -147,6 +150,22 @@ void CGSH_Vulkan::InitializeImpl()
 	m_context->swizzleTablePSMT4View = m_swizzleTablePSMT4.CreateImageView();
 	m_context->swizzleTablePSMZ32View = m_swizzleTablePSMZ32.CreateImageView();
 	m_context->swizzleTablePSMZ16View = m_swizzleTablePSMZ16.CreateImageView();
+
+	m_context->SetImageName(m_swizzleTablePSMCT32, "Swizzle Table PSMCT32");
+	m_context->SetImageName(m_swizzleTablePSMCT16, "Swizzle Table PSMCT16");
+	m_context->SetImageName(m_swizzleTablePSMCT16S, "Swizzle Table PSMCT16S");
+	m_context->SetImageName(m_swizzleTablePSMT8, "Swizzle Table PSMT8");
+	m_context->SetImageName(m_swizzleTablePSMT4, "Swizzle Table PSMT4");
+	m_context->SetImageName(m_swizzleTablePSMZ32, "Swizzle Table PSMZ32");
+	m_context->SetImageName(m_swizzleTablePSMZ16, "Swizzle Table PSMZ16");
+
+	m_context->SetImageViewName(m_context->swizzleTablePSMCT32View, "Swizzle Table View PSMCT32");
+	m_context->SetImageViewName(m_context->swizzleTablePSMCT16View, "Swizzle Table View PSMCT16");
+	m_context->SetImageViewName(m_context->swizzleTablePSMCT16SView, "Swizzle Table View PSMCT16S");
+	m_context->SetImageViewName(m_context->swizzleTablePSMT8View, "Swizzle Table View PSMT8");
+	m_context->SetImageViewName(m_context->swizzleTablePSMT4View, "Swizzle Table View PSMT4");
+	m_context->SetImageViewName(m_context->swizzleTablePSMZ32View, "Swizzle Table View PSMZ32");
+	m_context->SetImageViewName(m_context->swizzleTablePSMZ16View, "Swizzle Table View PSMZ16");
 
 	m_frameCommandBuffer = std::make_shared<CFrameCommandBuffer>(m_context);
 	m_clutLoad = std::make_shared<CClutLoad>(m_context, m_frameCommandBuffer);
@@ -504,6 +523,7 @@ void CGSH_Vulkan::CreateMemoryBuffer()
 	                                                     VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
 	                                                     VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
 	                                                     RAMSIZE);
+	m_context->SetBufferName(m_context->memoryBuffer, "GS Memory");
 
 	m_memoryCache = new uint8[RAMSIZE];
 	memset(m_memoryCache, 0, RAMSIZE);
@@ -516,6 +536,7 @@ void CGSH_Vulkan::CreateMemoryBuffer()
 	                                                         VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
 	                                                         VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
 	                                                         RAMSIZE);
+	m_context->SetBufferName(m_context->memoryBufferCopy, "GS Memory Copy");
 }
 
 void CGSH_Vulkan::CreateClutBuffer()
@@ -528,6 +549,7 @@ void CGSH_Vulkan::CreateClutBuffer()
 	                                                   VK_BUFFER_USAGE_STORAGE_BUFFER_BIT,
 	                                                   VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
 	                                                   clutBufferSize);
+	m_context->SetBufferName(m_context->clutBuffer, "CLUT Buffer");
 }
 
 void CGSH_Vulkan::VertexKick(uint8 registerId, uint64 data)
