@@ -33,6 +33,7 @@ protected:
 
 	static void ReflOpTarget(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
 	static void ReflOpRtRsImm(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
+	static void ReflOpRsImm(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
 	static void ReflOpRtImm(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
 	static void ReflOpRsRtOff(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
 	static void ReflOpRsOff(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
@@ -216,6 +217,7 @@ private:
 	void BGEZ();
 	void BLTZL();
 	void BGEZL();
+	void TEQI();
 	void BLTZAL();
 	void BGEZAL();
 	void BLTZALL();

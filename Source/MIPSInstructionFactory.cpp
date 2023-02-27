@@ -6,6 +6,12 @@
 #include "BitManip.h"
 #include "COP_SCU.h"
 
+extern "C" void TrapHandler(CMIPS* context)
+{
+	//This is just a way to inspect state when traps are happening
+	assert(false && "Unhandled trap.");
+}
+
 CMIPSInstructionFactory::CMIPSInstructionFactory(MIPS_REGSIZE nRegSize)
     : m_regSize(nRegSize)
 {
@@ -59,6 +65,17 @@ void CMIPSInstructionFactory::CheckTLBExceptions(bool isWrite)
 		m_codeGen->Add();
 		m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP0[CCOP_SCU::EPC]));
 		m_codeGen->JumpTo(reinterpret_cast<void*>(&HandleTLBException));
+	}
+	m_codeGen->EndIf();
+}
+
+void CMIPSInstructionFactory::CheckTrap()
+{
+	m_codeGen->PushCst(0);
+	m_codeGen->BeginIf(Jitter::CONDITION_NE);
+	{
+		m_codeGen->PushCtx();
+		m_codeGen->Call(reinterpret_cast<void*>(&TrapHandler), 1, Jitter::CJitter::RETURN_VALUE_NONE);
 	}
 	m_codeGen->EndIf();
 }

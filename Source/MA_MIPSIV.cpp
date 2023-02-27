@@ -1191,8 +1191,12 @@ void CMA_MIPSIV::DSUBU()
 //34
 void CMA_MIPSIV::TEQ()
 {
-	//Not implemented
-	assert(false);
+#ifdef _DEBUG
+	m_codeGen->PushRel64(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
+	m_codeGen->PushRel64(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
+	m_codeGen->Cmp64(Jitter::CONDITION_EQ);
+	CheckTrap();
+#endif
 }
 
 //38
@@ -1299,6 +1303,17 @@ void CMA_MIPSIV::BGEZL()
 	Template_BranchGez(true, true);
 }
 
+//0C
+void CMA_MIPSIV::TEQI()
+{
+#ifdef _DEBUG
+	m_codeGen->PushRel64(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
+	m_codeGen->PushCst64(static_cast<int16>(m_nImmediate));
+	m_codeGen->Cmp64(Jitter::CONDITION_EQ);
+	CheckTrap();
+#endif
+}
+
 //10
 void CMA_MIPSIV::BLTZAL()
 {
@@ -1393,7 +1408,7 @@ CMA_MIPSIV::InstructionFuncConstant CMA_MIPSIV::m_cOpRegImm[MAX_REGIMM_OPS] =
 	//0x00
 	&CMA_MIPSIV::BLTZ,			&CMA_MIPSIV::BGEZ,			&CMA_MIPSIV::BLTZL,			&CMA_MIPSIV::BGEZL,			&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::Illegal,
 	//0x08
-	&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::Illegal,
+	&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::TEQI,			&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::Illegal,
 	//0x10
 	&CMA_MIPSIV::BLTZAL,		&CMA_MIPSIV::BGEZAL,		&CMA_MIPSIV::BLTZALL,		&CMA_MIPSIV::BGEZALL,		&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::Illegal,
 	//0x18

@@ -33,6 +33,7 @@ protected:
 	void ComputeMemAccessPageRef();
 
 	void CheckTLBExceptions(bool);
+	void CheckTrap();
 	void Branch(Jitter::CONDITION);
 	void BranchLikely(Jitter::CONDITION);
 
