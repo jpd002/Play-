@@ -478,7 +478,10 @@ void CGSHandler::WritePrivRegister(uint32 nAddress, uint32 nData)
 			}
 			if(nData & CSR_RESET)
 			{
-				m_nCSR |= CSR_RESET;
+				//TODO: Reset other registers
+				m_nPMODE = 0;
+				m_nDISPFB1.heldValue = m_nDISPFB1.value.q = 0;
+				m_nDISPFB2.heldValue = m_nDISPFB2.value.q = 0;
 			}
 		}
 	}
