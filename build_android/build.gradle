@@ -7,7 +7,7 @@ buildscript {
 	}
 
 	dependencies {
-		classpath 'com.android.tools.build:gradle:7.2.1'
+		classpath 'com.android.tools.build:gradle:7.4.1'
 		classpath 'org.ajoberstar.grgit:grgit-gradle:4.1.1'
 	}
 }
@@ -28,6 +28,8 @@ android {
 		google()
 		mavenCentral()
 	}
+
+	namespace 'com.virtualapplications.play'
 
 	compileSdkVersion 'android-32'
 
