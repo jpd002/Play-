@@ -48,6 +48,7 @@ void OutputWindow::focusOutEvent(QFocusEvent* event)
 {
 	emit focusOut(event);
 }
+
 void OutputWindow::focusInEvent(QFocusEvent* event)
 {
 	emit focusIn(event);
@@ -71,7 +72,7 @@ void OutputWindow::mouseMoveEvent(QMouseEvent* ev)
 	{
 		ShowFullScreenCursor();
 	}
-	onMouseMoveEvent(ev);
+	emit mouseMove(ev);
 }
 
 void OutputWindow::mouseDoubleClickEvent(QMouseEvent* ev)
@@ -81,10 +82,10 @@ void OutputWindow::mouseDoubleClickEvent(QMouseEvent* ev)
 
 void OutputWindow::mousePressEvent(QMouseEvent* ev)
 {
-	onMousePressEvent(ev);
+	emit mousePress(ev);
 }
 
 void OutputWindow::wheelEvent(QWheelEvent* ev)
 {
-	onMouseWheelEvent(ev);
+	emit mouseWheel(ev);
 }

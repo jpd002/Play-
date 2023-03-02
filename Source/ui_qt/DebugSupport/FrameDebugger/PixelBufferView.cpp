@@ -10,6 +10,7 @@
 #include "bitmap/BMP.h"
 #include "StdStreamUtils.h"
 #include "string_format.h"
+#include "../../openglwindow.h"
 
 CPixelBufferView::CPixelBufferView(QWidget* parent, QComboBox* contextBuffer)
     : QWidget(parent)
@@ -23,34 +24,24 @@ CPixelBufferView::CPixelBufferView(QWidget* parent, QComboBox* contextBuffer)
     , m_panXDragBase(0)
     , m_panYDragBase(0)
 {
-
 	m_openglpanel = new OpenGLWindow;
 	auto container = QWidget::createWindowContainer(m_openglpanel, this);
 	container->sizePolicy().setHorizontalStretch(3);
 	container->sizePolicy().setHorizontalPolicy(QSizePolicy::Expanding);
-
+	
 	auto layout = new QVBoxLayout;
 	setLayout(layout);
 	layout->addWidget(container);
-
+	
 	m_openglpanel->create();
 	m_gs = std::make_unique<CGSH_OpenGLFramedebugger>(m_openglpanel);
 	m_gs->InitializeImpl();
 	m_gs->PrepareFramedebugger();
-
+	
 	connect(m_openglpanel, &QWindow::widthChanged, this, &CPixelBufferView::Refresh);
-
-	m_mouseWheelConnection = static_cast<OpenGLWindow*>(m_openglpanel)->onMouseWheelEvent.Connect([&](QWheelEvent* event) {
-		OnMouseWheel(event);
-	});
-
-	m_mouseMoveConnection = static_cast<OpenGLWindow*>(m_openglpanel)->onMouseMoveEvent.Connect([&](QMouseEvent* event) {
-		OnMouseMoveEvent(event);
-	});
-
-	m_mousePressConnection = static_cast<OpenGLWindow*>(m_openglpanel)->onMousePressEvent.Connect([&](QMouseEvent* event) {
-		OnMousePressEvent(event);
-	});
+	connect(m_openglpanel, SIGNAL(mouseMove(QMouseEvent*)), this, SLOT(OnMouseMoveEvent(QMouseEvent*)));
+	connect(m_openglpanel, SIGNAL(mousePress(QMouseEvent*)), this, SLOT(OnMousePressEvent(QMouseEvent*)));
+	connect(m_openglpanel, SIGNAL(mouseWheel(QWheelEvent*)), this, SLOT(OnMouseWheelEvent(QWheelEvent*)));
 }
 
 void CPixelBufferView::showEvent(QShowEvent* event)
@@ -163,7 +154,7 @@ void CPixelBufferView::OnMouseMoveEvent(QMouseEvent* event)
 	}
 }
 
-void CPixelBufferView::OnMouseWheel(QWheelEvent* event)
+void CPixelBufferView::OnMouseWheelEvent(QWheelEvent* event)
 {
 	float newZoom = 0;
 	auto z = event->delta();

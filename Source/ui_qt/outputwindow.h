@@ -1,7 +1,6 @@
 #pragma once
 
 #include <QtGui/QWindow>
-#include "signal/Signal.h"
 
 class OutputWindow : public QWindow
 {
@@ -12,13 +11,6 @@ public:
 
 	void ShowFullScreenCursor();
 	void DismissFullScreenCursor();
-	typedef Framework::CSignal<void(QWheelEvent*)> MouseWheelSignal;
-	typedef Framework::CSignal<void(QMouseEvent*)> MouseMoveSignal;
-	typedef Framework::CSignal<void(QMouseEvent*)> MousePressSignal;
-
-	MouseWheelSignal onMouseWheelEvent;
-	MouseMoveSignal onMouseMoveEvent;
-	MousePressSignal onMousePressEvent;
 
 protected:
 	void exposeEvent(QExposeEvent* ev) Q_DECL_OVERRIDE;
@@ -37,6 +29,9 @@ signals:
 	void focusOut(QFocusEvent*);
 	void focusIn(QFocusEvent*);
 	void doubleClick(QMouseEvent*);
+	void mouseMove(QMouseEvent*);
+	void mousePress(QMouseEvent*);
+	void mouseWheel(QWheelEvent*);
 
 private slots:
 	void activeStateChanged();

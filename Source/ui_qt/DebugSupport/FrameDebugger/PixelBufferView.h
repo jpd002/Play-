@@ -9,10 +9,10 @@
 #include <memory>
 #include <vector>
 #include "GSH_OpenGLQt_Framedebugger.h"
-#include "../../openglwindow.h"
 
 class CPixelBufferView : public QWidget
 {
+	Q_OBJECT	
 public:
 	typedef std::pair<std::string, Framework::CBitmap> PixelBuffer;
 	typedef std::vector<PixelBuffer> PixelBufferArray;
@@ -27,12 +27,13 @@ public:
 
 protected:
 	void showEvent(QShowEvent*) Q_DECL_OVERRIDE;
-	void Refresh();
 	void paintEvent(QPaintEvent*) Q_DECL_OVERRIDE;
 
+protected slots:
+	void Refresh();
 	void OnMousePressEvent(QMouseEvent*);
 	void OnMouseMoveEvent(QMouseEvent*);
-	void OnMouseWheel(QWheelEvent*);
+	void OnMouseWheelEvent(QWheelEvent*);
 
 private:
 	struct VERTEX
@@ -65,7 +66,4 @@ private:
 
 	std::unique_ptr<CGSH_OpenGLFramedebugger> m_gs;
 	QWindow* m_openglpanel = nullptr;
-	OpenGLWindow::MouseWheelSignal::Connection m_mouseWheelConnection;
-	OpenGLWindow::MouseMoveSignal::Connection m_mouseMoveConnection;
-	OpenGLWindow::MousePressSignal::Connection m_mousePressConnection;
 };

@@ -132,6 +132,7 @@ set(QT_DEBUGGER_MOC_HEADERS
 	${SRC_ROOT}/QtDialogListWidget.h
 	${SRC_ROOT}/QtMemoryViewModel.h
 	${SRC_ROOT}/FrameDebugger/GsPacketListModel.h
+	${SRC_ROOT}/FrameDebugger/PixelBufferView.h
 	${SRC_ROOT}/FrameDebugger/QtFramedebugger.h
 	${SRC_ROOT}/FrameDebugger/Vu1ProgramView.h
 )
