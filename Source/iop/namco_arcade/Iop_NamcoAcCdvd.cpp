@@ -101,7 +101,7 @@ void CAcCdvd::Invoke(CMIPS& context, unsigned int functionId)
 		{
 			uint32 mode = context.m_State.nGPR[CMIPS::A0].nV0;
 			CLog::GetInstance().Warn(LOG_NAME, FUNCTION_CDSYNC "(mode = %d);\r\n",
-									 mode);
+			                         mode);
 			context.m_State.nGPR[CMIPS::V0].nV0 = 0;
 		}
 		break;

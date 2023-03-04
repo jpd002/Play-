@@ -66,9 +66,8 @@ bool CHardDiskDumpDevice::TryGetStat(const char* path, bool& succeeded, STAT& st
 }
 
 CHardDiskDumpDirectoryIterator::CHardDiskDumpDirectoryIterator(std::vector<Hdd::APA_HEADER> partitions)
-: m_partitions(std::move(partitions))
+    : m_partitions(std::move(partitions))
 {
-	
 }
 
 void CHardDiskDumpDirectoryIterator::ReadEntry(DIRENTRY* entry)

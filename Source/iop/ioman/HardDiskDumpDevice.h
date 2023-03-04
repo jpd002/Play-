@@ -23,20 +23,20 @@ namespace Iop
 			std::unique_ptr<Framework::CStream> m_stream;
 		};
 
-	class CHardDiskDumpDirectoryIterator : public CDirectoryIterator
-	{
-	public:
-		CHardDiskDumpDirectoryIterator(std::vector<Hdd::APA_HEADER>);
+		class CHardDiskDumpDirectoryIterator : public CDirectoryIterator
+		{
+		public:
+			CHardDiskDumpDirectoryIterator(std::vector<Hdd::APA_HEADER>);
 
-		void ReadEntry(DIRENTRY*) override;
-		bool IsDone() override;
-		
-	private:
-		size_t m_index = 0;
-		std::vector<Hdd::APA_HEADER> m_partitions;
-	};
+			void ReadEntry(DIRENTRY*) override;
+			bool IsDone() override;
 
-	class CHardDiskDumpPartitionDevice : public CDevice
+		private:
+			size_t m_index = 0;
+			std::vector<Hdd::APA_HEADER> m_partitions;
+		};
+
+		class CHardDiskDumpPartitionDevice : public CDevice
 		{
 		public:
 			CHardDiskDumpPartitionDevice(Framework::CStream&, const Hdd::APA_HEADER&);

@@ -76,7 +76,7 @@ CPfsFileReader* CPfsReader::GetFileStream(const char* path)
 			//Not found
 			return nullptr;
 		}
-		
+
 		auto dirEntry = reinterpret_cast<const PFS_DIRENTRY*>(dirBlockCurr);
 		sectionInode = ReadInode(dirEntry->inode, dirEntry->subPart);
 	}

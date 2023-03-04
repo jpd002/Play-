@@ -205,7 +205,7 @@ void CMIPSAnalysis::FindSubroutinesByJumpTargets(uint32 start, uint32 end, uint3
 		for(uint32 address = subroutineAddress; address <= end; address += 4)
 		{
 			if(address >= (subroutineAddress + searchLimit)) break;
-			
+
 			uint32 opcode = m_ctx->m_pMemoryMap->GetInstruction(address);
 
 			//Check for JR RA or J
