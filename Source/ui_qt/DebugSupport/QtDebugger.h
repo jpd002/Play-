@@ -143,7 +143,7 @@ private:
 	CFunctionsView* m_pFunctionsView = nullptr;
 	CKernelObjectListView* m_kernelObjectListView = nullptr;
 	QMdiSubWindow* m_kernelObjectListViewWnd = nullptr;
-	CDebugView* m_pView[DEBUGVIEW_MAX];
+	CDebugView* m_pView[DEBUGVIEW_MAX] = {};
 	CAddressListViewWnd* m_addressListView = nullptr;
 	unsigned int m_nCurrentView;
 	CPS2VM& m_virtualMachine;
