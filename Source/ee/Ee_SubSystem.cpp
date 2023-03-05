@@ -411,7 +411,8 @@ void CSubSystem::LoadState(Framework::CZipArchiveReader& archive)
 void CSubSystem::SetupEePageTable()
 {
 	m_EE.MapPages(0x00000000, PS2::EE_RAM_SIZE, m_ram);
-	m_EE.MapPages(0x20000000, PS2::EE_RAM_SIZE, m_ram);
+	m_EE.MapPages(0x20000000, PS2::EE_RAM_SIZE, m_ram); //Uncached
+	m_EE.MapPages(0x30000000, PS2::EE_RAM_SIZE, m_ram); //Uncached + Accelerated
 	m_EE.MapPages(0x70000000, PS2::EE_SPR_SIZE, m_spr);
 	m_EE.MapPages(0x80000000, PS2::EE_RAM_SIZE, m_ram);
 }
