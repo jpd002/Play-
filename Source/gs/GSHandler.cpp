@@ -1274,26 +1274,14 @@ bool CGSHandler::GetCrtIsFrameMode() const
 	return smode2.ffmd;
 }
 
-std::pair<uint64, uint64> CGSHandler::GetCurrentDisplayInfo()
-{
-	std::lock_guard<std::recursive_mutex> registerMutexLock(m_registerMutex);
-	unsigned int readCircuit = GetCurrentReadCircuit();
-	switch(readCircuit)
-	{
-	default:
-	case 0:
-		return {m_nDISPFB1.value.q, m_nDISPLAY1.value.q};
-	case 1:
-		return {m_nDISPFB2.value.q, m_nDISPLAY2.value.q};
-	}
-}
-
-std::pair<uint32, uint32> CGSHandler::GetDisplayBounds(uint64 displayReg) const
+CGSHandler::DISPLAY_RECT CGSHandler::GetDisplayRect(uint64 displayReg) const
 {
 	auto d = make_convertible<DISPLAY>(displayReg);
 
+	uint32 dispX = d.nX / (d.nMagX + 1);
+	uint32 dispY = d.nY / (d.nMagY + 1);
 	uint32 dispWidth = (d.nW + 1) / (d.nMagX + 1);
-	uint32 dispHeight = (d.nH + 1);
+	uint32 dispHeight = (d.nH + 1) / (d.nMagY + 1);
 
 	//Some games provide a huge height but seem to only need a fraction
 	//of what they need:
@@ -1308,40 +1296,104 @@ std::pair<uint32, uint32> CGSHandler::GetDisplayBounds(uint64 displayReg) const
 	}
 
 	bool halfHeight = GetCrtIsInterlaced() && GetCrtIsFrameMode();
-	if(halfHeight) dispHeight /= 2;
+	if(halfHeight)
+	{
+		dispY /= 2;
+		dispHeight /= 2;
+	}
 
-	return std::make_pair(dispWidth, dispHeight);
+	return DISPLAY_RECT{dispX, dispY, dispWidth, dispHeight};
 }
 
-unsigned int CGSHandler::GetCurrentReadCircuit()
+CGSHandler::DISPLAY_INFO CGSHandler::GetCurrentDisplayInfo()
 {
+	std::lock_guard<std::recursive_mutex> registerMutexLock(m_registerMutex);
+	auto makeInfoFromRc = [this](unsigned int readCircuit) {
+		assert(readCircuit < 2);
+		auto dispFb = make_convertible<DISPFB>((readCircuit == 0) ? m_nDISPFB1.value.q : m_nDISPFB2.value.q);
+		auto dispRect = GetDisplayRect((readCircuit == 0) ? m_nDISPLAY1.value.q : m_nDISPLAY2.value.q);
+
+		DISPLAY_INFO info;
+		info.width = dispRect.width;
+		info.height = dispRect.height;
+
+		{
+			auto& layer = info.layers[0];
+			layer.enabled = true;
+			layer.width = dispRect.width;
+			layer.height = dispRect.height;
+			layer.bufPtr = dispFb.GetBufPtr();
+			layer.bufWidth = dispFb.GetBufWidth();
+			layer.psm = dispFb.nPSM;
+		}
+
+		return info;
+	};
 	uint32 rcMode = m_nPMODE & 0x03;
 	switch(rcMode)
 	{
 	default:
 	case 0:
-		//No read circuit enabled?
-		return 0;
+		//No read circuit enabled
+		return DISPLAY_INFO{};
 	case 1:
-		return 0;
 	case 2:
-		return 1;
+		return makeInfoFromRc((rcMode == 1) ? 0 : 1);
 	case 3:
 	{
-		//Both are enabled... See if we can find out which one is good
+		auto dispFb1 = make_convertible<DISPFB>(m_nDISPFB1.value.q);
+		auto dispFb2 = make_convertible<DISPFB>(m_nDISPFB2.value.q);
+
+		//Both read circuits are enabled... See if we can find if there's only a single one being actually used.
 		//This happens in Capcom Classics Collection Vol. 2
-		std::lock_guard<std::recursive_mutex> registerMutexLock(m_registerMutex);
-		bool fb1Null = (m_nDISPFB1.value.q == 0);
-		bool fb2Null = (m_nDISPFB2.value.q == 0);
-		if(!fb1Null && fb2Null)
 		{
-			return 0;
+			bool fb1Null = (m_nDISPFB1.value.q == 0);
+			bool fb2Null = (m_nDISPFB2.value.q == 0);
+			if(!fb1Null && fb2Null)
+			{
+				return makeInfoFromRc(0);
+			}
+			if(fb1Null && !fb2Null)
+			{
+				return makeInfoFromRc(1);
+			}
 		}
-		if(fb1Null && !fb2Null)
+
+		auto dispRect1 = GetDisplayRect(m_nDISPLAY1.value.q);
+		auto dispRect2 = GetDisplayRect(m_nDISPLAY2.value.q);
+
+		uint32 dispBaseX = std::min<uint32>(dispRect1.offsetX, dispRect2.offsetX);
+		uint32 dispBaseY = std::min<uint32>(dispRect1.offsetY, dispRect2.offsetY);
+
+		DISPLAY_INFO info;
+		info.width = std::max<uint32>(dispRect1.width, dispRect2.width);
+		info.height = std::max<uint32>(dispRect1.height, dispRect2.height);
+
 		{
-			return 1;
+			auto& layer = info.layers[0];
+			layer.enabled = true;
+			layer.width = dispRect2.width;
+			layer.height = dispRect2.height;
+			layer.offsetX = dispRect2.offsetX - dispBaseX;
+			layer.offsetY = dispRect2.offsetY - dispBaseY;
+			layer.bufPtr = dispFb2.GetBufPtr();
+			layer.bufWidth = dispFb2.GetBufWidth();
+			layer.psm = dispFb2.nPSM;
 		}
-		return 0;
+
+		{
+			auto& layer = info.layers[1];
+			layer.enabled = true;
+			layer.width = dispRect1.width;
+			layer.height = dispRect1.height;
+			layer.offsetX = dispRect1.offsetX - dispBaseX;
+			layer.offsetY = dispRect1.offsetY - dispBaseY;
+			layer.bufPtr = dispFb1.GetBufPtr();
+			layer.bufWidth = dispFb1.GetBufWidth();
+			layer.psm = dispFb1.nPSM;
+		}
+
+		return info;
 	}
 	break;
 	}

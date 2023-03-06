@@ -153,6 +153,34 @@ public:
 		int32 height = 0;
 	};
 
+	struct DISPLAY_RECT
+	{
+		uint32 offsetX = 0;
+		uint32 offsetY = 0;
+		uint32 width = 0;
+		uint32 height = 0;
+	};
+
+	struct DISPLAY_INFO
+	{
+		static const unsigned int MAX_LAYERS = 2;
+
+		struct LAYER
+		{
+			bool enabled = false;
+			uint32 offsetX = 0;
+			uint32 offsetY = 0;
+			uint32 width = 0;
+			uint32 height = 0;
+			uint32 bufPtr = 0;
+			uint32 bufWidth = 0;
+			uint32 psm = 0;
+		} layers[MAX_LAYERS];
+
+		uint32 width = 0;
+		uint32 height = 0;
+	};
+
 	enum PSM
 	{
 		PSMCT32 = 0x00,
@@ -854,9 +882,8 @@ public:
 	uint32 GetCrtHSyncFrequency() const;
 	bool GetCrtIsInterlaced() const;
 	bool GetCrtIsFrameMode() const;
-	std::pair<uint32, uint32> GetDisplayBounds(uint64) const;
-	std::pair<uint64, uint64> GetCurrentDisplayInfo();
-	unsigned int GetCurrentReadCircuit();
+	DISPLAY_RECT GetDisplayRect(uint64) const;
+	DISPLAY_INFO GetCurrentDisplayInfo();
 
 	static std::pair<uint32, uint32> GetTransferInvalidationRange(const BITBLTBUF&, const TRXREG&, const TRXPOS&);
 

@@ -16,7 +16,7 @@ namespace GSH_Vulkan
 
 		void ValidateSwapChain(const CGSHandler::PRESENTATION_PARAMS&);
 		void SetPresentationViewport(const CGSHandler::PRESENTATION_VIEWPORT&);
-		void DoPresent(uint32, uint32, uint32, uint32, uint32);
+		void DoPresent(const CGSHandler::DISPLAY_INFO&);
 
 	private:
 		typedef CPipelineCache<uint32> PipelineCache;
@@ -41,9 +41,13 @@ namespace GSH_Vulkan
 			uint32 bufWidth;
 			uint32 dispWidth;
 			uint32 dispHeight;
+			uint32 layerX;
+			uint32 layerY;
+			uint32 layerWidth;
+			uint32 layerHeight;
 		};
 
-		void UpdateBackbuffer(uint32, uint32, uint32, uint32, uint32, uint32);
+		void UpdateBackbuffer(uint32, const CGSHandler::DISPLAY_INFO&);
 		PRESENT_COMMANDBUFFER PrepareCommandBuffer();
 		VkDescriptorSet PrepareDescriptorSet(VkDescriptorSetLayout, uint32);
 
@@ -59,7 +63,7 @@ namespace GSH_Vulkan
 		Framework::Vulkan::CShaderModule CreateVertexShader();
 		Framework::Vulkan::CShaderModule CreateFragmentShader(uint32);
 
-		static const PRESENT_VERTEX g_vertexBufferContents[3];
+		static const PRESENT_VERTEX g_vertexBufferContents[4];
 
 		ContextPtr m_context;
 

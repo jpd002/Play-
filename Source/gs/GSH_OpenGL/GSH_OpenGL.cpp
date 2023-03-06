@@ -129,33 +129,36 @@ void CGSH_OpenGL::FlipImpl()
 	m_validGlState = 0;
 
 	auto dispInfo = GetCurrentDisplayInfo();
-	auto fb = make_convertible<DISPFB>(dispInfo.first);
-	auto dispBounds = GetDisplayBounds(dispInfo.second);
+	const auto& dispLayer = dispInfo.layers[0];
 
 	FramebufferPtr framebuffer;
-	for(const auto& candidateFramebuffer : m_framebuffers)
-	{
-		if(
-		    (candidateFramebuffer->m_basePtr == fb.GetBufPtr()) &&
-		    (GetFramebufferBitDepth(candidateFramebuffer->m_psm) == GetFramebufferBitDepth(fb.nPSM)) &&
-		    (candidateFramebuffer->m_width == fb.GetBufWidth()))
-		{
-			//We have a winner
-			framebuffer = candidateFramebuffer;
-			break;
-		}
-	}
 
-	if(!framebuffer && (fb.GetBufWidth() != 0))
+	if(dispLayer.enabled)
 	{
-		framebuffer = FramebufferPtr(new CFramebuffer(fb.GetBufPtr(), fb.GetBufWidth(), FRAMEBUFFER_HEIGHT, fb.nPSM, m_fbScale, m_multisampleEnabled));
-		m_framebuffers.push_back(framebuffer);
-		PopulateFramebuffer(framebuffer);
+		for(const auto& candidateFramebuffer : m_framebuffers)
+		{
+			if(
+			    (candidateFramebuffer->m_basePtr == dispLayer.bufPtr) &&
+			    (GetFramebufferBitDepth(candidateFramebuffer->m_psm) == GetFramebufferBitDepth(dispLayer.psm)) &&
+			    (candidateFramebuffer->m_width == dispLayer.bufWidth))
+			{
+				//We have a winner
+				framebuffer = candidateFramebuffer;
+				break;
+			}
+		}
+
+		if(!framebuffer && (dispLayer.bufWidth != 0))
+		{
+			framebuffer = FramebufferPtr(new CFramebuffer(dispLayer.bufPtr, dispLayer.bufWidth, FRAMEBUFFER_HEIGHT, dispLayer.psm, m_fbScale, m_multisampleEnabled));
+			m_framebuffers.push_back(framebuffer);
+			PopulateFramebuffer(framebuffer);
+		}
 	}
 
 	if(framebuffer)
 	{
-		CommitFramebufferDirtyPages(framebuffer, 0, dispBounds.second);
+		CommitFramebufferDirtyPages(framebuffer, 0, dispLayer.height);
 		if(m_multisampleEnabled)
 		{
 			ResolveFramebufferMultisample(framebuffer, m_fbScale);
@@ -179,8 +182,8 @@ void CGSH_OpenGL::FlipImpl()
 
 	if(framebuffer)
 	{
-		float u1 = static_cast<float>(dispBounds.first) / static_cast<float>(framebuffer->m_width);
-		float v1 = static_cast<float>(dispBounds.second) / static_cast<float>(framebuffer->m_height);
+		float u1 = static_cast<float>(dispInfo.width) / static_cast<float>(framebuffer->m_width);
+		float v1 = static_cast<float>(dispInfo.height) / static_cast<float>(framebuffer->m_height);
 
 		glDisable(GL_BLEND);
 		glDisable(GL_DEPTH_TEST);
@@ -2148,23 +2151,17 @@ void CGSH_OpenGL::ProcessClutTransfer(uint32 csa, uint32)
 
 Framework::CBitmap CGSH_OpenGL::GetScreenshot()
 {
+#if 0
 	auto dispInfo = GetCurrentDisplayInfo();
-	auto fb = make_convertible<DISPFB>(dispInfo.first);
-	auto d = make_convertible<DISPLAY>(dispInfo.second);
-
-	unsigned int dispWidth = (d.nW + 1) / (d.nMagX + 1);
-	unsigned int dispHeight = (d.nH + 1);
-
-	bool halfHeight = GetCrtIsInterlaced() && GetCrtIsFrameMode();
-	if(halfHeight) dispHeight /= 2;
+	const auto& dispLayer = dispInfo.layers[0];
 
 	FramebufferPtr framebuffer;
 	for(const auto& candidateFramebuffer : m_framebuffers)
 	{
 		if(
-		    (candidateFramebuffer->m_basePtr == fb.GetBufPtr()) &&
-		    (GetFramebufferBitDepth(candidateFramebuffer->m_psm) == GetFramebufferBitDepth(fb.nPSM)) &&
-		    (candidateFramebuffer->m_width == fb.GetBufWidth()))
+		    (candidateFramebuffer->m_basePtr == dispLayer.bufPtr) &&
+		    (GetFramebufferBitDepth(candidateFramebuffer->m_psm) == GetFramebufferBitDepth(dispLayer.psm)) &&
+		    (candidateFramebuffer->m_width == dispLayer.bufWidth))
 		{
 			//We have a winner
 			framebuffer = candidateFramebuffer;
@@ -2181,6 +2178,8 @@ Framework::CBitmap CGSH_OpenGL::GetScreenshot()
 		return imgbuffer.Resize(dispWidth * m_fbScale, dispHeight * 2 * m_fbScale);
 	}
 	return imgbuffer;
+#endif
+	return Framework::CBitmap();
 }
 
 Framework::CBitmap CGSH_OpenGL::GetFramebuffer(uint64 frameReg)

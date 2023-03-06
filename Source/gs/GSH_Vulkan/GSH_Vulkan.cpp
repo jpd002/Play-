@@ -253,14 +253,10 @@ void CGSH_Vulkan::MarkNewFrame()
 
 void CGSH_Vulkan::FlipImpl()
 {
-	auto dispInfo = GetCurrentDisplayInfo();
-	auto fb = make_convertible<DISPFB>(dispInfo.first);
-	auto dispBounds = GetDisplayBounds(dispInfo.second);
-
 	if(m_present)
 	{
 		m_present->SetPresentationViewport(GetPresentationViewport());
-		m_present->DoPresent(fb.nPSM, fb.GetBufPtr(), fb.GetBufWidth(), dispBounds.first, dispBounds.second);
+		m_present->DoPresent(GetCurrentDisplayInfo());
 	}
 
 	PresentBackbuffer();

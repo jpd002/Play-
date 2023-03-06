@@ -13,12 +13,13 @@ using namespace GSH_Vulkan;
 //Module responsible for presenting frame buffer to surface
 
 // clang-format off
-const CPresent::PRESENT_VERTEX CPresent::g_vertexBufferContents[3] =
+const CPresent::PRESENT_VERTEX CPresent::g_vertexBufferContents[4] =
 {
 	//Pos           UV
-	{ -1.0f,  1.0f, 0.0f,  1.0f, },
-	{ -1.0f, -3.0f, 0.0f, -1.0f, },
-	{  3.0f,  1.0f, 2.0f,  1.0f, },
+	{  0.0f,  0.0f, 0.0f,  0.0f, },
+	{  1.0f,  0.0f, 1.0f,  0.0f, },
+	{  0.0f,  1.0f, 0.0f,  1.0f, },
+	{  1.0f,  1.0f, 1.0f,  1.0f, },
 };
 // clang-format on
 
@@ -54,7 +55,7 @@ void CPresent::SetPresentationViewport(const CGSHandler::PRESENTATION_VIEWPORT& 
 	m_presentationViewport = presentationViewport;
 }
 
-void CPresent::DoPresent(uint32 bufPsm, uint32 bufAddress, uint32 bufWidth, uint32 dispWidth, uint32 dispHeight)
+void CPresent::DoPresent(const CGSHandler::DISPLAY_INFO& dispInfo)
 {
 	auto result = VK_SUCCESS;
 
@@ -83,7 +84,7 @@ void CPresent::DoPresent(uint32 bufPsm, uint32 bufAddress, uint32 bufWidth, uint
 	}
 	if(result != VK_SUBOPTIMAL_KHR) CHECKVULKANERROR(result);
 
-	UpdateBackbuffer(imageIndex, bufPsm, bufAddress, bufWidth, dispWidth, dispHeight);
+	UpdateBackbuffer(imageIndex, dispInfo);
 
 	//Queue present
 	{
@@ -104,19 +105,12 @@ void CPresent::DoPresent(uint32 bufPsm, uint32 bufAddress, uint32 bufWidth, uint
 	}
 }
 
-void CPresent::UpdateBackbuffer(uint32 imageIndex, uint32 bufPsm, uint32 bufAddress, uint32 bufWidth, uint32 dispWidth, uint32 dispHeight)
+void CPresent::UpdateBackbuffer(uint32 imageIndex, const CGSHandler::DISPLAY_INFO& dispInfo)
 {
 	auto result = VK_SUCCESS;
 
 	auto swapChainImage = m_swapChainImages[imageIndex];
 	auto framebuffer = m_swapChainFramebuffers[imageIndex];
-
-	//Find pipeline and create it if we've never encountered it before
-	auto drawPipeline = m_pipelineCache.TryGetPipeline(bufPsm);
-	if(!drawPipeline)
-	{
-		drawPipeline = m_pipelineCache.RegisterPipeline(bufPsm, CreateDrawPipeline(bufPsm));
-	}
 
 	auto frameCommandBuffer = PrepareCommandBuffer();
 	auto commandBuffer = frameCommandBuffer.commandBuffer;
@@ -143,12 +137,6 @@ void CPresent::UpdateBackbuffer(uint32 imageIndex, uint32 bufPsm, uint32 bufAddr
 		m_context->device.vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
 		                                       0, 0, nullptr, 0, nullptr, 1, &imageMemoryBarrier);
 	}
-
-	PRESENT_PARAMS presentParams = {};
-	presentParams.bufAddress = bufAddress;
-	presentParams.bufWidth = bufWidth;
-	presentParams.dispWidth = dispWidth;
-	presentParams.dispHeight = dispHeight;
 
 	VkClearValue clearValue;
 	clearValue.color = {{0.0f, 0.0f, 0.0f, 1.0f}};
@@ -177,20 +165,42 @@ void CPresent::UpdateBackbuffer(uint32 imageIndex, uint32 bufPsm, uint32 bufAddr
 		m_context->device.vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 	}
 
-	auto descriptorSet = PrepareDescriptorSet(drawPipeline->descriptorSetLayout, bufPsm);
+	for(const auto& dispLayer : dispInfo.layers)
+	{
+		if(!dispLayer.enabled) continue;
 
-	m_context->device.vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, drawPipeline->pipelineLayout,
-	                                          0, 1, &descriptorSet, 0, nullptr);
+		//Find pipeline and create it if we've never encountered it before
+		auto drawPipeline = m_pipelineCache.TryGetPipeline(dispLayer.psm);
+		if(!drawPipeline)
+		{
+			drawPipeline = m_pipelineCache.RegisterPipeline(dispLayer.psm, CreateDrawPipeline(dispLayer.psm));
+		}
 
-	m_context->device.vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, drawPipeline->pipeline);
+		PRESENT_PARAMS presentParams = {};
+		presentParams.bufAddress = dispLayer.bufPtr;
+		presentParams.bufWidth = dispLayer.bufWidth;
+		presentParams.dispWidth = dispInfo.width;
+		presentParams.dispHeight = dispInfo.height;
+		presentParams.layerX = dispLayer.offsetX;
+		presentParams.layerY = dispLayer.offsetY;
+		presentParams.layerWidth = dispLayer.width;
+		presentParams.layerHeight = dispLayer.height;
 
-	m_context->device.vkCmdPushConstants(commandBuffer, drawPipeline->pipelineLayout, VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(PRESENT_PARAMS), &presentParams);
+		auto descriptorSet = PrepareDescriptorSet(drawPipeline->descriptorSetLayout, dispLayer.psm);
 
-	VkDeviceSize vertexBufferOffset = 0;
-	VkBuffer vertexBuffer = m_vertexBuffer;
-	m_context->device.vkCmdBindVertexBuffers(commandBuffer, 0, 1, &vertexBuffer, &vertexBufferOffset);
+		m_context->device.vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, drawPipeline->pipelineLayout,
+		                                          0, 1, &descriptorSet, 0, nullptr);
 
-	m_context->device.vkCmdDraw(commandBuffer, 3, 1, 0, 0);
+		m_context->device.vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, drawPipeline->pipeline);
+
+		m_context->device.vkCmdPushConstants(commandBuffer, drawPipeline->pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(PRESENT_PARAMS), &presentParams);
+
+		VkDeviceSize vertexBufferOffset = 0;
+		VkBuffer vertexBuffer = m_vertexBuffer;
+		m_context->device.vkCmdBindVertexBuffers(commandBuffer, 0, 1, &vertexBuffer, &vertexBufferOffset);
+
+		m_context->device.vkCmdDraw(commandBuffer, 4, 1, 0, 0);
+	}
 
 	m_context->device.vkCmdEndRenderPass(commandBuffer);
 
@@ -537,7 +547,7 @@ PIPELINE CPresent::CreateDrawPipeline(uint32 bufPsm)
 
 	{
 		VkPushConstantRange pushConstantInfo = {};
-		pushConstantInfo.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+		pushConstantInfo.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
 		pushConstantInfo.offset = 0;
 		pushConstantInfo.size = sizeof(PRESENT_PARAMS);
 
@@ -659,7 +669,19 @@ Framework::Vulkan::CShaderModule CPresent::CreateVertexShader()
 		auto outputPosition = CFloat4Lvalue(b.CreateOutput(Nuanceur::SEMANTIC_SYSTEM_POSITION));
 		auto outputTexCoord = CFloat4Lvalue(b.CreateOutput(Nuanceur::SEMANTIC_TEXCOORD));
 
-		outputPosition = NewFloat4(inputPosition->xyz(), NewFloat(b, 1.0f));
+		auto presentParams = CInt4Lvalue(b.CreateUniformInt4("presentParams", Nuanceur::UNIFORM_UNIT_PUSHCONSTANT));
+		auto presentRectParams = CInt4Lvalue(b.CreateUniformInt4("presentRectParams", Nuanceur::UNIFORM_UNIT_PUSHCONSTANT));
+		auto dispSize = presentParams->zw();
+		auto layerPos = presentRectParams->xy();
+		auto layerSize = presentRectParams->zw();
+
+		auto localPos = (inputPosition->xy() * ToFloat(layerSize)) + ToFloat(layerPos);
+
+		auto projScale = NewFloat2(b, 2, 2) / ToFloat(dispSize);
+		auto projOffset = NewFloat2(b, -1, -1);
+		auto projPos = (localPos * projScale) + projOffset;
+
+		outputPosition = NewFloat4(projPos, NewFloat2(b, 0.0f, 1.0f));
 		outputTexCoord = inputTexCoord->xyzw();
 	}
 
@@ -683,17 +705,19 @@ Framework::Vulkan::CShaderModule CPresent::CreateFragmentShader(uint32 bufPsm)
 		auto memoryBuffer = CArrayUintValue(b.CreateUniformArrayUint("memoryBuffer", DESCRIPTOR_LOCATION_BUFFER_MEMORY));
 		auto swizzleTable = CImageUint2DValue(b.CreateImage2DUint(DESCRIPTOR_LOCATION_IMAGE_SWIZZLETABLE));
 
-		auto presentParams = CInt4Lvalue(b.CreateUniformInt4("presentParams", Nuanceur::UNIFORM_UNIT_PUSHCONSTANT));
-		auto bufAddress = presentParams->x();
-		auto bufWidth = presentParams->y();
-		auto dispSize = presentParams->zw();
+		auto presentBufParams = CInt4Lvalue(b.CreateUniformInt4("presentBufParams", Nuanceur::UNIFORM_UNIT_PUSHCONSTANT));
+		auto presentRectParams = CInt4Lvalue(b.CreateUniformInt4("presentRectParams", Nuanceur::UNIFORM_UNIT_PUSHCONSTANT));
+		auto bufAddress = presentBufParams->x();
+		auto bufWidth = presentBufParams->y();
+		auto layerSize = presentRectParams->zw();
 
-		auto screenPos = ToInt(inputTexCoord->xy() * ToFloat(dispSize));
+		auto screenPos = ToInt(inputTexCoord->xy() * ToFloat(layerSize));
 
 		switch(bufPsm)
 		{
 		default:
 			assert(false);
+			[[fallthrough]];
 		case CGSHandler::PSMCT32:
 		case CGSHandler::PSMCT24:
 		{
