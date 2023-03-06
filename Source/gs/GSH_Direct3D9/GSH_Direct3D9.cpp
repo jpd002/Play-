@@ -444,20 +444,23 @@ void CGSH_Direct3D9::DrawActiveFramebuffer()
 	m_renderState.isValid = false;
 
 	auto dispInfo = GetCurrentDisplayInfo();
-	auto fb = make_convertible<DISPFB>(dispInfo.first);
-	auto dispBounds = GetDisplayBounds(dispInfo.second);
+	const auto& dispLayer = dispInfo.layers[0];
 
 	FramebufferPtr framebuffer;
-	for(const auto& candidateFramebuffer : m_framebuffers)
+
+	if(dispLayer.enabled)
 	{
-		if(
-		    (candidateFramebuffer->m_basePtr == fb.GetBufPtr()) &&
-		    //(GetFramebufferBitDepth(candidateFramebuffer->m_psm) == GetFramebufferBitDepth(fb.nPSM)) &&
-		    (candidateFramebuffer->m_width == fb.GetBufWidth()))
+		for(const auto& candidateFramebuffer : m_framebuffers)
 		{
-			//We have a winner
-			framebuffer = candidateFramebuffer;
-			break;
+			if(
+			    (candidateFramebuffer->m_basePtr == dispLayer.bufPtr) &&
+			    //(GetFramebufferBitDepth(candidateFramebuffer->m_psm) == GetFramebufferBitDepth(fb.nPSM)) &&
+			    (candidateFramebuffer->m_width == dispLayer.bufWidth))
+			{
+				//We have a winner
+				framebuffer = candidateFramebuffer;
+				break;
+			}
 		}
 	}
 
@@ -496,8 +499,8 @@ void CGSH_Direct3D9::DrawActiveFramebuffer()
 
 	if(framebuffer)
 	{
-		float u1 = static_cast<float>(dispBounds.first) / static_cast<float>(framebuffer->m_width);
-		float v1 = static_cast<float>(dispBounds.second) / static_cast<float>(framebuffer->m_height);
+		float u1 = static_cast<float>(dispLayer.width) / static_cast<float>(framebuffer->m_width);
+		float v1 = static_cast<float>(dispLayer.height) / static_cast<float>(framebuffer->m_height);
 
 		auto textureMatrix = CMatrix4::MakeScale(u1, v1, 1);
 		m_device->SetTransform(D3DTS_TEXTURE0, reinterpret_cast<D3DMATRIX*>(&textureMatrix));

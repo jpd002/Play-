@@ -182,8 +182,8 @@ void CGSH_OpenGL::FlipImpl()
 
 	if(framebuffer)
 	{
-		float u1 = static_cast<float>(dispInfo.width) / static_cast<float>(framebuffer->m_width);
-		float v1 = static_cast<float>(dispInfo.height) / static_cast<float>(framebuffer->m_height);
+		float u1 = static_cast<float>(dispLayer.width) / static_cast<float>(framebuffer->m_width);
+		float v1 = static_cast<float>(dispLayer.height) / static_cast<float>(framebuffer->m_height);
 
 		glDisable(GL_BLEND);
 		glDisable(GL_DEPTH_TEST);
