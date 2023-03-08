@@ -1,6 +1,8 @@
 #include "BootableModelProxy.h"
 #include "BootableModel.h"
+#include "QStringUtils.h"
 #include <regex>
+
 BootableModelProxy::BootableModelProxy(QObject* parent)
     : QSortFilterProxyModel(parent)
 {
@@ -29,7 +31,7 @@ bool BootableModelProxy::filterAcceptsRow(int sourceRow, const QModelIndex& sour
 		BootableCoverQVariant bootablecover = qvariant_cast<BootableCoverQVariant>(data);
 		QString key = QString::fromStdString(bootablecover.GetKey());
 		QString title = QString::fromStdString(bootablecover.GetTitle());
-		QString path = QString::fromStdString(bootablecover.GetPath());
+		QString path = PathToQString(bootablecover.GetPath());
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
 		QRegularExpression regex = filterRegularExpression();
 		regex.setPatternOptions(QRegularExpression::CaseInsensitiveOption);

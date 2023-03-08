@@ -31,22 +31,22 @@ class BootableCoverQVariant
 {
 
 public:
-	explicit BootableCoverQVariant(std::string = "PH", std::string = "", std::string = "", BootablesDb::BootableStateList = {});
+	explicit BootableCoverQVariant(std::string = "PH", std::string = "", fs::path = "", BootablesDb::BootableStateList = {});
 	~BootableCoverQVariant() = default;
 
 	void paint(QPainter* painter, const QRect& rect, const QPalette& palette, int mode) const;
 	QSize sizeHint() const;
 
-	std::string GetKey();
-	std::string GetTitle();
-	std::string GetPath();
+	std::string GetKey() const;
+	std::string GetTitle() const;
+	fs::path GetPath() const;
 	bool HasState(std::string);
 
 private:
 	int GetPadding() const;
 	std::string m_key;
 	std::string m_title;
-	std::string m_path;
+	fs::path m_path;
 	std::string m_statusColor;
 	BootablesDb::BootableStateList m_states;
 };

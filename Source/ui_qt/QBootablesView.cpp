@@ -289,7 +289,7 @@ void QBootablesView::SelectionChange(const QModelIndex& index)
 	if(src_index.isValid())
 	{
 		auto bootable = static_cast<BootableModel*>(m_proxyModel->sourceModel())->GetBootable(src_index);
-		ui->pathLineEdit->setText(bootable.path.string().c_str());
+		ui->pathLineEdit->setText(PathToQString(bootable.path));
 		ui->serialLineEdit->setText(bootable.discId.c_str());
 	}
 	else
