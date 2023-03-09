@@ -1,7 +1,7 @@
 #include <algorithm>
 #include <cassert>
 #include <cstring>
-#include "make_unique.h"
+#include "string_cast.h"
 #include "stricmp.h"
 #include "DiskUtils.h"
 #include "discimages/ChdCdImageStream.h"
@@ -10,6 +10,7 @@
 #include "discimages/IszImageStream.h"
 #include "discimages/MdsDiscImage.h"
 #include "StdStream.h"
+#include "StdStreamUtils.h"
 #include "StringUtils.h"
 #ifdef HAS_AMAZON_S3
 #include "s3stream/S3ObjectStream.h"
@@ -33,12 +34,13 @@
 
 static std::unique_ptr<Framework::CStream> CreateImageStream(const fs::path& imagePath)
 {
-	static const char* s3ImagePathPrefix = "//s3/";
-	auto imagePathString = imagePath.string();
+	static const auto s3ImagePathPrefix = fs::path("//s3/").native();
+	auto imagePathString = imagePath.native();
 	if(imagePathString.find(s3ImagePathPrefix) == 0)
 	{
 #ifdef HAS_AMAZON_S3
-		auto fullObjectPath = std::string(imagePathString.c_str() + strlen(s3ImagePathPrefix));
+		//TODO: Remove string_cast here and support unicode characters.
+		auto fullObjectPath = string_cast<std::string>(imagePathString.substr(s3ImagePathPrefix.length()));
 		std::replace(fullObjectPath.begin(), fullObjectPath.end(), '\\', '/');
 		auto objectPathPos = fullObjectPath.find('/');
 		if(objectPathPos == std::string::npos)
@@ -64,7 +66,7 @@ static std::unique_ptr<Framework::CStream> CreateImageStream(const fs::path& ima
 #elif defined(__EMSCRIPTEN__)
 	return std::make_unique<CJsDiscImageDeviceStream>();
 #else
-	return std::make_unique<Framework::CStdStream>(imagePathString.c_str(), "rb");
+	return std::make_unique<Framework::CStdStream>(imagePathString.c_str(), Framework::GetInputStdStreamMode<fs::path::string_type>());
 #endif
 }
 
