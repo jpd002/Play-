@@ -1341,9 +1341,6 @@ CGSHandler::DISPLAY_INFO CGSHandler::GetCurrentDisplayInfo()
 		return makeInfoFromRc((rcMode == 1) ? 0 : 1);
 	case 3:
 	{
-		auto dispFb1 = make_convertible<DISPFB>(m_nDISPFB1.value.q);
-		auto dispFb2 = make_convertible<DISPFB>(m_nDISPFB2.value.q);
-
 		//Both read circuits are enabled... See if we can find if there's only a single one being actually used.
 		//This happens in Capcom Classics Collection Vol. 2
 		{
@@ -1359,8 +1356,22 @@ CGSHandler::DISPLAY_INFO CGSHandler::GetCurrentDisplayInfo()
 			}
 		}
 
+		auto dispFb1 = make_convertible<DISPFB>(m_nDISPFB1.value.q);
+		auto dispFb2 = make_convertible<DISPFB>(m_nDISPFB2.value.q);
 		auto dispRect1 = GetDisplayRect(m_nDISPLAY1.value.q);
 		auto dispRect2 = GetDisplayRect(m_nDISPLAY2.value.q);
+
+		//Some games display the same thing but with a 1 pixel difference in their Y offsets.
+		//Avoid having to render the same thing twice.
+		//Example games:
+		//- Ys: The Ark of Napishtim
+		//- Dragon Quest 8
+		if(
+		    (dispFb1.GetBufPtr() == dispFb2.GetBufPtr()) &&
+		    abs(static_cast<int>(dispRect1.offsetY - dispRect2.offsetY) <= 1))
+		{
+			return makeInfoFromRc(0);
+		}
 
 		uint32 dispBaseX = std::min<uint32>(dispRect1.offsetX, dispRect2.offsetX);
 		uint32 dispBaseY = std::min<uint32>(dispRect1.offsetY, dispRect2.offsetY);
