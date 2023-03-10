@@ -212,7 +212,7 @@ void CFunctionsView::OnRenameClick()
 	bool ok;
 	QString res = QInputDialog::getText(this, tr("Rename Function"),
 	                                    tr("New Function Name:"), QLineEdit::Normal,
-	                                    tr(""), &ok);
+	                                    sName, &ok);
 	if(!ok || res.isEmpty())
 		return;
 
