@@ -53,6 +53,7 @@ using namespace Iop;
 //Ref: https://github.com/ps2homebrew/Open-PS2-Loader/blob/master/modules/iopcore/common/cdvdman.h
 #define DEVCTL_CDVD_READCLOCK 0x430C
 #define DEVCTL_CDVD_GETERROR 0x4320
+#define DEVCTL_CDVD_STATUS 0x4322
 #define DEVCTL_CDVD_DISKREADY 0x4325
 
 #define DEVCTL_HDD_STATUS 0x4807
@@ -632,6 +633,12 @@ int32 CIoman::DevCtl(const char* deviceName, uint32 command, const uint32* input
 		assert(outputSize == 4);
 		CLog::GetInstance().Print(LOG_NAME, "CdGetError();\r\n");
 		output[0] = 0; //No error
+		break;
+	case DEVCTL_CDVD_STATUS:
+		//Used by Star Soldier
+		assert(outputSize == 4);
+		CLog::GetInstance().Print(LOG_NAME, "CdStatus();\r\n");
+		output[0] = 10; //CDVD_STATUS_PAUSED
 		break;
 	case DEVCTL_CDVD_DISKREADY:
 		assert(inputSize == 4);
