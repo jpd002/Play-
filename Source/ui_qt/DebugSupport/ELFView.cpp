@@ -78,6 +78,13 @@ void CELFView<ElfType>::resizeEvent(QResizeEvent* evt)
 }
 
 template <typename ElfType>
+void CELFView<ElfType>::showEvent(QShowEvent* evt)
+{
+	QMdiSubWindow::showEvent(evt);
+	widget()->show();
+}
+
+template <typename ElfType>
 void CELFView<ElfType>::PopulateList()
 {
 	m_treeWidget->clear();

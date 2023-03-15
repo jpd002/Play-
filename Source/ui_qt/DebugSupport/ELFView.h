@@ -25,6 +25,7 @@ public:
 
 protected:
 	void resizeEvent(QResizeEvent*) Q_DECL_OVERRIDE;
+	void showEvent(QShowEvent*) Q_DECL_OVERRIDE;
 
 private:
 	void PopulateList();
