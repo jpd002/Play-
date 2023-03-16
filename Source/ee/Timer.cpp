@@ -82,7 +82,7 @@ void CTimer::Count(unsigned int ticks)
 			timer.nCOUNT = nextCount;
 		}
 
-		if(timer.nCOUNT >= 0xFFFF)
+		if(timer.nCOUNT >= 0x10000)
 		{
 			newFlags |= MODE_OVERFLOW_FLAG;
 			timer.nCOUNT &= 0xFFFF;
