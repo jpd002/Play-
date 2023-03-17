@@ -942,23 +942,32 @@ void MainWindow::on_actionPause_when_focus_is_lost_triggered(bool checked)
 
 void MainWindow::on_actionReset_triggered()
 {
-	if(!m_lastOpenCommand.path.empty())
+	try
 	{
-		switch(m_lastOpenCommand.type)
+		if(!m_lastOpenCommand.path.empty())
 		{
-		case BootType::CD:
-			BootCDROM();
-			break;
-		case BootType::ELF:
-			BootElf(m_lastOpenCommand.path);
-			break;
-		case BootType::ARCADE:
-			BootArcadeMachine(m_lastOpenCommand.path);
-			break;
-		default:
-			assert(false);
-			break;
+			switch(m_lastOpenCommand.type)
+			{
+			case BootType::CD:
+				BootCDROM();
+				break;
+			case BootType::ELF:
+				BootElf(m_lastOpenCommand.path);
+				break;
+			case BootType::ARCADE:
+				BootArcadeMachine(m_lastOpenCommand.path);
+				break;
+			default:
+				assert(false);
+				break;
+			}
 		}
+	}
+	catch(const std::exception& e)
+	{
+		QMessageBox messageBox;
+		messageBox.critical(nullptr, "Error", e.what());
+		messageBox.show();
 	}
 }
 
