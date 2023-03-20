@@ -167,6 +167,11 @@ void ProcessJvsPacket(const uint8* input, uint8* output)
 			(*output++) = 0x10; //16 switches
 			(*output++) = 0x00;
 
+			(*output++) = 0x03; //Analog Input
+			(*output++) = 0x02; //Channel Count
+			(*output++) = 0x10; //Bits
+			(*output++) = 0x00;
+
 			(*output++) = 0x06; //Screen Pos Input
 			(*output++) = 0x10; //X pos bits
 			(*output++) = 0x10; //Y pos bits
@@ -174,7 +179,7 @@ void ProcessJvsPacket(const uint8* input, uint8* output)
 
 			(*output++) = 0x00; //End of features
 			
-			(*dstSize) += 14;
+			(*dstSize) += 18;
 		}
 		break;
 		case JVS_CMD_MAINID:
@@ -239,6 +244,30 @@ void ProcessJvsPacket(const uint8* input, uint8* output)
 
 				(*dstSize) += 2;
 			}
+		}
+		break;
+		case JVS_CMD_ANLINP:
+		{
+			assert(inSize != 0);
+			uint8 channel = (*input++);
+			assert(channel == 2);
+			inWorkChecksum += channel;
+			inSize--;
+			
+			(*output++) = 0x01; //Command success
+
+			//Time Crisis 4 reads from this to determine screen position
+			(*output++) = static_cast<uint8>(g_jvsGunPosX >> 8); //Pos X MSB
+			(*output++) = static_cast<uint8>(g_jvsGunPosX); //Pos X LSB
+			(*output++) = static_cast<uint8>(g_jvsGunPosY >> 8); //Pos Y MSB
+			(*output++) = static_cast<uint8>(g_jvsGunPosY); //Pos Y LSB
+			
+			(*output++) = 0;
+			(*output++) = 0;
+			(*output++) = 0;
+			(*output++) = 0;
+
+			(*dstSize) += 5;
 		}
 		break;
 		case JVS_CMD_SCRPOSINP:
