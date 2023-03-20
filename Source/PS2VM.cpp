@@ -127,6 +127,19 @@ CPadHandler* CPS2VM::GetPadHandler()
 	return m_pad;
 }
 
+void CPS2VM::SetGunListener(CGunListener* listener)
+{
+	m_gunListener = listener;
+}
+
+void CPS2VM::ReportGunPosition(float x, float y)
+{
+	if(m_gunListener)
+	{
+		m_gunListener->SetGunPosition(x, y);
+	}
+}
+
 void CPS2VM::DestroyPadHandler()
 {
 	if(m_pad == nullptr) return;

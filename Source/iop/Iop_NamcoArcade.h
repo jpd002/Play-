@@ -4,6 +4,7 @@
 #include "Iop_SifMan.h"
 #include "../SifModuleAdapter.h"
 #include "../PadListener.h"
+#include "../GunListener.h"
 #include "filesystem_def.h"
 
 namespace Iop
@@ -13,7 +14,7 @@ namespace Iop
 		class CAcRam;
 	}
 
-	class CNamcoArcade : public CModule, public CPadListener
+	class CNamcoArcade : public CModule, public CPadListener, public CGunListener
 	{
 	public:
 		CNamcoArcade(CSifMan&, Namco::CAcRam&, const std::string&);
@@ -26,9 +27,13 @@ namespace Iop
 		void SaveState(Framework::CZipArchiveWriter&) const override;
 		void LoadState(Framework::CZipArchiveReader&) override;
 
+		//CPadListener
 		void SetButtonState(unsigned int, PS2::CControllerInfo::BUTTON, bool, uint8*) override;
 		void SetAxisState(unsigned int, PS2::CControllerInfo::BUTTON, uint8, uint8*) override;
 
+		//CGunListener
+		void SetGunPosition(float, float) override;
+		
 	private:
 		enum MODULE_ID
 		{

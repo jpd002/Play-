@@ -158,6 +158,7 @@ private slots:
 	void on_actionToggleFullscreen_triggered();
 	void on_actionCapture_Screen_triggered();
 	void doubleClickEvent(QMouseEvent*);
+	void mouseMoveEvent(QMouseEvent*);
 	void HandleOnExecutableChange();
 	void on_actionList_Bootables_triggered();
 };

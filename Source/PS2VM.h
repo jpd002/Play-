@@ -7,6 +7,7 @@
 #include "MIPS.h"
 #include "MailBox.h"
 #include "PadHandler.h"
+#include "GunListener.h"
 #include "OpticalMedia.h"
 #include "VirtualMachine.h"
 #include "ee/Ee_SubSystem.h"
@@ -86,6 +87,9 @@ public:
 	void LoadDebugTags(const char*);
 	void SaveDebugTags(const char*);
 #endif
+
+	void ReportGunPosition(float, float);
+	void SetGunListener(CGunListener*);
 
 	OpticalMediaPtr m_cdrom0;
 	CPadHandler* m_pad = nullptr;
@@ -183,6 +187,8 @@ private:
 	int m_spuBlockCount;
 	CSoundHandler* m_soundHandler = nullptr;
 
+	CGunListener* m_gunListener = nullptr;
+	
 	CProfiler::ZoneHandle m_eeProfilerZone = 0;
 	CProfiler::ZoneHandle m_iopProfilerZone = 0;
 	CProfiler::ZoneHandle m_spuProfilerZone = 0;

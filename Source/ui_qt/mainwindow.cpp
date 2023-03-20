@@ -251,7 +251,8 @@ void MainWindow::SetupGsHandler()
 	connect(m_outputwindow, SIGNAL(focusIn(QFocusEvent*)), this, SLOT(focusInEvent(QFocusEvent*)));
 
 	connect(m_outputwindow, SIGNAL(doubleClick(QMouseEvent*)), this, SLOT(doubleClickEvent(QMouseEvent*)));
-
+	connect(m_outputwindow, SIGNAL(mouseMove(QMouseEvent*)), this, SLOT(mouseMoveEvent(QMouseEvent*)));
+	
 	m_OnNewFrameConnection = m_virtualMachine->m_ee->m_gs->OnNewFrame.Connect(std::bind(&CStatsManager::OnNewFrame, &CStatsManager::GetInstance(), m_virtualMachine, std::placeholders::_1));
 }
 
@@ -827,6 +828,18 @@ void MainWindow::doubleClickEvent(QMouseEvent* ev)
 	{
 		on_actionToggleFullscreen_triggered();
 	}
+}
+
+void MainWindow::mouseMoveEvent(QMouseEvent* ev)
+{
+	qreal scale = 1.0;
+#if QT_VERSION >= QT_VERSION_CHECK(5, 6, 0)
+	scale = devicePixelRatioF();
+#endif
+	uint32 w = m_outputwindow->size().width(), h = m_outputwindow->size().height();
+	m_virtualMachine->ReportGunPosition(
+										static_cast<float>(ev->x()) / static_cast<float>(w),
+										static_cast<float>(ev->y()) / static_cast<float>(h));
 }
 
 void MainWindow::on_actionToggleFullscreen_triggered()
