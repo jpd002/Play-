@@ -271,6 +271,14 @@ void PrepareArcadeEnvironment(CPS2VM* virtualMachine, const ARCADE_MACHINE_DEF& 
 	}
 	
 	virtualMachine->SetEeFrequencyScale(def.eeFreqScaleNumerator, def.eeFreqScaleDenominator);
+	if((def.eeFreqScaleNumerator != 1) || (def.eeFreqScaleDenominator != 1))
+	{
+		//If not running at base EE frequency, assume that IOP is running at 1.33x speed.
+		//TODO: Find a better way to specify that through some kind of base profile.
+		static const uint32 baseSamplingRate = Iop::Spu2::CCore::DEFAULT_BASE_SAMPLING_RATE * 4 / 3;
+		virtualMachine->m_iop->m_spu2.GetCore(0)->SetBaseSamplingRate(baseSamplingRate);
+		virtualMachine->m_iop->m_spu2.GetCore(1)->SetBaseSamplingRate(baseSamplingRate);
+	}
 }
 
 void ApplyPatchesFromArcadeDefinition(CPS2VM* virtualMachine, const ARCADE_MACHINE_DEF& def)

@@ -4,7 +4,6 @@
 #include "string_format.h"
 
 #define LOG_NAME_FORMAT ("iop_spu2_core_%d")
-#define SPU_BASE_SAMPLING_RATE (48000)
 
 using namespace Iop;
 using namespace Iop::Spu2;
@@ -71,6 +70,12 @@ CCore::CCore(unsigned int coreId, CSpuBase& spuBase)
 
 void CCore::Reset()
 {
+	m_baseSamplingRate = DEFAULT_BASE_SAMPLING_RATE;
+}
+
+void CCore::SetBaseSamplingRate(uint32 baseSamplingRate)
+{
+	m_baseSamplingRate = baseSamplingRate;
 }
 
 CSpuBase& CCore::GetSpuBase() const
@@ -207,7 +212,7 @@ uint32 CCore::WriteRegisterCore(unsigned int channelId, uint32 address, uint32 v
 		switch(address)
 		{
 		case CORE_ATTR:
-			m_spuBase.SetBaseSamplingRate(SPU_BASE_SAMPLING_RATE);
+			m_spuBase.SetBaseSamplingRate(m_baseSamplingRate);
 			m_spuBase.SetControl(static_cast<uint16>(value));
 			break;
 		case A_STD:

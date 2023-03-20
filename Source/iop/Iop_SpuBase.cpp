@@ -186,7 +186,7 @@ void CSpuBase::Reset()
 	m_reverbCurrAddr = 0;
 	m_reverbWorkAddrStart = 0;
 	m_reverbWorkAddrEnd = 0x80000;
-	m_baseSamplingRate = 44100;
+	m_baseSamplingRate = INIT_SAMPLE_RATE;
 
 	memset(m_channel, 0, sizeof(m_channel));
 	memset(m_reverb, 0, sizeof(m_reverb));
@@ -326,6 +326,7 @@ void CSpuBase::SetControl(uint16 value)
 void CSpuBase::SetBaseSamplingRate(uint32 samplingRate)
 {
 	m_baseSamplingRate = samplingRate;
+	m_blockReader.SetBaseSamplingRate(samplingRate);
 }
 
 bool CSpuBase::GetIrqPending() const
@@ -1400,7 +1401,13 @@ void CSpuBase::CSampleReader::ClearDidChangeRepeat()
 
 void CSpuBase::CBlockSampleReader::Reset()
 {
+	m_baseSamplingRate = INIT_SAMPLE_RATE;
 	m_srcSampleIdx = SOUND_INPUT_DATA_SAMPLES * TIME_SCALE;
+}
+
+void CSpuBase::CBlockSampleReader::SetBaseSamplingRate(uint32 baseSamplingRate)
+{
+	m_baseSamplingRate = baseSamplingRate;
 }
 
 bool CSpuBase::CBlockSampleReader::CanReadSamples() const
@@ -1424,5 +1431,5 @@ void CSpuBase::CBlockSampleReader::GetSamples(int16& sampleL, int16& sampleR, un
 	sampleL = inputSamples[0x000 + srcSampleIdx];
 	sampleR = inputSamples[0x100 + srcSampleIdx];
 
-	m_srcSampleIdx += (SRC_SAMPLING_RATE * TIME_SCALE) / dstSamplingRate;
+	m_srcSampleIdx += (m_baseSamplingRate * TIME_SCALE) / dstSamplingRate;
 }

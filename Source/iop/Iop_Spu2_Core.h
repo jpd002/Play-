@@ -12,6 +12,11 @@ namespace Iop
 		class CCore
 		{
 		public:
+			enum
+			{
+				DEFAULT_BASE_SAMPLING_RATE = 48000,
+			};
+
 			CCore(unsigned int, CSpuBase&);
 			virtual ~CCore() = default;
 
@@ -19,6 +24,7 @@ namespace Iop
 			CCore& operator=(const CCore&) = delete;
 
 			void Reset();
+			void SetBaseSamplingRate(uint32);
 
 			CSpuBase& GetSpuBase() const;
 
@@ -123,6 +129,7 @@ namespace Iop
 			REGISTER_DISPATCH_INFO m_writeDispatch;
 			unsigned int m_coreId;
 			std::string m_logName;
+			uint32 m_baseSamplingRate = 0;
 			CSpuBase& m_spuBase;
 		};
 	};

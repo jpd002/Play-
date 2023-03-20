@@ -335,17 +335,14 @@ namespace Iop
 		{
 		public:
 			void Reset();
+			void SetBaseSamplingRate(uint32);
 			bool CanReadSamples() const;
 
 			void FillBlock(const uint8*);
 			void GetSamples(int16&, int16&, unsigned int);
 
 		private:
-			enum
-			{
-				SRC_SAMPLING_RATE = 48000,
-			};
-
+			uint32 m_baseSamplingRate = 0;
 			uint32 m_srcSampleIdx = 0;
 			uint8 m_blockBuffer[SOUND_INPUT_DATA_SIZE];
 		};
