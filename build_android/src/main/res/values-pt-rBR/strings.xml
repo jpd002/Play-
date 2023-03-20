@@ -93,7 +93,7 @@
 
 	<string name="preferences_theme">Configurações de tema</string>
 
-	<string name="pref_title_theme_selection">Seleção de trema</string>
+	<string name="pref_title_theme_selection">Seleção de tema</string>
 
 	<string-array name="pref_theme_selection_titles">
 		<item>Âmbar</item>
