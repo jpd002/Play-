@@ -162,7 +162,7 @@ void ProcessJvsPacket(const uint8* input, uint8* output)
 
 			(*output++) = 0x01; //Switch input
 			(*output++) = 0x02; //2 players
-			(*output++) = 0x0C; //12 switches
+			(*output++) = 0x10; //16 switches
 			(*output++) = 0x00;
 
 			(*output++) = 0x00; //End of features
@@ -187,7 +187,8 @@ void ProcessJvsPacket(const uint8* input, uint8* output)
 			assert(inSize >= 2);
 			uint8 playerCount = (*input++);
 			uint8 byteCount = (*input++);
-			assert(playerCount == 2);
+			assert(playerCount >= 1);
+			assert(playerCount <= 2);
 			assert(byteCount == 2);
 			inWorkChecksum += playerCount;
 			inWorkChecksum += byteCount;
@@ -198,10 +199,14 @@ void ProcessJvsPacket(const uint8* input, uint8* output)
 			(*output++) = (g_jvsSystemButtonState == 0x03) ? 0x80 : 0; //Test
 			(*output++) = static_cast<uint8>(g_jvsButtonState);        //Player 1
 			(*output++) = static_cast<uint8>(g_jvsButtonState >> 8);   //Player 1
-			(*output++) = 0x00;                                        //Player 2
-			(*output++) = 0x00;                                        //Player 2
-
-			(*dstSize) += 6;
+			(*dstSize) += 4;
+			
+			if(playerCount == 2)
+			{
+				(*output++) = 0x00;                                    //Player 2
+				(*output++) = 0x00;                                    //Player 2
+				(*dstSize) += 2;
+			}
 		}
 		break;
 		case JVS_CMD_COININP:
