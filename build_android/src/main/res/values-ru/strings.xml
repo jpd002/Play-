@@ -123,12 +123,6 @@
 		<item>Оригинальный размер</item>
 	</string-array>
 
-	<string-array name="pref_emu_audio_spublockcount_entries">
-		<item>400</item>
-		<item>100</item>
-		<item>10</item>
-	</string-array>
-
 	<!-- Emulator Drawer -->
 
 	<string name="emulator_drawer_exit">Выход</string>
