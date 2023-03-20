@@ -50,6 +50,8 @@ void CNamcoArcade::Invoke(CMIPS& context, unsigned int functionId)
 
 uint16 g_jvsButtonState = 0;
 uint16 g_jvsSystemButtonState = 0;
+uint16 g_jvsGunPosX = 0x7FFF;
+uint16 g_jvsGunPosY = 0x7FFF;
 
 //Ref: http://daifukkat.su/files/jvs_wip.pdf
 enum
@@ -165,9 +167,14 @@ void ProcessJvsPacket(const uint8* input, uint8* output)
 			(*output++) = 0x10; //16 switches
 			(*output++) = 0x00;
 
-			(*output++) = 0x00; //End of features
+			(*output++) = 0x06; //Screen Pos Input
+			(*output++) = 0x10; //X pos bits
+			(*output++) = 0x10; //Y pos bits
+			(*output++) = 0x01; //channels
 
-			(*dstSize) += 10;
+			(*output++) = 0x00; //End of features
+			
+			(*dstSize) += 14;
 		}
 		break;
 		case JVS_CMD_MAINID:
@@ -232,6 +239,24 @@ void ProcessJvsPacket(const uint8* input, uint8* output)
 
 				(*dstSize) += 2;
 			}
+		}
+		break;
+		case JVS_CMD_SCRPOSINP:
+		{
+			assert(inSize != 0);
+			uint8 channel = (*input++);
+			assert(channel == 1);
+			inWorkChecksum += channel;
+			inSize--;
+			
+			(*output++) = 0x01; //Command success
+
+			(*output++) = static_cast<uint8>(g_jvsGunPosX >> 8); //Pos X MSB
+			(*output++) = static_cast<uint8>(g_jvsGunPosX); //Pos X LSB
+			(*output++) = static_cast<uint8>(g_jvsGunPosY >> 8); //Pos Y MSB
+			(*output++) = static_cast<uint8>(g_jvsGunPosY); //Pos Y LSB
+			
+			(*dstSize) += 5;
 		}
 		break;
 		default:
