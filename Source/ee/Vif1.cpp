@@ -102,22 +102,18 @@ void CVif1::ExecuteCommand(StreamType& stream, CODE nCommand)
 #endif
 	switch(nCommand.nCMD)
 	{
-	case 0x02:
-		//OFFSET
+	case CODE_CMD_OFFSET:
 		m_OFST = nCommand.nIMM;
 		m_STAT.nDBF = 0;
 		m_TOPS = m_BASE;
 		break;
-	case 0x03:
-		//BASE
+	case CODE_CMD_BASE:
 		m_BASE = nCommand.nIMM;
 		break;
-	case 0x06:
-		//MSKPATH3
+	case CODE_CMD_MSKPATH3:
 		m_gif.SetPath3Masked((nCommand.nIMM & 0x8000) != 0);
 		break;
-	case 0x11:
-		//FLUSH
+	case CODE_CMD_FLUSH:
 		if(m_vpu.IsVuRunning())
 		{
 			m_STAT.nVEW = 1;
@@ -132,8 +128,7 @@ void CVif1::ExecuteCommand(StreamType& stream, CODE nCommand)
 			return;
 		}
 		break;
-	case 0x13:
-		//FLUSHA
+	case CODE_CMD_FLUSHA:
 		if(m_vpu.IsVuRunning())
 		{
 			m_STAT.nVEW = 1;
@@ -148,9 +143,8 @@ void CVif1::ExecuteCommand(StreamType& stream, CODE nCommand)
 			return;
 		}
 		break;
-	case 0x50:
-	case 0x51:
-		//DIRECT/DIRECTHL
+	case CODE_CMD_DIRECT:
+	case CODE_CMD_DIRECTHL:
 		Cmd_DIRECT(stream, nCommand);
 		break;
 	default:
