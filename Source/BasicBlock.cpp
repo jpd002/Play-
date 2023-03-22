@@ -82,9 +82,9 @@ void CBasicBlock::Compile()
 	{
 		static
 #ifdef AOT_BUILD_CACHE
-		    __declspec(thread)
+		    thread_local
 #endif
-		        CMipsJitter* jitter = nullptr;
+		    CMipsJitter* jitter = nullptr;
 		if(jitter == nullptr)
 		{
 			Jitter::CCodeGen* codeGen = Jitter::CreateCodeGen();
