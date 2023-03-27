@@ -22,6 +22,12 @@ namespace VUShared
 		LATENCY_RSQRT = 13
 	};
 
+	enum VU_UPPEROP_BIT
+	{
+		VU_UPPEROP_BIT_I = 0x80000000,
+		VU_UPPEROP_BIT_E = 0x40000000
+	};
+
 	enum VECTOR_COMP
 	{
 		VECTOR_COMPX = 0,
