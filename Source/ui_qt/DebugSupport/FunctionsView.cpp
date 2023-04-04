@@ -227,21 +227,58 @@ void CFunctionsView::OnDeleteClick()
 	if(!m_context) return;
 
 	auto items = m_treeWidget->selectedItems();
-	if(items.size() == 0 || items.first()->childCount() > 0)
+	if(items.size() == 0)
 		return;
 
-	auto selectedAddressStr = items.first()->text(1).toStdString();
-	uint32 nAddress = lexical_cast_hex(selectedAddressStr);
-
-	int ret = QMessageBox::warning(this, tr("Delete this function?"),
-	                               tr("Are you sure you want to delete this function?"),
-	                               QMessageBox::Ok | QMessageBox::Cancel, QMessageBox::Ok);
-	if(ret != QMessageBox::Ok)
+	auto selectedItem = items.first();
+	if(selectedItem->childCount() != 0)
 	{
-		return;
+		auto selectedModuleName = selectedItem->text(0);
+		if(selectedModuleName == DEFAULT_GROUPNAME)
+		{
+			return;
+		}
+
+		int ret = QMessageBox::warning(this, tr("Delete functions?"),
+		                               QString("Are you sure you want to delete functions from module '%0'?").arg(selectedModuleName),
+		                               QMessageBox::Ok | QMessageBox::Cancel, QMessageBox::Ok);
+		if(ret != QMessageBox::Ok)
+		{
+			return;
+		}
+
+		std::vector<uint32> toDelete;
+		for(auto tagIterator = m_context->m_Functions.GetTagsBegin();
+		    tagIterator != m_context->m_Functions.GetTagsEnd(); tagIterator++)
+		{
+			auto tagGroupItem = GetFunctionGroup(tagIterator->first);
+			if(tagGroupItem == selectedItem)
+			{
+				toDelete.push_back(tagIterator->first);
+			}
+		}
+
+		for(auto address : toDelete)
+		{
+			m_context->m_Functions.InsertTag(address, nullptr);
+		}
+	}
+	else
+	{
+		auto selectedAddressStr = selectedItem->text(1).toStdString();
+		uint32 nAddress = lexical_cast_hex(selectedAddressStr);
+
+		int ret = QMessageBox::warning(this, tr("Delete this function?"),
+		                               tr("Are you sure you want to delete this function?"),
+		                               QMessageBox::Ok | QMessageBox::Cancel, QMessageBox::Ok);
+		if(ret != QMessageBox::Ok)
+		{
+			return;
+		}
+
+		m_context->m_Functions.InsertTag(nAddress, nullptr);
 	}
 
-	m_context->m_Functions.InsertTag(nAddress, NULL);
 	RefreshList();
 
 	OnFunctionsStateChange();
