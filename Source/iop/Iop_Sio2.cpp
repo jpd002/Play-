@@ -474,6 +474,9 @@ void CSio2::ProcessMultitap(unsigned int portId, size_t outputOffset, uint32 dst
 		m_outputBuffer[outputOffset + 0x05] = 0;
 		CLog::GetInstance().Print(LOG_NAME, "Multitap: ChangeSlot();\r\n");
 		break;
+	default:
+		CLog::GetInstance().Warn(LOG_NAME, "Multitap: Unknown command 0x%02X.\r\n", cmd);
+		break;
 	}
 }
 
