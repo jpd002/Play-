@@ -90,6 +90,7 @@ namespace Iop
 		uint32 m_regs[MAX_REGS];
 		uint32 m_ctrl1[MAX_PORTS];
 		uint32 m_ctrl2[MAX_PORTS];
+		uint32 m_stat6C;
 		ByteBufferType m_inputBuffer;
 		ByteBufferType m_outputBuffer;
 

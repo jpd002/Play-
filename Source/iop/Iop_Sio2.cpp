@@ -17,6 +17,7 @@
 
 #define STATE_REGS_XML ("sio2/regs.xml")
 #define STATE_REGS_CURRENTREGINDEX ("CurrentRegIndex")
+#define STATE_REGS_STAT6C ("Stat6C")
 
 using namespace Iop;
 
@@ -57,6 +58,7 @@ void CSio2::Reset()
 	memset(m_regs, 0, sizeof(m_regs));
 	memset(m_ctrl1, 0, sizeof(m_ctrl1));
 	memset(m_ctrl2, 0, sizeof(m_ctrl2));
+	m_stat6C = 0;
 	memset(&m_padState, 0, sizeof(m_padState));
 	for(auto& padInfo : m_padState)
 	{
@@ -85,6 +87,7 @@ void CSio2::LoadState(Framework::CZipArchiveReader& archive)
 	{
 		CRegisterStateFile registerFile(*archive.BeginReadFile(STATE_REGS_XML));
 		m_currentRegIndex = registerFile.GetRegister32(STATE_REGS_CURRENTREGINDEX);
+		m_stat6C = registerFile.GetRegister32(STATE_REGS_STAT6C);
 	}
 
 	archive.BeginReadFile(STATE_REGS)->Read(&m_regs, sizeof(m_regs));
@@ -104,6 +107,7 @@ void CSio2::SaveState(Framework::CZipArchiveWriter& archive)
 	{
 		auto registerFile = new CRegisterStateFile(STATE_REGS_XML);
 		registerFile->SetRegister32(STATE_REGS_CURRENTREGINDEX, m_currentRegIndex);
+		registerFile->SetRegister32(STATE_REGS_STAT6C, m_stat6C);
 		archive.InsertFile(registerFile);
 	}
 
@@ -156,6 +160,9 @@ uint32 CSio2::ReadRegister(uint32 address)
 	case REG_DATA_IN:
 		value = m_outputBuffer.front();
 		m_outputBuffer.pop_front();
+		break;
+	case REG_STAT6C:
+		value = m_stat6C;
 		break;
 	}
 #ifdef _DEBUG
@@ -255,6 +262,7 @@ void CSio2::ProcessCommand()
 		uint32 deviceId = m_ctrl2[portId];
 		size_t outputOffset = m_outputBuffer.size();
 
+		m_stat6C = 0;
 		for(unsigned int i = 0; i < dstSize; i++)
 		{
 			m_outputBuffer.push_back(0xFF);
@@ -459,6 +467,10 @@ void CSio2::ProcessController(unsigned int portId, size_t outputOffset, uint32 d
 
 void CSio2::ProcessMultitap(unsigned int portId, size_t outputOffset, uint32 dstSize, uint32 srcSize)
 {
+	//Mark command as error/invalid to prevent MTAPMAN from reporting that there's a multitap in that slot.
+	//Time Crisis 3 refuses to check for memory card if a multitap is connected in slot 0.
+	//We don't properly support multitap at the moment, so, no point in giving the impression we have one.
+	m_stat6C = 0x10000;
 	uint8 cmd = m_inputBuffer[1];
 	switch(cmd)
 	{
@@ -600,6 +612,9 @@ void CSio2::DisassembleRead(uint32 address, uint32 value)
 		break;
 	case REG_CTRL:
 		CLog::GetInstance().Print(LOG_NAME, "= REG_CTRL = 0x%08X\r\n", value);
+		break;
+	case REG_STAT6C:
+		CLog::GetInstance().Print(LOG_NAME, "= REG_STAT6C = 0x%08X\r\n", value);
 		break;
 	default:
 		CLog::GetInstance().Print(LOG_NAME, "Read an unknown register 0x%08X.\r\n", address);
