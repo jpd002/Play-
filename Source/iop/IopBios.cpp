@@ -905,6 +905,7 @@ void CIopBios::ProcessModuleReset(const std::string& initCommand)
 	m_loadcore->SetModuleVersion(imageVersion);
 #ifdef _IOP_EMULATE_MODULES
 	m_fileIo->SetModuleVersion(imageVersion);
+	m_mcserv->SetModuleVersion(imageVersion);
 #endif
 }
 

@@ -125,6 +125,8 @@ namespace Iop
 		CMcServ(CIopBios&, CSifMan&, CSifCmd&, CSysmem&, uint8*);
 		virtual ~CMcServ() = default;
 
+		void SetModuleVersion(unsigned int);
+
 		static const char* GetMcPathPreference(unsigned int);
 		static std::string EncodeMcName(const std::string&);
 		static std::string DecodeMcName(const std::string&);
@@ -213,7 +215,7 @@ namespace Iop
 		void GetSlotMax(uint32*, uint32, uint32*, uint32, uint8*);
 		bool ReadFast(uint32*, uint32, uint32*, uint32, uint8*);
 		void WriteFast(uint32*, uint32, uint32*, uint32, uint8*);
-		void GetVersionInformation(uint32*, uint32, uint32*, uint32, uint8*);
+		void Init(uint32*, uint32, uint32*, uint32, uint8*);
 
 		bool HandleInvalidPortOrSlot(uint32, uint32, uint32*);
 

@@ -63,6 +63,16 @@ CMcServ::CMcServ(CIopBios& bios, CSifMan& sifMan, CSifCmd& sifCmd, CSysmem& sysM
 	m_moduleDataAddr = m_sysMem.AllocateMemory(sizeof(MODULEDATA), 0, 0);
 	sifMan.RegisterModule(MODULE_ID, this);
 	BuildCustomCode();
+	SetModuleVersion(1000);
+}
+
+void CMcServ::SetModuleVersion(unsigned int)
+{
+	//We don't really care about the version here.
+
+	//SetModuleVersion is called when IOP is reset, make sure we also reset the state of this module.
+	//Calling Init doesn't reset the state of known memory cards.
+	//It's probably only reset when the module is reloaded.
 
 	for(bool& knownMemoryCard : m_knownMemoryCards)
 	{
@@ -260,8 +270,7 @@ bool CMcServ::Invoke(uint32 method, uint32* args, uint32 argsSize, uint32* ret, 
 		break;
 	case 0xFE:
 	case 0x70:
-		//Get version?
-		GetVersionInformation(args, argsSize, ret, retSize, ram);
+		Init(args, argsSize, ret, retSize, ram);
 		break;
 	default:
 		CLog::GetInstance().Warn(LOG_NAME, "Unknown RPC method invoked (0x%08X).\r\n", method);
@@ -987,7 +996,7 @@ void CMcServ::WriteFast(uint32* args, uint32 argsSize, uint32* ret, uint32 retSi
 	ret[0] = result;
 }
 
-void CMcServ::GetVersionInformation(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
+void CMcServ::Init(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
 {
 	assert(argsSize == 0x30);
 	assert(retSize == 0x0C);
@@ -995,11 +1004,6 @@ void CMcServ::GetVersionInformation(uint32* args, uint32 argsSize, uint32* ret, 
 	ret[0] = 0x00000000;
 	ret[1] = 0x0000020A; //mcserv version
 	ret[2] = 0x0000020E; //mcman version
-
-	for(bool& knownMemoryCard : m_knownMemoryCards)
-	{
-		knownMemoryCard = false;
-	}
 
 	CLog::GetInstance().Print(LOG_NAME, "Init();\r\n");
 }
