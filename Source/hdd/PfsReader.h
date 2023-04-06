@@ -1,8 +1,9 @@
 #pragma once
 
 #include "Stream.h"
-#include "PfsDefs.h"
+#include "HddDefs.h"
 #include "ApaDefs.h"
+#include "PfsDefs.h"
 
 namespace Hdd
 {
@@ -12,13 +13,16 @@ namespace Hdd
 		CPfsReader(Framework::CStream&, const APA_HEADER&);
 
 		class CPfsFileReader* GetFileStream(const char*);
+		class CPfsDirectoryReader* GetDirectoryReader(const char*);
 
 		uint32 GetZoneSize() const;
 		uint32 GetBlockLba(uint32, uint32) const;
 
-	private:
 		PFS_INODE ReadInode(uint32, uint32);
 
+	private:
+		bool TryGetInodeFromPath(const char*, PFS_INODE&);
+		
 		Framework::CStream& m_stream;
 
 		APA_HEADER m_partitionHeader = {};
@@ -45,5 +49,29 @@ namespace Hdd
 
 		uint64 m_position = 0;
 		bool m_isEof = false;
+	};
+
+	class CPfsDirectoryReader
+	{
+	public:
+		CPfsDirectoryReader(CPfsReader&, Framework::CStream&, PFS_INODE);
+		
+		void ReadEntry(std::string&, PFS_INODE&);
+		bool IsDone() const;
+		
+	private:
+		static const uint32_t g_dirBlockSize = Hdd::g_sectorSize << PFS_BLOCK_SCALE;
+
+		void Advance();
+		
+		CPfsReader& m_reader;
+		PFS_INODE m_inode;
+		
+		uint8 m_dirBlock[g_dirBlockSize];
+		uint8* m_dirBlockCurr = nullptr;
+		uint8* m_dirBlockEnd = nullptr;
+		
+		std::string m_currentEntryName;
+		PFS_INODE m_currentEntryInode;
 	};
 }
