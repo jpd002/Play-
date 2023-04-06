@@ -213,7 +213,8 @@ void ProcessJvsPacket(const uint8* input, uint8* output)
 		{
 			assert(inSize != 0);
 			uint8 slotCount = (*input++);
-			assert(slotCount == 2);
+			assert(slotCount >= 1);
+			assert(slotCount <= 2);
 			inWorkChecksum += slotCount;
 			inSize--;
 
@@ -221,10 +222,16 @@ void ProcessJvsPacket(const uint8* input, uint8* output)
 
 			(*output++) = 0x00; //Coin 1 MSB
 			(*output++) = 0x00; //Coin 1 LSB
-			(*output++) = 0x00; //Coin 2 MSB
-			(*output++) = 0x00; //Coin 2 LSB
+			
+			(*dstSize) += 3;
 
-			(*dstSize) += 5;
+			if(slotCount == 2)
+			{
+				(*output++) = 0x00; //Coin 2 MSB
+				(*output++) = 0x00; //Coin 2 LSB
+
+				(*dstSize) += 2;
+			}
 		}
 		break;
 		default:
