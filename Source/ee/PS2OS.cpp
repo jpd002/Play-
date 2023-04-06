@@ -2121,6 +2121,14 @@ void CPS2OS::sc_DeleteThread()
 		return;
 	}
 
+	//Prevent deletion of idle thread.
+	//Taiko no Tatsujin 14 tries to delete all threads (including this one) before starting a new EE exec
+	if(id == m_idleThreadId)
+	{
+		m_ee.m_State.nGPR[SC_RETURN].nD0 = static_cast<int32>(-1);
+		return;
+	}
+
 	if(id >= MAX_THREAD)
 	{
 		m_ee.m_State.nGPR[SC_RETURN].nD0 = static_cast<int32>(-1);
