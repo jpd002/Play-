@@ -249,7 +249,7 @@ void CPfsDirectoryReader::Advance()
 	{
 		//We're done
 		m_dirBlockCurr = m_dirBlockEnd;
-		return false;
+		return;
 	}
 	assert((m_dirBlockEnd - m_dirBlockCurr) >= entryLength);
 	std::string entryName;
