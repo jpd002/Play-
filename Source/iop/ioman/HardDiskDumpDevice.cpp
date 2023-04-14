@@ -115,9 +115,8 @@ DirectoryIteratorPtr CHardDiskDumpPartitionDevice::GetDirectory(const char* path
 }
 
 CHardDiskDumpPartitionDirectoryIterator::CHardDiskDumpPartitionDirectoryIterator(Hdd::CPfsDirectoryReader* reader)
-: m_reader(reader)
+    : m_reader(reader)
 {
-	
 }
 
 CHardDiskDumpPartitionDirectoryIterator::~CHardDiskDumpPartitionDirectoryIterator()

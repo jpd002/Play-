@@ -56,7 +56,7 @@ bool CPfsReader::TryGetInodeFromPath(const char* path, PFS_INODE& resultInode)
 			return false;
 		}
 	}
-	
+
 	resultInode = sectionInode;
 	return true;
 }
@@ -211,19 +211,19 @@ bool CPfsFileReader::IsEOF()
 }
 
 CPfsDirectoryReader::CPfsDirectoryReader(CPfsReader& reader, Framework::CStream& stream, PFS_INODE inode)
-: m_reader(reader)
-, m_inode(inode)
+    : m_reader(reader)
+    , m_inode(inode)
 {
 	assert((inode.mode & 0xF000) == 0x1000);
 	assert(inode.dataCount == 2);
-	
+
 	uint32 dirLba = reader.GetBlockLba(inode.data[1].number, inode.data[1].subPart);
 
 	stream.Seek(dirLba * g_sectorSize, Framework::STREAM_SEEK_SET);
 	stream.Read(m_dirBlock, sizeof(m_dirBlock));
 	m_dirBlockCurr = m_dirBlock;
 	m_dirBlockEnd = m_dirBlock + g_dirBlockSize;
-	
+
 	Advance();
 }
 
@@ -258,7 +258,7 @@ void CPfsDirectoryReader::Advance()
 		entryName += m_dirBlockCurr[sizeof(PFS_DIRENTRY) + i];
 	}
 	m_dirBlockCurr += entryLength;
-	
+
 	m_currentEntryName = entryName;
 	m_currentEntryInode = m_reader.ReadInode(dirEntry->inode, dirEntry->subPart);
 }

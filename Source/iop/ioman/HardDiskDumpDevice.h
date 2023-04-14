@@ -48,18 +48,18 @@ namespace Iop
 		private:
 			Hdd::CPfsReader m_pfsReader;
 		};
-	
+
 		class CHardDiskDumpPartitionDirectoryIterator : public CDirectoryIterator
 		{
 		public:
 			CHardDiskDumpPartitionDirectoryIterator(Hdd::CPfsDirectoryReader*);
 			virtual ~CHardDiskDumpPartitionDirectoryIterator();
-			
+
 			void ReadEntry(DIRENTRY*) override;
 			bool IsDone() override;
 
 		private:
-			Hdd::CPfsDirectoryReader* m_reader = nullptr;;
+			Hdd::CPfsDirectoryReader* m_reader = nullptr;
 		};
 	}
 }

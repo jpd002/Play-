@@ -200,11 +200,11 @@ void ProcessJvsPacket(const uint8* input, uint8* output)
 			(*output++) = static_cast<uint8>(g_jvsButtonState);        //Player 1
 			(*output++) = static_cast<uint8>(g_jvsButtonState >> 8);   //Player 1
 			(*dstSize) += 4;
-			
+
 			if(playerCount == 2)
 			{
-				(*output++) = 0x00;                                    //Player 2
-				(*output++) = 0x00;                                    //Player 2
+				(*output++) = 0x00; //Player 2
+				(*output++) = 0x00; //Player 2
 				(*dstSize) += 2;
 			}
 		}
@@ -222,7 +222,7 @@ void ProcessJvsPacket(const uint8* input, uint8* output)
 
 			(*output++) = 0x00; //Coin 1 MSB
 			(*output++) = 0x00; //Coin 1 LSB
-			
+
 			(*dstSize) += 3;
 
 			if(slotCount == 2)

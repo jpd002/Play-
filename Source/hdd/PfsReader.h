@@ -22,7 +22,7 @@ namespace Hdd
 
 	private:
 		bool TryGetInodeFromPath(const char*, PFS_INODE&);
-		
+
 		Framework::CStream& m_stream;
 
 		APA_HEADER m_partitionHeader = {};
@@ -55,22 +55,22 @@ namespace Hdd
 	{
 	public:
 		CPfsDirectoryReader(CPfsReader&, Framework::CStream&, PFS_INODE);
-		
+
 		void ReadEntry(std::string&, PFS_INODE&);
 		bool IsDone() const;
-		
+
 	private:
 		static const uint32_t g_dirBlockSize = Hdd::g_sectorSize << PFS_BLOCK_SCALE;
 
 		void Advance();
-		
+
 		CPfsReader& m_reader;
 		PFS_INODE m_inode;
-		
+
 		uint8 m_dirBlock[g_dirBlockSize];
 		uint8* m_dirBlockCurr = nullptr;
 		uint8* m_dirBlockEnd = nullptr;
-		
+
 		std::string m_currentEntryName;
 		PFS_INODE m_currentEntryInode;
 	};
