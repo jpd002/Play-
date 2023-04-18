@@ -1332,9 +1332,9 @@ bool CIPU::CBDECCommand::Execute()
 			BLOCKENTRY& blockInfo(m_blocks[m_currentBlockIndex]);
 			int16 blockTemp[0x40];
 
-			InverseScan(blockInfo.block, m_context.isZigZag);
 			DequantiseBlock(blockInfo.block, (m_command.mbi != 0), m_command.qsc,
 			                m_context.isLinearQScale, m_context.dcPrecision, m_context.intraIq, m_context.nonIntraIq);
+			InverseScan(blockInfo.block, m_context.isZigZag);
 
 			memcpy(blockTemp, blockInfo.block, sizeof(int16) * 0x40);
 
