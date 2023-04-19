@@ -312,10 +312,13 @@ void CNamcoArcade::SetButtonState(unsigned int padNumber, PS2::CControllerInfo::
 	        0x0000, //R2,
 	        0x0001, //R3,
 	    };
-	g_jvsButtonState &= ~buttonBits[button];
-	g_jvsButtonState |= (pressed ? buttonBits[button] : 0);
-	g_jvsSystemButtonState &= ~systemButtonBits[button];
-	g_jvsSystemButtonState |= (pressed ? systemButtonBits[button] : 0);
+	if(padNumber == 0)
+	{
+		g_jvsButtonState &= ~buttonBits[button];
+		g_jvsButtonState |= (pressed ? buttonBits[button] : 0);
+		g_jvsSystemButtonState &= ~systemButtonBits[button];
+		g_jvsSystemButtonState |= (pressed ? systemButtonBits[button] : 0);
+	}
 	//The following code path is for handling JVSIF which only earlier games use
 	if(m_recvAddr && m_sendAddr)
 	{
