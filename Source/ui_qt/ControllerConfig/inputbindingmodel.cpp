@@ -27,24 +27,21 @@ QVariant CInputBindingModel::data(const QModelIndex& index, int role) const
 	if(role == Qt::DisplayRole)
 	{
 		auto binding = m_inputManager->GetBinding(m_padIndex, static_cast<PS2::CControllerInfo::BUTTON>(index.row()));
-		if(binding != nullptr)
+		switch(index.column())
 		{
-			switch(index.column())
-			{
-			case 0:
-			{
-				std::string str(PS2::CControllerInfo::m_buttonName[index.row()]);
-				std::transform(str.begin(), str.end(), str.begin(), ::toupper);
-				return QVariant(str.c_str());
-			}
+		case 0:
+		{
+			std::string str(PS2::CControllerInfo::m_buttonName[index.row()]);
+			std::transform(str.begin(), str.end(), str.begin(), ::toupper);
+			return QVariant(str.c_str());
+		}
+		break;
+		case 1:
+			return binding ? QVariant(binding->GetBindingTypeName()) : QVariant();
 			break;
-			case 1:
-				return QVariant(binding->GetBindingTypeName());
-				break;
-			case 2:
-				return QVariant(binding->GetDescription(m_inputManager).c_str());
-				break;
-			}
+		case 2:
+			return binding ? QVariant(binding->GetDescription(m_inputManager).c_str()) : QVariant();
+			break;
 		}
 	}
 	return QVariant();
