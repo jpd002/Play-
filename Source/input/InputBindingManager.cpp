@@ -16,6 +16,10 @@
 
 #define CONFIG_POVHATBINDING_REFVALUE ("povhatbinding.refvalue")
 
+#define CONFIG_ANALOG_SENSITIVITY ("analog.sensitivity")
+
+#define DEFAULT_ANALOG_SENSITIVITY (1.0f)
+
 // clang-format off
 uint32 CInputBindingManager::m_buttonDefaultValue[PS2::CControllerInfo::MAX_BUTTONS] =
 {
@@ -99,6 +103,7 @@ static void SaveBindingTargetPreference(Framework::CConfig& config, const char* 
 
 CInputBindingManager::CInputBindingManager()
 {
+	m_analogSensitivity.fill(DEFAULT_ANALOG_SENSITIVITY);
 	m_config = CInputConfig::LoadProfile();
 	Reload();
 }
@@ -155,7 +160,19 @@ void CInputBindingManager::OnInputEventReceived(const BINDINGTARGET& target, uin
 		{
 			auto binding = m_bindings[pad][button];
 			if(!binding) continue;
-			binding->ProcessEvent(target, value);
+			uint32 bindingValue = value;
+			if(PS2::CControllerInfo::IsAxis(static_cast<PS2::CControllerInfo::BUTTON>(button)))
+			{
+				float analogSensitivity = m_analogSensitivity[pad];
+				if(analogSensitivity != 1.0f)
+				{
+					int32 biasedValue = static_cast<int32>(bindingValue) - 128;
+					biasedValue = static_cast<int32>(static_cast<float>(biasedValue) * analogSensitivity);
+					biasedValue = std::clamp(biasedValue, -128, 127);
+					bindingValue = biasedValue + 128;
+				}
+			}
+			binding->ProcessEvent(target, bindingValue);
 		}
 	}
 }
@@ -164,6 +181,7 @@ void CInputBindingManager::Reload()
 {
 	for(unsigned int pad = 0; pad < MAX_PADS; pad++)
 	{
+		m_config->RegisterPreferenceFloat(Framework::CConfig::MakePreferenceName(CONFIG_PREFIX, m_padPreferenceName[pad], CONFIG_ANALOG_SENSITIVITY).c_str(), DEFAULT_ANALOG_SENSITIVITY);
 		for(unsigned int button = 0; button < PS2::CControllerInfo::MAX_BUTTONS; button++)
 		{
 			auto prefBase = Framework::CConfig::MakePreferenceName(CONFIG_PREFIX, m_padPreferenceName[pad], PS2::CControllerInfo::m_buttonName[button]);
@@ -179,6 +197,7 @@ void CInputBindingManager::Reload()
 
 	for(unsigned int pad = 0; pad < MAX_PADS; pad++)
 	{
+		m_analogSensitivity[pad] = m_config->GetPreferenceFloat(Framework::CConfig::MakePreferenceName(CONFIG_PREFIX, m_padPreferenceName[pad], CONFIG_ANALOG_SENSITIVITY).c_str());
 		for(unsigned int button = 0; button < PS2::CControllerInfo::MAX_BUTTONS; button++)
 		{
 			auto prefBase = Framework::CConfig::MakePreferenceName(CONFIG_PREFIX, m_padPreferenceName[pad], PS2::CControllerInfo::m_buttonName[button]);
@@ -222,6 +241,7 @@ void CInputBindingManager::Save()
 {
 	for(unsigned int pad = 0; pad < MAX_PADS; pad++)
 	{
+		m_config->SetPreferenceFloat(Framework::CConfig::MakePreferenceName(CONFIG_PREFIX, m_padPreferenceName[pad], CONFIG_ANALOG_SENSITIVITY).c_str(), m_analogSensitivity[pad]);
 		for(unsigned int button = 0; button < PS2::CControllerInfo::MAX_BUTTONS; button++)
 		{
 			auto prefBase = Framework::CConfig::MakePreferenceName(CONFIG_PREFIX, m_padPreferenceName[pad], PS2::CControllerInfo::m_buttonName[button]);
@@ -248,6 +268,16 @@ const CInputBindingManager::CBinding* CInputBindingManager::GetBinding(uint32 pa
 		throw std::exception();
 	}
 	return m_bindings[pad][button].get();
+}
+
+float CInputBindingManager::GetAnalogSensitivity(uint32 pad) const
+{
+	return m_analogSensitivity[pad];
+}
+
+void CInputBindingManager::SetAnalogSensitivity(uint32 pad, float value)
+{
+	m_analogSensitivity[pad] = value;
 }
 
 uint32 CInputBindingManager::GetBindingValue(uint32 pad, PS2::CControllerInfo::BUTTON button) const

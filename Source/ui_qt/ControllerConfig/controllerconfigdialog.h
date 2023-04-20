@@ -25,6 +25,7 @@ public:
 
 private slots:
 	void bindingsViewDoubleClicked(const QModelIndex& index);
+	void analogSensitivityValueChanged(int);
 
 	void on_buttonBox_clicked(QAbstractButton* button);
 	void on_ConfigAllButton_clicked();

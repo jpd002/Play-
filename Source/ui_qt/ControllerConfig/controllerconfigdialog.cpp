@@ -20,6 +20,10 @@
 #include <iostream>
 #include <cassert>
 
+#define ANALOG_SENSITIVITY_MIN (0.75f)
+#define ANALOG_SENSITIVITY_MAX (1.25f)
+#define ANALOG_SENSITIVITY_SCALE (1000.f)
+
 ControllerConfigDialog::ControllerConfigDialog(CInputBindingManager* inputBindingManager, CInputProviderQtKey* qtKeyInputProvider, QWidget* parent)
     : QDialog(parent)
     , ui(new Ui::ControllerConfigDialog)
@@ -36,6 +40,13 @@ ControllerConfigDialog::ControllerConfigDialog(CInputBindingManager* inputBindin
 		PrepareBindingsView(padIndex);
 		QObject::connect(m_bindingsViews[padIndex], SIGNAL(doubleClicked(const QModelIndex&)), this, SLOT(bindingsViewDoubleClicked(const QModelIndex&)));
 	}
+
+	ui->pad1AnalogSensitivitySlider->setMinimum(ANALOG_SENSITIVITY_MIN * ANALOG_SENSITIVITY_SCALE);
+	ui->pad1AnalogSensitivitySlider->setMaximum(ANALOG_SENSITIVITY_MAX * ANALOG_SENSITIVITY_SCALE);
+	ui->pad1AnalogSensitivitySlider->setValue(m_inputManager->GetAnalogSensitivity(0) * ANALOG_SENSITIVITY_SCALE);
+	analogSensitivityValueChanged(ui->pad1AnalogSensitivitySlider->value());
+	connect(ui->pad1AnalogSensitivitySlider, SIGNAL(sliderMoved(int)), this, SLOT(analogSensitivityValueChanged(int)));
+	connect(ui->pad1AnalogSensitivitySlider, SIGNAL(valueChanged(int)), this, SLOT(analogSensitivityValueChanged(int)));
 
 	PrepareProfiles();
 }
@@ -112,6 +123,13 @@ void ControllerConfigDialog::bindingsViewDoubleClicked(const QModelIndex& index)
 	OpenBindConfigDialog(padIndex, index.row());
 }
 
+void ControllerConfigDialog::analogSensitivityValueChanged(int value)
+{
+	float sensitivityValue = static_cast<float>(value) / ANALOG_SENSITIVITY_SCALE;
+	ui->pad1AnalogSensitivityValueLabel->setText(QString("%1").arg(sensitivityValue, 0, 'f', 3));
+	m_inputManager->SetAnalogSensitivity(0, sensitivityValue);
+}
+
 void ControllerConfigDialog::on_ConfigAllButton_clicked()
 {
 	uint32 padIndex = ui->tabWidget->currentIndex();
@@ -184,6 +202,8 @@ void ControllerConfigDialog::on_comboBox_currentIndexChanged(int index)
 	{
 		static_cast<CInputBindingModel*>(bindingsView->model())->Refresh();
 	}
+
+	ui->pad1AnalogSensitivitySlider->setValue(m_inputManager->GetAnalogSensitivity(0) * ANALOG_SENSITIVITY_SCALE);
 }
 
 void ControllerConfigDialog::on_addProfileButton_clicked()

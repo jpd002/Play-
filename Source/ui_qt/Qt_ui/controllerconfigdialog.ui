@@ -56,6 +56,31 @@ QGroupBox::title {
        <string>Pad1</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout">
+       <item row="1" column="0">
+        <layout class="QHBoxLayout" name="horizontalLayout">
+         <item>
+          <widget class="QLabel" name="label_2">
+           <property name="text">
+            <string>Analog Stick Sensitivity:</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QSlider" name="pad1AnalogSensitivitySlider">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="pad1AnalogSensitivityValueLabel">
+           <property name="text">
+            <string>1.000</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
        <item row="0" column="0">
         <widget class="QTableView" name="pad1TableView"/>
        </item>

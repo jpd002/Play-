@@ -62,6 +62,9 @@ public:
 	void SetPovHatBinding(uint32, PS2::CControllerInfo::BUTTON, const BINDINGTARGET&, uint32);
 	void SetSimulatedAxisBinding(uint32, PS2::CControllerInfo::BUTTON, const BINDINGTARGET&, const BINDINGTARGET&);
 
+	float GetAnalogSensitivity(uint32) const;
+	void SetAnalogSensitivity(uint32, float);
+
 	void Reload();
 	void Load(std::string);
 	void Save();
@@ -149,6 +152,7 @@ private:
 	void OnInputEventReceived(const BINDINGTARGET&, uint32);
 
 	BindingPtr m_bindings[MAX_PADS][PS2::CControllerInfo::MAX_BUTTONS];
+	std::array<float, MAX_PADS> m_analogSensitivity;
 	static uint32 m_buttonDefaultValue[PS2::CControllerInfo::MAX_BUTTONS];
 	static const char* m_padPreferenceName[MAX_PADS];
 
