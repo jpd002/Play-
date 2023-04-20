@@ -143,6 +143,7 @@ MainWindow::~MainWindow()
 	{
 		m_virtualMachine->Pause();
 		m_qtKeyInputProvider.reset();
+		m_qtMouseInputProvider.reset();
 		m_virtualMachine->DestroyPadHandler();
 		m_virtualMachine->DestroyGSHandler();
 		m_virtualMachine->DestroySoundHandler();
@@ -176,7 +177,9 @@ void MainWindow::InitVirtualMachine()
 
 		//Create QtKeyInputProvider
 		m_qtKeyInputProvider = std::make_shared<CInputProviderQtKey>();
+		m_qtMouseInputProvider = std::make_shared<CInputProviderQtMouse>();
 		bindingManager.RegisterInputProvider(m_qtKeyInputProvider);
+		bindingManager.RegisterInputProvider(m_qtMouseInputProvider);
 #ifdef __APPLE__
 		bindingManager.RegisterInputProvider(std::make_shared<CInputProviderMacOsHid>());
 #endif
@@ -250,8 +253,10 @@ void MainWindow::SetupGsHandler()
 	connect(m_outputwindow, SIGNAL(focusOut(QFocusEvent*)), this, SLOT(focusOutEvent(QFocusEvent*)));
 	connect(m_outputwindow, SIGNAL(focusIn(QFocusEvent*)), this, SLOT(focusInEvent(QFocusEvent*)));
 
-	connect(m_outputwindow, SIGNAL(doubleClick(QMouseEvent*)), this, SLOT(doubleClickEvent(QMouseEvent*)));
-	connect(m_outputwindow, SIGNAL(mouseMove(QMouseEvent*)), this, SLOT(mouseMoveEvent(QMouseEvent*)));
+	connect(m_outputwindow, SIGNAL(doubleClick(QMouseEvent*)), this, SLOT(outputWindow_doubleClickEvent(QMouseEvent*)));
+	connect(m_outputwindow, SIGNAL(mouseMove(QMouseEvent*)), this, SLOT(outputWindow_mouseMoveEvent(QMouseEvent*)));
+	connect(m_outputwindow, SIGNAL(mousePress(QMouseEvent*)), this, SLOT(outputWindow_mousePressEvent(QMouseEvent*)));
+	connect(m_outputwindow, SIGNAL(mouseRelease(QMouseEvent*)), this, SLOT(outputWindow_mouseReleaseEvent(QMouseEvent*)));
 	
 	m_OnNewFrameConnection = m_virtualMachine->m_ee->m_gs->OnNewFrame.Connect(std::bind(&CStatsManager::OnNewFrame, &CStatsManager::GetInstance(), m_virtualMachine, std::placeholders::_1));
 }
@@ -822,7 +827,7 @@ void MainWindow::focusInEvent(QFocusEvent* event)
 	}
 }
 
-void MainWindow::doubleClickEvent(QMouseEvent* ev)
+void MainWindow::outputWindow_doubleClickEvent(QMouseEvent* ev)
 {
 	if(ev->button() == Qt::LeftButton)
 	{
@@ -830,7 +835,7 @@ void MainWindow::doubleClickEvent(QMouseEvent* ev)
 	}
 }
 
-void MainWindow::mouseMoveEvent(QMouseEvent* ev)
+void MainWindow::outputWindow_mouseMoveEvent(QMouseEvent* ev)
 {
 	qreal scale = 1.0;
 #if QT_VERSION >= QT_VERSION_CHECK(5, 6, 0)
@@ -840,6 +845,16 @@ void MainWindow::mouseMoveEvent(QMouseEvent* ev)
 	m_virtualMachine->ReportGunPosition(
 										static_cast<float>(ev->x()) / static_cast<float>(w),
 										static_cast<float>(ev->y()) / static_cast<float>(h));
+}
+
+void MainWindow::outputWindow_mousePressEvent(QMouseEvent* ev)
+{
+	m_qtMouseInputProvider->OnMousePress(ev->button());
+}
+
+void MainWindow::outputWindow_mouseReleaseEvent(QMouseEvent* ev)
+{
+	m_qtMouseInputProvider->OnMouseRelease(ev->button());
 }
 
 void MainWindow::on_actionToggleFullscreen_triggered()
@@ -1024,7 +1039,7 @@ void MainWindow::on_actionController_Manager_triggered()
 	auto padHandler = static_cast<CPH_GenericInput*>(m_virtualMachine->GetPadHandler());
 	if(!padHandler) return;
 
-	ControllerConfigDialog ccd(&padHandler->GetBindingManager(), m_qtKeyInputProvider.get(), this);
+	ControllerConfigDialog ccd(&padHandler->GetBindingManager(), m_qtKeyInputProvider.get(), m_qtMouseInputProvider.get(), this);
 	ccd.exec();
 }
 

@@ -75,14 +75,19 @@ void OutputWindow::mouseMoveEvent(QMouseEvent* ev)
 	emit mouseMove(ev);
 }
 
-void OutputWindow::mouseDoubleClickEvent(QMouseEvent* ev)
-{
-	emit doubleClick(ev);
-}
-
 void OutputWindow::mousePressEvent(QMouseEvent* ev)
 {
 	emit mousePress(ev);
+}
+
+void OutputWindow::mouseReleaseEvent(QMouseEvent* ev)
+{
+	emit mouseRelease(ev);
+}
+
+void OutputWindow::mouseDoubleClickEvent(QMouseEvent* ev)
+{
+	emit doubleClick(ev);
 }
 
 void OutputWindow::wheelEvent(QWheelEvent* ev)

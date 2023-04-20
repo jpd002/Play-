@@ -111,6 +111,8 @@ set(QT_SOURCES
 	GSH_OpenGLQt.h
 	InputProviderQtKey.cpp
 	InputProviderQtKey.h
+	InputProviderQtMouse.cpp
+	InputProviderQtMouse.h
 	settingsdialog.cpp
 	settingsdialog.h
 	openglwindow.cpp

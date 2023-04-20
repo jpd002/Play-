@@ -28,13 +28,14 @@ InputEventSelectionDialog::~InputEventSelectionDialog()
 	delete ui;
 }
 
-void InputEventSelectionDialog::Setup(const char* text, CInputBindingManager* inputManager, CInputProviderQtKey* qtKeyInputProvider, uint32 padIndex, PS2::CControllerInfo::BUTTON button)
+void InputEventSelectionDialog::Setup(const char* text, CInputBindingManager* inputManager, CInputProviderQtKey* qtKeyInputProvider, CInputProviderQtMouse* qtMouseInputProvider, uint32 padIndex, PS2::CControllerInfo::BUTTON button)
 {
 	m_inputManager = inputManager;
 	m_padIndex = padIndex;
 	m_button = button;
 	m_buttonName = QString::fromUtf8(text);
 	m_qtKeyInputProvider = qtKeyInputProvider;
+	m_qtMouseInputProvider = qtMouseInputProvider;
 	ui->bindinglabel->setText(m_bindingText.arg(m_buttonName));
 
 	m_inputManager->OverrideInputEventHandler([this](auto target, auto value) { this->onInputEvent(target, value); });
@@ -184,6 +185,16 @@ void InputEventSelectionDialog::keyReleaseEvent(QKeyEvent* ev)
 {
 	if(ev->isAutoRepeat()) return;
 	m_qtKeyInputProvider->OnKeyRelease(ev->key());
+}
+
+void InputEventSelectionDialog::mousePressEvent(QMouseEvent* ev)
+{
+	m_qtMouseInputProvider->OnMousePress(ev->button());
+}
+
+void InputEventSelectionDialog::mouseReleaseEvent(QMouseEvent* ev)
+{
+	m_qtMouseInputProvider->OnMouseRelease(ev->button());
 }
 
 void InputEventSelectionDialog::handleStartCountdown(QString bindingDesc)

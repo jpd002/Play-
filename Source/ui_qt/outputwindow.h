@@ -19,9 +19,10 @@ protected:
 	void focusOutEvent(QFocusEvent*) Q_DECL_OVERRIDE;
 	void focusInEvent(QFocusEvent*) Q_DECL_OVERRIDE;
 	void mouseMoveEvent(QMouseEvent*) Q_DECL_OVERRIDE;
+	void mousePressEvent(QMouseEvent*) Q_DECL_OVERRIDE;
+	void mouseReleaseEvent(QMouseEvent*) Q_DECL_OVERRIDE;
 	void mouseDoubleClickEvent(QMouseEvent*) Q_DECL_OVERRIDE;
 	void wheelEvent(QWheelEvent*) Q_DECL_OVERRIDE;
-	void mousePressEvent(QMouseEvent*) Q_DECL_OVERRIDE;
 
 signals:
 	void keyDown(QKeyEvent*);
@@ -31,6 +32,7 @@ signals:
 	void doubleClick(QMouseEvent*);
 	void mouseMove(QMouseEvent*);
 	void mousePress(QMouseEvent*);
+	void mouseRelease(QMouseEvent*);
 	void mouseWheel(QWheelEvent*);
 
 private slots:

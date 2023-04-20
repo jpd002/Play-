@@ -6,6 +6,7 @@
 #include <thread>
 #include "input/InputBindingManager.h"
 #include "InputProviderQtKey.h"
+#include "InputProviderQtMouse.h"
 
 namespace Ui
 {
@@ -20,11 +21,13 @@ public:
 	explicit InputEventSelectionDialog(QWidget* parent = nullptr);
 	~InputEventSelectionDialog();
 
-	void Setup(const char*, CInputBindingManager*, CInputProviderQtKey*, uint32, PS2::CControllerInfo::BUTTON);
+	void Setup(const char*, CInputBindingManager*, CInputProviderQtKey*, CInputProviderQtMouse*, uint32, PS2::CControllerInfo::BUTTON);
 
 protected:
 	void keyPressEvent(QKeyEvent*) Q_DECL_OVERRIDE;
 	void keyReleaseEvent(QKeyEvent*) Q_DECL_OVERRIDE;
+	void mousePressEvent(QMouseEvent*) Q_DECL_OVERRIDE;
+	void mouseReleaseEvent(QMouseEvent*) Q_DECL_OVERRIDE;
 
 private:
 	enum class STATE
@@ -46,6 +49,7 @@ private:
 	QString m_buttonName;
 	CInputBindingManager* m_inputManager = nullptr;
 	CInputProviderQtKey* m_qtKeyInputProvider = nullptr;
+	CInputProviderQtMouse* m_qtMouseInputProvider = nullptr;
 
 	STATE m_state = STATE::WAITING;
 	BINDINGTARGET m_selectedTarget;

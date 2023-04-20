@@ -12,6 +12,7 @@
 #include "ContinuationChecker.h"
 
 #include "InputProviderQtKey.h"
+#include "InputProviderQtMouse.h"
 #include "ScreenShotUtils.h"
 
 namespace Ui
@@ -111,6 +112,7 @@ private:
 	bool m_deactivatePause = false;
 	bool m_pauseFocusLost = true;
 	std::shared_ptr<CInputProviderQtKey> m_qtKeyInputProvider;
+	std::shared_ptr<CInputProviderQtMouse> m_qtMouseInputProvider;
 	LastOpenCommand m_lastOpenCommand;
 	fs::path m_lastPath;
 
@@ -150,6 +152,10 @@ private slots:
 	void on_actionAbout_triggered();
 	void focusOutEvent(QFocusEvent*) Q_DECL_OVERRIDE;
 	void focusInEvent(QFocusEvent*) Q_DECL_OVERRIDE;
+	void outputWindow_doubleClickEvent(QMouseEvent*);
+	void outputWindow_mouseMoveEvent(QMouseEvent*);
+	void outputWindow_mousePressEvent(QMouseEvent*);
+	void outputWindow_mouseReleaseEvent(QMouseEvent*);
 	void on_actionPause_when_focus_is_lost_triggered(bool checked);
 	void on_actionReset_triggered();
 	void on_actionMemory_Card_Manager_triggered();
@@ -157,8 +163,6 @@ private slots:
 	void on_actionController_Manager_triggered();
 	void on_actionToggleFullscreen_triggered();
 	void on_actionCapture_Screen_triggered();
-	void doubleClickEvent(QMouseEvent*);
-	void mouseMoveEvent(QMouseEvent*);
 	void HandleOnExecutableChange();
 	void on_actionList_Bootables_triggered();
 };
