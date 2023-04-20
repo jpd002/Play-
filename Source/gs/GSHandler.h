@@ -819,6 +819,7 @@ public:
 	void SetIntc(CINTC*);
 	void Reset();
 	virtual void SetPresentationParams(const PRESENTATION_PARAMS&);
+	PRESENTATION_VIEWPORT GetPresentationViewport() const;
 
 	virtual void SaveState(Framework::CZipArchiveWriter&);
 	virtual void LoadState(Framework::CZipArchiveReader&);
@@ -1066,8 +1067,6 @@ protected:
 	void ReadCLUT8(const TEX0&);
 
 	static bool IsCompatibleFramebufferPSM(unsigned int, unsigned int);
-
-	PRESENTATION_VIEWPORT GetPresentationViewport() const;
 
 	bool m_loggingEnabled = true;
 
