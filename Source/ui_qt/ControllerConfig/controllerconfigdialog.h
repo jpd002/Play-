@@ -12,6 +12,8 @@ namespace Ui
 }
 
 class QTableView;
+class QSlider;
+class QLabel;
 
 class ControllerConfigDialog : public QDialog
 {
@@ -25,7 +27,7 @@ public:
 
 private slots:
 	void bindingsViewDoubleClicked(const QModelIndex& index);
-	void analogSensitivityValueChanged(int);
+	void analogSensitivityValueChanged(uint32, int);
 
 	void on_buttonBox_clicked(QAbstractButton* button);
 	void on_ConfigAllButton_clicked();
@@ -35,12 +37,20 @@ private slots:
 	void on_delProfileButton_clicked();
 
 private:
+	struct PadUiElements
+	{
+		QTableView* bindingsView = nullptr;
+		QSlider* analogSensitivitySlider = nullptr;
+		QLabel* analogSensitivityValueLabel = nullptr;
+	};
+
 	void PrepareBindingsView(uint32 padIndex);
 	void PrepareProfiles();
 	int OpenBindConfigDialog(uint32 padIndex, uint32 buttonIndex);
+	void UpdateAnalogSensitivityValueLabel(uint32 padIndex);
 
 	Ui::ControllerConfigDialog* ui;
 	CInputBindingManager* m_inputManager = nullptr;
 	CInputProviderQtKey* m_qtKeyInputProvider = nullptr;
-	std::vector<QTableView*> m_bindingsViews;
+	std::vector<PadUiElements> m_padUiElements;
 };

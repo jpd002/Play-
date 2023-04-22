@@ -32,21 +32,24 @@ ControllerConfigDialog::ControllerConfigDialog(CInputBindingManager* inputBindin
 {
 	ui->setupUi(this);
 
-	m_bindingsViews.push_back(ui->pad1TableView);
-	m_bindingsViews.push_back(ui->pad2TableView);
+	m_padUiElements.push_back({ui->pad1TableView, ui->pad1AnalogSensitivitySlider, ui->pad1AnalogSensitivityValueLabel});
+	m_padUiElements.push_back({ui->pad2TableView, ui->pad2AnalogSensitivitySlider, ui->pad2AnalogSensitivityValueLabel});
 
-	for(uint32 padIndex = 0; padIndex < m_bindingsViews.size(); padIndex++)
+	for(uint32 padIndex = 0; padIndex < m_padUiElements.size(); padIndex++)
 	{
 		PrepareBindingsView(padIndex);
-		QObject::connect(m_bindingsViews[padIndex], SIGNAL(doubleClicked(const QModelIndex&)), this, SLOT(bindingsViewDoubleClicked(const QModelIndex&)));
-	}
 
-	ui->pad1AnalogSensitivitySlider->setMinimum(ANALOG_SENSITIVITY_MIN * ANALOG_SENSITIVITY_SCALE);
-	ui->pad1AnalogSensitivitySlider->setMaximum(ANALOG_SENSITIVITY_MAX * ANALOG_SENSITIVITY_SCALE);
-	ui->pad1AnalogSensitivitySlider->setValue(m_inputManager->GetAnalogSensitivity(0) * ANALOG_SENSITIVITY_SCALE);
-	analogSensitivityValueChanged(ui->pad1AnalogSensitivitySlider->value());
-	connect(ui->pad1AnalogSensitivitySlider, SIGNAL(sliderMoved(int)), this, SLOT(analogSensitivityValueChanged(int)));
-	connect(ui->pad1AnalogSensitivitySlider, SIGNAL(valueChanged(int)), this, SLOT(analogSensitivityValueChanged(int)));
+		const auto& uiElements = m_padUiElements[padIndex];
+
+		uiElements.analogSensitivitySlider->setMinimum(ANALOG_SENSITIVITY_MIN * ANALOG_SENSITIVITY_SCALE);
+		uiElements.analogSensitivitySlider->setMaximum(ANALOG_SENSITIVITY_MAX * ANALOG_SENSITIVITY_SCALE);
+		uiElements.analogSensitivitySlider->setValue(m_inputManager->GetAnalogSensitivity(padIndex) * ANALOG_SENSITIVITY_SCALE);
+		UpdateAnalogSensitivityValueLabel(padIndex);
+
+		QObject::connect(uiElements.analogSensitivitySlider, &QSlider::sliderMoved, this, [this, padIndex](int value) { analogSensitivityValueChanged(padIndex, value); });
+		QObject::connect(uiElements.analogSensitivitySlider, &QSlider::valueChanged, this, [this, padIndex](int value) { analogSensitivityValueChanged(padIndex, value); });
+		QObject::connect(uiElements.bindingsView, SIGNAL(doubleClicked(const QModelIndex&)), this, SLOT(bindingsViewDoubleClicked(const QModelIndex&)));
+	}
 
 	PrepareProfiles();
 }
@@ -62,8 +65,8 @@ void ControllerConfigDialog::PrepareBindingsView(uint32 padIndex)
 	model->setHeaderData(0, Qt::Orientation::Horizontal, QVariant("Button"), Qt::DisplayRole);
 	model->setHeaderData(1, Qt::Orientation::Horizontal, QVariant("Binding Type"), Qt::DisplayRole);
 	model->setHeaderData(2, Qt::Orientation::Horizontal, QVariant("Binding Value"), Qt::DisplayRole);
-	assert(padIndex < m_bindingsViews.size());
-	auto bindingsView = m_bindingsViews[padIndex];
+	assert(padIndex < m_padUiElements.size());
+	auto bindingsView = m_padUiElements[padIndex].bindingsView;
 	bindingsView->setModel(model);
 	bindingsView->horizontalHeader()->setStretchLastSection(true);
 	bindingsView->resizeColumnsToContents();
@@ -88,6 +91,14 @@ void ControllerConfigDialog::PrepareProfiles()
 		ui->comboBox->setCurrentIndex(index);
 }
 
+void ControllerConfigDialog::UpdateAnalogSensitivityValueLabel(uint32 padIndex)
+{
+	assert(padIndex < m_padUiElements.size());
+	float sensitivityValue = m_inputManager->GetAnalogSensitivity(padIndex);
+	auto label = m_padUiElements[padIndex].analogSensitivityValueLabel;
+	label->setText(QString("%1").arg(sensitivityValue, 0, 'f', 3));
+}
+
 void ControllerConfigDialog::on_buttonBox_clicked(QAbstractButton* button)
 {
 	if(button == ui->buttonBox->button(QDialogButtonBox::Ok))
@@ -105,9 +116,9 @@ void ControllerConfigDialog::on_buttonBox_clicked(QAbstractButton* button)
 		uint32 padIndex = ui->tabWidget->currentIndex();
 		assert(padIndex < CInputBindingManager::MAX_PADS);
 		AutoConfigureKeyboard(padIndex, m_inputManager);
-		for(auto& bindingsView : m_bindingsViews)
+		for(const auto& uiElements : m_padUiElements)
 		{
-			static_cast<CInputBindingModel*>(bindingsView->model())->Refresh();
+			static_cast<CInputBindingModel*>(uiElements.bindingsView->model())->Refresh();
 		}
 	}
 	else if(button == ui->buttonBox->button(QDialogButtonBox::Cancel))
@@ -123,11 +134,12 @@ void ControllerConfigDialog::bindingsViewDoubleClicked(const QModelIndex& index)
 	OpenBindConfigDialog(padIndex, index.row());
 }
 
-void ControllerConfigDialog::analogSensitivityValueChanged(int value)
+void ControllerConfigDialog::analogSensitivityValueChanged(uint32 padIndex, int value)
 {
 	float sensitivityValue = static_cast<float>(value) / ANALOG_SENSITIVITY_SCALE;
-	ui->pad1AnalogSensitivityValueLabel->setText(QString("%1").arg(sensitivityValue, 0, 'f', 3));
-	m_inputManager->SetAnalogSensitivity(0, sensitivityValue);
+	assert(padIndex < CInputBindingManager::MAX_PADS);
+	m_inputManager->SetAnalogSensitivity(padIndex, sensitivityValue);
+	UpdateAnalogSensitivityValueLabel(padIndex);
 }
 
 void ControllerConfigDialog::on_ConfigAllButton_clicked()
@@ -198,12 +210,13 @@ void ControllerConfigDialog::on_comboBox_currentIndexChanged(int index)
 	m_inputManager->Load(profile.c_str());
 	CAppConfig::GetInstance().SetPreferenceString(PREF_INPUT_PAD1_PROFILE, profile.c_str());
 
-	for(auto& bindingsView : m_bindingsViews)
+	for(int padIndex = 0; padIndex < m_padUiElements.size(); padIndex++)
 	{
-		static_cast<CInputBindingModel*>(bindingsView->model())->Refresh();
+		const auto& uiElements = m_padUiElements[padIndex];
+		static_cast<CInputBindingModel*>(uiElements.bindingsView->model())->Refresh();
+		uiElements.analogSensitivitySlider->setValue(m_inputManager->GetAnalogSensitivity(padIndex) * ANALOG_SENSITIVITY_SCALE);
+		UpdateAnalogSensitivityValueLabel(padIndex);
 	}
-
-	ui->pad1AnalogSensitivitySlider->setValue(m_inputManager->GetAnalogSensitivity(0) * ANALOG_SENSITIVITY_SCALE);
 }
 
 void ControllerConfigDialog::on_addProfileButton_clicked()
