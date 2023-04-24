@@ -35,6 +35,8 @@
 
 #define LOG_NAME ("ps2vm")
 
+#define THREAD_NAME ("PS2VM Thread")
+
 #define STATE_VM_TIMING_XML ("vm_timing.xml")
 #define STATE_VM_TIMING_VBLANK_TICKS ("vblankTicks")
 #define STATE_VM_TIMING_IN_VBLANK ("inVblank")
@@ -251,7 +253,7 @@ void CPS2VM::Initialize()
 {
 	m_nEnd = false;
 	m_thread = std::thread([&]() { EmuThread(); });
-	Framework::ThreadUtils::SetThreadName(m_thread, "PS2VM Thread");
+	Framework::ThreadUtils::SetThreadName(m_thread, THREAD_NAME);
 }
 
 void CPS2VM::Destroy()
@@ -815,7 +817,7 @@ void CPS2VM::EmuThread()
 	CProfiler::GetInstance().SetWorkThread();
 #ifdef __ANDROID__
 	JNIEnv* env = nullptr;
-	Framework::CJavaVM::AttachCurrentThread(&env);
+	Framework::CJavaVM::AttachCurrentThread(&env, THREAD_NAME);
 #endif
 #ifdef PROFILE
 	CProfilerZone profilerZone(m_otherProfilerZone);
