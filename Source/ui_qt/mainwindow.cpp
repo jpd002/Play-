@@ -461,7 +461,7 @@ void MainWindow::keyReleaseEvent(QKeyEvent* event)
 	{
 		if(isFullScreen())
 		{
-			toggleFullscreen();
+			on_actionToggleFullscreen_triggered();
 		}
 		return;
 	}
@@ -713,6 +713,27 @@ void MainWindow::closeEvent(QCloseEvent* event)
 	}
 }
 
+void MainWindow::changeEvent(QEvent* event)
+{
+	if(event->type() == QEvent::WindowStateChange)
+	{
+		if(isFullScreen())
+		{
+			statusBar()->hide();
+			menuBar()->hide();
+			m_outputwindow->ShowFullScreenCursor();
+			ui->actionToggleFullscreen->setChecked(true);
+		}
+		else
+		{
+			statusBar()->show();
+			menuBar()->show();
+			m_outputwindow->DismissFullScreenCursor();
+			ui->actionToggleFullscreen->setChecked(false);
+		}
+	}
+}
+
 void MainWindow::on_actionAbout_triggered()
 {
 	auto about = QString("Version %1 (%2)\nQt v%3 - zlib v%4")
@@ -796,25 +817,19 @@ void MainWindow::doubleClickEvent(QMouseEvent* ev)
 {
 	if(ev->button() == Qt::LeftButton)
 	{
-		toggleFullscreen();
+		on_actionToggleFullscreen_triggered();
 	}
 }
 
-void MainWindow::toggleFullscreen()
+void MainWindow::on_actionToggleFullscreen_triggered()
 {
 	if(isFullScreen())
 	{
 		showNormal();
-		statusBar()->show();
-		menuBar()->show();
-		m_outputwindow->DismissFullScreenCursor();
 	}
 	else
 	{
 		showFullScreen();
-		statusBar()->hide();
-		menuBar()->hide();
-		m_outputwindow->ShowFullScreenCursor();
 	}
 }
 

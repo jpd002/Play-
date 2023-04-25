@@ -121,6 +121,7 @@
     <addaction name="actionReset"/>
     <addaction name="separator"/>
     <addaction name="menuResizeWindow"/>
+    <addaction name="actionToggleFullscreen"/>
     <addaction name="actionCapture_Screen"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
@@ -213,6 +214,14 @@
   <action name="actionController_Manager">
    <property name="text">
     <string>Controller Manager...</string>
+   </property>
+  </action>
+  <action name="actionToggleFullscreen">
+    <property name="text">
+      <string>Fullscreen Mode</string>
+    </property>
+   <property name="checkable">
+    <bool>true</bool>
    </property>
   </action>
   <action name="actionCapture_Screen">

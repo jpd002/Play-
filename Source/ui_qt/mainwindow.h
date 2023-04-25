@@ -88,7 +88,6 @@ private:
 	void UpdateCpuUsageLabel();
 	void RegisterPreferences();
 	void saveState(int);
-	void toggleFullscreen();
 	void buildResizeWindowMenu();
 	void resizeWindow(unsigned int, unsigned int);
 	void UpdateGSHandlerLabel(int);
@@ -129,6 +128,7 @@ private:
 
 protected:
 	void closeEvent(QCloseEvent*) Q_DECL_OVERRIDE;
+	void changeEvent(QEvent*) Q_DECL_OVERRIDE;
 
 signals:
 	void onExecutableChange();
@@ -155,6 +155,7 @@ private slots:
 	void on_actionMemory_Card_Manager_triggered();
 	void on_actionVFS_Manager_triggered();
 	void on_actionController_Manager_triggered();
+	void on_actionToggleFullscreen_triggered();
 	void on_actionCapture_Screen_triggered();
 	void doubleClickEvent(QMouseEvent*);
 	void HandleOnExecutableChange();
