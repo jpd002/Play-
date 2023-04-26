@@ -7,6 +7,8 @@
 #include "StdStream.h"
 #ifdef __ANDROID__
 #include "android/AssetStream.h"
+#include "android/ContentStream.h"
+#include "android/ContentUtils.h"
 #endif
 #include "../Ps2Const.h"
 #include "../DiskUtils.h"
@@ -308,9 +310,18 @@ bool CPS2OS::IsIdle() const
 
 void CPS2OS::BootFromFile(const fs::path& execPath)
 {
-	auto stream = Framework::CreateInputStdStream(execPath.native());
+	auto stream = [&]() -> std::unique_ptr<Framework::CStream> {
+#ifdef __ANDROID__
+		if(Framework::Android::CContentUtils::IsContentPath(execPath))
+		{
+			auto uri = Framework::Android::CContentUtils::BuildUriFromPath(execPath);
+			return std::make_unique<Framework::Android::CContentStream>(uri.c_str(), "r");
+		}
+#endif
+		return std::make_unique<Framework::CStdStream>(execPath.native().c_str(), Framework::GetInputStdStreamMode<fs::path::string_type>());
+	}();
 	auto virtualExecutablePath = "host:" + execPath.filename().string();
-	LoadELF(stream, virtualExecutablePath.c_str(), ArgumentList());
+	LoadELF(stream.get(), virtualExecutablePath.c_str(), ArgumentList());
 }
 
 void CPS2OS::BootFromVirtualPath(const char* executablePath, const ArgumentList& arguments)
@@ -326,7 +337,7 @@ void CPS2OS::BootFromVirtualPath(const char* executablePath, const ArgumentList&
 	try
 	{
 		Framework::CStream* file(ioman->GetFileStream(handle));
-		LoadELF(*file, executablePath, arguments);
+		LoadELF(file, executablePath, arguments);
 	}
 	catch(...)
 	{
@@ -402,9 +413,9 @@ std::pair<uint32, uint32> CPS2OS::GetExecutableRange() const
 	return std::pair<uint32, uint32>(minAddr, maxAddr);
 }
 
-void CPS2OS::LoadELF(Framework::CStream& stream, const char* executablePath, const ArgumentList& arguments)
+void CPS2OS::LoadELF(Framework::CStream* stream, const char* executablePath, const ArgumentList& arguments)
 {
-	auto elf = std::make_unique<CElf32File>(stream);
+	auto elf = std::make_unique<CElf32File>(*stream);
 	const auto& header = elf->GetHeader();
 
 	//Check for MIPS CPU

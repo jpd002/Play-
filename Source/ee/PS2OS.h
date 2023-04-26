@@ -293,7 +293,7 @@ private:
 
 	typedef void (CPS2OS::*SystemCallHandler)();
 
-	void LoadELF(Framework::CStream&, const char*, const ArgumentList&);
+	void LoadELF(Framework::CStream*, const char*, const ArgumentList&);
 
 	void LoadExecutableInternal();
 	void UnloadExecutable();
