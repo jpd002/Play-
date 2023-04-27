@@ -17,6 +17,27 @@ using namespace Iop;
 #define STATE_RECV_ADDR ("recvAddr")
 #define STATE_SEND_ADDR ("sendAddr")
 
+//Ref: http://daifukkat.su/files/jvs_wip.pdf
+enum
+{
+	JVS_SYNC = 0xE0,
+
+	JVS_CMD_IOIDENT = 0x10,
+	JVS_CMD_CMDREV = 0x11,
+	JVS_CMD_JVSREV = 0x12,
+	JVS_CMD_COMMVER = 0x13,
+	JVS_CMD_FEATCHK = 0x14,
+	JVS_CMD_MAINID = 0x15,
+
+	JVS_CMD_SWINP = 0x20,
+	JVS_CMD_COININP = 0x21,
+	JVS_CMD_ANLINP = 0x22,
+	JVS_CMD_SCRPOSINP = 0x25,
+
+	JVS_CMD_RESET = 0xF0,
+	JVS_CMD_SETADDR = 0xF1,
+};
+
 CNamcoArcade::CNamcoArcade(CSifMan& sif, Namco::CAcRam& acRam, const std::string& gameId)
     : m_acRam(acRam)
     , m_gameId(gameId)
@@ -48,33 +69,7 @@ void CNamcoArcade::Invoke(CMIPS& context, unsigned int functionId)
 	throw std::runtime_error("Not implemented.");
 }
 
-uint16 g_jvsButtonState = 0;
-uint16 g_jvsSystemButtonState = 0;
-uint16 g_jvsGunPosX = 0x7FFF;
-uint16 g_jvsGunPosY = 0x7FFF;
-
-//Ref: http://daifukkat.su/files/jvs_wip.pdf
-enum
-{
-	JVS_SYNC = 0xE0,
-
-	JVS_CMD_IOIDENT = 0x10,
-	JVS_CMD_CMDREV = 0x11,
-	JVS_CMD_JVSREV = 0x12,
-	JVS_CMD_COMMVER = 0x13,
-	JVS_CMD_FEATCHK = 0x14,
-	JVS_CMD_MAINID = 0x15,
-
-	JVS_CMD_SWINP = 0x20,
-	JVS_CMD_COININP = 0x21,
-	JVS_CMD_ANLINP = 0x22,
-	JVS_CMD_SCRPOSINP = 0x25,
-
-	JVS_CMD_RESET = 0xF0,
-	JVS_CMD_SETADDR = 0xF1,
-};
-
-void ProcessJvsPacket(const uint8* input, uint8* output)
+void CNamcoArcade::ProcessJvsPacket(const uint8* input, uint8* output)
 {
 	assert(*input == JVS_SYNC);
 	input++;
@@ -208,9 +203,9 @@ void ProcessJvsPacket(const uint8* input, uint8* output)
 
 			(*output++) = 0x01; //Command success
 
-			(*output++) = (g_jvsSystemButtonState == 0x03) ? 0x80 : 0; //Test
-			(*output++) = static_cast<uint8>(g_jvsButtonState);        //Player 1
-			(*output++) = static_cast<uint8>(g_jvsButtonState >> 8);   //Player 1
+			(*output++) = (m_jvsSystemButtonState == 0x03) ? 0x80 : 0; //Test
+			(*output++) = static_cast<uint8>(m_jvsButtonState);        //Player 1
+			(*output++) = static_cast<uint8>(m_jvsButtonState >> 8);   //Player 1
 			(*dstSize) += 4;
 
 			if(playerCount == 2)
@@ -257,10 +252,10 @@ void ProcessJvsPacket(const uint8* input, uint8* output)
 			(*output++) = 0x01; //Command success
 
 			//Time Crisis 4 reads from this to determine screen position
-			(*output++) = static_cast<uint8>(g_jvsGunPosX >> 8); //Pos X MSB
-			(*output++) = static_cast<uint8>(g_jvsGunPosX); //Pos X LSB
-			(*output++) = static_cast<uint8>(g_jvsGunPosY >> 8); //Pos Y MSB
-			(*output++) = static_cast<uint8>(g_jvsGunPosY); //Pos Y LSB
+			(*output++) = static_cast<uint8>(m_jvsGunPosX >> 8); //Pos X MSB
+			(*output++) = static_cast<uint8>(m_jvsGunPosX); //Pos X LSB
+			(*output++) = static_cast<uint8>(m_jvsGunPosY >> 8); //Pos Y MSB
+			(*output++) = static_cast<uint8>(m_jvsGunPosY); //Pos Y LSB
 			
 			(*output++) = 0;
 			(*output++) = 0;
@@ -280,10 +275,10 @@ void ProcessJvsPacket(const uint8* input, uint8* output)
 			
 			(*output++) = 0x01; //Command success
 
-			(*output++) = static_cast<uint8>(g_jvsGunPosX >> 8); //Pos X MSB
-			(*output++) = static_cast<uint8>(g_jvsGunPosX); //Pos X LSB
-			(*output++) = static_cast<uint8>(g_jvsGunPosY >> 8); //Pos Y MSB
-			(*output++) = static_cast<uint8>(g_jvsGunPosY); //Pos Y LSB
+			(*output++) = static_cast<uint8>(m_jvsGunPosX >> 8); //Pos X MSB
+			(*output++) = static_cast<uint8>(m_jvsGunPosX); //Pos X LSB
+			(*output++) = static_cast<uint8>(m_jvsGunPosY >> 8); //Pos Y MSB
+			(*output++) = static_cast<uint8>(m_jvsGunPosY); //Pos Y LSB
 			
 			(*dstSize) += 5;
 		}
@@ -368,10 +363,10 @@ void CNamcoArcade::SetButtonState(unsigned int padNumber, PS2::CControllerInfo::
 	    };
 	if(padNumber == 0)
 	{
-		g_jvsButtonState &= ~buttonBits[button];
-		g_jvsButtonState |= (pressed ? buttonBits[button] : 0);
-		g_jvsSystemButtonState &= ~systemButtonBits[button];
-		g_jvsSystemButtonState |= (pressed ? systemButtonBits[button] : 0);
+		m_jvsButtonState &= ~buttonBits[button];
+		m_jvsButtonState |= (pressed ? buttonBits[button] : 0);
+		m_jvsSystemButtonState &= ~systemButtonBits[button];
+		m_jvsSystemButtonState |= (pressed ? systemButtonBits[button] : 0);
 	}
 	//The following code path is for handling JVSIF which only earlier games use
 	if(m_recvAddr && m_sendAddr)
@@ -428,15 +423,15 @@ void CNamcoArcade::SetGunPosition(float x, float y)
 {
 #if 0
 	//Settings that work great with Time Crisis 3
-	g_jvsGunPosX = static_cast<int16>(330.f * (x * 2.0f - 1.0f)) + 0x3FFF;
-	g_jvsGunPosY = static_cast<int16>(110.f * (y * 2.0f - 1.0f)) + 0x3FFF;
+	m_jvsGunPosX = static_cast<int16>(330.f * (x * 2.0f - 1.0f)) + 0x3FFF;
+	m_jvsGunPosY = static_cast<int16>(110.f * (y * 2.0f - 1.0f)) + 0x3FFF;
 #endif
 #if 1
 	//Settings that work great with Time Crisis 4 (actually reads analog stick to figure out position)
-	g_jvsGunPosX = static_cast<int16>(0xFFFF * -x);
-	g_jvsGunPosY = static_cast<int16>(0xFFFF * y);
+	m_jvsGunPosX = static_cast<int16>(0xFFFF * -x);
+	m_jvsGunPosY = static_cast<int16>(0xFFFF * y);
 #endif
-	//printf("Gun pos: %d, %d\r\n", g_jvsGunPosX, g_jvsGunPosY);
+	//printf("Gun pos: %d, %d\r\n", m_jvsGunPosX, m_jvsGunPosY);
 }
 
 bool CNamcoArcade::Invoke001(uint32 method, uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)

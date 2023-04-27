@@ -51,6 +51,8 @@ namespace Iop
 		bool Invoke003(uint32, uint32*, uint32, uint32*, uint32, uint8*);
 		bool Invoke004(uint32, uint32*, uint32, uint32*, uint32, uint8*);
 
+		void ProcessJvsPacket(const uint8*, uint8*);
+
 		static fs::path GetArcadeSavePath();
 		void ReadBackupRam(uint32, uint8*, uint32);
 		void WriteBackupRam(uint32, const uint8*, uint32);
@@ -64,5 +66,10 @@ namespace Iop
 		std::string m_gameId;
 		uint32 m_recvAddr = 0;
 		uint32 m_sendAddr = 0;
+		
+		uint16 m_jvsButtonState = 0;
+		uint16 m_jvsSystemButtonState = 0;
+		uint16 m_jvsGunPosX = 0x7FFF;
+		uint16 m_jvsGunPosY = 0x7FFF;
 	};
 }
