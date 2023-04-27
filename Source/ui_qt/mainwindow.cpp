@@ -296,7 +296,7 @@ void MainWindow::outputWindow_resized()
 		m_virtualMachine->m_ee->m_gs->SetPresentationParams(presentationParams);
 		if(m_virtualMachine->GetStatus() == CVirtualMachine::PAUSED)
 		{
-			m_virtualMachine->m_ee->m_gs->Flip(true);
+			m_virtualMachine->m_ee->m_gs->Flip(CGSHandler::FLIP_FLAG_WAIT | CGSHandler::FLIP_FLAG_FORCE);
 		}
 	}
 }

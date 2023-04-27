@@ -183,6 +183,12 @@ public:
 		uint32 height = 0;
 	};
 
+	enum FLIP_FLAGS
+	{
+		FLIP_FLAG_WAIT = 0x01,
+		FLIP_FLAG_FORCE = 0x02,
+	};
+
 	enum PSM
 	{
 		PSMCT32 = 0x00,
@@ -863,7 +869,7 @@ public:
 	virtual void ProcessLocalToHostTransfer() = 0;
 	virtual void ProcessLocalToLocalTransfer() = 0;
 	virtual void ProcessClutTransfer(uint32, uint32) = 0;
-	void Flip(bool = false);
+	void Flip(uint32 = 0);
 	void Finish();
 
 	void MakeLinearCLUT(const TEX0&, std::array<uint32, 256>&) const;
@@ -1107,6 +1113,7 @@ protected:
 	std::atomic<int> m_transferCount;
 	bool m_threadDone = false;
 	CFrameDump* m_frameDump = nullptr;
+	bool m_regsDirty = false;
 	bool m_drawEnabled = true;
 	CINTC* m_intc = nullptr;
 	bool m_gsThreaded = true;

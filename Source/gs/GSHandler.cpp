@@ -520,12 +520,22 @@ void CGSHandler::Finish()
 {
 	FlushWriteBuffer();
 	SendGSCall(std::bind(&CGSHandler::MarkNewFrame, this));
-	Flip(true);
+	Flip(FLIP_FLAG_WAIT);
 }
 
-void CGSHandler::Flip(bool waitForCompletion)
+void CGSHandler::Flip(uint32 flags)
 {
-	SendGSCall(std::bind(&CGSHandler::FlipImpl, this), waitForCompletion, waitForCompletion);
+	bool waitForCompletion = (flags & FLIP_FLAG_WAIT) != 0;
+	bool force = (flags & FLIP_FLAG_FORCE) != 0;
+	SendGSCall(
+	    [this, force]() {
+		    if(force || m_regsDirty)
+		    {
+			    FlipImpl();
+		    }
+		    m_regsDirty = false;
+	    },
+	    waitForCompletion, waitForCompletion);
 }
 
 void CGSHandler::FlipImpl()
@@ -686,6 +696,7 @@ void CGSHandler::WriteRegisterImpl(uint8 nRegister, uint64 nData)
 {
 	nRegister &= REGISTER_MAX - 1;
 	m_nReg[nRegister] = nData;
+	m_regsDirty = true;
 
 	switch(nRegister)
 	{
