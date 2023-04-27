@@ -9,6 +9,7 @@
 	{
 		"name": "tst1dvd0.chd"
 	},
+	"hasLightGun": true,
 	"boot": "ac0:TC3LOAD",
 	"patches":
 	[

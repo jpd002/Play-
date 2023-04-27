@@ -31,6 +31,7 @@ struct ARCADE_MACHINE_DEF
 	std::string dongleFileName;
 	std::string cdvdFileName;
 	std::string hddFileName;
+	bool hasLightGun = false;
 	std::string boot;
 	std::vector<PATCH> patches;
 };
@@ -81,6 +82,10 @@ ARCADE_MACHINE_DEF ReadArcadeMachineDefinition(const fs::path& arcadeDefPath)
 	if(defJson.contains("hdd"))
 	{
 		def.hddFileName = defJson["hdd"]["name"];
+	}
+	if(defJson.contains("hasLightGun"))
+	{
+		def.hasLightGun = defJson["hasLightGun"];
 	}
 	def.boot = defJson["boot"];
 	if(defJson.contains("patches"))
@@ -178,7 +183,10 @@ void PrepareArcadeEnvironment(CPS2VM* virtualMachine, const ARCADE_MACHINE_DEF& 
 			iopBios->RegisterModule(namcoArcadeModule);
 			iopBios->RegisterHleModuleReplacement("rom0:DAEMON", namcoArcadeModule);
 			virtualMachine->m_pad->InsertListener(namcoArcadeModule.get());
-			virtualMachine->SetGunListener(namcoArcadeModule.get());
+			if(def.hasLightGun)
+			{
+				virtualMachine->SetGunListener(namcoArcadeModule.get());
+			}
 		}
 	}
 }

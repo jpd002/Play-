@@ -829,7 +829,7 @@ void MainWindow::focusInEvent(QFocusEvent* event)
 
 void MainWindow::outputWindow_doubleClickEvent(QMouseEvent* ev)
 {
-	if(ev->button() == Qt::LeftButton)
+	if(!m_virtualMachine->HasGunListener() && (ev->button() == Qt::LeftButton))
 	{
 		on_actionToggleFullscreen_triggered();
 	}
@@ -837,26 +837,29 @@ void MainWindow::outputWindow_doubleClickEvent(QMouseEvent* ev)
 
 void MainWindow::outputWindow_mouseMoveEvent(QMouseEvent* ev)
 {
-	auto gsHandler = m_virtualMachine->GetGSHandler();
-	if(!gsHandler) return;
-	qreal scale = 1.0;
+	if(m_virtualMachine->HasGunListener())
+	{
+		auto gsHandler = m_virtualMachine->GetGSHandler();
+		if(!gsHandler) return;
+		qreal scale = 1.0;
 #if QT_VERSION >= QT_VERSION_CHECK(5, 6, 0)
-	scale = devicePixelRatioF();
+		scale = devicePixelRatioF();
 #endif
-	auto presentationViewport = gsHandler->GetPresentationViewport();
-	float vpOfsX = static_cast<float>(presentationViewport.offsetX) / scale;
-	float vpOfsY = static_cast<float>(presentationViewport.offsetY) / scale;
-	float vpWidth = static_cast<float>(presentationViewport.width) / scale;
-	float vpHeight = static_cast<float>(presentationViewport.height) / scale;
-	float mouseX = ev->x();
-	float mouseY = ev->y();
-	mouseX -= vpOfsX;
-	mouseY -= vpOfsY;
-	mouseX = std::clamp<float>(mouseX, 0, vpWidth);
-	mouseY = std::clamp<float>(mouseY, 0, vpHeight);
-	m_virtualMachine->ReportGunPosition(
-										static_cast<float>(mouseX) / static_cast<float>(vpWidth),
-										static_cast<float>(mouseY) / static_cast<float>(vpHeight));
+		auto presentationViewport = gsHandler->GetPresentationViewport();
+		float vpOfsX = static_cast<float>(presentationViewport.offsetX) / scale;
+		float vpOfsY = static_cast<float>(presentationViewport.offsetY) / scale;
+		float vpWidth = static_cast<float>(presentationViewport.width) / scale;
+		float vpHeight = static_cast<float>(presentationViewport.height) / scale;
+		float mouseX = ev->x();
+		float mouseY = ev->y();
+		mouseX -= vpOfsX;
+		mouseY -= vpOfsY;
+		mouseX = std::clamp<float>(mouseX, 0, vpWidth);
+		mouseY = std::clamp<float>(mouseY, 0, vpHeight);
+		m_virtualMachine->ReportGunPosition(
+											static_cast<float>(mouseX) / static_cast<float>(vpWidth),
+											static_cast<float>(mouseY) / static_cast<float>(vpHeight));
+	}
 }
 
 void MainWindow::outputWindow_mousePressEvent(QMouseEvent* ev)

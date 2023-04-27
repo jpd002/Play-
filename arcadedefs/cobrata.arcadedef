@@ -9,6 +9,7 @@
 	{
 		"name": "cbr1-ha.chd"
 	},
+	"hasLightGun": true,
 	"boot": "ac0:CBRLOAD",
 	"patches":
 	[

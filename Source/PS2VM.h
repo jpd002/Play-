@@ -89,6 +89,7 @@ public:
 #endif
 
 	void ReportGunPosition(float, float);
+	bool HasGunListener() const;
 	void SetGunListener(CGunListener*);
 
 	OpticalMediaPtr m_cdrom0;

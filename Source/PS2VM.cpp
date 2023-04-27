@@ -127,6 +127,11 @@ CPadHandler* CPS2VM::GetPadHandler()
 	return m_pad;
 }
 
+bool CPS2VM::HasGunListener() const
+{
+	return m_gunListener != nullptr;
+}
+
 void CPS2VM::SetGunListener(CGunListener* listener)
 {
 	m_gunListener = listener;
