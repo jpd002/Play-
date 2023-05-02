@@ -184,6 +184,13 @@ private:
 
 	void UpdateCpCond();
 
+	uint8* m_ram = nullptr;
+	uint8* m_spr = nullptr;
+	uint8* m_vuMem0 = nullptr;
+	uint8* m_vuMem1 = nullptr;
+
+	CMIPS& m_ee;
+
 	D_CTRL_REG m_D_CTRL;
 	uint32 m_D_STAT;
 	uint32 m_D_ENABLE;
@@ -218,13 +225,6 @@ private:
 
 	Dmac::CChannel m_D9;
 	uint32 m_D9_SADR;
-
-	uint8* m_ram;
-	uint8* m_spr;
-	uint8* m_vuMem0;
-	uint8* m_vuMem1;
-
-	CMIPS& m_ee;
 
 	Dmac::DmaReceiveHandler m_receiveDma5;
 	Dmac::DmaReceiveHandler m_receiveDma6;

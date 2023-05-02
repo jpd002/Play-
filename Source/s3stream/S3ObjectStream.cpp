@@ -177,7 +177,7 @@ void CS3ObjectStream::SyncBuffer()
 			    if(fs::exists(readCacheFilePath))
 			    {
 				    auto readCacheFileStream = Framework::CreateInputStdStream(readCacheFilePath.native());
-				    auto cacheRead = readCacheFileStream.Read(m_buffer.data(), size);
+				    FRAMEWORK_MAYBE_UNUSED auto cacheRead = readCacheFileStream.Read(m_buffer.data(), size);
 				    assert(cacheRead == size);
 				    return true;
 			    }

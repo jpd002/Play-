@@ -45,11 +45,11 @@
 
 CVif::CVif(unsigned int number, CVpu& vpu, CINTC& intc, uint8* ram, uint8* spr)
     : m_number(number)
+    , m_vpu(vpu)
+    , m_intc(intc)
     , m_ram(ram)
     , m_spr(spr)
-    , m_intc(intc)
     , m_stream(ram, spr)
-    , m_vpu(vpu)
     , m_vifProfilerZone(CProfiler::GetInstance().RegisterZone(string_format("VIF%d", number).c_str()))
 {
 	static_loop<int, MAX_UNPACKERS>(

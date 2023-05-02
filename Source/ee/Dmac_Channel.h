@@ -96,9 +96,9 @@ namespace Dmac
 		void ExecuteSourceChainTransfer(bool);
 		void ClearSTR();
 
-		unsigned int m_number = 0;
-		uint32 m_nSCCTRL;
-		DmaReceiveHandler m_receive;
 		CDMAC& m_dmac;
+		unsigned int m_number = 0;
+		DmaReceiveHandler m_receive;
+		uint32 m_nSCCTRL;
 	};
 };

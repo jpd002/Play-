@@ -60,13 +60,7 @@
 #define LOG_NAME ("gs")
 
 CGSHandler::CGSHandler(bool gsThreaded)
-    : m_threadDone(false)
-    , m_drawCallCount(0)
-    , m_pCLUT(nullptr)
-    , m_pRAM(nullptr)
-    , m_frameDump(nullptr)
-    , m_loggingEnabled(true)
-    , m_gsThreaded(gsThreaded)
+    : m_gsThreaded(gsThreaded)
 {
 	RegisterPreferences();
 
@@ -761,8 +755,6 @@ void CGSHandler::FeedImageDataImpl(const uint8* imageData, uint32 length)
 
 		if(m_trxCtx.nSize == 0)
 		{
-			auto trxReg = make_convertible<TRXREG>(m_nReg[GS_REG_TRXREG]);
-			//assert(m_trxCtx.nRRY == trxReg.nRRH);
 			ProcessHostToLocalTransfer();
 
 #ifdef _DEBUG
@@ -781,7 +773,7 @@ void CGSHandler::ReadImageDataImpl(void* ptr, uint32 size)
 	assert(m_trxCtx.nSize != 0);
 	assert(m_trxCtx.nSize == size);
 	auto bltBuf = make_convertible<BITBLTBUF>(m_nReg[GS_REG_BITBLTBUF]);
-	auto trxPos = make_convertible<TRXPOS>(m_nReg[GS_REG_TRXPOS]);
+	FRAMEWORK_MAYBE_UNUSED auto trxPos = make_convertible<TRXPOS>(m_nReg[GS_REG_TRXPOS]);
 
 	assert(trxPos.nDIR == 0);
 	((this)->*(m_transferReadHandlers[bltBuf.nSrcPsm]))(ptr, size);
@@ -1692,8 +1684,6 @@ void CGSHandler::MakeLinearCLUT(const TEX0& tex0, std::array<uint32, 256>& clut)
 	    [](uint16 color) {
 		    return ((color & 0x8000) ? 0xFF000000 : 0) | ((color & 0x7C00) << 9) | ((color & 0x03E0) << 6) | ((color & 0x001F) << 3);
 	    };
-
-	unsigned int entryCount = CGsPixelFormats::IsPsmIDTEX4(tex0.nPsm) ? 16 : 256;
 
 	if(CGsPixelFormats::IsPsmIDTEX4(tex0.nPsm))
 	{

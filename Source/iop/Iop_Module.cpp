@@ -11,5 +11,5 @@ std::string CModule::PrintStringParameter(const uint8* ram, uint32 stringPtr)
 		auto string = reinterpret_cast<const char*>(ram + stringPtr);
 		result += string_format(" ('%s')", string);
 	}
-	return std::move(result);
+	return result;
 }

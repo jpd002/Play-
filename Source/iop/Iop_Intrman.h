@@ -26,7 +26,7 @@ namespace Iop
 		uint32 SuspendInterrupts(CMIPS&, uint32);
 		uint32 ResumeInterrupts(CMIPS&, uint32);
 		uint32 QueryIntrContext(CMIPS&);
-		uint8* m_ram = nullptr;
 		CIopBios& m_bios;
+		uint8* m_ram = nullptr;
 	};
 }

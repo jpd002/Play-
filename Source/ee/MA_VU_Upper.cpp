@@ -3,6 +3,7 @@
 #include "../MIPS.h"
 #include "VUShared.h"
 #include "Vif.h"
+#include "offsetof_def.h"
 
 #undef MAX
 #define LOG_NAME ("ma_vu")

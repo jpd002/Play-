@@ -63,13 +63,13 @@ namespace Iop
 
 		private:
 			ReceiveFunctionType m_receiveFunction;
+			CDmac& m_dmac;
 			unsigned int m_number;
 			unsigned int m_intrLine;
 			uint32 m_baseAddress;
 			uint32 m_MADR;
 			BCR m_BCR;
 			CHCR m_CHCR;
-			CDmac& m_dmac;
 		};
 	}
 }

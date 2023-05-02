@@ -1,9 +1,10 @@
+#include "IPU.h"
 #include <cassert>
 #include <cstring>
 #include <stdio.h>
 #include <exception>
 #include <functional>
-#include "IPU.h"
+#include "maybe_unused.h"
 #include "IPU_MacroblockAddressIncrementTable.h"
 #include "IPU_MacroblockTypeITable.h"
 #include "IPU_MacroblockTypePTable.h"
@@ -742,13 +743,6 @@ void CIPU::DisassembleCommand(uint32 nValue)
 //OUT FIFO class implementation
 /////////////////////////////////////////////
 
-CIPU::COUTFIFO::COUTFIFO()
-    : m_buffer(nullptr)
-    , m_alloc(0)
-    , m_size(0)
-{
-}
-
 CIPU::COUTFIFO::~COUTFIFO()
 {
 	free(m_buffer);
@@ -1100,7 +1094,7 @@ bool CIPU::CIDECCommand::Execute()
 				if(m_CSCCommand->Execute())
 				{
 					//All data should have been consumed by CSC, so nothing should remain
-					uint32 remainLength = m_temp_IN_FIFO.GetAvailableBits() + (m_blockStream.GetRemainingLength() * 8);
+					FRAMEWORK_MAYBE_UNUSED uint32 remainLength = m_temp_IN_FIFO.GetAvailableBits() + (m_blockStream.GetRemainingLength() * 8);
 					assert(remainLength == 0);
 					m_state = STATE_CHECKSTARTCODE;
 					break;
@@ -1399,21 +1393,6 @@ bool CIPU::CBDECCommand::Execute()
 //BDEC ReadDct subcommand implementation
 /////////////////////////////////////////////
 
-CIPU::CBDECCommand_ReadDct::CBDECCommand_ReadDct()
-    : m_state(STATE_INIT)
-    , m_IN_FIFO(NULL)
-    , m_coeffTable(NULL)
-    , m_block(NULL)
-    , m_dcPredictor(NULL)
-    , m_dcDiff(0)
-    , m_channelId(0)
-    , m_mbi(false)
-    , m_isMpeg1CoeffVLCTable(false)
-    , m_isMpeg2(true)
-    , m_blockIndex(0)
-{
-}
-
 void CIPU::CBDECCommand_ReadDct::Initialize(CINFIFO* fifo, int16* block, unsigned int channelId, int16* dcPredictor, bool mbi, bool isMpeg1CoeffVLCTable, bool isMpeg2)
 {
 	m_state = STATE_INIT;
@@ -1546,14 +1525,6 @@ bool CIPU::CBDECCommand_ReadDct::Execute()
 /////////////////////////////////////////////
 //BDEC ReadDcDiff subcommand implementation
 /////////////////////////////////////////////
-CIPU::CBDECCommand_ReadDcDiff::CBDECCommand_ReadDcDiff()
-    : m_state(STATE_READSIZE)
-    , m_result(NULL)
-    , m_IN_FIFO(NULL)
-    , m_channelId(0)
-    , m_dcSize(0)
-{
-}
 
 void CIPU::CBDECCommand_ReadDcDiff::Initialize(CINFIFO* fifo, unsigned int channelId, int16* result)
 {
@@ -1630,15 +1601,6 @@ bool CIPU::CBDECCommand_ReadDcDiff::Execute()
 /////////////////////////////////////////////
 //VDEC command implementation
 /////////////////////////////////////////////
-
-CIPU::CVDECCommand::CVDECCommand()
-    : m_IN_FIFO(NULL)
-    , m_state(STATE_ADVANCE)
-    , m_commandCode(0)
-    , m_result(NULL)
-    , m_table(NULL)
-{
-}
 
 void CIPU::CVDECCommand::Initialize(CINFIFO* fifo, uint32 commandCode, uint32 pictureType, uint32* result)
 {
@@ -1742,14 +1704,6 @@ bool CIPU::CVDECCommand::Execute()
 /////////////////////////////////////////////
 //FDEC command implementation
 /////////////////////////////////////////////
-
-CIPU::CFDECCommand::CFDECCommand()
-    : m_IN_FIFO(NULL)
-    , m_state(STATE_ADVANCE)
-    , m_commandCode(0)
-    , m_result(NULL)
-{
-}
 
 void CIPU::CFDECCommand::Initialize(CINFIFO* fifo, uint32 commandCode, uint32* result)
 {

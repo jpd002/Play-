@@ -77,6 +77,9 @@ namespace Iop
 		void LogRead(uint32);
 		void LogWrite(uint32, uint32);
 
+		uint8* m_ram = nullptr;
+		CIntc& m_intc;
+
 		Dmac::CChannel m_channelSpu0;
 		Dmac::CChannel m_channelSpu1;
 		Dmac::CChannel m_channelDev9;
@@ -89,7 +92,5 @@ namespace Iop
 		uint32 m_DPCR3;
 
 		uint32 m_DICR;
-		uint8* m_ram;
-		CIntc& m_intc;
 	};
 }

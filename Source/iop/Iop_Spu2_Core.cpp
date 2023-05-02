@@ -90,14 +90,14 @@ uint16 CCore::GetAddressHi(uint32 address)
 
 uint32 CCore::SetAddressLo(uint32 address, uint16 value)
 {
-	address &= 0xFFFF << (1 + 16);
+	address &= 0xFFFE0000;
 	address |= value << 1;
 	return address;
 }
 
 uint32 CCore::SetAddressHi(uint32 address, uint16 value)
 {
-	address &= 0xFFFF << 1;
+	address &= 0x0001FFFE;
 	address |= value << (1 + 16);
 	return address;
 }

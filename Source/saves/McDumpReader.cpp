@@ -2,6 +2,7 @@
 #include <cstring>
 #include <cassert>
 #include <stdexcept>
+#include "maybe_unused.h"
 
 //Source:
 //http://www.csclub.uwaterloo.ca:11068/mymc/ps2mcfs.html
@@ -50,7 +51,7 @@ CMcDumpReader::Directory CMcDumpReader::ReadDirectory(uint32 dirCluster)
 	std::vector<DIRENTRY> result;
 	CFatReader reader(*this, dirCluster);
 	DIRENTRY baseDirEntry = {};
-	uint32 readAmount = reader.Read(&baseDirEntry, sizeof(DIRENTRY));
+	FRAMEWORK_MAYBE_UNUSED uint32 readAmount = reader.Read(&baseDirEntry, sizeof(DIRENTRY));
 	assert(readAmount == sizeof(DIRENTRY));
 	result.push_back(baseDirEntry);
 	assert(baseDirEntry.length >= 2);
@@ -77,7 +78,7 @@ std::vector<uint8> CMcDumpReader::ReadFile(uint32 fileCluster, uint32 fileSize)
 	std::vector<uint8> result;
 	CFatReader reader(*this, fileCluster);
 	result.resize(fileSize);
-	uint32 readAmount = reader.Read(result.data(), fileSize);
+	FRAMEWORK_MAYBE_UNUSED uint32 readAmount = reader.Read(result.data(), fileSize);
 	assert(readAmount == fileSize);
 	return result;
 }

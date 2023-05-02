@@ -7,6 +7,7 @@
 #include "ElfDefs.h"
 #include "PtrStream.h"
 #include "EndianUtils.h"
+#include "maybe_unused.h"
 
 struct ELFTRAITS32
 {
@@ -189,7 +190,7 @@ private:
 		stream.Seek(m_header.nSectHeaderStart, Framework::STREAM_SEEK_SET);
 		for(auto& section : m_sections)
 		{
-			auto readAmount = stream.Read(&section, sizeof(section));
+			FRAMEWORK_MAYBE_UNUSED auto readAmount = stream.Read(&section, sizeof(section));
 			assert(readAmount == sizeof(section));
 			if(m_header.nId[ELF::EI_DATA] == ELF::ELFDATA2MSB)
 			{

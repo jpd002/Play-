@@ -27,14 +27,6 @@ struct FILEVERTEXATTRIB
 #pragma pack(pop)
 
 CIcon::CIcon(Framework::CStream& stream)
-    : m_pTexture(NULL)
-    , m_pTexCoords(NULL)
-    , m_pFrames(NULL)
-    , m_pShapes(NULL)
-    , m_nShapeCount(0)
-    , m_nVertexCount(0)
-    , m_nTextureType(0)
-    , m_nFrameCount(0)
 {
 	ReadHeader(stream);
 	ReadVertices(stream);

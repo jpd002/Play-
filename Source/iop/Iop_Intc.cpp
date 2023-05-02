@@ -7,12 +7,6 @@
 
 using namespace Iop;
 
-CIntc::CIntc()
-    : m_mask(0)
-    , m_status(0)
-{
-}
-
 void CIntc::Reset()
 {
 	m_status.f = 0;

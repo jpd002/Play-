@@ -114,7 +114,7 @@ std::string CMcServ::DecodeMcName(const std::string& inputName)
 		if(inputChar == '%')
 		{
 			int decodedChar = 0;
-			int scanCount = sscanf(inputName.c_str() + i, "%%%02X", &decodedChar);
+			FRAMEWORK_MAYBE_UNUSED int scanCount = sscanf(inputName.c_str() + i, "%%%02X", &decodedChar);
 			assert(scanCount == 1);
 			result += decodedChar;
 			i += 2;
@@ -1053,7 +1053,7 @@ void CMcServ::ProceedReadFast(CMIPS& context)
 	uint32 readSize = std::min<uint32>(moduleData->readFastSize, CLUSTER_SIZE);
 
 	uint8 cluster[CLUSTER_SIZE];
-	uint32 amountRead = file->Read(cluster, readSize);
+	FRAMEWORK_MAYBE_UNUSED uint32 amountRead = file->Read(cluster, readSize);
 	assert(amountRead == readSize);
 	moduleData->readFastSize -= readSize;
 

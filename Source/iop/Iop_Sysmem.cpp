@@ -17,12 +17,12 @@ using namespace Iop;
 
 CSysmem::CSysmem(uint8* ram, uint32 memoryBegin, uint32 memoryEnd, BlockListType& blocks, CStdio& stdio, CIoman& ioman, CSifMan& sifMan)
     : m_iopRam(ram)
-    , m_memoryBegin(memoryBegin)
-    , m_memoryEnd(memoryEnd)
     , m_stdio(stdio)
     , m_ioman(ioman)
-    , m_memorySize(memoryEnd - memoryBegin)
     , m_blocks(blocks)
+    , m_memoryBegin(memoryBegin)
+    , m_memoryEnd(memoryEnd)
+    , m_memorySize(memoryEnd - memoryBegin)
 {
 	//Initialize block map
 	m_headBlockId = m_blocks.Allocate();

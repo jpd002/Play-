@@ -6,8 +6,7 @@
 class CMaxSaveImporter : public CSaveImporterBase
 {
 public:
-	CMaxSaveImporter();
-	virtual ~CMaxSaveImporter();
+	virtual ~CMaxSaveImporter() = default;
 
 	void Import(Framework::CStream&, const fs::path&) override;
 };

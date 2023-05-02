@@ -57,6 +57,8 @@ void CIdleEvaluator::STRATEGY_SEMACHECKER::NotifyEvent(EVENT eventType, uint32 a
 		m_lastWaitSema = -1;
 		m_isIdle = false;
 		break;
+	default:
+		break;
 	}
 }
 
@@ -99,6 +101,8 @@ void CIdleEvaluator::STRATEGY_SELFTHREADROTATE::NotifyEvent(EVENT eventType, uin
 		m_selfRotateThreadCount = 0;
 		m_isIdle = false;
 		break;
+	default:
+		break;
 	}
 }
 
@@ -138,6 +142,8 @@ void CIdleEvaluator::STRATEGY_THREADROTATEBOUNCE::NotifyEvent(EVENT eventType, u
 		break;
 	case EVENT_INTERRUPT:
 		m_bounceCount = 0;
+		break;
+	default:
 		break;
 	}
 	m_isIdle = (m_bounceCount > 1000);

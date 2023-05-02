@@ -239,7 +239,7 @@ int32 CModload::LoadModuleWithOption(uint32 pathPtr, uint32 optionPtr)
 
 int32 CModload::StopModule(uint32 moduleId, uint32 argsLength, uint32 argsPtr, uint32 resultPtr)
 {
-	const char* args = reinterpret_cast<const char*>(m_ram + argsPtr);
+	FRAMEWORK_MAYBE_UNUSED const char* args = reinterpret_cast<const char*>(m_ram + argsPtr);
 	CLog::GetInstance().Print(LOG_NAME, FUNCTION_STOPMODULE "(moduleId = %d, argsLength = %d, argsPtr = 0x%08X, resultPtr = 0x%08X);\r\n",
 	                          moduleId, argsLength, argsPtr, resultPtr);
 	return m_bios.StopModule(CIopBios::MODULESTARTREQUEST_SOURCE::LOCAL, moduleId);

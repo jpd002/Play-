@@ -454,7 +454,7 @@ uint32 CCdvdman::CdRead(uint32 startSector, uint32 sectorCount, uint32 bufferPtr
 	}
 	if(modePtr != 0)
 	{
-		uint8* mode = &m_ram[modePtr];
+		FRAMEWORK_MAYBE_UNUSED uint8* mode = &m_ram[modePtr];
 		//Does that make sure it's 2048 byte mode?
 		assert(mode[2] == 0);
 	}

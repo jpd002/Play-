@@ -44,13 +44,13 @@ namespace Iop
 		void DumpAllocList();
 
 		uint8* m_iopRam = nullptr;
+		CStdio& m_stdio;
+		CIoman& m_ioman;
 		BlockListType& m_blocks;
 		uint32 m_memoryBegin;
 		uint32 m_memoryEnd;
 		uint32 m_memorySize;
 		uint32 m_headBlockId;
-		CStdio& m_stdio;
-		CIoman& m_ioman;
 	};
 
 	typedef std::shared_ptr<CSysmem> SysmemPtr;

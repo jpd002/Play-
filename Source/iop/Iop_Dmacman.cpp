@@ -35,7 +35,6 @@ using namespace Iop;
 
 static uint32 GetChannelBase(uint32 channel)
 {
-	uint32 channelBase = 0;
 	switch(channel)
 	{
 	case CDmac::CHANNEL_SIO2in:

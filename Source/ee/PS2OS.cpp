@@ -1497,7 +1497,7 @@ void CPS2OS::HandleInterrupt(int32 cpuIntLine)
 		break;
 	}
 
-	bool interrupted = m_ee.GenerateInterrupt(BIOS_ADDRESS_INTERRUPTHANDLER);
+	FRAMEWORK_MAYBE_UNUSED bool interrupted = m_ee.GenerateInterrupt(BIOS_ADDRESS_INTERRUPTHANDLER);
 	assert(interrupted);
 }
 
@@ -2541,7 +2541,7 @@ void CPS2OS::sc_WakeupThread()
 void CPS2OS::sc_CancelWakeupThread()
 {
 	uint32 id = m_ee.m_State.nGPR[SC_PARAM0].nV[0];
-	bool isInt = m_ee.m_State.nGPR[3].nV[0] == 0x36;
+	FRAMEWORK_MAYBE_UNUSED bool isInt = m_ee.m_State.nGPR[3].nV[0] == 0x36;
 
 	auto thread = m_threads[id];
 	if(!thread)
@@ -2920,7 +2920,7 @@ void CPS2OS::sc_PollSema()
 //48
 void CPS2OS::sc_ReferSemaStatus()
 {
-	bool isInt = m_ee.m_State.nGPR[3].nV[0] != 0x47;
+	FRAMEWORK_MAYBE_UNUSED bool isInt = m_ee.m_State.nGPR[3].nV[0] != 0x47;
 	uint32 id = m_ee.m_State.nGPR[SC_PARAM0].nV[0];
 	auto semaParam = reinterpret_cast<SEMAPHOREPARAM*>(GetStructPtr(m_ee.m_State.nGPR[SC_PARAM1].nV0));
 
@@ -2958,7 +2958,7 @@ void CPS2OS::sc_GetOsdConfigParam()
 //64
 void CPS2OS::sc_FlushCache()
 {
-	uint32 operationType = m_ee.m_State.nGPR[SC_PARAM0].nV[0];
+	FRAMEWORK_MAYBE_UNUSED uint32 operationType = m_ee.m_State.nGPR[SC_PARAM0].nV[0];
 }
 
 //70

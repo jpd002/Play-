@@ -32,7 +32,7 @@ namespace Iop
 		uint32 iSignalSemaphore(uint32);
 		uint32 ReferSemaphoreStatus(uint32, uint32);
 
-		uint8* m_ram;
 		CIopBios& m_bios;
+		uint8* m_ram;
 	};
 }

@@ -512,7 +512,7 @@ void CSifCmd::BuildExportTable()
 			assembler.ADDIU(CMIPS::SP, CMIPS::SP, stackAlloc);
 		}
 
-		uint32 totalSize = (assembler.GetProgramSize() * 4);
+		FRAMEWORK_MAYBE_UNUSED uint32 totalSize = (assembler.GetProgramSize() * 4);
 		assert(totalSize <= TRAMPOLINE_SIZE);
 	}
 }
@@ -539,7 +539,7 @@ void CSifCmd::ProcessInvocation(uint32 serverDataAddr, uint32 methodId, uint32* 
 	assert(queueData->serverDataStart == serverDataAddr);
 	queueData->serverDataLink = serverDataAddr;
 
-	auto thread = m_bios.GetThread(queueData->threadId);
+	FRAMEWORK_MAYBE_UNUSED auto thread = m_bios.GetThread(queueData->threadId);
 	assert(thread->status == CIopBios::THREAD_STATUS_SLEEPING);
 	m_bios.WakeupThread(queueData->threadId, true);
 	m_bios.Reschedule();
@@ -579,7 +579,7 @@ void CSifCmd::FinishBindRpc(uint32 clientDataAddr, uint32 serverId)
 	clientData->serverDataAddr = serverId;
 	clientData->header.semaId = m_bios.CreateSemaphore(0, 1, 0, 0);
 
-	int32 result = CIopBios::KERNEL_RESULT_OK;
+	FRAMEWORK_MAYBE_UNUSED int32 result = CIopBios::KERNEL_RESULT_OK;
 	result = m_bios.WaitSemaphore(clientData->header.semaId);
 	assert(result == CIopBios::KERNEL_RESULT_OK);
 
@@ -650,7 +650,7 @@ void CSifCmd::ProcessRpcRequestEnd(uint32 commandHeaderAddr)
 	//Unlock/delete semaphore
 	{
 		assert(clientData->header.semaId != 0);
-		int32 result = CIopBios::KERNEL_RESULT_OK;
+		FRAMEWORK_MAYBE_UNUSED int32 result = CIopBios::KERNEL_RESULT_OK;
 		result = m_bios.SignalSemaphore(clientData->header.semaId, true);
 		assert(result == CIopBios::KERNEL_RESULT_OK);
 		result = m_bios.DeleteSemaphore(clientData->header.semaId);
@@ -855,7 +855,7 @@ void CSifCmd::SifCallRpc(CMIPS& context)
 	clientData->endFctPtr = endFctAddr;
 	clientData->endParam = endParam;
 	clientData->header.semaId = m_bios.CreateSemaphore(0, 1, 0, 0);
-	int32 result = CIopBios::KERNEL_RESULT_OK;
+	FRAMEWORK_MAYBE_UNUSED int32 result = CIopBios::KERNEL_RESULT_OK;
 	result = m_bios.WaitSemaphore(clientData->header.semaId);
 	assert(result == CIopBios::KERNEL_RESULT_OK);
 

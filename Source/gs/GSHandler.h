@@ -1053,7 +1053,7 @@ protected:
 
 	PRESENTATION_VIEWPORT GetPresentationViewport() const;
 
-	bool m_loggingEnabled;
+	bool m_loggingEnabled = true;
 
 	uint64 m_nPMODE;              //0x12000000
 	uint64 m_nSMODE2;             //0x12000020
@@ -1072,13 +1072,13 @@ protected:
 
 	uint64 m_nReg[REGISTER_MAX];
 
-	uint8* m_pRAM;
+	uint8* m_pRAM = nullptr;
 
-	uint16* m_pCLUT;
+	uint16* m_pCLUT = nullptr;
 	uint32 m_nCBP0;
 	uint32 m_nCBP1;
 
-	uint32 m_drawCallCount;
+	uint32 m_drawCallCount = 0;
 
 	//Rename to register write buffer?
 	RegisterWrite* m_writeBuffer;
@@ -1090,8 +1090,8 @@ protected:
 	std::thread m_thread;
 	std::recursive_mutex m_registerMutex;
 	std::atomic<int> m_transferCount;
-	bool m_threadDone;
-	CFrameDump* m_frameDump;
+	bool m_threadDone = false;
+	CFrameDump* m_frameDump = nullptr;
 	bool m_drawEnabled = true;
 	CINTC* m_intc = nullptr;
 	bool m_gsThreaded = true;

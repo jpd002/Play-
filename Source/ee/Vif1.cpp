@@ -176,7 +176,8 @@ void CVif1::Cmd_DIRECT(StreamType& stream, CODE nCommand)
 			if(m_directQwordBufferIndex == QWORD_SIZE)
 			{
 				assert(m_CODE.nIMM != 0);
-				uint32 processed = m_gif.ProcessMultiplePackets(m_directQwordBuffer, QWORD_SIZE, 0, QWORD_SIZE, CGsPacketMetadata(2));
+				FRAMEWORK_MAYBE_UNUSED uint32 processed = m_gif.ProcessMultiplePackets(m_directQwordBuffer,
+				                                                                       QWORD_SIZE, 0, QWORD_SIZE, CGsPacketMetadata(2));
 				assert(processed == QWORD_SIZE);
 				m_CODE.nIMM--;
 				m_directQwordBufferIndex = 0;

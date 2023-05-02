@@ -109,8 +109,8 @@ namespace Iop
 		static unsigned int GetCounterIdByAddress(uint32);
 
 		COUNTER m_counter[MAX_COUNTERS];
-		Iop::CIntc& m_intc;
 		unsigned int m_hsyncClocks;
 		unsigned int m_pixelClocks;
+		Iop::CIntc& m_intc;
 	};
 }

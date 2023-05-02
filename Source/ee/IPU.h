@@ -123,7 +123,6 @@ private:
 	class COUTFIFO
 	{
 	public:
-		COUTFIFO();
 		virtual ~COUTFIFO();
 
 		uint32 GetSize() const;
@@ -141,9 +140,9 @@ private:
 			GROWSIZE = 0x200,
 		};
 
-		unsigned int m_size;
-		unsigned int m_alloc;
-		uint8* m_buffer;
+		unsigned int m_size = 0;
+		unsigned int m_alloc = 0;
+		uint8* m_buffer = nullptr;
 		Dma3ReceiveHandler m_receiveHandler;
 	};
 
@@ -277,8 +276,6 @@ private:
 	class CBDECCommand_ReadDcDiff : public CCommand
 	{
 	public:
-		CBDECCommand_ReadDcDiff();
-
 		void Initialize(CINFIFO*, unsigned int, int16*);
 		bool Execute() override;
 
@@ -290,18 +287,16 @@ private:
 			STATE_DONE
 		};
 
-		STATE m_state;
-		CINFIFO* m_IN_FIFO;
-		unsigned int m_channelId;
-		uint8 m_dcSize;
-		int16* m_result;
+		STATE m_state = STATE_READSIZE;
+		CINFIFO* m_IN_FIFO = nullptr;
+		unsigned int m_channelId = 0;
+		uint8 m_dcSize = 0;
+		int16* m_result = nullptr;
 	};
 
 	class CBDECCommand_ReadDct : public CCommand
 	{
 	public:
-		CBDECCommand_ReadDct();
-
 		void Initialize(CINFIFO*, int16* block, unsigned int channelId, int16* dcPredictor, bool mbi, bool isMpeg1CoeffVLCTable, bool isMpeg2);
 		bool Execute() override;
 
@@ -315,17 +310,17 @@ private:
 			STATE_SKIPEOB
 		};
 
-		CINFIFO* m_IN_FIFO;
-		STATE m_state;
-		int16* m_block;
-		unsigned int m_channelId;
-		bool m_mbi;
-		bool m_isMpeg1CoeffVLCTable;
-		bool m_isMpeg2;
-		unsigned int m_blockIndex;
-		MPEG2::CDctCoefficientTable* m_coeffTable;
-		int16* m_dcPredictor;
-		int16 m_dcDiff;
+		CINFIFO* m_IN_FIFO = nullptr;
+		STATE m_state = STATE_INIT;
+		int16* m_block = nullptr;
+		unsigned int m_channelId = 0;
+		bool m_mbi = false;
+		bool m_isMpeg1CoeffVLCTable = false;
+		bool m_isMpeg2 = true;
+		unsigned int m_blockIndex = 0;
+		MPEG2::CDctCoefficientTable* m_coeffTable = nullptr;
+		int16* m_dcPredictor = nullptr;
+		int16 m_dcDiff = 0;
 		CBDECCommand_ReadDcDiff m_readDcDiffCommand;
 	};
 
@@ -380,8 +375,6 @@ private:
 	class CVDECCommand : public CCommand
 	{
 	public:
-		CVDECCommand();
-
 		void Initialize(CINFIFO*, uint32, uint32, uint32*);
 		bool Execute() override;
 
@@ -393,19 +386,17 @@ private:
 			STATE_DONE
 		};
 
-		uint32 m_commandCode;
-		uint32* m_result;
-		CINFIFO* m_IN_FIFO;
-		STATE m_state;
-		MPEG2::CVLCTable* m_table;
+		uint32 m_commandCode = 0;
+		uint32* m_result = nullptr;
+		CINFIFO* m_IN_FIFO = nullptr;
+		STATE m_state = STATE_ADVANCE;
+		MPEG2::CVLCTable* m_table = nullptr;
 	};
 
 	//0x04 ------------------------------------------------------------
 	class CFDECCommand : public CCommand
 	{
 	public:
-		CFDECCommand();
-
 		void Initialize(CINFIFO*, uint32, uint32*);
 		bool Execute() override;
 
@@ -417,10 +408,10 @@ private:
 			STATE_DONE
 		};
 
-		uint32 m_commandCode;
-		uint32* m_result;
-		CINFIFO* m_IN_FIFO;
-		STATE m_state;
+		uint32 m_commandCode = 0;
+		uint32* m_result = nullptr;
+		CINFIFO* m_IN_FIFO = nullptr;
+		STATE m_state = STATE_ADVANCE;
 	};
 
 	//0x05 ------------------------------------------------------------

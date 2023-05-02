@@ -395,12 +395,18 @@ private:
 	void sc_GetMemorySize();
 	void sc_Unhandled();
 
+	CMIPS& m_ee;
+	CGSHandler*& m_gs;
+
 	uint8* m_ram = nullptr;
 	uint8* m_bios = nullptr;
 	uint8* m_spr = nullptr;
 
+	CSIF& m_sif;
+	Ee::CLibMc2 m_libMc2;
+	CIopBios& m_iopBios;
+
 	std::unique_ptr<CELF32> m_elf;
-	CMIPS& m_ee;
 	ThreadList m_threads;
 	SemaphoreList m_semaphores;
 	IntcHandlerList m_intcHandlers;
@@ -425,10 +431,6 @@ private:
 	//For display purposes only
 	std::string m_executableName;
 
-	CGSHandler*& m_gs;
-	CSIF& m_sif;
-	Ee::CLibMc2 m_libMc2;
-	CIopBios& m_iopBios;
 	Ee::CIdleEvaluator m_idleEvaluator;
 
 #ifdef DEBUGGER_INCLUDED

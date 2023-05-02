@@ -43,12 +43,12 @@ CSubSystem::CSubSystem(uint8* iopRam, CIopBios& iopBios)
     , m_sif(m_dmac, m_ram, iopRam)
     , m_ipu(m_intc)
     , m_timer(m_intc, m_gs)
+    , m_iopBios(iopBios)
     , m_MAVU0(PS2::VUMEM0SIZE - 1)
     , m_MAVU1(PS2::VUMEM1SIZE - 1)
     , m_COP_SCU(MIPS_REGSIZE_64)
     , m_COP_FPU(MIPS_REGSIZE_64)
     , m_COP_VU(MIPS_REGSIZE_64)
-    , m_iopBios(iopBios)
 {
 	//Some alignment checks, this is needed because of SIMD instructions used in generated code
 	assert((reinterpret_cast<size_t>(&m_EE.m_State) & 0x0F) == 0);

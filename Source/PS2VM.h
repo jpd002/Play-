@@ -141,24 +141,24 @@ private:
 	void EmuThread();
 
 	std::thread m_thread;
-	STATUS m_nStatus;
-	bool m_nEnd;
+	STATUS m_nStatus = PAUSED;
+	bool m_nEnd = false;
 
 	uint32 m_onScreenTicksTotal = 0;
 	uint32 m_vblankTicksTotal = 0;
 	int m_vblankTicks = 0;
-	bool m_inVblank = 0;
-	int m_spuUpdateTicks = 0;
+	bool m_inVblank = false;
+	int m_spuUpdateTicks = SPU_UPDATE_TICKS;
 	int m_eeExecutionTicks = 0;
 	int m_iopExecutionTicks = 0;
 	CFrameLimiter m_frameLimiter;
 
 	CPU_UTILISATION_INFO m_cpuUtilisation;
 
-	bool m_singleStepEe;
-	bool m_singleStepIop;
-	bool m_singleStepVu0;
-	bool m_singleStepVu1;
+	bool m_singleStepEe = false;
+	bool m_singleStepIop = false;
+	bool m_singleStepVu0 = false;
+	bool m_singleStepVu1 = false;
 
 #ifdef DEBUGGER_INCLUDED
 	CFrameDump m_frameDump;

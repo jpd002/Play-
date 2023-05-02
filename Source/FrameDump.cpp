@@ -94,7 +94,7 @@ void CFrameDump::Read(Framework::CStream& input)
 		if(fileHeader.first.find(STATE_PACKET_METADATA_PREFIX) == 0)
 		{
 			unsigned int packetIdx = 0;
-			int scanCount = sscanf(fileHeader.first.c_str(), STATE_PACKET_METADATA_PREFIX "%d", &packetIdx);
+			FRAMEWORK_MAYBE_UNUSED int scanCount = sscanf(fileHeader.first.c_str(), STATE_PACKET_METADATA_PREFIX "%d", &packetIdx);
 			assert(scanCount == 1);
 			packetFiles[packetIdx] = fileHeader.first;
 		}

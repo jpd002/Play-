@@ -54,7 +54,6 @@ namespace Iop
 			MASK1 = 0x1F80107C,
 		};
 
-		CIntc();
 		virtual ~CIntc() = default;
 
 		void Reset();
@@ -72,7 +71,7 @@ namespace Iop
 		bool HasPendingInterrupt();
 
 	private:
-		UNION64_32 m_status;
-		UNION64_32 m_mask;
+		UNION64_32 m_status = 0;
+		UNION64_32 m_mask = 0;
 	};
 }

@@ -30,7 +30,7 @@ namespace Iop
 		uint32 PollMbx(uint32, uint32);
 		uint32 ReferMbxStatus(uint32, uint32);
 
-		uint8* m_ram = nullptr;
 		CIopBios& m_bios;
+		uint8* m_ram = nullptr;
 	};
 }

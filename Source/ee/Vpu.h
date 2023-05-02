@@ -79,13 +79,14 @@ public:
 protected:
 	typedef std::unique_ptr<CVif> VifPtr;
 
+	unsigned int m_number = 0;
+	VifPtr m_vif;
 	uint8* m_microMem = nullptr;
 	uint32 m_microMemSize = 0;
 	uint8* m_vuMem = nullptr;
 	uint32 m_vuMemSize = 0;
 	CMIPS* m_ctx = nullptr;
 	CGIF& m_gif;
-	VifPtr m_vif;
 
 #ifdef DEBUGGER_INCLUDED
 	MIPSSTATE m_vuMiniState;
@@ -95,7 +96,6 @@ protected:
 	uint32 m_itopMiniState;
 #endif
 
-	unsigned int m_number = 0;
 	bool m_running = false;
 
 	CProfiler::ZoneHandle m_vuProfilerZone = 0;

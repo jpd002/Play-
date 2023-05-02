@@ -434,7 +434,7 @@ void CGIF::ProcessFifoWrite(uint32 address, uint32 value)
 	m_fifoIndex += 4;
 	if(m_fifoIndex == FIFO_SIZE)
 	{
-		uint32 processed = ProcessMultiplePackets(m_fifoBuffer, FIFO_SIZE, 0, FIFO_SIZE, CGsPacketMetadata(3));
+		FRAMEWORK_MAYBE_UNUSED uint32 processed = ProcessMultiplePackets(m_fifoBuffer, FIFO_SIZE, 0, FIFO_SIZE, CGsPacketMetadata(3));
 		assert(processed == FIFO_SIZE);
 		m_fifoIndex = 0;
 	}

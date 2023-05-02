@@ -19,6 +19,8 @@ using namespace PS2;
 
 CSubSystem::CSubSystem(bool ps2Mode)
     : m_cpu(MEMORYMAP_ENDIAN_LSBF, true)
+    , m_cpuArch(MIPS_REGSIZE_32)
+    , m_copScu(MIPS_REGSIZE_32)
     , m_ram(new uint8[IOP_RAM_SIZE])
     , m_scratchPad(new uint8[IOP_SCRATCH_SIZE])
     , m_spuRam(new uint8[SPU_RAM_SIZE])
@@ -33,8 +35,6 @@ CSubSystem::CSubSystem(bool ps2Mode)
 #endif
     , m_speed(m_intc)
     , m_ilink(m_intc)
-    , m_cpuArch(MIPS_REGSIZE_32)
-    , m_copScu(MIPS_REGSIZE_32)
 {
 	if(ps2Mode)
 	{

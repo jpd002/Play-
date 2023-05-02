@@ -90,13 +90,13 @@ private:
 	void Cmd_Call(const SIFCMDHEADER*);
 	void Cmd_GetOtherData(const SIFCMDHEADER*);
 
+	CDMAC& m_dmac;
 	uint8* m_eeRam;
 	uint8* m_iopRam;
 	uint32 m_dmaBufferAddress = 0;
 	uint32 m_dmaBufferSize = 0;
 	uint32 m_cmdBufferAddress = 0;
 	uint32 m_cmdBufferSize = 0;
-	CDMAC& m_dmac;
 
 	uint32 m_nMAINADDR = 0;
 	uint32 m_nSUBADDR = 0;

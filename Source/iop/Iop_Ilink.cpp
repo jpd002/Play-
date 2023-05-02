@@ -2,6 +2,7 @@
 #include "Iop_Intc.h"
 #include "Log.h"
 #include "../states/RegisterStateFile.h"
+#include "maybe_unused.h"
 
 #define LOG_NAME ("iop_ilink")
 
@@ -118,7 +119,7 @@ void CIlink::WriteRegister(uint32 address, uint32 value)
 	case REG_PHY_ACCESS:
 	{
 		uint32 phyReg = (value >> 24) & 0x3F;
-		uint32 phyData = (value >> 16) & 0xFF;
+		FRAMEWORK_MAYBE_UNUSED uint32 phyData = (value >> 16) & 0xFF;
 		m_phyResult = (phyReg << 8);
 
 		m_intr0 |= INTR0_PHYRRX;

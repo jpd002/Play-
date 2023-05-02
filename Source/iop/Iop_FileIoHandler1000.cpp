@@ -60,7 +60,7 @@ void CFileIoHandler1000::AllocateMemory()
 void CFileIoHandler1000::ReleaseMemory()
 {
 	auto sysmem = m_bios.GetSysmem();
-	uint32 result = sysmem->FreeMemory(m_moduleDataAddr);
+	FRAMEWORK_MAYBE_UNUSED uint32 result = sysmem->FreeMemory(m_moduleDataAddr);
 	assert(result == 0);
 }
 
@@ -319,8 +319,8 @@ void CFileIoHandler1000::BuildExportTable()
 			assembler.ADDIU(CMIPS::SP, CMIPS::SP, stackAlloc);
 		}
 
-		auto nextAddress = exportTable + assembler.GetProgramSize();
-		auto finalAddress = reinterpret_cast<uint32*>(m_iopRam + m_moduleDataAddr + TRAMPOLINE_SIZE);
+		FRAMEWORK_MAYBE_UNUSED auto nextAddress = exportTable + assembler.GetProgramSize();
+		FRAMEWORK_MAYBE_UNUSED auto finalAddress = reinterpret_cast<uint32*>(m_iopRam + m_moduleDataAddr + TRAMPOLINE_SIZE);
 		assert(nextAddress <= finalAddress);
 	}
 }

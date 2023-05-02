@@ -381,7 +381,7 @@ void CIopBios::LoadState(Framework::CZipArchiveReader& archive)
 			const CStructFile& structFile(structIterator->second);
 			uint32 importTableAddress = structFile.GetRegister32(STATE_MODULE_IMPORT_TABLE_ADDRESS);
 			auto module = std::make_shared<Iop::CDynamic>(reinterpret_cast<uint32*>(m_ram + importTableAddress));
-			bool result = RegisterModule(module);
+			FRAMEWORK_MAYBE_UNUSED bool result = RegisterModule(module);
 			assert(result);
 		}
 	}
@@ -702,7 +702,7 @@ int32 CIopBios::LoadModule(CELF32& elf, const char* path, uint32 loadAddress, bo
 	if(iopMod != nullptr)
 	{
 		//Clear BSS section
-		uint32 dataSectPos = iopMod->textSectionSize;
+		FRAMEWORK_MAYBE_UNUSED uint32 dataSectPos = iopMod->textSectionSize;
 		uint32 bssSectPos = iopMod->textSectionSize + iopMod->dataSectionSize;
 		uint32 bssSectSize = iopMod->bssSectionSize;
 		uint32 moduleSize = moduleRange.second - moduleRange.first;
@@ -716,7 +716,7 @@ int32 CIopBios::LoadModule(CELF32& elf, const char* path, uint32 loadAddress, bo
 		else
 		{
 			//Just make sure that everything checks out
-			uint32 totalSize = bssSectPos + bssSectSize;
+			FRAMEWORK_MAYBE_UNUSED uint32 totalSize = bssSectPos + bssSectSize;
 			assert(totalSize == moduleSize);
 		}
 		memset(m_ram + moduleRange.first + bssSectPos, 0, bssSectSize);
@@ -3185,7 +3185,7 @@ void CIopBios::HandleException()
 			instruction = m_cpu.m_pMemoryMap->GetWord(searchAddress);
 		}
 		uint32 functionId = callInstruction & 0xFFFF;
-		uint32 version = m_cpu.m_pMemoryMap->GetWord(searchAddress + 8);
+		FRAMEWORK_MAYBE_UNUSED uint32 version = m_cpu.m_pMemoryMap->GetWord(searchAddress + 8);
 		std::string moduleName = ReadModuleName(searchAddress + 0x0C);
 
 #ifdef _DEBUG

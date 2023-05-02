@@ -1,4 +1,5 @@
 #include "EeBasicBlock.h"
+#include "offsetof_def.h"
 
 void CEeBasicBlock::CompileEpilog(CMipsJitter* jitter, bool loopsOnItself)
 {
@@ -123,8 +124,8 @@ bool CEeBasicBlock::IsIdleLoopBlock() const
 	}
 
 	//Just make sure that we've at least defined our comparision register
-	bool compareRsDefined = defState & (1 << compareRs);
-	bool compareRtDefined = defState & (1 << compareRt);
+	FRAMEWORK_MAYBE_UNUSED bool compareRsDefined = defState & (1 << compareRs);
+	FRAMEWORK_MAYBE_UNUSED bool compareRtDefined = defState & (1 << compareRt);
 
 	assert(compareRsDefined || compareRtDefined);
 

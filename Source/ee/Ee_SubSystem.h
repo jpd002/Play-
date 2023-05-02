@@ -52,6 +52,10 @@ namespace Ee
 		uint8* m_vuMem1 = nullptr;
 		uint8* m_microMem1 = nullptr;
 
+		CMIPS m_EE;
+		CMIPS m_VU0;
+		CMIPS m_VU1;
+
 		CGSHandler* m_gs = nullptr;
 		CDMAC m_dmac;
 		CGIF m_gif;
@@ -61,12 +65,8 @@ namespace Ee
 		CINTC m_intc;
 		CIPU m_ipu;
 		CTimer m_timer;
-		CPS2OS* m_os;
+		CPS2OS* m_os = nullptr;
 		CIopBios& m_iopBios;
-
-		CMIPS m_EE;
-		CMIPS m_VU0;
-		CMIPS m_VU1;
 
 		void* operator new(size_t allocSize)
 		{

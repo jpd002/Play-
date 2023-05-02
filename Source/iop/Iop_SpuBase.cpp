@@ -217,7 +217,7 @@ void CSpuBase::LoadState(Framework::CZipArchiveReader& archive)
 	m_reverbWorkAddrEnd = registerFile.GetRegister32(STATE_REGS_REVERBWORKADDREND);
 	m_reverbCurrAddr = registerFile.GetRegister32(STATE_REGS_REVERBCURRADDR);
 
-	static const uint32 reverbRegisterCount = sizeof(m_reverb) / sizeof(uint128);
+	static const uint32 reverbRegisterCount = sizeof(m_reverb) / (sizeof(uint128));
 	for(uint32 i = 0; i < reverbRegisterCount; i++)
 	{
 		auto reverbRegisterName = string_format(STATE_REGS_REVERB_FORMAT, i);
@@ -261,7 +261,7 @@ void CSpuBase::SaveState(Framework::CZipArchiveWriter& archive)
 	registerFile->SetRegister32(STATE_REGS_REVERBWORKADDREND, m_reverbWorkAddrEnd);
 	registerFile->SetRegister32(STATE_REGS_REVERBCURRADDR, m_reverbCurrAddr);
 
-	static const uint32 reverbRegisterCount = sizeof(m_reverb) / sizeof(uint128);
+	static const uint32 reverbRegisterCount = sizeof(m_reverb) / (sizeof(uint128));
 	for(uint32 i = 0; i < reverbRegisterCount; i++)
 	{
 		auto reverbRegisterName = string_format(STATE_REGS_REVERB_FORMAT, i);
@@ -1077,7 +1077,7 @@ void CSpuBase::CSampleReader::LoadState(const CRegisterStateFile& registerFile, 
 	m_irqPending = registerFile.GetRegister32((channelPrefix + STATE_SAMPLEREADER_REGS_IRQPENDING).c_str()) != 0;
 	m_didChangeRepeat = registerFile.GetRegister32((channelPrefix + STATE_SAMPLEREADER_REGS_DIDCHANGEREPEAT).c_str()) != 0;
 
-	static const uint32 bufferRegisterCount = sizeof(m_buffer) / sizeof(uint128);
+	static const uint32 bufferRegisterCount = sizeof(m_buffer) / (sizeof(uint128));
 	for(uint32 i = 0; i < bufferRegisterCount; i++)
 	{
 		auto bufferRegisterName = string_format(STATE_SAMPLEREADER_REGS_BUFFER_FORMAT, channelPrefix.c_str(), i);
@@ -1101,7 +1101,7 @@ void CSpuBase::CSampleReader::SaveState(CRegisterStateFile* registerFile, const 
 	registerFile->SetRegister32((channelPrefix + STATE_SAMPLEREADER_REGS_IRQPENDING).c_str(), m_irqPending);
 	registerFile->SetRegister32((channelPrefix + STATE_SAMPLEREADER_REGS_DIDCHANGEREPEAT).c_str(), m_didChangeRepeat);
 
-	static const uint32 bufferRegisterCount = sizeof(m_buffer) / sizeof(uint128);
+	static const uint32 bufferRegisterCount = sizeof(m_buffer) / (sizeof(uint128));
 	for(uint32 i = 0; i < bufferRegisterCount; i++)
 	{
 		auto bufferRegisterName = string_format(STATE_SAMPLEREADER_REGS_BUFFER_FORMAT, channelPrefix.c_str(), i);
@@ -1347,7 +1347,6 @@ void CSpuBase::CBlockSampleReader::FillBlock(const uint8* block)
 void CSpuBase::CBlockSampleReader::GetSamples(int16& sampleL, int16& sampleR, unsigned int dstSamplingRate)
 {
 	uint32 srcSampleIdx = m_srcSampleIdx / TIME_SCALE;
-	int32 srcSampleAlpha = m_srcSampleIdx % TIME_SCALE;
 	assert(srcSampleIdx < SOUND_INPUT_DATA_SAMPLES);
 
 	auto inputSamples = reinterpret_cast<const int16*>(m_blockBuffer);

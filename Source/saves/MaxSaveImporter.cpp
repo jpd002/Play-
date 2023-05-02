@@ -4,14 +4,7 @@
 #include "LzAri.h"
 #include "MemStream.h"
 #include "StdStreamUtils.h"
-
-CMaxSaveImporter::CMaxSaveImporter()
-{
-}
-
-CMaxSaveImporter::~CMaxSaveImporter()
-{
-}
+#include "maybe_unused.h"
 
 void CMaxSaveImporter::Import(Framework::CStream& inputStream, const fs::path& basePath)
 {
@@ -22,7 +15,7 @@ void CMaxSaveImporter::Import(Framework::CStream& inputStream, const fs::path& b
 		throw std::runtime_error("Invalid MAX save file.");
 	}
 
-	uint32 checksum = inputStream.Read32();
+	FRAMEWORK_MAYBE_UNUSED uint32 checksum = inputStream.Read32();
 
 	char directoryName[0x21];
 	inputStream.Read(directoryName, 0x20);
@@ -32,7 +25,7 @@ void CMaxSaveImporter::Import(Framework::CStream& inputStream, const fs::path& b
 	inputStream.Read(iconName, 0x20);
 	iconName[0x20] = 0;
 
-	uint32 compressedSize = inputStream.Read32();
+	FRAMEWORK_MAYBE_UNUSED uint32 compressedSize = inputStream.Read32();
 	uint32 fileCount = inputStream.Read32();
 
 	Framework::CMemStream directoryDataStream;

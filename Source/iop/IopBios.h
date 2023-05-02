@@ -660,7 +660,6 @@ private:
 	uint32 m_defaultImageVersion = DEFAULT_IMAGE_VERSION;
 
 	bool m_rescheduleNeeded = false;
-	LoadedModuleList m_loadedModules;
 	ThreadList m_threads;
 	MemoryBlockList m_memoryBlocks;
 	SemaphoreList m_semaphores;
@@ -670,6 +669,7 @@ private:
 	MessageBoxList m_messageBoxes;
 	FplList m_fpls;
 	VplList m_vpls;
+	LoadedModuleList m_loadedModules;
 
 	MODULESTARTREQUEST m_moduleStartRequests[MAX_MODULESTARTREQUEST] = {};
 

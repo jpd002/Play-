@@ -160,7 +160,7 @@ uint32 CFileIoHandler2200::InvokeClose(uint32* args, uint32 argsSize, uint32* re
 {
 	assert(retSize == 4);
 	auto command = reinterpret_cast<CLOSECOMMAND*>(args);
-	auto fileMode = m_ioman->GetFileMode(command->fd);
+	FRAMEWORK_MAYBE_UNUSED auto fileMode = m_ioman->GetFileMode(command->fd);
 	auto result = m_ioman->Close(command->fd);
 
 	CLOSEREPLY reply;

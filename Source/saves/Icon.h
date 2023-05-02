@@ -55,15 +55,15 @@ private:
 	void ReadTexture(Framework::CStream&);
 	void UncompressTexture(Framework::CStream&);
 
-	VERTEX** m_pShapes;
-	TEXCOORD* m_pTexCoords;
-	FRAME* m_pFrames;
+	VERTEX** m_pShapes = nullptr;
+	TEXCOORD* m_pTexCoords = nullptr;
+	FRAME* m_pFrames = nullptr;
 
-	uint32 m_nShapeCount;
-	uint32 m_nVertexCount;
-	uint32 m_nFrameCount;
-	uint32 m_nTextureType;
-	uint16* m_pTexture;
+	uint32 m_nShapeCount = 0;
+	uint32 m_nVertexCount = 0;
+	uint32 m_nFrameCount = 0;
+	uint32 m_nTextureType = 0;
+	uint16* m_pTexture = nullptr;
 };
 
 typedef std::shared_ptr<CIcon> IconPtr;

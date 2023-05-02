@@ -99,7 +99,6 @@ void CVuAnalysis::Analyse(CMIPS* ctx, uint32 begin, uint32 end)
 		if(ctx->m_analysis->FindSubroutine(address)) continue;
 
 		uint32 lowerInstruction = ctx->m_pMemoryMap->GetInstruction(address + 0);
-		uint32 upperInstruction = ctx->m_pMemoryMap->GetInstruction(address + 4);
 
 		auto branchType = ctx->m_pArch->IsInstructionBranch(ctx, address, lowerInstruction);
 		if(branchType == MIPS_BRANCH_NORMAL)

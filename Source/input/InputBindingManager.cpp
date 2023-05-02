@@ -83,7 +83,7 @@ static BINDINGTARGET LoadBindingTargetPreference(Framework::CConfig& config, con
 	BINDINGTARGET result;
 	result.providerId = config.GetPreferenceInteger(Framework::CConfig::MakePreferenceName(base, CONFIG_BINDINGTARGET_PROVIDERID).c_str());
 	auto deviceIdString = config.GetPreferenceString(Framework::CConfig::MakePreferenceName(base, CONFIG_BINDINGTARGET_DEVICEID).c_str());
-	bool parseResult = TryParseDeviceId(deviceIdString, result.deviceId);
+	FRAMEWORK_MAYBE_UNUSED bool parseResult = TryParseDeviceId(deviceIdString, result.deviceId);
 	assert(parseResult);
 	result.keyId = config.GetPreferenceInteger(Framework::CConfig::MakePreferenceName(base, CONFIG_BINDINGTARGET_KEYID).c_str());
 	result.keyType = static_cast<BINDINGTARGET::KEYTYPE>(config.GetPreferenceInteger(Framework::CConfig::MakePreferenceName(base, CONFIG_BINDINGTARGET_KEYTYPE).c_str()));
