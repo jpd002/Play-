@@ -108,12 +108,20 @@ MainWindow::MainWindow(QWidget* parent)
 
 	CreateStatusBar();
 	UpdateUI();
-	addAction(ui->actionPause_Resume);
 	SetupBootableView();
+
+	//Add actions to window to make sure they can be activated with shortcuts in fullscreen mode.
+	addAction(ui->actionPause_Resume);
+	addAction(ui->actionToggleFullscreen);
+
+#ifdef WIN32
+	ui->actionToggleFullscreen->setShortcut(QKeySequence(Qt::ALT + Qt::Key_Return));
+#endif
 
 #ifdef HAS_AMAZON_S3
 	ui->actionBoot_DiscImage_S3->setVisible(S3FileBrowser::IsAvailable());
 #endif
+
 	InitVirtualMachine();
 	SetupGsHandler();
 	SetupDebugger();
