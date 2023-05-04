@@ -308,6 +308,11 @@ void CNamcoArcade::LoadState(Framework::CZipArchiveReader& archive)
 	m_sendAddr = registerFile.GetRegister32(STATE_SEND_ADDR);
 }
 
+void CNamcoArcade::SetLightGunXform(const std::array<float, 4>& lightGunXform)
+{
+	m_lightGunXform = lightGunXform;
+}
+
 void CNamcoArcade::SetButtonState(unsigned int padNumber, PS2::CControllerInfo::BUTTON button, bool pressed, uint8* ram)
 {
 	//For Ridge Racer V (coin button)
@@ -421,17 +426,8 @@ void CNamcoArcade::SetAxisState(unsigned int padNumber, PS2::CControllerInfo::BU
 
 void CNamcoArcade::SetGunPosition(float x, float y)
 {
-#if 0
-	//Settings that work great with Time Crisis 3
-	m_jvsGunPosX = static_cast<int16>(330.f * (x * 2.0f - 1.0f)) + 0x3FFF;
-	m_jvsGunPosY = static_cast<int16>(110.f * (y * 2.0f - 1.0f)) + 0x3FFF;
-#endif
-#if 1
-	//Settings that work great with Time Crisis 4 (actually reads analog stick to figure out position)
-	m_jvsGunPosX = static_cast<int16>(0xFFFF * -x);
-	m_jvsGunPosY = static_cast<int16>(0xFFFF * y);
-#endif
-	//printf("Gun pos: %d, %d\r\n", m_jvsGunPosX, m_jvsGunPosY);
+	m_jvsGunPosX = static_cast<int16>((x * m_lightGunXform[0]) + m_lightGunXform[1]);
+	m_jvsGunPosY = static_cast<int16>((y * m_lightGunXform[2]) + m_lightGunXform[3]);
 }
 
 bool CNamcoArcade::Invoke001(uint32 method, uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)

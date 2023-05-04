@@ -10,6 +10,7 @@
 		"name": "cbr1-ha.chd"
 	},
 	"hasLightGun": true,
+	"lightGunXform": [ -65535, 0, 65535, 0 ],
 	"boot": "ac0:CBRLOAD",
 	"patches":
 	[

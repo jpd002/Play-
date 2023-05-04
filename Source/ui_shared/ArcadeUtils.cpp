@@ -32,6 +32,7 @@ struct ARCADE_MACHINE_DEF
 	std::string cdvdFileName;
 	std::string hddFileName;
 	bool hasLightGun = false;
+	std::array<float, 4> lightGunXform = { 65535, 0, 65535, 0 };
 	std::string boot;
 	std::vector<PATCH> patches;
 };
@@ -86,6 +87,17 @@ ARCADE_MACHINE_DEF ReadArcadeMachineDefinition(const fs::path& arcadeDefPath)
 	if(defJson.contains("hasLightGun"))
 	{
 		def.hasLightGun = defJson["hasLightGun"];
+	}
+	if(defJson.contains("lightGunXform"))
+	{
+		auto lightGunXformArray = defJson["lightGunXform"];
+		if(lightGunXformArray.is_array() && (lightGunXformArray.size() >= 4))
+		{
+			for(int i = 0; i < 4; i++)
+			{
+				def.lightGunXform[i] = lightGunXformArray[i];
+			}
+		}
 	}
 	def.boot = defJson["boot"];
 	if(defJson.contains("patches"))
@@ -186,6 +198,7 @@ void PrepareArcadeEnvironment(CPS2VM* virtualMachine, const ARCADE_MACHINE_DEF& 
 			if(def.hasLightGun)
 			{
 				virtualMachine->SetGunListener(namcoArcadeModule.get());
+				namcoArcadeModule->SetLightGunXform(def.lightGunXform);
 			}
 		}
 	}

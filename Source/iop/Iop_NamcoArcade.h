@@ -1,5 +1,6 @@
 #pragma once
 
+#include <array>
 #include "Iop_Module.h"
 #include "Iop_SifMan.h"
 #include "../SifModuleAdapter.h"
@@ -27,6 +28,8 @@ namespace Iop
 		void SaveState(Framework::CZipArchiveWriter&) const override;
 		void LoadState(Framework::CZipArchiveReader&) override;
 
+		void SetLightGunXform(const std::array<float, 4>&);
+		
 		//CPadListener
 		void SetButtonState(unsigned int, PS2::CControllerInfo::BUTTON, bool, uint8*) override;
 		void SetAxisState(unsigned int, PS2::CControllerInfo::BUTTON, uint8, uint8*) override;
@@ -67,6 +70,8 @@ namespace Iop
 		uint32 m_recvAddr = 0;
 		uint32 m_sendAddr = 0;
 		
+		std::array<float, 4> m_lightGunXform = { 65535, 0, 65535, 0 };
+
 		uint16 m_jvsButtonState = 0;
 		uint16 m_jvsSystemButtonState = 0;
 		uint16 m_jvsGunPosX = 0x7FFF;
