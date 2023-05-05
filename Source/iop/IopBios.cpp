@@ -3037,7 +3037,8 @@ uint32 CIopBios::AssembleModuleStarterProc(CMIPSAssembler& assembler)
 	//there's a chance the current module won't have time to complete its init (through threads)
 	//properly before another module starts. Capcom vs SNK2 has this problem where multiple
 	//modules will call SdInit, but the order in which they are called is important.
-	assembler.LI(CMIPS::A0, 0x40000);
+	//Shin Megami Tensei: Nocturne is also sensitive to this delay.
+	assembler.LI(CMIPS::A0, 0x4000);
 	assembler.ADDIU(CMIPS::V0, CMIPS::R0, SYSCALL_DELAYTHREADTICKS);
 	assembler.SYSCALL();
 
