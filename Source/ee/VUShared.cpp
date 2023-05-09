@@ -598,11 +598,23 @@ void VUShared::ADD(CMipsJitter* codeGen, uint8 dest, uint8 fd, uint8 fs, uint8 f
 
 void VUShared::ADDbc(CMipsJitter* codeGen, uint8 dest, uint8 fd, uint8 fs, uint8 ft, uint8 bc, uint32 relativePipeTime, uint32 compileHints)
 {
-	ADD_base(codeGen, dest,
-	         offsetof(CMIPS, m_State.nCOP2[(fd != 0) ? fd : 32]),
-	         offsetof(CMIPS, m_State.nCOP2[fs]),
-	         offsetof(CMIPS, m_State.nCOP2[ft].nV[bc]),
-	         true, relativePipeTime, compileHints);
+	if((fd != 0) && (ft == 0) && (bc != 3))
+	{
+		//Using VF0 (other than W component) as broadcast value, which basically means add with 0.
+		//Do a simple move to the destination register to avoid clamping which can alter the other addend.
+		//Piposaru 2001 uses this to move some integer values (0xFFFF8000) between VF regs.
+		codeGen->MD_PushRel(offsetof(CMIPS, m_State.nCOP2[fs]));
+		PullVector(codeGen, dest, offsetof(CMIPS, m_State.nCOP2[fd]));
+		TestSZFlags(codeGen, dest, offsetof(CMIPS, m_State.nCOP2[fd]), relativePipeTime, compileHints);
+	}
+	else
+	{
+		ADD_base(codeGen, dest,
+		         offsetof(CMIPS, m_State.nCOP2[(fd != 0) ? fd : 32]),
+		         offsetof(CMIPS, m_State.nCOP2[fs]),
+		         offsetof(CMIPS, m_State.nCOP2[ft].nV[bc]),
+		         true, relativePipeTime, compileHints);
+	}
 }
 
 void VUShared::ADDi(CMipsJitter* codeGen, uint8 nDest, uint8 nFd, uint8 nFs, uint32 relativePipeTime, uint32 compileHints)
