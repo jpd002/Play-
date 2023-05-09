@@ -1360,7 +1360,7 @@ CGSHandler::DISPLAY_INFO CGSHandler::GetCurrentDisplayInfo()
 		//- Dragon Quest 8
 		if(
 		    (dispFb1.GetBufPtr() == dispFb2.GetBufPtr()) &&
-		    abs(static_cast<int>(dispRect1.offsetY - dispRect2.offsetY) <= 1))
+		    (abs(static_cast<int>(dispRect1.offsetY - dispRect2.offsetY)) <= 1))
 		{
 			return makeInfoFromRc(0);
 		}
