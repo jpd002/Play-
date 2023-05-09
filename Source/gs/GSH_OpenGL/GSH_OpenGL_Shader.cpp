@@ -440,6 +440,9 @@ std::string CGSH_OpenGL::GenerateTexCoordClampingSection(TEXTURE_CLAMP_MODE clam
 
 	switch(clampMode)
 	{
+	case TEXTURE_CLAMP_MODE_STD:
+		//Using the GPU's built-in clamping, nothing to do.
+		break;
 	case TEXTURE_CLAMP_MODE_CLAMP:
 		shaderBuilder << "	texCoord." << coordinate << " = clamp(texCoord." << coordinate
 		              << ", g_clampMin." << coordinate << ", g_clampMax." << coordinate << ");" << std::endl;
@@ -455,6 +458,9 @@ std::string CGSH_OpenGL::GenerateTexCoordClampingSection(TEXTURE_CLAMP_MODE clam
 	case TEXTURE_CLAMP_MODE_REGION_REPEAT_SIMPLE:
 		shaderBuilder << "	texCoord." << coordinate << " = mod(texCoord." << coordinate << ", "
 		              << "g_clampMin." << coordinate << ") + g_clampMax." << coordinate << ";" << std::endl;
+		break;
+	default:
+		assert(false);
 		break;
 	}
 
