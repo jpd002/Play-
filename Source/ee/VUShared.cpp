@@ -140,6 +140,24 @@ size_t VUShared::GetAccumulatorElement(unsigned int nElement)
 	return offsetof(CMIPS, m_State.nCOP2A.nV[nElement]);
 }
 
+void TestVectorNaN(CMIPS* context, uint32 dest, uint32 offset)
+{
+	for(int i = 0; i < 4; i++)
+	{
+		if(!DestinationHasElement(dest, i)) continue;
+		uint32 value = reinterpret_cast<uint32*>(context)[(offset / 4) + i];
+		assert((value & 0x7F800000) != 0x7F800000);
+	}
+}
+
+void CheckVectorNaN(CMipsJitter* codeGen, uint8 dest, size_t vector)
+{
+	codeGen->PushCtx();
+	codeGen->PushCst(dest);
+	codeGen->PushCst(vector);
+	codeGen->Call(reinterpret_cast<void*>(&TestVectorNaN), 3, Jitter::CJitter::RETURN_VALUE_NONE);
+}
+
 void VUShared::PullVector(CMipsJitter* codeGen, uint8 dest, size_t vector)
 {
 	assert(vector != offsetof(CMIPS, m_State.nCOP2[0]));
