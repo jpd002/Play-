@@ -83,7 +83,7 @@ void CVuBasicBlock::CompileRange(CMipsJitter* jitter)
 		}
 		if(loOps.syncP)
 		{
-			VUShared::FlushPipeline(VUShared::g_pipeInfoP, jitter);
+			VUShared::SyncPipeline(VUShared::g_pipeInfoP, jitter, relativePipeTime);
 		}
 
 		auto fmacStallDelay = fmacPipelineInfo.stallDelays[instructionIndex];

@@ -219,6 +219,7 @@ namespace VUShared
 	void WAITQ(CMipsJitter*);
 
 	void FlushPipeline(const REGISTER_PIPEINFO&, CMipsJitter*);
+	void SyncPipeline(const REGISTER_PIPEINFO&, CMipsJitter*, uint32);
 	void CheckPipeline(const REGISTER_PIPEINFO&, CMipsJitter*, uint32);
 	void QueueInPipeline(const REGISTER_PIPEINFO&, CMipsJitter*, uint32, uint32);
 	void CheckFlagPipeline(const FLAG_PIPEINFO&, CMipsJitter*, uint32);

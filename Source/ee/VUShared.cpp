@@ -1696,6 +1696,28 @@ void VUShared::FlushPipeline(const REGISTER_PIPEINFO& pipeInfo, CMipsJitter* cod
 	codeGen->PullRel(pipeInfo.value);
 }
 
+void VUShared::SyncPipeline(const REGISTER_PIPEINFO& pipeInfo, CMipsJitter* codeGen, uint32 relativePipeTime)
+{
+	codeGen->PushRel(pipeInfo.counter);
+
+	codeGen->PushRel(offsetof(CMIPS, m_State.pipeTime));
+	codeGen->PushCst(relativePipeTime);
+	codeGen->Add();
+
+	//If time for value to arrive (pipeInfo.counter) is greater than our current pipeTime,
+	//increase pipeTime so that it matches.
+	codeGen->BeginIf(Jitter::CONDITION_GE);
+	{
+		codeGen->PushRel(pipeInfo.counter);
+		codeGen->PushCst(relativePipeTime);
+		codeGen->Sub();
+		codeGen->PullRel(offsetof(CMIPS, m_State.pipeTime));
+	}
+	codeGen->EndIf();
+
+	FlushPipeline(pipeInfo, codeGen);
+}
+
 void VUShared::CheckPipeline(const REGISTER_PIPEINFO& pipeInfo, CMipsJitter* codeGen, uint32 relativePipeTime)
 {
 	codeGen->PushRel(pipeInfo.counter);
