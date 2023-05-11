@@ -271,6 +271,13 @@ uint32 CVuAssembler::Lower::DIV(VF_REGISTER fs, FVF fsf, VF_REGISTER ft, FVF ftf
 	return result;
 }
 
+uint32 CVuAssembler::Lower::ERLENG(VF_REGISTER fs)
+{
+	uint32 result = 0x81C0073F;
+	result |= (fs << 11);
+	return result;
+}
+
 uint32 CVuAssembler::Lower::FCAND(uint32 imm)
 {
 	uint32 result = 0x24000000;
@@ -407,6 +414,11 @@ uint32 CVuAssembler::Lower::SQ(DEST dest, VF_REGISTER fs, uint16 imm, VI_REGISTE
 	result |= (it << 16);
 	result |= (dest << 21);
 	return result;
+}
+
+uint32 CVuAssembler::Lower::WAITP()
+{
+	return 0x800007BF;
 }
 
 uint32 CVuAssembler::Lower::WAITQ()

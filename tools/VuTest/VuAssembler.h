@@ -157,6 +157,7 @@ public:
 	public:
 		static BRANCHOP B(LABEL);
 		static uint32 DIV(VF_REGISTER, FVF, VF_REGISTER, FVF);
+		static uint32 ERLENG(VF_REGISTER);
 		static uint32 FCAND(uint32);
 		static uint32 FCGET(VI_REGISTER);
 		static uint32 FMAND(VI_REGISTER, VI_REGISTER);
@@ -172,6 +173,7 @@ public:
 		static uint32 MTIR(VI_REGISTER, VF_REGISTER, FVF);
 		static uint32 NOP();
 		static uint32 SQ(DEST, VF_REGISTER, uint16, VI_REGISTER);
+		static uint32 WAITP();
 		static uint32 WAITQ();
 	};
 

@@ -18,6 +18,7 @@ endif()
 add_executable(VuTest
 	AddTest.cpp
 	BranchTest.cpp
+	FdivEfuMixTest.cpp
 	FlagsTest.cpp
 	FlagsTest2.cpp
 	FlagsTest3.cpp
@@ -39,6 +40,7 @@ add_executable(VuTest
 
 	AddTest.h
 	BranchTest.h
+	FdivEfuMixTest.h
 	FlagsTest.h
 	FlagsTest2.h
 	FlagsTest3.h

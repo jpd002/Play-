@@ -4,6 +4,7 @@
 #include "FpUtils.h"
 #include "AddTest.h"
 #include "BranchTest.h"
+#include "FdivEfuMixTest.h"
 #include "FlagsTest.h"
 #include "FlagsTest2.h"
 #include "FlagsTest3.h"
@@ -27,6 +28,7 @@ static const TestFactoryFunction s_factories[] =
 {
 	[]() { return new CAddTest(); },
 	[]() { return new CBranchTest(); },
+	[]() { return new CFdivEfuMixTest(); },
 	[]() { return new CFlagsTest(); },
 	[]() { return new CFlagsTest2(); },
 	[]() { return new CFlagsTest3(); },
