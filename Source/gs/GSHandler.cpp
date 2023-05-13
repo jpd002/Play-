@@ -163,6 +163,9 @@ void CGSHandler::ResetBase()
 	m_nCBP0 = 0;
 	m_nCBP1 = 0;
 	m_transferCount = 0;
+	m_writeBufferSize = 0;
+	m_writeBufferProcessIndex = 0;
+	m_writeBufferSubmitIndex = 0;
 }
 
 void CGSHandler::ResetImpl()
