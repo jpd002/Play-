@@ -234,6 +234,8 @@ void CGSH_Vulkan::ResetImpl()
 	m_vtxCount = 0;
 	m_primitiveType = PRIM_INVALID;
 	memset(&m_clutStates, 0, sizeof(m_clutStates));
+	memset(m_memoryCache, 0, RAMSIZE);
+	WriteBackMemoryCache();
 }
 
 void CGSH_Vulkan::SetPresentationParams(const CGSHandler::PRESENTATION_PARAMS& presentationParams)
