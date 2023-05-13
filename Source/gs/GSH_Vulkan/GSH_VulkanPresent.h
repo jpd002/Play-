@@ -19,7 +19,22 @@ namespace GSH_Vulkan
 		void DoPresent(const CGSHandler::DISPLAY_INFO&);
 
 	private:
-		typedef CPipelineCache<uint32> PipelineCache;
+		enum BLEND_MODE
+		{
+			BLEND_MODE_NONE,
+			BLEND_MODE_SRC_ALPHA,
+			BLEND_MODE_CST_ALPHA,
+		};
+
+		typedef uint32 PipelineCapsInt;
+
+		struct PIPELINE_CAPS : public convertible<PipelineCapsInt>
+		{
+			uint32 bufPsm : 6;
+			uint32 blendMode : 2;
+		};
+
+		typedef CPipelineCache<PipelineCapsInt> PipelineCache;
 		typedef std::unordered_map<uint32, VkDescriptorSet> DescriptorSetCache;
 
 		struct PRESENT_COMMANDBUFFER
@@ -59,9 +74,9 @@ namespace GSH_Vulkan
 		void CreateRenderPass();
 		void CreateVertexBuffer();
 
-		PIPELINE CreateDrawPipeline(uint32);
+		PIPELINE CreateDrawPipeline(const PIPELINE_CAPS&);
 		Framework::Vulkan::CShaderModule CreateVertexShader();
-		Framework::Vulkan::CShaderModule CreateFragmentShader(uint32);
+		Framework::Vulkan::CShaderModule CreateFragmentShader(const PIPELINE_CAPS&);
 
 		static const PRESENT_VERTEX g_vertexBufferContents[4];
 

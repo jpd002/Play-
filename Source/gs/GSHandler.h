@@ -175,6 +175,8 @@ public:
 			uint32 bufPtr = 0;
 			uint32 bufWidth = 0;
 			uint32 psm = 0;
+			bool useConstantAlpha = true;
+			uint8 constantAlpha = 0xFF;
 		} layers[MAX_LAYERS];
 
 		uint32 width = 0;
@@ -934,6 +936,20 @@ protected:
 		CRT_MODE_PAL = 0x03,
 		CRT_MODE_VGA_640_75 = 0x1C,
 	};
+
+	struct PMODE : public convertible<uint64>
+	{
+		unsigned int en1 : 1;
+		unsigned int en2 : 1;
+		unsigned int crtmd : 3;
+		unsigned int mmod : 1;
+		unsigned int amod : 1;
+		unsigned int slbg : 1;
+		unsigned int alp : 8;
+		unsigned int reserved0 : 16;
+		unsigned int reserved1;
+	};
+	static_assert(sizeof(PMODE) == sizeof(uint64), "Size of PMODE struct must be 8 bytes.");
 
 	struct SMODE2 : public convertible<uint64>
 	{

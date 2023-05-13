@@ -169,11 +169,24 @@ void CPresent::UpdateBackbuffer(uint32 imageIndex, const CGSHandler::DISPLAY_INF
 	{
 		if(!dispLayer.enabled) continue;
 
+		float blendAlpha = std::min(static_cast<float>(dispLayer.constantAlpha) * 2.f / 255.f, 1.f);
+
+		auto caps = make_convertible<PIPELINE_CAPS>(0);
+		caps.bufPsm = dispLayer.psm;
+		if(dispLayer.useConstantAlpha)
+		{
+			caps.blendMode = (blendAlpha != 1.0f) ? BLEND_MODE_CST_ALPHA : BLEND_MODE_NONE;
+		}
+		else
+		{
+			caps.blendMode = BLEND_MODE_SRC_ALPHA;
+		}
+
 		//Find pipeline and create it if we've never encountered it before
-		auto drawPipeline = m_pipelineCache.TryGetPipeline(dispLayer.psm);
+		auto drawPipeline = m_pipelineCache.TryGetPipeline(caps);
 		if(!drawPipeline)
 		{
-			drawPipeline = m_pipelineCache.RegisterPipeline(dispLayer.psm, CreateDrawPipeline(dispLayer.psm));
+			drawPipeline = m_pipelineCache.RegisterPipeline(caps, CreateDrawPipeline(caps));
 		}
 
 		PRESENT_PARAMS presentParams = {};
@@ -193,6 +206,8 @@ void CPresent::UpdateBackbuffer(uint32 imageIndex, const CGSHandler::DISPLAY_INF
 
 		m_context->device.vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, drawPipeline->pipeline);
 
+		float blendConstants[4] = {0, 0, 0, blendAlpha};
+		m_context->device.vkCmdSetBlendConstants(commandBuffer, blendConstants);
 		m_context->device.vkCmdPushConstants(commandBuffer, drawPipeline->pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(PRESENT_PARAMS), &presentParams);
 
 		VkDeviceSize vertexBufferOffset = 0;
@@ -507,12 +522,12 @@ void CPresent::CreateRenderPass()
 	CHECKVULKANERROR(result);
 }
 
-PIPELINE CPresent::CreateDrawPipeline(uint32 bufPsm)
+PIPELINE CPresent::CreateDrawPipeline(const PIPELINE_CAPS& caps)
 {
 	PIPELINE drawPipeline;
 
 	auto vertexShader = CreateVertexShader();
-	auto fragmentShader = CreateFragmentShader(bufPsm);
+	auto fragmentShader = CreateFragmentShader(caps);
 
 	auto result = VK_SUCCESS;
 
@@ -597,9 +612,22 @@ PIPELINE CPresent::CreateDrawPipeline(uint32 bufPsm)
 	rasterStateInfo.cullMode = VK_CULL_MODE_NONE;
 	rasterStateInfo.lineWidth = 1.0f;
 
-	// Our attachment will write to all color channels, but no blending is enabled.
 	VkPipelineColorBlendAttachmentState blendAttachment = {};
-	blendAttachment.colorWriteMask = 0xf;
+	blendAttachment.colorWriteMask = 0xF;
+	switch(caps.blendMode)
+	{
+	case BLEND_MODE_NONE:
+		break;
+	case BLEND_MODE_SRC_ALPHA:
+		blendAttachment.blendEnable = true;
+		blendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
+		blendAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
+		break;
+	case BLEND_MODE_CST_ALPHA:
+		blendAttachment.blendEnable = true;
+		blendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_CONSTANT_COLOR;
+		blendAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_CONSTANT_COLOR;
+	}
 
 	auto colorBlendStateInfo = Framework::Vulkan::PipelineColorBlendStateCreateInfo();
 	colorBlendStateInfo.attachmentCount = 1;
@@ -618,6 +646,7 @@ PIPELINE CPresent::CreateDrawPipeline(uint32 bufPsm)
 	    {
 	        VK_DYNAMIC_STATE_VIEWPORT,
 	        VK_DYNAMIC_STATE_SCISSOR,
+	        VK_DYNAMIC_STATE_BLEND_CONSTANTS,
 	    };
 	auto dynamicStateInfo = Framework::Vulkan::PipelineDynamicStateCreateInfo();
 	dynamicStateInfo.pDynamicStates = dynamicStates;
@@ -691,7 +720,7 @@ Framework::Vulkan::CShaderModule CPresent::CreateVertexShader()
 	return Framework::Vulkan::CShaderModule(m_context->device, shaderStream);
 }
 
-Framework::Vulkan::CShaderModule CPresent::CreateFragmentShader(uint32 bufPsm)
+Framework::Vulkan::CShaderModule CPresent::CreateFragmentShader(const PIPELINE_CAPS& caps)
 {
 	using namespace Nuanceur;
 
@@ -713,7 +742,7 @@ Framework::Vulkan::CShaderModule CPresent::CreateFragmentShader(uint32 bufPsm)
 
 		auto screenPos = ToInt(inputTexCoord->xy() * ToFloat(layerSize));
 
-		switch(bufPsm)
+		switch(caps.bufPsm)
 		{
 		default:
 			assert(false);

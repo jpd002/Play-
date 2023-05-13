@@ -1351,6 +1351,10 @@ CGSHandler::DISPLAY_INFO CGSHandler::GetCurrentDisplayInfo()
 			}
 		}
 
+		auto pmode = make_convertible<PMODE>(m_nPMODE);
+		assert(pmode.mmod == 0);
+		assert(pmode.slbg == 0);
+
 		auto dispFb1 = make_convertible<DISPFB>(m_nDISPFB1.value.q);
 		auto dispFb2 = make_convertible<DISPFB>(m_nDISPFB2.value.q);
 		auto dispRect1 = GetDisplayRect(m_nDISPLAY1.value.q);
@@ -1397,6 +1401,8 @@ CGSHandler::DISPLAY_INFO CGSHandler::GetCurrentDisplayInfo()
 			layer.bufPtr = dispFb1.GetBufPtr();
 			layer.bufWidth = dispFb1.GetBufWidth();
 			layer.psm = dispFb1.nPSM;
+			layer.useConstantAlpha = (pmode.mmod != 0);
+			layer.constantAlpha = pmode.alp;
 		}
 
 		return info;
