@@ -2,6 +2,7 @@
 #include <cstring>
 #include "Iop_RootCounters.h"
 #include "Iop_Intc.h"
+#include "Ps2Const.h"
 #include "string_format.h"
 #include "../Log.h"
 #include "../states/RegisterStateFile.h"
@@ -65,8 +66,8 @@ const uint32 CRootCounters::g_counterMaxScales[MAX_COUNTERS] =
 // clang-format on
 
 CRootCounters::CRootCounters(unsigned int clockFreq, Iop::CIntc& intc)
-    : m_hsyncClocks(clockFreq / (480 * 60))
-    , m_pixelClocks(clockFreq / (640 * 480 * 60))
+    : m_hsyncClocks(clockFreq / PS2::GS_NTSC_HSYNC_FREQ)
+    , m_pixelClocks(clockFreq / PS2::GPU_DOT_CLOCK_FREQ)
     , m_intc(intc)
 {
 	Reset();

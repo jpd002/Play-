@@ -35,6 +35,11 @@ namespace PS2
 
 	enum
 	{
+		GPU_DOT_CLOCK_FREQ = 13305600 //Ref: NO$PSX documentation
+	};
+
+	enum
+	{
 		IOP_RAM_SIZE = 0x00200000
 	};
 
