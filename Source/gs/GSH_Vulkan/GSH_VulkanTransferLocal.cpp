@@ -55,11 +55,10 @@ void CTransferLocal::DoTransfer()
 	uint32 workUnitsY = (Params.rrh + m_localSize - 1) / m_localSize;
 
 	//Add a barrier to ensure reads are complete before writing to GS memory
-	if(false)
 	{
 		auto memoryBarrier = Framework::Vulkan::MemoryBarrier();
-		memoryBarrier.srcAccessMask = VK_ACCESS_SHADER_READ_BIT;
-		memoryBarrier.dstAccessMask = VK_ACCESS_SHADER_WRITE_BIT;
+		memoryBarrier.srcAccessMask = VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_SHADER_WRITE_BIT;
+		memoryBarrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_SHADER_WRITE_BIT;
 
 		m_context->device.vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT, VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
 		                                       0, 1, &memoryBarrier, 0, nullptr, 0, nullptr);
