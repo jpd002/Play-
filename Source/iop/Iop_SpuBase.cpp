@@ -695,16 +695,17 @@ void CSpuBase::Render(int16* samples, unsigned int sampleCount, unsigned int sam
 
 			reader.ClearIrqPending();
 
-			//Mix samples
 			UpdateAdsr(channel);
-			int32 inputSample = static_cast<int32>(readSample);
-			//Mix adsrVolume
-			{
-				inputSample = (inputSample * static_cast<int32>(channel.adsrVolume >> 16)) / static_cast<int32>(MAX_ADSR_VOLUME >> 16);
-			}
-
 			channel.volumeLeftAbs = ComputeChannelVolume(channel.volumeLeft, channel.volumeLeftAbs);
 			channel.volumeRightAbs = ComputeChannelVolume(channel.volumeRight, channel.volumeRightAbs);
+
+			if(readSample == 0) continue;
+
+			int32 inputSample = static_cast<int32>(readSample);
+			//Mix adsrVolume
+			inputSample = (inputSample * static_cast<int32>(channel.adsrVolume >> 16)) / static_cast<int32>(MAX_ADSR_VOLUME >> 16);
+
+			if(inputSample == 0) continue;
 
 			int32 adjustedLeftVolume = std::min<int32>(0x7FFF, static_cast<int32>(static_cast<float>(channel.volumeLeftAbs >> 16) * m_volumeAdjust));
 			int32 adjustedRightVolume = std::min<int32>(0x7FFF, static_cast<int32>(static_cast<float>(channel.volumeRightAbs >> 16) * m_volumeAdjust));
