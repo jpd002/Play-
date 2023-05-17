@@ -1,5 +1,6 @@
 #pragma once
 
+#include <map>
 #include "Types.h"
 #include "BasicUnion.h"
 #include "Convertible.h"
@@ -10,6 +11,39 @@ class CRegisterStateFile;
 
 namespace Iop
 {
+	class CSpuSampleCache
+	{
+	public:
+		enum
+		{
+			BUFFER_SAMPLES = 28,
+		};
+
+		struct KEY
+		{
+			uint32 address;
+			int32 s1;
+			int32 s2;
+		};
+
+		struct ITEM
+		{
+			int16 samples[BUFFER_SAMPLES];
+			int32 inS1;
+			int32 inS2;
+			int32 outS1;
+			int32 outS2;
+		};
+
+		const ITEM* GetItem(const KEY&) const;
+		ITEM& RegisterItem(const KEY&);
+		void Clear();
+		void ClearRange(uint32 address, uint32 size);
+
+	private:
+		std::multimap<uint32, ITEM> m_cache;
+	};
+
 	class CSpuBase
 	{
 	public:
@@ -154,7 +188,7 @@ namespace Iop
 			uint32 current;
 		};
 
-		CSpuBase(uint8*, uint32, unsigned int);
+		CSpuBase(uint8*, uint32, CSpuSampleCache*, unsigned int);
 		virtual ~CSpuBase() = default;
 
 		void Reset();
@@ -240,6 +274,7 @@ namespace Iop
 
 			void Reset();
 			void SetMemory(uint8*, uint32);
+			void SetSampleCache(CSpuSampleCache*);
 
 			void LoadState(const CRegisterStateFile&, const std::string&);
 			void SaveState(CRegisterStateFile*, const std::string&) const;
@@ -275,6 +310,7 @@ namespace Iop
 
 			uint8* m_ram = nullptr;
 			uint32 m_ramSize = 0;
+			CSpuSampleCache* m_sampleCache = nullptr;
 
 			uint32 m_srcSampleIdx;
 			unsigned int m_srcSamplingRate;
@@ -292,6 +328,7 @@ namespace Iop
 			bool m_didChangeRepeat;
 
 			static_assert((sizeof(decltype(m_buffer)) % 16) == 0, "sizeof(m_buffer) must be a multiple of 16 (needed for saved state).");
+			static_assert(CSampleReader::BUFFER_SAMPLES == CSpuSampleCache::BUFFER_SAMPLES, "Buffer sample size must match cache sample size.");
 		};
 
 		class CBlockSampleReader
@@ -349,6 +386,7 @@ namespace Iop
 		uint16 m_ctrl;
 		int m_reverbTicks;
 		uint32 m_reverb[REVERB_REG_COUNT];
+		CSpuSampleCache* m_sampleCache = nullptr;
 		CHANNEL m_channel[MAX_CHANNEL];
 		CSampleReader m_reader[MAX_CHANNEL];
 		uint32 m_adsrLogTable[160];

@@ -38,6 +38,7 @@ protected:
 	void SetVoiceAddress(unsigned int, unsigned int, uint32, uint32);
 
 	uint8* m_ram = nullptr;
+	Iop::CSpuSampleCache m_spuSampleCache;
 	Iop::CSpuBase m_spuCore0;
 	Iop::CSpuBase m_spuCore1;
 	Iop::CSpu2 m_spu;

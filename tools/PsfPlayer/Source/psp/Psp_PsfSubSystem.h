@@ -55,6 +55,7 @@ namespace Psp
 		uint8* m_ram;
 		uint32 m_ramSize;
 		uint8* m_spuRam;
+		Iop::CSpuSampleCache m_spuSampleCache;
 		Iop::CSpuBase m_spuCore0;
 		Iop::CSpuBase m_spuCore1;
 		Framework::CMemStream m_audioStream;

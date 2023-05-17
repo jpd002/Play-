@@ -131,9 +131,10 @@ const uint32 CSpuBase::g_linearDecreaseSweepDeltas[0x80] =
         0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,
         0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000};
 
-CSpuBase::CSpuBase(uint8* ram, uint32 ramSize, unsigned int spuNumber)
+CSpuBase::CSpuBase(uint8* ram, uint32 ramSize, CSpuSampleCache* sampleCache, unsigned int spuNumber)
     : m_ram(ram)
     , m_ramSize(ramSize)
+    , m_sampleCache(sampleCache)
     , m_spuNumber(spuNumber)
     , m_reverbEnabled(true)
 {
@@ -192,8 +193,10 @@ void CSpuBase::Reset()
 
 	for(unsigned int i = 0; i < MAX_CHANNEL; i++)
 	{
-		m_reader[i].Reset();
-		m_reader[i].SetMemory(m_ram, m_ramSize);
+		auto& reader = m_reader[i];
+		reader.Reset();
+		reader.SetMemory(m_ram, m_ramSize);
+		reader.SetSampleCache(m_sampleCache);
 	}
 
 	m_blockReader.Reset();
@@ -532,6 +535,7 @@ uint32 CSpuBase::ReceiveDma(uint8* buffer, uint32 blockSize, uint32 blockAmount,
 		blockAmount = std::min<uint32>(blockAmount, 0x100);
 		assert((m_ctrl & CONTROL_DMA) == CONTROL_DMA_WRITE);
 		unsigned int blocksTransfered = 0;
+		m_sampleCache->ClearRange(m_transferAddr, blockSize * blockAmount);
 		for(unsigned int i = 0; i < blockAmount; i++)
 		{
 			uint32 copySize = std::min<uint32>(m_ramSize - m_transferAddr, blockSize);
@@ -1029,6 +1033,45 @@ void CSpuBase::UpdateAdsr(CHANNEL& channel)
 }
 
 ///////////////////////////////////////////////////////
+// CSpuSampleCache
+///////////////////////////////////////////////////////
+
+const CSpuSampleCache::ITEM* CSpuSampleCache::GetItem(const KEY& key) const
+{
+	auto range = m_cache.equal_range(key.address);
+	for(auto itemIterator = range.first; itemIterator != range.second; itemIterator++)
+	{
+		const auto& item = itemIterator->second;
+		if((item.inS1 == key.s1) && (item.inS2 == key.s2))
+		{
+			return &item;
+		}
+	}
+	return nullptr;
+}
+
+CSpuSampleCache::ITEM& CSpuSampleCache::RegisterItem(const KEY& key)
+{
+	auto result = m_cache.emplace(std::make_pair(key.address, ITEM()));
+	auto& item = result->second;
+	item.inS1 = key.s1;
+	item.inS2 = key.s2;
+	return item;
+}
+
+void CSpuSampleCache::Clear()
+{
+	m_cache.clear();
+}
+
+void CSpuSampleCache::ClearRange(uint32 address, uint32 size)
+{
+	auto lowerBound = m_cache.lower_bound(address);
+	auto upperBound = m_cache.upper_bound(address + size);
+	m_cache.erase(lowerBound, upperBound);
+}
+
+///////////////////////////////////////////////////////
 // CSampleReader
 ///////////////////////////////////////////////////////
 
@@ -1060,6 +1103,11 @@ void CSpuBase::CSampleReader::SetMemory(uint8* ram, uint32 ramSize)
 	m_ram = ram;
 	m_ramSize = ramSize;
 	assert((ramSize & (ramSize - 1)) == 0);
+}
+
+void CSpuBase::CSampleReader::SetSampleCache(CSpuSampleCache* sampleCache)
+{
+	m_sampleCache = sampleCache;
 }
 
 void CSpuBase::CSampleReader::LoadState(const CRegisterStateFile& registerFile, const std::string& channelPrefix)
@@ -1196,48 +1244,69 @@ void CSpuBase::CSampleReader::UnpackSamples(int16* dst)
 	uint8 flags = nextSample[1];
 	assert(predictNumber < 5);
 
-	//Get intermediate values
+	auto cacheKey = CSpuSampleCache::KEY{m_nextSampleAddr, m_s1, m_s2};
+	if(predictNumber == 0)
 	{
-		unsigned int workBufferPtr = 0;
-		for(unsigned int i = 2; i < 16; i++)
-		{
-			uint8 sampleByte = nextSample[i];
-			int16 firstSample = ((sampleByte & 0x0F) << 12);
-			int16 secondSample = ((sampleByte & 0xF0) << 8);
-			firstSample >>= shiftFactor;
-			secondSample >>= shiftFactor;
-			workBuffer[workBufferPtr++] = firstSample;
-			workBuffer[workBufferPtr++] = secondSample;
-		}
+		cacheKey.s1 = 0;
+		cacheKey.s2 = 0;
 	}
 
-	//Generate PCM samples
+	if(auto cacheItem = m_sampleCache->GetItem(cacheKey))
 	{
-		// clang-format off
-		//Table is 16 entries long to prevent reading indeterminate
-		//values if predictNumber is greater or equal to 5.
-		//According to some sources, entries at 5 and beyond contain 0 on real hardware
-		static const int32 predictorTable[16][2] =
+		memcpy(dst, cacheItem->samples, sizeof(int16) * BUFFER_SAMPLES);
+		m_s1 = cacheItem->outS1;
+		m_s2 = cacheItem->outS2;
+	}
+	else
+	{
+		//Get intermediate values
 		{
-			{0, 0},
-			{60, 0},
-			{115, -52},
-			{98, -55},
-			{122, -60},
-		};
-		// clang-format on
+			unsigned int workBufferPtr = 0;
+			for(unsigned int i = 2; i < 16; i++)
+			{
+				uint8 sampleByte = nextSample[i];
+				int16 firstSample = ((sampleByte & 0x0F) << 12);
+				int16 secondSample = ((sampleByte & 0xF0) << 8);
+				firstSample >>= shiftFactor;
+				secondSample >>= shiftFactor;
+				workBuffer[workBufferPtr++] = firstSample;
+				workBuffer[workBufferPtr++] = secondSample;
+			}
+		}
 
-		for(unsigned int i = 0; i < BUFFER_SAMPLES; i++)
+		//Generate PCM samples
 		{
-			int32 currentValue = workBuffer[i] * 64;
-			currentValue += (m_s1 * predictorTable[predictNumber][0]) / 64;
-			currentValue += (m_s2 * predictorTable[predictNumber][1]) / 64;
-			m_s2 = m_s1;
-			m_s1 = currentValue;
-			int32 result = (currentValue + 32) / 64;
-			result = std::max<int32>(result, SHRT_MIN);
-			result = std::min<int32>(result, SHRT_MAX);
-			dst[i] = static_cast<int16>(result);
+			// clang-format off
+			//Table is 16 entries long to prevent reading indeterminate
+			//values if predictNumber is greater or equal to 5.
+			//According to some sources, entries at 5 and beyond contain 0 on real hardware
+			static const int32 predictorTable[16][2] =
+			{
+				{0, 0},
+				{60, 0},
+				{115, -52},
+				{98, -55},
+				{122, -60},
+			};
+			// clang-format on
+
+			for(unsigned int i = 0; i < BUFFER_SAMPLES; i++)
+			{
+				int32 currentValue = workBuffer[i] * 64;
+				currentValue += (m_s1 * predictorTable[predictNumber][0]) / 64;
+				currentValue += (m_s2 * predictorTable[predictNumber][1]) / 64;
+				m_s2 = m_s1;
+				m_s1 = currentValue;
+				int32 result = (currentValue + 32) / 64;
+				result = std::max<int32>(result, SHRT_MIN);
+				result = std::min<int32>(result, SHRT_MAX);
+				dst[i] = static_cast<int16>(result);
+			}
+
+			auto& cacheItem = m_sampleCache->RegisterItem(cacheKey);
+			memcpy(&cacheItem.samples, dst, sizeof(int16) * BUFFER_SAMPLES);
+			cacheItem.outS1 = m_s1;
+			cacheItem.outS2 = m_s2;
 		}
 	}
 

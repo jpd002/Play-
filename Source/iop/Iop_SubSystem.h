@@ -45,6 +45,7 @@ namespace Iop
 		CIntc m_intc;
 		CDmac m_dmac;
 		CRootCounters m_counters;
+		CSpuSampleCache m_spuSampleCache;
 		CSpuBase m_spuCore0;
 		CSpuBase m_spuCore1;
 		CSpu m_spu;
