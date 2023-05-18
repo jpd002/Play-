@@ -21,23 +21,17 @@ jobs:
             installer-script: 'installer32.nsi'
     runs-on: windows-2019
     steps:
-    - name: Cache Qt
-      id: cache-qt
-      uses: actions/cache@v1
-      with:
-        path: ../Qt
-        key: ${{ runner.os }}-${{ matrix.qt-arch }}-QtCache
     - name: Checkout
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
       with:
         submodules: recursive
         fetch-depth: 0
     - name: Force Fetch Git Tags
       run: git fetch --tags --force
     - name: Add msbuild to PATH
-      uses: microsoft/setup-msbuild@v1.0.2
+      uses: microsoft/setup-msbuild@v1.1
     - name: Cache Vulkan SDK
-      uses: actions/cache@v2
+      uses: actions/cache@v3
       id: cache-vulkansdk
       with:
         path: VulkanSDK.exe
@@ -50,15 +44,16 @@ jobs:
         cmd.exe /c start /wait .\VulkanSDK.exe in --al --im -c com.lunarg.vulkan.32bit
         echo "VULKAN_SDK=C:\VulkanSDK\${{ env.VULKAN_SDK_VERSION }}" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
     - name: Install OpenAL
-      uses: crazy-max/ghaction-chocolatey@v1
+      uses: crazy-max/ghaction-chocolatey@v2
       with:
         args: install -y openal openalsdk
     - name: Install Qt
-      uses: jurplel/install-qt-action@v2
+      uses: jurplel/install-qt-action@v3
       with:
         version: ${{ env.QT_VERSION }}
         arch: ${{ matrix.qt-arch }}
-        cached: ${{ steps.cache-qt.outputs.cache-hit }}
+        cache: true
+        cache-key-prefix: ${{ runner.os }}-${{ matrix.qt-arch }}-QtCache
     - name: Set SHORT_HASH
       run: |
         $short_hash = "${{ env.LONG_HASH }}".substring(0, 8)
@@ -93,12 +88,12 @@ jobs:
         cd ..
         makensis.exe ./installer_win32/${{ matrix.installer-script}}
     - name: Upload a Build Artifact Installer
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: Play_Windows_${{ matrix.target-platform }}_Installer
         path: installer_win32\*.exe
     - name: Upload a Build Artifact Libretro Core
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: Play_Windows_${{ matrix.target-platform }}_libretro
         path: build\Source\ui_libretro\Release\play_libretro.dll

@@ -14,9 +14,9 @@ jobs:
     runs-on: windows-2019
     steps:
     - name: Add msbuild to PATH
-      uses: microsoft/setup-msbuild@v1.0.2
+      uses: microsoft/setup-msbuild@v1.1
     - name: Checkout
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
       with:
         submodules: recursive
         fetch-depth: 0
@@ -24,7 +24,7 @@ jobs:
       run: git fetch --tags --force
     - name: Cache DirectX SDK
       if: ${{ matrix.aot-build == 'off' }}
-      uses: actions/cache@v2
+      uses: actions/cache@v3
       id: cache-directx
       with:
         path: DXSDK_Jun10.exe
@@ -37,7 +37,7 @@ jobs:
       run: cmd.exe /c start /wait .\DXSDK_Jun10.exe /U /O /F /S /P "${{ github.workspace }}\DX_SDK"
     - name: Install OpenAL
       if: ${{ matrix.aot-build == 'off' }}
-      uses: crazy-max/ghaction-chocolatey@v1
+      uses: crazy-max/ghaction-chocolatey@v2
       with:
         args: install -y openalsdk
     - name: Set SHORT_HASH
@@ -63,13 +63,13 @@ jobs:
       run: makensis.exe ./tools/PsfPlayer/installer_win32/${{ matrix.installer-script }}
     - name: Upload PsfPlayer Build Artifact Installer
       if: ${{ matrix.aot-build == 'off' }}
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: PsfPlayer_Windows_${{ matrix.target-platform }}_Installer
         path: tools/PsfPlayer/installer_win32/*.exe
     - name: Upload PsfAot Build Artifact Installer
       if: ${{ matrix.aot-build == 'on' }}
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: PsfAot_Windows_${{ matrix.target-platform }}
         path: build\tools\PsfPlayer\Source\ui_aot\Release\PsfAot.exe
