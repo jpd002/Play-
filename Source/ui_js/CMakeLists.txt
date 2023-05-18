@@ -40,8 +40,8 @@ add_executable(Play
 	Main.cpp
 	Ps2VmJs.cpp
 	Ps2VmJs.h
-	${CMAKE_CURRENT_SOURCE_DIR}/../../tools/PsfPlayer/Source/js_ui/SH_OpenALProxy.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/../../tools/PsfPlayer/Source/js_ui/SH_OpenALProxy.h
+	${CMAKE_CURRENT_SOURCE_DIR}/../../tools/PsfPlayer/Source/ui_js/SH_OpenALProxy.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/../../tools/PsfPlayer/Source/ui_js/SH_OpenALProxy.h
 )
 target_link_libraries(Play PUBLIC ${PROJECT_LIBS})
 

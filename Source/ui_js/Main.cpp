@@ -3,7 +3,7 @@
 #include "Ps2VmJs.h"
 #include "GSH_OpenGLJs.h"
 #include "../../tools/PsfPlayer/Source/SH_OpenAL.h"
-#include "../../tools/PsfPlayer/Source/js_ui/SH_OpenALProxy.h"
+#include "../../tools/PsfPlayer/Source/ui_js/SH_OpenALProxy.h"
 #include "input/PH_GenericInput.h"
 #include "InputProviderEmscripten.h"
 

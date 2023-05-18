@@ -9,7 +9,7 @@ function convertStringVectorToArray(strVector : any) {
 }
 
 var main = async function() {
-    let factory = require("../../../build_cmake/build_wasm/tools/PsfPlayer/Source/js_ui/PsfPlayer.js");
+    let factory = require("../../../build_cmake/build_wasm/tools/PsfPlayer/Source/ui_js/PsfPlayer.js");
     let module = await factory();
     module.FS.mkdir("/work");
     module.FS.mount(module.NODEFS, { root: "."}, "/work");
