@@ -1165,7 +1165,6 @@ void CPS2OS::ThreadSaveContext(THREAD* thread, bool interrupt)
 	else
 	{
 		thread->contextPtr = m_ee.m_State.nGPR[CMIPS::SP].nV0 - STACKRES;
-		assert(thread->contextPtr >= thread->stackBase);
 	}
 
 	auto context = reinterpret_cast<THREADCONTEXT*>(GetStructPtr(thread->contextPtr));
