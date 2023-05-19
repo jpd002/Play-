@@ -116,7 +116,9 @@ static std::string DecodeAddress(uint16 addressId)
 static std::string DecodeParam(uint16 paramId)
 {
 	std::string result;
-	switch(paramId >> 8)
+	uint16 paramIdx = (paramId >> 8);
+	bool voiceParam = (paramIdx < 8);
+	switch(paramIdx)
 	{
 	case 0x00:
 		result = "VOLL";
@@ -133,11 +135,39 @@ static std::string DecodeParam(uint16 paramId)
 	case 0x07:
 		result = "VOLXR";
 		break;
+	case 0x08:
+		result = "MMIX";
+		break;
+	case 0x09:
+		result = "MVOLL";
+		break;
+	case 0x0A:
+		result = "MVOLR";
+		break;
+	case 0x0B:
+		result = "EVOLL";
+		break;
+	case 0x0C:
+		result = "EVOLR";
+		break;
+	case 0x0D:
+		result = "AVOLL";
+		break;
+	case 0x0E:
+		result = "AVOLR";
+		break;
 	default:
-		result = string_format("unknown (0x%02X)", paramId >> 8);
+		result = string_format("unknown (0x%02X)", paramIdx);
 		break;
 	}
-	result += string_format(", CORE%d, VOICE%d", paramId & 1, (paramId & 0x3E) >> 1);
+	if(voiceParam)
+	{
+		result += string_format(", CORE%d, VOICE%d", paramId & 1, (paramId & 0x3E) >> 1);
+	}
+	else
+	{
+		result += string_format(", CORE%d", paramId & 1);
+	}
 	return result;
 }
 
