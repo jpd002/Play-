@@ -1352,7 +1352,7 @@ CGSHandler::DISPLAY_INFO CGSHandler::GetCurrentDisplayInfo()
 		}
 
 		auto pmode = make_convertible<PMODE>(m_nPMODE);
-		assert(pmode.mmod == 0);
+		assert((pmode.mmod == 0) || (pmode.alp >= 0x80));
 		assert(pmode.slbg == 0);
 
 		auto dispFb1 = make_convertible<DISPFB>(m_nDISPFB1.value.q);
