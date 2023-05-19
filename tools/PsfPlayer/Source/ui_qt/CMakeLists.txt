@@ -22,12 +22,12 @@ set(QT_SOURCES
 	mainwindow.h
 	playlistmodel.cpp
 	playlistmodel.h
+	PlaylistItem.h
 )
 
 set(QT_MOC_HEADERS
 	mainwindow.h
 	playlistmodel.h
-	PlaylistItem.h
 )
 
 set(QT_UIS

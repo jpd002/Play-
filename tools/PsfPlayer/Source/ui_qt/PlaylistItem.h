@@ -14,10 +14,6 @@ public:
 			path = m_path;
 		}
 
-		~Item()
-		{
-		}
-
 		std::wstring game, title, length;
 		std::string path;
 	};
