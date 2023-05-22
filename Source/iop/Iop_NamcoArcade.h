@@ -28,6 +28,7 @@ namespace Iop
 		void SaveState(Framework::CZipArchiveWriter&) const override;
 		void LoadState(Framework::CZipArchiveReader&) override;
 
+		void SetButton(unsigned int, PS2::CControllerInfo::BUTTON);
 		void SetLightGunXform(const std::array<float, 4>&);
 		
 		//CPadListener
@@ -72,6 +73,7 @@ namespace Iop
 		
 		std::array<float, 4> m_lightGunXform = { 65535, 0, 65535, 0 };
 
+		std::array<uint16, PS2::CControllerInfo::MAX_BUTTONS> m_jvsButtonBits = {};
 		uint16 m_jvsButtonState = 0;
 		uint16 m_jvsSystemButtonState = 0;
 		uint16 m_jvsGunPosX = 0x7FFF;

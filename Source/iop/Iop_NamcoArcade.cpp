@@ -38,6 +38,56 @@ enum
 	JVS_CMD_SETADDR = 0xF1,
 };
 
+// clang-format off
+static const std::array<uint16, PS2::CControllerInfo::MAX_BUTTONS> g_defaultJvsButtonBits =
+{
+	0x0000,
+	0x0000,
+	0x0000,
+	0x0000,
+	0x0020, //DPAD_UP,
+	0x0010, //DPAD_DOWN,
+	0x0008, //DPAD_LEFT,
+	0x0004, //DPAD_RIGHT,
+	0x0040, //SELECT,
+	0x0080, //START,
+	0x4000, //SQUARE,
+	0x8000, //TRIANGLE,
+	0x0001, //CIRCLE,
+	0x0002, //CROSS,
+	0x0000, //L1,
+	0x0000, //L2,
+	0x0000, //L3,
+	0x0000, //R1,
+	0x0000, //R2,
+	0x0000, //R3,
+};
+
+static const std::array<uint16, PS2::CControllerInfo::MAX_BUTTONS> g_defaultJvsSystemButtonBits =
+{
+	0x0000,
+	0x0000,
+	0x0000,
+	0x0000,
+	0x0000, //DPAD_UP,
+	0x0000, //DPAD_DOWN,
+	0x0000, //DPAD_LEFT,
+	0x0000, //DPAD_RIGHT,
+	0x0000, //SELECT,
+	0x0000, //START,
+	0x0000, //SQUARE,
+	0x0000, //TRIANGLE,
+	0x0000, //CIRCLE,
+	0x0000, //CROSS,
+	0x0000, //L1,
+	0x0000, //L2,
+	0x0002, //L3,
+	0x0000, //R1,
+	0x0000, //R2,
+	0x0001, //R3,
+};
+// clang-format on
+
 CNamcoArcade::CNamcoArcade(CSifMan& sif, Namco::CAcRam& acRam, const std::string& gameId)
     : m_acRam(acRam)
     , m_gameId(gameId)
@@ -52,6 +102,8 @@ CNamcoArcade::CNamcoArcade(CSifMan& sif, Namco::CAcRam& acRam, const std::string
 	sif.RegisterModule(MODULE_ID_1, &m_module001);
 	sif.RegisterModule(MODULE_ID_3, &m_module003);
 	sif.RegisterModule(MODULE_ID_4, &m_module004);
+	
+	m_jvsButtonBits = g_defaultJvsButtonBits;
 }
 
 std::string CNamcoArcade::GetId() const
@@ -308,6 +360,11 @@ void CNamcoArcade::LoadState(Framework::CZipArchiveReader& archive)
 	m_sendAddr = registerFile.GetRegister32(STATE_SEND_ADDR);
 }
 
+void CNamcoArcade::SetButton(unsigned int buttonIndex, PS2::CControllerInfo::BUTTON buttonValue)
+{
+	m_jvsButtonBits[buttonValue] = (1 << buttonIndex);
+}
+
 void CNamcoArcade::SetLightGunXform(const std::array<float, 4>& lightGunXform)
 {
 	m_lightGunXform = lightGunXform;
@@ -320,58 +377,12 @@ void CNamcoArcade::SetButtonState(unsigned int padNumber, PS2::CControllerInfo::
 	//{
 	//	*reinterpret_cast<uint16*>(ram + g_recvAddr + 0xC0) += 1;
 	//}
-	static const uint16 buttonBits[PS2::CControllerInfo::MAX_BUTTONS] =
-	    {
-	        0x0000,
-	        0x0000,
-	        0x0000,
-	        0x0000,
-	        0x0020, //DPAD_UP,
-	        0x0010, //DPAD_DOWN,
-	        0x0008, //DPAD_LEFT,
-	        0x0004, //DPAD_RIGHT,
-	        0x0040, //SELECT,
-	        0x0080, //START,
-	        0x4000, //SQUARE,
-	        0x8000, //TRIANGLE,
-	        0x0001, //CIRCLE,
-	        0x0002, //CROSS,
-	        0x0000, //L1,
-	        0x0000, //L2,
-	        0x0000, //L3,
-	        0x0000, //R1,
-	        0x0000, //R2,
-	        0x0000, //R3,
-	    };
-	static const uint16 systemButtonBits[PS2::CControllerInfo::MAX_BUTTONS] =
-	    {
-	        0x0000,
-	        0x0000,
-	        0x0000,
-	        0x0000,
-	        0x0000, //DPAD_UP,
-	        0x0000, //DPAD_DOWN,
-	        0x0000, //DPAD_LEFT,
-	        0x0000, //DPAD_RIGHT,
-	        0x0000, //SELECT,
-	        0x0000, //START,
-	        0x0000, //SQUARE,
-	        0x0000, //TRIANGLE,
-	        0x0000, //CIRCLE,
-	        0x0000, //CROSS,
-	        0x0000, //L1,
-	        0x0000, //L2,
-	        0x0002, //L3,
-	        0x0000, //R1,
-	        0x0000, //R2,
-	        0x0001, //R3,
-	    };
 	if(padNumber == 0)
 	{
-		m_jvsButtonState &= ~buttonBits[button];
-		m_jvsButtonState |= (pressed ? buttonBits[button] : 0);
-		m_jvsSystemButtonState &= ~systemButtonBits[button];
-		m_jvsSystemButtonState |= (pressed ? systemButtonBits[button] : 0);
+		m_jvsButtonState &= ~m_jvsButtonBits[button];
+		m_jvsButtonState |= (pressed ? m_jvsButtonBits[button] : 0);
+		m_jvsSystemButtonState &= ~g_defaultJvsSystemButtonBits[button];
+		m_jvsSystemButtonState |= (pressed ? g_defaultJvsSystemButtonBits[button] : 0);
 	}
 	//The following code path is for handling JVSIF which only earlier games use
 	if(m_recvAddr && m_sendAddr)

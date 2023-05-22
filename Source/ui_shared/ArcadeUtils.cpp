@@ -31,10 +31,31 @@ struct ARCADE_MACHINE_DEF
 	std::string dongleFileName;
 	std::string cdvdFileName;
 	std::string hddFileName;
+	std::map<unsigned int, PS2::CControllerInfo::BUTTON> buttons;
 	bool hasLightGun = false;
 	std::array<float, 4> lightGunXform = { 65535, 0, 65535, 0 };
 	std::string boot;
 	std::vector<PATCH> patches;
+};
+
+static const std::pair<const char*, PS2::CControllerInfo::BUTTON> g_buttonValues[] =
+{
+	{ "dpad_up", PS2::CControllerInfo::DPAD_UP },
+	{ "dpad_down", PS2::CControllerInfo::DPAD_DOWN },
+	{ "dpad_left", PS2::CControllerInfo::DPAD_LEFT },
+	{ "dpad_right", PS2::CControllerInfo::DPAD_RIGHT },
+	{ "select", PS2::CControllerInfo::SELECT },
+	{ "start", PS2::CControllerInfo::START },
+	{ "square", PS2::CControllerInfo::SQUARE },
+	{ "triangle", PS2::CControllerInfo::TRIANGLE },
+	{ "cross", PS2::CControllerInfo::CROSS },
+	{ "circle", PS2::CControllerInfo::CIRCLE },
+	{ "l1", PS2::CControllerInfo::L1 },
+	{ "l2", PS2::CControllerInfo::L2 },
+	{ "l3", PS2::CControllerInfo::L3 },
+	{ "r1", PS2::CControllerInfo::R1 },
+	{ "r2", PS2::CControllerInfo::R2 },
+	{ "r3", PS2::CControllerInfo::R3 }
 };
 
 uint32 ParseHexStringValue(const std::string& value)
@@ -47,6 +68,31 @@ uint32 ParseHexStringValue(const std::string& value)
 
 ARCADE_MACHINE_DEF ReadArcadeMachineDefinition(const fs::path& arcadeDefPath)
 {
+	auto parseButtons =
+		[](const nlohmann::json& buttonsObject) {
+			auto buttonMap = buttonsObject.get<std::map<std::string, std::string>>();
+			decltype(ARCADE_MACHINE_DEF::buttons) buttons;
+			for(const auto& buttonPair : buttonMap)
+			{
+				char* endPtr = nullptr;
+				const char* buttonNumber = buttonPair.first.c_str();
+				const char* buttonName = buttonPair.second.c_str();
+				int number = strtol(buttonPair.first.c_str(), &endPtr, 10);
+				if(endPtr == buttonPair.first.c_str())
+				{
+					throw std::runtime_error(string_format("Failed to parse button number '%s'.", buttonNumber));
+				}
+				auto buttonValueIterator = std::find_if(std::begin(g_buttonValues), std::end(g_buttonValues),
+													   [&](const auto& buttonValuePair) { return strcmp(buttonValuePair.first, buttonName) == 0; });
+				if(buttonValueIterator == std::end(g_buttonValues))
+				{
+					throw std::runtime_error(string_format("Unknown button name '%s'.", buttonName));
+				}
+				buttons[number] = buttonValueIterator->second;
+			}
+			return buttons;
+		};
+	
 	auto parsePatches =
 	    [](const nlohmann::json& patchesArray) {
 		    std::vector<ARCADE_MACHINE_DEF::PATCH> patches;
@@ -83,6 +129,10 @@ ARCADE_MACHINE_DEF ReadArcadeMachineDefinition(const fs::path& arcadeDefPath)
 	if(defJson.contains("hdd"))
 	{
 		def.hddFileName = defJson["hdd"]["name"];
+	}
+	if(defJson.contains("buttons"))
+	{
+		def.buttons = parseButtons(defJson["buttons"]);
 	}
 	if(defJson.contains("hasLightGun"))
 	{
@@ -195,6 +245,10 @@ void PrepareArcadeEnvironment(CPS2VM* virtualMachine, const ARCADE_MACHINE_DEF& 
 			iopBios->RegisterModule(namcoArcadeModule);
 			iopBios->RegisterHleModuleReplacement("rom0:DAEMON", namcoArcadeModule);
 			virtualMachine->m_pad->InsertListener(namcoArcadeModule.get());
+			for(const auto& buttonPair : def.buttons)
+			{
+				namcoArcadeModule->SetButton(buttonPair.first, buttonPair.second);
+			}
 			if(def.hasLightGun)
 			{
 				virtualMachine->SetGunListener(namcoArcadeModule.get());
@@ -244,9 +298,10 @@ void ArcadeUtils::RegisterArcadeMachines()
 			BootablesDb::CClient::GetInstance().RegisterBootable(arcadeDefFilename, "", "");
 			BootablesDb::CClient::GetInstance().SetTitle(arcadeDefFilename, def.name.c_str());
 		}
-		catch(...)
+		catch(const std::exception& exception)
 		{
-			assert(false);
+			printf("Warning: Failed to register arcade machine '%s': %s\r\n",
+				   arcadeDefFilename.c_str(), exception.what());
 		}
 	}
 }

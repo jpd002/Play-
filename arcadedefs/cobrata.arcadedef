@@ -9,6 +9,10 @@
 	{
 		"name": "cbr1-ha.chd"
 	},
+	"buttons":
+	{
+		"3": "circle"
+	},
 	"hasLightGun": true,
 	"lightGunXform": [ -65535, 0, 65535, 0 ],
 	"boot": "ac0:CBRLOAD",
