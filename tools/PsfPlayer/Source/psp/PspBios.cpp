@@ -291,7 +291,7 @@ void CBios::HandleLinkedModuleCall()
 	uint32 nidEntryAddr = libraryStub->stubNidTableAddr + (m_cpu.m_State.nGPR[CMIPS::V1].nV0 * 4);
 	uint32 nid = *reinterpret_cast<uint32*>(m_ram + nidEntryAddr);
 
-	ModuleMapType::const_iterator moduleIterator(m_modules.find(moduleName));
+	const auto moduleIterator(m_modules.find(moduleName));
 	if(moduleIterator == m_modules.end())
 	{
 #ifdef _DEBUG

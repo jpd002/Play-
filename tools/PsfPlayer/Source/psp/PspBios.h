@@ -204,7 +204,7 @@ namespace Psp
 		};
 
 		typedef std::shared_ptr<CModule> ModulePtr;
-		typedef std::map<std::string, ModulePtr> ModuleMapType;
+		typedef std::map<std::string, ModulePtr, std::less<>> ModuleMapType;
 		typedef COsStructManager<HEAPBLOCK> HeapBlockListType;
 		typedef COsStructManager<MODULETRAMPOLINE> ModuleTrampolineListType;
 		typedef COsStructManager<THREAD> ThreadListType;
