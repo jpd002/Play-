@@ -19,7 +19,9 @@ list(APPEND PROJECT_LIBS PsfCore)
 set(QT_SOURCES
 	main.cpp
 	mainwindow.cpp
+	mainwindow.h
 	playlistmodel.cpp
+	playlistmodel.h
 )
 
 set(QT_MOC_HEADERS
