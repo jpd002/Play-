@@ -53,7 +53,7 @@ void CPsfSubSystem::Reset()
 	m_bios.Reset();
 	m_audioStream.Truncate();
 
-	m_bios.GetSasCore()->SetSpuInfo(&m_spuCore0, &m_spuCore1, m_spuRam, SPURAMSIZE);
+	m_bios.GetSasCore()->SetSpuInfo(&m_spuSampleCache, &m_spuCore0, &m_spuCore1, m_spuRam, SPURAMSIZE);
 	m_bios.GetAudio()->SetStream(&m_audioStream);
 
 	m_samplesToFrame = SAMPLES_PER_FRAME;

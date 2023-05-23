@@ -84,13 +84,8 @@ CSasCore::REVERBINFO CSasCore::g_ReverbSpace =
         }};
 
 CSasCore::CSasCore(uint8* ram)
-    : m_spuRam(NULL)
-    , m_spuRamSize(0)
-    , m_ram(ram)
-    , m_grain(0)
+    : m_ram(ram)
 {
-	m_spu[0] = NULL;
-	m_spu[1] = NULL;
 }
 
 CSasCore::~CSasCore()
@@ -102,10 +97,11 @@ std::string CSasCore::GetName() const
 	return "sceSasCore";
 }
 
-void CSasCore::SetSpuInfo(Iop::CSpuBase* spu0, Iop::CSpuBase* spu1, uint8* spuRam, uint32 spuRamSize)
+void CSasCore::SetSpuInfo(Iop::CSpuSampleCache* sampleCache, Iop::CSpuBase* spu0, Iop::CSpuBase* spu1, uint8* spuRam, uint32 spuRamSize)
 {
-	assert(m_spu[0] == NULL && m_spu[1] == NULL);
+	assert(!m_spuSampleCache && !m_spu[0] && !m_spu[1]);
 
+	m_spuSampleCache = sampleCache;
 	m_spu[0] = spu0;
 	m_spu[1] = spu1;
 
@@ -290,6 +286,7 @@ uint32 CSasCore::SetVoice(uint32 contextAddr, uint32 voice, uint32 dataPtr, uint
 	if(currentAddress != 0)
 	{
 		memcpy(m_spuRam + currentAddress, samples, dataSize);
+		m_spuSampleCache->ClearRange(currentAddress, dataSize);
 	}
 
 	channel->address = currentAddress;

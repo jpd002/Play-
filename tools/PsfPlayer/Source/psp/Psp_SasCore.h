@@ -15,7 +15,7 @@ namespace Psp
 		void Invoke(uint32, CMIPS&);
 		std::string GetName() const;
 
-		void SetSpuInfo(Iop::CSpuBase*, Iop::CSpuBase*, uint8*, uint32);
+		void SetSpuInfo(Iop::CSpuSampleCache*, Iop::CSpuBase*, Iop::CSpuBase*, uint8*, uint32);
 
 	private:
 		enum REVERBTYPES
@@ -71,11 +71,12 @@ namespace Psp
 
 		Iop::CSpuBase::CHANNEL* GetSpuChannel(uint32);
 
-		Iop::CSpuBase* m_spu[2];
-		uint8* m_ram;
-		uint8* m_spuRam;
-		uint32 m_spuRamSize;
-		uint32 m_grain;
+		Iop::CSpuSampleCache* m_spuSampleCache = nullptr;
+		Iop::CSpuBase* m_spu[2] = {};
+		uint8* m_ram = nullptr;
+		uint8* m_spuRam = nullptr;
+		uint32 m_spuRamSize = 0;
+		uint32 m_grain = 0;
 
 		MemBlockList m_blocks;
 
