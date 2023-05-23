@@ -1,9 +1,14 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "PsfLoader.h"
-#include "SH_OpenAL.h"
 #include "PsfTags.h"
 #include "AppConfig.h"
+
+#ifdef WIN32
+#include "ui_win32/SH_WaveOut.h"
+#else
+#include "SH_OpenAL.h"
+#endif
 
 #include <QFileDialog>
 #include <QMessageBox>
@@ -20,7 +25,11 @@ MainWindow::MainWindow(QWidget* parent)
 	ui->setupUi(this);
 
 	m_virtualMachine = new CPsfVm();
+#ifdef WIN32
+	m_virtualMachine->SetSpuHandler(&CSH_WaveOut::HandlerFactory);
+#else
 	m_virtualMachine->SetSpuHandler(&CSH_OpenAL::HandlerFactory);
+#endif
 	m_OnNewFrameConnection = m_virtualMachine->OnNewFrame.Connect([&]() { OnNewFrame(); });
 
 	model.setHeaderData(0, Qt::Orientation::Horizontal, QVariant("Game"), Qt::DisplayRole);

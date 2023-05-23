@@ -37,6 +37,14 @@ set(QT_UIS
 set(QT_RESOURCES
 )
 
+if(TARGET_PLATFORM_WIN32)
+	set(QT_SOURCES
+		${QT_SOURCES}
+		../ui_win32/SH_WaveOut.cpp
+	)
+	list(APPEND PROJECT_LIBS winmm)
+endif()
+
 find_package(Qt5 REQUIRED COMPONENTS Widgets Core)
 list(APPEND PROJECT_LIBS Qt5::Widgets Qt5::Core)
 add_definitions(${QT_DEFINITIONS})
