@@ -87,7 +87,7 @@ void MainWindow::on_actionOpen_triggered()
 	QFileDialog dialog(this);
 	dialog.setFileMode(QFileDialog::ExistingFiles);
 	dialog.setDirectory(QString(m_path.c_str()));
-	dialog.setNameFilter(tr("PSF files (*.psf *.psf2 *.minipsf *.minipsf2)"));
+	dialog.setNameFilter(tr("PSF files (*.psf *.psf2 *.psfp *.minipsf *.minipsf2 *.minipsfp)"));
 	if(dialog.exec())
 	{
 		if(m_virtualMachine != nullptr)
