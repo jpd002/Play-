@@ -98,9 +98,6 @@ int CPsfSubSystem::ExecuteCpu(bool singleStep)
 
 void CPsfSubSystem::Update(bool singleStep, CSoundHandler* soundHandler)
 {
-#ifdef DEBUGGER_INCLUDED
-	ExecuteCpu(singleStep);
-#else
 	if(soundHandler && !soundHandler->HasFreeBuffers())
 	{
 		std::this_thread::sleep_for(std::chrono::milliseconds(1));
@@ -110,7 +107,7 @@ void CPsfSubSystem::Update(bool singleStep, CSoundHandler* soundHandler)
 	{
 		const int bufferSamples = 880;
 		const int bufferSize = bufferSamples * 2;
-		int ticks = ExecuteCpu(false);
+		int ticks = ExecuteCpu(singleStep);
 		if(m_audioStream.GetLength() >= bufferSize)
 		{
 			int16 buffer[bufferSamples];
@@ -132,7 +129,6 @@ void CPsfSubSystem::Update(bool singleStep, CSoundHandler* soundHandler)
 			}
 		}
 	}
-#endif
 }
 
 #ifdef DEBUGGER_INCLUDED
