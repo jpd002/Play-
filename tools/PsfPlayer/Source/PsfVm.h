@@ -8,6 +8,7 @@
 #include "Debuggable.h"
 #include "MailBox.h"
 #include <thread>
+#include "filesystem_def.h"
 
 class CPsfVm : public CVirtualMachine
 {
@@ -38,7 +39,7 @@ public:
 	void Resume() override;
 
 #ifdef DEBUGGER_INCLUDED
-	std::string MakeTagPackagePath(const char*);
+	fs::path MakeDebugTagsPackagePath(const char*);
 	void LoadDebugTags(const char*);
 	void SaveDebugTags(const char*);
 #endif

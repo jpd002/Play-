@@ -1,6 +1,8 @@
 #include <stdexcept>
-#include <assert.h>
-#include "filesystem_def.h"
+#include <cassert>
+#include "StdStreamUtils.h"
+#include "PathUtils.h"
+#include "AppConfig.h"
 #include "ThreadUtils.h"
 #include "PsfVm.h"
 #include "Log.h"
@@ -58,24 +60,23 @@ void CPsfVm::SetSubSystem(const PsfVmSubSystemPtr& subSystem)
 #define TAGS_SECTION_FUNCTIONS ("functions")
 #define TAGS_SECTION_COMMENTS ("comments")
 
-std::string CPsfVm::MakeTagPackagePath(const char* packageName)
+fs::path CPsfVm::MakeDebugTagsPackagePath(const char* packageName)
 {
-	fs::path tagsPath(TAGS_PATH);
-	if(!fs::exists(tagsPath))
-	{
-		fs::create_directory(tagsPath);
-	}
-	return std::string(TAGS_PATH) + std::string(packageName) + ".tags.xml";
+	auto tagsPath = CAppConfig::GetInstance().GetBasePath() / fs::path(TAGS_PATH);
+	Framework::PathUtils::EnsurePathExists(tagsPath);
+	auto tagsPackagePath = tagsPath / (std::string(packageName) + std::string(".tags.xml"));
+	return tagsPackagePath;
 }
 
 void CPsfVm::LoadDebugTags(const char* packageName)
 {
 	try
 	{
-		std::string packagePath = MakeTagPackagePath(packageName);
-		auto document = Framework::Xml::CParser::ParseDocument(Framework::CStdStream(packagePath.c_str(), "rb"));
+		auto packagePath = MakeDebugTagsPackagePath(packageName);
+		auto stream = Framework::CreateInputStdStream(packagePath.native());
+		std::unique_ptr<Framework::Xml::CNode> document(Framework::Xml::CParser::ParseDocument(stream));
 		Framework::Xml::CNode* tagsSection = document->Select(TAGS_SECTION_TAGS);
-		if(tagsSection == NULL) return;
+		if(!tagsSection) return;
 		m_subSystem->GetCpu().m_Functions.Unserialize(tagsSection, TAGS_SECTION_FUNCTIONS);
 		m_subSystem->GetCpu().m_Comments.Unserialize(tagsSection, TAGS_SECTION_COMMENTS);
 		m_subSystem->LoadDebugTags(tagsSection);
@@ -87,12 +88,13 @@ void CPsfVm::LoadDebugTags(const char* packageName)
 
 void CPsfVm::SaveDebugTags(const char* packageName)
 {
-	std::string packagePath = MakeTagPackagePath(packageName);
+	auto packagePath = MakeDebugTagsPackagePath(packageName);
+	auto stream = Framework::CreateOutputStdStream(packagePath.native());
 	std::unique_ptr<Framework::Xml::CNode> document(new Framework::Xml::CNode(TAGS_SECTION_TAGS, true));
 	m_subSystem->GetCpu().m_Functions.Serialize(document.get(), TAGS_SECTION_FUNCTIONS);
 	m_subSystem->GetCpu().m_Comments.Serialize(document.get(), TAGS_SECTION_COMMENTS);
 	m_subSystem->SaveDebugTags(document.get());
-	Framework::Xml::CWriter::WriteDocument(Framework::CStdStream(packagePath.c_str(), "wb"), document.get());
+	Framework::Xml::CWriter::WriteDocument(stream, document.get());
 }
 
 #endif
