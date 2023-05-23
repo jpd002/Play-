@@ -120,8 +120,11 @@ void MainWindow::AddFileToPlaylist(const fs::path& filePath)
 {
 	try
 	{
-		CPsfBase::TagMap tags;
-		CPsfLoader::LoadPsf(*m_virtualMachine, filePath.native(), "", &tags);
+		//TODO: Use PlaylistDiscoveryService
+		auto streamProvider = CreatePsfStreamProvider(fs::path());
+		std::unique_ptr<Framework::CStream> inputStream(streamProvider->GetStreamForPath(filePath.native()));
+		CPsfBase psfFile(*inputStream);
+		auto tags = CPsfTags::TagMap(psfFile.GetTagsBegin(), psfFile.GetTagsEnd());
 		model.addPlaylistItem(filePath.string(), tags);
 	}
 	catch(const std::exception& e)
