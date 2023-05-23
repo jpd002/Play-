@@ -97,25 +97,29 @@ void MainWindow::on_actionOpen_triggered()
 			int index = model.rowCount();
 			foreach(QString file, dialog.selectedFiles())
 			{
-				try
-				{
-					CPsfBase::TagMap tags;
-					std::string fileName = file.toStdString();
-					CPsfLoader::LoadPsf(*m_virtualMachine, fileName, "", &tags);
-					model.addPlaylistItem(fileName, tags);
-				}
-				catch(const std::exception& e)
-				{
-					QMessageBox messageBox;
-					messageBox.critical(0, "Error", e.what());
-					messageBox.show();
-				}
+				AddFileToPlaylist(file.toStdString());
 			}
 
 			m_path = QFileInfo(model.at(index)->path.c_str()).absolutePath().toStdString();
 			CAppConfig::GetInstance().SetPreferenceString(PREFERENCE_UI_LASTFOLDER, m_path.c_str());
 			PlayTrackIndex(index);
 		}
+	}
+}
+
+void MainWindow::AddFileToPlaylist(const fs::path& filePath)
+{
+	try
+	{
+		CPsfBase::TagMap tags;
+		CPsfLoader::LoadPsf(*m_virtualMachine, filePath.native(), "", &tags);
+		model.addPlaylistItem(filePath.string(), tags);
+	}
+	catch(const std::exception& e)
+	{
+		QMessageBox messageBox;
+		messageBox.critical(0, "Error", e.what());
+		messageBox.show();
 	}
 }
 

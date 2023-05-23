@@ -6,6 +6,7 @@
 #include "PlaylistItem.h"
 #include "playlistmodel.h"
 #include <thread>
+#include "filesystem_def.h"
 
 namespace Ui
 {
@@ -19,6 +20,8 @@ class MainWindow : public QMainWindow
 public:
 	explicit MainWindow(QWidget* parent = 0);
 	~MainWindow();
+
+	void AddFileToPlaylist(const fs::path&);
 
 private:
 	void UiUpdateLoop();
