@@ -29,6 +29,10 @@ int main(int argc, char* argv[])
 	QCommandLineOption frame_debugger_option("framedebugger", "Show frame debugger");
 	parser.addOption(frame_debugger_option);
 #endif
+
+	QCommandLineOption fullscreen_option("fullscreen", "Start the emulator fullscreen.");
+	parser.addOption(fullscreen_option);
+
 	QCommandLineOption cdrom_image_option("cdrom0", "Boot last booted cdvd image");
 	parser.addOption(cdrom_image_option);
 
@@ -75,6 +79,11 @@ int main(int argc, char* argv[])
 	{
 		QString arcade_id = parser.value(arcade_id_option);
 		w.BootArcadeMachine(arcade_id.toStdString() + ".arcadedef");
+	}
+
+	if(parser.isSet(fullscreen_option))
+	{
+		w.showFullScreen();
 	}
 
 	if(parser.isSet(load_state_option))
