@@ -75,13 +75,15 @@ export const loadArchive = createAsyncThunk<string[] | undefined, File>('loadArc
         PsfPlayerModule.FS.close(stream);
         URL.revokeObjectURL(url);
         let fileList = getPsfArchiveFileList(archiveFilePath);
-        fileList = fileList.filter(path => 
-            path.endsWith(".psf") ||
-            path.endsWith(".psf2") ||
-            path.endsWith(".psfp") ||
-            path.endsWith(".minipsf") ||
-            path.endsWith(".minipsf2") ||
-            path.endsWith(".minipsfp"));
+        fileList = fileList.filter((path) => {
+            let fixedPath = path.toLowerCase();
+            return fixedPath.endsWith(".psf") ||
+                fixedPath.endsWith(".psf2") ||
+                fixedPath.endsWith(".psfp") ||
+                fixedPath.endsWith(".minipsf") ||
+                fixedPath.endsWith(".minipsf2") ||
+                fixedPath.endsWith(".minipsfp")
+        });
         return fileList;
     }
 );
