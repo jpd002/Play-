@@ -32,140 +32,145 @@ using namespace Psp;
 #define BIOS_MESSAGE_END (sizeof(Psp::CBios::MESSAGE) * Psp::CBios::MAX_MESSAGES)
 #define BIOS_CALCULATED_END (BIOS_MESSAGE_BASE + BIOS_MESSAGE_END)
 
+// clang-format off
 CBios::MODULEFUNCTION CBios::g_IoFileMgrForUserFunctions[] =
-    {
-        {0x27EB27B8, "sceIoLseek"},
-        {0x109F50BC, "sceIoOpen"},
-        {0x42EC03AC, "sceIoWrite"},
-        {0x6A638D83, "sceIoRead"},
-        {0x810C4BC3, "sceIoClose"},
-        {0xA0B5A7C2, "sceIoReadAsync"},
-        {NULL, NULL},
+{
+	{0x27EB27B8, "sceIoLseek"},
+	{0x109F50BC, "sceIoOpen"},
+	{0x42EC03AC, "sceIoWrite"},
+	{0x6A638D83, "sceIoRead"},
+	{0x810C4BC3, "sceIoClose"},
+	{0xA0B5A7C2, "sceIoReadAsync"},
+	{NULL, NULL},
 };
 
 CBios::MODULEFUNCTION CBios::g_SysMemUserForUserFunctions[] =
-    {
-        {0x91DE343C, "sceKernelSetCompiledSdkVersion"},
-        {0xF77D77CB, "sceKernelSetCompilerVersion"},
-        {0x237DBD4F, "sceKernelAllocPartitionMemory"},
-        {0x9D9A5BA1, "sceKernelGetBlockHeadAddr"},
-        {0xFE707FDF, "sceKernelAllocMemoryBlock"},
-        {0xDB83A952, "sceKernelGetMemoryBlockAddr"},
-        {0x50F61D8A, "sceKernelFreeMemoryBlock"},
+{
+	{0x91DE343C, "sceKernelSetCompiledSdkVersion"},
+	{0xF77D77CB, "sceKernelSetCompilerVersion"},
+	{0x237DBD4F, "sceKernelAllocPartitionMemory"},
+	{0x9D9A5BA1, "sceKernelGetBlockHeadAddr"},
+	{0xFE707FDF, "sceKernelAllocMemoryBlock"},
+	{0xDB83A952, "sceKernelGetMemoryBlockAddr"},
+	{0x50F61D8A, "sceKernelFreeMemoryBlock"},
+	{NULL, NULL},
 };
 
 CBios::MODULEFUNCTION CBios::g_ThreadManForUserFunctions[] =
-    {
-        {0x446D8DE6, "sceKernelCreateThread"},
-        {0xF475845D, "sceKernelStartThread"},
-        {0x278C0DF5, "sceKernelWaitThreadEnd"},
-        {0x9FA03CD3, "sceKernelDeleteThread"},
-        {0xCEADEB47, "sceKernelDelayThread"},
-        {0xAA73C935, "sceKernelExitThread"},
-        {0xE81CAF8F, "sceKernelCreateCallback"},
-        {0xD6DA4BA1, "sceKernelCreateSema"},
-        {0x4E3A1105, "sceKernelWaitSema"},
-        {0x3F53E640, "sceKernelSignalSema"},
-        {0x28B6489C, "sceKernelDeleteSema"},
-        {0x8125221D, "sceKernelCreateMbx"},
-        {0xE9B3061E, "sceKernelSendMbx"},
-        {0x0D81716A, "sceKernelPollMbx"},
-        {NULL, NULL},
+{
+	{0x446D8DE6, "sceKernelCreateThread"},
+	{0xF475845D, "sceKernelStartThread"},
+	{0x278C0DF5, "sceKernelWaitThreadEnd"},
+	{0x9FA03CD3, "sceKernelDeleteThread"},
+	{0xCEADEB47, "sceKernelDelayThread"},
+	{0xAA73C935, "sceKernelExitThread"},
+	{0xE81CAF8F, "sceKernelCreateCallback"},
+	{0xD6DA4BA1, "sceKernelCreateSema"},
+	{0x4E3A1105, "sceKernelWaitSema"},
+	{0x3F53E640, "sceKernelSignalSema"},
+	{0x28B6489C, "sceKernelDeleteSema"},
+	{0x8125221D, "sceKernelCreateMbx"},
+	{0xE9B3061E, "sceKernelSendMbx"},
+	{0x0D81716A, "sceKernelPollMbx"},
+	{NULL, NULL},
 };
 
 CBios::MODULEFUNCTION CBios::g_StdioForUserFunctions[] =
-    {
-        {0xA6BAB2E9, "sceKernelStdout"},
-        {NULL, NULL},
+{
+	{0xA6BAB2E9, "sceKernelStdout"},
+	{NULL, NULL},
 };
 
 CBios::MODULEFUNCTION CBios::g_LoadExecForUserFunctions[] =
-    {
-        {0x4AC57943, "sceKernelRegisterExitCallback"},
-        {NULL, NULL},
+{
+	{0x4AC57943, "sceKernelRegisterExitCallback"},
+	{NULL, NULL},
 };
 
 CBios::MODULEFUNCTION CBios::g_UtilsForUserFunctions[] =
-    {
-        {0xB435DEC5, "sceKernelDcacheWritebackInvalidateAll"},
-        {NULL, NULL},
+{
+	{0xB435DEC5, "sceKernelDcacheWritebackInvalidateAll"},
+	{NULL, NULL},
 };
 
 CBios::MODULEFUNCTION CBios::g_SasCoreFunctions[] =
-    {
-        {0x76F01ACA, "sasSetKeyOn"},
-        {0xA0CF2FA4, "sasSetKeyOff"},
-        {0x019B25EB, "sasSetADSR"},
-        {0xCBCD4F79, "sasSetSimpleADSR"},
-        {0xAD84D37F, "sasSetPitch"},
-        {0x99944089, "sasSetVoice"},
-        {0xE1CD9561, "sasSetVoicePCM"},
-        {0x440CA7D8, "sasSetVolume"},
-        {0x2C8E6AB3, "sasGetPauseFlag"},
-        {0x68A46B95, "sasGetEndFlag"},
-        {0x07F58C24, "sasGetAllEnvelope"},
-        {0xA3589D81, "sasCore"},
-        {0x42778A9F, "sasInit"},
-        {0x33D4AB37, "sasSetEffectType"},
-        {0x267A6DD2, "sasSetEffectParam"},
-        {0xD5A229C9, "sasSetEffectVolume"},
-        {0xF983B186, "sasSetEffect"},
-        {NULL, NULL},
+{
+	{0x76F01ACA, "sasSetKeyOn"},
+	{0xA0CF2FA4, "sasSetKeyOff"},
+	{0x019B25EB, "sasSetADSR"},
+	{0xCBCD4F79, "sasSetSimpleADSR"},
+	{0xAD84D37F, "sasSetPitch"},
+	{0x99944089, "sasSetVoice"},
+	{0xE1CD9561, "sasSetVoicePCM"},
+	{0x440CA7D8, "sasSetVolume"},
+	{0x2C8E6AB3, "sasGetPauseFlag"},
+	{0x68A46B95, "sasGetEndFlag"},
+	{0x07F58C24, "sasGetAllEnvelope"},
+	{0xA3589D81, "sasCore"},
+	{0x42778A9F, "sasInit"},
+	{0x33D4AB37, "sasSetEffectType"},
+	{0x267A6DD2, "sasSetEffectParam"},
+	{0xD5A229C9, "sasSetEffectVolume"},
+	{0xF983B186, "sasSetEffect"},
+	{NULL, NULL},
 };
 
 CBios::MODULEFUNCTION CBios::g_WaveFunctions[] =
-    {
-        {0xE2D56B2D, "sceAudioOutputPanned"},
-        {0x13F592BC, "sceAudioOutputPannedBlocking"},
-        {0xB011922F, "WaveAudioGetRestSample"},
-        {0x5EC81C55, "sceAudioChReserve"},
-        {0xCB2E439E, "sceAudioSetChannelDataLen"},
-        {NULL, NULL},
+{
+	{0xE2D56B2D, "sceAudioOutputPanned"},
+	{0x13F592BC, "sceAudioOutputPannedBlocking"},
+	{0xB011922F, "WaveAudioGetRestSample"},
+	{0x5EC81C55, "sceAudioChReserve"},
+	{0xCB2E439E, "sceAudioSetChannelDataLen"},
+	{NULL, NULL},
 };
 
 CBios::MODULEFUNCTION CBios::g_UmdUserFunctions[] =
-    {
-        {0xC6183D47, "sceUmdActivate"},
-        {0x6B4A146C, "sceUmdGetDriveStat"},
-        {0x8EF08FCE, "sceUmdWaitDriveStat"},
-        {0x6AF9B50A, "sceUmdCancelWaitDriveStat"},
-        {NULL, NULL},
+{
+	{0xC6183D47, "sceUmdActivate"},
+	{0x6B4A146C, "sceUmdGetDriveStat"},
+	{0x8EF08FCE, "sceUmdWaitDriveStat"},
+	{0x6AF9B50A, "sceUmdCancelWaitDriveStat"},
+	{NULL, NULL},
 };
 
 CBios::MODULEFUNCTION CBios::g_UtilityFunctions[] =
-    {
-        {0x2A2B3DE0, "sceUtilityLoadModule"},
-        {0xE49BFE92, "sceUtilityUnloadModule"},
-        {NULL, NULL},
+{
+	{0x2A2B3DE0, "sceUtilityLoadModule"},
+	{0xE49BFE92, "sceUtilityUnloadModule"},
+	{NULL, NULL},
 };
 
 CBios::MODULEFUNCTION CBios::g_KernelLibraryFunctions[] =
-    {
-        {0x092968F4, "sceKernelCpuSuspendIntr"},
-        {0x5F10D406, "sceKernelCpuResumeIntr"},
+{
+	{0x092968F4, "sceKernelCpuSuspendIntr"},
+	{0x5F10D406, "sceKernelCpuResumeIntr"},
+	{NULL, NULL},
 };
 
 CBios::MODULEFUNCTION CBios::g_ModuleMgrForUserFunctions[] =
-    {
-        {0xD8B73127, "sceKernelGetModuleIdByAddress"},
+{
+	{0xD8B73127, "sceKernelGetModuleIdByAddress"},
+	{NULL, NULL},
 };
 
 CBios::MODULE CBios::g_modules[] =
-    {
-        {"IoFileMgrForUser", g_IoFileMgrForUserFunctions},
-        {"SysMemUserForUser", g_SysMemUserForUserFunctions},
-        {"ThreadManForUser", g_ThreadManForUserFunctions},
-        {"LoadExecForUser", g_LoadExecForUserFunctions},
-        {"UtilsForUser", g_UtilsForUserFunctions},
-        {"ModuleMgrForUser", g_ModuleMgrForUserFunctions},
-        {"StdioForUser", g_StdioForUserFunctions},
-        {"sceSasCore", g_SasCoreFunctions},
-        {"sceAudio", g_WaveFunctions},
-        {"sceUmdUser", g_UmdUserFunctions},
-        {"sceUtility", g_UtilityFunctions},
-        {"Kernel_Library", g_KernelLibraryFunctions},
-        {NULL, NULL},
+{
+	{"IoFileMgrForUser", g_IoFileMgrForUserFunctions},
+	{"SysMemUserForUser", g_SysMemUserForUserFunctions},
+	{"ThreadManForUser", g_ThreadManForUserFunctions},
+	{"LoadExecForUser", g_LoadExecForUserFunctions},
+	{"UtilsForUser", g_UtilsForUserFunctions},
+	{"ModuleMgrForUser", g_ModuleMgrForUserFunctions},
+	{"StdioForUser", g_StdioForUserFunctions},
+	{"sceSasCore", g_SasCoreFunctions},
+	{"sceAudio", g_WaveFunctions},
+	{"sceUmdUser", g_UmdUserFunctions},
+	{"sceUtility", g_UtilityFunctions},
+	{"Kernel_Library", g_KernelLibraryFunctions},
+	{NULL, NULL},
 };
+// clang-format on
 
 CBios::CBios(CMIPS& cpu, uint8* ram, uint32 ramSize)
     : m_module(NULL)
