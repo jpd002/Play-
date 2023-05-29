@@ -51,14 +51,6 @@ set(QT_UIS
 set(QT_RESOURCES
 )
 
-if(TARGET_PLATFORM_WIN32)
-	set(QT_SOURCES
-		${QT_SOURCES}
-		../ui_win32/SH_WaveOut.cpp
-	)
-	list(APPEND PSFPLAYER_PROJECT_LIBS winmm)
-endif()
-
 if(TARGET_PLATFORM_MACOS OR TARGET_PLATFORM_UNIX)
 	if(NOT TARGET sh_openal)
 		add_subdirectory(
@@ -80,7 +72,17 @@ QT_ADD_RESOURCES(QT_RES_SOURCES ${QT_RESOURCES})
 QT_WRAP_UI(QT_UI_HEADERS ${QT_UIS})
 QT_WRAP_CPP(QT_MOC_SRCS ${QT_MOC_HEADERS})
 
-add_executable(PsfPlayer ${QT_SOURCES} ${QT_MOC_SRCS} ${QT_RES_SOURCES} ${QT_UI_HEADERS})
+if(TARGET_PLATFORM_WIN32)
+	set(QT_SOURCES
+		${QT_SOURCES}
+		../ui_win32/SH_WaveOut.cpp
+	)
+	list(APPEND PSFPLAYER_PROJECT_LIBS winmm)
+	add_executable(PsfPlayer WIN32 ${QT_SOURCES} ${QT_MOC_SRCS} ${QT_RES_SOURCES} ${QT_UI_HEADERS})
+else()
+	add_executable(PsfPlayer ${QT_SOURCES} ${QT_MOC_SRCS} ${QT_RES_SOURCES} ${QT_UI_HEADERS})
+endif()
+
 target_link_libraries(PsfPlayer ${PSFPLAYER_PROJECT_LIBS})
 target_include_directories(PsfPlayer PUBLIC
 	./
