@@ -6,14 +6,6 @@
 
 using namespace Psp;
 
-CKernelLibrary::CKernelLibrary()
-{
-}
-
-CKernelLibrary::~CKernelLibrary()
-{
-}
-
 std::string CKernelLibrary::GetName() const
 {
 	return "Kernel_Library";

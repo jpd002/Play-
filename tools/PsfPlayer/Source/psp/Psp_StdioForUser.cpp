@@ -6,14 +6,6 @@
 
 using namespace Psp;
 
-CStdioForUser::CStdioForUser()
-{
-}
-
-CStdioForUser::~CStdioForUser()
-{
-}
-
 std::string CStdioForUser::GetName() const
 {
 	return "StdioForUser";

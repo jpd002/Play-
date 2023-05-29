@@ -15,10 +15,6 @@ CSysMemUserForUser::CSysMemUserForUser(CBios& bios, uint8* ram)
 {
 }
 
-CSysMemUserForUser::~CSysMemUserForUser()
-{
-}
-
 std::string CSysMemUserForUser::GetName() const
 {
 	return "SysMemUserForUser";

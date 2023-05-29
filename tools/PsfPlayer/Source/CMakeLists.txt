@@ -67,6 +67,7 @@ set(PSFCORE_SRC_FILES
 	psp/MA_ALLEGREX_Reflection.cpp
 	psp/Psp_Audio.cpp
 	psp/Psp_Audio.h
+	psp/Psp_IoDevice.h
 	psp/Psp_IoFileMgrForUser.cpp
 	psp/Psp_IoFileMgrForUser.h
 	psp/Psp_KernelLibrary.cpp

@@ -1,5 +1,4 @@
-#ifndef _PSP_THREADMANFORUSER_H_
-#define _PSP_THREADMANFORUSER_H_
+#pragma once
 
 #include <string>
 #include "PspModule.h"
@@ -11,10 +10,9 @@ namespace Psp
 	{
 	public:
 		CThreadManForUser(CBios&, uint8*);
-		virtual ~CThreadManForUser();
 
-		std::string GetName() const;
-		void Invoke(uint32, CMIPS&);
+		std::string GetName() const override;
+		void Invoke(uint32, CMIPS&) override;
 
 	private:
 		uint32 CreateThread(uint32, uint32, uint32, uint32, uint32, uint32);
@@ -26,8 +24,6 @@ namespace Psp
 		uint32 PollMbx(uint32, uint32);
 
 		CBios& m_bios;
-		uint8* m_ram;
+		uint8* m_ram = nullptr;
 	};
 };
-
-#endif

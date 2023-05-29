@@ -1,5 +1,4 @@
-#ifndef _PSP_AUDIO_H_
-#define _PSP_AUDIO_H_
+#pragma once
 
 #include "PspModule.h"
 #include "Stream.h"
@@ -10,10 +9,9 @@ namespace Psp
 	{
 	public:
 		CAudio(uint8*);
-		virtual ~CAudio();
 
-		void Invoke(uint32, CMIPS&);
-		std::string GetName() const;
+		void Invoke(uint32, CMIPS&) override;
+		std::string GetName() const override;
 
 		void SetStream(Framework::CStream*);
 
@@ -34,11 +32,9 @@ namespace Psp
 		uint32 OutputPannedBlocking(uint32, uint32, uint32, uint32);
 
 		CHANNEL m_channels[MAX_CHANNEL];
-		uint8* m_ram;
-		Framework::CStream* m_stream;
+		uint8* m_ram = nullptr;
+		Framework::CStream* m_stream = nullptr;
 	};
 
 	typedef std::shared_ptr<CAudio> AudioModulePtr;
 }
-
-#endif

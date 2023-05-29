@@ -7,88 +7,88 @@ using namespace Psp;
 
 #define SPURAM_ALLOC_BASEADDRESS (0x40000)
 
+// clang-format off
 CSasCore::REVERBINFO CSasCore::g_ReverbStudioC =
-    {
-        0x6FE0,
-        {
-            0x00E3,
-            0x00A9,
-            0x6F60,
-            0x4FA8,
-            0xBCE0,
-            0x4510,
-            0xBEF0,
-            0xA680,
-            0x5680,
-            0x52C0,
-            0x0DFB,
-            0x0B58,
-            0x0D09,
-            0x0A3C,
-            0x0BD9,
-            0x0973,
-            0x0B59,
-            0x08DA,
-            0x08D9,
-            0x05E9,
-            0x07EC,
-            0x04B0,
-            0x06EF,
-            0x03D2,
-            0x05EA,
-            0x031D,
-            0x031C,
-            0x0238,
-            0x0154,
-            0x00AA,
-            0x8000,
-            0x8000,
-        }};
+{
+	0x6FE0,
+	{
+		0x00E3,
+		0x00A9,
+		0x6F60,
+		0x4FA8,
+		0xBCE0,
+		0x4510,
+		0xBEF0,
+		0xA680,
+		0x5680,
+		0x52C0,
+		0x0DFB,
+		0x0B58,
+		0x0D09,
+		0x0A3C,
+		0x0BD9,
+		0x0973,
+		0x0B59,
+		0x08DA,
+		0x08D9,
+		0x05E9,
+		0x07EC,
+		0x04B0,
+		0x06EF,
+		0x03D2,
+		0x05EA,
+		0x031D,
+		0x031C,
+		0x0238,
+		0x0154,
+		0x00AA,
+		0x8000,
+		0x8000,
+	}
+};
 
 CSasCore::REVERBINFO CSasCore::g_ReverbSpace =
-    {
-        0xF6C0,
-        {
-            0x033D,
-            0x0231,
-            0x7E00,
-            0x5000,
-            0xB400,
-            0xB000,
-            0x4C00,
-            0xB000,
-            0x6000,
-            0x5400,
-            0x1ED6,
-            0x1A31,
-            0x1D14,
-            0x183B,
-            0x1BC2,
-            0x16B2,
-            0x1A32,
-            0x15EF,
-            0x15EE,
-            0x1055,
-            0x1334,
-            0x0F2D,
-            0x11F6,
-            0x0C5D,
-            0x1056,
-            0x0AE1,
-            0x0AE0,
-            0x07A2,
-            0x0464,
-            0x0232,
-            0x8000,
-            0x8000,
-        }};
+{
+	0xF6C0,
+	{
+		0x033D,
+		0x0231,
+		0x7E00,
+		0x5000,
+		0xB400,
+		0xB000,
+		0x4C00,
+		0xB000,
+		0x6000,
+		0x5400,
+		0x1ED6,
+		0x1A31,
+		0x1D14,
+		0x183B,
+		0x1BC2,
+		0x16B2,
+		0x1A32,
+		0x15EF,
+		0x15EE,
+		0x1055,
+		0x1334,
+		0x0F2D,
+		0x11F6,
+		0x0C5D,
+		0x1056,
+		0x0AE1,
+		0x0AE0,
+		0x07A2,
+		0x0464,
+		0x0232,
+		0x8000,
+		0x8000,
+	}
+};
+// clang-format on
 
 CSasCore::CSasCore(uint8* ram)
     : m_ram(ram)
-{
-}
-
-CSasCore::~CSasCore()
 {
 }
 
@@ -448,6 +448,9 @@ uint32 CSasCore::SetEffectType(uint32 contextAddr, uint32 effectType)
 		break;
 	case REVERB_SPACE:
 		SetupReverb(g_ReverbSpace);
+		break;
+	default:
+		assert(false);
 		break;
 	}
 	return 0;

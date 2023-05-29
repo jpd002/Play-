@@ -1,5 +1,4 @@
-#ifndef _PSP_SUBSYSTEM_H_
-#define _PSP_SUBSYSTEM_H_
+#pragma once
 
 #include "Types.h"
 #include "MA_ALLEGREX.h"
@@ -66,5 +65,3 @@ namespace Psp
 
 	typedef std::shared_ptr<CPsfSubSystem> PsfSubSystemPtr;
 }
-
-#endif

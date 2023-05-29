@@ -1,5 +1,4 @@
-#ifndef _PSP_SASCORE_H_
-#define _PSP_SASCORE_H_
+#pragma once
 
 #include "PspModule.h"
 #include "iop/Iop_SpuBase.h"
@@ -10,10 +9,9 @@ namespace Psp
 	{
 	public:
 		CSasCore(uint8*);
-		virtual ~CSasCore();
 
-		void Invoke(uint32, CMIPS&);
-		std::string GetName() const;
+		void Invoke(uint32, CMIPS&) override;
+		std::string GetName() const override;
 
 		void SetSpuInfo(Iop::CSpuSampleCache*, Iop::CSpuBase*, Iop::CSpuBase*, uint8*, uint32);
 
@@ -86,5 +84,3 @@ namespace Psp
 
 	typedef std::shared_ptr<CSasCore> SasCoreModulePtr;
 }
-
-#endif

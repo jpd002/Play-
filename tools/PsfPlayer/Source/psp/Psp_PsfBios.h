@@ -1,5 +1,4 @@
-#ifndef _PSP_PSFBIOS_H_
-#define _PSP_PSFBIOS_H_
+#pragma once
 
 #include "PspBios.h"
 #include "Psp_PsfDevice.h"
@@ -39,5 +38,3 @@ namespace Psp
 		PsfDevicePtr m_psfDevice;
 	};
 }
-
-#endif

@@ -11,10 +11,6 @@ CThreadManForUser::CThreadManForUser(CBios& bios, uint8* ram)
 {
 }
 
-CThreadManForUser::~CThreadManForUser()
-{
-}
-
 std::string CThreadManForUser::GetName() const
 {
 	return "ThreadManForUser";

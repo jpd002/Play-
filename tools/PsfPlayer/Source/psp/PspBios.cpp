@@ -502,45 +502,6 @@ void CBios::LoadModule(const char* path)
 	{
 		Reschedule();
 	}
-
-#if 0
-	//Search string
-//	const char* stringToSearch = "xa_MYROOM.adx";
-	const char* stringToSearch = "fname:%s";
-	size_t length = strlen(stringToSearch);
-	for(unsigned int i = baseAddress; i < endAddress; i++)
-	{
-		if(!strncmp(stringToSearch, reinterpret_cast<const char*>(m_ram + i), length))
-		{
-			printf("Found string at %0x%0.8X.\r\n", i);
-		}
-	}
-#endif
-#if 0
-	//0x003fe11c
-	//0x003fe9f0
-	//0x004428e4
-	//0x00442954
-	//0x00457988
-	//0x1D96A0
-	//0x3fdf4c
-	//0x003fe9f0
-	//1f5164
-	//0x4bcd38
-	//0x0040feac
-	//0x0044dad0
-	//0x004b9674
-	for(unsigned int i = baseAddress; i < endAddress; i += 4)
-	{
-		uint32 opcode = *reinterpret_cast<uint32*>(m_ram + i);
-		//if((opcode & 0xFFFF) == (0x8a50))
-		//if(opcode == 0x004579e0)
-		if(((opcode & 0xFFFF) == 0x4942))
-		{
-			printf("Found instruction at %0.8X.\r\n", i);
-		}
-	}
-#endif
 }
 
 uint32 CBios::CreateThread(const char* name, uint32 threadProc, uint32 initPriority, uint32 stackSize, uint32 creationFlags, uint32 optParam)

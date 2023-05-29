@@ -1,5 +1,4 @@
-#ifndef _PSP_IOFILEMGRFORUSER_H_
-#define _PSP_IOFILEMGRFORUSER_H_
+#pragma once
 
 #include "PspModule.h"
 #include "Psp_IoDevice.h"
@@ -24,10 +23,9 @@ namespace Psp
 		};
 
 		CIoFileMgrForUser(uint8*);
-		virtual ~CIoFileMgrForUser();
 
-		void Invoke(uint32, CMIPS&);
-		std::string GetName() const;
+		void Invoke(uint32, CMIPS&) override;
+		std::string GetName() const override;
 
 		void RegisterDevice(const char*, const IoDevicePtr&);
 		uint32 Open(const char*, uint32, uint32);
@@ -45,7 +43,7 @@ namespace Psp
 		uint32 IoWrite(uint32, uint32, uint32);
 		uint32 IoLseek(uint32, uint32, uint32);
 
-		uint8* m_ram;
+		uint8* m_ram = nullptr;
 		uint32 m_nextFileId;
 		IoDeviceList m_devices;
 		FileList m_files;
@@ -53,5 +51,3 @@ namespace Psp
 
 	typedef std::shared_ptr<CIoFileMgrForUser> IoFileMgrForUserModulePtr;
 }
-
-#endif

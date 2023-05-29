@@ -1,5 +1,4 @@
-#ifndef _PSP_STDIOFORUSER_H_
-#define _PSP_STDIOFORUSER_H_
+#pragma once
 
 #include "PspModule.h"
 
@@ -8,12 +7,7 @@ namespace Psp
 	class CStdioForUser : public CModule
 	{
 	public:
-		CStdioForUser();
-		virtual ~CStdioForUser();
-
-		std::string GetName() const;
-		void Invoke(uint32, CMIPS&);
+		std::string GetName() const override;
+		void Invoke(uint32, CMIPS&) override;
 	};
 }
-
-#endif

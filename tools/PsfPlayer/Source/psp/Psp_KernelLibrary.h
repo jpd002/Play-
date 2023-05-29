@@ -1,5 +1,4 @@
-#ifndef _PSP_KERNELLIBRARY_H_
-#define _PSP_KERNELLIBRARY_H_
+#pragma once
 
 #include "PspModule.h"
 
@@ -8,14 +7,7 @@ namespace Psp
 	class CKernelLibrary : public CModule
 	{
 	public:
-		CKernelLibrary();
-		virtual ~CKernelLibrary();
-
-		std::string GetName() const;
-		void Invoke(uint32, CMIPS&);
-
-	private:
+		std::string GetName() const override;
+		void Invoke(uint32, CMIPS&) override;
 	};
 }
-
-#endif

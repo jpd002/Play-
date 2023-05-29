@@ -12,10 +12,6 @@ CAudio::CAudio(uint8* ram)
 	memset(&m_channels, 0, sizeof(m_channels));
 }
 
-CAudio::~CAudio()
-{
-}
-
 std::string CAudio::GetName() const
 {
 	return "sceAudio";

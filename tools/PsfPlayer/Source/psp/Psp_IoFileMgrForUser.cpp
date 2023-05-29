@@ -12,10 +12,6 @@ CIoFileMgrForUser::CIoFileMgrForUser(uint8* ram)
 	m_nextFileId = FD_FIRSTUSERID;
 }
 
-CIoFileMgrForUser::~CIoFileMgrForUser()
-{
-}
-
 std::string CIoFileMgrForUser::GetName() const
 {
 	return "IoFileMgrForUser";

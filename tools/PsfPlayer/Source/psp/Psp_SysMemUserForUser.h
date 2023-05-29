@@ -1,5 +1,4 @@
-#ifndef _PSP_SYSMEMUSERFORUSER_H_
-#define _PSP_SYSMEMUSERFORUSER_H_
+#pragma once
 
 #include "PspBios.h"
 #include "PspModule.h"
@@ -10,10 +9,9 @@ namespace Psp
 	{
 	public:
 		CSysMemUserForUser(CBios&, uint8*);
-		virtual ~CSysMemUserForUser();
 
-		void Invoke(uint32, CMIPS&);
-		std::string GetName() const;
+		void Invoke(uint32, CMIPS&) override;
+		std::string GetName() const override;
 
 	private:
 		uint32 AllocPartitionMemory(uint32, uint32, uint32, uint32, uint32);
@@ -28,5 +26,3 @@ namespace Psp
 		uint8* m_ram;
 	};
 }
-
-#endif

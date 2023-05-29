@@ -1,5 +1,4 @@
-#ifndef _PSPBIOS_H_
-#define _PSPBIOS_H_
+#pragma once
 
 #include <map>
 #include "MIPSAssembler.h"
@@ -282,5 +281,3 @@ namespace Psp
 		bool m_rescheduleNeeded;
 	};
 }
-
-#endif
