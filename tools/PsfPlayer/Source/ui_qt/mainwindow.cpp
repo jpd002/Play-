@@ -36,7 +36,6 @@ MainWindow::MainWindow(QWidget* parent)
 	model.setHeaderData(0, Qt::Orientation::Horizontal, QVariant("Title"), Qt::DisplayRole);
 	model.setHeaderData(1, Qt::Orientation::Horizontal, QVariant("Length"), Qt::DisplayRole);
 	m_debugger = std::make_unique<DebuggerWindow>(*m_virtualMachine);
-	m_debugger->showMaximized();
 
 	ui->tableView->setModel(&model);
 	ui->tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
@@ -133,6 +132,13 @@ void MainWindow::AddArchiveToPlaylist(const fs::path& archivePath)
 		messageBox.critical(0, "Error", e.what());
 		messageBox.show();
 	}
+}
+
+void MainWindow::ShowDebugger()
+{
+	m_debugger->showMaximized();
+	m_debugger->raise();
+	m_debugger->activateWindow();
 }
 
 void MainWindow::UpdateTrackDetails(CPsfBase::TagMap& tags)

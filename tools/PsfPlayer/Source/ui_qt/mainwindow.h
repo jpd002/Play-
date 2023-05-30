@@ -24,6 +24,7 @@ public:
 
 	void AddFileToPlaylist(const fs::path&);
 	void AddArchiveToPlaylist(const fs::path&);
+	void ShowDebugger();
 
 private:
 	void UpdateTrackDetails(CPsfBase::TagMap&);
