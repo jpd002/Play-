@@ -86,6 +86,8 @@ set(PSFCORE_SRC_FILES
 	psp/Psp_SysMemUserForUser.h
 	psp/Psp_ThreadManForUser.cpp
 	psp/Psp_ThreadManForUser.h
+	psp/Psp_UmdUser.cpp
+	psp/Psp_UmdUser.h
 	psp/PspBios.cpp
 	psp/PspBios.h
 )
