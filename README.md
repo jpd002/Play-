@@ -50,11 +50,22 @@ Some arcade specific actions are mapped to these buttons on the PS2 controller m
 - Service/Coin: SELECT
 - Test: L3 & R3 pressed at the same time
 
+### Light Gun Support
+
+For games that support light guns, the following buttons are mapped:
+
+- Gun Trigger: CIRCLE
+- Pedal: TRIANGLE
+
+The mouse's cursor position on the emulator's window will be used for the gun's position. It's also possible to map mouse buttons to CIRCLE or TRIANGLE in controller settings for a better experience.
+
+**Note for Time Crisis 3**: This game requires prior calibration of the light gun in service menu. Hold the Test buttons, go in "I/O Test" then "Gun Initialize" and press the Pedal button to calibrate the gun (shoot at the center). This only needs to be done once.
+
 ## General Troubleshooting ##
 
 #### Failed to open CHD file ####
 
-Please make sure your CHD files are in the proper format. It's possible to use `chdman` to verify wether your CDVD image is really a CDVD image.
+Please make sure your CHD files are in the proper format. It's possible to use `chdman` to verify whether your CDVD image is really a CDVD image.
 
 ```
 chdman info -i image.chd
