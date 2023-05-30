@@ -47,6 +47,45 @@ CSasCore::REVERBINFO CSasCore::g_ReverbStudioC =
 	}
 };
 
+CSasCore::REVERBINFO CSasCore::g_ReverbHall =
+{
+	0xADE0,
+	{
+		0x01A5,
+		0x0139,
+		0x6000,
+		0x5000,
+		0x4C00,
+		0xB800,
+		0xBC00,
+		0xC000,
+		0x6000,
+		0x5C00,
+		0x15BA,
+		0x11BB,
+		0x14C2,
+		0x10BD,
+		0x11BC,
+		0x0DC1,
+		0x11C0,
+		0x0DC3,
+		0x0DC0,
+		0x09C1,
+		0x0BC4,
+		0x07C1,
+		0x0A00,
+		0x06CD,
+		0x09C2,
+		0x05C1,
+		0x05C0,
+		0x041A,
+		0x0274,
+		0x013A,
+		0x8000,
+		0x8000,
+	}
+};
+
 CSasCore::REVERBINFO CSasCore::g_ReverbSpace =
 {
 	0xF6C0,
@@ -445,6 +484,9 @@ uint32 CSasCore::SetEffectType(uint32 contextAddr, uint32 effectType)
 	{
 	case REVERB_STUDIOC:
 		SetupReverb(g_ReverbStudioC);
+		break;
+	case REVERB_HALL:
+		SetupReverb(g_ReverbHall);
 		break;
 	case REVERB_SPACE:
 		SetupReverb(g_ReverbSpace);

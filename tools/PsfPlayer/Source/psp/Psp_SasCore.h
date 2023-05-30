@@ -79,6 +79,7 @@ namespace Psp
 		MemBlockList m_blocks;
 
 		static REVERBINFO g_ReverbStudioC;
+		static REVERBINFO g_ReverbHall;
 		static REVERBINFO g_ReverbSpace;
 	};
 
