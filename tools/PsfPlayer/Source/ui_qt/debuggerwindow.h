@@ -25,6 +25,7 @@ public:
 	void Reset();
 
 private slots:
+	void on_actionResume_triggered();
 	void on_actionStep_CPU_triggered();
 	void on_actionfind_word_value_triggered();
 	void on_actionFind_Word_Half_Value_triggered();

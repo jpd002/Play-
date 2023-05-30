@@ -52,6 +52,12 @@ void DebuggerWindow::Reset()
 	Layout1600x1200();
 }
 
+void DebuggerWindow::on_actionResume_triggered()
+{
+	if(!m_debugView) return;
+	m_virtualMachine.Resume();
+}
+
 void DebuggerWindow::on_actionStep_CPU_triggered()
 {
 	if(!m_debugView) return;
