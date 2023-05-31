@@ -28,16 +28,16 @@ CPixelBufferView::CPixelBufferView(QWidget* parent, QComboBox* contextBuffer)
 	auto container = QWidget::createWindowContainer(m_openglpanel, this);
 	container->sizePolicy().setHorizontalStretch(3);
 	container->sizePolicy().setHorizontalPolicy(QSizePolicy::Expanding);
-	
+
 	auto layout = new QVBoxLayout;
 	setLayout(layout);
 	layout->addWidget(container);
-	
+
 	m_openglpanel->create();
 	m_gs = std::make_unique<CGSH_OpenGLFramedebugger>(m_openglpanel);
 	m_gs->InitializeImpl();
 	m_gs->PrepareFramedebugger();
-	
+
 	connect(m_openglpanel, &QWindow::widthChanged, this, &CPixelBufferView::Refresh);
 	connect(m_openglpanel, SIGNAL(mouseMove(QMouseEvent*)), this, SLOT(OnMouseMoveEvent(QMouseEvent*)));
 	connect(m_openglpanel, SIGNAL(mousePress(QMouseEvent*)), this, SLOT(OnMousePressEvent(QMouseEvent*)));

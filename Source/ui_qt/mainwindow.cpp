@@ -257,7 +257,7 @@ void MainWindow::SetupGsHandler()
 	connect(m_outputwindow, SIGNAL(mouseMove(QMouseEvent*)), this, SLOT(outputWindow_mouseMoveEvent(QMouseEvent*)));
 	connect(m_outputwindow, SIGNAL(mousePress(QMouseEvent*)), this, SLOT(outputWindow_mousePressEvent(QMouseEvent*)));
 	connect(m_outputwindow, SIGNAL(mouseRelease(QMouseEvent*)), this, SLOT(outputWindow_mouseReleaseEvent(QMouseEvent*)));
-	
+
 	m_OnNewFrameConnection = m_virtualMachine->m_ee->m_gs->OnNewFrame.Connect(std::bind(&CStatsManager::OnNewFrame, &CStatsManager::GetInstance(), m_virtualMachine, std::placeholders::_1));
 }
 
@@ -857,8 +857,8 @@ void MainWindow::outputWindow_mouseMoveEvent(QMouseEvent* ev)
 		mouseX = std::clamp<float>(mouseX, 0, vpWidth);
 		mouseY = std::clamp<float>(mouseY, 0, vpHeight);
 		m_virtualMachine->ReportGunPosition(
-											static_cast<float>(mouseX) / static_cast<float>(vpWidth),
-											static_cast<float>(mouseY) / static_cast<float>(vpHeight));
+		    static_cast<float>(mouseX) / static_cast<float>(vpWidth),
+		    static_cast<float>(mouseY) / static_cast<float>(vpHeight));
 	}
 }
 

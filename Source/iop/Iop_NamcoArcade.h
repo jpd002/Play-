@@ -30,14 +30,14 @@ namespace Iop
 
 		void SetButton(unsigned int, PS2::CControllerInfo::BUTTON);
 		void SetLightGunXform(const std::array<float, 4>&);
-		
+
 		//CPadListener
 		void SetButtonState(unsigned int, PS2::CControllerInfo::BUTTON, bool, uint8*) override;
 		void SetAxisState(unsigned int, PS2::CControllerInfo::BUTTON, uint8, uint8*) override;
 
 		//CGunListener
 		void SetGunPosition(float, float) override;
-		
+
 	private:
 		enum MODULE_ID
 		{
@@ -70,8 +70,8 @@ namespace Iop
 		std::string m_gameId;
 		uint32 m_recvAddr = 0;
 		uint32 m_sendAddr = 0;
-		
-		std::array<float, 4> m_lightGunXform = { 65535, 0, 65535, 0 };
+
+		std::array<float, 4> m_lightGunXform = {65535, 0, 65535, 0};
 
 		std::array<uint16, PS2::CControllerInfo::MAX_BUTTONS> m_jvsButtonBits = {};
 		uint16 m_jvsButtonState = 0;

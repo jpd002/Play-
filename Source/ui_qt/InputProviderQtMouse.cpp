@@ -12,16 +12,15 @@ uint32 CInputProviderQtMouse::GetId() const
 std::string CInputProviderQtMouse::GetTargetDescription(const BINDINGTARGET& target) const
 {
 	assert(target.providerId == PROVIDER_ID);
-	auto description = [&]() -> std::string
-	{
+	auto description = [&]() -> std::string {
 		switch(target.keyId)
 		{
-			case Qt::LeftButton:
-				return "Left Button";
-			case Qt::RightButton:
-				return "Right Button";
-			default:
-				return string_format("Unknown button %d", target.keyId);
+		case Qt::LeftButton:
+			return "Left Button";
+		case Qt::RightButton:
+			return "Right Button";
+		default:
+			return string_format("Unknown button %d", target.keyId);
 		}
 	}();
 	return string_format("Mouse: %s", description.c_str());

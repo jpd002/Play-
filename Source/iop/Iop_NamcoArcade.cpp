@@ -102,7 +102,7 @@ CNamcoArcade::CNamcoArcade(CSifMan& sif, Namco::CAcRam& acRam, const std::string
 	sif.RegisterModule(MODULE_ID_1, &m_module001);
 	sif.RegisterModule(MODULE_ID_3, &m_module003);
 	sif.RegisterModule(MODULE_ID_4, &m_module004);
-	
+
 	m_jvsButtonBits = g_defaultJvsButtonBits;
 }
 
@@ -225,7 +225,7 @@ void CNamcoArcade::ProcessJvsPacket(const uint8* input, uint8* output)
 			(*output++) = 0x01; //channels
 
 			(*output++) = 0x00; //End of features
-			
+
 			(*dstSize) += 18;
 		}
 		break;
@@ -300,15 +300,15 @@ void CNamcoArcade::ProcessJvsPacket(const uint8* input, uint8* output)
 			assert(channel == 2);
 			inWorkChecksum += channel;
 			inSize--;
-			
+
 			(*output++) = 0x01; //Command success
 
 			//Time Crisis 4 reads from this to determine screen position
 			(*output++) = static_cast<uint8>(m_jvsGunPosX >> 8); //Pos X MSB
-			(*output++) = static_cast<uint8>(m_jvsGunPosX); //Pos X LSB
+			(*output++) = static_cast<uint8>(m_jvsGunPosX);      //Pos X LSB
 			(*output++) = static_cast<uint8>(m_jvsGunPosY >> 8); //Pos Y MSB
-			(*output++) = static_cast<uint8>(m_jvsGunPosY); //Pos Y LSB
-			
+			(*output++) = static_cast<uint8>(m_jvsGunPosY);      //Pos Y LSB
+
 			(*output++) = 0;
 			(*output++) = 0;
 			(*output++) = 0;
@@ -324,14 +324,14 @@ void CNamcoArcade::ProcessJvsPacket(const uint8* input, uint8* output)
 			assert(channel == 1);
 			inWorkChecksum += channel;
 			inSize--;
-			
+
 			(*output++) = 0x01; //Command success
 
 			(*output++) = static_cast<uint8>(m_jvsGunPosX >> 8); //Pos X MSB
-			(*output++) = static_cast<uint8>(m_jvsGunPosX); //Pos X LSB
+			(*output++) = static_cast<uint8>(m_jvsGunPosX);      //Pos X LSB
 			(*output++) = static_cast<uint8>(m_jvsGunPosY >> 8); //Pos Y MSB
-			(*output++) = static_cast<uint8>(m_jvsGunPosY); //Pos Y LSB
-			
+			(*output++) = static_cast<uint8>(m_jvsGunPosY);      //Pos Y LSB
+
 			(*dstSize) += 5;
 		}
 		break;

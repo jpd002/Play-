@@ -33,11 +33,12 @@ struct ARCADE_MACHINE_DEF
 	std::string hddFileName;
 	std::map<unsigned int, PS2::CControllerInfo::BUTTON> buttons;
 	bool hasLightGun = false;
-	std::array<float, 4> lightGunXform = { 65535, 0, 65535, 0 };
+	std::array<float, 4> lightGunXform = {65535, 0, 65535, 0};
 	std::string boot;
 	std::vector<PATCH> patches;
 };
 
+// clang-format off
 static const std::pair<const char*, PS2::CControllerInfo::BUTTON> g_buttonValues[] =
 {
 	{ "dpad_up", PS2::CControllerInfo::DPAD_UP },
@@ -57,6 +58,7 @@ static const std::pair<const char*, PS2::CControllerInfo::BUTTON> g_buttonValues
 	{ "r2", PS2::CControllerInfo::R2 },
 	{ "r3", PS2::CControllerInfo::R3 }
 };
+// clang-format on
 
 uint32 ParseHexStringValue(const std::string& value)
 {
@@ -69,30 +71,30 @@ uint32 ParseHexStringValue(const std::string& value)
 ARCADE_MACHINE_DEF ReadArcadeMachineDefinition(const fs::path& arcadeDefPath)
 {
 	auto parseButtons =
-		[](const nlohmann::json& buttonsObject) {
-			auto buttonMap = buttonsObject.get<std::map<std::string, std::string>>();
-			decltype(ARCADE_MACHINE_DEF::buttons) buttons;
-			for(const auto& buttonPair : buttonMap)
-			{
-				char* endPtr = nullptr;
-				const char* buttonNumber = buttonPair.first.c_str();
-				const char* buttonName = buttonPair.second.c_str();
-				int number = strtol(buttonPair.first.c_str(), &endPtr, 10);
-				if(endPtr == buttonPair.first.c_str())
-				{
-					throw std::runtime_error(string_format("Failed to parse button number '%s'.", buttonNumber));
-				}
-				auto buttonValueIterator = std::find_if(std::begin(g_buttonValues), std::end(g_buttonValues),
-													   [&](const auto& buttonValuePair) { return strcmp(buttonValuePair.first, buttonName) == 0; });
-				if(buttonValueIterator == std::end(g_buttonValues))
-				{
-					throw std::runtime_error(string_format("Unknown button name '%s'.", buttonName));
-				}
-				buttons[number] = buttonValueIterator->second;
-			}
-			return buttons;
-		};
-	
+	    [](const nlohmann::json& buttonsObject) {
+		    auto buttonMap = buttonsObject.get<std::map<std::string, std::string>>();
+		    decltype(ARCADE_MACHINE_DEF::buttons) buttons;
+		    for(const auto& buttonPair : buttonMap)
+		    {
+			    char* endPtr = nullptr;
+			    const char* buttonNumber = buttonPair.first.c_str();
+			    const char* buttonName = buttonPair.second.c_str();
+			    int number = strtol(buttonPair.first.c_str(), &endPtr, 10);
+			    if(endPtr == buttonPair.first.c_str())
+			    {
+				    throw std::runtime_error(string_format("Failed to parse button number '%s'.", buttonNumber));
+			    }
+			    auto buttonValueIterator = std::find_if(std::begin(g_buttonValues), std::end(g_buttonValues),
+			                                            [&](const auto& buttonValuePair) { return strcmp(buttonValuePair.first, buttonName) == 0; });
+			    if(buttonValueIterator == std::end(g_buttonValues))
+			    {
+				    throw std::runtime_error(string_format("Unknown button name '%s'.", buttonName));
+			    }
+			    buttons[number] = buttonValueIterator->second;
+		    }
+		    return buttons;
+	    };
+
 	auto parsePatches =
 	    [](const nlohmann::json& patchesArray) {
 		    std::vector<ARCADE_MACHINE_DEF::PATCH> patches;
@@ -301,7 +303,7 @@ void ArcadeUtils::RegisterArcadeMachines()
 		catch(const std::exception& exception)
 		{
 			printf("Warning: Failed to register arcade machine '%s': %s\r\n",
-				   arcadeDefFilename.c_str(), exception.what());
+			       arcadeDefFilename.c_str(), exception.what());
 		}
 	}
 }

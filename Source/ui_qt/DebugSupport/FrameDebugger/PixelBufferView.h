@@ -12,7 +12,7 @@
 
 class CPixelBufferView : public QWidget
 {
-	Q_OBJECT	
+	Q_OBJECT
 public:
 	typedef std::pair<std::string, Framework::CBitmap> PixelBuffer;
 	typedef std::vector<PixelBuffer> PixelBufferArray;

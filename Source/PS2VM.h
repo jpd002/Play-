@@ -189,7 +189,7 @@ private:
 	CSoundHandler* m_soundHandler = nullptr;
 
 	CGunListener* m_gunListener = nullptr;
-	
+
 	CProfiler::ZoneHandle m_eeProfilerZone = 0;
 	CProfiler::ZoneHandle m_iopProfilerZone = 0;
 	CProfiler::ZoneHandle m_spuProfilerZone = 0;
