@@ -303,7 +303,7 @@ void ArcadeUtils::RegisterArcadeMachines()
 		catch(const std::exception& exception)
 		{
 			printf("Warning: Failed to register arcade machine '%s': %s\r\n",
-			       arcadeDefFilename.c_str(), exception.what());
+			       arcadeDefFilename.string().c_str(), exception.what());
 		}
 	}
 }
