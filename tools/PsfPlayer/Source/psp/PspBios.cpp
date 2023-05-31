@@ -430,7 +430,7 @@ void CBios::LoadModule(const char* path)
 			auto programHeader = m_module->GetProgram(i);
 			if(programHeader->nType == RELOC_SECTION_ID) continue;
 			//Allocate a bit more for alignment computations later on
-			moduleAllocSize += programHeader->nFileSize + programHeader->nAlignment;
+			moduleAllocSize += programHeader->nMemorySize + programHeader->nAlignment;
 		}
 	}
 
