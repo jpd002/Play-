@@ -369,6 +369,13 @@ uint32 CSasCore::SetSimpleADSR(uint32 contextAddr, uint32 voice, uint32 adsr1, u
 	if(channel == NULL) return -1;
 	channel->adsrLevel <<= static_cast<uint16>(adsr1);
 	channel->adsrRate <<= static_cast<uint16>(adsr2);
+	if((channel->adsrRate.sustainDirection == 1) && (channel->adsrRate.sustainMode == 1))
+	{
+		//Exp-Dec sustain mode seems to be a bit different on SaS, adjust rate to make sure things sound good
+		int32 rate = channel->adsrRate.sustainRate ^ 0x7F;
+		rate = std::max(0, rate - 0x10);
+		channel->adsrRate.sustainRate = rate ^ 0x7F;
+	}
 	return 0;
 }
 
