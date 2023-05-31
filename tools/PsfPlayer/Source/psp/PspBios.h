@@ -214,6 +214,7 @@ namespace Psp
 		uint32 AssembleReturnFromException(CMIPSAssembler&);
 		uint32 AssembleIdleFunction(CMIPSAssembler&);
 
+		void PatchModule(CELF32*);
 		void InsertModule(const ModulePtr&);
 		void HandleLinkedModuleCall();
 
@@ -221,9 +222,7 @@ namespace Psp
 		MODULEFUNCTION* FindModuleFunction(MODULE*, uint32);
 		void RelocateElf(CELF32&);
 		uint32 FindNextRelocationTarget(CELF32&, const uint32*, const uint32*);
-#ifdef _DEBUG
 		uint32 FindRelocationAt(CELF32&, uint32, uint32);
-#endif
 
 		void LinkThread(uint32);
 		void UnlinkThread(uint32);

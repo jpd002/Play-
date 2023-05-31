@@ -372,6 +372,39 @@ BiosDebugObjectArray CBios::GetBiosObjects(uint32 typeId) const
 
 #endif
 
+void CBios::PatchModule(CELF32* module)
+{
+	uint8* data = module->GetContent();
+	uint32 codeOffset = module->GetProgram(0)->nOffset;
+	uint32 entryPoint = module->GetHeader().nEntryPoint;
+
+	std::vector<uint32> availableRelocations;
+
+	auto clearCodeRange = [&](uint32 baseAddress, uint32 size) {
+		for(unsigned int i = 0; i < size; i += 4)
+		{
+			uint32 address = baseAddress + i;
+			*reinterpret_cast<uint32*>(data + codeOffset + address) = 0;
+			uint32 relocationPos = FindRelocationAt(*module, address, 0);
+			if(relocationPos != -1)
+			{
+				availableRelocations.push_back(relocationPos);
+				reinterpret_cast<uint32*>(data + relocationPos)[0] = 0;
+				reinterpret_cast<uint32*>(data + relocationPos)[1] = ELF::R_MIPS_NONE;
+			}
+		}
+	};
+
+	auto emitJAL = [&](CMIPSAssembler& assembler, uint32 codeBaseAddress, uint32 targetAddress) {
+		assert(!availableRelocations.empty());
+		uint32 relocationPos = availableRelocations.back();
+		availableRelocations.pop_back();
+		reinterpret_cast<uint32*>(data + relocationPos)[0] = codeBaseAddress + (assembler.GetProgramSize() * 4);
+		reinterpret_cast<uint32*>(data + relocationPos)[1] = ELF::R_MIPS_26;
+		assembler.JAL(targetAddress);
+	};
+}
+
 void CBios::LoadModule(const char* path)
 {
 	//Open module
@@ -385,6 +418,8 @@ void CBios::LoadModule(const char* path)
 		m_module = new CElf32File(*stream);
 		m_ioFileMgrForUserModule->IoClose(handle);
 	}
+
+	PatchModule(m_module);
 
 	const auto& moduleHeader(m_module->GetHeader());
 
@@ -963,6 +998,8 @@ void CBios::RelocateElf(CELF32& elf)
 					uint32& instruction = *reinterpret_cast<uint32*>(m_ram + relocationAddress);
 					switch(relocationType)
 					{
+					case ELF::R_MIPS_NONE:
+						break;
 					case ELF::R_MIPS_32:
 					{
 						instruction += baseAddress;
@@ -1031,8 +1068,6 @@ uint32 CBios::FindNextRelocationTarget(CELF32& elf, const uint32* begin, const u
 	return -1;
 }
 
-#ifdef _DEBUG
-
 uint32 CBios::FindRelocationAt(CELF32& elf, uint32 address, uint32 programSection)
 {
 	const auto& header = elf.GetHeader();
@@ -1076,5 +1111,3 @@ uint32 CBios::FindRelocationAt(CELF32& elf, uint32 address, uint32 programSectio
 
 	return -1;
 }
-
-#endif

@@ -239,6 +239,7 @@ namespace ELF
 
 	enum MIPS_RELOCATION_TYPE
 	{
+		R_MIPS_NONE = 0,
 		R_MIPS_32 = 2,
 		R_MIPS_26 = 4,
 		R_MIPS_HI16 = 5,
