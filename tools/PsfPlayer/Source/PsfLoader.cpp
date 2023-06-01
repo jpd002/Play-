@@ -155,7 +155,7 @@ void CPsfLoader::LoadPs2Recurse(PS2::CPsfDevice* psfDevice, const CPsfPathToken&
 
 void CPsfLoader::LoadPsp(CPsfVm& virtualMachine, const CPsfPathToken& filePath, CPsfStreamProvider* streamProvider, CPsfBase::TagMap* tags)
 {
-	auto subSystem = std::make_shared<Psp::CPsfSubSystem>(0x00800000);
+	auto subSystem = std::make_shared<Psp::CPsfSubSystem>(0x01800000);
 	virtualMachine.SetSubSystem(subSystem);
 
 	{
