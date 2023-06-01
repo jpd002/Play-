@@ -25,6 +25,7 @@ namespace Psp
 		void Reset() override;
 		CMIPS& GetCpu() override;
 		uint8* GetRam() override;
+		uint32 GetRamSize() override;
 		Iop::CSpuBase& GetSpuCore(unsigned int) override;
 
 #ifdef DEBUGGER_INCLUDED

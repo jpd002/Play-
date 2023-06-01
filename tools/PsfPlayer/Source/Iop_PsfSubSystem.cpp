@@ -43,6 +43,11 @@ uint8* CPsfSubSystem::GetRam()
 	return m_iop.m_ram;
 }
 
+uint32 CPsfSubSystem::GetRamSize()
+{
+	return PS2::IOP_RAM_SIZE;
+}
+
 CSpuBase& CPsfSubSystem::GetSpuCore(unsigned int coreId)
 {
 	if(coreId == 0)

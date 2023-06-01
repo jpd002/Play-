@@ -73,6 +73,11 @@ uint8* CPsfSubSystem::GetRam()
 	return m_ram;
 }
 
+uint32 CPsfSubSystem::GetRamSize()
+{
+	return m_ramSize;
+}
+
 CPsfBios& CPsfSubSystem::GetBios()
 {
 	return m_bios;

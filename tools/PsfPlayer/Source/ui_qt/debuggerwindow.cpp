@@ -41,8 +41,9 @@ DebuggerWindow::~DebuggerWindow()
 void DebuggerWindow::Reset()
 {
 	auto debugInfo = m_virtualMachine.GetDebugInfo();
+	uint32 ramSize = m_virtualMachine.GetRamSize();
 	m_debugView = std::make_unique<CDebugView>(this, ui->mdiArea, m_virtualMachine, &debugInfo.GetCpu(),
-	                                           debugInfo.Step, debugInfo.biosDebugInfoProvider, "CPU", 0x400000);
+	                                           debugInfo.Step, debugInfo.biosDebugInfoProvider, "CPU", ramSize);
 
 	m_findCallersRequestConnection = m_debugView->GetDisassemblyWindow()->FindCallersRequested.Connect(
 	    [&](uint32 address) { OnFindCallersRequested(address); });

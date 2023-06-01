@@ -1,5 +1,4 @@
-#ifndef _DEBUGGABLE_H_
-#define _DEBUGGABLE_H_
+#pragma once
 
 #include "MIPS.h"
 #include "BiosDebugInfoProvider.h"
@@ -16,5 +15,3 @@ public:
 
 	CBiosDebugInfoProvider* biosDebugInfoProvider;
 };
-
-#endif

@@ -147,6 +147,11 @@ uint8* CPsfVm::GetRam()
 	return m_subSystem->GetRam();
 }
 
+uint32 CPsfVm::GetRamSize()
+{
+	return m_subSystem->GetRamSize();
+}
+
 CSpuBase& CPsfVm::GetSpuCore(unsigned int coreId)
 {
 	return m_subSystem->GetSpuCore(coreId);

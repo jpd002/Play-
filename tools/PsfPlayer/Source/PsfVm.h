@@ -28,6 +28,7 @@ public:
 
 	CMIPS& GetCpu();
 	uint8* GetRam();
+	uint32 GetRamSize();
 	Iop::CSpuBase& GetSpuCore(unsigned int);
 
 	void SetSubSystem(const PsfVmSubSystemPtr&);
