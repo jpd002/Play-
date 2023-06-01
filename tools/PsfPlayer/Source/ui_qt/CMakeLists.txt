@@ -17,13 +17,15 @@ if(NOT TARGET PsfCore)
 endif()
 list(APPEND PSFPLAYER_PROJECT_LIBS PsfCore)
 
-if(NOT TARGET PlayDebugSupport)
-	add_subdirectory(
-		${CMAKE_CURRENT_SOURCE_DIR}/../../../../Source/ui_qt/DebugSupport
-		${CMAKE_CURRENT_BINARY_DIR}/PlayDebugSupport
-	)
+if(DEBUGGER_INCLUDED)
+	if(NOT TARGET PlayDebugSupport)
+		add_subdirectory(
+			${CMAKE_CURRENT_SOURCE_DIR}/../../../../Source/ui_qt/DebugSupport
+			${CMAKE_CURRENT_BINARY_DIR}/PlayDebugSupport
+		)
+	endif()
+	list(APPEND PSFPLAYER_PROJECT_LIBS PlayDebugSupport)
 endif()
-list(APPEND PSFPLAYER_PROJECT_LIBS PlayDebugSupport)
 
 set(QT_SOURCES
 	debuggerwindow.cpp
