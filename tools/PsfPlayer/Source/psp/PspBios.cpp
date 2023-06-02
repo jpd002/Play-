@@ -403,6 +403,29 @@ void CBios::PatchModule(CELF32* module)
 		reinterpret_cast<uint32*>(data + relocationPos)[1] = ELF::R_MIPS_26;
 		assembler.JAL(targetAddress);
 	};
+
+	auto emitLoadAddress = [&](CMIPSAssembler& assembler, CMIPS::REGISTER dstReg, uint32 codeBaseAddress, uint32 targetAddress) {
+		int16 low = static_cast<int16>(targetAddress & 0xFFFF);
+		uint16 high = (targetAddress - low) >> 16;
+
+		{
+			assert(!availableRelocations.empty());
+			uint32 relocationPos = availableRelocations.back();
+			availableRelocations.pop_back();
+			reinterpret_cast<uint32*>(data + relocationPos)[0] = codeBaseAddress + (assembler.GetProgramSize() * 4);
+			reinterpret_cast<uint32*>(data + relocationPos)[1] = ELF::R_MIPS_HI16;
+			assembler.LUI(dstReg, high);
+		}
+
+		{
+			assert(!availableRelocations.empty());
+			uint32 relocationPos = availableRelocations.back();
+			availableRelocations.pop_back();
+			reinterpret_cast<uint32*>(data + relocationPos)[0] = codeBaseAddress + (assembler.GetProgramSize() * 4);
+			reinterpret_cast<uint32*>(data + relocationPos)[1] = ELF::R_MIPS_LO16;
+			assembler.ADDIU(dstReg, dstReg, low);
+		}
+	};
 }
 
 void CBios::LoadModule(const char* path)
