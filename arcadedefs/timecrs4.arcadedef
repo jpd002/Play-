@@ -9,6 +9,12 @@
 	{
 		"name": "tsf1-ha.chd"
 	},
+	"buttons":
+	{
+		"3": "circle"
+	},
+	"hasLightGun": true,
+	"lightGunXform": [ -65535, 0, 65535, 0 ],
 	"eeFrequencyScale": [3, 2],
 	"boot": "ac0:TC4LOAD",
 	"patches":
