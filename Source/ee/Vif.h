@@ -155,6 +155,24 @@ protected:
 			}
 		}
 
+		template <size_t ValueSize>
+		inline void ReadValue(void* buffer)
+		{
+			assert(m_source != nullptr);
+			assert(buffer != nullptr);
+			uint8* readBuffer = reinterpret_cast<uint8*>(buffer);
+			uint32 availableBufferSize = BUFFERSIZE - m_bufferPosition;
+			if(ValueSize <= availableBufferSize)
+			{
+				memcpy(readBuffer, reinterpret_cast<uint8*>(&m_buffer) + m_bufferPosition, ValueSize);
+				m_bufferPosition += ValueSize;
+			}
+			else
+			{
+				Read(buffer, ValueSize);
+			}
+		}
+
 		void Flush();
 		inline void Align32();
 		void SetDmaParams(uint32, uint32, bool);
@@ -293,9 +311,7 @@ protected:
 	inline bool Unpack_V32(StreamType& stream, uint128& result)
 	{
 		if(stream.GetAvailableReadBytes() < (fields * 4)) return false;
-
-		stream.Read(&result, (fields * 4));
-
+		stream.ReadValue<fields * 4>(&result);
 		return true;
 	}
 
@@ -305,7 +321,7 @@ protected:
 		if(stream.GetAvailableReadBytes() < (fields * 2)) return false;
 
 		uint16 values[fields];
-		stream.Read(values, fields * 2);
+		stream.ReadValue<fields * 2>(values);
 
 		for(unsigned int i = 0; i < fields; i++)
 		{
@@ -327,7 +343,7 @@ protected:
 		if(stream.GetAvailableReadBytes() < (fields)) return false;
 
 		uint8 values[fields];
-		stream.Read(values, fields);
+		stream.ReadValue<fields>(values);
 
 		for(unsigned int i = 0; i < fields; i++)
 		{

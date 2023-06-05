@@ -715,12 +715,12 @@ bool CVif::Unpack_S32(StreamType& stream, uint128& result)
 {
 	if(stream.GetAvailableReadBytes() < 4) return false;
 
-	uint32 word = 0;
-	stream.Read(&word, 4);
+	uint32 temp;
+	stream.ReadValue<4>(&temp);
 
 	for(unsigned int i = 0; i < 4; i++)
 	{
-		result.nV[i] = word;
+		result.nV[i] = temp;
 	}
 
 	return true;
@@ -730,8 +730,8 @@ bool CVif::Unpack_S16(StreamType& stream, uint128& result, bool zeroExtend)
 {
 	if(stream.GetAvailableReadBytes() < 2) return false;
 
-	uint32 temp = 0;
-	stream.Read(&temp, 2);
+	uint16 temp;
+	stream.ReadValue<2>(&temp);
 	if(!zeroExtend)
 	{
 		temp = static_cast<int16>(temp);
@@ -749,8 +749,8 @@ bool CVif::Unpack_S8(StreamType& stream, uint128& result, bool zeroExtend)
 {
 	if(stream.GetAvailableReadBytes() < 1) return false;
 
-	uint32 temp = 0;
-	stream.Read(&temp, 1);
+	uint8 temp;
+	stream.ReadValue<1>(&temp);
 	if(!zeroExtend)
 	{
 		temp = static_cast<int8>(temp);
@@ -768,13 +768,13 @@ bool CVif::Unpack_V45(StreamType& stream, uint128& result)
 {
 	if(stream.GetAvailableReadBytes() < 2) return false;
 
-	uint16 nColor = 0;
-	stream.Read(&nColor, 2);
+	uint16 temp = 0;
+	stream.ReadValue<2>(&temp);
 
-	result.nV0 = ((nColor >> 0) & 0x1F) << 3;
-	result.nV1 = ((nColor >> 5) & 0x1F) << 3;
-	result.nV2 = ((nColor >> 10) & 0x1F) << 3;
-	result.nV3 = ((nColor >> 15) & 0x01) << 7;
+	result.nV0 = ((temp >> 0) & 0x1F) << 3;
+	result.nV1 = ((temp >> 5) & 0x1F) << 3;
+	result.nV2 = ((temp >> 10) & 0x1F) << 3;
+	result.nV3 = ((temp >> 15) & 0x01) << 7;
 
 	return true;
 }
