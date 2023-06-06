@@ -224,7 +224,7 @@ void CSysclib::Invoke(CMIPS& context, unsigned int functionId)
 		break;
 	case 27:
 		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(__strlen(
-		    reinterpret_cast<char*>(&m_ram[context.m_State.nGPR[CMIPS::A0].nV0])));
+		    context.m_State.nGPR[CMIPS::A0].nV0));
 		break;
 	case 29:
 		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(__strncmp(
@@ -235,8 +235,8 @@ void CSysclib::Invoke(CMIPS& context, unsigned int functionId)
 	case 30:
 		context.m_State.nGPR[CMIPS::V0].nD0 = context.m_State.nGPR[CMIPS::A0].nD0;
 		__strncpy(
-		    reinterpret_cast<char*>(&m_ram[context.m_State.nGPR[CMIPS::A0].nV0]),
-		    reinterpret_cast<char*>(&m_ram[context.m_State.nGPR[CMIPS::A1].nV0]),
+		    context.m_State.nGPR[CMIPS::A0].nV0,
+		    context.m_State.nGPR[CMIPS::A1].nV0,
 		    context.m_State.nGPR[CMIPS::A2].nV0);
 		break;
 	case 32:
@@ -441,8 +441,9 @@ uint32 CSysclib::__strcat(uint32 dstPtr, uint32 srcPtr)
 	return dstPtr;
 }
 
-uint32 CSysclib::__strlen(const char* string)
+uint32 CSysclib::__strlen(uint32 stringPtr)
 {
+	auto string = reinterpret_cast<const char*>(GetPtr(stringPtr, 0));
 	return static_cast<uint32>(strlen(string));
 }
 
@@ -466,8 +467,10 @@ uint32 CSysclib::__strncmp(const char* s1, const char* s2, uint32 length)
 	return static_cast<uint32>(strncmp(s1, s2, length));
 }
 
-void CSysclib::__strncpy(char* dst, const char* src, unsigned int count)
+void CSysclib::__strncpy(uint32 dstPtr, uint32 srcPtr, unsigned int count)
 {
+	auto dst = reinterpret_cast<char*>(GetPtr(dstPtr, count));
+	auto src = reinterpret_cast<const char*>(GetPtr(srcPtr, count));
 	strncpy(dst, src, count);
 }
 
