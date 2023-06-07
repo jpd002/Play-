@@ -91,6 +91,9 @@ public:
 		m_blockLookup.Clear();
 		m_blocks.clear();
 		m_blockOutLinks.clear();
+#ifdef DEBUGGER_INCLUDED
+		m_mustBreak = false;
+#endif
 	}
 
 	void ClearActiveBlocksInRange(uint32 start, uint32 end, bool executing) override
