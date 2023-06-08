@@ -50,7 +50,7 @@ public:
 	void Resume() override;
 	void Pause() override;
 	void PauseAsync();
-	void Reset();
+	void Reset(uint32 = PS2::EE_BASE_RAM_SIZE, uint32 = PS2::IOP_BASE_RAM_SIZE);
 
 	STATUS GetStatus() const override;
 
@@ -152,6 +152,8 @@ private:
 
 	uint32 m_eeFreqScaleNumerator = 1;
 	uint32 m_eeFreqScaleDenominator = 1;
+	uint32 m_eeRamSize = PS2::EE_BASE_RAM_SIZE;
+	uint32 m_iopRamSize = PS2::IOP_BASE_RAM_SIZE;
 	uint32 m_onScreenTicksTotal = 0;
 	uint32 m_vblankTicksTotal = 0;
 	int m_vblankTicks = 0;

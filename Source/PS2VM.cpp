@@ -258,11 +258,13 @@ void CPS2VM::PauseAsync()
 	});
 }
 
-void CPS2VM::Reset()
+void CPS2VM::Reset(uint32 eeRamSize, uint32 iopRamSize)
 {
 	assert(m_nStatus == PAUSED);
 	BeforeExecutableReloaded = ExecutableReloadedHandler();
 	AfterExecutableReloaded = ExecutableReloadedHandler();
+	m_eeRamSize = eeRamSize;
+	m_iopRamSize = iopRamSize;
 	ResetVM();
 }
 
@@ -427,7 +429,13 @@ void CPS2VM::CreateVM()
 
 void CPS2VM::ResetVM()
 {
-	m_ee->Reset();
+	assert(m_eeRamSize != 0);
+	assert(m_iopRamSize != 0);
+	
+	assert(m_eeRamSize <= PS2::EE_RAM_SIZE);
+	assert(m_iopRamSize <= PS2::IOP_RAM_SIZE);
+
+	m_ee->Reset(m_eeRamSize);
 	m_iop->Reset();
 
 	if(m_ee->m_gs != NULL)
@@ -439,7 +447,7 @@ void CPS2VM::ResetVM()
 		auto iopOs = dynamic_cast<CIopBios*>(m_iop->m_bios.get());
 		assert(iopOs);
 
-		iopOs->Reset(std::make_shared<Iop::CSifManPs2>(m_ee->m_sif, m_ee->m_ram, m_iop->m_ram));
+		iopOs->Reset(m_iopRamSize, std::make_shared<Iop::CSifManPs2>(m_ee->m_sif, m_ee->m_ram, m_iop->m_ram));
 
 		iopOs->GetIoman()->RegisterDevice("rom0", std::make_shared<Iop::Ioman::CPreferenceDirectoryDevice>(PREF_PS2_ROM0_DIRECTORY));
 		iopOs->GetIoman()->RegisterDevice("host", std::make_shared<Iop::Ioman::CPreferenceDirectoryDevice>(PREF_PS2_HOST_DIRECTORY));

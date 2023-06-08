@@ -272,10 +272,11 @@ CPS2OS::~CPS2OS()
 	Release();
 }
 
-void CPS2OS::Initialize()
+void CPS2OS::Initialize(uint32 ramSize)
 {
 	m_elf = nullptr;
 	m_idleEvaluator.Reset();
+	m_ramSize = ramSize;
 
 	SetVsyncFlagPtrs(0, 0);
 	UpdateTLBEnabledState();
@@ -404,7 +405,7 @@ std::pair<uint32, uint32> CPS2OS::GetExecutableRange() const
 			if(p->nFileSize == 0) continue;
 			if(!(p->nFlags & ELF::PF_X)) continue;
 			uint32 end = p->nVAddress + p->nFileSize;
-			if(end >= PS2::EE_RAM_SIZE) continue;
+			if(end >= m_ramSize) continue;
 			minAddr = std::min<uint32>(minAddr, p->nVAddress);
 			maxAddr = std::max<uint32>(maxAddr, end);
 		}
@@ -464,7 +465,7 @@ void CPS2OS::LoadExecutableInternal()
 		if(p != nullptr)
 		{
 			if(p->nFileSize == 0) continue;
-			if(p->nVAddress >= PS2::EE_RAM_SIZE)
+			if(p->nVAddress >= m_ramSize)
 			{
 				assert(false);
 				continue;
@@ -1425,7 +1426,7 @@ uint8* CPS2OS::GetStructPtr(uint32 address) const
 	}
 	else
 	{
-		address &= (PS2::EE_RAM_SIZE - 1);
+		address &= (m_ramSize - 1);
 		memory = m_ram;
 	}
 	return memory + address;
@@ -2672,7 +2673,7 @@ void CPS2OS::sc_SetupThread()
 	{
 		//We need to substract 4k from RAM size because some games (Espgaluda) rely on the
 		//stack and heap being a very precise size. EE kernel seems to substract that amount too.
-		stackAddr = PS2::EE_RAM_SIZE - (4 * 1024);
+		stackAddr = m_ramSize - (4 * 1024);
 	}
 	else
 	{
@@ -3171,7 +3172,7 @@ void CPS2OS::sc_Deci2Call()
 			if(handler->valid != 0)
 			{
 				uint32 stringAddr = *reinterpret_cast<uint32*>(&m_ram[handler->bufferAddr + 0x10]);
-				stringAddr &= (PS2::EE_RAM_SIZE - 1);
+				stringAddr &= (m_ramSize - 1);
 
 				uint32 length = m_ram[stringAddr + 0x00] - 0x0C;
 				uint8* string = &m_ram[stringAddr + 0x0C];
@@ -3223,7 +3224,7 @@ void CPS2OS::sc_MachineType()
 //7F
 void CPS2OS::sc_GetMemorySize()
 {
-	m_ee.m_State.nGPR[SC_RETURN].nV[0] = PS2::EE_RAM_SIZE;
+	m_ee.m_State.nGPR[SC_RETURN].nV[0] = m_ramSize;
 	m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0;
 }
 

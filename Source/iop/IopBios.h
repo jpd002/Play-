@@ -162,7 +162,7 @@ public:
 		REMOTE,
 	};
 
-	CIopBios(CMIPS&, uint8*, uint32, uint8*);
+	CIopBios(CMIPS&, uint8*, uint8*);
 	virtual ~CIopBios();
 
 	int32 LoadModuleFromPath(const char*, uint32 = ~0U, bool = true);
@@ -195,7 +195,7 @@ public:
 	void NotifyVBlankStart() override;
 	void NotifyVBlankEnd() override;
 
-	void Reset(const Iop::SifManPtr&);
+	void Reset(uint32, const Iop::SifManPtr&);
 
 	void SaveState(Framework::CZipArchiveWriter&) override;
 	void LoadState(Framework::CZipArchiveReader&) override;
@@ -648,7 +648,7 @@ private:
 
 	CMIPS& m_cpu;
 	uint8* m_ram = nullptr;
-	uint32 m_ramSize;
+	uint32 m_ramSize = 0;
 	uint8* m_spr = nullptr;
 	uint32 m_threadFinishAddress;
 	uint32 m_returnFromExceptionAddress;

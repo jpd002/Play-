@@ -97,10 +97,9 @@
 
 #define MODULE_ID_CDVD_EE_DRIVER 0x70000000
 
-CIopBios::CIopBios(CMIPS& cpu, uint8* ram, uint32 ramSize, uint8* spr)
+CIopBios::CIopBios(CMIPS& cpu, uint8* ram, uint8* spr)
     : m_cpu(cpu)
     , m_ram(ram)
-    , m_ramSize(ramSize)
     , m_spr(spr)
     , m_threadFinishAddress(0)
     , m_returnFromExceptionAddress(0)
@@ -129,8 +128,10 @@ CIopBios::~CIopBios()
 	DeleteModules();
 }
 
-void CIopBios::Reset(const Iop::SifManPtr& sifMan)
+void CIopBios::Reset(uint32 ramSize, const Iop::SifManPtr& sifMan)
 {
+	m_ramSize = ramSize;
+	
 	SetDefaultImageVersion(DEFAULT_IMAGE_VERSION);
 	PopulateSystemIntcHandlers();
 

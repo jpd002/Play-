@@ -29,7 +29,7 @@ public:
 	CPS2OS(CMIPS&, uint8*, uint8*, uint8*, CGSHandler*&, CSIF&, CIopBios&);
 	virtual ~CPS2OS();
 
-	void Initialize();
+	void Initialize(uint32);
 	void Release();
 
 	bool IsIdle() const;
@@ -399,6 +399,7 @@ private:
 	CGSHandler*& m_gs;
 
 	uint8* m_ram = nullptr;
+	uint32 m_ramSize = 0;
 	uint8* m_bios = nullptr;
 	uint8* m_spr = nullptr;
 

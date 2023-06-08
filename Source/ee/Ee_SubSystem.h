@@ -27,7 +27,7 @@ namespace Ee
 		CSubSystem(uint8*, CIopBios&);
 		virtual ~CSubSystem();
 
-		void Reset();
+		void Reset(uint32);
 		int ExecuteCpu(int);
 		bool IsCpuIdle() const;
 		void CountTicks(int);

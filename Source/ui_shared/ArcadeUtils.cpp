@@ -336,7 +336,7 @@ void ArcadeUtils::BootArcadeMachine(CPS2VM* virtualMachine, const fs::path& arca
 
 	//Reset PS2VM
 	virtualMachine->Pause();
-	virtualMachine->Reset();
+	virtualMachine->Reset(PS2::EE_EXT_RAM_SIZE, PS2::IOP_EXT_RAM_SIZE);
 
 	PrepareArcadeEnvironment(virtualMachine, def);
 

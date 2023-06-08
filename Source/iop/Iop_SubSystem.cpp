@@ -38,11 +38,11 @@ CSubSystem::CSubSystem(bool ps2Mode)
 {
 	if(ps2Mode)
 	{
-		m_bios = std::make_shared<CIopBios>(m_cpu, m_ram, PS2::IOP_RAM_SIZE, m_scratchPad);
+		m_bios = std::make_shared<CIopBios>(m_cpu, m_ram, m_scratchPad);
 	}
 	else
 	{
-		m_bios = std::make_shared<CPsxBios>(m_cpu, m_ram, PS2::IOP_RAM_SIZE);
+		m_bios = std::make_shared<CPsxBios>(m_cpu, m_ram, PS2::IOP_BASE_RAM_SIZE);
 	}
 
 	m_cpu.m_executor = std::make_unique<CGenericMipsExecutor<BlockLookupOneWay>>(m_cpu, (IOP_RAM_SIZE * 4), BLOCK_CATEGORY_PS2_IOP);

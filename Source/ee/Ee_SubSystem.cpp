@@ -183,7 +183,7 @@ void CSubSystem::SetVpu1(std::shared_ptr<CVpu> newVpu1)
 	m_vpu1 = newVpu1;
 }
 
-void CSubSystem::Reset()
+void CSubSystem::Reset(uint32 ramSize)
 {
 	m_os->Release();
 	m_EE.m_executor->Reset();
@@ -219,7 +219,7 @@ void CSubSystem::Reset()
 	m_intc.Reset();
 	m_timer.Reset();
 
-	m_os->Initialize();
+	m_os->Initialize(ramSize);
 	m_os->GetLibMc2().Reset();
 	FillFakeIopRam();
 	//LoadBIOS();
