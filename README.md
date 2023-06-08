@@ -10,6 +10,15 @@ You can try the experimental web browser version here: [playjs.purei.org](https:
 
 For general discussion, you're welcome to join our Discord: https://discord.gg/HygQnQP.
 
+## Command Line Options (Windows/macOS/Linux) ##
+
+The following command line options are available:
+- `-disc "disc image path"` : Boots a disc image.
+- `-elf "elf file path"` : Boots a ELF file.
+- `-arcade "arcade id"` : Boots an arcade game.
+- `-state "slot number"` : Loads a state from slot number.
+- `-fullscreen` : Starts the emulator in fullscreen mode.
+
 ## Running on iOS ##
 
 This emulator uses JIT code generation to speed things up. This is not supported by default by iOS, thus, there are some extra requirements:
