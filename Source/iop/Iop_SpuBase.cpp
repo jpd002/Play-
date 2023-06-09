@@ -576,6 +576,7 @@ void CSpuBase::WriteWord(uint16 value)
 {
 	assert((m_transferAddr + 1) < m_ramSize);
 	*reinterpret_cast<uint16*>(&m_ram[m_transferAddr]) = value;
+	m_sampleCache->ClearRange(m_transferAddr, 2);
 	m_transferAddr += 2;
 }
 
