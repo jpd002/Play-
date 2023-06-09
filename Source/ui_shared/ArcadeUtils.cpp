@@ -269,7 +269,7 @@ void PrepareArcadeEnvironment(CPS2VM* virtualMachine, const ARCADE_MACHINE_DEF& 
 			}
 		}
 	}
-	
+
 	virtualMachine->SetEeFrequencyScale(def.eeFreqScaleNumerator, def.eeFreqScaleDenominator);
 	if((def.eeFreqScaleNumerator != 1) || (def.eeFreqScaleDenominator != 1))
 	{

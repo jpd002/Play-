@@ -108,7 +108,7 @@ void CPsfLoader::LoadPs2(CPsfVm& virtualMachine, const CPsfPathToken& filePath, 
 	virtualMachine.SetSubSystem(subSystem);
 
 	auto bios = dynamic_cast<CIopBios*>(subSystem->GetBios());
-	bios->Reset(std::shared_ptr<Iop::CSifMan>());
+	bios->Reset(PS2::IOP_BASE_RAM_SIZE, std::shared_ptr<Iop::CSifMan>());
 
 	auto psfDevice = std::make_shared<PS2::CPsfDevice>();
 

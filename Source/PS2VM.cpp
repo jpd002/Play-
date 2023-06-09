@@ -431,7 +431,7 @@ void CPS2VM::ResetVM()
 {
 	assert(m_eeRamSize != 0);
 	assert(m_iopRamSize != 0);
-	
+
 	assert(m_eeRamSize <= PS2::EE_RAM_SIZE);
 	assert(m_iopRamSize <= PS2::IOP_RAM_SIZE);
 
@@ -464,7 +464,7 @@ void CPS2VM::ResetVM()
 	CDROM0_SyncPath();
 
 	SetEeFrequencyScale(1, 1);
-	
+
 	m_vblankTicks = m_onScreenTicksTotal;
 	m_inVblank = false;
 

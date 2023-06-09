@@ -1,6 +1,7 @@
 #include <cstdio>
 #include <cassert>
 #include <cstring>
+#include "Ps2Const.h"
 #include "iop/IopBios.h"
 #include "iop/Iop_McServ.h"
 #include "iop/Iop_PathUtils.h"
@@ -51,7 +52,7 @@ void ExecuteTest(const CGameTestSheet::TEST& test)
 	Iop::CSubSystem subSystem(true);
 	subSystem.Reset();
 	auto bios = static_cast<CIopBios*>(subSystem.m_bios.get());
-	bios->Reset(std::shared_ptr<Iop::CSifMan>());
+	bios->Reset(PS2::IOP_BASE_RAM_SIZE, std::shared_ptr<Iop::CSifMan>());
 	auto mcServ = bios->GetMcServ();
 
 	if(!test.currentDirectory.empty())

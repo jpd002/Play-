@@ -131,7 +131,7 @@ CIopBios::~CIopBios()
 void CIopBios::Reset(uint32 ramSize, const Iop::SifManPtr& sifMan)
 {
 	m_ramSize = ramSize;
-	
+
 	SetDefaultImageVersion(DEFAULT_IMAGE_VERSION);
 	PopulateSystemIntcHandlers();
 
