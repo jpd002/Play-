@@ -257,6 +257,13 @@ void PrepareArcadeEnvironment(CPS2VM* virtualMachine, const ARCADE_MACHINE_DEF& 
 			auto namcoArcadeModule = std::make_shared<Iop::CNamcoArcade>(*iopBios->GetSifman(), *acRam, def.id);
 			iopBios->RegisterModule(namcoArcadeModule);
 			iopBios->RegisterHleModuleReplacement("rom0:DAEMON", namcoArcadeModule);
+			//Taiko no Tatsujin loads and use these, but we don't have a proper HLE
+			//for PADMAN at the version that's provided by the SYS2x6 BIOS.
+			//Using our current HLE PADMAN causes the game to crash due to differences in structure layouts.
+			//Just provide a dummy module instead to make sure loading succeeds.
+			//Games rely on JVS for input anyways, so, it shouldn't be a problem if they can't use PADMAN.
+			iopBios->RegisterHleModuleReplacement("rom0:PADMAN", namcoArcadeModule);
+			iopBios->RegisterHleModuleReplacement("rom0:SIO2MAN", namcoArcadeModule);
 			virtualMachine->m_pad->InsertListener(namcoArcadeModule.get());
 			for(const auto& buttonPair : def.buttons)
 			{
