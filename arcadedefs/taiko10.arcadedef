@@ -1,0 +1,17 @@
+{
+	"id": "taiko10",
+	"name": "Taiko no Tatsujin 10",
+	"dongle":
+	{
+		"name": "t101001-na-a.ic002"
+	},
+	"cdvd":
+	{
+		"name": "tk10100-1-na-dvd0-a.chd"
+	},
+	"eeFrequencyScale": [4, 3],
+	"boot": "ac0:T10LOAD",
+	"patches":
+	[
+	]
+}

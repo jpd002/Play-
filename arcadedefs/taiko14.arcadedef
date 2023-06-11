@@ -1,0 +1,17 @@
+{
+	"id": "taiko14",
+	"name": "Taiko no Tatsujin 14",
+	"dongle":
+	{
+		"name": "t141001-na-a.ic002"
+	},
+	"hdd":
+	{
+		"name": "tk14100-1-na-dvd0-a.chd"
+	},
+	"eeFrequencyScale": [4, 3],
+	"boot": "ac0:T14LOAD",
+	"patches":
+	[
+	]
+}
