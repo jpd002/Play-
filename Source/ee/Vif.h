@@ -302,10 +302,79 @@ protected:
 
 	inline uint32 GetMaskOp(unsigned int, unsigned int) const;
 
-	inline bool Unpack_S32(StreamType&, uint128&);
-	inline bool Unpack_S16(StreamType&, uint128&, bool);
-	inline bool Unpack_S8(StreamType&, uint128&, bool);
-	inline bool Unpack_V45(StreamType&, uint128&);
+	inline bool Unpack_S32(StreamType& stream, uint128& result)
+	{
+		if(stream.GetAvailableReadBytes() < 4) return false;
+
+		uint32 value;
+		stream.ReadValue<4>(&value);
+
+		for(unsigned int i = 0; i < 4; i++)
+		{
+			result.nV[i] = value;
+		}
+
+		return true;
+	}
+
+	template <bool zeroExtend>
+	inline bool Unpack_S16(StreamType& stream, uint128& result)
+	{
+		if(stream.GetAvailableReadBytes() < 2) return false;
+
+		uint16 value;
+		stream.ReadValue<2>(&value);
+
+		uint32 temp = value;
+		if(!zeroExtend)
+		{
+			temp = static_cast<int16>(temp);
+		}
+
+		for(unsigned int i = 0; i < 4; i++)
+		{
+			result.nV[i] = temp;
+		}
+
+		return true;
+	}
+
+	template <bool zeroExtend>
+	inline bool Unpack_S8(StreamType& stream, uint128& result)
+	{
+		if(stream.GetAvailableReadBytes() < 1) return false;
+
+		uint8 value;
+		stream.ReadValue<1>(&value);
+
+		uint32 temp = value;
+		if(!zeroExtend)
+		{
+			temp = static_cast<int8>(temp);
+		}
+
+		for(unsigned int i = 0; i < 4; i++)
+		{
+			result.nV[i] = temp;
+		}
+
+		return true;
+	}
+
+	inline bool Unpack_V45(StreamType& stream, uint128& result)
+	{
+		if(stream.GetAvailableReadBytes() < 2) return false;
+
+		uint16 value = 0;
+		stream.ReadValue<2>(&value);
+
+		result.nV0 = ((value >> 0) & 0x1F) << 3;
+		result.nV1 = ((value >> 5) & 0x1F) << 3;
+		result.nV2 = ((value >> 10) & 0x1F) << 3;
+		result.nV3 = ((value >> 15) & 0x01) << 7;
+
+		return true;
+	}
 
 	template <unsigned int fields>
 	inline bool Unpack_V32(StreamType& stream, uint128& result)
@@ -371,11 +440,11 @@ protected:
 			break;
 		case 0x01:
 			//S-16
-			success = Unpack_S16(stream, writeValue, usn);
+			success = Unpack_S16<usn>(stream, writeValue);
 			break;
 		case 0x02:
 			//S-8
-			success = Unpack_S8(stream, writeValue, usn);
+			success = Unpack_S8<usn>(stream, writeValue);
 			break;
 		case 0x04:
 			//V2-32
