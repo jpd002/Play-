@@ -45,6 +45,16 @@ if(TARGET_PLATFORM_WIN32)
 	list(APPEND PROJECT_LIBS winmm)
 endif()
 
+if(TARGET_PLATFORM_MACOS OR TARGET_PLATFORM_UNIX)
+	if(NOT TARGET sh_openal)
+		add_subdirectory(
+			${CMAKE_CURRENT_SOURCE_DIR}/SH_OpenAL
+			${CMAKE_CURRENT_BINARY_DIR}/SH_OpenAL
+		)
+	endif()
+	list(APPEND PROJECT_LIBS sh_openal)
+endif()
+
 find_package(Qt5 REQUIRED COMPONENTS Widgets Core)
 list(APPEND PROJECT_LIBS Qt5::Widgets Qt5::Core)
 add_definitions(${QT_DEFINITIONS})
