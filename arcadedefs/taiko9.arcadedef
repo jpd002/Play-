@@ -1,0 +1,17 @@
+{
+	"id": "taiko9",
+	"name": "Taiko no Tatsujin 9",
+	"dongle":
+	{
+		"name": "tk91001-na-a.ic002"
+	},
+	"cdvd":
+	{
+		"name": "tk9100-1-na-dvd0-a.chd"
+	},
+	"eeFrequencyScale": [4, 3],
+	"boot": "ac0:TA9LOAD",
+	"patches":
+	[
+	]
+}

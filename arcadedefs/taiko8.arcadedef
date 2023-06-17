@@ -1,0 +1,17 @@
+{
+	"id": "taiko8",
+	"name": "Taiko no Tatsujin 8",
+	"dongle":
+	{
+		"name": "tk81001-na-a.ic002"
+	},
+	"cdvd":
+	{
+		"name": "tk8100-1-na-dvd0-a.chd"
+	},
+	"eeFrequencyScale": [4, 3],
+	"boot": "ac0:TA8LOAD",
+	"patches":
+	[
+	]
+}
