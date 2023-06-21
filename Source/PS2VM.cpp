@@ -93,7 +93,7 @@ CPS2VM::CPS2VM()
 	ReloadFrameRateLimit();
 
 	CAppConfig::GetInstance().RegisterPreferenceInteger(PREF_AUDIO_SPUBLOCKCOUNT, 100);
-	m_spuBlockCount = CAppConfig::GetInstance().GetPreferenceInteger(PREF_AUDIO_SPUBLOCKCOUNT);
+	ReloadSpuBlockCountImpl();
 }
 
 //////////////////////////////////////////////////
@@ -157,15 +157,14 @@ void CPS2VM::CreateSoundHandler(const CSoundHandler::FactoryFunction& factoryFun
 	m_mailBox.SendCall([this, factoryFunction]() { CreateSoundHandlerImpl(factoryFunction); }, true);
 }
 
+CSoundHandler* CPS2VM::GetSoundHandler()
+{
+	return m_soundHandler;
+}
+
 void CPS2VM::ReloadSpuBlockCount()
 {
-	m_mailBox.SendCall(
-	    [this]() {
-		    m_currentSpuBlock = 0;
-		    auto spuBlockCount = CAppConfig::GetInstance().GetPreferenceInteger(PREF_AUDIO_SPUBLOCKCOUNT);
-		    assert(spuBlockCount <= BLOCK_COUNT);
-		    m_spuBlockCount = spuBlockCount;
-	    });
+	m_mailBox.SendCall([this]() { ReloadSpuBlockCountImpl(); });
 }
 
 void CPS2VM::DestroySoundHandler()
@@ -415,6 +414,13 @@ void CPS2VM::SaveDebugTags(const char* packageName)
 //Non extern callable methods
 //////////////////////////////////////////////////
 
+void CPS2VM::ValidateThreadContext()
+{
+	auto currThreadId = std::this_thread::get_id();
+	auto vmThreadId = m_thread.get_id();
+	assert(vmThreadId == std::thread::id() || currThreadId == vmThreadId);
+}
+
 void CPS2VM::CreateVM()
 {
 	m_iop = std::make_unique<Iop::CSubSystem>(true);
@@ -636,9 +642,14 @@ void CPS2VM::CreateSoundHandlerImpl(const CSoundHandler::FactoryFunction& factor
 	m_soundHandler = factoryFunction();
 }
 
-CSoundHandler* CPS2VM::GetSoundHandler()
+void CPS2VM::ReloadSpuBlockCountImpl()
 {
-	return m_soundHandler;
+	ValidateThreadContext();
+	m_currentSpuBlock = 0;
+	auto spuBlockCount = CAppConfig::GetInstance().GetPreferenceInteger(PREF_AUDIO_SPUBLOCKCOUNT);
+	assert(spuBlockCount <= MAX_BLOCK_COUNT);
+	spuBlockCount = std::min<int>(spuBlockCount, MAX_BLOCK_COUNT);
+	m_spuBlockCount = spuBlockCount;
 }
 
 void CPS2VM::DestroySoundHandlerImpl()

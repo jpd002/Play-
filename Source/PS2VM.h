@@ -64,8 +64,8 @@ public:
 
 	void CreateSoundHandler(const CSoundHandler::FactoryFunction&);
 	CSoundHandler* GetSoundHandler();
-	void DestroySoundHandler();
 	void ReloadSpuBlockCount();
+	void DestroySoundHandler();
 
 	void CDROM0_SyncPath();
 	void CDROM0_Reset();
@@ -111,6 +111,8 @@ protected:
 	CMailBox m_mailBox;
 
 private:
+	void ValidateThreadContext();
+
 	void ResetVM();
 	void DestroyVM();
 	bool SaveVMState(const fs::path&);
@@ -133,6 +135,8 @@ private:
 
 	void CreateSoundHandlerImpl(const CSoundHandler::FactoryFunction&);
 	void DestroySoundHandlerImpl();
+
+	void ReloadSpuBlockCountImpl();
 
 	void UpdateEe();
 	void UpdateIop();
@@ -187,12 +191,12 @@ private:
 		SPU_UPDATE_TICKS = PS2::IOP_CLOCK_OVER_FREQ / UPDATE_RATE,
 		SAMPLE_COUNT = DST_SAMPLE_RATE / UPDATE_RATE,
 		BLOCK_SIZE = SAMPLE_COUNT * 2,
-		BLOCK_COUNT = 400,
+		MAX_BLOCK_COUNT = 400,
 	};
 
-	int16 m_samples[BLOCK_SIZE * BLOCK_COUNT];
+	int16 m_samples[BLOCK_SIZE * MAX_BLOCK_COUNT];
 	int m_currentSpuBlock = 0;
-	int m_spuBlockCount;
+	int m_spuBlockCount = 0;
 	CSoundHandler* m_soundHandler = nullptr;
 
 	CGunListener* m_gunListener = nullptr;
