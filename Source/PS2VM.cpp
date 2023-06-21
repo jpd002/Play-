@@ -197,6 +197,10 @@ void CPS2VM::ReloadFrameRateLimit()
 	uint32 frameTicks = eeFreqScaled / frameRate;
 	m_onScreenTicksTotal = frameTicks * 9 / 10;
 	m_vblankTicksTotal = frameTicks / 10;
+
+	m_spuUpdateTicksStep = (static_cast<int64>(eeFreqScaled) << SPU_UPDATE_TICKS_PRECISION) / (static_cast<int64>(DST_SAMPLE_RATE));
+	m_spuUpdateTicksStep *= static_cast<int64>(SAMPLES_PER_UPDATE);
+	m_spuUpdateTicks = m_spuUpdateTicksStep;
 }
 
 CVirtualMachine::STATUS CPS2VM::GetStatus() const
@@ -477,7 +481,6 @@ void CPS2VM::ResetVM()
 	m_eeExecutionTicks = 0;
 	m_iopExecutionTicks = 0;
 
-	m_spuUpdateTicks = SPU_UPDATE_TICKS;
 	m_currentSpuBlock = 0;
 
 	RegisterModulesInPadHandler();
@@ -699,6 +702,7 @@ void CPS2VM::UpdateEe()
 		m_ee->m_vpu1->Execute(m_singleStepVu1 ? 1 : executed);
 
 		m_eeExecutionTicks -= executed;
+		m_spuUpdateTicks -= (static_cast<int64>(executed) << SPU_UPDATE_TICKS_PRECISION);
 		m_ee->CountTicks(executed);
 		m_vblankTicks -= executed;
 
@@ -726,7 +730,6 @@ void CPS2VM::UpdateIop()
 		m_cpuUtilisation.iopTotalTicks += executed;
 
 		m_iopExecutionTicks -= executed;
-		m_spuUpdateTicks -= executed;
 		m_iop->CountTicks(executed);
 
 #ifdef DEBUGGER_INCLUDED
@@ -879,7 +882,7 @@ void CPS2VM::EmuThread()
 			if(m_spuUpdateTicks <= 0)
 			{
 				UpdateSpu();
-				m_spuUpdateTicks += SPU_UPDATE_TICKS;
+				m_spuUpdateTicks += m_spuUpdateTicksStep;
 			}
 
 			{

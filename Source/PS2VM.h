@@ -162,10 +162,11 @@ private:
 	uint32 m_vblankTicksTotal = 0;
 	int m_vblankTicks = 0;
 	bool m_inVblank = false;
-	int m_spuUpdateTicks = SPU_UPDATE_TICKS;
+	int64 m_spuUpdateTicks = 0;
 	int m_eeExecutionTicks = 0;
 	int m_iopExecutionTicks = 0;
 	static const int m_eeTickStep = 4800;
+	int64 m_spuUpdateTicksStep = 0;
 	int m_iopTickStep = 0;
 	CFrameLimiter m_frameLimiter;
 
@@ -187,10 +188,9 @@ private:
 	enum
 	{
 		DST_SAMPLE_RATE = 44100,
-		UPDATE_RATE = 1000, //Number of SPU updates per second (on PS2 time scale)
-		SPU_UPDATE_TICKS = PS2::IOP_CLOCK_OVER_FREQ / UPDATE_RATE,
-		SAMPLE_COUNT = DST_SAMPLE_RATE / UPDATE_RATE,
-		BLOCK_SIZE = SAMPLE_COUNT * 2,
+		SAMPLES_PER_UPDATE = 45, //44100 / 45 -> 980 SPU updates per second
+		SPU_UPDATE_TICKS_PRECISION = 32,
+		BLOCK_SIZE = SAMPLES_PER_UPDATE * 2,
 		MAX_BLOCK_COUNT = 400,
 	};
 
