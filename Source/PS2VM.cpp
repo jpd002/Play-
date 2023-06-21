@@ -871,7 +871,6 @@ void CPS2VM::EmuThread()
 				m_spuUpdateTicks += SPU_UPDATE_TICKS;
 			}
 
-			//EE execution
 			{
 				//Check vblank stuff
 				if(m_vblankTicks <= 0)

@@ -33,7 +33,7 @@ private:
 		MESSAGE& operator=(const MESSAGE&) = delete;
 
 		FunctionType function;
-		bool sync;
+		bool sync = false;
 	};
 
 	typedef std::deque<MESSAGE> FunctionCallQueue;
@@ -42,5 +42,5 @@ private:
 	std::mutex m_callMutex;
 	std::condition_variable m_callFinished;
 	std::condition_variable m_waitCondition;
-	bool m_callDone;
+	bool m_callDone = false;
 };
