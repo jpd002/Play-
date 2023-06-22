@@ -117,10 +117,12 @@ static DiskUtils::OpticalMediaPtr CreateOpticalMediaFromChd(const fs::path& imag
 		default:
 			assert(false);
 			[[fallthrough]];
-		case CChdCdImageStream::TRACK_TYPE_MODE1:
+		case CChdCdImageStream::TRACK_TYPE_CD_MODE1:
 			return std::make_pair(std::make_shared<ISO9660::CBlockProviderCustom<0x990, 0>>(imageStream), COpticalMedia::TRACK_DATA_TYPE_MODE1_2048);
-		case CChdCdImageStream::TRACK_TYPE_MODE2_RAW:
+		case CChdCdImageStream::TRACK_TYPE_CD_MODE2_RAW:
 			return std::make_pair(std::make_shared<ISO9660::CBlockProviderCustom<0x990, 0x18>>(imageStream), COpticalMedia::TRACK_DATA_TYPE_MODE2_2352);
+		case CChdCdImageStream::TRACK_TYPE_DVD:
+			return std::make_pair(std::make_shared<ISO9660::CBlockProvider2048>(imageStream), COpticalMedia::TRACK_DATA_TYPE_MODE1_2048);
 		}
 	}();
 	return COpticalMedia::CreateCustomSingleTrack(std::move(trackInfo.first), trackInfo.second);
