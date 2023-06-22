@@ -19,6 +19,13 @@
 
 struct ARCADE_MACHINE_DEF
 {
+	enum class INPUT_MODE
+	{
+		DEFAULT,
+		LIGHTGUN,
+		DRUM,
+	};
+
 	struct PATCH
 	{
 		uint32 address = 0;
@@ -32,7 +39,7 @@ struct ARCADE_MACHINE_DEF
 	std::string cdvdFileName;
 	std::string hddFileName;
 	std::map<unsigned int, PS2::CControllerInfo::BUTTON> buttons;
-	bool hasLightGun = false;
+	INPUT_MODE inputMode = INPUT_MODE::DEFAULT;
 	std::array<float, 4> lightGunXform = {65535, 0, 65535, 0};
 	uint32 eeFreqScaleNumerator = 1;
 	uint32 eeFreqScaleDenominator = 1;
@@ -60,7 +67,26 @@ static const std::pair<const char*, PS2::CControllerInfo::BUTTON> g_buttonValues
 	{ "r2", PS2::CControllerInfo::R2 },
 	{ "r3", PS2::CControllerInfo::R3 }
 };
+
+static const std::pair<const char*, ARCADE_MACHINE_DEF::INPUT_MODE> g_inputModeValues[] =
+{
+	{ "default", ARCADE_MACHINE_DEF::INPUT_MODE::DEFAULT },
+	{ "lightgun", ARCADE_MACHINE_DEF::INPUT_MODE::LIGHTGUN },
+	{ "drum", ARCADE_MACHINE_DEF::INPUT_MODE::DRUM },
+};
 // clang-format on
+
+template <typename ValueType>
+ValueType ParseEnumValue(const char* valueName, const std::pair<const char*, ValueType>* beginIterator, const std::pair<const char*, ValueType>* endIterator)
+{
+	auto valueIterator = std::find_if(beginIterator, endIterator,
+	                                  [&](const auto& valuePair) { return strcmp(valuePair.first, valueName) == 0; });
+	if(valueIterator == endIterator)
+	{
+		throw std::runtime_error(string_format("Unknown enum name '%s'.", valueName));
+	}
+	return valueIterator->second;
+}
 
 uint32 ParseHexStringValue(const std::string& value)
 {
@@ -86,13 +112,7 @@ ARCADE_MACHINE_DEF ReadArcadeMachineDefinition(const fs::path& arcadeDefPath)
 			    {
 				    throw std::runtime_error(string_format("Failed to parse button number '%s'.", buttonNumber));
 			    }
-			    auto buttonValueIterator = std::find_if(std::begin(g_buttonValues), std::end(g_buttonValues),
-			                                            [&](const auto& buttonValuePair) { return strcmp(buttonValuePair.first, buttonName) == 0; });
-			    if(buttonValueIterator == std::end(g_buttonValues))
-			    {
-				    throw std::runtime_error(string_format("Unknown button name '%s'.", buttonName));
-			    }
-			    buttons[number] = buttonValueIterator->second;
+			    buttons[number] = ParseEnumValue(buttonName, std::begin(g_buttonValues), std::end(g_buttonValues));
 		    }
 		    return buttons;
 	    };
@@ -138,9 +158,10 @@ ARCADE_MACHINE_DEF ReadArcadeMachineDefinition(const fs::path& arcadeDefPath)
 	{
 		def.buttons = parseButtons(defJson["buttons"]);
 	}
-	if(defJson.contains("hasLightGun"))
+	if(defJson.contains("inputMode"))
 	{
-		def.hasLightGun = defJson["hasLightGun"];
+		std::string inputModeString = defJson["inputMode"];
+		def.inputMode = ParseEnumValue(inputModeString.c_str(), std::begin(g_inputModeValues), std::end(g_inputModeValues));
 	}
 	if(defJson.contains("lightGunXform"))
 	{
@@ -269,10 +290,18 @@ void PrepareArcadeEnvironment(CPS2VM* virtualMachine, const ARCADE_MACHINE_DEF& 
 			{
 				namcoArcadeModule->SetButton(buttonPair.first, buttonPair.second);
 			}
-			if(def.hasLightGun)
+			switch(def.inputMode)
 			{
+			case ARCADE_MACHINE_DEF::INPUT_MODE::LIGHTGUN:
 				virtualMachine->SetGunListener(namcoArcadeModule.get());
+				namcoArcadeModule->SetJvsMode(Iop::CNamcoArcade::JVS_MODE::LIGHTGUN);
 				namcoArcadeModule->SetLightGunXform(def.lightGunXform);
+				break;
+			case ARCADE_MACHINE_DEF::INPUT_MODE::DRUM:
+				namcoArcadeModule->SetJvsMode(Iop::CNamcoArcade::JVS_MODE::DRUM);
+				break;
+			default:
+				break;
 			}
 		}
 	}

@@ -13,7 +13,7 @@
 	{
 		"3": "circle"
 	},
-	"hasLightGun": true,
+	"inputMode": "lightgun",
 	"lightGunXform": [ -65535, 0, 65535, 0 ],
 	"eeFrequencyScale": [4, 3],
 	"boot": "ac0:CBRLOAD",

@@ -70,6 +70,15 @@ The mouse's cursor position on the emulator's window will be used for the gun's 
 
 **Note for Time Crisis 3**: This game requires prior calibration of the light gun in service menu. Hold the Test buttons, go in "I/O Test" then "Gun Initialize" and press the Pedal button to calibrate the gun (shoot at the center). This only needs to be done once.
 
+### Taiko Drum Support
+
+For Taiko no Tatsujin games, the following buttons are mapped:
+
+- Left Men (面) : L1
+- Left Fuchi (ふち) : L2
+- Right Men (面) : R1
+- Right Fuchi (ふち) : R2
+
 ## General Troubleshooting ##
 
 #### Failed to open CHD file ####

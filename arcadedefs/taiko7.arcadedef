@@ -9,6 +9,7 @@
 	{
 		"name": "tk71dvd0.chd"
 	},
+	"inputMode": "drum",
 	"eeFrequencyScale": [4, 3],
 	"boot": "ac0:TA7LOAD",
 	"patches":

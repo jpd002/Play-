@@ -18,6 +18,13 @@ namespace Iop
 	class CNamcoArcade : public CModule, public CPadListener, public CGunListener
 	{
 	public:
+		enum class JVS_MODE
+		{
+			DEFAULT,
+			LIGHTGUN,
+			DRUM,
+		};
+
 		CNamcoArcade(CSifMan&, Namco::CAcRam&, const std::string&);
 		virtual ~CNamcoArcade() = default;
 
@@ -28,6 +35,7 @@ namespace Iop
 		void SaveState(Framework::CZipArchiveWriter&) const override;
 		void LoadState(Framework::CZipArchiveReader&) override;
 
+		void SetJvsMode(JVS_MODE);
 		void SetButton(unsigned int, PS2::CControllerInfo::BUTTON);
 		void SetLightGunXform(const std::array<float, 4>&);
 
@@ -51,6 +59,19 @@ namespace Iop
 			BACKUP_RAM_SIZE = 0x10000,
 		};
 
+		enum DRUM_CHANNELS
+		{
+			DRUM_CHANNEL_1P_DL,
+			DRUM_CHANNEL_2P_KL,
+			DRUM_CHANNEL_2P_DL,
+			DRUM_CHANNEL_1P_DR,
+			DRUM_CHANNEL_1P_KR,
+			DRUM_CHANNEL_1P_KL,
+			DRUM_CHANNEL_2P_KR,
+			DRUM_CHANNEL_2P_DR,
+			DRUM_CHANNEL_MAX,
+		};
+
 		bool Invoke001(uint32, uint32*, uint32, uint32*, uint32, uint8*);
 		bool Invoke003(uint32, uint32*, uint32, uint32*, uint32, uint8*);
 		bool Invoke004(uint32, uint32*, uint32, uint32*, uint32, uint8*);
@@ -71,6 +92,7 @@ namespace Iop
 		uint32 m_recvAddr = 0;
 		uint32 m_sendAddr = 0;
 
+		JVS_MODE m_jvsMode = JVS_MODE::DEFAULT;
 		std::array<float, 4> m_lightGunXform = {65535, 0, 65535, 0};
 
 		std::array<uint16, PS2::CControllerInfo::MAX_BUTTONS> m_jvsButtonBits = {};
@@ -78,5 +100,6 @@ namespace Iop
 		uint16 m_jvsSystemButtonState = 0;
 		uint16 m_jvsGunPosX = 0x7FFF;
 		uint16 m_jvsGunPosY = 0x7FFF;
+		uint16 m_drumChannels[DRUM_CHANNEL_MAX] = {};
 	};
 }

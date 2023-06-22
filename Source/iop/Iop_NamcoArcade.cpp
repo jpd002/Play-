@@ -214,19 +214,34 @@ void CNamcoArcade::ProcessJvsPacket(const uint8* input, uint8* output)
 			(*output++) = 0x10; //16 switches
 			(*output++) = 0x00;
 
-			(*output++) = 0x03; //Analog Input
-			(*output++) = 0x02; //Channel Count
-			(*output++) = 0x10; //Bits
-			(*output++) = 0x00;
+			if(m_jvsMode == JVS_MODE::LIGHTGUN)
+			{
+				(*output++) = 0x06; //Screen Pos Input
+				(*output++) = 0x10; //X pos bits
+				(*output++) = 0x10; //Y pos bits
+				(*output++) = 0x01; //channels
 
-			(*output++) = 0x06; //Screen Pos Input
-			(*output++) = 0x10; //X pos bits
-			(*output++) = 0x10; //Y pos bits
-			(*output++) = 0x01; //channels
+				//Time Crisis 4 reads from analog input to determine screen position
+				(*output++) = 0x03; //Analog Input
+				(*output++) = 0x02; //Channel Count (2 channels)
+				(*output++) = 0x10; //Bits (16 bits)
+				(*output++) = 0x00;
+
+				(*dstSize) += 8;
+			}
+			else if(m_jvsMode == JVS_MODE::DRUM)
+			{
+				(*output++) = 0x03;             //Analog Input
+				(*output++) = DRUM_CHANNEL_MAX; //Channel Count (8 channels)
+				(*output++) = 0x0A;             //Bits (10 bits)
+				(*output++) = 0x00;
+
+				(*dstSize) += 4;
+			}
 
 			(*output++) = 0x00; //End of features
 
-			(*dstSize) += 18;
+			(*dstSize) += 10;
 		}
 		break;
 		case JVS_CMD_MAINID:
@@ -297,24 +312,35 @@ void CNamcoArcade::ProcessJvsPacket(const uint8* input, uint8* output)
 		{
 			assert(inSize != 0);
 			uint8 channel = (*input++);
-			assert(channel == 2);
 			inWorkChecksum += channel;
 			inSize--;
 
 			(*output++) = 0x01; //Command success
 
-			//Time Crisis 4 reads from this to determine screen position
-			(*output++) = static_cast<uint8>(m_jvsGunPosX >> 8); //Pos X MSB
-			(*output++) = static_cast<uint8>(m_jvsGunPosX);      //Pos X LSB
-			(*output++) = static_cast<uint8>(m_jvsGunPosY >> 8); //Pos Y MSB
-			(*output++) = static_cast<uint8>(m_jvsGunPosY);      //Pos Y LSB
+			if(m_jvsMode == JVS_MODE::LIGHTGUN)
+			{
+				assert(channel == 2);
+				(*output++) = static_cast<uint8>(m_jvsGunPosX >> 8); //Pos X MSB
+				(*output++) = static_cast<uint8>(m_jvsGunPosX);      //Pos X LSB
+				(*output++) = static_cast<uint8>(m_jvsGunPosY >> 8); //Pos Y MSB
+				(*output++) = static_cast<uint8>(m_jvsGunPosY);      //Pos Y LSB
+			}
+			else if(m_jvsMode == JVS_MODE::DRUM)
+			{
+				assert(channel == DRUM_CHANNEL_MAX);
+				for(int i = 0; i < DRUM_CHANNEL_MAX; i++)
+				{
+					(*output++) = static_cast<uint8>(m_drumChannels[i] >> 8);
+					(*output++) = static_cast<uint8>(m_drumChannels[i]);
+				}
+			}
+			else
+			{
+				//Analog input not supported
+				assert(false);
+			}
 
-			(*output++) = 0;
-			(*output++) = 0;
-			(*output++) = 0;
-			(*output++) = 0;
-
-			(*dstSize) += 5;
+			(*dstSize) += (2 * channel) + 1;
 		}
 		break;
 		case JVS_CMD_SCRPOSINP:
@@ -360,6 +386,11 @@ void CNamcoArcade::LoadState(Framework::CZipArchiveReader& archive)
 	m_sendAddr = registerFile.GetRegister32(STATE_SEND_ADDR);
 }
 
+void CNamcoArcade::SetJvsMode(JVS_MODE jvsMode)
+{
+	m_jvsMode = jvsMode;
+}
+
 void CNamcoArcade::SetButton(unsigned int buttonIndex, PS2::CControllerInfo::BUTTON buttonValue)
 {
 	m_jvsButtonBits[buttonValue] = (1 << buttonIndex);
@@ -383,6 +414,23 @@ void CNamcoArcade::SetButtonState(unsigned int padNumber, PS2::CControllerInfo::
 		m_jvsButtonState |= (pressed ? m_jvsButtonBits[button] : 0);
 		m_jvsSystemButtonState &= ~g_defaultJvsSystemButtonBits[button];
 		m_jvsSystemButtonState |= (pressed ? g_defaultJvsSystemButtonBits[button] : 0);
+
+		if(button == PS2::CControllerInfo::L1)
+		{
+			m_drumChannels[DRUM_CHANNEL_1P_DL] = pressed ? 0x200 << 6 : 0;
+		}
+		if(button == PS2::CControllerInfo::L2)
+		{
+			m_drumChannels[DRUM_CHANNEL_1P_KL] = pressed ? 0x200 << 6 : 0;
+		}
+		if(button == PS2::CControllerInfo::R1)
+		{
+			m_drumChannels[DRUM_CHANNEL_1P_DR] = pressed ? 0x200 << 6 : 0;
+		}
+		if(button == PS2::CControllerInfo::R2)
+		{
+			m_drumChannels[DRUM_CHANNEL_1P_KR] = pressed ? 0x200 << 6 : 0;
+		}
 	}
 	//The following code path is for handling JVSIF which only earlier games use
 	if(m_recvAddr && m_sendAddr)
