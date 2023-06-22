@@ -11,6 +11,7 @@
 using namespace Iop;
 
 #define INIT_SAMPLE_RATE (44100)
+#define PITCH_BASE (0x1000)
 #define TIME_SCALE (0x1000)
 #define LOG_NAME ("iop_spubase")
 
@@ -1186,7 +1187,7 @@ void CSpuBase::CSampleReader::SetParamsNoRead(uint32 address, uint32 repeat)
 
 void CSpuBase::CSampleReader::SetPitch(uint32 baseSamplingRate, uint16 pitch)
 {
-	m_srcSamplingRate = baseSamplingRate * pitch / 4096;
+	m_srcSamplingRate = baseSamplingRate * pitch;
 }
 
 void CSpuBase::CSampleReader::GetSamples(int16* samples, unsigned int sampleCount, unsigned int dstSamplingRate)
@@ -1199,16 +1200,16 @@ void CSpuBase::CSampleReader::GetSamples(int16* samples, unsigned int sampleCoun
 
 int16 CSpuBase::CSampleReader::GetSample(unsigned int dstSamplingRate)
 {
-	uint32 srcSampleIdx = m_srcSampleIdx / TIME_SCALE;
-	int32 srcSampleAlpha = m_srcSampleIdx % TIME_SCALE;
+	uint32 srcSampleIdx = m_srcSampleIdx / PITCH_BASE;
+	int32 srcSampleAlpha = m_srcSampleIdx % PITCH_BASE;
 	int32 currentSample = m_buffer[srcSampleIdx];
 	int32 nextSample = m_buffer[srcSampleIdx + 1];
-	int32 resultSample = (currentSample * (TIME_SCALE - srcSampleAlpha) / TIME_SCALE) +
-	                     (nextSample * srcSampleAlpha / TIME_SCALE);
-	m_srcSampleIdx += (m_srcSamplingRate * TIME_SCALE) / dstSamplingRate;
+	int32 resultSample = (currentSample * (PITCH_BASE - srcSampleAlpha) / PITCH_BASE) +
+	                     (nextSample * srcSampleAlpha / PITCH_BASE);
+	m_srcSampleIdx += m_srcSamplingRate / dstSamplingRate;
 	if(srcSampleIdx >= BUFFER_SAMPLES)
 	{
-		m_srcSampleIdx -= BUFFER_SAMPLES * TIME_SCALE;
+		m_srcSampleIdx -= BUFFER_SAMPLES * PITCH_BASE;
 		AdvanceBuffer();
 	}
 	return static_cast<int16>(resultSample);
