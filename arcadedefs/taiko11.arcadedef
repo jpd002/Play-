@@ -1,0 +1,18 @@
+{
+	"id": "taiko11",
+	"name": "Taiko no Tatsujin 11",
+	"dongle":
+	{
+		"name": "t111001-na-a.ic002"
+	},
+	"cdvd":
+	{
+		"name": "t11100-1-na-dvd0-a.chd"
+	},
+	"inputMode": "drum",
+	"eeFrequencyScale": [4, 3],
+	"boot": "ac0:T11LOAD",
+	"patches":
+	[
+	]
+}
