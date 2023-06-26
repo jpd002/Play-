@@ -59,17 +59,22 @@ namespace Iop
 			BACKUP_RAM_SIZE = 0x10000,
 		};
 
-		enum DRUM_CHANNELS
+		enum
 		{
-			DRUM_CHANNEL_1P_DL,
-			DRUM_CHANNEL_2P_KL,
-			DRUM_CHANNEL_2P_DL,
-			DRUM_CHANNEL_1P_DR,
-			DRUM_CHANNEL_1P_KR,
-			DRUM_CHANNEL_1P_KL,
-			DRUM_CHANNEL_2P_KR,
-			DRUM_CHANNEL_2P_DR,
-			DRUM_CHANNEL_MAX,
+			JVS_PLAYER_COUNT = 2,
+		};
+
+		enum JVS_DRUM_CHANNELS
+		{
+			JVS_DRUM_CHANNEL_1P_DL,
+			JVS_DRUM_CHANNEL_2P_KL,
+			JVS_DRUM_CHANNEL_2P_DL,
+			JVS_DRUM_CHANNEL_1P_DR,
+			JVS_DRUM_CHANNEL_1P_KR,
+			JVS_DRUM_CHANNEL_1P_KL,
+			JVS_DRUM_CHANNEL_2P_KR,
+			JVS_DRUM_CHANNEL_2P_DR,
+			JVS_DRUM_CHANNEL_MAX,
 		};
 
 		bool Invoke001(uint32, uint32*, uint32, uint32*, uint32, uint8*);
@@ -96,10 +101,10 @@ namespace Iop
 		std::array<float, 4> m_lightGunXform = {65535, 0, 65535, 0};
 
 		std::array<uint16, PS2::CControllerInfo::MAX_BUTTONS> m_jvsButtonBits = {};
-		uint16 m_jvsButtonState = 0;
+		uint16 m_jvsButtonState[JVS_PLAYER_COUNT] = {};
 		uint16 m_jvsSystemButtonState = 0;
 		uint16 m_jvsGunPosX = 0x7FFF;
 		uint16 m_jvsGunPosY = 0x7FFF;
-		uint16 m_drumChannels[DRUM_CHANNEL_MAX] = {};
+		uint16 m_jvsDrumChannels[JVS_DRUM_CHANNEL_MAX] = {};
 	};
 }

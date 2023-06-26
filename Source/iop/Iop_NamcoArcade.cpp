@@ -204,14 +204,14 @@ void CNamcoArcade::ProcessJvsPacket(const uint8* input, uint8* output)
 		{
 			(*output++) = 0x01; //Command success
 
-			(*output++) = 0x02; //Coin input
-			(*output++) = 0x02; //2 Coin slots
+			(*output++) = 0x02;             //Coin input
+			(*output++) = JVS_PLAYER_COUNT; //2 Coin slots
 			(*output++) = 0x00;
 			(*output++) = 0x00;
 
-			(*output++) = 0x01; //Switch input
-			(*output++) = 0x02; //2 players
-			(*output++) = 0x10; //16 switches
+			(*output++) = 0x01;             //Switch input
+			(*output++) = JVS_PLAYER_COUNT; //2 players
+			(*output++) = 0x10;             //16 switches
 			(*output++) = 0x00;
 
 			if(m_jvsMode == JVS_MODE::LIGHTGUN)
@@ -231,9 +231,9 @@ void CNamcoArcade::ProcessJvsPacket(const uint8* input, uint8* output)
 			}
 			else if(m_jvsMode == JVS_MODE::DRUM)
 			{
-				(*output++) = 0x03;             //Analog Input
-				(*output++) = DRUM_CHANNEL_MAX; //Channel Count (8 channels)
-				(*output++) = 0x0A;             //Bits (10 bits)
+				(*output++) = 0x03;                 //Analog Input
+				(*output++) = JVS_DRUM_CHANNEL_MAX; //Channel Count (8 channels)
+				(*output++) = 0x0A;                 //Bits (10 bits)
 				(*output++) = 0x00;
 
 				(*dstSize) += 4;
@@ -262,7 +262,7 @@ void CNamcoArcade::ProcessJvsPacket(const uint8* input, uint8* output)
 			uint8 playerCount = (*input++);
 			uint8 byteCount = (*input++);
 			assert(playerCount >= 1);
-			assert(playerCount <= 2);
+			assert(playerCount <= JVS_PLAYER_COUNT);
 			assert(byteCount == 2);
 			inWorkChecksum += playerCount;
 			inWorkChecksum += byteCount;
@@ -270,15 +270,15 @@ void CNamcoArcade::ProcessJvsPacket(const uint8* input, uint8* output)
 
 			(*output++) = 0x01; //Command success
 
-			(*output++) = (m_jvsSystemButtonState == 0x03) ? 0x80 : 0; //Test
-			(*output++) = static_cast<uint8>(m_jvsButtonState);        //Player 1
-			(*output++) = static_cast<uint8>(m_jvsButtonState >> 8);   //Player 1
+			(*output++) = (m_jvsSystemButtonState == 0x03) ? 0x80 : 0;  //Test
+			(*output++) = static_cast<uint8>(m_jvsButtonState[0]);      //Player 1
+			(*output++) = static_cast<uint8>(m_jvsButtonState[0] >> 8); //Player 1
 			(*dstSize) += 4;
 
 			if(playerCount == 2)
 			{
-				(*output++) = 0x00; //Player 2
-				(*output++) = 0x00; //Player 2
+				(*output++) = static_cast<uint8>(m_jvsButtonState[1]);      //Player 2
+				(*output++) = static_cast<uint8>(m_jvsButtonState[1] >> 8); //Player 2
 				(*dstSize) += 2;
 			}
 		}
@@ -327,11 +327,11 @@ void CNamcoArcade::ProcessJvsPacket(const uint8* input, uint8* output)
 			}
 			else if(m_jvsMode == JVS_MODE::DRUM)
 			{
-				assert(channel == DRUM_CHANNEL_MAX);
-				for(int i = 0; i < DRUM_CHANNEL_MAX; i++)
+				assert(channel == JVS_DRUM_CHANNEL_MAX);
+				for(int i = 0; i < JVS_DRUM_CHANNEL_MAX; i++)
 				{
-					(*output++) = static_cast<uint8>(m_drumChannels[i] >> 8);
-					(*output++) = static_cast<uint8>(m_drumChannels[i]);
+					(*output++) = static_cast<uint8>(m_jvsDrumChannels[i] >> 8);
+					(*output++) = static_cast<uint8>(m_jvsDrumChannels[i]);
 				}
 			}
 			else
@@ -408,28 +408,29 @@ void CNamcoArcade::SetButtonState(unsigned int padNumber, PS2::CControllerInfo::
 	//{
 	//	*reinterpret_cast<uint16*>(ram + g_recvAddr + 0xC0) += 1;
 	//}
-	if(padNumber == 0)
+	if(padNumber < JVS_PLAYER_COUNT)
 	{
-		m_jvsButtonState &= ~m_jvsButtonBits[button];
-		m_jvsButtonState |= (pressed ? m_jvsButtonBits[button] : 0);
-		m_jvsSystemButtonState &= ~g_defaultJvsSystemButtonBits[button];
-		m_jvsSystemButtonState |= (pressed ? g_defaultJvsSystemButtonBits[button] : 0);
+		static const uint16 drumPressValue = 0x200;
 
-		if(button == PS2::CControllerInfo::L1)
+		m_jvsButtonState[padNumber] &= ~m_jvsButtonBits[button];
+		m_jvsButtonState[padNumber] |= (pressed ? m_jvsButtonBits[button] : 0);
+
+		if(padNumber == 0)
 		{
-			m_drumChannels[DRUM_CHANNEL_1P_DL] = pressed ? 0x200 << 6 : 0;
+			m_jvsSystemButtonState &= ~g_defaultJvsSystemButtonBits[button];
+			m_jvsSystemButtonState |= (pressed ? g_defaultJvsSystemButtonBits[button] : 0);
+
+			if(button == PS2::CControllerInfo::L1) m_jvsDrumChannels[JVS_DRUM_CHANNEL_1P_DL] = pressed ? drumPressValue << 6 : 0;
+			if(button == PS2::CControllerInfo::L2) m_jvsDrumChannels[JVS_DRUM_CHANNEL_1P_KL] = pressed ? drumPressValue << 6 : 0;
+			if(button == PS2::CControllerInfo::R1) m_jvsDrumChannels[JVS_DRUM_CHANNEL_1P_DR] = pressed ? drumPressValue << 6 : 0;
+			if(button == PS2::CControllerInfo::R2) m_jvsDrumChannels[JVS_DRUM_CHANNEL_1P_KR] = pressed ? drumPressValue << 6 : 0;
 		}
-		if(button == PS2::CControllerInfo::L2)
+		else if(padNumber == 1)
 		{
-			m_drumChannels[DRUM_CHANNEL_1P_KL] = pressed ? 0x200 << 6 : 0;
-		}
-		if(button == PS2::CControllerInfo::R1)
-		{
-			m_drumChannels[DRUM_CHANNEL_1P_DR] = pressed ? 0x200 << 6 : 0;
-		}
-		if(button == PS2::CControllerInfo::R2)
-		{
-			m_drumChannels[DRUM_CHANNEL_1P_KR] = pressed ? 0x200 << 6 : 0;
+			if(button == PS2::CControllerInfo::L1) m_jvsDrumChannels[JVS_DRUM_CHANNEL_2P_DL] = pressed ? drumPressValue << 6 : 0;
+			if(button == PS2::CControllerInfo::L2) m_jvsDrumChannels[JVS_DRUM_CHANNEL_2P_KL] = pressed ? drumPressValue << 6 : 0;
+			if(button == PS2::CControllerInfo::R1) m_jvsDrumChannels[JVS_DRUM_CHANNEL_2P_DR] = pressed ? drumPressValue << 6 : 0;
+			if(button == PS2::CControllerInfo::R2) m_jvsDrumChannels[JVS_DRUM_CHANNEL_2P_KR] = pressed ? drumPressValue << 6 : 0;
 		}
 	}
 	//The following code path is for handling JVSIF which only earlier games use
