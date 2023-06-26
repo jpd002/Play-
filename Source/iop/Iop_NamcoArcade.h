@@ -84,6 +84,7 @@ namespace Iop
 		void ProcessJvsPacket(const uint8*, uint8*);
 
 		static fs::path GetArcadeSavePath();
+		void ProcessMemRequest(uint8*, uint32);
 		void ReadBackupRam(uint32, uint8*, uint32);
 		void WriteBackupRam(uint32, const uint8*, uint32);
 

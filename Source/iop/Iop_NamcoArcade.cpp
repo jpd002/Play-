@@ -517,85 +517,12 @@ bool CNamcoArcade::Invoke001(uint32 method, uint32* args, uint32 argsSize, uint3
 		{
 			assert(argsSize >= 0x10);
 			uint32 infoPtr = args[2];
+			uint32 infoCount = args[3];
 			//CLog::GetInstance().Warn(LOG_NAME, "cmd2[_0 = 0x%08X, _1 = 0x%08X, _2 = 0x%08X, _3 = 0x%08X];\r\n",
 			//						 args[0], args[1], args[2], args[3]);
-			uint32* info = reinterpret_cast<uint32*>(ram + infoPtr);
-			CLog::GetInstance().Warn(LOG_NAME, "jvioboot?(infoPtr = 0x%08X);\r\n", infoPtr);
-			if(info[2] == 0x60002300)
+			for(int i = 0; i < infoCount; i++)
 			{
-				//Send?
-				m_sendAddr = info[1];
-				//uint16* data = reinterpret_cast<uint16*>(ram + dataPtr);
-				//valueToHold = data[0];
-				//packetId = data[8];
-				//CLog::GetInstance().Warn(LOG_NAME, "sending (0x%04X, 0x%04X, 0x%04X, 0x%04X, 0x%04X, 0x%04X, 0x%04X, 0x%04X);\r\n",
-				//						 data[0], data[1], data[2], data[3],
-				//						 data[4], data[5], data[6], data[7]);
-			}
-			else if(info[1] == 0x60002000)
-			{
-				//Recv?
-				//Don't set/use m_recvAddr yet. Need to figure out how other JVSIF pulls data in.
-				uint32 recvDataPtr = info[2];
-				auto sendData = reinterpret_cast<const uint16*>(ram + m_sendAddr);
-				auto recvData = reinterpret_cast<uint16*>(ram + recvDataPtr);
-				//CLog::GetInstance().Warn(LOG_NAME, "recving (dataPtr = 0x%08X);\r\n", dataPtr);
-				recvData[0] = sendData[0];
-				uint16 rootPktId = sendData[8];
-				if((sendData[0] == 0x3E6F) && (rootPktId != 0))
-				{
-					recvData[1] = 0x208;        //firmware version?
-					recvData[0x14] = rootPktId; //Xored with value at 0x10 in send packet, needs to be the same
-					recvData[0x21] = sendData[0x0D];
-
-					//Dipswitches (from https://www.arcade-projects.com/threads/yet-another-256-display-issue.2792/#post-37365):
-					//0x80 -> Test Mode
-					//0x40 -> Output Level (Voltage) of Video Signal
-					//0x20 -> Monitor Sync Frequency (1: 31Khz or 0: 15Khz)
-					//0x10 -> Video Sync Signal (1: Composite Sync or 0: Separate Sync)
-					//ram[recvDataPtr + 0x30] = 0;
-
-					uint16 pktId = sendData[0x0C];
-					if(pktId != 0)
-					{
-						CLog::GetInstance().Warn(LOG_NAME, "PktId: 0x%04X\r\n", pktId);
-						if(reinterpret_cast<const uint8*>(sendData)[0x122] == JVS_SYNC)
-						{
-							ProcessJvsPacket(reinterpret_cast<const uint8*>(sendData) + 0x122, reinterpret_cast<uint8*>(recvData) + 0x15A);
-						}
-						else
-						{
-							ProcessJvsPacket(reinterpret_cast<const uint8*>(sendData) + 0x22, reinterpret_cast<uint8*>(recvData) + 0x5A);
-						}
-						recvData[0x20] = pktId;
-					}
-					recvData[0x15] = 0x5210;
-					recvData[0x16] = 0x5210;
-					recvData[0x17] = 0x5210;
-				}
-			}
-			else if((info[1] >= 0x40000000) && (info[1] < 0x50000000))
-			{
-				m_acRam.Read(info[1] - 0x40000000, ram + info[2], info[3]);
-			}
-			else if((info[1] >= 0x50000000) && (info[1] < 0x60000000))
-			{
-				ReadBackupRam(info[1] - 0x50000000, ram + info[2], info[3]);
-			}
-			else if((info[2] >= 0x40000000) && (info[2] < 0x50000000))
-			{
-				m_acRam.Write(info[2] - 0x40000000, ram + info[1], info[3]);
-			}
-			else if((info[2] >= 0x50000000) && (info[1] < 0x60000000))
-			{
-				WriteBackupRam(info[2] - 0x50000000, ram + info[1], info[3]);
-			}
-			else
-			{
-				CLog::GetInstance().Warn(LOG_NAME, "Unknown Packet\r\n");
-				CLog::GetInstance().Warn(LOG_NAME, "info[_0 = 0x%08X, _1 = 0x%08X, _2 = 0x%08X, _3 = 0x%08X];\r\n",
-				                         info[0], info[1], info[2], info[3]);
-				CLog::GetInstance().Warn(LOG_NAME, "------------------------------------------\r\n");
+				ProcessMemRequest(ram, infoPtr + (i * 0x10));
 			}
 		}
 		else
@@ -679,6 +606,88 @@ bool CNamcoArcade::Invoke004(uint32 method, uint32* args, uint32 argsSize, uint3
 fs::path CNamcoArcade::GetArcadeSavePath()
 {
 	return CAppConfig::GetBasePath() / fs::path("arcadesaves");
+}
+
+void CNamcoArcade::ProcessMemRequest(uint8* ram, uint32 infoPtr)
+{
+	CLog::GetInstance().Print(LOG_NAME, "ProcessMemRequest(infoPtr = 0x%08X);\r\n", infoPtr);
+	uint32* info = reinterpret_cast<uint32*>(ram + infoPtr);
+	if(info[2] == 0x60002300)
+	{
+		//Send?
+		m_sendAddr = info[1];
+		//uint16* data = reinterpret_cast<uint16*>(ram + dataPtr);
+		//valueToHold = data[0];
+		//packetId = data[8];
+		//CLog::GetInstance().Warn(LOG_NAME, "sending (0x%04X, 0x%04X, 0x%04X, 0x%04X, 0x%04X, 0x%04X, 0x%04X, 0x%04X);\r\n",
+		//						 data[0], data[1], data[2], data[3],
+		//						 data[4], data[5], data[6], data[7]);
+	}
+	else if(info[1] == 0x60002000)
+	{
+		//Recv?
+		//Don't set/use m_recvAddr yet. Need to figure out how other JVSIF pulls data in.
+		uint32 recvDataPtr = info[2];
+		auto sendData = reinterpret_cast<const uint16*>(ram + m_sendAddr);
+		auto recvData = reinterpret_cast<uint16*>(ram + recvDataPtr);
+		//CLog::GetInstance().Warn(LOG_NAME, "recving (dataPtr = 0x%08X);\r\n", dataPtr);
+		recvData[0] = sendData[0];
+		uint16 rootPktId = sendData[8];
+		if((sendData[0] == 0x3E6F) && (rootPktId != 0))
+		{
+			recvData[1] = 0x208;        //firmware version?
+			recvData[0x14] = rootPktId; //Xored with value at 0x10 in send packet, needs to be the same
+			recvData[0x21] = sendData[0x0D];
+
+			//Dipswitches (from https://www.arcade-projects.com/threads/yet-another-256-display-issue.2792/#post-37365):
+			//0x80 -> Test Mode
+			//0x40 -> Output Level (Voltage) of Video Signal
+			//0x20 -> Monitor Sync Frequency (1: 31Khz or 0: 15Khz)
+			//0x10 -> Video Sync Signal (1: Composite Sync or 0: Separate Sync)
+			//ram[recvDataPtr + 0x30] = 0;
+
+			uint16 pktId = sendData[0x0C];
+			if(pktId != 0)
+			{
+				CLog::GetInstance().Warn(LOG_NAME, "PktId: 0x%04X\r\n", pktId);
+				if(reinterpret_cast<const uint8*>(sendData)[0x122] == JVS_SYNC)
+				{
+					ProcessJvsPacket(reinterpret_cast<const uint8*>(sendData) + 0x122, reinterpret_cast<uint8*>(recvData) + 0x15A);
+				}
+				else
+				{
+					ProcessJvsPacket(reinterpret_cast<const uint8*>(sendData) + 0x22, reinterpret_cast<uint8*>(recvData) + 0x5A);
+				}
+				recvData[0x20] = pktId;
+			}
+			recvData[0x15] = 0x5210;
+			recvData[0x16] = 0x5210;
+			recvData[0x17] = 0x5210;
+		}
+	}
+	else if((info[1] >= 0x40000000) && (info[1] < 0x50000000))
+	{
+		m_acRam.Read(info[1] - 0x40000000, ram + info[2], info[3]);
+	}
+	else if((info[1] >= 0x50000000) && (info[1] < 0x60000000))
+	{
+		ReadBackupRam(info[1] - 0x50000000, ram + info[2], info[3]);
+	}
+	else if((info[2] >= 0x40000000) && (info[2] < 0x50000000))
+	{
+		m_acRam.Write(info[2] - 0x40000000, ram + info[1], info[3]);
+	}
+	else if((info[2] >= 0x50000000) && (info[1] < 0x60000000))
+	{
+		WriteBackupRam(info[2] - 0x50000000, ram + info[1], info[3]);
+	}
+	else
+	{
+		CLog::GetInstance().Warn(LOG_NAME, "Unknown Packet\r\n");
+		CLog::GetInstance().Warn(LOG_NAME, "info[_0 = 0x%08X, _1 = 0x%08X, _2 = 0x%08X, _3 = 0x%08X];\r\n",
+		                         info[0], info[1], info[2], info[3]);
+		CLog::GetInstance().Warn(LOG_NAME, "------------------------------------------\r\n");
+	}
 }
 
 void CNamcoArcade::ReadBackupRam(uint32 backupRamAddr, uint8* buffer, uint32 size)
