@@ -502,6 +502,7 @@ set(COMMON_SRC_FILES
 	states/XmlStateFile.cpp
 	states/XmlStateFile.h
 	static_loop.h
+	TimeUtils.h
 	uint128.h
 	VirtualPad.cpp
 	VirtualPad.h

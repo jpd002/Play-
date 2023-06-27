@@ -2,6 +2,7 @@
 #include "../Log.h"
 #include "../states/RegisterStateFile.h"
 #include "../Ps2Const.h"
+#include "../TimeUtils.h"
 #include "IopBios.h"
 #include "Iop_Cdvdman.h"
 
@@ -41,7 +42,9 @@
 #define FUNCTION_CDREADDVDDUALINFO "CdReadDvdDualInfo"
 #define FUNCTION_CDLAYERSEARCHFILE "CdLayerSearchFile"
 
-#define COMMAND_BASE_DELAY 0x100000
+constexpr uint64 COMMAND_READ_BASE_DELAY = TimeUtils::UsecsToCycles(PS2::IOP_CLOCK_OVER_FREQ, 100);
+constexpr uint64 COMMAND_READ_SECTOR_DELAY = TimeUtils::UsecsToCycles(PS2::IOP_CLOCK_OVER_FREQ, 500);
+constexpr uint64 COMMAND_SEEK_DELAY = TimeUtils::UsecsToCycles(PS2::IOP_CLOCK_OVER_FREQ, 100);
 
 using namespace Iop;
 
@@ -479,7 +482,7 @@ uint32 CCdvdman::CdRead(uint32 startSector, uint32 sectorCount, uint32 bufferPtr
 		}
 	}
 	m_pendingCommand = COMMAND_READ;
-	m_pendingCommandDelay = COMMAND_BASE_DELAY + (sectorCount * 0x100);
+	m_pendingCommandDelay = COMMAND_READ_BASE_DELAY + (sectorCount * COMMAND_READ_SECTOR_DELAY);
 	m_status = CDVD_STATUS_READING;
 	return 1;
 }
@@ -490,7 +493,7 @@ uint32 CCdvdman::CdSeek(uint32 sector)
 	                          sector);
 	assert(m_pendingCommand == COMMAND_NONE);
 	m_pendingCommand = COMMAND_SEEK;
-	m_pendingCommandDelay = COMMAND_BASE_DELAY;
+	m_pendingCommandDelay = COMMAND_SEEK_DELAY;
 	return 1;
 }
 
