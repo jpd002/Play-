@@ -275,7 +275,7 @@ void PrepareArcadeEnvironment(CPS2VM* virtualMachine, const ARCADE_MACHINE_DEF& 
 		iopBios->RegisterHleModuleReplacement("CD/DVD_Compatible", acCdvdModule);
 
 		{
-			auto namcoArcadeModule = std::make_shared<Iop::CNamcoArcade>(*iopBios->GetSifman(), *acRam, def.id);
+			auto namcoArcadeModule = std::make_shared<Iop::CNamcoArcade>(*iopBios->GetSifman(), *iopBios->GetSifcmd(), *acRam, def.id);
 			iopBios->RegisterModule(namcoArcadeModule);
 			iopBios->RegisterHleModuleReplacement("rom0:DAEMON", namcoArcadeModule);
 			//Taiko no Tatsujin loads and use these, but we don't have a proper HLE

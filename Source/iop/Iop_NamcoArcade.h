@@ -10,6 +10,8 @@
 
 namespace Iop
 {
+	class CSifCmd;
+
 	namespace Namco
 	{
 		class CAcRam;
@@ -25,7 +27,7 @@ namespace Iop
 			DRUM,
 		};
 
-		CNamcoArcade(CSifMan&, Namco::CAcRam&, const std::string&);
+		CNamcoArcade(CSifMan&, CSifCmd&, Namco::CAcRam&, const std::string&);
 		virtual ~CNamcoArcade() = default;
 
 		std::string GetId() const override;
@@ -54,6 +56,11 @@ namespace Iop
 			MODULE_ID_4 = 0x76500004,
 		};
 
+		enum COMMAND_ID
+		{
+			COMMAND_ID_ACFLASH = 3,
+		};
+
 		enum
 		{
 			BACKUP_RAM_SIZE = 0x10000,
@@ -80,6 +87,8 @@ namespace Iop
 		bool Invoke001(uint32, uint32*, uint32, uint32*, uint32, uint8*);
 		bool Invoke003(uint32, uint32*, uint32, uint32*, uint32, uint8*);
 		bool Invoke004(uint32, uint32*, uint32, uint32*, uint32, uint8*);
+
+		void ProcessAcFlashCommand(const SIFCMDHEADER*, CSifMan&);
 
 		void ProcessJvsPacket(const uint8*, uint8*);
 

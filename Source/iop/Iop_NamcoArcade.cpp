@@ -7,6 +7,7 @@
 #include "../Log.h"
 #include "../states/RegisterStateFile.h"
 #include "PathUtils.h"
+#include "Iop_SifCmd.h"
 #include "namco_arcade/Iop_NamcoAcRam.h"
 
 using namespace Iop;
@@ -88,7 +89,7 @@ static const std::array<uint16, PS2::CControllerInfo::MAX_BUTTONS> g_defaultJvsS
 };
 // clang-format on
 
-CNamcoArcade::CNamcoArcade(CSifMan& sif, Namco::CAcRam& acRam, const std::string& gameId)
+CNamcoArcade::CNamcoArcade(CSifMan& sifMan, CSifCmd& sifCmd, Namco::CAcRam& acRam, const std::string& gameId)
     : m_acRam(acRam)
     , m_gameId(gameId)
 {
@@ -99,9 +100,12 @@ CNamcoArcade::CNamcoArcade(CSifMan& sif, Namco::CAcRam& acRam, const std::string
 	m_module004 = CSifModuleAdapter(std::bind(&CNamcoArcade::Invoke004, this,
 	                                          std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5, std::placeholders::_6));
 
-	sif.RegisterModule(MODULE_ID_1, &m_module001);
-	sif.RegisterModule(MODULE_ID_3, &m_module003);
-	sif.RegisterModule(MODULE_ID_4, &m_module004);
+	sifMan.RegisterModule(MODULE_ID_1, &m_module001);
+	sifMan.RegisterModule(MODULE_ID_3, &m_module003);
+	sifMan.RegisterModule(MODULE_ID_4, &m_module004);
+
+	sifCmd.AddHleCmdHandler(COMMAND_ID_ACFLASH, std::bind(&CNamcoArcade::ProcessAcFlashCommand, this,
+	                                                      std::placeholders::_1, std::placeholders::_2));
 
 	m_jvsButtonBits = g_defaultJvsButtonBits;
 }
@@ -601,6 +605,27 @@ bool CNamcoArcade::Invoke004(uint32 method, uint32* args, uint32 argsSize, uint3
 		break;
 	}
 	return true;
+}
+
+void CNamcoArcade::ProcessAcFlashCommand(const SIFCMDHEADER*, CSifMan& sifMan)
+{
+	//This is needed for Tekken 5: Dark Ressurection and Tekken 5.1
+	//Not sure what these games use this for, but they will hang after
+	//one stage if we don't send a reply to the EE.
+
+	CLog::GetInstance().Print(LOG_NAME, "ProcessAcFlashCommand();\r\n");
+
+	struct ACFLASH_REPLY
+	{
+		SIFCMDHEADER header;
+		uint32 val[3];
+	};
+	static_assert(sizeof(ACFLASH_REPLY) == 0x1C, "sizeof(ACFLASH_REPLY) must be 28 bytes.");
+
+	ACFLASH_REPLY reply = {};
+	reply.header.commandId = 4;
+	reply.header.packetSize = sizeof(ACFLASH_REPLY);
+	sifMan.SendPacket(&reply, sizeof(ACFLASH_REPLY));
 }
 
 fs::path CNamcoArcade::GetArcadeSavePath()

@@ -2906,6 +2906,11 @@ Iop::CSifMan* CIopBios::GetSifman()
 	return m_sifMan.get();
 }
 
+Iop::CSifCmd* CIopBios::GetSifcmd()
+{
+	return m_sifCmd.get();
+}
+
 Iop::CCdvdman* CIopBios::GetCdvdman()
 {
 	return m_cdvdman.get();

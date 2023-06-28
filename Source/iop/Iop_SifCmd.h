@@ -47,6 +47,7 @@ namespace Iop
 		};
 
 		typedef std::list<CSifDynamic*> DynamicModuleList;
+		typedef std::function<void(const SIFCMDHEADER*, CSifMan&)> CmdHandler;
 
 		CSifCmd(CIopBios&, CSifMan&, CSysmem&, uint8*);
 		virtual ~CSifCmd();
@@ -62,6 +63,8 @@ namespace Iop
 
 		void SifBindRpc(CMIPS&);
 		void SifCallRpc(CMIPS&);
+
+		void AddHleCmdHandler(uint32, const CmdHandler&);
 
 		const DynamicModuleList& GetServers() const;
 		void ClearServers();
@@ -138,6 +141,7 @@ namespace Iop
 		uint32 m_sifExecCmdHandlerAddr = 0;
 		uint32 m_sifBindRpcAddr = 0;
 		DynamicModuleList m_servers;
+		std::unordered_map<uint32, CmdHandler> m_hleCmdHandlers;
 	};
 
 	typedef std::shared_ptr<CSifCmd> SifCmdPtr;

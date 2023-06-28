@@ -320,6 +320,11 @@ void CSifCmd::Invoke(CMIPS& context, unsigned int functionId)
 	}
 }
 
+void CSifCmd::AddHleCmdHandler(uint32 cmdId, const CmdHandler& cmdHandler)
+{
+	m_hleCmdHandlers[cmdId] = cmdHandler;
+}
+
 const CSifCmd::DynamicModuleList& CSifCmd::GetServers() const
 {
 	return m_servers;
@@ -608,7 +613,15 @@ void CSifCmd::ProcessCustomCommand(uint32 commandHeaderAddr)
 		ProcessRpcRequestEnd(commandHeaderAddr);
 		break;
 	default:
-		ProcessDynamicCommand(commandHeaderAddr);
+		if(auto cmdHandlerIterator = m_hleCmdHandlers.find(commandHeader->commandId);
+		   cmdHandlerIterator != std::end(m_hleCmdHandlers))
+		{
+			cmdHandlerIterator->second(commandHeader, m_sifMan);
+		}
+		else
+		{
+			ProcessDynamicCommand(commandHeaderAddr);
+		}
 		break;
 	}
 }

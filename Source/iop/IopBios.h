@@ -205,6 +205,7 @@ public:
 	Iop::CSysmem* GetSysmem();
 	Iop::CIoman* GetIoman();
 	Iop::CSifMan* GetSifman();
+	Iop::CSifCmd* GetSifcmd();
 	Iop::CCdvdman* GetCdvdman();
 	Iop::CLoadcore* GetLoadcore();
 #ifdef _IOP_EMULATE_MODULES
