@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+	<!-- Application Navigation -->
+
+	<string name="main_menu_settings">설정</string>
+	<string name="main_menu_addfolder">폴더 추가</string>
+	<string name="main_menu_about">정보</string>
+	<string name="main_menu_exit">종료</string>
+
+	<string name="game_info">정보 없음</string>
+
+	<string name="search_games">빌드 컬렉션&#8230;</string>
+	<string name="search_games_msg">잠시만 기다려주세요&#8230;</string>
+	<string name="search_games_scanning">게임 검색 중&#8230;</string>
+	<string name="search_games_scan_folders">추가된 폴더 검색 중&#8230;</string>
+	<string name="search_games_fetching_titles">게임 제목 가져오기&#8230;</string>
+	<string name="search_games_fetching">게임 불러오기&#8230;</string>
+	<string name="search_games_populating">이미지 채우기&#8230;</string>
+	<string name="updating_db">컬렉션 업데이트하기&#8230;</string>
+
+	<string name="launch_game">게임 실행 중&#8230;</string>
+	<string name="launch_game_msg">잠시만 기다려주세요&#8230;</string>
+
+	<string name="navigation_drawer_open">탐색 서랍 열기</string>
+	<string name="navigation_drawer_close">탐색 서랍 닫기</string>
+
+	<string name="menu_title_open">메뉴</string>
+	<string name="menu_title_shut">게임</string>
+	<string name="menu_title_look">검색</string>
+
+	<string name="file_list_recent">최근</string>
+	<string name="file_list_homebrew">홈브류</string>
+	<string name="file_list_default">정렬되지 않음</string>
+
+	<string name="game_unavailable">게임을 사용할 수 없습니다.\n목록에서 제거하겠습니까?</string>
+	<string name="not_found">찾을 수 없음</string>
+	<string name="no_game_found_adapter">게임을 찾을 수 없습니다.\n\n메뉴를 열고 \'폴더 추가\'를 선택하여 게임을 추가하세요.</string>
+
+	<!-- Application Preferences -->
+
+	<string name="title_activity_settings">설정</string>
+
+	<string name="preferences_screen_emu">에뮬레이터 설정</string>
+
+	<string name="pref_emu_general">일반 설정</string>
+
+	<string name="pref_emu_general_fps_display_title">프레임 표시 및 호출 카운터 그리기</string>
+	<string name="pref_emu_general_fps_display_summary">화면에 &quot;초당 프레임 수&quot; (f/s) 및 &quot;프레임당 그리기 호출 수&quot; (dc/f) 통계를 표시할 수 있습니다.</string>
+
+	<string name="pref_emu_general_pad_display_title">가상 패드 표시</string>
+	<string name="pref_emu_general_pad_display_summary">화면상의 가상 컨트롤러 패드를 표시할 수 있습니다.</string>
+
+	<string name="pref_emu_general_limit_frame_rate_title">최대 프레임 속도</string>
+	<string name="pref_emu_general_limit_frame_rate_summary">비디오 재생률에 대한 프레임 속도 제한</string>
+
+	<string name="pref_emu_video">비디오 설정</string>
+
+	<string name="pref_emu_video_gs_handler_title">GS 핸들러</string>
+
+	<string name="pref_emu_video_res_factor_title">해상도 팩터 설정</string>
+
+	<string name="pref_emu_video_widescreen_title">와이드스크린으로 출력 크기 조정</string>
+	<string name="pref_emu_video_widescreen_summary">동영상 크기를 16:9 비율로 조정합니다.</string>
+
+	<string name="pref_emu_video_force_bilinear_title">강제 이중선형 필터링</string>
+	<string name="pref_emu_video_force_bilinear_summary">모든 텍스처에 이중선형 필터링을 강제로 사용합니다.</string>
+
+	<string name="pref_emu_video_presentation_mode_title">프레젠테이션 모드</string>
+
+	<string name="pref_emu_audio">오디오 설정</string>
+
+	<string name="pref_emu_audio_enable_output_title">오디오 출력 활성화</string>
+	<string name="pref_emu_audio_enable_output_summary">오디오 출력을 활성화합니다.</string>
+
+	<string name="pref_emu_audio_spublockcount_title">버퍼 크기</string>
+
+	<string name="preferences_screen_ui">UI 설정</string>
+
+	<string name="preferences_ui">저장소 옵션</string>
+
+	<string name="pref_ui_rescan_all_title">저장소 재검색</string>
+	<string name="pref_ui_rescan_all_summary">저장소에서 새 게임 검색</string>
+
+	<string name="pref_ui_clear_unavailable_title">사용할 수 없는 게임 지우기</string>
+	<string name="pref_ui_clear_unavailable_summary">게임 목록에서 현재 접속할 수 없는 게임 제거</string>
+
+	<string name="pref_ui_reset_cache_title">캐시 재설정</string>
+	<string name="pref_ui_reset_cache_summary">저장된 표지 이미지 지우기</string>
+
+	<string name="pref_ui_migrate_datafiles_title">데이터 파일 마이그레이션</string>
+	<string name="pref_ui_migrate_datafiles_summary">장치의 폴더에서 데이터 파일 마이그레이션</string>
+
+	<string name="preferences_theme">테마 설정</string>
+
+	<string name="pref_title_theme_selection">테마 선택</string>
+
+	<string-array name="pref_theme_selection_titles">
+		<item>호박색</item>
+		<item>파란색 (기본값)</item>
+		<item>분홍색</item>
+		<item>보라색</item>
+		<item>청록색</item>
+		<item>어두운 보라색</item>
+		<item>초록색</item>
+	</string-array>
+
+	<string-array name="pref_emu_video_gs_handler_entries">
+		<item>OpenGL</item>
+		<item>Vulkan (실험적)</item>
+	</string-array>
+
+	<string-array name="pref_emu_video_res_factor_entries">
+		<item>1x</item>
+		<item>2x</item>
+		<item>4x</item>
+		<item>8x</item>
+	</string-array>
+
+	<string-array name="pref_emu_video_presentation_mode_entries">
+		<item>화면 채우기</item>
+		<item>화면 맞춤(기본값)</item>
+		<item>원본 크기</item>
+	</string-array>
+
+	<string-array name="pref_emu_audio_spublockcount_entries">
+		<item>400</item>
+		<item>200</item>
+		<item>100</item>
+		<item>50</item>
+		<item>10</item>
+	</string-array>
+
+	<!-- Emulator Drawer -->
+
+	<string name="emulator_drawer_exit">종료</string>
+	<string name="emulator_drawer_savestate">상태 저장하가</string>
+	<string name="emulator_drawer_loadstate">상태 불러오기</string>
+
+	<string name="emulator_save_state_ok">상태가 성공적으로 저장되었습니다.</string>
+	<string name="emulator_save_state_fail">상태를 저장할 수 없습니다.</string>
+
+	<string name="emulator_load_state_ok">상태가 성공적으로 불러왔습니다.</string>
+	<string name="emulator_load_state_fail">상태를 불러올 수 없습니다.</string>
+
+	<!-- Error Reporting / Debugging -->
+
+	<string name="report_issue">이전 충돌 감지</string>
+
+	<string name="dismiss">보류</string>
+	<string name="report">보고서</string>
+
+	<string name="platform">로그캣 내용을 클립보드에 복사하기\n이슈 보고서에 붙여넣기</string>
+	<string name="log_saved">\"파일 폴더\" 경로에 로그 저장</string>
+	<string name="no_recent_adapter">최근에 플레이한 PS2 게임을 찾을 수 없습니다.</string>
+
+	<!-- Editor Menu -->
+	<string name="editor_menu_save">저장</string>
+	<string name="editor_menu_reset">재설정</string>
+	<string name="editor_menu_cancel">취소</string>
+
+	<!-- Game Info Edit Activity -->
+	<string name="gameinfo_edit_activity_gametitle">게임 타이틀</string>
+	<string name="gameinfo_edit_activity_gameoverview">게임 개요</string>
+	<string name="gameinfo_edit_activity_gamecover">게임 커버</string>
+	<string name="gameinfo_edit_activity_gamecover_change">변경</string>
+	<string name="gameinfo_edit_activity_gamecover_default">기본값</string>
+
+	<string name="permission_dialog_title">권한 요청</string>
+	<string name="permission_dialog_summary">Play! 저장소 접속(읽기/쓰기)가 필요합니다. 이 권한이 없으면 Play! 에서 게임을 찾거나 진행 상황을 저장할 수 없습니다.</string>
+
+	<!-- Data Files Migration -->
+	<string name="migration_title">데이터 파일 마이그레이션</string>
+	<string name="migration_selectfolder">이전 데이터 파일 폴더의 위치 (일반적으로 장치 저장소의 루트에 있으며 \'데이터 파일 재생\'이라는 이름이 지정됨)를 선택하세요.</string>
+	<string name="migration_task_msg">잠시만 기다려주세요&#8230;</string>
+
+</resources>
