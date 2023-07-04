@@ -135,8 +135,8 @@ const uint32 CSpuBase::g_linearDecreaseSweepDeltas[0x80] =
 CSpuBase::CSpuBase(uint8* ram, uint32 ramSize, CSpuSampleCache* sampleCache, unsigned int spuNumber)
     : m_ram(ram)
     , m_ramSize(ramSize)
-    , m_sampleCache(sampleCache)
     , m_spuNumber(spuNumber)
+    , m_sampleCache(sampleCache)
     , m_reverbEnabled(true)
 {
 	Reset();
