@@ -353,6 +353,11 @@ uint32 CSpuBase::GetIrqAddress() const
 void CSpuBase::SetIrqAddress(uint32 value)
 {
 	m_irqAddr = value & (m_ramSize - 1);
+	for(int i = 0; i < MAX_CHANNEL; i++)
+	{
+		auto& reader = m_reader[i];
+		reader.SetIrqAddress(m_irqAddr);
+	}
 }
 
 uint16 CSpuBase::GetTransferMode() const
@@ -667,7 +672,6 @@ void CSpuBase::Render(int16* samples, unsigned int sampleCount, unsigned int sam
 		{
 			auto& channel(m_channel[i]);
 			auto& reader(m_reader[i]);
-			reader.SetIrqAddress(m_irqAddr);
 			if(channel.status == KEY_ON)
 			{
 				reader.SetParamsRead(channel.address, channel.repeat);
