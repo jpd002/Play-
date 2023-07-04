@@ -449,6 +449,14 @@ CSpuBase::CHANNEL& CSpuBase::GetChannel(unsigned int channelNumber)
 	return m_channel[channelNumber];
 }
 
+void CSpuBase::OnChannelPitchChanged(unsigned int channelNumber)
+{
+	assert(channelNumber < MAX_CHANNEL);
+	auto& reader = m_reader[channelNumber];
+	auto& channel = m_channel[channelNumber];
+	reader.SetPitch(m_baseSamplingRate, channel.pitch);
+}
+
 void CSpuBase::SendKeyOn(uint32 channels)
 {
 	for(unsigned int i = 0; i < MAX_CHANNEL; i++)
@@ -697,9 +705,7 @@ void CSpuBase::Render(int16* samples, unsigned int sampleCount, unsigned int sam
 				reader.SetRepeat(channel.repeat);
 			}
 
-			int16 readSample = 0;
-			reader.SetPitch(m_baseSamplingRate, channel.pitch);
-			reader.GetSamples(&readSample, 1, sampleRate);
+			int16 readSample = reader.GetSample(sampleRate);
 			channel.current = reader.GetCurrent();
 
 			if(irqEnabled && reader.GetIrqPending())

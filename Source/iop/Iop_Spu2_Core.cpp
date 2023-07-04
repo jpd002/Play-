@@ -339,7 +339,7 @@ uint32 CCore::WriteRegisterChannel(unsigned int channelId, uint32 address, uint3
 		return 0;
 	}
 	LogChannelWrite(channelId, address, value);
-	CSpuBase::CHANNEL& channel(m_spuBase.GetChannel(channelId));
+	auto& channel(m_spuBase.GetChannel(channelId));
 	switch(address)
 	{
 	case VP_VOLL:
@@ -358,6 +358,7 @@ uint32 CCore::WriteRegisterChannel(unsigned int channelId, uint32 address, uint3
 		break;
 	case VP_PITCH:
 		channel.pitch = static_cast<uint16>(value);
+		m_spuBase.OnChannelPitchChanged(channelId);
 		break;
 	case VP_ADSR1:
 		channel.adsrLevel <<= static_cast<uint16>(value);

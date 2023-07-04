@@ -239,6 +239,7 @@ namespace Iop
 		void SetChannelReverbHi(uint16);
 
 		CHANNEL& GetChannel(unsigned int);
+		void OnChannelPitchChanged(unsigned int);
 
 		void SendKeyOn(uint32);
 		void SendKeyOff(uint32);

@@ -220,7 +220,7 @@ void CSpu::WriteRegister(uint32 address, uint16 value)
 	{
 		unsigned int channelId = (address - SPU_BEGIN) / 0x10;
 		unsigned int registerId = address & 0x0F;
-		CSpuBase::CHANNEL& channel(m_base.GetChannel(channelId));
+		auto& channel(m_base.GetChannel(channelId));
 		switch(registerId)
 		{
 		case CH_VOL_LEFT:
@@ -231,6 +231,7 @@ void CSpu::WriteRegister(uint32 address, uint16 value)
 			break;
 		case CH_PITCH:
 			channel.pitch = value;
+			m_base.OnChannelPitchChanged(channelId);
 			break;
 		case CH_ADDRESS:
 			channel.address = value * 8;
