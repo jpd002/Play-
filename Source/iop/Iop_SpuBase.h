@@ -184,7 +184,7 @@ namespace Iop
 			uint32 adsrVolume;
 			uint32 repeat;
 			bool repeatSet;
-			uint16 status;
+			uint32 status;
 			uint32 current;
 		};
 
