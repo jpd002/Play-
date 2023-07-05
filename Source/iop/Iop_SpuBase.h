@@ -202,6 +202,7 @@ namespace Iop
 		void SetReverbEnabled(bool);
 
 		void SetBaseSamplingRate(uint32);
+		void SetDestinationSamplingRate(uint32);
 
 		bool GetIrqPending() const;
 		void ClearIrqPending();
@@ -251,7 +252,7 @@ namespace Iop
 
 		uint32 ReceiveDma(uint8*, uint32, uint32, uint32);
 
-		void Render(int16*, unsigned int, unsigned int);
+		void Render(int16*, unsigned int);
 
 		static bool g_reverbParamIsAddress[REVERB_PARAM_COUNT];
 
@@ -276,6 +277,7 @@ namespace Iop
 			void Reset();
 			void SetMemory(uint8*, uint32);
 			void SetSampleCache(CSpuSampleCache*);
+			void SetDestinationSamplingRate(uint32);
 
 			void LoadState(const CRegisterStateFile&, const std::string&);
 			void SaveState(CRegisterStateFile*, const std::string&) const;
@@ -283,7 +285,7 @@ namespace Iop
 			void SetParamsRead(uint32, uint32);
 			void SetParamsNoRead(uint32, uint32);
 			void SetPitch(uint32, uint16);
-			void GetSamples(int16*, unsigned int, unsigned int);
+			int16 GetSample();
 			uint32 GetRepeat() const;
 			void SetRepeat(uint32);
 			uint32 GetCurrent() const;
@@ -307,14 +309,16 @@ namespace Iop
 			void SetParams(uint32, uint32);
 			void UnpackSamples(int16*);
 			void AdvanceBuffer();
-			int16 GetSample(unsigned int);
+			void UpdateSampleStep();
 
 			uint8* m_ram = nullptr;
 			uint32 m_ramSize = 0;
 			CSpuSampleCache* m_sampleCache = nullptr;
 
-			uint32 m_srcSampleIdx;
-			unsigned int m_srcSamplingRate;
+			uint32 m_srcSampleIdx = 0;
+			uint32 m_sampleStep = 0;
+			uint32 m_srcSamplingRate = 0;
+			uint32 m_dstSamplingRate = 0;
 			uint32 m_nextSampleAddr = 0;
 			uint32 m_repeatAddr = 0;
 			uint32 m_irqAddr = 0;
@@ -337,14 +341,20 @@ namespace Iop
 		public:
 			void Reset();
 			void SetBaseSamplingRate(uint32);
+			void SetDestinationSamplingRate(uint32);
+
 			bool CanReadSamples() const;
 
 			void FillBlock(const uint8*);
-			void GetSamples(int16&, int16&, unsigned int);
+			void GetSamples(int16&, int16&);
 
 		private:
+			void UpdateSampleStep();
+
 			uint32 m_baseSamplingRate = 0;
+			uint32 m_dstSamplingRate = 0;
 			uint32 m_srcSampleIdx = 0;
+			uint32 m_sampleStep = 0;
 			uint8 m_blockBuffer[SOUND_INPUT_DATA_SIZE];
 		};
 

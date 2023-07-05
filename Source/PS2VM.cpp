@@ -482,6 +482,8 @@ void CPS2VM::ResetVM()
 	m_iopExecutionTicks = 0;
 
 	m_currentSpuBlock = 0;
+	m_iop->m_spuCore0.SetDestinationSamplingRate(DST_SAMPLE_RATE);
+	m_iop->m_spuCore1.SetDestinationSamplingRate(DST_SAMPLE_RATE);
 
 	RegisterModulesInPadHandler();
 	m_gunListener = nullptr;
@@ -748,12 +750,12 @@ void CPS2VM::UpdateSpu()
 	unsigned int blockOffset = (BLOCK_SIZE * m_currentSpuBlock);
 	int16* samplesSpu0 = m_samples + blockOffset;
 
-	m_iop->m_spuCore0.Render(samplesSpu0, BLOCK_SIZE, DST_SAMPLE_RATE);
+	m_iop->m_spuCore0.Render(samplesSpu0, BLOCK_SIZE);
 
 	if(m_iop->m_spuCore1.IsEnabled())
 	{
 		int16 samplesSpu1[BLOCK_SIZE];
-		m_iop->m_spuCore1.Render(samplesSpu1, BLOCK_SIZE, DST_SAMPLE_RATE);
+		m_iop->m_spuCore1.Render(samplesSpu1, BLOCK_SIZE);
 
 		for(unsigned int i = 0; i < BLOCK_SIZE; i++)
 		{

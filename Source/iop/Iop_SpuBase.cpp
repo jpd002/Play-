@@ -335,6 +335,15 @@ void CSpuBase::SetBaseSamplingRate(uint32 samplingRate)
 	m_blockReader.SetBaseSamplingRate(samplingRate);
 }
 
+void CSpuBase::SetDestinationSamplingRate(uint32 samplingRate)
+{
+	m_blockReader.SetDestinationSamplingRate(samplingRate);
+	for(auto& reader : m_reader)
+	{
+		reader.SetDestinationSamplingRate(samplingRate);
+	}
+}
+
 bool CSpuBase::GetIrqPending() const
 {
 	return m_irqPending;
@@ -353,9 +362,8 @@ uint32 CSpuBase::GetIrqAddress() const
 void CSpuBase::SetIrqAddress(uint32 value)
 {
 	m_irqAddr = value & (m_ramSize - 1);
-	for(int i = 0; i < MAX_CHANNEL; i++)
+	for(auto& reader : m_reader)
 	{
-		auto& reader = m_reader[i];
 		reader.SetIrqAddress(m_irqAddr);
 	}
 }
@@ -663,7 +671,7 @@ void CSpuBase::MixSamples(int32 inputSample, int32 volumeLevel, int16* output)
 	*output = static_cast<int16>(resultSample);
 }
 
-void CSpuBase::Render(int16* samples, unsigned int sampleCount, unsigned int sampleRate)
+void CSpuBase::Render(int16* samples, unsigned int sampleCount)
 {
 	bool updateReverb = m_reverbEnabled && (m_ctrl & CONTROL_REVERB) && (m_reverbWorkAddrStart < m_reverbWorkAddrEnd);
 	bool irqEnabled = (m_ctrl & CONTROL_IRQ);
@@ -705,7 +713,7 @@ void CSpuBase::Render(int16* samples, unsigned int sampleCount, unsigned int sam
 				reader.SetRepeat(channel.repeat);
 			}
 
-			int16 readSample = reader.GetSample(sampleRate);
+			int16 readSample = reader.GetSample();
 			channel.current = reader.GetCurrent();
 
 			if(irqEnabled && reader.GetIrqPending())
@@ -750,7 +758,7 @@ void CSpuBase::Render(int16* samples, unsigned int sampleCount, unsigned int sam
 		{
 			int16 sampleL = 0;
 			int16 sampleR = 0;
-			m_blockReader.GetSamples(sampleL, sampleR, sampleRate);
+			m_blockReader.GetSamples(sampleL, sampleR);
 
 			MixSamples(sampleL, 0x3FFF, samples + 0);
 			MixSamples(sampleR, 0x3FFF, samples + 1);
@@ -1105,6 +1113,8 @@ void CSpuBase::CSampleReader::Reset()
 	m_pitch = 0;
 	m_srcSampleIdx = 0;
 	m_srcSamplingRate = 0;
+	m_dstSamplingRate = 0;
+	m_sampleStep = 0;
 	m_s1 = 0;
 	m_s2 = 0;
 	m_done = false;
@@ -1124,6 +1134,12 @@ void CSpuBase::CSampleReader::SetMemory(uint8* ram, uint32 ramSize)
 void CSpuBase::CSampleReader::SetSampleCache(CSpuSampleCache* sampleCache)
 {
 	m_sampleCache = sampleCache;
+}
+
+void CSpuBase::CSampleReader::SetDestinationSamplingRate(uint32 samplingRate)
+{
+	m_dstSamplingRate = samplingRate;
+	UpdateSampleStep();
 }
 
 void CSpuBase::CSampleReader::LoadState(const CRegisterStateFile& registerFile, const std::string& channelPrefix)
@@ -1201,17 +1217,10 @@ void CSpuBase::CSampleReader::SetParamsNoRead(uint32 address, uint32 repeat)
 void CSpuBase::CSampleReader::SetPitch(uint32 baseSamplingRate, uint16 pitch)
 {
 	m_srcSamplingRate = baseSamplingRate * pitch;
+	UpdateSampleStep();
 }
 
-void CSpuBase::CSampleReader::GetSamples(int16* samples, unsigned int sampleCount, unsigned int dstSamplingRate)
-{
-	for(unsigned int i = 0; i < sampleCount; i++)
-	{
-		samples[i] = GetSample(dstSamplingRate);
-	}
-}
-
-int16 CSpuBase::CSampleReader::GetSample(unsigned int dstSamplingRate)
+int16 CSpuBase::CSampleReader::GetSample()
 {
 	uint32 srcSampleIdx = m_srcSampleIdx / PITCH_BASE;
 	int32 srcSampleAlpha = m_srcSampleIdx % PITCH_BASE;
@@ -1219,7 +1228,7 @@ int16 CSpuBase::CSampleReader::GetSample(unsigned int dstSamplingRate)
 	int32 nextSample = m_buffer[srcSampleIdx + 1];
 	int32 resultSample = (currentSample * (PITCH_BASE - srcSampleAlpha) / PITCH_BASE) +
 	                     (nextSample * srcSampleAlpha / PITCH_BASE);
-	m_srcSampleIdx += m_srcSamplingRate / dstSamplingRate;
+	m_srcSampleIdx += m_sampleStep;
 	if(srcSampleIdx >= BUFFER_SAMPLES)
 	{
 		m_srcSampleIdx -= BUFFER_SAMPLES * PITCH_BASE;
@@ -1241,6 +1250,11 @@ void CSpuBase::CSampleReader::AdvanceBuffer()
 		UnpackSamples(m_buffer + BUFFER_SAMPLES);
 		m_nextValid = true;
 	}
+}
+
+void CSpuBase::CSampleReader::UpdateSampleStep()
+{
+	m_sampleStep = m_srcSamplingRate / m_dstSamplingRate;
 }
 
 void CSpuBase::CSampleReader::UnpackSamples(int16* dst)
@@ -1416,12 +1430,21 @@ void CSpuBase::CSampleReader::ClearDidChangeRepeat()
 void CSpuBase::CBlockSampleReader::Reset()
 {
 	m_baseSamplingRate = INIT_SAMPLE_RATE;
+	m_dstSamplingRate = 0;
 	m_srcSampleIdx = SOUND_INPUT_DATA_SAMPLES * TIME_SCALE;
+	m_sampleStep = 0;
 }
 
 void CSpuBase::CBlockSampleReader::SetBaseSamplingRate(uint32 baseSamplingRate)
 {
 	m_baseSamplingRate = baseSamplingRate;
+	UpdateSampleStep();
+}
+
+void CSpuBase::CBlockSampleReader::SetDestinationSamplingRate(uint32 dstSamplingRate)
+{
+	m_dstSamplingRate = dstSamplingRate;
+	UpdateSampleStep();
 }
 
 bool CSpuBase::CBlockSampleReader::CanReadSamples() const
@@ -1436,8 +1459,10 @@ void CSpuBase::CBlockSampleReader::FillBlock(const uint8* block)
 	m_srcSampleIdx = 0;
 }
 
-void CSpuBase::CBlockSampleReader::GetSamples(int16& sampleL, int16& sampleR, unsigned int dstSamplingRate)
+void CSpuBase::CBlockSampleReader::GetSamples(int16& sampleL, int16& sampleR)
 {
+	assert(m_sampleStep != 0);
+
 	uint32 srcSampleIdx = m_srcSampleIdx / TIME_SCALE;
 	assert(srcSampleIdx < SOUND_INPUT_DATA_SAMPLES);
 
@@ -1445,5 +1470,10 @@ void CSpuBase::CBlockSampleReader::GetSamples(int16& sampleL, int16& sampleR, un
 	sampleL = inputSamples[0x000 + srcSampleIdx];
 	sampleR = inputSamples[0x100 + srcSampleIdx];
 
-	m_srcSampleIdx += (m_baseSamplingRate * TIME_SCALE) / dstSamplingRate;
+	m_srcSampleIdx += m_sampleStep;
+}
+
+void CSpuBase::CBlockSampleReader::UpdateSampleStep()
+{
+	m_sampleStep = (m_baseSamplingRate * TIME_SCALE) / m_dstSamplingRate;
 }
