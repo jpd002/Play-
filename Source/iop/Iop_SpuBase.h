@@ -285,7 +285,7 @@ namespace Iop
 			void SetParamsRead(uint32, uint32);
 			void SetParamsNoRead(uint32, uint32);
 			void SetPitch(uint32, uint16);
-			int16 GetSample();
+			int32 GetSample();
 			uint32 GetRepeat() const;
 			void SetRepeat(uint32);
 			uint32 GetCurrent() const;

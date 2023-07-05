@@ -713,7 +713,7 @@ void CSpuBase::Render(int16* samples, unsigned int sampleCount)
 				reader.SetRepeat(channel.repeat);
 			}
 
-			int16 readSample = reader.GetSample();
+			int32 readSample = reader.GetSample();
 			channel.current = reader.GetCurrent();
 
 			if(irqEnabled && reader.GetIrqPending())
@@ -729,9 +729,8 @@ void CSpuBase::Render(int16* samples, unsigned int sampleCount)
 
 			if(readSample == 0) continue;
 
-			int32 inputSample = static_cast<int32>(readSample);
-			//Mix adsrVolume
-			inputSample = (inputSample * static_cast<int32>(channel.adsrVolume >> 16)) / static_cast<int32>(MAX_ADSR_VOLUME >> 16);
+			//Mix in adsrVolume
+			int32 inputSample = (readSample * static_cast<int32>(channel.adsrVolume >> 16)) / static_cast<int32>(MAX_ADSR_VOLUME >> 16);
 
 			if(inputSample == 0) continue;
 
@@ -1220,7 +1219,7 @@ void CSpuBase::CSampleReader::SetPitch(uint32 baseSamplingRate, uint16 pitch)
 	UpdateSampleStep();
 }
 
-int16 CSpuBase::CSampleReader::GetSample()
+int32 CSpuBase::CSampleReader::GetSample()
 {
 	uint32 srcSampleIdx = m_srcSampleIdx / PITCH_BASE;
 	int32 srcSampleAlpha = m_srcSampleIdx % PITCH_BASE;
@@ -1234,7 +1233,7 @@ int16 CSpuBase::CSampleReader::GetSample()
 		m_srcSampleIdx -= BUFFER_SAMPLES * PITCH_BASE;
 		AdvanceBuffer();
 	}
-	return static_cast<int16>(resultSample);
+	return resultSample;
 }
 
 void CSpuBase::CSampleReader::AdvanceBuffer()
