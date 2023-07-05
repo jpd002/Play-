@@ -646,8 +646,7 @@ void CSpuBase::MixSamples(int32 inputSample, int32 volumeLevel, int16* output)
 {
 	inputSample = (inputSample * volumeLevel) / 0x7FFF;
 	int32 resultSample = inputSample + static_cast<int32>(*output);
-	resultSample = std::max<int32>(resultSample, SHRT_MIN);
-	resultSample = std::min<int32>(resultSample, SHRT_MAX);
+	resultSample = std::clamp<int32>(resultSample, SHRT_MIN, SHRT_MAX);
 	*output = static_cast<int16>(resultSample);
 }
 
@@ -657,7 +656,6 @@ void CSpuBase::Render(int16* samples, unsigned int sampleCount, unsigned int sam
 	bool irqEnabled = (m_ctrl & CONTROL_IRQ);
 
 	assert((sampleCount & 0x01) == 0);
-	//ticks are 44100Hz ticks
 	unsigned int ticks = sampleCount / 2;
 	memset(samples, 0, sizeof(int16) * sampleCount);
 
