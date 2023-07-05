@@ -364,6 +364,7 @@ namespace Iop
 		};
 
 		void UpdateAdsr(CHANNEL&);
+		void UpdateReverb(int16[2], int16*);
 		uint32 GetAdsrDelta(unsigned int) const;
 		float GetReverbSample(uint32) const;
 		void SetReverbSample(uint32, float);
