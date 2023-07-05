@@ -346,7 +346,7 @@ namespace Iop
 			bool CanReadSamples() const;
 
 			void FillBlock(const uint8*);
-			void GetSamples(int16&, int16&);
+			void GetSamples(int32[2]);
 
 		private:
 			void UpdateSampleStep();

@@ -682,7 +682,7 @@ void CSpuBase::Render(int16* samples, unsigned int sampleCount)
 
 	for(unsigned int j = 0; j < ticks; j++)
 	{
-		int16 reverbSample[2] = {0, 0};
+		int16 reverbSample[2] = {};
 		//Update channels
 		for(unsigned int i = 0; i < 24; i++)
 		{
@@ -755,12 +755,11 @@ void CSpuBase::Render(int16* samples, unsigned int sampleCount)
 
 		if(m_blockReader.CanReadSamples())
 		{
-			int16 sampleL = 0;
-			int16 sampleR = 0;
-			m_blockReader.GetSamples(sampleL, sampleR);
+			int32 blockSamples[2] = {};
+			m_blockReader.GetSamples(blockSamples);
 
-			MixSamples(sampleL, 0x3FFF, samples + 0);
-			MixSamples(sampleR, 0x3FFF, samples + 1);
+			MixSamples(blockSamples[0], 0x3FFF, samples + 0);
+			MixSamples(blockSamples[1], 0x3FFF, samples + 1);
 		}
 
 		//Simulate SPU CORE0 writing its output in RAM and check for potential interrupts
@@ -1458,7 +1457,7 @@ void CSpuBase::CBlockSampleReader::FillBlock(const uint8* block)
 	m_srcSampleIdx = 0;
 }
 
-void CSpuBase::CBlockSampleReader::GetSamples(int16& sampleL, int16& sampleR)
+void CSpuBase::CBlockSampleReader::GetSamples(int32 samples[2])
 {
 	assert(m_sampleStep != 0);
 
@@ -1466,8 +1465,8 @@ void CSpuBase::CBlockSampleReader::GetSamples(int16& sampleL, int16& sampleR)
 	assert(srcSampleIdx < SOUND_INPUT_DATA_SAMPLES);
 
 	auto inputSamples = reinterpret_cast<const int16*>(m_blockBuffer);
-	sampleL = inputSamples[0x000 + srcSampleIdx];
-	sampleR = inputSamples[0x100 + srcSampleIdx];
+	samples[0] = inputSamples[0x000 + srcSampleIdx];
+	samples[1] = inputSamples[0x100 + srcSampleIdx];
 
 	m_srcSampleIdx += m_sampleStep;
 }
