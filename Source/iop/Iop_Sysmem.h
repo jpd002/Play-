@@ -48,7 +48,6 @@ namespace Iop
 		CIoman& m_ioman;
 		BlockListType& m_blocks;
 		uint32 m_memoryBegin;
-		uint32 m_memoryEnd;
 		uint32 m_memorySize;
 		uint32 m_headBlockId;
 	};

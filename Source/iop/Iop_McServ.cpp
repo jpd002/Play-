@@ -1320,7 +1320,7 @@ uint32 CMcServ::CPathFinder::CountEntries(const fs::path& path)
 {
 	uint32 entryCount = 0;
 	assert(fs::is_directory(path));
-	for(auto& entry : fs::directory_iterator(path))
+	for(FRAMEWORK_MAYBE_UNUSED auto& entry : fs::directory_iterator(path))
 	{
 		entryCount++;
 	}

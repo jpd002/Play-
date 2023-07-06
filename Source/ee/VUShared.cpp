@@ -145,7 +145,7 @@ void TestVectorNaN(CMIPS* context, uint32 dest, uint32 offset)
 	for(int i = 0; i < 4; i++)
 	{
 		if(!DestinationHasElement(dest, i)) continue;
-		uint32 value = reinterpret_cast<uint32*>(context)[(offset / 4) + i];
+		FRAMEWORK_MAYBE_UNUSED uint32 value = reinterpret_cast<uint32*>(context)[(offset / 4) + i];
 		assert((value & 0x7F800000) != 0x7F800000);
 	}
 }

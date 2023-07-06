@@ -231,7 +231,7 @@ int32 CModload::LoadModuleWithOption(uint32 pathPtr, uint32 optionPtr)
 	CLog::GetInstance().Print(LOG_NAME, FUNCTION_LOADMODULEWITHOPTION "(pathPtr = 0x%08X, optionPtr = 0x%08X);\r\n",
 	                          pathPtr, optionPtr);
 	const char* path = reinterpret_cast<const char*>(m_ram + pathPtr);
-	auto option = reinterpret_cast<const LMWO_OPTION*>(m_ram + optionPtr);
+	FRAMEWORK_MAYBE_UNUSED auto option = reinterpret_cast<const LMWO_OPTION*>(m_ram + optionPtr);
 	//We don't support custom loader functions
 	assert(option->funcTablePtr == 0);
 	return m_bios.LoadModuleFromPath(path);

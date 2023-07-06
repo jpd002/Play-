@@ -1,6 +1,7 @@
 #include "McDumpDevice.h"
 #include <cassert>
 #include <cstring>
+#include "maybe_unused.h"
 #include "MemStream.h"
 
 using namespace Iop;
@@ -19,7 +20,7 @@ Framework::CStream* CMcDumpDevice::GetFile(uint32 flags, const char* path)
 
 	//We don't support subdirs here
 	if(*path == '/') path++;
-	const char* next = strchr(path, '/');
+	FRAMEWORK_MAYBE_UNUSED auto next = strchr(path, '/');
 	assert(!next);
 
 	auto directory = m_dumpReader.ReadRootDirectory();

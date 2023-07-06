@@ -1,5 +1,6 @@
 #include <cassert>
 #include <cstring>
+#include "maybe_unused.h"
 #include "GsCachedArea.h"
 #include "GsPixelFormats.h"
 
@@ -31,7 +32,7 @@ void CGsCachedArea::SetArea(uint32 psm, uint32 bufPtr, uint32 bufWidth, uint32 h
 
 	//Check that we have enough bits to represent page dirtyness in m_dirtyPages
 	{
-		auto pageRect = GetAreaPageRect();
+		FRAMEWORK_MAYBE_UNUSED auto pageRect = GetAreaPageRect();
 		assert((pageRect.width * pageRect.height) <= MAX_DIRTYPAGES);
 	}
 }

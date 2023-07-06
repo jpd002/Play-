@@ -21,7 +21,6 @@ CSysmem::CSysmem(uint8* ram, uint32 memoryBegin, uint32 memoryEnd, BlockListType
     , m_ioman(ioman)
     , m_blocks(blocks)
     , m_memoryBegin(memoryBegin)
-    , m_memoryEnd(memoryEnd)
     , m_memorySize(memoryEnd - memoryBegin)
 {
 	//Initialize block map

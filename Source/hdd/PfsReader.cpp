@@ -178,7 +178,6 @@ uint64 CPfsFileReader::Read(void* buffer, uint64 length)
 	{
 		assert(segmentIndex < m_inode.dataCount);
 		uint64 segmentSize = m_inode.data[segmentIndex].count * zoneSize;
-		uint64 segmentRemain = segmentSize - segmentPosition;
 		uint64 blockPosition = segmentPosition % g_sectorSize;
 		uint64 blockRemain = g_sectorSize - blockPosition;
 		uint32 segmentLba = m_reader.GetBlockLba(m_inode.data[segmentIndex].number, m_inode.data[segmentIndex].subPart);
@@ -212,7 +211,6 @@ bool CPfsFileReader::IsEOF()
 
 CPfsDirectoryReader::CPfsDirectoryReader(CPfsReader& reader, Framework::CStream& stream, PFS_INODE inode)
     : m_reader(reader)
-    , m_inode(inode)
 {
 	assert((inode.mode & 0xF000) == 0x1000);
 	assert(inode.dataCount == 2);

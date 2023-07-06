@@ -2,6 +2,7 @@
 #include <cstring>
 #include <cassert>
 #include <stdexcept>
+#include "maybe_unused.h"
 #include <libchdr/chd.h>
 #include "ChdStreamSupport.h"
 
@@ -61,12 +62,11 @@ bool CChdImageStream::IsEOF()
 uint64 CChdImageStream::Read(void* buffer, uint64 size)
 {
 	uint32 hunkPosition = m_position % m_hunkSize;
-	uint32 hunkRemainSize = m_hunkSize - hunkPosition;
 	assert((hunkPosition + size) <= m_hunkSize);
 	uint32 hunkIdx = m_position / m_hunkSize;
 	if(hunkIdx != m_hunkBufferIdx)
 	{
-		chd_error error = chd_read(m_chd, hunkIdx, m_hunkBuffer.data());
+		FRAMEWORK_MAYBE_UNUSED chd_error error = chd_read(m_chd, hunkIdx, m_hunkBuffer.data());
 		assert(error == CHDERR_NONE);
 		m_hunkBufferIdx = hunkIdx;
 	}

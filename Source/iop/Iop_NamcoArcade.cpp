@@ -131,8 +131,8 @@ void CNamcoArcade::ProcessJvsPacket(const uint8* input, uint8* output)
 	input++;
 	uint8 inDest = *input++;
 	uint8 inSize = *input++;
-	uint8 outSize = 0;
-	uint32 inWorkChecksum = inDest + inSize;
+	FRAMEWORK_MAYBE_UNUSED uint8 outSize = 0;
+	FRAMEWORK_MAYBE_UNUSED uint32 inWorkChecksum = inDest + inSize;
 	inSize--;
 
 	(*output++) = JVS_SYNC;
@@ -371,7 +371,7 @@ void CNamcoArcade::ProcessJvsPacket(const uint8* input, uint8* output)
 			break;
 		}
 	}
-	uint8 inChecksum = (*input);
+	FRAMEWORK_MAYBE_UNUSED uint8 inChecksum = (*input);
 	assert(inChecksum == (inWorkChecksum & 0xFF));
 }
 

@@ -65,7 +65,6 @@ namespace Hdd
 		void Advance();
 
 		CPfsReader& m_reader;
-		PFS_INODE m_inode;
 
 		uint8 m_dirBlock[g_dirBlockSize];
 		uint8* m_dirBlockCurr = nullptr;
