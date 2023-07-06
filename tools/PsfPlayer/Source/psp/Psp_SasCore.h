@@ -16,6 +16,11 @@ namespace Psp
 		void SetSpuInfo(Iop::CSpuSampleCache*, Iop::CSpuBase*, Iop::CSpuBase*, uint8*, uint32);
 
 	private:
+		enum CHANNEL_COUNT
+		{
+			CHANNEL_COUNT = 32,
+		};
+
 		enum REVERBTYPES
 		{
 			REVERB_OFF = -1,
@@ -67,7 +72,8 @@ namespace Psp
 #endif
 		void SetupReverb(const REVERBINFO&);
 
-		Iop::CSpuBase::CHANNEL* GetSpuChannel(uint32);
+		std::pair<Iop::CSpuBase*, uint32> TranslateSpuChannel(uint32) const;
+		Iop::CSpuBase::CHANNEL* GetSpuChannel(uint32) const;
 
 		Iop::CSpuSampleCache* m_spuSampleCache = nullptr;
 		Iop::CSpuBase* m_spu[2] = {};

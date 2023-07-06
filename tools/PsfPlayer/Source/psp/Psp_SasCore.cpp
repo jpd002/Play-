@@ -154,26 +154,32 @@ void CSasCore::SetSpuInfo(Iop::CSpuSampleCache* sampleCache, Iop::CSpuBase* spu0
 	m_blocks.push_back(endBlock);
 }
 
-Iop::CSpuBase::CHANNEL* CSasCore::GetSpuChannel(uint32 channelId)
+std::pair<Iop::CSpuBase*, uint32> CSasCore::TranslateSpuChannel(uint32 channelId) const
 {
-	assert(channelId < 32);
-	if(channelId >= 32)
+	assert(channelId < CHANNEL_COUNT);
+	if(channelId >= CHANNEL_COUNT)
 	{
-		return NULL;
+		return std::make_pair(nullptr, 0);
 	}
 
-	Iop::CSpuBase* spuBase(NULL);
 	if(channelId < 24)
 	{
-		spuBase = m_spu[0];
+		return std::make_pair(m_spu[0], channelId);
 	}
 	else
 	{
-		spuBase = m_spu[1];
-		channelId -= 24;
+		return std::make_pair(m_spu[1], channelId - 24);
 	}
+}
 
-	return &spuBase->GetChannel(channelId);
+Iop::CSpuBase::CHANNEL* CSasCore::GetSpuChannel(uint32 channelId) const
+{
+	auto chanInfo = TranslateSpuChannel(channelId);
+	if(!chanInfo.first)
+	{
+		return nullptr;
+	}
+	return &chanInfo.first->GetChannel(chanInfo.second);
 }
 
 uint32 CSasCore::AllocMemory(uint32 size)
@@ -182,10 +188,10 @@ uint32 CSasCore::AllocMemory(uint32 size)
 
 	const uint32 startAddress = SPURAM_ALLOC_BASEADDRESS;
 	uint32 currentAddress = startAddress;
-	MemBlockList::iterator blockIterator(m_blocks.begin());
+	auto blockIterator(m_blocks.begin());
 	while(blockIterator != m_blocks.end())
 	{
-		const SPUMEMBLOCK& block(*blockIterator);
+		const auto& block(*blockIterator);
 		uint32 space = block.address - currentAddress;
 		if(space >= size)
 		{
@@ -204,10 +210,10 @@ uint32 CSasCore::AllocMemory(uint32 size)
 
 void CSasCore::FreeMemory(uint32 address)
 {
-	for(MemBlockList::iterator blockIterator(m_blocks.begin());
+	for(auto blockIterator(m_blocks.begin());
 	    blockIterator != m_blocks.end(); blockIterator++)
 	{
-		const SPUMEMBLOCK& block(*blockIterator);
+		const auto& block(*blockIterator);
 		if(block.address == address)
 		{
 			m_blocks.erase(blockIterator);
@@ -221,14 +227,14 @@ void CSasCore::FreeMemory(uint32 address)
 
 void CSasCore::VerifyAllocationMap()
 {
-	for(MemBlockList::iterator blockIterator(m_blocks.begin());
+	for(auto blockIterator(m_blocks.begin());
 	    blockIterator != m_blocks.end(); blockIterator++)
 	{
-		MemBlockList::iterator nextBlockIterator = blockIterator;
+		auto nextBlockIterator = blockIterator;
 		nextBlockIterator++;
 		if(nextBlockIterator == m_blocks.end()) break;
-		SPUMEMBLOCK& currBlock(*blockIterator);
-		SPUMEMBLOCK& nextBlock(*nextBlockIterator);
+		auto& currBlock(*blockIterator);
+		auto& nextBlock(*nextBlockIterator);
 		assert(currBlock.address + currBlock.size <= nextBlock.address);
 	}
 }
@@ -307,8 +313,8 @@ uint32 CSasCore::SetVoice(uint32 contextAddr, uint32 voice, uint32 dataPtr, uint
 		return -1;
 	}
 
-	Iop::CSpuBase::CHANNEL* channel = GetSpuChannel(voice);
-	if(channel == NULL) return -1;
+	auto channel = GetSpuChannel(voice);
+	if(!channel) return -1;
 	uint8* samples = m_ram + dataPtr;
 
 	uint32 currentAddress = channel->address;
@@ -352,8 +358,8 @@ uint32 CSasCore::SetVolume(uint32 contextAddr, uint32 voice, uint32 left, uint32
 	CLog::GetInstance().Print(LOGNAME, "SetVolume(contextAddr = 0x%0.8X, voice = %d, left = 0x%0.4X, right = 0x%0.4X, effectLeft = 0x%0.4X, effectRight = 0x%0.4X);\r\n",
 	                          contextAddr, voice, left, right, effectLeft, effectRight);
 #endif
-	Iop::CSpuBase::CHANNEL* channel = GetSpuChannel(voice);
-	if(channel == NULL) return -1;
+	auto channel = GetSpuChannel(voice);
+	if(!channel) return -1;
 	channel->volumeLeft <<= static_cast<uint16>(left * 4);
 	channel->volumeRight <<= static_cast<uint16>(right * 4);
 	return 0;
@@ -365,8 +371,8 @@ uint32 CSasCore::SetSimpleADSR(uint32 contextAddr, uint32 voice, uint32 adsr1, u
 	CLog::GetInstance().Print(LOGNAME, "SetSimpleADSR(contextAddr = 0x%0.8X, voice = %d, adsr1 = 0x%0.4X, adsr2 = 0x%0.4X);\r\n",
 	                          contextAddr, voice, adsr1, adsr2);
 #endif
-	Iop::CSpuBase::CHANNEL* channel = GetSpuChannel(voice);
-	if(channel == NULL) return -1;
+	auto channel = GetSpuChannel(voice);
+	if(!channel) return -1;
 	channel->adsrLevel <<= static_cast<uint16>(adsr1);
 	channel->adsrRate <<= static_cast<uint16>(adsr2);
 	if((channel->adsrRate.sustainDirection == 1) && (channel->adsrRate.sustainMode == 1))
@@ -385,24 +391,12 @@ uint32 CSasCore::SetKeyOn(uint32 contextAddr, uint32 voice)
 	CLog::GetInstance().Print(LOGNAME, "SetKeyOn(contextAddr = 0x%0.8X, voice = %d);\r\n", contextAddr, voice);
 #endif
 
-	assert(voice < 32);
-	if(voice >= 32)
+	auto chanInfo = TranslateSpuChannel(voice);
+	if(!chanInfo.first)
 	{
 		return -1;
 	}
-
-	Iop::CSpuBase* spuBase(NULL);
-	if(voice < 24)
-	{
-		spuBase = m_spu[0];
-	}
-	else
-	{
-		spuBase = m_spu[1];
-		voice -= 24;
-	}
-
-	spuBase->SendKeyOn(1 << voice);
+	chanInfo.first->SendKeyOn(1 << chanInfo.second);
 
 	return 0;
 }
@@ -413,24 +407,12 @@ uint32 CSasCore::SetKeyOff(uint32 contextAddr, uint32 voice)
 	CLog::GetInstance().Print(LOGNAME, "SetKeyOff(contextAddr = 0x%0.8X, voice = %d);\r\n", contextAddr, voice);
 #endif
 
-	assert(voice < 32);
-	if(voice >= 32)
+	auto chanInfo = TranslateSpuChannel(voice);
+	if(!chanInfo.first)
 	{
 		return -1;
 	}
-
-	Iop::CSpuBase* spuBase(NULL);
-	if(voice < 24)
-	{
-		spuBase = m_spu[0];
-	}
-	else
-	{
-		spuBase = m_spu[1];
-		voice -= 24;
-	}
-
-	spuBase->SendKeyOff(1 << voice);
+	chanInfo.first->SendKeyOff(1 << chanInfo.second);
 
 	return 0;
 }
@@ -446,9 +428,9 @@ uint32 CSasCore::GetAllEnvelope(uint32 contextAddr, uint32 envelopeAddr)
 		return -1;
 	}
 	uint32* envelope = reinterpret_cast<uint32*>(m_ram + envelopeAddr);
-	for(unsigned int i = 0; i < 32; i++)
+	for(unsigned int i = 0; i < CHANNEL_COUNT; i++)
 	{
-		Iop::CSpuBase::CHANNEL* channel = GetSpuChannel(i);
+		auto channel = GetSpuChannel(i);
 		envelope[i] = channel->adsrVolume;
 	}
 	return 0;
@@ -469,9 +451,9 @@ uint32 CSasCore::GetEndFlag(uint32 contextAddr)
 #endif
 
 	uint32 result = 0;
-	for(unsigned int i = 0; i < 32; i++)
+	for(unsigned int i = 0; i < CHANNEL_COUNT; i++)
 	{
-		const Iop::CSpuBase::CHANNEL* channel = GetSpuChannel(i);
+		const auto* channel = GetSpuChannel(i);
 		if(channel->status == Iop::CSpuBase::STOPPED)
 		{
 			result |= (1 << i);
