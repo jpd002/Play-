@@ -5,6 +5,7 @@
 using namespace Iop;
 
 #define FRAMES_PER_SEC (60)
+#define SAMPLING_RATE (44100)
 
 CPsfSubSystem::CPsfSubSystem(bool ps2Mode)
     : m_iop(ps2Mode)
@@ -24,6 +25,8 @@ CPsfSubSystem::CPsfSubSystem(bool ps2Mode)
 void CPsfSubSystem::Reset()
 {
 	m_iop.Reset();
+	m_iop.m_spuCore0.SetDestinationSamplingRate(SAMPLING_RATE);
+	m_iop.m_spuCore1.SetDestinationSamplingRate(SAMPLING_RATE);
 	m_currentBlock = 0;
 	m_frameCounter = m_frameTicks;
 	m_spuUpdateCounter = m_spuUpdateTicks;
@@ -86,12 +89,12 @@ void CPsfSubSystem::Update(bool singleStep, CSoundHandler* soundHandler)
 			unsigned int blockOffset = (BLOCK_SIZE * m_currentBlock);
 			int16* samplesSpu0 = m_samples + blockOffset;
 
-			m_iop.m_spuCore0.Render(samplesSpu0, BLOCK_SIZE, 44100);
+			m_iop.m_spuCore0.Render(samplesSpu0, BLOCK_SIZE);
 
 			if(m_iop.m_spuCore1.IsEnabled())
 			{
 				int16 samplesSpu1[BLOCK_SIZE];
-				m_iop.m_spuCore1.Render(samplesSpu1, BLOCK_SIZE, 44100);
+				m_iop.m_spuCore1.Render(samplesSpu1, BLOCK_SIZE);
 
 				for(unsigned int i = 0; i < BLOCK_SIZE; i++)
 				{
@@ -107,7 +110,7 @@ void CPsfSubSystem::Update(bool singleStep, CSoundHandler* soundHandler)
 			{
 				if(soundHandler)
 				{
-					soundHandler->Write(m_samples, BLOCK_SIZE * BLOCK_COUNT, 44100);
+					soundHandler->Write(m_samples, BLOCK_SIZE * BLOCK_COUNT, SAMPLING_RATE);
 				}
 				m_currentBlock = 0;
 			}

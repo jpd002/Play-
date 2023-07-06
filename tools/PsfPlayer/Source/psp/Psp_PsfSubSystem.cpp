@@ -4,7 +4,8 @@
 
 using namespace Psp;
 
-#define SAMPLES_PER_FRAME (44100 / 60)
+#define SAMPLING_RATE (44100)
+#define SAMPLES_PER_FRAME (SAMPLING_RATE / 60)
 
 CPsfSubSystem::CPsfSubSystem(uint32 ramSize)
     : m_ram(new uint8[ramSize])
@@ -50,6 +51,8 @@ void CPsfSubSystem::Reset()
 	m_spuSampleCache.Clear();
 	m_spuCore0.Reset();
 	m_spuCore1.Reset();
+	m_spuCore0.SetDestinationSamplingRate(SAMPLING_RATE);
+	m_spuCore1.SetDestinationSamplingRate(SAMPLING_RATE);
 	m_bios.Reset();
 	m_audioStream.Truncate();
 
@@ -118,7 +121,7 @@ void CPsfSubSystem::Update(bool singleStep, CSoundHandler* soundHandler)
 
 			if(soundHandler)
 			{
-				soundHandler->Write(buffer, bufferSamples, 44100);
+				soundHandler->Write(buffer, bufferSamples, SAMPLING_RATE);
 			}
 
 			m_samplesToFrame -= (bufferSamples / 2);

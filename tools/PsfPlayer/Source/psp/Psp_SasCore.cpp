@@ -287,8 +287,8 @@ uint32 CSasCore::Core(uint32 contextAddr, uint32 bufferAddr)
 	int16* samplesSpu0 = reinterpret_cast<int16*>(m_ram + bufferAddr);
 	int16* samplesSpu1 = reinterpret_cast<int16*>(alloca(sampleCount * sizeof(int16)));
 
-	m_spu[0]->Render(samplesSpu0, sampleCount, 44100);
-	m_spu[1]->Render(samplesSpu1, sampleCount, 44100);
+	m_spu[0]->Render(samplesSpu0, sampleCount);
+	m_spu[1]->Render(samplesSpu1, sampleCount);
 
 	for(unsigned int i = 0; i < sampleCount; i++)
 	{
@@ -346,9 +346,11 @@ uint32 CSasCore::SetPitch(uint32 contextAddr, uint32 voice, uint32 pitch)
 	CLog::GetInstance().Print(LOGNAME, "SetPitch(contextAddr = 0x%0.8X, voice = %d, pitch = 0x%0.4X);\r\n",
 	                          contextAddr, voice, pitch);
 #endif
-	Iop::CSpuBase::CHANNEL* channel = GetSpuChannel(voice);
-	if(channel == NULL) return -1;
+	auto chanInfo = TranslateSpuChannel(voice);
+	if(!chanInfo.first) return -1;
+	auto* channel = &chanInfo.first->GetChannel(chanInfo.second);
 	channel->pitch = static_cast<uint16>(pitch);
+	chanInfo.first->OnChannelPitchChanged(chanInfo.second);
 	return 0;
 }
 
