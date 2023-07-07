@@ -15,23 +15,17 @@
 #define PLAYLIST_ITEM_TITLE_ATTRIBUTE ("Title")
 #define PLAYLIST_ITEM_LENGTH_ATTRIBUTE ("Length")
 
+// clang-format off
 const char* CPlaylist::g_loadableExtensions[] =
-    {
-        "psf",
-        "minipsf",
-        "psf2",
-        "minipsf2",
-        "psfp",
-        "minipsfp"};
-
-CPlaylist::CPlaylist()
-    : m_currentItemId(0)
 {
-}
-
-CPlaylist::~CPlaylist()
-{
-}
+	"psf",
+	"minipsf",
+	"psf2",
+	"minipsf2",
+	"psfp",
+	"minipsfp"
+};
+// clang-format on
 
 const CPlaylist::ITEM& CPlaylist::GetItem(unsigned int index) const
 {

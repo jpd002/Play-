@@ -3,7 +3,6 @@
 #include <QMainWindow>
 #include "PsfVm.h"
 #include "PsfBase.h"
-#include "PlaylistItem.h"
 #include "playlistmodel.h"
 #include <thread>
 #include "filesystem_def.h"
@@ -22,6 +21,7 @@ public:
 	~MainWindow();
 
 	void AddFileToPlaylist(const fs::path&);
+	void AddArchiveToPlaylist(const fs::path&);
 
 private:
 	void UiUpdateLoop();
@@ -42,7 +42,7 @@ private:
 
 	std::thread m_thread;
 	std::atomic<bool> m_running;
-	std::string m_path;
+	fs::path m_path;
 
 	Framework::CSignal<void()>::Connection m_OnNewFrameConnection;
 

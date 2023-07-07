@@ -3,6 +3,7 @@
 #include "PsfLoader.h"
 #include "PsfTags.h"
 #include "AppConfig.h"
+#include "../../../../Source/ui_qt/QStringUtils.h"
 
 #ifdef WIN32
 #include "ui_win32/SH_WaveOut.h"
@@ -15,7 +16,7 @@
 #include <QDateTime>
 #include <chrono>
 
-#define PREFERENCE_UI_LASTFOLDER "ui.lastfolder"
+#define PREFERENCE_UI_LASTFOLDER "ui.lastfolder.v2"
 
 MainWindow::MainWindow(QWidget* parent)
     : QMainWindow(parent)
@@ -32,15 +33,15 @@ MainWindow::MainWindow(QWidget* parent)
 #endif
 	m_OnNewFrameConnection = m_virtualMachine->OnNewFrame.Connect([&]() { OnNewFrame(); });
 
-	model.setHeaderData(0, Qt::Orientation::Horizontal, QVariant("Game"), Qt::DisplayRole);
-	model.setHeaderData(1, Qt::Orientation::Horizontal, QVariant("Title"), Qt::DisplayRole);
-	model.setHeaderData(2, Qt::Orientation::Horizontal, QVariant("Length"), Qt::DisplayRole);
+	model.setHeaderData(0, Qt::Orientation::Horizontal, QVariant("Title"), Qt::DisplayRole);
+	model.setHeaderData(1, Qt::Orientation::Horizontal, QVariant("Length"), Qt::DisplayRole);
 	ui->tableView->setModel(&model);
 	ui->tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 	ui->tableView->verticalHeader()->setSectionResizeMode(QHeaderView::Fixed);
 
-	CAppConfig::GetInstance().RegisterPreferenceString(PREFERENCE_UI_LASTFOLDER, QDir::homePath().toStdString().c_str());
-	m_path = CAppConfig::GetInstance().GetPreferenceString(PREFERENCE_UI_LASTFOLDER);
+	auto homePath = QStringToPath(QDir::homePath());
+	CAppConfig::GetInstance().RegisterPreferencePath(PREFERENCE_UI_LASTFOLDER, homePath);
+	m_path = CAppConfig::GetInstance().GetPreferencePath(PREFERENCE_UI_LASTFOLDER);
 
 	// used as workaround to avoid direct ui access from a thread
 	connect(this, SIGNAL(ChangeRow(int)), ui->tableView, SLOT(selectRow(int)));
@@ -93,26 +94,42 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_actionOpen_triggered()
 {
+	QStringList filters;
+	filters.push_back(tr("All supported files (*.psf *.psf2 *.psfp *.minipsf *.minipsf2 *.minipsfp *.zip; *.rar)"));
+	filters.push_back(tr("PSF files (*.psf *.psf2 *.psfp *.minipsf *.minipsf2 *.minipsfp)"));
+	filters.push_back(tr("PSF archives (*.zip; *.rar)"));
+
 	QFileDialog dialog(this);
-	dialog.setFileMode(QFileDialog::ExistingFiles);
-	dialog.setDirectory(QString(m_path.c_str()));
-	dialog.setNameFilter(tr("PSF files (*.psf *.psf2 *.psfp *.minipsf *.minipsf2 *.minipsfp)"));
+	dialog.setFileMode(QFileDialog::ExistingFile);
+	dialog.setDirectory(PathToQString(m_path));
+	dialog.setNameFilters(filters);
+
 	if(dialog.exec())
 	{
-		if(m_virtualMachine != nullptr)
+		if(m_virtualMachine)
 		{
 			m_virtualMachine->Pause();
 			m_virtualMachine->Reset();
-			int index = model.rowCount();
-			foreach(QString file, dialog.selectedFiles())
-			{
-				AddFileToPlaylist(file.toStdString());
-			}
-
-			m_path = QFileInfo(model.at(index)->path.c_str()).absolutePath().toStdString();
-			CAppConfig::GetInstance().SetPreferenceString(PREFERENCE_UI_LASTFOLDER, m_path.c_str());
-			PlayTrackIndex(index);
 		}
+
+		auto file = QStringToPath(dialog.selectedFiles().first());
+
+		m_path = file.parent_path();
+		CAppConfig::GetInstance().SetPreferencePath(PREFERENCE_UI_LASTFOLDER, m_path);
+
+		model.clearPlaylist();
+
+		auto extension = file.extension();
+		if(extension == ".zip" || extension == ".rar")
+		{
+			AddArchiveToPlaylist(file);
+		}
+		else
+		{
+			AddFileToPlaylist(file);
+		}
+
+		PlayTrackIndex(0);
 	}
 }
 
@@ -120,12 +137,21 @@ void MainWindow::AddFileToPlaylist(const fs::path& filePath)
 {
 	try
 	{
-		//TODO: Use PlaylistDiscoveryService
-		auto streamProvider = CreatePsfStreamProvider(fs::path());
-		std::unique_ptr<Framework::CStream> inputStream(streamProvider->GetStreamForPath(filePath.native()));
-		CPsfBase psfFile(*inputStream);
-		auto tags = CPsfTags::TagMap(psfFile.GetTagsBegin(), psfFile.GetTagsEnd());
-		model.addPlaylistItem(filePath.string(), tags);
+		model.addItem(filePath);
+	}
+	catch(const std::exception& e)
+	{
+		QMessageBox messageBox;
+		messageBox.critical(0, "Error", e.what());
+		messageBox.show();
+	}
+}
+
+void MainWindow::AddArchiveToPlaylist(const fs::path& archivePath)
+{
+	try
+	{
+		model.addArchive(archivePath);
 	}
 	catch(const std::exception& e)
 	{
@@ -196,7 +222,9 @@ void MainWindow::PlayTrackIndex(int index)
 	m_virtualMachine->Reset();
 	m_currentindex = index;
 	CPsfBase::TagMap tags;
-	CPsfLoader::LoadPsf(*m_virtualMachine, model.at(m_currentindex)->path, "", &tags);
+	auto item = model.at(m_currentindex);
+	auto archivePath = model.getArchivePath(item->archiveId);
+	CPsfLoader::LoadPsf(*m_virtualMachine, item->path, archivePath, &tags);
 	UpdateTrackDetails(tags);
 	m_virtualMachine->Resume();
 }
@@ -208,7 +236,7 @@ void MainWindow::on_tableView_doubleClicked(const QModelIndex& index)
 
 void MainWindow::DeleteTrackIndex(int index)
 {
-	auto playlistsize = model.removePlaylistItem(index);
+	auto playlistsize = model.removeItem(index);
 	if(index == m_currentindex)
 	{
 		if(playlistsize >= m_currentindex)

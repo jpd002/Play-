@@ -1,7 +1,7 @@
 #pragma once
 
-#include "PsfTags.h"
 #include <vector>
+#include "PsfTags.h"
 #include "signal/Signal.h"
 #include "filesystem_def.h"
 
@@ -10,18 +10,11 @@ class CPlaylist
 public:
 	struct ITEM
 	{
-		ITEM()
-		    : length(0)
-		    , id(0)
-		    , archiveId(0)
-		{
-		}
-
 		std::wstring path;
 		std::wstring title;
-		double length;
-		unsigned int id;
-		unsigned int archiveId;
+		double length = 0;
+		unsigned int id = 0;
+		unsigned int archiveId = 0;
 	};
 
 	typedef Framework::CSignal<void(const ITEM&)> OnItemInsertEvent;
@@ -29,8 +22,7 @@ public:
 	typedef Framework::CSignal<void(unsigned int)> OnItemDeleteEvent;
 	typedef Framework::CSignal<void()> OnItemsClearEvent;
 
-	CPlaylist();
-	virtual ~CPlaylist();
+	virtual ~CPlaylist() = default;
 
 	const ITEM& GetItem(unsigned int) const;
 	int FindItem(unsigned int) const;
@@ -63,5 +55,5 @@ private:
 	static const char* g_loadableExtensions[];
 	ItemList m_items;
 	ArchiveList m_archives;
-	unsigned int m_currentItemId;
+	unsigned int m_currentItemId = 0;
 };

@@ -1,76 +1,138 @@
 #include "playlistmodel.h"
+#include <QTimer>
 #include "PsfTags.h"
+#include "PsfLoader.h"
+#include "TimeToString.h"
 
 PlaylistModel::PlaylistModel(QObject* parent)
     : QAbstractTableModel(parent)
 {
+	m_timer = new QTimer(this);
+	connect(m_timer, SIGNAL(timeout()), this, SLOT(updatePlaylist()));
+	m_timer->start(250);
 }
 
-PlaylistModel::~PlaylistModel()
+void PlaylistModel::updatePlaylist()
 {
-	m_playlist.clear();
+	bool hasUpdate = false;
+	auto onItemUpdateConnection = m_playlist.OnItemUpdate.Connect(
+	    [&hasUpdate](unsigned int itemId, const CPlaylist::ITEM& item) {
+		    hasUpdate = true;
+	    });
+	m_playlistDiscoveryService.ProcessPendingItems(m_playlist);
+	onItemUpdateConnection.reset();
+
+	if(hasUpdate)
+	{
+		emit QAbstractTableModel::beginResetModel();
+		emit QAbstractTableModel::endResetModel();
+	}
 }
 
-int PlaylistModel::addPlaylistItem(std::string fileName, CPsfBase::TagMap tagsmap)
+void PlaylistModel::addItem(fs::path itemPath)
 {
 	emit QAbstractTableModel::beginInsertRows(QModelIndex(), rowCount(), rowCount());
 
-	auto tags = CPsfTags(tagsmap);
-
-	std::wstring game = tags.GetTagValue("game");
-	std::wstring title = tags.GetTagValue("title");
-	std::wstring length = tags.GetTagValue("length");
-	Playlist::Item item(game, title, length, fileName);
-	m_playlist.push_back(item);
+	CPlaylist::ITEM item;
+	item.path = itemPath.wstring();
+	unsigned int itemId = m_playlist.InsertItem(item);
+	m_playlistDiscoveryService.AddItemInRun(item.path, std::wstring(), itemId);
 
 	emit QAbstractTableModel::endInsertRows();
-
-	return m_playlist.size() - 1;
 }
 
-int PlaylistModel::removePlaylistItem(int index)
+void PlaylistModel::addArchive(fs::path archivePath)
+{
+	auto archive(CPsfArchive::CreateFromPath(archivePath));
+	unsigned int archiveId = m_playlist.InsertArchive(archivePath.wstring());
+
+	std::vector<CPlaylist::ITEM> newItems;
+
+	for(const auto& fileInfo : archive->GetFiles())
+	{
+		auto pathToken = CArchivePsfStreamProvider::GetPathTokenFromFilePath(fileInfo.name);
+		auto fileExtension = pathToken.GetExtension();
+		if(CPlaylist::IsLoadableExtension(fileExtension))
+		{
+			CPlaylist::ITEM newItem;
+			newItem.path = pathToken.GetWidePath();
+			newItem.title = newItem.path;
+			newItem.length = 0;
+			newItem.archiveId = archiveId;
+			newItems.emplace_back(std::move(newItem));
+		}
+	}
+
+	emit QAbstractTableModel::beginInsertRows(QModelIndex(), rowCount(), rowCount() + newItems.size() - 1);
+	for(const auto& newItem : newItems)
+	{
+		unsigned int itemId = m_playlist.InsertItem(newItem);
+		m_playlistDiscoveryService.AddItemInRun(newItem.path, archivePath, itemId);
+	}
+	emit QAbstractTableModel::endInsertRows();
+}
+
+int PlaylistModel::removeItem(int index)
 {
 	emit QAbstractTableModel::beginRemoveRows(QModelIndex(), index, index);
-	m_playlist.erase(m_playlist.begin() + index);
+	m_playlist.DeleteItem(index);
 	emit QAbstractTableModel::endRemoveRows();
 
-	return m_playlist.size() - 1;
+	return m_playlist.GetItemCount() - 1;
 }
 
-Playlist::Item* PlaylistModel::at(int row)
+void PlaylistModel::clearPlaylist()
 {
-	return &m_playlist.at(row);
+	m_playlistDiscoveryService.ResetRun();
+	if(m_playlist.GetItemCount() == 0)
+	{
+		return;
+	}
+	emit QAbstractTableModel::beginRemoveRows(QModelIndex(), 0, m_playlist.GetItemCount() - 1);
+	m_playlist.Clear();
+	emit QAbstractTableModel::endRemoveRows();
+}
+
+const CPlaylist::ITEM* PlaylistModel::at(int row)
+{
+	return &m_playlist.GetItem(row);
+}
+
+fs::path PlaylistModel::getArchivePath(int archiveId)
+{
+	if(archiveId == 0)
+	{
+		return fs::path();
+	}
+	return m_playlist.GetArchive(archiveId);
 }
 
 int PlaylistModel::rowCount(const QModelIndex& /*parent*/) const
 {
-	return m_playlist.size();
+	return m_playlist.GetItemCount();
 }
 
 int PlaylistModel::columnCount(const QModelIndex& /*parent*/) const
 {
-	return 3;
+	return m_header.size();
 }
 
 QVariant PlaylistModel::data(const QModelIndex& index, int role) const
 {
 	if(role == Qt::DisplayRole)
 	{
-		auto item = m_playlist.at(index.row());
-		const wchar_t* val;
+		const auto& item = m_playlist.GetItem(index.row());
+		std::wstring val;
 		switch(index.column())
 		{
 		case 0:
-			val = item.game.c_str();
+			val = item.title;
 			break;
 		case 1:
-			val = item.title.c_str();
-			break;
-		case 2:
-			val = item.length.c_str();
+			val = TimeToString<std::wstring>(item.length);
 			break;
 		}
-		return QVariant(QString::fromWCharArray(val));
+		return QVariant(QString::fromStdWString(val));
 	}
 	return QVariant();
 }
@@ -79,7 +141,6 @@ bool PlaylistModel::setHeaderData(int section, Qt::Orientation orientation, cons
 {
 	if(orientation == Qt::Horizontal)
 	{
-
 		if(role == Qt::DisplayRole)
 		{
 			m_header.insert(section, value);
