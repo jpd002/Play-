@@ -676,6 +676,7 @@ void CSpuBase::Render(int16* samples, unsigned int sampleCount)
 	bool updateReverb = m_reverbEnabled && (m_ctrl & CONTROL_REVERB) && (m_reverbWorkAddrStart < m_reverbWorkAddrEnd);
 	bool irqEnabled = (m_ctrl & CONTROL_IRQ);
 
+	int16* samplesBase = samples;
 	assert((sampleCount & 0x01) == 0);
 	unsigned int ticks = sampleCount / 2;
 	memset(samples, 0, sizeof(int16) * sampleCount);
@@ -734,15 +735,17 @@ void CSpuBase::Render(int16* samples, unsigned int sampleCount)
 
 			if(inputSample == 0) continue;
 
-			int32 adjustedLeftVolume = std::min<int32>(0x7FFF, static_cast<int32>(static_cast<float>(channel.volumeLeftAbs >> 16) * m_volumeAdjust));
-			int32 adjustedRightVolume = std::min<int32>(0x7FFF, static_cast<int32>(static_cast<float>(channel.volumeRightAbs >> 16) * m_volumeAdjust));
-			MixSamples(inputSample, adjustedLeftVolume, samples + 0);
-			MixSamples(inputSample, adjustedRightVolume, samples + 1);
+			int32 volumeLeft = channel.volumeLeftAbs >> 16;
+			int32 volumeRight = channel.volumeRightAbs >> 16;
+
+			MixSamples(inputSample, volumeLeft, samples + 0);
+			MixSamples(inputSample, volumeRight, samples + 1);
+
 			//Mix in reverb if enabled for this channel
 			if(updateReverb && (m_channelReverb.f & (1 << i)))
 			{
-				MixSamples(inputSample, adjustedLeftVolume, reverbSample + 0);
-				MixSamples(inputSample, adjustedRightVolume, reverbSample + 1);
+				MixSamples(inputSample, volumeLeft, reverbSample + 0);
+				MixSamples(inputSample, volumeRight, reverbSample + 1);
 			}
 		}
 
@@ -784,6 +787,16 @@ void CSpuBase::Render(int16* samples, unsigned int sampleCount)
 		}
 
 		samples += 2;
+	}
+
+	if(m_volumeAdjust != 1.0f)
+	{
+		for(int i = 0; i < sampleCount; i++)
+		{
+			float adjustedSample = static_cast<float>(samplesBase[i]) * m_volumeAdjust;
+			adjustedSample = std::clamp<float>(adjustedSample, SHRT_MIN, SHRT_MAX);
+			samplesBase[i] = static_cast<int16>(adjustedSample);
+		}
 	}
 }
 
