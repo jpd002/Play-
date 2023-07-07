@@ -14,19 +14,12 @@ PlaylistModel::PlaylistModel(QObject* parent)
 
 void PlaylistModel::updatePlaylist()
 {
-	bool hasUpdate = false;
 	auto onItemUpdateConnection = m_playlist.OnItemUpdate.Connect(
-	    [&hasUpdate](unsigned int itemId, const CPlaylist::ITEM& item) {
-		    hasUpdate = true;
+	    [this](unsigned int itemIndex, const CPlaylist::ITEM& item) {
+		    emit QAbstractTableModel::dataChanged(createIndex(itemIndex, 0), createIndex(itemIndex, m_header.size() - 1));
 	    });
 	m_playlistDiscoveryService.ProcessPendingItems(m_playlist);
 	onItemUpdateConnection.reset();
-
-	if(hasUpdate)
-	{
-		emit QAbstractTableModel::beginResetModel();
-		emit QAbstractTableModel::endResetModel();
-	}
 }
 
 void PlaylistModel::addItem(fs::path itemPath)
