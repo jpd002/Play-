@@ -62,18 +62,9 @@ void MainWindow::UiUpdateLoop()
 		}
 		else if(m_frames >= m_fadePosition)
 		{
-			float currentRatio = static_cast<float>(m_trackLength - m_fadePosition) / static_cast<float>(m_trackLength - m_frames);
-			float currentVolume = (1 / currentRatio) * m_volumeAdjust;
+			float currentRatio = static_cast<float>(m_frames - m_fadePosition) / static_cast<float>(m_trackLength - m_fadePosition);
+			float currentVolume = (1.0f - currentRatio) * m_volumeAdjust;
 			m_virtualMachine->SetVolumeAdjust(currentVolume);
-		}
-		else if(m_trackLength > 0 && m_frames > 0 && m_fadePosition > 0)
-		{
-			float currentRatio = 1 / (static_cast<float>(m_trackLength - m_fadePosition) / static_cast<float>(m_frames));
-			if(currentRatio < 1.0f)
-			{
-				float currentVolume = currentRatio * m_volumeAdjust;
-				m_virtualMachine->SetVolumeAdjust(currentVolume);
-			}
 		}
 		std::this_thread::sleep_until(end);
 	}
@@ -176,6 +167,7 @@ void MainWindow::UpdateTrackDetails(CPsfBase::TagMap& tags)
 	try
 	{
 		m_volumeAdjust = stof(tag.GetTagValue("volume"));
+		m_virtualMachine->SetVolumeAdjust(m_volumeAdjust);
 	}
 	catch(...)
 	{
@@ -185,8 +177,6 @@ void MainWindow::UpdateTrackDetails(CPsfBase::TagMap& tags)
 	m_trackLength = static_cast<uint64>(dlength * 60.0);
 	m_fadePosition = m_trackLength - static_cast<uint64>(dfade * 60.0);
 	m_frames = 0;
-
-	m_virtualMachine->SetVolumeAdjust((dfade > 0) ? 0 : m_volumeAdjust);
 
 	ChangeRow(m_currentindex);
 }
