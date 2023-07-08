@@ -14,10 +14,7 @@ namespace Iop
 	class CSpuSampleCache
 	{
 	public:
-		enum
-		{
-			BUFFER_SAMPLES = 28,
-		};
+		static constexpr int BUFFER_SAMPLES = 28;
 
 		struct KEY
 		{
@@ -301,10 +298,7 @@ namespace Iop
 			void ClearDidChangeRepeat();
 
 		private:
-			enum
-			{
-				BUFFER_SAMPLES = 28,
-			};
+			static constexpr int BUFFER_SAMPLES = 28;
 
 			void SetParams(uint32, uint32);
 			void UnpackSamples(int16*);

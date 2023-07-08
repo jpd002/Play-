@@ -13,6 +13,9 @@ CTest::CTest()
     , m_spu(m_spuCore0, m_spuCore1)
 {
 	memset(m_ram, 0, PS2::SPU_RAM_SIZE);
+	constexpr unsigned int DST_SAMPLE_RATE = 44100;
+	m_spuCore0.SetDestinationSamplingRate(DST_SAMPLE_RATE);
+	m_spuCore1.SetDestinationSamplingRate(DST_SAMPLE_RATE);
 }
 
 CTest::~CTest()
@@ -22,11 +25,10 @@ CTest::~CTest()
 
 void CTest::RunSpu(unsigned int ticks)
 {
-	static const unsigned int DST_SAMPLE_RATE = 44100;
 	unsigned int blockSize = ticks * 2;
 	std::vector<int16> samples(blockSize);
-	m_spuCore0.Render(samples.data(), blockSize, DST_SAMPLE_RATE);
-	m_spuCore1.Render(samples.data(), blockSize, DST_SAMPLE_RATE);
+	m_spuCore0.Render(samples.data(), blockSize);
+	m_spuCore1.Render(samples.data(), blockSize);
 }
 
 uint32 CTest::GetCoreRegister(unsigned int coreIndex, uint32 address)
