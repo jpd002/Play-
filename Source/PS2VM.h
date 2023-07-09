@@ -163,10 +163,10 @@ private:
 	int m_vblankTicks = 0;
 	bool m_inVblank = false;
 	int64 m_spuUpdateTicks = 0;
+	int64 m_spuUpdateTicksTotal = 0;
 	int m_eeExecutionTicks = 0;
 	int m_iopExecutionTicks = 0;
 	static const int m_eeTickStep = 4800;
-	int64 m_spuUpdateTicksStep = 0;
 	int m_iopTickStep = 0;
 	CFrameLimiter m_frameLimiter;
 

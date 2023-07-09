@@ -42,6 +42,7 @@
 #define STATE_VM_TIMING_IN_VBLANK ("inVblank")
 #define STATE_VM_TIMING_EE_EXECUTION_TICKS ("eeExecutionTicks")
 #define STATE_VM_TIMING_IOP_EXECUTION_TICKS ("iopExecutionTicks")
+#define STATE_VM_TIMING_SPU_UPDATE_TICKS ("spuUpdateTicks")
 
 #define PREF_PS2_ROM0_DIRECTORY_DEFAULT ("vfs/rom0")
 #define PREF_PS2_HOST_DIRECTORY_DEFAULT ("vfs/host")
@@ -198,9 +199,8 @@ void CPS2VM::ReloadFrameRateLimit()
 	m_onScreenTicksTotal = frameTicks * 9 / 10;
 	m_vblankTicksTotal = frameTicks / 10;
 
-	m_spuUpdateTicksStep = (static_cast<int64>(eeFreqScaled) << SPU_UPDATE_TICKS_PRECISION) / (static_cast<int64>(DST_SAMPLE_RATE));
-	m_spuUpdateTicksStep *= static_cast<int64>(SAMPLES_PER_UPDATE);
-	m_spuUpdateTicks = m_spuUpdateTicksStep;
+	m_spuUpdateTicksTotal = (static_cast<int64>(eeFreqScaled) << SPU_UPDATE_TICKS_PRECISION) / (static_cast<int64>(DST_SAMPLE_RATE));
+	m_spuUpdateTicksTotal *= static_cast<int64>(SAMPLES_PER_UPDATE);
 }
 
 CVirtualMachine::STATUS CPS2VM::GetStatus() const
@@ -476,6 +476,7 @@ void CPS2VM::ResetVM()
 	SetEeFrequencyScale(1, 1);
 
 	m_vblankTicks = m_onScreenTicksTotal;
+	m_spuUpdateTicks = m_spuUpdateTicksTotal;
 	m_inVblank = false;
 
 	m_eeExecutionTicks = 0;
@@ -568,6 +569,7 @@ void CPS2VM::SaveVmTimingState(Framework::CZipArchiveWriter& archive)
 	registerFile->SetRegister32(STATE_VM_TIMING_IN_VBLANK, m_inVblank);
 	registerFile->SetRegister32(STATE_VM_TIMING_EE_EXECUTION_TICKS, m_eeExecutionTicks);
 	registerFile->SetRegister32(STATE_VM_TIMING_IOP_EXECUTION_TICKS, m_iopExecutionTicks);
+	registerFile->SetRegister64(STATE_VM_TIMING_SPU_UPDATE_TICKS, m_spuUpdateTicks);
 	archive.InsertFile(std::move(registerFile));
 }
 
@@ -578,6 +580,7 @@ void CPS2VM::LoadVmTimingState(Framework::CZipArchiveReader& archive)
 	m_inVblank = registerFile.GetRegister32(STATE_VM_TIMING_IN_VBLANK) != 0;
 	m_eeExecutionTicks = registerFile.GetRegister32(STATE_VM_TIMING_EE_EXECUTION_TICKS);
 	m_iopExecutionTicks = registerFile.GetRegister32(STATE_VM_TIMING_IOP_EXECUTION_TICKS);
+	m_spuUpdateTicks = registerFile.GetRegister64(STATE_VM_TIMING_SPU_UPDATE_TICKS);
 }
 
 void CPS2VM::PauseImpl()
@@ -884,7 +887,7 @@ void CPS2VM::EmuThread()
 			if(m_spuUpdateTicks <= 0)
 			{
 				UpdateSpu();
-				m_spuUpdateTicks += m_spuUpdateTicksStep;
+				m_spuUpdateTicks += m_spuUpdateTicksTotal;
 			}
 
 			{
