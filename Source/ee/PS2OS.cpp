@@ -3782,6 +3782,7 @@ BiosDebugObjectInfoMap CPS2OS::GetBiosObjectsDebugInfo() const
 			        {"Location", BIOS_DEBUG_OBJECT_FIELD_TYPE::UINT32, BIOS_DEBUG_OBJECT_FIELD_ATTRIBUTE::LOCATION | BIOS_DEBUG_OBJECT_FIELD_ATTRIBUTE::TEXT_ADDRESS},
 			        {"RA", BIOS_DEBUG_OBJECT_FIELD_TYPE::UINT32, BIOS_DEBUG_OBJECT_FIELD_ATTRIBUTE::RETURN_ADDRESS | BIOS_DEBUG_OBJECT_FIELD_ATTRIBUTE::HIDDEN},
 			        {"SP", BIOS_DEBUG_OBJECT_FIELD_TYPE::UINT32, BIOS_DEBUG_OBJECT_FIELD_ATTRIBUTE::STACK_POINTER | BIOS_DEBUG_OBJECT_FIELD_ATTRIBUTE::HIDDEN},
+			        {"Entry Point", BIOS_DEBUG_OBJECT_FIELD_TYPE::UINT32, BIOS_DEBUG_OBJECT_FIELD_ATTRIBUTE::TEXT_ADDRESS},
 			        {"State", BIOS_DEBUG_OBJECT_FIELD_TYPE::STRING},
 			    };
 			result.emplace(std::make_pair(BIOS_DEBUG_OBJECT_TYPE_THREAD, std::move(info)));
@@ -3907,6 +3908,7 @@ BiosDebugObjectArray CPS2OS::GetBiosObjects(uint32 typeId) const
 			    BIOS_DEBUG_OBJECT_FIELD(std::in_place_type<uint32>, pc),
 			    BIOS_DEBUG_OBJECT_FIELD(std::in_place_type<uint32>, ra),
 			    BIOS_DEBUG_OBJECT_FIELD(std::in_place_type<uint32>, sp),
+			    BIOS_DEBUG_OBJECT_FIELD(std::in_place_type<uint32>, thread->threadProc),
 			    BIOS_DEBUG_OBJECT_FIELD(std::in_place_type<std::string>, stateDescription),
 			};
 			result.push_back(obj);
