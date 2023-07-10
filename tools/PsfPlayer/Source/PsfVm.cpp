@@ -1,6 +1,7 @@
 #include <stdexcept>
 #include <assert.h>
 #include "filesystem_def.h"
+#include "ThreadUtils.h"
 #include "PsfVm.h"
 #include "Log.h"
 #include "MA_MIPSIV.h"
@@ -18,6 +19,7 @@ CPsfVm::CPsfVm()
 {
 	m_isThreadOver = false;
 	m_thread = std::thread([&]() { ThreadProc(); });
+	Framework::ThreadUtils::SetThreadName(m_thread, "PsfVm Thread");
 }
 
 CPsfVm::~CPsfVm()

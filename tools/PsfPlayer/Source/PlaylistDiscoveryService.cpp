@@ -1,4 +1,5 @@
 #include "PlaylistDiscoveryService.h"
+#include "ThreadUtils.h"
 #include "PsfStreamProvider.h"
 #include "PsfBase.h"
 #include "PsfTags.h"
@@ -12,6 +13,7 @@ CPlaylistDiscoveryService::CPlaylistDiscoveryService()
 {
 	m_threadActive = true;
 	m_thread = std::thread([&]() { ThreadProc(); });
+	Framework::ThreadUtils::SetThreadName(m_thread, "Playlist Discovery Thread");
 }
 
 CPlaylistDiscoveryService::~CPlaylistDiscoveryService()

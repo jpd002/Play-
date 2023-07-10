@@ -3,6 +3,7 @@
 #include <QMainWindow>
 #include "PsfVm.h"
 #include "PsfBase.h"
+#include "PlaybackController.h"
 #include "playlistmodel.h"
 #include <thread>
 #include "filesystem_def.h"
@@ -24,7 +25,6 @@ public:
 	void AddArchiveToPlaylist(const fs::path&);
 
 private:
-	void UiUpdateLoop();
 	void UpdateTrackDetails(CPsfBase::TagMap&);
 	void OnNewFrame();
 
@@ -35,19 +35,17 @@ private:
 	CPsfVm* m_virtualMachine;
 	PlaylistModel model;
 	int m_currentindex = -1;
-	uint64 m_trackLength = 10;
-	uint64 m_frames = 0;
-	uint64 m_fadePosition = 1;
-	float m_volumeAdjust;
+	CPlaybackController m_playbackController;
 
-	std::thread m_thread;
-	std::atomic<bool> m_running;
 	fs::path m_path;
 
 	Framework::CSignal<void()>::Connection m_OnNewFrameConnection;
 
-Q_SIGNALS:
-	void ChangeRow(int);
+	Framework::CSignal<void(float)>::Connection m_PlaybackVolumeChangedConnection;
+	Framework::CSignal<void()>::Connection m_PlaybackCompletedConnection;
+
+signals:
+	void playbackCompleted();
 
 private slots:
 	void on_actionOpen_triggered();
@@ -59,4 +57,5 @@ private slots:
 	void on_actionPlayPause_triggered();
 	void on_actionPrev_triggered();
 	void on_actionNext_triggered();
+	void on_playbackCompleted();
 };

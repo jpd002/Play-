@@ -38,6 +38,8 @@ set(PSFCORE_SRC_FILES
 	AppConfig.h
 	Iop_PsfSubSystem.cpp
 	Iop_PsfSubSystem.h
+	PlaybackController.cpp
+	PlaybackController.h
 	Playlist.cpp
 	Playlist.h
 	PlaylistDiscoveryService.cpp

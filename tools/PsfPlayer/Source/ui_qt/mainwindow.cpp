@@ -39,41 +39,20 @@ MainWindow::MainWindow(QWidget* parent)
 	ui->tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 	ui->tableView->verticalHeader()->setSectionResizeMode(QHeaderView::Fixed);
 
+	m_PlaybackVolumeChangedConnection = m_playbackController.VolumeChanged.Connect(
+	    [this](float volume) { m_virtualMachine->SetVolumeAdjust(volume); });
+	m_PlaybackCompletedConnection = m_playbackController.PlaybackCompleted.Connect(
+	    [this]() { emit playbackCompleted(); });
+
 	auto homePath = QStringToPath(QDir::homePath());
 	CAppConfig::GetInstance().RegisterPreferencePath(PREFERENCE_UI_LASTFOLDER, homePath);
 	m_path = CAppConfig::GetInstance().GetPreferencePath(PREFERENCE_UI_LASTFOLDER);
 
-	// used as workaround to avoid direct ui access from a thread
-	connect(this, SIGNAL(ChangeRow(int)), ui->tableView, SLOT(selectRow(int)));
-
-	m_running = true;
-	m_thread = std::thread(&MainWindow::UiUpdateLoop, this);
-}
-
-void MainWindow::UiUpdateLoop()
-{
-	while(m_running)
-	{
-		auto end = std::chrono::steady_clock::now() + std::chrono::milliseconds(16);
-		if(m_frames > m_trackLength)
-		{
-			m_frames = 0;
-			on_nextButton_clicked();
-		}
-		else if(m_frames >= m_fadePosition)
-		{
-			float currentRatio = static_cast<float>(m_frames - m_fadePosition) / static_cast<float>(m_trackLength - m_fadePosition);
-			float currentVolume = (1.0f - currentRatio) * m_volumeAdjust;
-			m_virtualMachine->SetVolumeAdjust(currentVolume);
-		}
-		std::this_thread::sleep_until(end);
-	}
+	connect(this, SIGNAL(playbackCompleted()), this, SLOT(on_playbackCompleted()));
 }
 
 MainWindow::~MainWindow()
 {
-	m_running = false;
-	if(m_thread.joinable()) m_thread.join();
 	if(m_virtualMachine != nullptr)
 	{
 		m_virtualMachine->Pause();
@@ -155,6 +134,7 @@ void MainWindow::AddArchiveToPlaylist(const fs::path& archivePath)
 void MainWindow::UpdateTrackDetails(CPsfBase::TagMap& tags)
 {
 	auto tag = CPsfTags(tags);
+
 	ui->current_game->setText(QString::fromWCharArray(tag.GetTagValue("game").c_str()));
 	ui->current_total_length->setText(QString::fromWCharArray(tag.GetTagValue("length").c_str()));
 	ui->current_title->setText(QString::fromWCharArray(tag.GetTagValue("title").c_str()));
@@ -162,29 +142,20 @@ void MainWindow::UpdateTrackDetails(CPsfBase::TagMap& tags)
 	ui->current_cp->setText(QString::fromWCharArray(tag.GetTagValue("copyright").c_str()));
 	ui->current_year->setText(QString::fromWCharArray(tag.GetTagValue("year").c_str()));
 
-	m_volumeAdjust = 1.0f;
+	ui->tableView->selectRow(m_currentindex);
 
-	try
-	{
-		m_volumeAdjust = stof(tag.GetTagValue("volume"));
-		m_virtualMachine->SetVolumeAdjust(m_volumeAdjust);
-	}
-	catch(...)
-	{
-	}
-	double dlength = CPsfTags::ConvertTimeString(tag.GetTagValue("length").c_str());
-	double dfade = CPsfTags::ConvertTimeString(tag.GetTagValue("fade").c_str());
-	m_trackLength = static_cast<uint64>(dlength * 60.0);
-	m_fadePosition = m_trackLength - static_cast<uint64>(dfade * 60.0);
-	m_frames = 0;
+	m_playbackController.Play(tag);
+}
 
-	ChangeRow(m_currentindex);
+void MainWindow::on_playbackCompleted()
+{
+	on_nextButton_clicked();
 }
 
 void MainWindow::OnNewFrame()
 {
-	m_frames++;
-	ui->current_time->setText(QDateTime::fromTime_t(m_frames / 60).toUTC().toString("mm:ss"));
+	m_playbackController.Tick();
+	ui->current_time->setText(QDateTime::fromTime_t(m_playbackController.GetFrameCount() / 60).toUTC().toString("mm:ss"));
 }
 
 void MainWindow::on_tableView_customContextMenuRequested(const QPoint& pos)
