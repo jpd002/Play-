@@ -270,8 +270,8 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 		String buildDateString = new SimpleDateFormat("yyyy/MM/dd K:mm a", Locale.getDefault()).format(buildDate);
 		String timestamp = buildDateString.substring(11).startsWith("0:")
 				? buildDateString.replace("0:", "12:") : buildDateString;
-		String aboutMessage = String.format("Version: %s Date: %s", BuildConfig.VERSION_NAME, timestamp);
-		displaySimpleMessage("About Play!", aboutMessage);
+		String aboutMessage = String.format(getString(R.string.about_play_emu) + "\n\n" + getString(R.string.about_play_version) + " %s\n" + getString(R.string.about_play_date) + " %s\n\n" + getString(R.string.about_play_founder) + "\nJean-Philip Desjardins", BuildConfig.VERSION_NAME, timestamp);
+		displaySimpleMessage(getString(R.string.about_play), aboutMessage);
 	}
 
 	@Override
@@ -310,7 +310,7 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 		ActionBar actionbar = getSupportActionBar();
 		if(actionbar != null)
 		{
-			actionbar.setSubtitle("Games - " + navSubtitle);
+			actionbar.setSubtitle(getString(R.string.menu_title_shut) + " - " + navSubtitle);
 		}
 
 		prepareFileListView(false);
@@ -341,7 +341,7 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 		ActionBar actionBar = getSupportActionBar();
 		actionBar.setDisplayShowTitleEnabled(true);
 		actionBar.setTitle(R.string.app_name);
-		actionBar.setSubtitle("Games - " + navSubtitle);
+		actionBar.setSubtitle(getString(R.string.menu_title_shut) + " - " + navSubtitle);
 	}
 
 	public boolean onCreateOptionsMenu(Menu menu)

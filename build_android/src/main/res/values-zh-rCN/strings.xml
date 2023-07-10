@@ -3,27 +3,33 @@
 
 	<!-- Application Navigation -->
 
+	<string name="about_play">关于Play!</string>
+	<string name="about_play_emu">Play! PlayStation 2模拟器</string>
+	<string name="about_play_version">版本：</string>
+	<string name="about_play_date">日期：</string>
+	<string name="about_play_founder">作者</string>
+
 	<string name="main_menu_settings">设置</string>
 	<string name="main_menu_addfolder">添加文件夹</string>
 	<string name="main_menu_about">关于</string>
 	<string name="main_menu_exit">退出</string>
 
-	<string name="game_info">无信息</string>
+	<string name="game_info">没有信息</string>
 
 	<string name="search_games">正在建立收藏&#8230;</string>
 	<string name="search_games_msg">请稍候&#8230;</string>
-	<string name="search_games_scanning">扫描游戏中&#8230;</string>
+	<string name="search_games_scanning">正在扫描游戏&#8230;</string>
 	<string name="search_games_scan_folders">正在扫描已添加的文件夹&#8230;</string>
 	<string name="search_games_fetching_titles">正在获取游戏标题&#8230;</string>
-	<string name="search_games_fetching">获取游戏中&#8230;</string>
-	<string name="search_games_populating">填充图片中&#8230;</string>
-	<string name="updating_db">更新收藏中&#8230;</string>
+	<string name="search_games_fetching">正在获取游戏&#8230;</string>
+	<string name="search_games_populating">正在填充图片&#8230;</string>
+	<string name="updating_db">正在更新收藏&#8230;</string>
 
 	<string name="launch_game">启动游戏&#8230;</string>
 	<string name="launch_game_msg">请稍候&#8230;</string>
 
-	<string name="navigation_drawer_open">打开导航栏</string>
-	<string name="navigation_drawer_close">关闭导航栏</string>
+	<string name="navigation_drawer_open">打开菜单</string>
+	<string name="navigation_drawer_close">关闭菜单</string>
 
 	<string name="menu_title_open">菜单</string>
 	<string name="menu_title_shut">游戏</string>
@@ -35,7 +41,7 @@
 
 	<string name="game_unavailable">游戏不可用。\n您要将其从列表中删除吗？</string>
 	<string name="not_found">没有找到</string>
-	<string name="no_game_found_adapter">未找到游戏。\n\n请打开菜单并选择\“添加文件夹\”去添加游戏。</string>
+	<string name="no_game_found_adapter">没有找到游戏。\n\n请打开菜单并选择\“添加文件夹\”去添加游戏。</string>
 
 	<!-- Application Preferences -->
 
@@ -46,32 +52,32 @@
 	<string name="pref_emu_general">常规设置</string>
 
 	<string name="pref_emu_general_fps_display_title">显示帧数和绘制调用计数器</string>
-	<string name="pref_emu_general_fps_display_summary">启用显示 &quot;每秒帧数&quot; (f/s) 和 &quot;每秒绘制调用&quot; (dc/f) 屏幕统计。</string>
+	<string name="pref_emu_general_fps_display_summary">启用在屏幕显示&quot;每秒帧数&quot; (f/s) 和 &quot;每秒绘制调用&quot; (dc/f) 的统计</string>
 
 	<string name="pref_emu_general_pad_display_title">显示虚拟按键</string>
-	<string name="pref_emu_general_pad_display_summary">显示屏幕上的虚拟按键。</string>
+	<string name="pref_emu_general_pad_display_summary">显示屏幕上的虚拟按键</string>
 
 	<string name="pref_emu_general_limit_frame_rate_title">限制帧数</string>
 	<string name="pref_emu_general_limit_frame_rate_summary">限制帧数到视频刷新率</string>
 
-	<string name="pref_emu_video">视频设置</string>
+	<string name="pref_emu_video">画面设置</string>
 
-	<string name="pref_emu_video_gs_handler_title">GS处理程序</string>
+	<string name="pref_emu_video_gs_handler_title">图形渲染器</string>
 
 	<string name="pref_emu_video_res_factor_title">设置分辨率</string>
 
-	<string name="pref_emu_video_widescreen_title">调整输出到宽屏</string>
-	<string name="pref_emu_video_widescreen_summary">调整画面为16：9比例。</string>
+	<string name="pref_emu_video_widescreen_title">调整输出为宽屏</string>
+	<string name="pref_emu_video_widescreen_summary">调整画面为16：9的比例</string>
 
 	<string name="pref_emu_video_force_bilinear_title">强制双线性过滤</string>
-	<string name="pref_emu_video_force_bilinear_summary">强制在所有纹理上使用双线性过滤。</string>
+	<string name="pref_emu_video_force_bilinear_summary">强制在所有纹理上使用双线性过滤</string>
 
 	<string name="pref_emu_video_presentation_mode_title">屏幕模式</string>
 
 	<string name="pref_emu_audio">音频设置</string>
 
 	<string name="pref_emu_audio_enable_output_title">启用音频输出</string>
-	<string name="pref_emu_audio_enable_output_summary">启用音频输出。</string>
+	<string name="pref_emu_audio_enable_output_summary">启用音频输出</string>
 
 	<string name="pref_emu_audio_spublockcount_title">缓冲区大小</string>
 
@@ -97,7 +103,7 @@
 
 	<string-array name="pref_theme_selection_titles">
 		<item>琥珀色</item>
-		<item>蓝色 (默认)</item>
+		<item>蓝色（默认）</item>
 		<item>粉红色</item>
 		<item>紫色</item>
 		<item>绿色</item>
@@ -137,13 +143,13 @@
 
 	<!-- Error Reporting / Debugging -->
 
-	<string name="report_issue">检测到上一次崩溃</string>
+	<string name="report_issue">检测到上一次的崩溃</string>
 
-	<string name="dismiss">搁置</string>
+	<string name="dismiss">忽略</string>
 	<string name="report">报告</string>
 
-	<string name="platform">将logcat内容复制到剪贴板\n请在问题报告中粘贴</string>
-	<string name="log_saved">将日志保存到\“Files Dir\”路径</string>
+	<string name="platform">将logcat的内容复制到剪贴板\n请在问题报告中粘贴</string>
+	<string name="log_saved">将日志保存到\“文件夹\”路径</string>
 	<string name="no_recent_adapter">最近没有玩过PS2游戏。</string>
 	
 	<!-- Editor Menu -->
@@ -153,17 +159,17 @@
 	
 	<!-- Game Info Edit Activity -->
 	<string name="gameinfo_edit_activity_gametitle">游戏标题</string>
-	<string name="gameinfo_edit_activity_gameoverview">游戏概述</string>
+	<string name="gameinfo_edit_activity_gameoverview">游戏描述</string>
 	<string name="gameinfo_edit_activity_gamecover">游戏封面</string>
 	<string name="gameinfo_edit_activity_gamecover_change">更改</string>
 	<string name="gameinfo_edit_activity_gamecover_default">默认</string>
 	
 	<string name="permission_dialog_title">权限请求</string>
-	<string name="permission_dialog_summary">Play!需要存储访问（读/写）。否则，Play!将无法找到你的游戏或者保存你的进程。</string>
+	<string name="permission_dialog_summary">Play! 需要存储访问（读/写）的权限。否则Play! 将无法找到您的游戏或保存进度。</string>
 
 	<!-- Data Files Migration -->
 	<string name="migration_title">数据文件迁移</string>
-	<string name="migration_selectfolder">请选择之前的数据文件文件夹的位置(通常位于设备存储的根目录，并名为\“Play Data Files\”)。</string>
+	<string name="migration_selectfolder">请选择之前的数据文件文件夹的位置（通常位于设备存储的根目录，并名为\“Play Data Files\”）。</string>
 	<string name="migration_task_msg">请稍候&#8230;</string>
 
 </resources>

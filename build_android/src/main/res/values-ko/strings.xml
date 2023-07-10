@@ -3,6 +3,12 @@
 
 	<!-- Application Navigation -->
 
+	<string name="about_play">Play! 정보</string>
+	<string name="about_play_emu">Play! PlayStation 2 Emulator</string>
+	<string name="about_play_version">버전:</string>
+	<string name="about_play_date">Date:</string>
+	<string name="about_play_founder">Created by</string>
+
 	<string name="main_menu_settings">설정</string>
 	<string name="main_menu_addfolder">폴더 추가</string>
 	<string name="main_menu_about">정보</string>
@@ -46,10 +52,10 @@
 	<string name="pref_emu_general">일반 설정</string>
 
 	<string name="pref_emu_general_fps_display_title">프레임 표시 및 호출 카운터 그리기</string>
-	<string name="pref_emu_general_fps_display_summary">화면에 &quot;초당 프레임 수&quot; (f/s) 및 &quot;프레임당 그리기 호출 수&quot; (dc/f) 통계를 표시할 수 있습니다.</string>
+	<string name="pref_emu_general_fps_display_summary">화면에 &quot;초당 프레임 수&quot; (f/s) 및 &quot;프레임당 그리기 호출 수&quot; (dc/f) 통계를 표시할 수 있습니다</string>
 
 	<string name="pref_emu_general_pad_display_title">가상 패드 표시</string>
-	<string name="pref_emu_general_pad_display_summary">화면상의 가상 컨트롤러 패드를 표시할 수 있습니다.</string>
+	<string name="pref_emu_general_pad_display_summary">화면상의 가상 컨트롤러 패드를 표시할 수 있습니다</string>
 
 	<string name="pref_emu_general_limit_frame_rate_title">최대 프레임 속도</string>
 	<string name="pref_emu_general_limit_frame_rate_summary">비디오 재생률에 대한 프레임 속도 제한</string>
@@ -61,17 +67,17 @@
 	<string name="pref_emu_video_res_factor_title">해상도 팩터 설정</string>
 
 	<string name="pref_emu_video_widescreen_title">와이드스크린으로 출력 크기 조정</string>
-	<string name="pref_emu_video_widescreen_summary">동영상 크기를 16:9 비율로 조정합니다.</string>
+	<string name="pref_emu_video_widescreen_summary">동영상 크기를 16:9 비율로 조정합니다</string>
 
 	<string name="pref_emu_video_force_bilinear_title">강제 이중선형 필터링</string>
-	<string name="pref_emu_video_force_bilinear_summary">모든 텍스처에 이중선형 필터링을 강제로 사용합니다.</string>
+	<string name="pref_emu_video_force_bilinear_summary">모든 텍스처에 이중선형 필터링을 강제로 사용합니다</string>
 
 	<string name="pref_emu_video_presentation_mode_title">프레젠테이션 모드</string>
 
 	<string name="pref_emu_audio">오디오 설정</string>
 
 	<string name="pref_emu_audio_enable_output_title">오디오 출력 활성화</string>
-	<string name="pref_emu_audio_enable_output_summary">오디오 출력을 활성화합니다.</string>
+	<string name="pref_emu_audio_enable_output_summary">오디오 출력을 활성화합니다</string>
 
 	<string name="pref_emu_audio_spublockcount_title">버퍼 크기</string>
 
@@ -121,14 +127,6 @@
 		<item>화면 채우기</item>
 		<item>화면 맞춤(기본값)</item>
 		<item>원본 크기</item>
-	</string-array>
-
-	<string-array name="pref_emu_audio_spublockcount_entries">
-		<item>400</item>
-		<item>200</item>
-		<item>100</item>
-		<item>50</item>
-		<item>10</item>
 	</string-array>
 
 	<!-- Emulator Drawer -->

@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+	<!-- Application Navigation -->
+
+	<string name="about_play">關於Play!</string>
+	<string name="about_play_emu">Play! PlayStation 2模擬器</string>
+	<string name="about_play_version">版本：</string>
+	<string name="about_play_date">日期：</string>
+	<string name="about_play_founder">作者</string>
+
+	<string name="main_menu_settings">設置</string>
+	<string name="main_menu_addfolder">添加資料夾</string>
+	<string name="main_menu_about">關於</string>
+	<string name="main_menu_exit">退出</string>
+
+	<string name="game_info">沒有信息</string>
+
+	<string name="search_games">建立收藏中&#8230;</string>
+	<string name="search_games_msg">請稍後&#8230;</string>
+	<string name="search_games_scanning">掃描遊戲中&#8230;</string>
+	<string name="search_games_scan_folders">掃描已添加的資料夾中&#8230;</string>
+	<string name="search_games_fetching_titles">獲取遊戲標題中&#8230;</string>
+	<string name="search_games_fetching">獲取遊戲中&#8230;</string>
+	<string name="search_games_populating">填充圖片中&#8230;</string>
+	<string name="updating_db">更新收藏中&#8230;</string>
+
+	<string name="launch_game">啓動遊戲&#8230;</string>
+	<string name="launch_game_msg">請稍後&#8230;</string>
+
+	<string name="navigation_drawer_open">開啓菜單</string>
+	<string name="navigation_drawer_close">關閉菜單</string>
+
+	<string name="menu_title_open">菜單</string>
+	<string name="menu_title_shut">遊戲</string>
+	<string name="menu_title_look">搜索</string>
+
+	<string name="file_list_recent">最近</string>
+	<string name="file_list_homebrew">自製</string>
+	<string name="file_list_default">未分類</string>
+
+	<string name="game_unavailable">遊戲不可用。\n確定要將其從列表中刪除嗎？</string>
+	<string name="not_found">沒有找到</string>
+	<string name="no_game_found_adapter">沒有找到遊戲。\n\n請打開菜单并选择\“添加資料夾\”去添加遊戲。</string>
+
+	<!-- Application Preferences -->
+
+	<string name="title_activity_settings">設置</string>
+
+	<string name="preferences_screen_emu">模擬器設置</string>
+
+	<string name="pref_emu_general">常規設置</string>
+
+	<string name="pref_emu_general_fps_display_title">顯示幀數和繪製調用計數器</string>
+	<string name="pref_emu_general_fps_display_summary">啓用在熒幕顯示&quot;每秒幀數&quot;（f/s）和&quot;每秒繪製調用&quot;（dc/f）的統計</string>
+
+	<string name="pref_emu_general_pad_display_title">顯示虛擬按鍵</string>
+	<string name="pref_emu_general_pad_display_summary">顯示在熒幕上的虛擬按鍵</string>
+
+	<string name="pref_emu_general_limit_frame_rate_title">限制幀數</string>
+	<string name="pref_emu_general_limit_frame_rate_summary">限制幀數到影片刷新率</string>
+
+	<string name="pref_emu_video">畫面設置</string>
+
+	<string name="pref_emu_video_gs_handler_title">圖形渲染器</string>
+
+	<string name="pref_emu_video_res_factor_title">設置分辨率</string>
+
+	<string name="pref_emu_video_widescreen_title">調整輸出為寬熒幕</string>
+	<string name="pref_emu_video_widescreen_summary">調整畫面為16：9的比例</string>
+
+	<string name="pref_emu_video_force_bilinear_title">强制雙綫性過濾</string>
+	<string name="pref_emu_video_force_bilinear_summary">强制在所有紋理上使用雙綫性過濾</string>
+
+	<string name="pref_emu_video_presentation_mode_title">屏幕模式</string>
+
+	<string name="pref_emu_audio">音頻設置</string>
+
+	<string name="pref_emu_audio_enable_output_title">啓用音頻輸出</string>
+	<string name="pref_emu_audio_enable_output_summary">啓用音頻輸出</string>
+
+	<string name="pref_emu_audio_spublockcount_title">緩衝區大小</string>
+
+	<string name="preferences_screen_ui">界面設置</string>
+
+	<string name="preferences_ui">存儲選項</string>
+
+	<string name="pref_ui_rescan_all_title">重新掃描存儲</string>
+	<string name="pref_ui_rescan_all_summary">掃描存儲的新遊戲</string>
+
+	<string name="pref_ui_clear_unavailable_title">清除不可用的遊戲</string>
+	<string name="pref_ui_clear_unavailable_summary">從遊戲列表中刪除當前無法訪問的遊戲</string>
+
+	<string name="pref_ui_reset_cache_title">重置緩存</string>
+	<string name="pref_ui_reset_cache_summary">清除緩存的封面圖片</string>
+
+	<string name="pref_ui_migrate_datafiles_title">轉移數據檔案</string>
+	<string name="pref_ui_migrate_datafiles_summary">從設備上的資料夾中轉移數據檔案</string>
+
+	<string name="preferences_theme">主題設置</string>
+
+	<string name="pref_title_theme_selection">主題選擇</string>
+
+	<string-array name="pref_theme_selection_titles">
+		<item>琥珀色</item>
+		<item>藍色（默認）</item>
+		<item>粉紅色</item>
+		<item>紫色</item>
+		<item>綠色</item>
+		<item>深紫色</item>
+		<item>綠色</item>
+	</string-array>
+
+	<string-array name="pref_emu_video_res_factor_entries">
+		<item>1倍</item>
+		<item>2倍</item>
+		<item>4倍</item>
+		<item>8倍</item>
+	</string-array>
+
+	<string-array name="pref_emu_video_gs_handler_entries">
+		<item>OpenGL</item>
+		<item>Vulkan（實驗性）</item>
+	</string-array>
+
+	<string-array name="pref_emu_video_presentation_mode_entries">
+		<item>填充</item>
+		<item>適應（默認）</item>
+		<item>原始大小</item>
+	</string-array>
+
+	<!-- Emulator Drawer -->
+
+	<string name="emulator_drawer_exit">退出</string>
+	<string name="emulator_drawer_savestate">快速保存</string>
+	<string name="emulator_drawer_loadstate">快速讀取</string>
+
+	<string name="emulator_save_state_ok">保存狀態成功。</string>
+	<string name="emulator_save_state_fail">保存狀態失敗。</string>
+
+	<string name="emulator_load_state_ok">讀取狀態成功。</string>
+	<string name="emulator_load_state_fail">讀取狀態失敗。</string>
+
+	<!-- Error Reporting / Debugging -->
+
+	<string name="report_issue">檢測到上一次的崩潰</string>
+
+	<string name="dismiss">忽略</string>
+	<string name="report">報告</string>
+
+	<string name="platform">將logcat的內容複製到剪貼板\n請在問題報告中粘貼</string>
+	<string name="log_saved">將日志保存到\“資料夾\”路徑</string>
+	<string name="no_recent_adapter">最近沒有玩過PS2遊戲。</string>
+	
+	<!-- Editor Menu -->
+	<string name="editor_menu_save">保存</string>
+	<string name="editor_menu_reset">重置</string>
+	<string name="editor_menu_cancel">取消</string>
+	
+	<!-- Game Info Edit Activity -->
+	<string name="gameinfo_edit_activity_gametitle">遊戲標題</string>
+	<string name="gameinfo_edit_activity_gameoverview">遊戲描述</string>
+	<string name="gameinfo_edit_activity_gamecover">遊戲封面</string>
+	<string name="gameinfo_edit_activity_gamecover_change">更改</string>
+	<string name="gameinfo_edit_activity_gamecover_default">默認</string>
+	
+	<string name="permission_dialog_title">權限請求</string>
+	<string name="permission_dialog_summary">Play! 需要存儲訪問（讀/寫）的權限。否則Play! 將無法找到您的遊戲或保存進度。</string>
+
+	<!-- Data Files Migration -->
+	<string name="migration_title">數據檔案轉移</string>
+	<string name="migration_selectfolder">請選擇之前的數據檔案資料夾的位置（通常位於設備存儲的根目錄，並名為\“Play Data Files\”）。</string>
+	<string name="migration_task_msg">請稍後&#8230;</string>
+
+</resources>

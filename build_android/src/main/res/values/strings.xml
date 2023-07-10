@@ -3,6 +3,12 @@
 
 	<!-- Application Navigation -->
 
+	<string name="about_play">About Play!</string>
+	<string name="about_play_emu">Play! PlayStation 2 Emulator</string>
+	<string name="about_play_version">Version:</string>
+	<string name="about_play_date">Date:</string>
+	<string name="about_play_founder">Created by</string>
+
 	<string name="main_menu_settings">Settings</string>
 	<string name="main_menu_addfolder">Add Folder</string>
 	<string name="main_menu_about">About</string>
@@ -46,10 +52,10 @@
 	<string name="pref_emu_general">General Settings</string>
 
 	<string name="pref_emu_general_fps_display_title">Show Frame and Draw Call Counters</string>
-	<string name="pref_emu_general_fps_display_summary">Enables display of &quot;frames per second&quot; (f/s) and &quot;draw calls per frame&quot; (dc/f) statistics on screen.</string>
+	<string name="pref_emu_general_fps_display_summary">Enables display of &quot;frames per second&quot; (f/s) and &quot;draw calls per frame&quot; (dc/f) statistics on screen</string>
 
 	<string name="pref_emu_general_pad_display_title">Show Virtual Pad</string>
-	<string name="pref_emu_general_pad_display_summary">Enables display of on-screen virtual controller pad.</string>
+	<string name="pref_emu_general_pad_display_summary">Enables display of on-screen virtual controller pad</string>
 
 	<string name="pref_emu_general_limit_frame_rate_title">Cap Frame Rate</string>
 	<string name="pref_emu_general_limit_frame_rate_summary">Cap Frame Rate to Video Refresh Rate</string>
@@ -61,17 +67,17 @@
 	<string name="pref_emu_video_res_factor_title">Set Resolution Factor</string>
 
 	<string name="pref_emu_video_widescreen_title">Resize Output to Widescreen</string>
-	<string name="pref_emu_video_widescreen_summary">Resizes video to 16:9 ratio.</string>
+	<string name="pref_emu_video_widescreen_summary">Resizes video to 16:9 ratio</string>
 
 	<string name="pref_emu_video_force_bilinear_title">Force Bilinear Filtering</string>
-	<string name="pref_emu_video_force_bilinear_summary">Forces usage of bilinear filtering on all textures.</string>
+	<string name="pref_emu_video_force_bilinear_summary">Forces usage of bilinear filtering on all textures</string>
 
 	<string name="pref_emu_video_presentation_mode_title">Presentation Mode</string>
 
 	<string name="pref_emu_audio">Audio Settings</string>
 
 	<string name="pref_emu_audio_enable_output_title">Enable Audio Output</string>
-	<string name="pref_emu_audio_enable_output_summary">Enables audio output.</string>
+	<string name="pref_emu_audio_enable_output_summary">Enables audio output</string>
 
 	<string name="pref_emu_audio_spublockcount_title">Buffer Size</string>
 
