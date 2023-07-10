@@ -3,6 +3,12 @@
 
 	<!-- Application Navigation -->
 
+	<string name="about_play">О приложении Play!</string>
+	<string name="about_play_emu">Play! PlayStation 2 Emulator</string>
+	<string name="about_play_version">Версия:</string>
+	<string name="about_play_date">Дата:</string>
+	<string name="about_play_founder">Created by</string>
+
 	<string name="main_menu_settings">Настройки</string>
 	<string name="main_menu_addfolder">Добавить каталог</string>
 	<string name="main_menu_about">О приложении</string>

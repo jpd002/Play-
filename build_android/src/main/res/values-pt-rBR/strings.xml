@@ -3,6 +3,12 @@
 
 	<!-- Application Navigation -->
 
+	<string name="about_play">Sobre Play!</string>
+	<string name="about_play_emu">Play! PlayStation 2 Emulator</string>
+	<string name="about_play_version">Versão:</string>
+	<string name="about_play_date">Data:</string>
+	<string name="about_play_founder">Created by</string>
+
 	<string name="main_menu_settings">Configurações</string>
 	<string name="main_menu_addfolder">Adicionar pasta</string>
 	<string name="main_menu_about">Sobre</string>
@@ -46,10 +52,10 @@
 	<string name="pref_emu_general">Configurações gerais</string>
 
 	<string name="pref_emu_general_fps_display_title">Mostrar quadro e contadores de chamadas de desenho</string>
-	<string name="pref_emu_general_fps_display_summary">Habilita a exibição das estatísticas de &quot;quadros por segundo&quot; (f/s) e de &quot;chamadas de desenho por quadro&quot; (dc/f) na tela.</string>
+	<string name="pref_emu_general_fps_display_summary">Habilita a exibição das estatísticas de &quot;quadros por segundo&quot; (f/s) e de &quot;chamadas de desenho por quadro&quot; (dc/f) na tela</string>
 
 	<string name="pref_emu_general_pad_display_title">Mostrar Virtual Pad</string>
-	<string name="pref_emu_general_pad_display_summary">Habilita a exibição do controle virtual na tela.</string>
+	<string name="pref_emu_general_pad_display_summary">Habilita a exibição do controle virtual na tela</string>
 
 	<string name="pref_emu_general_limit_frame_rate_title">Limitar taxa de quadros</string>
 	<string name="pref_emu_general_limit_frame_rate_summary">Limita a taxa de quadros para a taxa de atualização de vídeo</string>
@@ -61,17 +67,17 @@
 	<string name="pref_emu_video_res_factor_title">Definir fator de resolução</string>
 
 	<string name="pref_emu_video_widescreen_title">Redimensionar a saída para Widescreen</string>
-	<string name="pref_emu_video_widescreen_summary">Redimensiona o vídeo para a proporção 16:9.</string>
+	<string name="pref_emu_video_widescreen_summary">Redimensiona o vídeo para a proporção 16:9</string>
 
 	<string name="pref_emu_video_force_bilinear_title">Forçar filtro bilinear</string>
-	<string name="pref_emu_video_force_bilinear_summary">Força o uso do filtro bilinear em todas as texturas.</string>
+	<string name="pref_emu_video_force_bilinear_summary">Força o uso do filtro bilinear em todas as texturas</string>
 
 	<string name="pref_emu_video_presentation_mode_title">Modo de apresentação</string>
 
 	<string name="pref_emu_audio">Configurações de áudio</string>
 
 	<string name="pref_emu_audio_enable_output_title">Habilitar saída de áudio</string>
-	<string name="pref_emu_audio_enable_output_summary">Habilita a saída de áudio.</string>
+	<string name="pref_emu_audio_enable_output_summary">Habilita a saída de áudio</string>
 
 	<string name="pref_emu_audio_spublockcount_title">Tamanho do buffer</string>
 
