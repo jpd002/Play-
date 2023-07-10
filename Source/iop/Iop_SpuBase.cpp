@@ -42,6 +42,7 @@ using namespace Iop;
 #define STATE_CHANNEL_REGS_ADSRVOLUME ("ADSRVOLUME")
 #define STATE_CHANNEL_REGS_ADDRESS ("ADDRESS")
 #define STATE_CHANNEL_REGS_REPEAT ("REPEAT")
+#define STATE_CHANNEL_REGS_REPEATSET ("REPEATSET")
 #define STATE_CHANNEL_REGS_CURRENT ("CURRENT")
 
 #define STATE_SAMPLEREADER_REGS_SRCSAMPLEIDX ("SrcSampleIdx")
@@ -249,6 +250,7 @@ void CSpuBase::LoadState(Framework::CZipArchiveReader& archive)
 		channel.adsrVolume = registerFile.GetRegister32((channelPrefix + STATE_CHANNEL_REGS_ADSRVOLUME).c_str());
 		channel.address = registerFile.GetRegister32((channelPrefix + STATE_CHANNEL_REGS_ADDRESS).c_str());
 		channel.repeat = registerFile.GetRegister32((channelPrefix + STATE_CHANNEL_REGS_REPEAT).c_str());
+		channel.repeatSet = registerFile.GetRegister32((channelPrefix + STATE_CHANNEL_REGS_REPEATSET).c_str()) != 0;
 		channel.current = registerFile.GetRegister32((channelPrefix + STATE_CHANNEL_REGS_CURRENT).c_str());
 		reader.LoadState(registerFile, channelPrefix);
 	}
@@ -293,6 +295,7 @@ void CSpuBase::SaveState(Framework::CZipArchiveWriter& archive)
 		registerFile->SetRegister32((channelPrefix + STATE_CHANNEL_REGS_ADSRVOLUME).c_str(), channel.adsrVolume);
 		registerFile->SetRegister32((channelPrefix + STATE_CHANNEL_REGS_ADDRESS).c_str(), channel.address);
 		registerFile->SetRegister32((channelPrefix + STATE_CHANNEL_REGS_REPEAT).c_str(), channel.repeat);
+		registerFile->SetRegister32((channelPrefix + STATE_CHANNEL_REGS_REPEATSET).c_str(), channel.repeatSet);
 		registerFile->SetRegister32((channelPrefix + STATE_CHANNEL_REGS_CURRENT).c_str(), channel.current);
 		reader.SaveState(registerFile.get(), channelPrefix);
 	}
