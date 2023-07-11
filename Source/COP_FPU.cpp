@@ -161,7 +161,7 @@ void CCOP_FPU::CTC1()
 	}
 	else
 	{
-		assert(0);
+		Illegal();
 	}
 }
 

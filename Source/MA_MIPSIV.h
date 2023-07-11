@@ -103,6 +103,8 @@ protected:
 	typedef std::function<void(uint8)> TemplateParamedOperationFunctionType;
 	typedef std::function<void()> TemplateOperationFunctionType;
 
+	bool Ensure64BitRegs();
+
 	void Template_Add32(bool);
 	void Template_Add64(bool);
 	void Template_Sub32(bool);

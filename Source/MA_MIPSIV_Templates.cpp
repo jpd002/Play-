@@ -24,9 +24,8 @@ void CMA_MIPSIV::Template_Add32(bool isSigned)
 
 void CMA_MIPSIV::Template_Add64(bool isSigned)
 {
+	if(!Ensure64BitRegs()) return;
 	if(m_nRD == 0) return;
-
-	assert(m_regSize == MIPS_REGSIZE_64);
 
 	m_codeGen->PushRel64(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
 	m_codeGen->PushRel64(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
@@ -55,9 +54,8 @@ void CMA_MIPSIV::Template_Sub32(bool isSigned)
 
 void CMA_MIPSIV::Template_Sub64(bool isSigned)
 {
+	if(!Ensure64BitRegs()) return;
 	if(m_nRD == 0) return;
-
-	assert(m_regSize == MIPS_REGSIZE_64);
 
 	m_codeGen->PushRel64(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
 	m_codeGen->PushRel64(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));

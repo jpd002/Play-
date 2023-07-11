@@ -241,6 +241,16 @@ void CMA_MIPSIV::SetupInstructionTables()
 	}
 }
 
+bool CMA_MIPSIV::Ensure64BitRegs()
+{
+	if(m_regSize != MIPS_REGSIZE_64)
+	{
+		Illegal();
+		return false;
+	}
+	return true;
+}
+
 void CMA_MIPSIV::CompileInstruction(uint32 address, CMipsJitter* codeGen, CMIPS* ctx, uint32 instrPosition)
 {
 	SetupQuickVariables(address, codeGen, ctx, instrPosition);
@@ -539,9 +549,8 @@ void CMA_MIPSIV::DADDI()
 //19
 void CMA_MIPSIV::DADDIU()
 {
+	if(!Ensure64BitRegs()) return;
 	if(m_nRT == 0) return;
-
-	assert(m_regSize == MIPS_REGSIZE_64);
 
 	m_codeGen->PushRel64(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
 	m_codeGen->PushCst64(static_cast<int16>(m_nImmediate));
@@ -552,9 +561,8 @@ void CMA_MIPSIV::DADDIU()
 //1A
 void CMA_MIPSIV::LDL()
 {
+	if(!Ensure64BitRegs()) return;
 	if(m_nRT == 0) return;
-
-	assert(m_regSize == MIPS_REGSIZE_64);
 
 	ComputeMemAccessAddrNoXlat();
 	m_codeGen->PushRel64(offsetof(CMIPS, m_State.nGPR[m_nRT]));
@@ -566,9 +574,8 @@ void CMA_MIPSIV::LDL()
 //1B
 void CMA_MIPSIV::LDR()
 {
+	if(!Ensure64BitRegs()) return;
 	if(m_nRT == 0) return;
-
-	assert(m_regSize == MIPS_REGSIZE_64);
 
 	ComputeMemAccessAddrNoXlat();
 	m_codeGen->PushRel64(offsetof(CMIPS, m_State.nGPR[m_nRT]));
@@ -686,7 +693,7 @@ void CMA_MIPSIV::SW()
 //2C
 void CMA_MIPSIV::SDL()
 {
-	assert(m_regSize == MIPS_REGSIZE_64);
+	if(!Ensure64BitRegs()) return;
 
 	ComputeMemAccessAddrNoXlat();
 	m_codeGen->PushRel64(offsetof(CMIPS, m_State.nGPR[m_nRT]));
@@ -697,7 +704,7 @@ void CMA_MIPSIV::SDL()
 //2D
 void CMA_MIPSIV::SDR()
 {
-	assert(m_regSize == MIPS_REGSIZE_64);
+	if(!Ensure64BitRegs()) return;
 
 	ComputeMemAccessAddrNoXlat();
 	m_codeGen->PushRel64(offsetof(CMIPS, m_State.nGPR[m_nRT]));
@@ -756,9 +763,8 @@ void CMA_MIPSIV::LDC2()
 //37
 void CMA_MIPSIV::LD()
 {
+	if(!Ensure64BitRegs()) return;
 	if(m_nRT == 0) return;
-
-	assert(m_regSize == MIPS_REGSIZE_64);
 
 	ComputeMemAccessPageRef();
 
@@ -813,7 +819,7 @@ void CMA_MIPSIV::SDC2()
 //3F
 void CMA_MIPSIV::SD()
 {
-	assert(m_regSize == MIPS_REGSIZE_64);
+	if(!Ensure64BitRegs()) return;
 
 	ComputeMemAccessPageRef();
 
@@ -996,9 +1002,8 @@ void CMA_MIPSIV::MTLO()
 //14
 void CMA_MIPSIV::DSLLV()
 {
+	if(!Ensure64BitRegs()) return;
 	if(m_nRD == 0) return;
-
-	assert(m_regSize == MIPS_REGSIZE_64);
 
 	m_codeGen->PushRel64(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
@@ -1009,9 +1014,8 @@ void CMA_MIPSIV::DSLLV()
 //16
 void CMA_MIPSIV::DSRLV()
 {
+	if(!Ensure64BitRegs()) return;
 	if(m_nRD == 0) return;
-
-	assert(m_regSize == MIPS_REGSIZE_64);
 
 	m_codeGen->PushRel64(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
@@ -1022,9 +1026,8 @@ void CMA_MIPSIV::DSRLV()
 //17
 void CMA_MIPSIV::DSRAV()
 {
+	if(!Ensure64BitRegs()) return;
 	if(m_nRD == 0) return;
-
-	assert(m_regSize == MIPS_REGSIZE_64);
 
 	m_codeGen->PushRel64(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
@@ -1204,9 +1207,8 @@ void CMA_MIPSIV::TEQ()
 //38
 void CMA_MIPSIV::DSLL()
 {
+	if(!Ensure64BitRegs()) return;
 	if(m_nRD == 0) return;
-
-	assert(m_regSize == MIPS_REGSIZE_64);
 
 	m_codeGen->PushRel64(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
 	m_codeGen->Shl64(m_nSA);
@@ -1216,9 +1218,8 @@ void CMA_MIPSIV::DSLL()
 //3A
 void CMA_MIPSIV::DSRL()
 {
+	if(!Ensure64BitRegs()) return;
 	if(m_nRD == 0) return;
-
-	assert(m_regSize == MIPS_REGSIZE_64);
 
 	m_codeGen->PushRel64(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
 	m_codeGen->Srl64(m_nSA);
@@ -1228,9 +1229,8 @@ void CMA_MIPSIV::DSRL()
 //3B
 void CMA_MIPSIV::DSRA()
 {
+	if(!Ensure64BitRegs()) return;
 	if(m_nRD == 0) return;
-
-	assert(m_regSize == MIPS_REGSIZE_64);
 
 	m_codeGen->PushRel64(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
 	m_codeGen->Sra64(m_nSA);
@@ -1240,9 +1240,8 @@ void CMA_MIPSIV::DSRA()
 //3C
 void CMA_MIPSIV::DSLL32()
 {
+	if(!Ensure64BitRegs()) return;
 	if(m_nRD == 0) return;
-
-	assert(m_regSize == MIPS_REGSIZE_64);
 
 	m_codeGen->PushRel64(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
 	m_codeGen->Shl64(m_nSA + 32);
@@ -1252,9 +1251,8 @@ void CMA_MIPSIV::DSLL32()
 //3E
 void CMA_MIPSIV::DSRL32()
 {
+	if(!Ensure64BitRegs()) return;
 	if(m_nRD == 0) return;
-
-	assert(m_regSize == MIPS_REGSIZE_64);
 
 	m_codeGen->PushRel64(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
 	m_codeGen->Srl64(m_nSA + 32);
@@ -1264,9 +1262,8 @@ void CMA_MIPSIV::DSRL32()
 //3F
 void CMA_MIPSIV::DSRA32()
 {
+	if(!Ensure64BitRegs()) return;
 	if(m_nRD == 0) return;
-
-	assert(m_regSize == MIPS_REGSIZE_64);
 
 	m_codeGen->PushRel64(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
 	m_codeGen->Sra64(m_nSA + 32);
