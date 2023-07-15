@@ -1,0 +1,18 @@
+{
+	"id": "acedriv3",
+	"name": "Ace Driver 3: Final Turn",
+	"dongle":
+	{
+		"name": "adt1005-na-a.ic002"
+	},
+	"hdd":
+	{
+		"name": "adt1005-na-hdd0a.chd"
+	},
+	"inputMode": "drive",
+	"boot": "mc0:NRALOAD",
+        "eeFrequencyScale": [4, 3],
+	"patches":
+	[
+	]
+}

@@ -24,6 +24,7 @@ struct ARCADE_MACHINE_DEF
 		DEFAULT,
 		LIGHTGUN,
 		DRUM,
+		DRIVE,
 	};
 
 	struct PATCH
@@ -73,6 +74,7 @@ static const std::pair<const char*, ARCADE_MACHINE_DEF::INPUT_MODE> g_inputModeV
 	{ "default", ARCADE_MACHINE_DEF::INPUT_MODE::DEFAULT },
 	{ "lightgun", ARCADE_MACHINE_DEF::INPUT_MODE::LIGHTGUN },
 	{ "drum", ARCADE_MACHINE_DEF::INPUT_MODE::DRUM },
+	{ "drive", ARCADE_MACHINE_DEF::INPUT_MODE::DRIVE },
 };
 // clang-format on
 
@@ -299,6 +301,9 @@ void PrepareArcadeEnvironment(CPS2VM* virtualMachine, const ARCADE_MACHINE_DEF& 
 				break;
 			case ARCADE_MACHINE_DEF::INPUT_MODE::DRUM:
 				namcoArcadeModule->SetJvsMode(Iop::CNamcoArcade::JVS_MODE::DRUM);
+				break;
+			case ARCADE_MACHINE_DEF::INPUT_MODE::DRIVE:
+				namcoArcadeModule->SetJvsMode(Iop::CNamcoArcade::JVS_MODE::DRIVE);
 				break;
 			default:
 				break;

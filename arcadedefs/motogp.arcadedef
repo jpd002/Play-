@@ -9,6 +9,7 @@
 	{
 		"name": "mgp1004-na-hdd0-a.chd"
 	},
+	"inputMode": "drive",
 	"boot": "ac0:MGPLOAD",
 	"patches":
 	[

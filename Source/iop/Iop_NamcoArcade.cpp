@@ -34,6 +34,8 @@ enum
 	JVS_CMD_COININP = 0x21,
 	JVS_CMD_ANLINP = 0x22,
 	JVS_CMD_SCRPOSINP = 0x25,
+	JVS_CMD_COINDEC = 0x30,
+	JVS_CMD_COININC = 0x35,
 
 	JVS_CMD_RESET = 0xF0,
 	JVS_CMD_SETADDR = 0xF1,
@@ -56,12 +58,12 @@ static const std::array<uint16, PS2::CControllerInfo::MAX_BUTTONS> g_defaultJvsB
 	0x8000, //TRIANGLE,
 	0x0001, //CIRCLE,
 	0x0002, //CROSS,
-	0x0000, //L1,
-	0x0000, //L2,
-	0x0000, //L3,
-	0x0000, //R1,
-	0x0000, //R2,
-	0x0000, //R3,
+	0x0100, //L1,
+	0x0200, //L2,
+	0x0400, //L3,
+	0x0800, //R1,
+	0x1000, //R2,
+	0x2000, //R3,
 };
 
 static const std::array<uint16, PS2::CControllerInfo::MAX_BUTTONS> g_defaultJvsSystemButtonBits =
@@ -218,7 +220,15 @@ void CNamcoArcade::ProcessJvsPacket(const uint8* input, uint8* output)
 			(*output++) = 0x10;             //16 switches
 			(*output++) = 0x00;
 
-			if(m_jvsMode == JVS_MODE::LIGHTGUN)
+			if(m_jvsMode == JVS_MODE::DRIVE)
+			{
+				(*output++) = 0x03;                  //Analog Input
+				(*output++) = JVS_WHEEL_CHANNEL_MAX; //Channel Count (3 channels)
+				(*output++) = 0x10;                  //Bits (16 bits)
+				(*output++) = 0x00;
+				(*dstSize) += 4;
+			}
+			else if(m_jvsMode == JVS_MODE::LIGHTGUN)
 			{
 				(*output++) = 0x06; //Screen Pos Input
 				(*output++) = 0x10; //X pos bits
@@ -271,10 +281,23 @@ void CNamcoArcade::ProcessJvsPacket(const uint8* input, uint8* output)
 			inWorkChecksum += playerCount;
 			inWorkChecksum += byteCount;
 			inSize -= 2;
-
+			
 			(*output++) = 0x01; //Command success
 
-			(*output++) = (m_jvsSystemButtonState == 0x03) ? 0x80 : 0;  //Test
+			m_counter++;
+			if(m_testButtonState == 0 && m_jvsSystemButtonState == 0x03 && m_counter>16)
+			{
+				m_testButtonState = 0x80;
+				m_counter = 0;
+			}
+			else if(m_testButtonState == 0x80 && m_jvsSystemButtonState == 0x03 && m_counter>16)
+			{
+				m_testButtonState = 0;
+				m_counter = 0;
+			}
+			(*output++) = m_testButtonState;
+
+			//(*output++) = (m_jvsSystemButtonState == 0x03) ? 0x80 : 0;  //Test
 			(*output++) = static_cast<uint8>(m_jvsButtonState[0]);      //Player 1
 			(*output++) = static_cast<uint8>(m_jvsButtonState[0] >> 8); //Player 1
 			(*dstSize) += 4;
@@ -295,21 +318,71 @@ void CNamcoArcade::ProcessJvsPacket(const uint8* input, uint8* output)
 			assert(slotCount <= 2);
 			inWorkChecksum += slotCount;
 			inSize--;
+			uint8 slot1Condition = 0x00;
+			uint8 slot2Condition = 0x00;
+			// slot condition : 0x00 = normal
+			//					0x01 = coin jam
+			//					0x02 = counter disconnected
+			//					0x03 = busy
 
 			(*output++) = 0x01; //Command success
 
-			(*output++) = 0x00; //Coin 1 MSB
-			(*output++) = 0x00; //Coin 1 LSB
+			//(*output++) = 0x00; //Coin 1 MSB
+			//(*output++) = 0x00; //Coin 1 LSB
+			(*output++) = static_cast<uint8>(((m_coin1 >> 8) & 0x3f) | (slot1Condition << 6)); //Coin 1 MSB + slot1condition
+			(*output++) = static_cast<uint8>(m_coin1 & 0x00ff);                                //Coin 1 LSB
 
 			(*dstSize) += 3;
 
 			if(slotCount == 2)
 			{
-				(*output++) = 0x00; //Coin 2 MSB
-				(*output++) = 0x00; //Coin 2 LSB
+				//(*output++) = 0x00; //Coin 2 MSB
+				//(*output++) = 0x00; //Coin 2 LSB
+				(*output++) = static_cast<uint8>(((m_coin2 >> 8) & 0x3f) | (slot2Condition << 6)); //Coin 2 MSB + slot2condition
+				(*output++) = static_cast<uint8>(m_coin2 & 0x00ff);                                //Coin 2 LSB
 
 				(*dstSize) += 2;
 			}
+		}
+		break;
+		case JVS_CMD_COININC:	// actually never received this jvs cmd
+		{
+			assert(inSize != 3);
+			uint8 slotCount = (*input++);
+			uint8 amountMSB = (*input++);
+			uint8 amountLSB = (*input++);
+
+			assert(slotCount >= 1);
+			assert(slotCount <= 2);
+			//inWorkChecksum += slotCount;
+			inSize -= 3;
+
+			if(slotCount == 1) m_coin1 += (amountMSB << 8) + amountLSB;
+			if(slotCount == 2) m_coin2 += (amountMSB << 8) + amountLSB;
+
+			(*output++) = 0x01; //Command success
+
+			(*dstSize) += 1;
+		}
+		break;
+		case JVS_CMD_COINDEC:	// actually never received this jvs cmd
+		{
+			assert(inSize != 3);
+			uint8 slotCount = (*input++);
+			uint8 amountMSB = (*input++);
+			uint8 amountLSB = (*input++);
+
+			assert(slotCount >= 1);
+			assert(slotCount <= 2);
+			//inWorkChecksum += slotCount;
+			inSize -= 3;
+
+			if(slotCount == 1) m_coin1 -= (amountMSB << 8) + amountLSB;
+			if(slotCount == 2) m_coin2 -= (amountMSB << 8) + amountLSB;
+
+			(*output++) = 0x01; //Command success
+
+			(*dstSize) += 1;
 		}
 		break;
 		case JVS_CMD_ANLINP:
@@ -338,9 +411,16 @@ void CNamcoArcade::ProcessJvsPacket(const uint8* input, uint8* output)
 					(*output++) = static_cast<uint8>(m_jvsDrumChannels[i]);
 				}
 			}
+			else if(m_jvsMode == JVS_MODE::DRIVE)
+			{
+				for(int i = 0; i < JVS_WHEEL_CHANNEL_MAX; i++)
+				{
+					(*output++) = static_cast<uint8>(m_jvsWheelChannels[i] >> 8);
+					(*output++) = static_cast<uint8>(m_jvsWheelChannels[i]);
+				}
+			}
 			else
 			{
-				//Analog input not supported
 				assert(false);
 			}
 
@@ -408,9 +488,9 @@ void CNamcoArcade::SetLightGunXform(const std::array<float, 4>& lightGunXform)
 void CNamcoArcade::SetButtonState(unsigned int padNumber, PS2::CControllerInfo::BUTTON button, bool pressed, uint8* ram)
 {
 	//For Ridge Racer V (coin button)
-	//if(pressed && (g_recvAddr != 0))
+	//if(pressed && (m_recvAddr != 0))
 	//{
-	//	*reinterpret_cast<uint16*>(ram + g_recvAddr + 0xC0) += 1;
+	//	*reinterpret_cast<uint16*>(ram + m_recvAddr + 0xC0) += 1;
 	//}
 	if(padNumber < JVS_PLAYER_COUNT)
 	{
@@ -424,17 +504,29 @@ void CNamcoArcade::SetButtonState(unsigned int padNumber, PS2::CControllerInfo::
 			m_jvsSystemButtonState &= ~g_defaultJvsSystemButtonBits[button];
 			m_jvsSystemButtonState |= (pressed ? g_defaultJvsSystemButtonBits[button] : 0);
 
-			if(button == PS2::CControllerInfo::L1) m_jvsDrumChannels[JVS_DRUM_CHANNEL_1P_DL] = pressed ? drumPressValue << 6 : 0;
-			if(button == PS2::CControllerInfo::L2) m_jvsDrumChannels[JVS_DRUM_CHANNEL_1P_KL] = pressed ? drumPressValue << 6 : 0;
-			if(button == PS2::CControllerInfo::R1) m_jvsDrumChannels[JVS_DRUM_CHANNEL_1P_DR] = pressed ? drumPressValue << 6 : 0;
-			if(button == PS2::CControllerInfo::R2) m_jvsDrumChannels[JVS_DRUM_CHANNEL_1P_KR] = pressed ? drumPressValue << 6 : 0;
+			if(m_jvsMode == JVS_MODE::DRIVE)
+			{
+				m_jvsWheelChannels[JVS_WHEEL_CHANNEL_WHEEL] = m_jvsWheel << 8;
+				m_jvsWheelChannels[JVS_WHEEL_CHANNEL_GAZ] = m_jvsGaz << 8;
+				m_jvsWheelChannels[JVS_WHEEL_CHANNEL_BRAKE] = m_jvsBrake << 8;
+			}
+			else if(m_jvsMode == JVS_MODE::DRUM)
+			{
+				if(button == PS2::CControllerInfo::L1) m_jvsDrumChannels[JVS_DRUM_CHANNEL_1P_DL] = pressed ? drumPressValue << 6 : 0;
+				if(button == PS2::CControllerInfo::L2) m_jvsDrumChannels[JVS_DRUM_CHANNEL_1P_KL] = pressed ? drumPressValue << 6 : 0;
+				if(button == PS2::CControllerInfo::R1) m_jvsDrumChannels[JVS_DRUM_CHANNEL_1P_DR] = pressed ? drumPressValue << 6 : 0;
+				if(button == PS2::CControllerInfo::R2) m_jvsDrumChannels[JVS_DRUM_CHANNEL_1P_KR] = pressed ? drumPressValue << 6 : 0;
+			}
 		}
 		else if(padNumber == 1)
 		{
-			if(button == PS2::CControllerInfo::L1) m_jvsDrumChannels[JVS_DRUM_CHANNEL_2P_DL] = pressed ? drumPressValue << 6 : 0;
-			if(button == PS2::CControllerInfo::L2) m_jvsDrumChannels[JVS_DRUM_CHANNEL_2P_KL] = pressed ? drumPressValue << 6 : 0;
-			if(button == PS2::CControllerInfo::R1) m_jvsDrumChannels[JVS_DRUM_CHANNEL_2P_DR] = pressed ? drumPressValue << 6 : 0;
-			if(button == PS2::CControllerInfo::R2) m_jvsDrumChannels[JVS_DRUM_CHANNEL_2P_KR] = pressed ? drumPressValue << 6 : 0;
+			if(m_jvsMode == JVS_MODE::DRUM)
+			{
+				if(button == PS2::CControllerInfo::L1) m_jvsDrumChannels[JVS_DRUM_CHANNEL_2P_DL] = pressed ? drumPressValue << 6 : 0;
+				if(button == PS2::CControllerInfo::L2) m_jvsDrumChannels[JVS_DRUM_CHANNEL_2P_KL] = pressed ? drumPressValue << 6 : 0;
+				if(button == PS2::CControllerInfo::R1) m_jvsDrumChannels[JVS_DRUM_CHANNEL_2P_DR] = pressed ? drumPressValue << 6 : 0;
+				if(button == PS2::CControllerInfo::R2) m_jvsDrumChannels[JVS_DRUM_CHANNEL_2P_KR] = pressed ? drumPressValue << 6 : 0;
+			}
 		}
 	}
 	//The following code path is for handling JVSIF which only earlier games use
@@ -486,6 +578,26 @@ void CNamcoArcade::SetButtonState(unsigned int padNumber, PS2::CControllerInfo::
 
 void CNamcoArcade::SetAxisState(unsigned int padNumber, PS2::CControllerInfo::BUTTON button, uint8 axisValue, uint8* ram)
 {
+	switch(button)
+	{
+	case 0:
+		if(axisValue >= 0 || axisValue < 128) m_jvsWheel = axisValue + 128;
+		if(axisValue > 128 || axisValue < 256) m_jvsWheel = axisValue - 128;
+		m_jvsWheel = axisValue;
+		break;
+	case 1:
+		if(axisValue >= 128) axisValue = 127; // limit Left stick Y axis to Y+
+		m_jvsGaz = -axisValue + 127;
+		break;
+	case 2:
+		if(axisValue < 128) axisValue = 128; // limit Right stick X axis to X+
+		m_jvsBrake = axisValue - 128;
+		break;
+	case 3:
+		break;
+	default:
+		break;
+	}
 }
 
 void CNamcoArcade::SetGunPosition(float x, float y)
