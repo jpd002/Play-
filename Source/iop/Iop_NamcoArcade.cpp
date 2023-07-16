@@ -327,8 +327,6 @@ void CNamcoArcade::ProcessJvsPacket(const uint8* input, uint8* output)
 
 			(*output++) = 0x01; //Command success
 
-			//(*output++) = 0x00; //Coin 1 MSB
-			//(*output++) = 0x00; //Coin 1 LSB
 			(*output++) = static_cast<uint8>(((m_coin1 >> 8) & 0x3f) | (slot1Condition << 6)); //Coin 1 MSB + slot1condition
 			(*output++) = static_cast<uint8>(m_coin1 & 0x00ff);                                //Coin 1 LSB
 
@@ -336,8 +334,6 @@ void CNamcoArcade::ProcessJvsPacket(const uint8* input, uint8* output)
 
 			if(slotCount == 2)
 			{
-				//(*output++) = 0x00; //Coin 2 MSB
-				//(*output++) = 0x00; //Coin 2 LSB
 				(*output++) = static_cast<uint8>(((m_coin2 >> 8) & 0x3f) | (slot2Condition << 6)); //Coin 2 MSB + slot2condition
 				(*output++) = static_cast<uint8>(m_coin2 & 0x00ff);                                //Coin 2 LSB
 
@@ -580,20 +576,20 @@ void CNamcoArcade::SetAxisState(unsigned int padNumber, PS2::CControllerInfo::BU
 {
 	switch(button)
 	{
-	case 0:
+	case PS2::CControllerInfo::BUTTON::ANALOG_LEFT_X:
 		if(axisValue >= 0 || axisValue < 128) m_jvsWheel = axisValue + 128;
 		if(axisValue > 128 || axisValue < 256) m_jvsWheel = axisValue - 128;
 		m_jvsWheel = axisValue;
 		break;
-	case 1:
+	case PS2::CControllerInfo::BUTTON::ANALOG_LEFT_Y:
 		if(axisValue >= 128) axisValue = 127; // limit Left stick Y axis to Y+
 		m_jvsGaz = -axisValue + 127;
 		break;
-	case 2:
+	case PS2::CControllerInfo::BUTTON::ANALOG_RIGHT_X:
 		if(axisValue < 128) axisValue = 128; // limit Right stick X axis to X+
 		m_jvsBrake = axisValue - 128;
 		break;
-	case 3:
+	case PS2::CControllerInfo::BUTTON::ANALOG_RIGHT_Y:
 		break;
 	default:
 		break;
