@@ -25,6 +25,7 @@ namespace Iop
 			DEFAULT,
 			LIGHTGUN,
 			DRUM,
+			DRIVE,
 		};
 
 		CNamcoArcade(CSifMan&, CSifCmd&, Namco::CAcRam&, const std::string&);
@@ -84,6 +85,14 @@ namespace Iop
 			JVS_DRUM_CHANNEL_MAX,
 		};
 
+		enum JVS_WHEEL_CHANNELS
+		{
+			JVS_WHEEL_CHANNEL_WHEEL,
+			JVS_WHEEL_CHANNEL_GAZ,
+			JVS_WHEEL_CHANNEL_BRAKE,
+			JVS_WHEEL_CHANNEL_MAX,
+		};
+
 		bool Invoke001(uint32, uint32*, uint32, uint32*, uint32, uint8*);
 		bool Invoke003(uint32, uint32*, uint32, uint32*, uint32, uint8*);
 		bool Invoke004(uint32, uint32*, uint32, uint32*, uint32, uint8*);
@@ -116,5 +125,13 @@ namespace Iop
 		uint16 m_jvsGunPosX = 0x7FFF;
 		uint16 m_jvsGunPosY = 0x7FFF;
 		uint16 m_jvsDrumChannels[JVS_DRUM_CHANNEL_MAX] = {};
+		uint16 m_jvsWheelChannels[JVS_WHEEL_CHANNEL_MAX] = {};
+		uint16 m_jvsWheel = 0x0;
+		uint16 m_jvsGaz = 0x0;
+		uint16 m_jvsBrake = 0x0;
+		uint16 m_coin1;
+		uint16 m_coin2;
+		uint8 m_testButtonState = 0;
+		uint8 m_counter = 0;
 	};
 }
