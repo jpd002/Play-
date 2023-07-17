@@ -281,16 +281,16 @@ void CNamcoArcade::ProcessJvsPacket(const uint8* input, uint8* output)
 			inWorkChecksum += playerCount;
 			inWorkChecksum += byteCount;
 			inSize -= 2;
-			
+
 			(*output++) = 0x01; //Command success
 
 			m_counter++;
-			if(m_testButtonState == 0 && m_jvsSystemButtonState == 0x03 && m_counter>16)
+			if(m_testButtonState == 0 && m_jvsSystemButtonState == 0x03 && m_counter > 16)
 			{
 				m_testButtonState = 0x80;
 				m_counter = 0;
 			}
-			else if(m_testButtonState == 0x80 && m_jvsSystemButtonState == 0x03 && m_counter>16)
+			else if(m_testButtonState == 0x80 && m_jvsSystemButtonState == 0x03 && m_counter > 16)
 			{
 				m_testButtonState = 0;
 				m_counter = 0;
@@ -341,7 +341,7 @@ void CNamcoArcade::ProcessJvsPacket(const uint8* input, uint8* output)
 			}
 		}
 		break;
-		case JVS_CMD_COININC:	// actually never received this jvs cmd
+		case JVS_CMD_COININC: // actually never received this jvs cmd
 		{
 			assert(inSize != 3);
 			uint8 slotCount = (*input++);
@@ -361,7 +361,7 @@ void CNamcoArcade::ProcessJvsPacket(const uint8* input, uint8* output)
 			(*dstSize) += 1;
 		}
 		break;
-		case JVS_CMD_COINDEC:	// actually never received this jvs cmd
+		case JVS_CMD_COINDEC: // actually never received this jvs cmd
 		{
 			assert(inSize != 3);
 			uint8 slotCount = (*input++);
