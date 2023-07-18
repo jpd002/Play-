@@ -243,10 +243,15 @@ private:
 		bool m_resolveNeeded = false;
 		GLuint m_colorBufferMs = 0;
 
+		bool copiedToRam = false;
+
 		CGsCachedArea m_cachedArea;
 	};
 	typedef std::shared_ptr<CFramebuffer> FramebufferPtr;
 	typedef std::vector<FramebufferPtr> FramebufferList;
+
+	typedef std::shared_ptr<Framework::CBitmap> BitmapPtr;
+	typedef std::vector<BitmapPtr> BitmapList;
 
 	class CDepthbuffer
 	{
@@ -305,6 +310,7 @@ private:
 	typedef std::vector<PRIM_VERTEX> VertexBuffer;
 
 	void WriteRegisterImpl(uint8, uint64) override;
+	void SyncCLUT(const TEX0&) override;
 
 	void InitializeRC();
 	void CheckExtensions();
@@ -365,6 +371,9 @@ private:
 
 	FramebufferPtr FindFramebuffer(const FRAME&) const;
 	DepthbufferPtr FindDepthbuffer(const ZBUF&, const FRAME&) const;
+	BitmapPtr FindOrCreateBitmap(const FramebufferPtr&, uint32);
+	FramebufferPtr FindFramebufferAtPtr(uint32, uint32) const;
+	void WriteFramebufferToMemory(const FramebufferPtr&, bool);
 
 	void DumpTexture(unsigned int, unsigned int, uint32);
 
@@ -427,6 +436,7 @@ private:
 	PaletteList m_paletteCache;
 	FramebufferList m_framebuffers;
 	DepthbufferList m_depthbuffers;
+	BitmapList m_bitmaps;
 
 	Framework::OpenGl::CBuffer m_primBuffer;
 	Framework::OpenGl::CVertexArray m_primVertexArray;
