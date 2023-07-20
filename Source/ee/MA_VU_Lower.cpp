@@ -162,7 +162,6 @@ void CMA_VU::CLower::LQ()
 	    static_cast<uint32>(VUShared::GetImm11Offset(m_nImm11)),
 	    0,
 	    m_vuMemAddressMask);
-	m_codeGen->AddRef();
 
 	VUShared::LQbase(m_codeGen, m_nDest, m_nIT);
 }
@@ -180,8 +179,6 @@ void CMA_VU::CLower::SQ()
 	    0,
 	    m_vuMemAddressMask);
 
-	m_codeGen->AddRef();
-
 	VUShared::SQbase(m_codeGen, m_nDest, m_nIS);
 }
 
@@ -190,7 +187,6 @@ void CMA_VU::CLower::ILW()
 {
 	m_codeGen->PushRelRef(offsetof(CMIPS, m_vuMem));
 
-	//Compute address
 	VUShared::ComputeMemAccessAddr(
 	    m_codeGen,
 	    m_nIS,
@@ -204,12 +200,8 @@ void CMA_VU::CLower::ILW()
 //05
 void CMA_VU::CLower::ISW()
 {
-	//Compute value to store
-	m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
-	m_codeGen->PushCst(0xFFFF);
-	m_codeGen->And();
+	m_codeGen->PushRelRef(offsetof(CMIPS, m_vuMem));
 
-	//Compute address
 	VUShared::ComputeMemAccessAddr(
 	    m_codeGen,
 	    m_nIS,
@@ -217,7 +209,7 @@ void CMA_VU::CLower::ISW()
 	    0,
 	    m_vuMemAddressMask);
 
-	VUShared::ISWbase(m_codeGen, m_nDest);
+	VUShared::ISWbase(m_codeGen, m_nDest, m_nIT);
 }
 
 //08

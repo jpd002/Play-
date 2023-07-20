@@ -158,7 +158,7 @@ namespace VUShared
 	void ITOF4(CMipsJitter*, uint8, uint8, uint8);
 	void ITOF12(CMipsJitter*, uint8, uint8, uint8);
 	void ITOF15(CMipsJitter*, uint8, uint8, uint8);
-	void ISWbase(CMipsJitter*, uint8);
+	void ISWbase(CMipsJitter*, uint8, uint8);
 	void ISWR(CMipsJitter*, uint8, uint8, uint8, uint32);
 	void LQbase(CMipsJitter*, uint8, uint8);
 	void LQD(CMipsJitter*, uint8, uint8, uint8, uint32);
