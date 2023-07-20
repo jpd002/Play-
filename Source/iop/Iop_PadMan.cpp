@@ -1,6 +1,6 @@
-#include <assert.h>
-#include <stdio.h>
 #include "Iop_PadMan.h"
+#include <cstdio>
+#include <cassert>
 #include "../Log.h"
 #include "../states/RegisterStateFile.h"
 #include "placeholder_def.h"
@@ -69,7 +69,7 @@ bool CPadMan::Invoke(uint32 method, uint32* args, uint32 argsSize, uint32* ret, 
 		GetModuleVersion(args, argsSize, ret, retSize, ram);
 		break;
 	default:
-		CLog::GetInstance().Print(LOG_NAME, "Unknown method invoked (0x%08X).\r\n", method);
+		CLog::GetInstance().Warn(LOG_NAME, "Unknown method invoked (0x%08X).\r\n", method);
 		break;
 	}
 	return true;
