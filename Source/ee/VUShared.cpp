@@ -1,4 +1,5 @@
 #include "VUShared.h"
+#include "BitManip.h"
 #include "../MIPS.h"
 #include "offsetof_def.h"
 #include "FpAddTruncate.h"
@@ -82,6 +83,8 @@ void VUShared::ComputeMemAccessAddr(CMipsJitter* codeGen, unsigned int baseRegis
 
 uint32 VUShared::GetDestOffset(uint8 dest)
 {
+	assert(__builtin_popcount(dest) == 1);
+
 	if(dest & 0x0001) return 0xC;
 	if(dest & 0x0002) return 0x8;
 	if(dest & 0x0004) return 0x4;
