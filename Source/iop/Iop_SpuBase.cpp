@@ -1181,6 +1181,8 @@ void CSpuBase::CSampleReader::LoadState(const CRegisterStateFile& registerFile, 
 		auto bufferRegisterName = string_format(STATE_SAMPLEREADER_REGS_BUFFER_FORMAT, channelPrefix.c_str(), i);
 		reinterpret_cast<uint128*>(m_buffer)[i] = registerFile.GetRegister128(bufferRegisterName.c_str());
 	}
+
+	UpdateSampleStep();
 }
 
 void CSpuBase::CSampleReader::SaveState(CRegisterStateFile* registerFile, const std::string& channelPrefix) const
