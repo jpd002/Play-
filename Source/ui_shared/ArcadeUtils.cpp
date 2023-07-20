@@ -16,6 +16,7 @@
 #include "iop/Iop_NamcoArcade.h"
 #include "iop/namco_arcade/Iop_NamcoAcCdvd.h"
 #include "iop/namco_arcade/Iop_NamcoAcRam.h"
+#include "iop/namco_arcade/Iop_NamcoPadMan.h"
 
 struct ARCADE_MACHINE_DEF
 {
@@ -276,17 +277,20 @@ void PrepareArcadeEnvironment(CPS2VM* virtualMachine, const ARCADE_MACHINE_DEF& 
 		iopBios->RegisterHleModuleReplacement("ATA/ATAPI_driver", acCdvdModule);
 		iopBios->RegisterHleModuleReplacement("CD/DVD_Compatible", acCdvdModule);
 
+		//Taiko no Tatsujin loads and use these, but we don't have a proper HLE
+		//for PADMAN at the version that's provided by the SYS2x6 BIOS.
+		//Using our current HLE PADMAN causes the game to crash due to differences in structure layouts.
+		//Bloody Roar 3 also loads PADMAN and expects some response from it.
+		//Just provide a dummy module instead to make sure loading succeeds.
+		//Games rely on JVS for input anyways, so, it shouldn't be a problem if they can't use PADMAN.
+		auto padManModule = std::make_shared<Iop::Namco::CPadMan>();
+		iopBios->RegisterHleModuleReplacement("rom0:PADMAN", padManModule);
+		iopBios->RegisterHleModuleReplacement("rom0:SIO2MAN", padManModule);
+
 		{
 			auto namcoArcadeModule = std::make_shared<Iop::CNamcoArcade>(*iopBios->GetSifman(), *iopBios->GetSifcmd(), *acRam, def.id);
 			iopBios->RegisterModule(namcoArcadeModule);
 			iopBios->RegisterHleModuleReplacement("rom0:DAEMON", namcoArcadeModule);
-			//Taiko no Tatsujin loads and use these, but we don't have a proper HLE
-			//for PADMAN at the version that's provided by the SYS2x6 BIOS.
-			//Using our current HLE PADMAN causes the game to crash due to differences in structure layouts.
-			//Just provide a dummy module instead to make sure loading succeeds.
-			//Games rely on JVS for input anyways, so, it shouldn't be a problem if they can't use PADMAN.
-			iopBios->RegisterHleModuleReplacement("rom0:PADMAN", namcoArcadeModule);
-			iopBios->RegisterHleModuleReplacement("rom0:SIO2MAN", namcoArcadeModule);
 			virtualMachine->m_pad->InsertListener(namcoArcadeModule.get());
 			for(const auto& buttonPair : def.buttons)
 			{
