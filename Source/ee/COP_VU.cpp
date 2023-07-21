@@ -85,9 +85,9 @@ void CCOP_VU::LQC2()
 	m_codeGen->PushCst(0);
 	m_codeGen->BeginIf(Jitter::CONDITION_NE);
 	{
-		ComputeMemAccessRef(0x10);
+		ComputeMemAccessRefIdx(0x10);
 
-		m_codeGen->MD_LoadFromRef();
+		m_codeGen->MD_LoadFromRefIdx(1);
 		m_codeGen->MD_PullRel(offsetof(CMIPS, m_State.nCOP2[m_nFT]));
 	}
 	m_codeGen->Else();
@@ -119,10 +119,10 @@ void CCOP_VU::SQC2()
 	m_codeGen->PushCst(0);
 	m_codeGen->BeginIf(Jitter::CONDITION_NE);
 	{
-		ComputeMemAccessRef(0x10);
+		ComputeMemAccessRefIdx(0x10);
 
 		m_codeGen->MD_PushRel(offsetof(CMIPS, m_State.nCOP2[m_nFT]));
-		m_codeGen->MD_StoreAtRef();
+		m_codeGen->MD_StoreAtRefIdx(1);
 	}
 	m_codeGen->Else();
 	{

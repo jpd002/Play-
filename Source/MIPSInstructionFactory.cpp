@@ -134,6 +134,12 @@ void CMIPSInstructionFactory::ComputeMemAccessAddrNoXlat()
 
 void CMIPSInstructionFactory::ComputeMemAccessRef(uint32 accessSize)
 {
+	ComputeMemAccessRefIdx(accessSize);
+	m_codeGen->AddRef();
+}
+
+void CMIPSInstructionFactory::ComputeMemAccessRefIdx(uint32 accessSize)
+{
 	ComputeMemAccessPageRef();
 
 	auto rs = static_cast<uint8>((m_nOpcode >> 21) & 0x001F);
@@ -144,7 +150,6 @@ void CMIPSInstructionFactory::ComputeMemAccessRef(uint32 accessSize)
 	m_codeGen->Add();
 	m_codeGen->PushCst(MIPS_PAGE_SIZE - accessSize);
 	m_codeGen->And();
-	m_codeGen->AddRef();
 }
 
 void CMIPSInstructionFactory::ComputeMemAccessPageRef()

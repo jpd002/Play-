@@ -112,9 +112,9 @@ void CMA_EE::LQ()
 	m_codeGen->PushCst(0);
 	m_codeGen->BeginIf(Jitter::CONDITION_NE);
 	{
-		ComputeMemAccessRef(0x10);
+		ComputeMemAccessRefIdx(0x10);
 
-		m_codeGen->MD_LoadFromRef();
+		m_codeGen->MD_LoadFromRefIdx(1);
 		m_codeGen->MD_PullRel(offsetof(CMIPS, m_State.nGPR[m_nRT]));
 	}
 	m_codeGen->Else();
@@ -158,10 +158,10 @@ void CMA_EE::SQ()
 	m_codeGen->PushCst(0);
 	m_codeGen->BeginIf(Jitter::CONDITION_NE);
 	{
-		ComputeMemAccessRef(0x10);
+		ComputeMemAccessRefIdx(0x10);
 
 		m_codeGen->MD_PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT]));
-		m_codeGen->MD_StoreAtRef();
+		m_codeGen->MD_StoreAtRefIdx(1);
 	}
 	m_codeGen->Else();
 	{
