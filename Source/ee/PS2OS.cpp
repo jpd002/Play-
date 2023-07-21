@@ -3247,7 +3247,7 @@ void CPS2OS::HandleSyscall()
 		return;
 	}
 
-	uint32 func = m_ee.m_State.nGPR[3].nV[0];
+	uint32 func = m_ee.m_State.nGPR[CMIPS::V1].nV[0];
 
 	if(func == SYSCALL_CUSTOM_RESCHEDULE)
 	{
