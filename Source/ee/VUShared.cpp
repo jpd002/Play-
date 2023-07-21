@@ -873,7 +873,7 @@ void VUShared::IAND(CMipsJitter* codeGen, uint8 id, uint8 is, uint8 it)
 
 void VUShared::ILWbase(CMipsJitter* codeGen, uint8 it)
 {
-	codeGen->LoadFromRefIdx();
+	codeGen->LoadFromRefIdx(1);
 	codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[it]));
 }
 
@@ -953,7 +953,7 @@ void VUShared::ISWbase(CMipsJitter* codeGen, uint8 dest)
 			codeGen->PushRelRef(offsetof(CMIPS, m_vuMem));
 			codeGen->PushIdx(1); //Push computed address
 			codeGen->PushIdx(3); //Push value to store
-			codeGen->StoreAtRefIdx();
+			codeGen->StoreAtRefIdx(1);
 		}
 
 		if(i != 3)
@@ -1809,7 +1809,7 @@ void VUShared::QueueInFlagPipeline(const FLAG_PIPEINFO& pipeInfo, CMipsJitter* c
 		codeGen->Add();
 
 		//--- Store time
-		codeGen->StoreAtRefIdx4();
+		codeGen->StoreAtRefIdx();
 	}
 
 	//Write value
@@ -1820,7 +1820,7 @@ void VUShared::QueueInFlagPipeline(const FLAG_PIPEINFO& pipeInfo, CMipsJitter* c
 
 		//--- Store value
 		codeGen->PushCursor(valueCursor);
-		codeGen->StoreAtRefIdx4();
+		codeGen->StoreAtRefIdx();
 	}
 
 	assert(codeGen->GetTopCursor() == offsetCursor);
@@ -1844,12 +1844,12 @@ void VUShared::ResetFlagPipeline(const FLAG_PIPEINFO& pipeInfo, CMipsJitter* cod
 	for(uint32 i = 0; i < FLAG_PIPELINE_SLOTS; i++)
 	{
 		codeGen->PushRelAddrRef(pipeInfo.timeArray);
-		codeGen->PushCst(i * 4);
+		codeGen->PushCst(i);
 		codeGen->PushCst(0);
 		codeGen->StoreAtRefIdx();
 
 		codeGen->PushRelAddrRef(pipeInfo.valueArray);
-		codeGen->PushCst(i * 4);
+		codeGen->PushCst(i);
 		codeGen->PushCursor(valueCursor);
 		codeGen->StoreAtRefIdx();
 	}
