@@ -151,17 +151,14 @@ void CMIPSInstructionFactory::ComputeMemAccessPageRef()
 {
 	auto rs = static_cast<uint8>((m_nOpcode >> 21) & 0x001F);
 	auto immediate = static_cast<int16>((m_nOpcode >> 0) & 0xFFFF);
-	uint32 pointerMultiplyShift = __builtin_ctz(m_codeGen->GetCodeGen()->GetPointerSize());
 	constexpr int32 pageSizeShift = Framework::GetPowerOf2(MIPS_PAGE_SIZE);
 	m_codeGen->PushRelRef(offsetof(CMIPS, m_pageLookup));
 
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[rs].nV[0]));
 	m_codeGen->PushCst(immediate);
 	m_codeGen->Add();
-	m_codeGen->Srl(pageSizeShift);        //Divide by MIPS_PAGE_SIZE
-	m_codeGen->Shl(pointerMultiplyShift); //Multiply by sizeof(void*)
-	m_codeGen->AddRef();
-	m_codeGen->LoadRefFromRef();
+	m_codeGen->Srl(pageSizeShift); //Divide by MIPS_PAGE_SIZE
+	m_codeGen->LoadRefFromRefIdx();
 }
 
 void CMIPSInstructionFactory::Branch(Jitter::CONDITION condition)
