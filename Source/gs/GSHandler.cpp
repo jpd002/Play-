@@ -431,14 +431,6 @@ void CGSHandler::WritePrivRegister(uint32 nAddress, uint32 nData)
 	{
 	case GS_PMODE:
 		W_REG(nAddress, nData, m_nPMODE);
-		if(!(nAddress & 0x4))
-		{
-			if((m_nPMODE & 0x01) && (m_nPMODE & 0x02))
-			{
-				CLog::GetInstance().Print(LOG_NAME, "Warning. Both read circuits were enabled. Using RC1 for display.\r\n");
-				//				m_nPMODE &= ~0x02;
-			}
-		}
 		break;
 	case GS_SMODE2:
 		W_REG(nAddress, nData, m_nSMODE2);
