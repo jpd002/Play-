@@ -188,7 +188,7 @@ private:
 	enum
 	{
 		DST_SAMPLE_RATE = 44100,
-		SAMPLES_PER_UPDATE = 45, //44100 / 45 -> 980 SPU updates per second
+		SAMPLES_PER_UPDATE = 10, //44100 / 10 -> 4410 SPU updates per second
 		SPU_UPDATE_TICKS_PRECISION = 32,
 		BLOCK_SIZE = SAMPLES_PER_UPDATE * 2,
 		MAX_BLOCK_COUNT = 400,

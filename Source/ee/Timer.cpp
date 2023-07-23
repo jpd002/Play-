@@ -49,7 +49,7 @@ void CTimer::Count(unsigned int ticks)
 		case MODE_CLOCK_SELECT_EXTERNAL:
 		{
 			assert(m_gs);
-			uint32 hSyncFreq = m_gs->GetCrtHSyncFrequency();
+			uint32 hSyncFreq = m_gs->GetCrtHSyncFrequency() / 2;
 			divider = PS2::EE_CLOCK_FREQ / hSyncFreq;
 		}
 		break;
