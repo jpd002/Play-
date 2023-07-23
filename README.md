@@ -38,7 +38,7 @@ You can also build the emulator yourself and launch it through Xcode's debugger,
 
 ## Namco System 2x6 Arcade Support ##
 
-### Placing dongle images and disc images
+### Placing dongle images and disc images ###
 
 The files required to run arcade games should be placed inside the `arcaderoms` subdirectory of your `Play! Data Files` directory.
 
@@ -59,7 +59,7 @@ Some arcade specific actions are mapped to these buttons on the PS2 controller m
 - Service/Coin: SELECT
 - Test: L3 & R3 pressed at the same time
 
-### Light Gun Support
+### Light Gun Support ###
 
 For games that support light guns, the following buttons are mapped:
 
@@ -70,7 +70,7 @@ The mouse's cursor position on the emulator's window will be used for the gun's 
 
 **Note for Time Crisis 3**: This game requires prior calibration of the light gun in service menu. Hold the Test buttons, go in "I/O Test" then "Gun Initialize" and press the Pedal button to calibrate the gun (shoot at the center). This only needs to be done once.
 
-### Taiko Drum Support
+### Taiko Drum Support ###
 
 For Taiko no Tatsujin games, the following buttons are mapped:
 
@@ -78,6 +78,14 @@ For Taiko no Tatsujin games, the following buttons are mapped:
 - Left Fuchi (ふち) : L2
 - Right Men (面) : R1
 - Right Fuchi (ふち) : R2
+
+### Driving Support ###
+
+For driving games, the following buttons are mapped:
+
+- Wheel : Left Analog Stick X +/-
+- Gaz Pedal : Left Analog Stick Y +
+- Brake Pedal : Right Analog Stick X +
 
 ## General Troubleshooting ##
 
