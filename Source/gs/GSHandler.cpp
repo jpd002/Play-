@@ -245,12 +245,12 @@ void CGSHandler::SaveState(Framework::CZipArchiveWriter& archive)
 {
 	SendGSCall([&]() { SyncMemoryCache(); }, true);
 
-	archive.InsertFile(new CMemoryStateFile(STATE_RAM, GetRam(), RAMSIZE));
-	archive.InsertFile(new CMemoryStateFile(STATE_REGS, m_nReg, sizeof(uint64) * CGSHandler::REGISTER_MAX));
-	archive.InsertFile(new CMemoryStateFile(STATE_TRXCTX, &m_trxCtx, sizeof(TRXCONTEXT)));
+	archive.InsertFile(std::make_unique<CMemoryStateFile>(STATE_RAM, GetRam(), RAMSIZE));
+	archive.InsertFile(std::make_unique<CMemoryStateFile>(STATE_REGS, m_nReg, sizeof(uint64) * CGSHandler::REGISTER_MAX));
+	archive.InsertFile(std::make_unique<CMemoryStateFile>(STATE_TRXCTX, &m_trxCtx, sizeof(TRXCONTEXT)));
 
 	{
-		CRegisterStateFile* registerFile = new CRegisterStateFile(STATE_PRIVREGS);
+		auto registerFile = std::make_unique<CRegisterStateFile>(STATE_PRIVREGS);
 
 		registerFile->SetRegister64(STATE_PRIVREGS_PMODE, m_nPMODE);
 		registerFile->SetRegister64(STATE_PRIVREGS_SMODE2, m_nSMODE2);
@@ -266,7 +266,7 @@ void CGSHandler::SaveState(Framework::CZipArchiveWriter& archive)
 		registerFile->SetRegister32(STATE_REG_CBP0, m_nCBP0);
 		registerFile->SetRegister32(STATE_REG_CBP1, m_nCBP1);
 
-		archive.InsertFile(registerFile);
+		archive.InsertFile(std::move(registerFile));
 	}
 }
 

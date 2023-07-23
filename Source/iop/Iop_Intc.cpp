@@ -22,10 +22,10 @@ void CIntc::LoadState(Framework::CZipArchiveReader& archive)
 
 void CIntc::SaveState(Framework::CZipArchiveWriter& archive)
 {
-	CRegisterStateFile* registerFile = new CRegisterStateFile(STATE_REGS_XML);
+	auto registerFile = std::make_unique<CRegisterStateFile>(STATE_REGS_XML);
 	registerFile->SetRegister64(STATE_REGS_STATUS, m_status.f);
 	registerFile->SetRegister64(STATE_REGS_MASK, m_mask.f);
-	archive.InsertFile(registerFile);
+	archive.InsertFile(std::move(registerFile));
 }
 
 uint32 CIntc::ReadRegister(uint32 address)

@@ -71,8 +71,8 @@ void CINTC::LoadState(Framework::CZipArchiveReader& archive)
 
 void CINTC::SaveState(Framework::CZipArchiveWriter& archive)
 {
-	CRegisterStateFile* registerFile = new CRegisterStateFile(STATE_REGS_XML);
+	auto registerFile = std::make_unique<CRegisterStateFile>(STATE_REGS_XML);
 	registerFile->SetRegister32("INTC_STAT", m_INTC_STAT);
 	registerFile->SetRegister32("INTC_MASK", m_INTC_MASK);
-	archive.InsertFile(registerFile);
+	archive.InsertFile(std::move(registerFile));
 }

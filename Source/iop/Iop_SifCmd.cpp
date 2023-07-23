@@ -93,7 +93,7 @@ void CSifCmd::LoadState(Framework::CZipArchiveReader& archive)
 
 void CSifCmd::SaveState(Framework::CZipArchiveWriter& archive) const
 {
-	auto modulesFile = new CStructCollectionStateFile(STATE_MODULES);
+	auto modulesFile = std::make_unique<CStructCollectionStateFile>(STATE_MODULES);
 	{
 		int moduleIndex = 0;
 		for(const auto& module : m_servers)
@@ -107,7 +107,7 @@ void CSifCmd::SaveState(Framework::CZipArchiveWriter& archive) const
 			modulesFile->InsertStruct(moduleName.c_str(), moduleStruct);
 		}
 	}
-	archive.InsertFile(modulesFile);
+	archive.InsertFile(std::move(modulesFile));
 }
 
 std::string CSifCmd::GetId() const

@@ -563,12 +563,12 @@ bool CPS2VM::LoadVMState(const fs::path& statePath)
 
 void CPS2VM::SaveVmTimingState(Framework::CZipArchiveWriter& archive)
 {
-	CRegisterStateFile* registerFile = new CRegisterStateFile(STATE_VM_TIMING_XML);
+	auto registerFile = std::make_unique<CRegisterStateFile>(STATE_VM_TIMING_XML);
 	registerFile->SetRegister32(STATE_VM_TIMING_VBLANK_TICKS, m_vblankTicks);
 	registerFile->SetRegister32(STATE_VM_TIMING_IN_VBLANK, m_inVblank);
 	registerFile->SetRegister32(STATE_VM_TIMING_EE_EXECUTION_TICKS, m_eeExecutionTicks);
 	registerFile->SetRegister32(STATE_VM_TIMING_IOP_EXECUTION_TICKS, m_iopExecutionTicks);
-	archive.InsertFile(registerFile);
+	archive.InsertFile(std::move(registerFile));
 }
 
 void CPS2VM::LoadVmTimingState(Framework::CZipArchiveReader& archive)

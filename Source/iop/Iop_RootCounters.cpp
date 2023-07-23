@@ -99,7 +99,7 @@ void CRootCounters::LoadState(Framework::CZipArchiveReader& archive)
 
 void CRootCounters::SaveState(Framework::CZipArchiveWriter& archive)
 {
-	CRegisterStateFile* registerFile = new CRegisterStateFile(STATE_REGS_XML);
+	auto registerFile = std::make_unique<CRegisterStateFile>(STATE_REGS_XML);
 	for(unsigned int i = 0; i < MAX_COUNTERS; i++)
 	{
 		const auto& counter = m_counter[i];
@@ -109,7 +109,7 @@ void CRootCounters::SaveState(Framework::CZipArchiveWriter& archive)
 		registerFile->SetRegister32((counterPrefix + "TGT").c_str(), counter.target);
 		registerFile->SetRegister32((counterPrefix + "REM").c_str(), counter.clockRemain);
 	}
-	archive.InsertFile(registerFile);
+	archive.InsertFile(std::move(registerFile));
 }
 
 void CRootCounters::Update(unsigned int ticks)

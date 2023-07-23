@@ -268,7 +268,7 @@ void CVif::SaveState(Framework::CZipArchiveWriter& archive)
 {
 	{
 		auto path = string_format(STATE_PATH_REGS_FORMAT, m_number);
-		auto registerFile = new CRegisterStateFile(path.c_str());
+		auto registerFile = std::make_unique<CRegisterStateFile>(path.c_str());
 		registerFile->SetRegister32(STATE_REGS_STAT, m_STAT);
 		registerFile->SetRegister32(STATE_REGS_ERR, m_ERR);
 		registerFile->SetRegister32(STATE_REGS_CODE, m_CODE);
@@ -295,11 +295,11 @@ void CVif::SaveState(Framework::CZipArchiveWriter& archive)
 		registerFile->SetRegister32(STATE_REGS_INTERRUPTDELAYTICKS, m_interruptDelayTicks);
 		registerFile->SetRegister128(STATE_REGS_STREAM_BUFFER, m_stream.GetBuffer());
 		registerFile->SetRegister32(STATE_REGS_STREAM_BUFFERPOSITION, m_stream.GetBufferPosition());
-		archive.InsertFile(registerFile);
+		archive.InsertFile(std::move(registerFile));
 	}
 	{
 		auto path = string_format(STATE_PATH_FIFO_FORMAT, m_number);
-		archive.InsertFile(new CMemoryStateFile(path.c_str(), &m_fifoBuffer, sizeof(m_fifoBuffer)));
+		archive.InsertFile(std::make_unique<CMemoryStateFile>(path.c_str(), &m_fifoBuffer, sizeof(m_fifoBuffer)));
 	}
 }
 

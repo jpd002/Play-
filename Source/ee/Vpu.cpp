@@ -113,9 +113,9 @@ void CVpu::SaveState(Framework::CZipArchiveWriter& archive)
 {
 	{
 		auto path = string_format(STATE_PATH_REGS_FORMAT, m_number);
-		auto registerFile = new CRegisterStateFile(path.c_str());
+		auto registerFile = std::make_unique<CRegisterStateFile>(path.c_str());
 		registerFile->SetRegister32(STATE_REGS_RUNNING, m_running);
-		archive.InsertFile(registerFile);
+		archive.InsertFile(std::move(registerFile));
 	}
 
 	m_vif->SaveState(archive);

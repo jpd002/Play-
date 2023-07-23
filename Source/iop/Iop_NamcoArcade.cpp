@@ -453,10 +453,10 @@ void CNamcoArcade::ProcessJvsPacket(const uint8* input, uint8* output)
 
 void CNamcoArcade::SaveState(Framework::CZipArchiveWriter& archive) const
 {
-	auto registerFile = new CRegisterStateFile(STATE_FILE);
+	auto registerFile = std::make_unique<CRegisterStateFile>(STATE_FILE);
 	registerFile->SetRegister32(STATE_RECV_ADDR, m_recvAddr);
 	registerFile->SetRegister32(STATE_SEND_ADDR, m_sendAddr);
-	archive.InsertFile(registerFile);
+	archive.InsertFile(std::move(registerFile));
 }
 
 void CNamcoArcade::LoadState(Framework::CZipArchiveReader& archive)

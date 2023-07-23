@@ -49,12 +49,12 @@ void CLibMc2::Reset()
 
 void CLibMc2::SaveState(Framework::CZipArchiveWriter& archive)
 {
-	auto registerFile = new CRegisterStateFile(STATE_XML);
+	auto registerFile = std::make_unique<CRegisterStateFile>(STATE_XML);
 	registerFile->SetRegister32(STATE_LAST_CMD, m_lastCmd);
 	registerFile->SetRegister32(STATE_LAST_RESULT, m_lastResult);
 	registerFile->SetRegister32(STATE_WAIT_THREADID, m_waitThreadId);
 	registerFile->SetRegister32(STATE_WAIT_VBLANK_COUNT, m_waitVBlankCount);
-	archive.InsertFile(registerFile);
+	archive.InsertFile(std::move(registerFile));
 }
 
 void CLibMc2::LoadState(Framework::CZipArchiveReader& archive)

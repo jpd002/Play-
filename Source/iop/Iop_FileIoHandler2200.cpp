@@ -120,15 +120,15 @@ void CFileIoHandler2200::LoadState(Framework::CZipArchiveReader& archive)
 void CFileIoHandler2200::SaveState(Framework::CZipArchiveWriter& archive) const
 {
 	{
-		auto registerFile = new CRegisterStateFile(STATE_XML);
+		auto registerFile = std::make_unique<CRegisterStateFile>(STATE_XML);
 		registerFile->SetRegister32(STATE_RESULTPTR0, m_resultPtr[0]);
 		registerFile->SetRegister32(STATE_RESULTPTR1, m_resultPtr[1]);
-		archive.InsertFile(registerFile);
+		archive.InsertFile(std::move(registerFile));
 	}
 
 	{
-		auto memoryFile = new CMemoryStateFile(STATE_PENDINGREPLY, &m_pendingReply, sizeof(m_pendingReply));
-		archive.InsertFile(memoryFile);
+		auto memoryFile = std::make_unique<CMemoryStateFile>(STATE_PENDINGREPLY, &m_pendingReply, sizeof(m_pendingReply));
+		archive.InsertFile(std::move(memoryFile));
 	}
 }
 

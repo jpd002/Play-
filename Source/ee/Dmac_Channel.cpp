@@ -43,7 +43,7 @@ void CChannel::Reset()
 void CChannel::SaveState(Framework::CZipArchiveWriter& archive)
 {
 	auto path = string_format(STATE_REGS_XML_FORMAT, m_number);
-	CRegisterStateFile* registerFile = new CRegisterStateFile(path.c_str());
+	auto registerFile = std::make_unique<CRegisterStateFile>(path.c_str());
 	registerFile->SetRegister32(STATE_REGS_CHCR, m_CHCR);
 	registerFile->SetRegister32(STATE_REGS_MADR, m_nMADR);
 	registerFile->SetRegister32(STATE_REGS_QWC, m_nQWC);
@@ -51,7 +51,7 @@ void CChannel::SaveState(Framework::CZipArchiveWriter& archive)
 	registerFile->SetRegister32(STATE_REGS_SCCTRL, m_nSCCTRL);
 	registerFile->SetRegister32(STATE_REGS_ASR0, m_nASR[0]);
 	registerFile->SetRegister32(STATE_REGS_ASR1, m_nASR[1]);
-	archive.InsertFile(registerFile);
+	archive.InsertFile(std::move(registerFile));
 }
 
 void CChannel::LoadState(Framework::CZipArchiveReader& archive)

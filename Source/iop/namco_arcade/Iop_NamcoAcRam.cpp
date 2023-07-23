@@ -96,7 +96,7 @@ void CAcRam::Invoke(CMIPS& context, unsigned int functionId)
 
 void CAcRam::SaveState(Framework::CZipArchiveWriter& archive) const
 {
-	archive.InsertFile(new CMemoryStateFile(STATE_EXTRAM_FILE, m_extRam, g_extRamSize));
+	archive.InsertFile(std::make_unique<CMemoryStateFile>(STATE_EXTRAM_FILE, m_extRam, g_extRamSize));
 }
 
 void CAcRam::LoadState(Framework::CZipArchiveReader& archive)

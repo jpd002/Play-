@@ -259,7 +259,7 @@ void CTimer::LoadState(Framework::CZipArchiveReader& archive)
 
 void CTimer::SaveState(Framework::CZipArchiveWriter& archive)
 {
-	CRegisterStateFile* registerFile = new CRegisterStateFile(STATE_REGS_XML);
+	auto registerFile = std::make_unique<CRegisterStateFile>(STATE_REGS_XML);
 	for(unsigned int i = 0; i < MAX_TIMER; i++)
 	{
 		const auto& timer = m_timer[i];
@@ -270,7 +270,7 @@ void CTimer::SaveState(Framework::CZipArchiveWriter& archive)
 		registerFile->SetRegister32((timerPrefix + "HOLD").c_str(), timer.nHOLD);
 		registerFile->SetRegister32((timerPrefix + "REM").c_str(), timer.clockRemain);
 	}
-	archive.InsertFile(registerFile);
+	archive.InsertFile(std::move(registerFile));
 }
 
 void CTimer::NotifyVBlankStart()

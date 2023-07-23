@@ -1141,7 +1141,7 @@ void CMcServ::LoadState(Framework::CZipArchiveReader& archive)
 
 void CMcServ::SaveState(Framework::CZipArchiveWriter& archive) const
 {
-	auto stateFile = new CXmlStateFile(STATE_MEMCARDS_FILE, STATE_MEMCARDS_NODE);
+	auto stateFile = std::make_unique<CXmlStateFile>(STATE_MEMCARDS_FILE, STATE_MEMCARDS_NODE);
 	auto stateNode = stateFile->GetRoot();
 
 	for(unsigned int i = 0; i < MAX_PORTS; i++)
@@ -1152,7 +1152,7 @@ void CMcServ::SaveState(Framework::CZipArchiveWriter& archive) const
 		stateNode->InsertNode(cardNode);
 	}
 
-	archive.InsertFile(stateFile);
+	archive.InsertFile(std::move(stateFile));
 }
 
 /////////////////////////////////////////////

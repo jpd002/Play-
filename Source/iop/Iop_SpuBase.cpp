@@ -258,7 +258,7 @@ void CSpuBase::SaveState(Framework::CZipArchiveWriter& archive)
 {
 	auto path = string_format(STATE_PATH_FORMAT, m_spuNumber);
 
-	auto registerFile = new CRegisterStateFile(path.c_str());
+	auto registerFile = std::make_unique<CRegisterStateFile>(path.c_str());
 	registerFile->SetRegister32(STATE_REGS_CTRL, m_ctrl);
 	registerFile->SetRegister32(STATE_REGS_IRQADDR, m_irqAddr);
 	registerFile->SetRegister32(STATE_REGS_TRANSFERMODE, m_transferMode);
@@ -294,10 +294,10 @@ void CSpuBase::SaveState(Framework::CZipArchiveWriter& archive)
 		registerFile->SetRegister32((channelPrefix + STATE_CHANNEL_REGS_ADDRESS).c_str(), channel.address);
 		registerFile->SetRegister32((channelPrefix + STATE_CHANNEL_REGS_REPEAT).c_str(), channel.repeat);
 		registerFile->SetRegister32((channelPrefix + STATE_CHANNEL_REGS_CURRENT).c_str(), channel.current);
-		reader.SaveState(registerFile, channelPrefix);
+		reader.SaveState(registerFile.get(), channelPrefix);
 	}
 
-	archive.InsertFile(registerFile);
+	archive.InsertFile(std::move(registerFile));
 }
 
 bool CSpuBase::IsEnabled() const

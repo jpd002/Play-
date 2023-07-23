@@ -139,7 +139,7 @@ void CCdvdfsv::LoadState(Framework::CZipArchiveReader& archive)
 
 void CCdvdfsv::SaveState(Framework::CZipArchiveWriter& archive) const
 {
-	auto registerFile = new CRegisterStateFile(STATE_FILENAME);
+	auto registerFile = std::make_unique<CRegisterStateFile>(STATE_FILENAME);
 
 	registerFile->SetRegister32(STATE_PENDINGCOMMAND, m_pendingCommand);
 	registerFile->SetRegister32(STATE_PENDINGREADSECTOR, m_pendingReadSector);
@@ -150,7 +150,7 @@ void CCdvdfsv::SaveState(Framework::CZipArchiveWriter& archive) const
 	registerFile->SetRegister32(STATE_STREAMPOS, m_streamPos);
 	registerFile->SetRegister32(STATE_STREAMBUFFERSIZE, m_streamBufferSize);
 
-	archive.InsertFile(registerFile);
+	archive.InsertFile(std::move(registerFile));
 }
 
 void CCdvdfsv::Invoke(CMIPS& context, unsigned int functionId)

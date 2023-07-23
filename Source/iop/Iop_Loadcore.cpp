@@ -142,9 +142,9 @@ void CLoadcore::LoadState(Framework::CZipArchiveReader& archive)
 
 void CLoadcore::SaveState(Framework::CZipArchiveWriter& archive) const
 {
-	auto registerFile = new CRegisterStateFile(STATE_VERSION_XML);
+	auto registerFile = std::make_unique<CRegisterStateFile>(STATE_VERSION_XML);
 	registerFile->SetRegister32(STATE_VERSION_MODULEVERSION, m_moduleVersion);
-	archive.InsertFile(registerFile);
+	archive.InsertFile(std::move(registerFile));
 }
 
 void CLoadcore::SetLoadExecutableHandler(const LoadExecutableHandler& loadExecutableHandler)

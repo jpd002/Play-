@@ -43,10 +43,10 @@ void CFileIoHandler1000::LoadState(Framework::CZipArchiveReader& archive)
 
 void CFileIoHandler1000::SaveState(Framework::CZipArchiveWriter& archive) const
 {
-	auto registerFile = new CRegisterStateFile(STATE_XML);
+	auto registerFile = std::make_unique<CRegisterStateFile>(STATE_XML);
 	registerFile->SetRegister32(STATE_MODULEDATAADDR, m_moduleDataAddr);
 	registerFile->SetRegister32(STATE_TRAMPOLINEADDR, m_trampolineAddr);
-	archive.InsertFile(registerFile);
+	archive.InsertFile(std::move(registerFile));
 }
 
 void CFileIoHandler1000::AllocateMemory()

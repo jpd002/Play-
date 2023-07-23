@@ -209,12 +209,12 @@ void CDmac::LoadState(Framework::CZipArchiveReader& archive)
 void CDmac::SaveState(Framework::CZipArchiveWriter& archive)
 {
 	{
-		auto registerFile = new CRegisterStateFile(STATE_REGS_XML);
+		auto registerFile = std::make_unique<CRegisterStateFile>(STATE_REGS_XML);
 		registerFile->SetRegister32(STATE_REGS_DPCR, m_DPCR);
 		registerFile->SetRegister32(STATE_REGS_DPCR2, m_DPCR2);
 		registerFile->SetRegister32(STATE_REGS_DPCR3, m_DPCR3);
 		registerFile->SetRegister32(STATE_REGS_DICR, m_DICR);
-		archive.InsertFile(registerFile);
+		archive.InsertFile(std::move(registerFile));
 	}
 
 	for(unsigned int i = 0; i < MAX_CHANNEL; i++)

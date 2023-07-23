@@ -66,13 +66,13 @@ void CCdvdman::LoadState(Framework::CZipArchiveReader& archive)
 
 void CCdvdman::SaveState(Framework::CZipArchiveWriter& archive) const
 {
-	auto registerFile = new CRegisterStateFile(STATE_FILENAME);
+	auto registerFile = std::make_unique<CRegisterStateFile>(STATE_FILENAME);
 	registerFile->SetRegister32(STATE_CALLBACK_ADDRESS, m_callbackPtr);
 	registerFile->SetRegister32(STATE_STATUS, m_status);
 	registerFile->SetRegister32(STATE_DISCCHANGED, m_discChanged);
 	registerFile->SetRegister32(STATE_PENDING_COMMAND, m_pendingCommand);
 	registerFile->SetRegister32(STATE_PENDING_COMMAND_DELAY, m_pendingCommandDelay);
-	archive.InsertFile(registerFile);
+	archive.InsertFile(std::move(registerFile));
 }
 
 static uint8 Uint8ToBcd(uint8 input)

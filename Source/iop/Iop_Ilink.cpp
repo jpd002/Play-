@@ -50,7 +50,7 @@ void CIlink::LoadState(Framework::CZipArchiveReader& archive)
 
 void CIlink::SaveState(Framework::CZipArchiveWriter& archive)
 {
-	CRegisterStateFile* registerFile = new CRegisterStateFile(STATE_REGS_XML);
+	auto registerFile = std::make_unique<CRegisterStateFile>(STATE_REGS_XML);
 	registerFile->SetRegister32(STATE_REGS_CTRL2, m_ctrl2);
 	registerFile->SetRegister32(STATE_REGS_PHYRESULT, m_phyResult);
 	registerFile->SetRegister32(STATE_REGS_INTR0, m_intr0);
@@ -59,7 +59,7 @@ void CIlink::SaveState(Framework::CZipArchiveWriter& archive)
 	registerFile->SetRegister32(STATE_REGS_INTR1MASK, m_intr1Mask);
 	registerFile->SetRegister32(STATE_REGS_INTR2, m_intr2);
 	registerFile->SetRegister32(STATE_REGS_INTR2MASK, m_intr2Mask);
-	archive.InsertFile(registerFile);
+	archive.InsertFile(std::move(registerFile));
 }
 
 uint32 CIlink::ReadRegister(uint32 address)

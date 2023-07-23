@@ -313,7 +313,7 @@ void CSIF::LoadState(Framework::CZipArchiveReader& archive)
 void CSIF::SaveState(Framework::CZipArchiveWriter& archive)
 {
 	{
-		auto registerFile = new CRegisterStateFile(STATE_REGS_XML);
+		auto registerFile = std::make_unique<CRegisterStateFile>(STATE_REGS_XML);
 		registerFile->SetRegister32(STATE_REG_MAINADDR, m_nMAINADDR);
 		registerFile->SetRegister32(STATE_REG_SUBADDR, m_nSUBADDR);
 		registerFile->SetRegister32(STATE_REG_MSFLAG, m_nMSFLAG);
@@ -321,10 +321,10 @@ void CSIF::SaveState(Framework::CZipArchiveWriter& archive)
 		registerFile->SetRegister32(STATE_REG_EERECVADDR, m_nEERecvAddr);
 		registerFile->SetRegister32(STATE_REG_DATAADDR, m_nDataAddr);
 		registerFile->SetRegister32(STATE_REG_PACKETPROCESSED, m_packetProcessed);
-		archive.InsertFile(registerFile);
+		archive.InsertFile(std::move(registerFile));
 	}
 
-	archive.InsertFile(new CMemoryStateFile(STATE_PACKETQUEUE, m_packetQueue.data(), m_packetQueue.size()));
+	archive.InsertFile(std::make_unique<CMemoryStateFile>(STATE_PACKETQUEUE, m_packetQueue.data(), m_packetQueue.size()));
 
 	SaveCallReplies(archive);
 	SaveBindReplies(archive);
@@ -332,7 +332,7 @@ void CSIF::SaveState(Framework::CZipArchiveWriter& archive)
 
 void CSIF::SaveCallReplies(Framework::CZipArchiveWriter& archive)
 {
-	auto callRepliesFile = new CStructCollectionStateFile(STATE_CALL_REPLIES_XML);
+	auto callRepliesFile = std::make_unique<CStructCollectionStateFile>(STATE_CALL_REPLIES_XML);
 	for(const auto& callReplyIterator : m_callReplies)
 	{
 		const auto& callReply(callReplyIterator.second);
@@ -344,12 +344,12 @@ void CSIF::SaveCallReplies(Framework::CZipArchiveWriter& archive)
 		}
 		callRepliesFile->InsertStruct(replyId.c_str(), replyStruct);
 	}
-	archive.InsertFile(callRepliesFile);
+	archive.InsertFile(std::move(callRepliesFile));
 }
 
 void CSIF::SaveBindReplies(Framework::CZipArchiveWriter& archive)
 {
-	auto bindRepliesFile = new CStructCollectionStateFile(STATE_BIND_REPLIES_XML);
+	auto bindRepliesFile = std::make_unique<CStructCollectionStateFile>(STATE_BIND_REPLIES_XML);
 	for(const auto& bindReplyIterator : m_bindReplies)
 	{
 		const auto& bindReply(bindReplyIterator.second);
@@ -361,7 +361,7 @@ void CSIF::SaveBindReplies(Framework::CZipArchiveWriter& archive)
 		replyStruct.SetRegister32(STATE_BIND_REPLY_TIMEOUT, bindReply.timeout);
 		bindRepliesFile->InsertStruct(replyId.c_str(), replyStruct);
 	}
-	archive.InsertFile(bindRepliesFile);
+	archive.InsertFile(std::move(bindRepliesFile));
 }
 
 CSIF::PacketQueue CSIF::LoadPacketQueue(Framework::CZipArchiveReader& archive)

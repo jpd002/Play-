@@ -106,10 +106,10 @@ void CSubSystem::NotifyVBlankEnd()
 
 void CSubSystem::SaveState(Framework::CZipArchiveWriter& archive)
 {
-	archive.InsertFile(new CMemoryStateFile(STATE_CPU, &m_cpu.m_State, sizeof(MIPSSTATE)));
-	archive.InsertFile(new CMemoryStateFile(STATE_RAM, m_ram, IOP_RAM_SIZE));
-	archive.InsertFile(new CMemoryStateFile(STATE_SCRATCH, m_scratchPad, IOP_SCRATCH_SIZE));
-	archive.InsertFile(new CMemoryStateFile(STATE_SPURAM, m_spuRam, SPU_RAM_SIZE));
+	archive.InsertFile(std::make_unique<CMemoryStateFile>(STATE_CPU, &m_cpu.m_State, sizeof(MIPSSTATE)));
+	archive.InsertFile(std::make_unique<CMemoryStateFile>(STATE_RAM, m_ram, IOP_RAM_SIZE));
+	archive.InsertFile(std::make_unique<CMemoryStateFile>(STATE_SCRATCH, m_scratchPad, IOP_SCRATCH_SIZE));
+	archive.InsertFile(std::make_unique<CMemoryStateFile>(STATE_SPURAM, m_spuRam, SPU_RAM_SIZE));
 	m_intc.SaveState(archive);
 	m_dmac.SaveState(archive);
 	m_counters.SaveState(archive);

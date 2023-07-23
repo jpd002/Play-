@@ -105,18 +105,18 @@ void CSio2::SaveState(Framework::CZipArchiveWriter& archive)
 	auto outputBuffer = std::vector<uint8>(m_outputBuffer.begin(), m_outputBuffer.end());
 
 	{
-		auto registerFile = new CRegisterStateFile(STATE_REGS_XML);
+		auto registerFile = std::make_unique<CRegisterStateFile>(STATE_REGS_XML);
 		registerFile->SetRegister32(STATE_REGS_CURRENTREGINDEX, m_currentRegIndex);
 		registerFile->SetRegister32(STATE_REGS_STAT6C, m_stat6C);
-		archive.InsertFile(registerFile);
+		archive.InsertFile(std::move(registerFile));
 	}
 
-	archive.InsertFile(new CMemoryStateFile(STATE_REGS, &m_regs, sizeof(m_regs)));
-	archive.InsertFile(new CMemoryStateFile(STATE_CTRL1, &m_ctrl1, sizeof(m_ctrl1)));
-	archive.InsertFile(new CMemoryStateFile(STATE_CTRL2, &m_ctrl2, sizeof(m_ctrl2)));
-	archive.InsertFile(new CMemoryStateFile(STATE_PAD, &m_padState, sizeof(m_padState)));
-	archive.InsertFile(new CMemoryStateFile(STATE_INPUT, inputBuffer.data(), inputBuffer.size()));
-	archive.InsertFile(new CMemoryStateFile(STATE_OUTPUT, outputBuffer.data(), outputBuffer.size()));
+	archive.InsertFile(std::make_unique<CMemoryStateFile>(STATE_REGS, &m_regs, sizeof(m_regs)));
+	archive.InsertFile(std::make_unique<CMemoryStateFile>(STATE_CTRL1, &m_ctrl1, sizeof(m_ctrl1)));
+	archive.InsertFile(std::make_unique<CMemoryStateFile>(STATE_CTRL2, &m_ctrl2, sizeof(m_ctrl2)));
+	archive.InsertFile(std::make_unique<CMemoryStateFile>(STATE_PAD, &m_padState, sizeof(m_padState)));
+	archive.InsertFile(std::make_unique<CMemoryStateFile>(STATE_INPUT, inputBuffer.data(), inputBuffer.size()));
+	archive.InsertFile(std::make_unique<CMemoryStateFile>(STATE_OUTPUT, outputBuffer.data(), outputBuffer.size()));
 }
 
 void CSio2::SetButtonState(unsigned int padNumber, PS2::CControllerInfo::BUTTON button, bool pressed, uint8* ram)

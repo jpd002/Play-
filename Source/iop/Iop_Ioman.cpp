@@ -1050,7 +1050,7 @@ void CIoman::LoadState(Framework::CZipArchiveReader& archive)
 
 void CIoman::SaveFilesState(Framework::CZipArchiveWriter& archive) const
 {
-	auto fileStateFile = new CXmlStateFile(STATE_FILES_FILENAME, STATE_FILES_FILESNODE);
+	auto fileStateFile = std::make_unique<CXmlStateFile>(STATE_FILES_FILENAME, STATE_FILES_FILESNODE);
 	auto filesStateNode = fileStateFile->GetRoot();
 
 	for(const auto& filePair : m_files)
@@ -1068,12 +1068,12 @@ void CIoman::SaveFilesState(Framework::CZipArchiveWriter& archive) const
 		filesStateNode->InsertNode(fileStateNode);
 	}
 
-	archive.InsertFile(fileStateFile);
+	archive.InsertFile(std::move(fileStateFile));
 }
 
 void CIoman::SaveUserDevicesState(Framework::CZipArchiveWriter& archive) const
 {
-	auto deviceStateFile = new CXmlStateFile(STATE_USERDEVICES_FILENAME, STATE_USERDEVICES_DEVICESNODE);
+	auto deviceStateFile = std::make_unique<CXmlStateFile>(STATE_USERDEVICES_FILENAME, STATE_USERDEVICES_DEVICESNODE);
 	auto devicesStateNode = deviceStateFile->GetRoot();
 
 	for(const auto& devicePair : m_userDevices)
@@ -1084,12 +1084,12 @@ void CIoman::SaveUserDevicesState(Framework::CZipArchiveWriter& archive) const
 		devicesStateNode->InsertNode(deviceStateNode);
 	}
 
-	archive.InsertFile(deviceStateFile);
+	archive.InsertFile(std::move(deviceStateFile));
 }
 
 void CIoman::SaveMountedDevicesState(Framework::CZipArchiveWriter& archive) const
 {
-	auto deviceStateFile = new CXmlStateFile(STATE_MOUNTEDDEVICES_FILENAME, STATE_MOUNTEDDEVICES_DEVICESNODE);
+	auto deviceStateFile = std::make_unique<CXmlStateFile>(STATE_MOUNTEDDEVICES_FILENAME, STATE_MOUNTEDDEVICES_DEVICESNODE);
 	auto devicesStateNode = deviceStateFile->GetRoot();
 
 	for(const auto& devicePair : m_mountedDevices)
@@ -1100,7 +1100,7 @@ void CIoman::SaveMountedDevicesState(Framework::CZipArchiveWriter& archive) cons
 		devicesStateNode->InsertNode(deviceStateNode);
 	}
 
-	archive.InsertFile(deviceStateFile);
+	archive.InsertFile(std::move(deviceStateFile));
 }
 
 void CIoman::LoadFilesState(Framework::CZipArchiveReader& archive)

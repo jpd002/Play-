@@ -326,7 +326,7 @@ uint32& CIopBios::ModuleStartRequestFree() const
 
 void CIopBios::SaveState(Framework::CZipArchiveWriter& archive)
 {
-	CStructCollectionStateFile* modulesFile = new CStructCollectionStateFile(STATE_MODULES);
+	auto modulesFile = std::make_unique<CStructCollectionStateFile>(STATE_MODULES);
 	{
 		for(const auto& modulePair : m_modules)
 		{
@@ -341,7 +341,7 @@ void CIopBios::SaveState(Framework::CZipArchiveWriter& archive)
 			}
 		}
 	}
-	archive.InsertFile(modulesFile);
+	archive.InsertFile(std::move(modulesFile));
 
 	auto builtInModules = GetBuiltInModules();
 	for(const auto& module : builtInModules)
@@ -349,7 +349,7 @@ void CIopBios::SaveState(Framework::CZipArchiveWriter& archive)
 		module->SaveState(archive);
 	}
 
-	archive.InsertFile(new CMemoryStateFile(STATE_MODULESTARTREQUESTS, m_moduleStartRequests, sizeof(m_moduleStartRequests)));
+	archive.InsertFile(std::make_unique<CMemoryStateFile>(STATE_MODULESTARTREQUESTS, m_moduleStartRequests, sizeof(m_moduleStartRequests)));
 }
 
 void CIopBios::LoadState(Framework::CZipArchiveReader& archive)

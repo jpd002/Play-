@@ -41,11 +41,11 @@ void CChannel::LoadState(Framework::CZipArchiveReader& archive)
 void CChannel::SaveState(Framework::CZipArchiveWriter& archive)
 {
 	auto path = string_format(STATE_REGS_XML_FORMAT, m_number);
-	auto registerFile = new CRegisterStateFile(path.c_str());
+	auto registerFile = std::make_unique<CRegisterStateFile>(path.c_str());
 	registerFile->SetRegister32(STATE_REGS_CHCR, m_CHCR);
 	registerFile->SetRegister32(STATE_REGS_BCR, m_BCR);
 	registerFile->SetRegister32(STATE_REGS_MADR, m_MADR);
-	archive.InsertFile(registerFile);
+	archive.InsertFile(std::move(registerFile));
 }
 
 void CChannel::SetReceiveFunction(const ReceiveFunctionType& receiveFunction)

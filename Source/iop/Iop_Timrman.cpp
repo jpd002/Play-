@@ -180,9 +180,9 @@ void CTimrman::Invoke(CMIPS& context, unsigned int functionId)
 
 void CTimrman::SaveState(Framework::CZipArchiveWriter& archive) const
 {
-	auto registerFile = new CRegisterStateFile(STATE_FILENAME);
+	auto registerFile = std::make_unique<CRegisterStateFile>(STATE_FILENAME);
 	registerFile->SetRegister32(STATE_HARDTIMERALLOC, m_hardTimerAlloc);
-	archive.InsertFile(registerFile);
+	archive.InsertFile(std::move(registerFile));
 }
 
 void CTimrman::LoadState(Framework::CZipArchiveReader& archive)

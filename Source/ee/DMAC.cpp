@@ -1025,7 +1025,7 @@ void CDMAC::LoadState(Framework::CZipArchiveReader& archive)
 
 void CDMAC::SaveState(Framework::CZipArchiveWriter& archive)
 {
-	CRegisterStateFile* registerFile = new CRegisterStateFile(STATE_REGS_XML);
+	auto registerFile = std::make_unique<CRegisterStateFile>(STATE_REGS_XML);
 	registerFile->SetRegister32(STATE_REGS_CTRL, m_D_CTRL);
 	registerFile->SetRegister32(STATE_REGS_STAT, m_D_STAT);
 	registerFile->SetRegister32(STATE_REGS_ENABLE, m_D_ENABLE);
@@ -1046,7 +1046,7 @@ void CDMAC::SaveState(Framework::CZipArchiveWriter& archive)
 	registerFile->SetRegister32(STATE_REGS_D6_TADR, m_D6_TADR);
 	registerFile->SetRegister32(STATE_REGS_D8_SADR, m_D8_SADR);
 	registerFile->SetRegister32(STATE_REGS_D9_SADR, m_D9_SADR);
-	archive.InsertFile(registerFile);
+	archive.InsertFile(std::move(registerFile));
 
 	m_D0.SaveState(archive);
 	m_D1.SaveState(archive);

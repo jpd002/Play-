@@ -77,13 +77,13 @@ bool CPadMan::Invoke(uint32 method, uint32* args, uint32 argsSize, uint32* ret, 
 
 void CPadMan::SaveState(Framework::CZipArchiveWriter& archive) const
 {
-	CRegisterStateFile* registerFile = new CRegisterStateFile(STATE_PADDATA);
+	auto registerFile = std::make_unique<CRegisterStateFile>(STATE_PADDATA);
 
 	registerFile->SetRegister32(STATE_PADDATA_PAD0_ADDRESS, m_padDataAddress[0]);
 	registerFile->SetRegister32(STATE_PADDATA_PAD1_ADDRESS, m_padDataAddress[1]);
 	registerFile->SetRegister32(STATE_PADDATA_TYPE, m_padDataType);
 
-	archive.InsertFile(registerFile);
+	archive.InsertFile(std::move(registerFile));
 }
 
 void CPadMan::LoadState(Framework::CZipArchiveReader& archive)

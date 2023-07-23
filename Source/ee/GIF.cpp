@@ -77,7 +77,7 @@ void CGIF::LoadState(Framework::CZipArchiveReader& archive)
 
 void CGIF::SaveState(Framework::CZipArchiveWriter& archive)
 {
-	CRegisterStateFile* registerFile = new CRegisterStateFile(STATE_REGS_XML);
+	auto registerFile = std::make_unique<CRegisterStateFile>(STATE_REGS_XML);
 	registerFile->SetRegister32(STATE_REGS_M3P, m_path3Masked ? 1 : 0);
 	registerFile->SetRegister32(STATE_REGS_ACTIVEPATH, m_activePath);
 	registerFile->SetRegister32(STATE_REGS_MODE, m_MODE);
@@ -91,7 +91,7 @@ void CGIF::SaveState(Framework::CZipArchiveWriter& archive)
 	registerFile->SetRegister32(STATE_REGS_PATH3_XFER_ACTIVE_TICKS, m_path3XferActiveTicks);
 	registerFile->SetRegister128(STATE_REGS_FIFO_BUFFER, *reinterpret_cast<uint128*>(&m_fifoBuffer));
 	registerFile->SetRegister32(STATE_REGS_FIFO_INDEX, m_fifoIndex);
-	archive.InsertFile(registerFile);
+	archive.InsertFile(std::move(registerFile));
 }
 
 uint32 CGIF::ProcessPacked(const uint8* memory, uint32 address, uint32 end)
