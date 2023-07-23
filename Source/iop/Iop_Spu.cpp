@@ -136,7 +136,7 @@ uint16 CSpu::ReadRegister(uint32 address)
 	{
 		unsigned int channelId = (address - SPU_BEGIN) / 0x10;
 		unsigned int registerId = address & 0x0F;
-		CSpuBase::CHANNEL& channel(m_base.GetChannel(channelId));
+		auto& channel(m_base.GetChannel(channelId));
 		switch(registerId)
 		{
 		case CH_ADSR_LEVEL:

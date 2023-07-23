@@ -281,7 +281,7 @@ uint32 CCore::ReadRegisterChannel(unsigned int channelId, uint32 address, uint32
 		return 0;
 	}
 	uint32 result = 0;
-	CSpuBase::CHANNEL& channel(m_spuBase.GetChannel(channelId));
+	auto& channel(m_spuBase.GetChannel(channelId));
 	switch(address)
 	{
 	case VP_VOLL:
