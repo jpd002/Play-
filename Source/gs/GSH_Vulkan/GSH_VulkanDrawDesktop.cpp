@@ -660,6 +660,7 @@ Framework::Vulkan::CShaderModule CDrawDesktop::CreateFragmentShader(const PIPELI
 			break;
 		case CGSHandler::PSMCT16:
 		case CGSHandler::PSMCT16S:
+		case CGSHandler::PSMZ16S:
 			fbAddress = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT16>(
 			    b, fbSwizzleTable, fbBufAddress, fbBufWidth, screenPos);
 			break;
@@ -730,6 +731,7 @@ Framework::Vulkan::CShaderModule CDrawDesktop::CreateFragmentShader(const PIPELI
 			break;
 			case CGSHandler::PSMCT16:
 			case CGSHandler::PSMCT16S:
+			case CGSHandler::PSMZ16S:
 			{
 				dstPixel = CMemoryUtils::Memory_Read16(b, memoryBuffer, fbAddress);
 				dstIColor = CMemoryUtils::PSM16ToIVec4(b, dstPixel);
@@ -834,6 +836,7 @@ Framework::Vulkan::CShaderModule CDrawDesktop::CreateFragmentShader(const PIPELI
 			break;
 			case CGSHandler::PSMCT16:
 			case CGSHandler::PSMCT16S:
+			case CGSHandler::PSMZ16S:
 			{
 				finalPixel = CMemoryUtils::IVec4ToPSM16(b, finalIColor);
 			}

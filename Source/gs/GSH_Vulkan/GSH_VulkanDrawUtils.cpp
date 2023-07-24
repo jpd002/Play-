@@ -371,6 +371,7 @@ void CDrawUtils::WriteToFramebuffer(Nuanceur::CShaderBuilder& b, uint32 framebuf
 	break;
 	case CGSHandler::PSMCT16:
 	case CGSHandler::PSMCT16S:
+	case CGSHandler::PSMZ16S:
 	{
 		auto dstPixel = srcPixel & NewUint(b, 0xFFFF);
 		CMemoryUtils::Memory_Write16(b, memoryBuffer, fbAddress, dstPixel);
