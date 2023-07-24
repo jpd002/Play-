@@ -49,7 +49,6 @@ android {
 			ndk {
 				abiFilters 'armeabi-v7a', 'x86', 'x86_64', 'arm64-v8a'
 			}
-
 		}
 	}
 
@@ -88,6 +87,11 @@ android {
 				signingConfig signingConfigs.release
 			}
 			buildConfigField "java.util.Date", "buildTime", "new java.util.Date(" + System.currentTimeMillis() + "L)"
+			externalNativeBuild {
+				cmake {
+					cppFlags += "-flto=full"
+				}
+			}
 		}
 	}
 	packagingOptions {
