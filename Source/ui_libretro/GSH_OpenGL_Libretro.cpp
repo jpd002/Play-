@@ -95,7 +95,7 @@ void CGSH_OpenGL_Libretro::Release()
 	CGSH_OpenGL::ReleaseImpl();
 }
 
-void CGSH_OpenGL_Libretro::FlipImpl()
+void CGSH_OpenGL_Libretro::FlipImpl(const DISPLAY_INFO& dispInfo)
 {
 	CLog::GetInstance().Print(LOG_NAME, "%s\n", __FUNCTION__);
 
@@ -104,7 +104,7 @@ void CGSH_OpenGL_Libretro::FlipImpl()
 	else
 		return;
 
-	CGSH_OpenGL::FlipImpl();
+	CGSH_OpenGL::FlipImpl(dispInfo);
 }
 
 void CGSH_OpenGL_Libretro::PresentBackbuffer()

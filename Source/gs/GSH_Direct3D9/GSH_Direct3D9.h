@@ -48,7 +48,7 @@ protected:
 	void ResetImpl() override;
 	void InitializeImpl() override;
 	void ReleaseImpl() override;
-	void FlipImpl() override;
+	void FlipImpl(const DISPLAY_INFO&) override;
 
 	void WriteRegisterImpl(uint8, uint64) override;
 

@@ -11,7 +11,7 @@ public:
 	static FactoryFunction GetFactoryFunction();
 
 	void InitializeImpl() override;
-	void FlipImpl() override;
+	void FlipImpl(const DISPLAY_INFO&) override;
 	void Reset();
 	void Release();
 	void PresentBackbuffer() override;

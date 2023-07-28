@@ -431,11 +431,11 @@ unsigned int CGSH_Direct3D9::GetCurrentReadCircuit()
 	return 0;
 }
 
-void CGSH_Direct3D9::FlipImpl()
+void CGSH_Direct3D9::FlipImpl(const DISPLAY_INFO& dispInfo)
 {
 	DrawActiveFramebuffer();
 	PresentBackbuffer();
-	CGSHandler::FlipImpl();
+	CGSHandler::FlipImpl(dispInfo);
 }
 
 void CGSH_Direct3D9::DrawActiveFramebuffer()
