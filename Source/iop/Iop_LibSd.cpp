@@ -126,6 +126,9 @@ static std::string DecodeParam(uint16 paramId)
 	case 0x01:
 		result = "VOLR";
 		break;
+	case 0x02:
+		result = "PITCH";
+		break;
 	case 0x05:
 		result = "ENVX";
 		break;
