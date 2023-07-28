@@ -264,12 +264,12 @@ void CGSH_Vulkan::MarkNewFrame()
 	CGSHandler::MarkNewFrame();
 }
 
-void CGSH_Vulkan::FlipImpl()
+void CGSH_Vulkan::FlipImpl(const DISPLAY_INFO& dispInfo)
 {
 	if(m_present)
 	{
 		m_present->SetPresentationViewport(GetPresentationViewport());
-		m_present->DoPresent(GetCurrentDisplayInfo());
+		m_present->DoPresent(dispInfo);
 	}
 
 	PresentBackbuffer();
@@ -279,7 +279,7 @@ void CGSH_Vulkan::FlipImpl()
 	}
 	std::experimental::erase_if(m_xferHistory,
 	                            [](const auto& xferTrackerPair) { return xferTrackerPair.second.IsEmpty(); });
-	CGSHandler::FlipImpl();
+	CGSHandler::FlipImpl(dispInfo);
 }
 
 std::vector<VkPhysicalDevice> CGSH_Vulkan::GetPhysicalDevices()

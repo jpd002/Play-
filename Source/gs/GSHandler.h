@@ -187,6 +187,7 @@ public:
 	{
 		FLIP_FLAG_WAIT = 0x01,
 		FLIP_FLAG_FORCE = 0x02,
+		FLIP_FLAG_FINISH = 0x04,
 	};
 
 	enum PSM
@@ -855,7 +856,7 @@ public:
 	{
 		assert(m_writeBufferSize < REGISTERWRITEBUFFER_SIZE);
 		if(m_writeBufferSize == REGISTERWRITEBUFFER_SIZE) return;
-		m_writeBuffer[m_writeBufferSize++] = write;
+		m_currentWriteBuffer[m_writeBufferSize++] = write;
 	}
 
 	void ProcessWriteBuffer(const CGsPacketMetadata*);
@@ -1028,12 +1029,12 @@ protected:
 	void ResetBase();
 	virtual void ResetImpl();
 	virtual void NotifyPreferencesChangedImpl();
-	virtual void FlipImpl();
+	virtual void FlipImpl(const DISPLAY_INFO&);
 	virtual void MarkNewFrame();
 	virtual void WriteRegisterImpl(uint8, uint64);
 	void FeedImageDataImpl(const uint8*, uint32);
 	void ReadImageDataImpl(void*, uint32);
-	void SubmitWriteBufferImpl(uint32, uint32);
+	void SubmitWriteBufferImpl(const RegisterWrite*, const RegisterWrite*);
 
 	void BeginTransfer();
 
@@ -1100,8 +1101,11 @@ protected:
 
 	uint32 m_drawCallCount = 0;
 
-	//Rename to register write buffer?
-	RegisterWrite* m_writeBuffer;
+	static constexpr int MAX_INFLIGHT_FRAMES = 2;
+	RegisterWrite* m_writeBuffers[MAX_INFLIGHT_FRAMES] = {};
+
+	RegisterWrite* m_currentWriteBuffer = nullptr;
+	uint32 m_writeBufferIndex = 0;
 	uint32 m_writeBufferSize = 0;
 	uint32 m_writeBufferProcessIndex = 0;
 	uint32 m_writeBufferSubmitIndex = 0;

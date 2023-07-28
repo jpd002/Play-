@@ -60,7 +60,7 @@ protected:
 	void ReleaseImpl() override;
 	void ResetImpl() override;
 	void MarkNewFrame() override;
-	void FlipImpl() override;
+	void FlipImpl(const DISPLAY_INFO&) override;
 	void BeginTransferWrite() override;
 	void TransferWrite(const uint8*, uint32) override;
 	void WriteBackMemoryCache() override;

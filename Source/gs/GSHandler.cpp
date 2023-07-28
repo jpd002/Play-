@@ -70,7 +70,10 @@ CGSHandler::CGSHandler(bool gsThreaded)
 
 	m_pRAM = new uint8[RAMSIZE];
 	m_pCLUT = new uint16[CLUTENTRYCOUNT];
-	m_writeBuffer = new RegisterWrite[REGISTERWRITEBUFFER_SIZE];
+	for(int i = 0; i < MAX_INFLIGHT_FRAMES; i++)
+	{
+		m_writeBuffers[i] = new RegisterWrite[REGISTERWRITEBUFFER_SIZE];
+	}
 
 	for(int i = 0; i < PSM_MAX; i++)
 	{
@@ -115,7 +118,10 @@ CGSHandler::~CGSHandler()
 	}
 	delete[] m_pRAM;
 	delete[] m_pCLUT;
-	delete[] m_writeBuffer;
+	for(int i = 0; i < MAX_INFLIGHT_FRAMES; i++)
+	{
+		delete[] m_writeBuffers[i];
+	}
 }
 
 void CGSHandler::RegisterPreferences()
@@ -170,6 +176,8 @@ void CGSHandler::ResetBase()
 	m_writeBufferSize = 0;
 	m_writeBufferProcessIndex = 0;
 	m_writeBufferSubmitIndex = 0;
+	m_writeBufferIndex = 0;
+	m_currentWriteBuffer = m_writeBuffers[m_writeBufferIndex];
 }
 
 void CGSHandler::ResetImpl()
@@ -517,25 +525,33 @@ void CGSHandler::Finish()
 {
 	FlushWriteBuffer();
 	SendGSCall(std::bind(&CGSHandler::MarkNewFrame, this));
-	Flip(FLIP_FLAG_WAIT);
+	m_framesInFlight++;
+	uint32 waitFlag = (m_framesInFlight == MAX_INFLIGHT_FRAMES) ? FLIP_FLAG_WAIT : 0;
+	Flip(waitFlag | FLIP_FLAG_FINISH);
 }
 
 void CGSHandler::Flip(uint32 flags)
 {
 	bool waitForCompletion = (flags & FLIP_FLAG_WAIT) != 0;
 	bool force = (flags & FLIP_FLAG_FORCE) != 0;
+	bool finish = (flags & FLIP_FLAG_FINISH) != 0;
 	SendGSCall(
-	    [this, force]() {
+	    [this, displayInfo = GetCurrentDisplayInfo(), force, finish]() {
 		    if(force || m_regsDirty)
 		    {
-			    FlipImpl();
+			    FlipImpl(displayInfo);
 		    }
 		    m_regsDirty = false;
+		    if(finish)
+		    {
+			    assert(m_framesInFlight != 0);
+			    m_framesInFlight--;
+		    }
 	    },
 	    waitForCompletion, waitForCompletion);
 }
 
-void CGSHandler::FlipImpl()
+void CGSHandler::FlipImpl(const DISPLAY_INFO&)
 {
 	OnFlipComplete();
 	m_flipped = true;
@@ -624,7 +640,7 @@ void CGSHandler::ProcessWriteBuffer(const CGsPacketMetadata* metadata)
 #endif
 	for(uint32 writeIndex = m_writeBufferProcessIndex; writeIndex < m_writeBufferSize; writeIndex++)
 	{
-		const auto& write = m_writeBuffer[writeIndex];
+		const auto& write = m_currentWriteBuffer[writeIndex];
 		switch(write.first)
 		{
 		case GS_REG_SIGNAL:
@@ -671,12 +687,12 @@ void CGSHandler::SubmitWriteBuffer()
 	m_transferCount++;
 #endif
 
-	uint32 bufferStartIndex = m_writeBufferSubmitIndex;
-	uint32 bufferEndIndex = m_writeBufferSize;
+	auto bufferStart = m_currentWriteBuffer + m_writeBufferSubmitIndex;
+	auto bufferEnd = m_currentWriteBuffer + m_writeBufferSize;
 
 	SendGSCall(
-	    [this, bufferStartIndex, bufferEndIndex]() {
-		    SubmitWriteBufferImpl(bufferStartIndex, bufferEndIndex);
+	    [this, bufferStart, bufferEnd]() {
+		    SubmitWriteBufferImpl(bufferStart, bufferEnd);
 	    });
 
 	m_writeBufferSubmitIndex = m_writeBufferSize;
@@ -691,6 +707,9 @@ void CGSHandler::FlushWriteBuffer()
 	m_writeBufferSize = 0;
 	m_writeBufferProcessIndex = 0;
 	m_writeBufferSubmitIndex = 0;
+	m_writeBufferIndex++;
+	m_writeBufferIndex %= MAX_INFLIGHT_FRAMES;
+	m_currentWriteBuffer = m_writeBuffers[m_writeBufferIndex];
 	//Nothing should be written to the buffer after that
 }
 
@@ -791,12 +810,11 @@ void CGSHandler::ReadImageDataImpl(void* ptr, uint32 size)
 	((this)->*(m_transferReadHandlers[bltBuf.nSrcPsm]))(ptr, size);
 }
 
-void CGSHandler::SubmitWriteBufferImpl(uint32 bufferStartIndex, uint32 bufferEndIndex)
+void CGSHandler::SubmitWriteBufferImpl(const RegisterWrite* writeStart, const RegisterWrite* writeEnd)
 {
-	for(uint32 i = bufferStartIndex; i < bufferEndIndex; i++)
+	for(auto write = writeStart; write != writeEnd; write++)
 	{
-		const auto& write = m_writeBuffer[i];
-		WriteRegisterImpl(write.first, write.second);
+		WriteRegisterImpl(write->first, write->second);
 	}
 
 #ifdef _DEBUG
