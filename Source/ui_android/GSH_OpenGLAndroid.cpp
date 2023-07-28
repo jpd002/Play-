@@ -91,4 +91,6 @@ void CGSH_OpenGLAndroid::SetupContext()
 
 		SetPresentationParams(presentationParams);
 	}
+
+	eglSwapInterval(m_display, 0);
 }
