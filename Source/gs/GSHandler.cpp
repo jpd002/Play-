@@ -164,7 +164,9 @@ void CGSHandler::ResetBase()
 	m_crtMode = CRT_MODE_NTSC;
 	m_nCBP0 = 0;
 	m_nCBP1 = 0;
+#ifdef _DEBUG
 	m_transferCount = 0;
+#endif
 	m_writeBufferSize = 0;
 	m_writeBufferProcessIndex = 0;
 	m_writeBufferSubmitIndex = 0;
@@ -383,11 +385,6 @@ void CGSHandler::ResetVBlank()
 	m_nCSR ^= CSR_FIELD;
 }
 
-int CGSHandler::GetPendingTransferCount() const
-{
-	return m_transferCount;
-}
-
 void CGSHandler::NotifyEvent(uint32 eventBit)
 {
 	uint32 mask = (~m_nIMR >> 8) & 0x1F;
@@ -583,7 +580,9 @@ void CGSHandler::FeedImageData(const void* data, uint32 length)
 	assert(m_writeBufferProcessIndex == m_writeBufferSize);
 	SubmitWriteBuffer();
 
+#ifdef _DEBUG
 	m_transferCount++;
+#endif
 
 	//Allocate 0x10 more bytes to allow transfer handlers
 	//to read beyond the actual length of the buffer (ie.: PSMCT24)
@@ -668,7 +667,10 @@ void CGSHandler::SubmitWriteBuffer()
 	assert(m_writeBufferSubmitIndex <= m_writeBufferSize);
 	if(m_writeBufferSubmitIndex == m_writeBufferSize) return;
 
+#ifdef _DEBUG
 	m_transferCount++;
+#endif
+
 	uint32 bufferStartIndex = m_writeBufferSubmitIndex;
 	uint32 bufferEndIndex = m_writeBufferSize;
 
@@ -731,7 +733,9 @@ void CGSHandler::WriteRegisterImpl(uint8 nRegister, uint64 nData)
 		break;
 
 	case GS_REG_HWREG:
+#ifdef _DEBUG
 		m_transferCount++;
+#endif
 		FeedImageDataImpl(reinterpret_cast<const uint8*>(&nData), 8);
 		break;
 	}
@@ -754,8 +758,6 @@ void CGSHandler::FeedImageDataImpl(const uint8* imageData, uint32 length)
 		if(m_trxCtx.nSize < length)
 		{
 			length = m_trxCtx.nSize;
-			//assert(0);
-			//return;
 		}
 
 		TransferWrite(imageData, length);
@@ -772,8 +774,10 @@ void CGSHandler::FeedImageDataImpl(const uint8* imageData, uint32 length)
 		}
 	}
 
+#ifdef _DEBUG
 	assert(m_transferCount != 0);
 	m_transferCount--;
+#endif
 }
 
 void CGSHandler::ReadImageDataImpl(void* ptr, uint32 size)
@@ -795,8 +799,10 @@ void CGSHandler::SubmitWriteBufferImpl(uint32 bufferStartIndex, uint32 bufferEnd
 		WriteRegisterImpl(write.first, write.second);
 	}
 
+#ifdef _DEBUG
 	assert(m_transferCount != 0);
 	m_transferCount--;
+#endif
 }
 
 void CGSHandler::BeginTransfer()

@@ -882,7 +882,6 @@ public:
 
 	uint64 GetBUSDIR() const;
 
-	int GetPendingTransferCount() const;
 	void NotifyEvent(uint32);
 
 	unsigned int GetCrtWidth() const;
@@ -1110,7 +1109,10 @@ protected:
 	CRT_MODE m_crtMode;
 	std::thread m_thread;
 	std::recursive_mutex m_registerMutex;
+#ifdef _DEBUG
 	std::atomic<int> m_transferCount;
+#endif
+	std::atomic<int> m_framesInFlight;
 	bool m_threadDone = false;
 	CFrameDump* m_frameDump = nullptr;
 	bool m_regsDirty = false;
