@@ -3,6 +3,7 @@
 #include "GenericMipsExecutor.h"
 #include "../psx/PsxBios.h"
 #include "../states/MemoryStateFile.h"
+#include "../states/RegisterStateFile.h"
 #include "../Ps2Const.h"
 #include "../Log.h"
 #include "placeholder_def.h"
@@ -16,6 +17,10 @@ using namespace PS2;
 #define STATE_RAM ("iop_ram")
 #define STATE_SCRATCH ("iop_scratch")
 #define STATE_SPURAM ("iop_spuram")
+
+#define STATE_TIMING ("iop_timing")
+#define STATE_TIMING_DMA_UPDATE_TICKS ("dmaUpdateTicks")
+#define STATE_TIMING_SPU_IRQ_UPDATE_TICKS ("spuIrqUpdateTicks")
 
 CSubSystem::CSubSystem(bool ps2Mode)
     : m_cpu(MEMORYMAP_ENDIAN_LSBF, true)
@@ -120,6 +125,14 @@ void CSubSystem::SaveState(Framework::CZipArchiveWriter& archive)
 	m_sio2.SaveState(archive);
 #endif
 	m_bios->SaveState(archive);
+
+	//Save timing state
+	{
+		auto registerFile = std::make_unique<CRegisterStateFile>(STATE_TIMING);
+		registerFile->SetRegister32(STATE_TIMING_DMA_UPDATE_TICKS, m_dmaUpdateTicks);
+		registerFile->SetRegister32(STATE_TIMING_SPU_IRQ_UPDATE_TICKS, m_spuIrqUpdateTicks);
+		archive.InsertFile(std::move(registerFile));
+	}
 }
 
 void CSubSystem::LoadState(Framework::CZipArchiveReader& archive)
@@ -154,6 +167,13 @@ void CSubSystem::LoadState(Framework::CZipArchiveReader& archive)
 	m_sio2.LoadState(archive);
 #endif
 	m_bios->LoadState(archive);
+	
+	//Load timing state
+	{
+		CRegisterStateFile registerFile(*archive.BeginReadFile(STATE_TIMING));
+		m_dmaUpdateTicks = registerFile.GetRegister32(STATE_TIMING_DMA_UPDATE_TICKS);
+		m_spuIrqUpdateTicks = registerFile.GetRegister32(STATE_TIMING_SPU_IRQ_UPDATE_TICKS);
+	}
 }
 
 void CSubSystem::Reset()
