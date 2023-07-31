@@ -24,7 +24,7 @@ namespace Iop
 
 		private:
 			//TODO: Make this configurable per game
-			static const uint32_t g_extRamSize = 0x6000000;
+			static constexpr uint32 g_extRamSize = 0x6000000;
 			uint8 m_extRam[g_extRamSize];
 			uint8* m_iopRam = nullptr;
 		};

@@ -167,7 +167,7 @@ void CSubSystem::LoadState(Framework::CZipArchiveReader& archive)
 	m_sio2.LoadState(archive);
 #endif
 	m_bios->LoadState(archive);
-	
+
 	//Load timing state
 	{
 		CRegisterStateFile registerFile(*archive.BeginReadFile(STATE_TIMING));
