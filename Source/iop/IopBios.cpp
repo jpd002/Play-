@@ -3932,27 +3932,13 @@ void CIopBios::PrepareModuleDebugInfo(CELF32& elf, const ExecutableRange& module
 	}
 
 	//Look also for symbol tables
-	{
-		auto pSymTab = elf.FindSection(".symtab");
-		if(pSymTab != NULL)
+	elf.EnumerateSymbols([&](const ELF::ELFSYMBOL32& symbol, uint8 type, uint8 binding, const char* name) {
+		if(type == ELF::STT_FUNC)
 		{
-			const char* pStrTab = reinterpret_cast<const char*>(elf.GetSectionData(pSymTab->nIndex));
-			if(pStrTab != NULL)
-			{
-				auto pSym = reinterpret_cast<const ELF::ELFSYMBOL32*>(elf.FindSectionData(".symtab"));
-				unsigned int nCount = pSymTab->nSize / sizeof(ELF::ELFSYMBOL32);
-
-				for(unsigned int i = 0; i < nCount; i++)
-				{
-					if((pSym[i].nInfo & 0x0F) != 0x02) continue;
-					auto symbolSection = elf.GetSection(pSym[i].nSectionIndex);
-					if(symbolSection == NULL) continue;
-					m_cpu.m_Functions.InsertTag(moduleRange.first + symbolSection->nStart + pSym[i].nValue, (char*)pStrTab + pSym[i].nName);
-					functionAdded = true;
-				}
-			}
+			m_cpu.m_Functions.InsertTag(symbol.nValue + moduleRange.first, name);
+			functionAdded = true;
 		}
-	}
+	});
 
 	if(functionAdded)
 	{

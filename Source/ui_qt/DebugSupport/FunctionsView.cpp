@@ -292,26 +292,19 @@ void CFunctionsView::OnImportClick()
 	    std::end(m_modules) != moduleIterator; moduleIterator++)
 	{
 		const auto& module(*moduleIterator);
-		CELF32* moduleImage = reinterpret_cast<CELF32*>(module.param);
+		auto moduleImage = reinterpret_cast<CELF32*>(module.param);
+		if(!moduleImage) continue;
 
-		if(moduleImage == NULL) continue;
-
-		auto pSymTab = moduleImage->FindSection(".symtab");
-		if(pSymTab == NULL) continue;
-
-		const char* pStrTab = (const char*)moduleImage->GetSectionData(pSymTab->nIndex);
-		if(pStrTab == NULL) continue;
-
-		auto pSym = reinterpret_cast<const CELF32::SYMBOL*>(moduleImage->FindSectionData(".symtab"));
-		unsigned int nCount = pSymTab->nSize / sizeof(CELF32::SYMBOL);
-
-		for(unsigned int i = 0; i < nCount; i++)
-		{
-			if((pSym[i].nInfo & 0x0F) != 0x02) continue;
-			auto symbolSection = moduleImage->GetSection(pSym[i].nSectionIndex);
-			if(symbolSection == NULL) continue;
-			m_context->m_Functions.InsertTag(module.begin + (pSym[i].nValue - symbolSection->nStart), pStrTab + pSym[i].nName);
-		}
+		moduleImage->EnumerateSymbols([&](const ELF::ELFSYMBOL32& symbol, uint8 type, uint8 binding, const char* name) {
+			if(type == ELF::STT_FUNC)
+			{
+				//NOTE: This check for the section owning the symbol might not be necessary.
+				//Since we load the executable at the address specified by the program header
+				auto symbolSection = moduleImage->GetSection(symbol.nSectionIndex);
+				if(!symbolSection) return;
+				m_context->m_Functions.InsertTag(module.begin + (symbol.nValue - symbolSection->nStart), name);
+			}
+		});
 	}
 
 	RefreshList();

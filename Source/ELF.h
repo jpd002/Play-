@@ -3,6 +3,7 @@
 #include <vector>
 #include <stdexcept>
 #include <cassert>
+#include <functional>
 #include "Types.h"
 #include "ElfDefs.h"
 #include "PtrStream.h"
@@ -100,7 +101,7 @@ public:
 		return m_sections.size();
 	}
 
-	SECTIONHEADER* GetSection(unsigned int index)
+	const SECTIONHEADER* GetSection(unsigned int index) const
 	{
 		if(index >= m_sections.size())
 		{
@@ -109,7 +110,7 @@ public:
 		return &m_sections[index];
 	}
 
-	const void* GetSectionData(unsigned int index)
+	const void* GetSectionData(unsigned int index) const
 	{
 		auto section = GetSection(index);
 		if(section == nullptr) return nullptr;
@@ -125,14 +126,14 @@ public:
 		return stringTableData + sectionHeader->nStringTableIndex;
 	}
 
-	SECTIONHEADER* FindSection(const char* requestedSectionName)
+	const SECTIONHEADER* FindSection(const char* requestedSectionName) const
 	{
 		auto sectionIndex = FindSectionIndex(requestedSectionName);
 		if(sectionIndex == 0) return nullptr;
 		return GetSection(sectionIndex);
 	}
 
-	unsigned int FindSectionIndex(const char* requestedSectionName)
+	unsigned int FindSectionIndex(const char* requestedSectionName) const
 	{
 		auto stringTableData = reinterpret_cast<const char*>(GetSectionData(m_header.nSectHeaderStringTableIndex));
 		if(stringTableData == nullptr) return 0;
@@ -148,7 +149,7 @@ public:
 		return 0;
 	}
 
-	const void* FindSectionData(const char* requestedSectionName)
+	const void* FindSectionData(const char* requestedSectionName) const
 	{
 		auto section = FindSection(requestedSectionName);
 		if(section == nullptr) return nullptr;
@@ -162,6 +163,45 @@ public:
 			return nullptr;
 		}
 		return &m_programs[index];
+	}
+
+	uint64 GetSymbolCount() const
+	{
+		auto symbolTable = FindSection(".symtab");
+		if(!symbolTable) return 0;
+		return symbolTable->nSize / sizeof(SYMBOL);
+	}
+
+	typedef std::function<void(const SYMBOL&, uint8, uint8, const char*)> SymbolEnumarationCallback;
+
+	void EnumerateSymbols(const SymbolEnumarationCallback& callback) const
+	{
+		auto symbolTable = FindSection(".symtab");
+		if(!symbolTable) return;
+
+		auto stringTable = reinterpret_cast<const char*>(GetSectionData(symbolTable->nIndex));
+		if(!stringTable) return;
+
+		auto symbols = reinterpret_cast<const SYMBOL*>(FindSectionData(".symtab"));
+		unsigned int symbolCount = symbolTable->nSize / sizeof(SYMBOL);
+
+		for(unsigned int i = 0; i < symbolCount; i++)
+		{
+			auto symbol = symbols[i];
+
+			if(m_header.nId[ELF::EI_DATA] == ELF::ELFDATA2MSB)
+			{
+				Framework::CEndian::FromMSBF(symbol.nName);
+				Framework::CEndian::FromMSBF(symbol.nValue);
+				Framework::CEndian::FromMSBF(symbol.nSize);
+				Framework::CEndian::FromMSBF(symbol.nSectionIndex);
+			}
+
+			uint8 symbolType = symbol.nInfo & 0x0F;
+			uint8 symbolBinding = (symbol.nInfo >> 4) & 0x0F;
+			auto symbolName = stringTable + symbol.nName;
+			callback(symbol, symbolType, symbolBinding, symbolName);
+		}
 	}
 
 private:

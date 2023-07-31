@@ -49,17 +49,7 @@ void CELFSymbolView<ElfType>::SetELF(ElfType* pELF)
 template <typename ElfType>
 void CELFSymbolView<ElfType>::PopulateList()
 {
-	const char* sectionName = ".symtab";
-
-	auto pSymTab = m_pELF->FindSection(sectionName);
-	if(pSymTab == NULL) return;
-
-	const char* pStrTab = (const char*)m_pELF->GetSectionData(pSymTab->nIndex);
-	if(pStrTab == NULL) return;
-
-	auto symbols = reinterpret_cast<const typename ElfType::SYMBOL*>(m_pELF->FindSectionData(sectionName));
-	unsigned int count = pSymTab->nSize / sizeof(typename ElfType::SYMBOL);
-
+	auto count = m_pELF->GetSymbolCount();
 	m_tableWidget->setRowCount(count);
 
 #define CASE_ELF_ENUM(enumValue) \
@@ -67,18 +57,17 @@ void CELFSymbolView<ElfType>::PopulateList()
 		sTemp = #enumValue;      \
 		break;
 
-	for(unsigned int i = 0; i < count; i++)
-	{
-		auto symbol = symbols[i];
+	int i = 0;
 
+	m_pELF->EnumerateSymbols([&](const typename ElfType::SYMBOL& symbol, uint8 type, uint8 binding, const char* name) {
 		int j = 0;
 		std::string sTemp;
 
-		m_tableWidget->setItem(i, j++, new QTableWidgetItem(pStrTab + symbol.nName));
+		m_tableWidget->setItem(i, j++, new QTableWidgetItem(name));
 		m_tableWidget->setItem(i, j++, new QTableWidgetItem(lexical_cast_hex<std::string>(symbol.nValue, 8).c_str()));
 		m_tableWidget->setItem(i, j++, new QTableWidgetItem(lexical_cast_hex<std::string>(symbol.nSize, 8).c_str()));
 
-		switch(symbol.nInfo & 0x0F)
+		switch(type)
 		{
 			CASE_ELF_ENUM(STT_NOTYPE)
 			CASE_ELF_ENUM(STT_OBJECT)
@@ -91,7 +80,7 @@ void CELFSymbolView<ElfType>::PopulateList()
 		}
 		m_tableWidget->setItem(i, j++, new QTableWidgetItem(sTemp.c_str()));
 
-		switch((symbol.nInfo >> 4) & 0xF)
+		switch(binding)
 		{
 			CASE_ELF_ENUM(STB_LOCAL)
 			CASE_ELF_ENUM(STB_GLOBAL)
@@ -113,8 +102,9 @@ void CELFSymbolView<ElfType>::PopulateList()
 		}
 		m_tableWidget->setItem(i, j++, new QTableWidgetItem(sTemp.c_str()));
 
+		i++;
+	});
 #undef CASE_ELF_ENUM
-	}
 }
 
 template class CELFSymbolView<CELF32>;
