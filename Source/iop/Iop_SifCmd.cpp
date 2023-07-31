@@ -51,6 +51,8 @@ using namespace Iop;
 
 #define SYSTEM_COMMAND_ID 0x80000000
 
+static constexpr uint32 INVALID_SEMAPHORE_ID = ~0U;
+
 CSifCmd::CSifCmd(CIopBios& bios, CSifMan& sifMan, CSysmem& sysMem, uint8* ram)
     : m_bios(bios)
     , m_sifMan(sifMan)
@@ -661,14 +663,14 @@ void CSifCmd::ProcessRpcRequestEnd(uint32 commandHeaderAddr)
 		assert(0);
 	}
 	//Unlock/delete semaphore
+	if(clientData->header.semaId != INVALID_SEMAPHORE_ID)
 	{
-		assert(clientData->header.semaId != 0);
 		FRAMEWORK_MAYBE_UNUSED int32 result = CIopBios::KERNEL_RESULT_OK;
 		result = m_bios.SignalSemaphore(clientData->header.semaId, true);
 		assert(result == CIopBios::KERNEL_RESULT_OK);
 		result = m_bios.DeleteSemaphore(clientData->header.semaId);
 		assert(result == CIopBios::KERNEL_RESULT_OK);
-		clientData->header.semaId = 0;
+		clientData->header.semaId = INVALID_SEMAPHORE_ID;
 	}
 }
 
@@ -847,6 +849,8 @@ void CSifCmd::SifBindRpc(CMIPS& context)
 
 void CSifCmd::SifCallRpc(CMIPS& context)
 {
+	static constexpr uint32 CALL_MODE_NOWAIT = 0x01;
+
 	uint32 clientDataAddr = context.m_State.nGPR[CMIPS::A0].nV0;
 	uint32 rpcNumber = context.m_State.nGPR[CMIPS::A1].nV0;
 	uint32 mode = context.m_State.nGPR[CMIPS::A2].nV0;
@@ -857,7 +861,7 @@ void CSifCmd::SifCallRpc(CMIPS& context)
 	uint32 endFctAddr = context.m_pMemoryMap->GetWord(context.m_State.nGPR[CMIPS::SP].nV0 + 0x1C);
 	uint32 endParam = context.m_pMemoryMap->GetWord(context.m_State.nGPR[CMIPS::SP].nV0 + 0x20);
 
-	assert(mode == 0);
+	assert((mode == 0) || (mode == CALL_MODE_NOWAIT));
 
 	CLog::GetInstance().Print(LOG_NAME, FUNCTION_SIFCALLRPC "(clientDataAddr = 0x%08X, rpcNumber = 0x%08X, mode = 0x%08X, sendAddr = 0x%08X, sendSize = 0x%08X, "
 	                                                        "recvAddr = 0x%08X, recvSize = 0x%08X, endFctAddr = 0x%08X, endParam = 0x%08X);\r\n",
@@ -867,10 +871,19 @@ void CSifCmd::SifCallRpc(CMIPS& context)
 	assert(clientData->serverDataAddr != 0);
 	clientData->endFctPtr = endFctAddr;
 	clientData->endParam = endParam;
-	clientData->header.semaId = m_bios.CreateSemaphore(0, 1, 0, 0);
-	FRAMEWORK_MAYBE_UNUSED int32 result = CIopBios::KERNEL_RESULT_OK;
-	result = m_bios.WaitSemaphore(clientData->header.semaId);
-	assert(result == CIopBios::KERNEL_RESULT_OK);
+	if((mode & CALL_MODE_NOWAIT) == 0)
+	{
+		clientData->header.semaId = m_bios.CreateSemaphore(0, 1, 0, 0);
+		assert(static_cast<int32>(clientData->header.semaId) >= 0);
+		FRAMEWORK_MAYBE_UNUSED int32 result = CIopBios::KERNEL_RESULT_OK;
+		result = m_bios.WaitSemaphore(clientData->header.semaId);
+		assert(result == CIopBios::KERNEL_RESULT_OK);
+	}
+	else
+	{
+		//No semaphore used
+		clientData->header.semaId = INVALID_SEMAPHORE_ID;
+	}
 
 	{
 		auto dmaReg = reinterpret_cast<SIFDMAREG*>(m_ram + m_sendCmdExtraStructAddr);
