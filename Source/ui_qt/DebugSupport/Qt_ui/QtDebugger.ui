@@ -78,11 +78,11 @@
     </widget>
     <addaction name="actionView_Disassmebly"/>
     <addaction name="actionMemory"/>
+    <addaction name="actionView_Registers"/>
     <addaction name="actionCall_Stack"/>
     <addaction name="actionFunctions"/>
     <addaction name="actionELF_File_Information"/>
     <addaction name="menuKernelObjects"/>
-    <addaction name="actionView_Registers"/>
     <addaction name="separator"/>
     <addaction name="actionEmotionEngine_View"/>
     <addaction name="actionVector_Unit_0"/>
