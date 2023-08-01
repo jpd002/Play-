@@ -228,6 +228,7 @@ void CGSH_Vulkan::ReleaseImpl()
 	m_context->clutBuffer.Reset();
 	m_context->memoryBuffer.Reset();
 	m_context->memoryBufferCopy.Reset();
+	m_context->memoryBufferTransfer.Reset();
 	m_context->commandBufferPool.Reset();
 	m_context->device.Reset();
 
@@ -268,6 +269,7 @@ void CGSH_Vulkan::FlipImpl()
 	}
 
 	PresentBackbuffer();
+	m_copiedThisFrame = false;
 	CGSHandler::FlipImpl();
 }
 
@@ -541,6 +543,13 @@ void CGSH_Vulkan::CreateMemoryBuffer()
 	                                                         VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
 	                                                         RAMSIZE);
 	m_context->SetBufferName(m_context->memoryBufferCopy, "GS Memory Copy");
+
+	m_context->memoryBufferTransfer = Framework::Vulkan::CBuffer(m_context->device,
+	                                                             m_context->physicalDeviceMemoryProperties,
+	                                                             VK_BUFFER_USAGE_TRANSFER_DST_BIT,
+	                                                             VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
+	                                                             RAMSIZE);
+	m_context->SetBufferName(m_context->memoryBufferTransfer, "GS Memory Transfer");
 }
 
 void CGSH_Vulkan::CreateClutBuffer()
@@ -1313,7 +1322,54 @@ void CGSH_Vulkan::ProcessLocalToHostTransfer()
 	if(readsEnabled)
 	{
 		//Make sure our local RAM copy is in sync with GPU
-		SyncMemoryCache();
+		//SyncMemoryCache();
+
+		m_draw->FlushRenderPass();
+
+		auto bltBuf = make_convertible<BITBLTBUF>(m_nReg[GS_REG_BITBLTBUF]);
+		auto trxReg = make_convertible<TRXREG>(m_nReg[GS_REG_TRXREG]);
+		auto trxPos = make_convertible<TRXPOS>(m_nReg[GS_REG_TRXPOS]);
+
+		CGsCachedArea area;
+		area.SetArea(bltBuf.nSrcPsm, bltBuf.GetSrcPtr(), bltBuf.GetSrcWidth(), trxReg.nRRH);
+
+		uint32 copyBase = bltBuf.GetSrcPtr();
+		uint32 copySize = area.GetSize();
+
+		auto& srcBuffer = m_context->memoryBuffer;
+		auto& dstBuffer = m_context->memoryBufferTransfer;
+
+		auto commandBuffer = m_frameCommandBuffer->GetCommandBuffer();
+
+		{
+			auto memoryBarrier = Framework::Vulkan::MemoryBarrier();
+			memoryBarrier.srcAccessMask = VK_ACCESS_SHADER_WRITE_BIT;
+			memoryBarrier.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+
+			m_context->device.vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT, VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT,
+			                                       0, 1, &memoryBarrier, 0, nullptr, 0, nullptr);
+		}
+
+		{
+			VkBufferCopy bufferCopy = {};
+			bufferCopy.size = copySize;
+			bufferCopy.dstOffset = copyBase;
+			bufferCopy.srcOffset = copyBase;
+			m_context->device.vkCmdCopyBuffer(commandBuffer, srcBuffer, dstBuffer, 1, &bufferCopy);
+		}
+
+		if(!m_copiedThisFrame)
+		{
+			void* bufferPtr = nullptr;
+			auto result = m_context->device.vkMapMemory(m_context->device, dstBuffer.GetMemory(), copyBase, copySize, 0, &bufferPtr);
+			CHECKVULKANERROR(result);
+
+			memcpy(m_memoryCache + copyBase, bufferPtr, copySize);
+
+			m_context->device.vkUnmapMemory(m_context->device, dstBuffer.GetMemory());
+
+			m_copiedThisFrame = true;
+		}
 	}
 }
 

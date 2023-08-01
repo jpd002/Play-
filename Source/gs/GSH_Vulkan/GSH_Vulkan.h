@@ -186,6 +186,7 @@ private:
 	GSH_Vulkan::TransferLocalPtr m_transferLocal;
 
 	uint8* m_memoryCache = nullptr;
+	bool m_copiedThisFrame = false;
 
 	//Draw context
 	VERTEX m_vtxBuffer[3];

@@ -31,6 +31,7 @@ namespace GSH_Vulkan
 		VkPhysicalDeviceMemoryProperties physicalDeviceMemoryProperties;
 		Framework::Vulkan::CBuffer memoryBuffer;
 		Framework::Vulkan::CBuffer memoryBufferCopy;
+		Framework::Vulkan::CBuffer memoryBufferTransfer;
 		Framework::Vulkan::CBuffer clutBuffer;
 		VkImageView swizzleTablePSMCT32View = VK_NULL_HANDLE;
 		VkImageView swizzleTablePSMCT16View = VK_NULL_HANDLE;
