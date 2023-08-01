@@ -142,6 +142,7 @@ void CGSH_Vulkan::InitializeImpl()
 	m_swizzleTablePSMT4 = CreateSwizzleTable<CGsPixelFormats::STORAGEPSMT4>(m_context->device, m_context->physicalDeviceMemoryProperties, m_context->queue, m_context->commandBufferPool);
 	m_swizzleTablePSMZ32 = CreateSwizzleTable<CGsPixelFormats::STORAGEPSMZ32>(m_context->device, m_context->physicalDeviceMemoryProperties, m_context->queue, m_context->commandBufferPool);
 	m_swizzleTablePSMZ16 = CreateSwizzleTable<CGsPixelFormats::STORAGEPSMZ16>(m_context->device, m_context->physicalDeviceMemoryProperties, m_context->queue, m_context->commandBufferPool);
+	m_swizzleTablePSMZ16S = CreateSwizzleTable<CGsPixelFormats::STORAGEPSMZ16S>(m_context->device, m_context->physicalDeviceMemoryProperties, m_context->queue, m_context->commandBufferPool);
 
 	m_context->swizzleTablePSMCT32View = m_swizzleTablePSMCT32.CreateImageView();
 	m_context->swizzleTablePSMCT16View = m_swizzleTablePSMCT16.CreateImageView();
@@ -150,6 +151,7 @@ void CGSH_Vulkan::InitializeImpl()
 	m_context->swizzleTablePSMT4View = m_swizzleTablePSMT4.CreateImageView();
 	m_context->swizzleTablePSMZ32View = m_swizzleTablePSMZ32.CreateImageView();
 	m_context->swizzleTablePSMZ16View = m_swizzleTablePSMZ16.CreateImageView();
+	m_context->swizzleTablePSMZ16SView = m_swizzleTablePSMZ16S.CreateImageView();
 
 	m_context->SetImageName(m_swizzleTablePSMCT32, "Swizzle Table PSMCT32");
 	m_context->SetImageName(m_swizzleTablePSMCT16, "Swizzle Table PSMCT16");
@@ -158,6 +160,7 @@ void CGSH_Vulkan::InitializeImpl()
 	m_context->SetImageName(m_swizzleTablePSMT4, "Swizzle Table PSMT4");
 	m_context->SetImageName(m_swizzleTablePSMZ32, "Swizzle Table PSMZ32");
 	m_context->SetImageName(m_swizzleTablePSMZ16, "Swizzle Table PSMZ16");
+	m_context->SetImageName(m_swizzleTablePSMZ16S, "Swizzle Table PSMZ16S");
 
 	m_context->SetImageViewName(m_context->swizzleTablePSMCT32View, "Swizzle Table View PSMCT32");
 	m_context->SetImageViewName(m_context->swizzleTablePSMCT16View, "Swizzle Table View PSMCT16");
@@ -166,6 +169,7 @@ void CGSH_Vulkan::InitializeImpl()
 	m_context->SetImageViewName(m_context->swizzleTablePSMT4View, "Swizzle Table View PSMT4");
 	m_context->SetImageViewName(m_context->swizzleTablePSMZ32View, "Swizzle Table View PSMZ32");
 	m_context->SetImageViewName(m_context->swizzleTablePSMZ16View, "Swizzle Table View PSMZ16");
+	m_context->SetImageViewName(m_context->swizzleTablePSMZ16SView, "Swizzle Table View PSMZ16S");
 
 	m_frameCommandBuffer = std::make_shared<CFrameCommandBuffer>(m_context);
 	m_clutLoad = std::make_shared<CClutLoad>(m_context, m_frameCommandBuffer);
@@ -209,6 +213,7 @@ void CGSH_Vulkan::ReleaseImpl()
 	m_context->device.vkDestroyImageView(m_context->device, m_context->swizzleTablePSMT4View, nullptr);
 	m_context->device.vkDestroyImageView(m_context->device, m_context->swizzleTablePSMZ32View, nullptr);
 	m_context->device.vkDestroyImageView(m_context->device, m_context->swizzleTablePSMZ16View, nullptr);
+	m_context->device.vkDestroyImageView(m_context->device, m_context->swizzleTablePSMZ16SView, nullptr);
 
 	m_swizzleTablePSMCT32.Reset();
 	m_swizzleTablePSMCT16.Reset();
@@ -217,6 +222,7 @@ void CGSH_Vulkan::ReleaseImpl()
 	m_swizzleTablePSMT4.Reset();
 	m_swizzleTablePSMZ32.Reset();
 	m_swizzleTablePSMZ16.Reset();
+	m_swizzleTablePSMZ16S.Reset();
 
 	m_context->device.vkDestroyDescriptorPool(m_context->device, m_context->descriptorPool, nullptr);
 	m_context->clutBuffer.Reset();
@@ -1540,8 +1546,8 @@ Framework::CBitmap CGSH_Vulkan::GetDepthbufferImpl(uint64 frameReg, uint64 zbufR
 	break;
 	case PSMZ16S:
 	{
-		bitmap = ReadImage16<CGsPixelFormats::CPixelIndexorPSMCT16S>(GetRam(), zbuf.GetBasePtr(),
-		                                                             frame.nWidth, frameWidth, frameHeight);
+		bitmap = ReadImage16<CGsPixelFormats::CPixelIndexorPSMZ16S>(GetRam(), zbuf.GetBasePtr(),
+		                                                            frame.nWidth, frameWidth, frameHeight);
 	}
 	break;
 	default:

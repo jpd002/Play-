@@ -1639,7 +1639,6 @@ Framework::Vulkan::CShaderModule CDrawMobile::CreateLoadFragmentShader(const PIP
 			break;
 		case CGSHandler::PSMZ16:
 		case CGSHandler::PSMZ16S:
-			//TODO: Use real swizzle table
 			depthAddress = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMZ16>(
 			    b, depthSwizzleTable, depthBufAddress, depthBufWidth, screenPos);
 			break;
@@ -1756,7 +1755,6 @@ Framework::Vulkan::CShaderModule CDrawMobile::CreateStoreFragmentShader(const PI
 			break;
 		case CGSHandler::PSMZ16:
 		case CGSHandler::PSMZ16S:
-			//TODO: Use real swizzle table
 			depthAddress = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMZ16>(
 			    b, depthSwizzleTable, depthBufAddress, depthBufWidth, screenPos);
 			break;

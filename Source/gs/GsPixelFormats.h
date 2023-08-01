@@ -191,6 +191,39 @@ public:
 		typedef uint16 Unit;
 	};
 
+	struct STORAGEPSMZ16S
+	{
+		enum PAGEWIDTH
+		{
+			PAGEWIDTH = 64
+		};
+		enum PAGEHEIGHT
+		{
+			PAGEHEIGHT = 64
+		};
+		enum BLOCKWIDTH
+		{
+			BLOCKWIDTH = 16
+		};
+		enum BLOCKHEIGHT
+		{
+			BLOCKHEIGHT = 8
+		};
+		enum COLUMNWIDTH
+		{
+			COLUMNWIDTH = 16
+		};
+		enum COLUMNHEIGHT
+		{
+			COLUMNHEIGHT = 2
+		};
+
+		static const int m_nBlockSwizzleTable[8][4];
+		static const int m_nColumnSwizzleTable[2][16];
+
+		typedef uint16 Unit;
+	};
+
 	struct STORAGEPSMT8
 	{
 		enum PAGEWIDTH
@@ -367,6 +400,7 @@ public:
 	typedef CPixelIndexor<STORAGEPSMT4> CPixelIndexorPSMT4;
 
 	typedef CPixelIndexor<STORAGEPSMZ32> CPixelIndexorPSMZ32;
+	typedef CPixelIndexor<STORAGEPSMZ16S> CPixelIndexorPSMZ16S;
 };
 
 //////////////////////////////////////////////
