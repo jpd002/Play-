@@ -1,8 +1,9 @@
+#include "GSH_Vulkan.h"
 #include <cstring>
+#include "std_experimental_map.h"
 #include "../GsPixelFormats.h"
 #include "../../Log.h"
 #include "../../AppConfig.h"
-#include "GSH_Vulkan.h"
 #include "GSH_VulkanPlatformDefs.h"
 #include "GSH_VulkanDrawDesktop.h"
 #include "GSH_VulkanDrawMobile.h"
@@ -269,7 +270,12 @@ void CGSH_Vulkan::FlipImpl()
 	}
 
 	PresentBackbuffer();
-	m_copiedThisFrame = false;
+	for(auto& xferHistoryPair : m_xferHistory)
+	{
+		xferHistoryPair.second.Advance();
+	}
+	std::experimental::erase_if(m_xferHistory,
+	                            [](const auto& xferTrackerPair) { return xferTrackerPair.second.IsEmpty(); });
 	CGSHandler::FlipImpl();
 }
 
@@ -1321,14 +1327,17 @@ void CGSH_Vulkan::ProcessLocalToHostTransfer()
 	bool readsEnabled = CAppConfig::GetInstance().GetPreferenceBoolean(PREF_CGSHANDLER_GS_RAM_READS_ENABLED);
 	if(readsEnabled)
 	{
-		//Make sure our local RAM copy is in sync with GPU
-		//SyncMemoryCache();
+		//TODO: Handle transfers with offsets in TRXPOS.
 
 		m_draw->FlushRenderPass();
 
 		auto bltBuf = make_convertible<BITBLTBUF>(m_nReg[GS_REG_BITBLTBUF]);
 		auto trxReg = make_convertible<TRXREG>(m_nReg[GS_REG_TRXREG]);
 		auto trxPos = make_convertible<TRXPOS>(m_nReg[GS_REG_TRXPOS]);
+
+		m_xferHistory.insert(std::make_pair(bltBuf, LOCAL_TO_HOST_XFER_HISTORY{}));
+		auto transfer = m_xferHistory.find(bltBuf);
+		transfer->second.MarkUsed();
 
 		CGsCachedArea area;
 		area.SetArea(bltBuf.nSrcPsm, bltBuf.GetSrcPtr(), bltBuf.GetSrcWidth(), trxReg.nRRH);
@@ -1358,18 +1367,19 @@ void CGSH_Vulkan::ProcessLocalToHostTransfer()
 			m_context->device.vkCmdCopyBuffer(commandBuffer, srcBuffer, dstBuffer, 1, &bufferCopy);
 		}
 
-		if(!m_copiedThisFrame)
+		if(!transfer->second.IsRecurring())
 		{
-			void* bufferPtr = nullptr;
-			auto result = m_context->device.vkMapMemory(m_context->device, dstBuffer.GetMemory(), copyBase, copySize, 0, &bufferPtr);
-			CHECKVULKANERROR(result);
-
-			memcpy(m_memoryCache + copyBase, bufferPtr, copySize);
-
-			m_context->device.vkUnmapMemory(m_context->device, dstBuffer.GetMemory());
-
-			m_copiedThisFrame = true;
+			m_frameCommandBuffer->Flush();
+			m_context->device.vkQueueWaitIdle(m_context->queue);
 		}
+
+		void* bufferPtr = nullptr;
+		auto result = m_context->device.vkMapMemory(m_context->device, dstBuffer.GetMemory(), copyBase, copySize, 0, &bufferPtr);
+		CHECKVULKANERROR(result);
+
+		memcpy(m_memoryCache + copyBase, bufferPtr, copySize);
+
+		m_context->device.vkUnmapMemory(m_context->device, dstBuffer.GetMemory());
 	}
 }
 

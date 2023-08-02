@@ -594,9 +594,8 @@ void CGSHandler::FeedImageData(const void* data, uint32 length)
 void CGSHandler::ReadImageData(void* data, uint32 length)
 {
 	assert(m_writeBufferProcessIndex == m_writeBufferSize);
-	//SubmitWriteBuffer();
-	//SendGSCall([this, data, length]() { ReadImageDataImpl(data, length); }, true);
-	ReadImageDataImpl(data, length);
+	SubmitWriteBuffer();
+	SendGSCall([this, data, length]() { ReadImageDataImpl(data, length); }, true);
 }
 
 void CGSHandler::ProcessWriteBuffer(const CGsPacketMetadata* metadata)
