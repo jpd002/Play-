@@ -172,9 +172,9 @@ public:
 		return symbolTable->nSize / sizeof(SYMBOL);
 	}
 
-	typedef std::function<void(const SYMBOL&, uint8, uint8, const char*)> SymbolEnumarationCallback;
+	typedef std::function<void(const SYMBOL&, uint8, uint8, const char*)> SymbolEnumerationCallback;
 
-	void EnumerateSymbols(const SymbolEnumarationCallback& callback) const
+	void EnumerateSymbols(const SymbolEnumerationCallback& callback) const
 	{
 		auto symbolTable = FindSection(".symtab");
 		if(!symbolTable) return;
