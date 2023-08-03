@@ -1328,8 +1328,6 @@ void CGSH_Vulkan::ProcessLocalToHostTransfer()
 	bool readsEnabled = CAppConfig::GetInstance().GetPreferenceBoolean(PREF_CGSHANDLER_GS_RAM_READS_ENABLED);
 	if(readsEnabled)
 	{
-		//TODO: Handle transfers with offsets in TRXPOS.
-
 		m_draw->FlushRenderPass();
 
 		auto bltBuf = make_convertible<BITBLTBUF>(m_nReg[GS_REG_BITBLTBUF]);
@@ -1341,6 +1339,18 @@ void CGSH_Vulkan::ProcessLocalToHostTransfer()
 		transfer->second.MarkUsed();
 
 		auto [copyBase, copySize] = GsTransfer::GetSrcRange(bltBuf, trxReg, trxPos);
+
+		//Some games do that, example: Star Ocean 3
+		assert((copyBase + copySize) <= RAMSIZE);
+		if(copyBase >= RAMSIZE)
+		{
+			//Huh, something really wierd happened
+			return;
+		}
+		if((copyBase + copySize) > RAMSIZE)
+		{
+			copySize = RAMSIZE - copyBase;
+		}
 
 		auto& srcBuffer = m_context->memoryBuffer;
 		auto& dstBuffer = m_context->memoryBufferTransfer;
