@@ -1,6 +1,7 @@
 #include "GSH_Direct3D9.h"
 #include "../../Log.h"
 #include "../../gs/GsPixelFormats.h"
+#include "../../gs/GsTransferRange.h"
 #include "direct3d9/D3D9TextureUtils.h"
 #include "math/Matrix4.h"
 
@@ -88,7 +89,7 @@ void CGSH_Direct3D9::ProcessHostToLocalTransfer()
 		auto trxReg = make_convertible<TRXREG>(m_nReg[GS_REG_TRXREG]);
 		auto trxPos = make_convertible<TRXPOS>(m_nReg[GS_REG_TRXPOS]);
 
-		auto [transferAddress, transferSize] = GetTransferInvalidationRange(bltBuf, trxReg, trxPos);
+		auto [transferAddress, transferSize] = GsTransfer::GetDstRange(bltBuf, trxReg, trxPos);
 
 		m_textureCache.InvalidateRange(transferAddress, transferSize);
 
