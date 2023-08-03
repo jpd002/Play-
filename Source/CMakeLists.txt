@@ -256,6 +256,7 @@ set(COMMON_SRC_FILES
 	gs/GsPixelFormats.h
 	gs/GsSpriteRegion.h
 	gs/GsTextureCache.h
+	gs/GsTransferRange.h
 	hdd/ApaDefs.h
 	hdd/ApaReader.cpp
 	hdd/ApaReader.h

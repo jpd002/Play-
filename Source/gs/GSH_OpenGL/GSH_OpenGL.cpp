@@ -6,6 +6,7 @@
 #include "../../Log.h"
 #include "../../AppConfig.h"
 #include "../GsPixelFormats.h"
+#include "../GsTransferRange.h"
 #include "GSH_OpenGL.h"
 
 #ifdef USE_DUALSOURCE_BLENDING
@@ -2006,7 +2007,7 @@ void CGSH_OpenGL::ProcessHostToLocalTransfer()
 		auto trxReg = make_convertible<TRXREG>(m_nReg[GS_REG_TRXREG]);
 		auto trxPos = make_convertible<TRXPOS>(m_nReg[GS_REG_TRXPOS]);
 
-		auto [transferAddress, transferSize] = GetTransferInvalidationRange(bltBuf, trxReg, trxPos);
+		auto [transferAddress, transferSize] = GsTransfer::GetDstRange(bltBuf, trxReg, trxPos);
 
 		m_textureCache.InvalidateRange(transferAddress, transferSize);
 
@@ -2120,7 +2121,7 @@ void CGSH_OpenGL::ProcessLocalToLocalTransfer()
 		// Sample down to requested size
 		imgbuffer = imgbuffer.Resize(trxReg.nRRW, trxReg.nRRH);
 
-		auto [transferAddress, transferSize] = GetTransferInvalidationRange(bltBuf, trxReg, trxPos);
+		auto [transferAddress, transferSize] = GsTransfer::GetDstRange(bltBuf, trxReg, trxPos);
 		m_textureCache.InvalidateRange(transferAddress, transferSize);
 
 		//Write back to RAM

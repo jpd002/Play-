@@ -2,6 +2,7 @@
 #include <cstring>
 #include "std_experimental_map.h"
 #include "../GsPixelFormats.h"
+#include "../GsTransferRange.h"
 #include "../../Log.h"
 #include "../../AppConfig.h"
 #include "GSH_VulkanPlatformDefs.h"
@@ -1339,11 +1340,7 @@ void CGSH_Vulkan::ProcessLocalToHostTransfer()
 		auto transfer = m_xferHistory.find(bltBuf);
 		transfer->second.MarkUsed();
 
-		CGsCachedArea area;
-		area.SetArea(bltBuf.nSrcPsm, bltBuf.GetSrcPtr(), bltBuf.GetSrcWidth(), trxReg.nRRH);
-
-		uint32 copyBase = bltBuf.GetSrcPtr();
-		uint32 copySize = area.GetSize();
+		auto [copyBase, copySize] = GsTransfer::GetSrcRange(bltBuf, trxReg, trxPos);
 
 		auto& srcBuffer = m_context->memoryBuffer;
 		auto& dstBuffer = m_context->memoryBufferTransfer;

@@ -1,6 +1,7 @@
 #include "GsTransferInvalidationTest.h"
 #include "gs/GSHandler.h"
 #include "gs/GsPixelFormats.h"
+#include "gs/GsTransferRange.h"
 
 static CGSHandler::BITBLTBUF MakeDstBltBuf(uint32 psm, uint32 bufPtr, uint32 bufWidth)
 {
@@ -40,7 +41,7 @@ static void SinglePageTransferTest()
 	auto trxReg = MakeTrxReg(Storage::PAGEWIDTH, Storage::PAGEHEIGHT);
 	auto trxPos = make_convertible<CGSHandler::TRXPOS>(0);
 
-	auto [transferAddress, transferSize] = CGSHandler::GetTransferInvalidationRange(bltBuf, trxReg, trxPos);
+	auto [transferAddress, transferSize] = GsTransfer::GetDstRange(bltBuf, trxReg, trxPos);
 
 	TEST_VERIFY(transferAddress == bufPtr);
 	TEST_VERIFY(transferSize == CGsPixelFormats::PAGESIZE);
@@ -61,7 +62,7 @@ static void SimpleOffsetYTransferTest()
 	auto trxReg = MakeTrxReg(16, 16);
 	auto trxPos = MakeDstTrxPos(0, CGsPixelFormats::STORAGEPSMCT32::PAGEHEIGHT * pageOffsetY);
 
-	auto [transferAddress, transferSize] = CGSHandler::GetTransferInvalidationRange(bltBuf, trxReg, trxPos);
+	auto [transferAddress, transferSize] = GsTransfer::GetDstRange(bltBuf, trxReg, trxPos);
 
 	TEST_VERIFY(transferAddress == (bufPtr + (CGsPixelFormats::PAGESIZE * pageCountX * pageOffsetY)));
 	//TEST_VERIFY(transferSize == CGsPixelFormats::PAGESIZE);
@@ -79,7 +80,7 @@ static void ZeroBufWidthTransferTest()
 	auto trxReg = MakeTrxReg(16, 16);
 	auto trxPos = make_convertible<CGSHandler::TRXPOS>(0);
 
-	auto [transferAddress, transferSize] = CGSHandler::GetTransferInvalidationRange(bltBuf, trxReg, trxPos);
+	auto [transferAddress, transferSize] = GsTransfer::GetDstRange(bltBuf, trxReg, trxPos);
 
 	TEST_VERIFY(transferAddress == bufPtr);
 	TEST_VERIFY(transferSize == CGsPixelFormats::PAGESIZE);
@@ -94,7 +95,7 @@ void EspgaludaTransferTest()
 	auto trxReg = MakeTrxReg(160, 128);
 	auto trxPos = MakeDstTrxPos(16, 16);
 
-	auto [transferAddress, transferSize] = CGSHandler::GetTransferInvalidationRange(bltBuf, trxReg, trxPos);
+	auto [transferAddress, transferSize] = GsTransfer::GetDstRange(bltBuf, trxReg, trxPos);
 
 	//PSMT8 page size is 128x64
 	//This transfer spans 8 pages on the X dimension -> ceil(1024 / 128)

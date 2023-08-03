@@ -89,11 +89,12 @@ CGSHandler::CGSHandler(bool gsThreaded)
 	m_transferWriteHandlers[PSMT4HH] = &CGSHandler::TransferWriteHandlerPSMT4H<28, 0xF0000000>;
 
 	m_transferReadHandlers[PSMCT32] = &CGSHandler::TransferReadHandlerGeneric<CGsPixelFormats::STORAGEPSMCT32>;
-	m_transferReadHandlers[PSMCT24] = &CGSHandler::TransferReadHandlerPSMCT24;
+	m_transferReadHandlers[PSMCT24] = &CGSHandler::TransferReadHandler24<CGsPixelFormats::STORAGEPSMCT32>;
 	m_transferReadHandlers[PSMCT16] = &CGSHandler::TransferReadHandlerGeneric<CGsPixelFormats::STORAGEPSMCT16>;
 	m_transferReadHandlers[PSMT8] = &CGSHandler::TransferReadHandlerGeneric<CGsPixelFormats::STORAGEPSMT8>;
 	m_transferReadHandlers[PSMT8H] = &CGSHandler::TransferReadHandlerPSMT8H;
 	m_transferReadHandlers[PSMZ32] = &CGSHandler::TransferReadHandlerGeneric<CGsPixelFormats::STORAGEPSMZ32>;
+	m_transferReadHandlers[PSMZ24] = &CGSHandler::TransferReadHandler24<CGsPixelFormats::STORAGEPSMZ32>;
 	m_transferReadHandlers[PSMZ16S] = &CGSHandler::TransferReadHandlerGeneric<CGsPixelFormats::STORAGEPSMZ16S>;
 
 	ResetBase();
@@ -787,35 +788,6 @@ void CGSHandler::SubmitWriteBufferImpl(uint32 bufferStartIndex, uint32 bufferEnd
 	m_transferCount--;
 }
 
-std::pair<uint32, uint32> CGSHandler::GetTransferInvalidationRange(const BITBLTBUF& bltBuf, const TRXREG& trxReg, const TRXPOS& trxPos)
-{
-	uint32 transferAddress = bltBuf.GetDstPtr();
-
-	//Find the pages that are touched by this transfer
-	auto transferPageSize = CGsPixelFormats::GetPsmPageSize(bltBuf.nDstPsm);
-
-	// DBZ Budokai Tenkaichi 2 and 3 use invalid (empty) buffer sizes
-	// Account for that, by assuming trxReg.nRRW.
-	auto width = bltBuf.GetDstWidth();
-	if(width == 0)
-	{
-		width = trxReg.nRRW;
-	}
-
-	//Espgaluda uses an offset into a big memory area. The Y offset is not necessarily
-	//a multiple of the page height. We need to make sure to take this into account.
-	uint32 intraPageOffsetY = trxPos.nDSAY % transferPageSize.second;
-
-	uint32 pageCountX = (width + transferPageSize.first - 1) / transferPageSize.first;
-	uint32 pageCountY = (intraPageOffsetY + trxReg.nRRH + transferPageSize.second - 1) / transferPageSize.second;
-
-	uint32 pageCount = pageCountX * pageCountY;
-	uint32 transferSize = pageCount * CGsPixelFormats::PAGESIZE;
-	uint32 transferOffset = (trxPos.nDSAY / transferPageSize.second) * pageCountX * CGsPixelFormats::PAGESIZE;
-
-	return std::make_pair(transferAddress + transferOffset, transferSize);
-}
-
 void CGSHandler::BeginTransfer()
 {
 	uint32 trxDir = m_nReg[GS_REG_TRXDIR] & 0x03;
@@ -1129,7 +1101,8 @@ void CGSHandler::TransferReadHandlerGeneric(void* buffer, uint32 length)
 	}
 }
 
-void CGSHandler::TransferReadHandlerPSMCT24(void* buffer, uint32 length)
+template <typename Storage>
+void CGSHandler::TransferReadHandler24(void* buffer, uint32 length)
 {
 	auto trxPos = make_convertible<TRXPOS>(m_nReg[GS_REG_TRXPOS]);
 	auto trxReg = make_convertible<TRXREG>(m_nReg[GS_REG_TRXREG]);
@@ -1137,7 +1110,7 @@ void CGSHandler::TransferReadHandlerPSMCT24(void* buffer, uint32 length)
 
 	auto dst = reinterpret_cast<uint8*>(buffer);
 
-	CGsPixelFormats::CPixelIndexorPSMCT32 indexor(GetRam(), trxBuf.GetSrcPtr(), trxBuf.nSrcWidth);
+	CGsPixelFormats::CPixelIndexor<Storage> indexor(GetRam(), trxBuf.GetSrcPtr(), trxBuf.nSrcWidth);
 	for(uint32 i = 0; i < length; i += 3)
 	{
 		uint32 x = (m_trxCtx.nRRX + trxPos.nSSAX) % 2048;

@@ -12,6 +12,7 @@
 #include "GSH_VulkanTransferLocal.h"
 #include <vector>
 #include <map>
+#include <cstring>
 #include "../GSHandler.h"
 #include "../GsDebuggerInterface.h"
 #include "../GsCachedArea.h"
