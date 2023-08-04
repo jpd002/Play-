@@ -763,9 +763,9 @@ void CMA_MIPSIV::LD()
 	m_codeGen->PushCst(0);
 	m_codeGen->BeginIf(Jitter::CONDITION_NE);
 	{
-		ComputeMemAccessRef(8);
+		ComputeMemAccessRefIdx(8);
 
-		m_codeGen->Load64FromRef();
+		m_codeGen->Load64FromRefIdx(1);
 		m_codeGen->PullRel64(offsetof(CMIPS, m_State.nGPR[m_nRT]));
 	}
 	m_codeGen->Else();
@@ -818,10 +818,10 @@ void CMA_MIPSIV::SD()
 	m_codeGen->PushCst(0);
 	m_codeGen->BeginIf(Jitter::CONDITION_NE);
 	{
-		ComputeMemAccessRef(8);
+		ComputeMemAccessRefIdx(8);
 
 		m_codeGen->PushRel64(offsetof(CMIPS, m_State.nGPR[m_nRT]));
-		m_codeGen->Store64AtRef();
+		m_codeGen->Store64AtRefIdx(1);
 	}
 	m_codeGen->Else();
 	{
