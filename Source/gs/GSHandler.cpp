@@ -378,6 +378,7 @@ void CGSHandler::SetVBlank()
 {
 	{
 		Finish();
+		Flip();
 	}
 
 	std::lock_guard registerMutexLock(m_registerMutex);
@@ -521,32 +522,32 @@ void CGSHandler::Release()
 	SendGSCall(std::bind(&CGSHandler::ReleaseImpl, this), true);
 }
 
-void CGSHandler::Finish()
+void CGSHandler::Finish(bool forceWait)
 {
 	FlushWriteBuffer();
 	SendGSCall(std::bind(&CGSHandler::MarkNewFrame, this));
 	m_framesInFlight++;
-	uint32 waitFlag = (m_framesInFlight == MAX_INFLIGHT_FRAMES) ? FLIP_FLAG_WAIT : 0;
-	Flip(waitFlag | FLIP_FLAG_FINISH);
+	bool wait = (m_framesInFlight == MAX_INFLIGHT_FRAMES);
+	wait |= forceWait;
+	SendGSCall(
+	    [this]() {
+		    assert(m_framesInFlight != 0);
+		    m_framesInFlight--;
+	    },
+	    wait, wait);
 }
 
 void CGSHandler::Flip(uint32 flags)
 {
 	bool waitForCompletion = (flags & FLIP_FLAG_WAIT) != 0;
 	bool force = (flags & FLIP_FLAG_FORCE) != 0;
-	bool finish = (flags & FLIP_FLAG_FINISH) != 0;
 	SendGSCall(
-	    [this, displayInfo = GetCurrentDisplayInfo(), force, finish]() {
+	    [this, displayInfo = GetCurrentDisplayInfo(), force]() {
 		    if(force || m_regsDirty)
 		    {
 			    FlipImpl(displayInfo);
 		    }
 		    m_regsDirty = false;
-		    if(finish)
-		    {
-			    assert(m_framesInFlight != 0);
-			    m_framesInFlight--;
-		    }
 	    },
 	    waitForCompletion, waitForCompletion);
 }

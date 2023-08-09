@@ -185,9 +185,8 @@ public:
 
 	enum FLIP_FLAGS
 	{
-		FLIP_FLAG_WAIT = 0x01,
-		FLIP_FLAG_FORCE = 0x02,
-		FLIP_FLAG_FINISH = 0x04,
+		FLIP_FLAG_WAIT = 0x01, //Wait for flip operation to be complete
+		FLIP_FLAG_FORCE = 0x02, //Force swapping/presenting on graphics API even if nothing was drawn this frame
 	};
 
 	enum PSM
@@ -871,7 +870,7 @@ public:
 	virtual void ProcessLocalToLocalTransfer() = 0;
 	virtual void ProcessClutTransfer(uint32, uint32) = 0;
 	void Flip(uint32 = 0);
-	void Finish();
+	void Finish(bool = false);
 
 	void MakeLinearCLUT(const TEX0&, std::array<uint32, 256>&) const;
 
