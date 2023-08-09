@@ -635,7 +635,7 @@ void CGSHandler::ProcessWriteBuffer(const CGsPacketMetadata* metadata)
 		uint32 packetSize = m_writeBufferSize - m_writeBufferProcessIndex;
 		if(packetSize != 0)
 		{
-			m_frameDump->AddRegisterPacket(m_writeBuffer + m_writeBufferProcessIndex, packetSize, metadata);
+			m_frameDump->AddRegisterPacket(m_currentWriteBuffer + m_writeBufferProcessIndex, packetSize, metadata);
 		}
 	}
 #endif
