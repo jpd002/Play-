@@ -185,7 +185,7 @@ public:
 
 	enum FLIP_FLAGS
 	{
-		FLIP_FLAG_WAIT = 0x01, //Wait for flip operation to be complete
+		FLIP_FLAG_WAIT = 0x01,  //Wait for flip operation to be complete
 		FLIP_FLAG_FORCE = 0x02, //Force swapping/presenting on graphics API even if nothing was drawn this frame
 	};
 
