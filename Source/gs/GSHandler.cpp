@@ -526,8 +526,7 @@ void CGSHandler::Finish(bool forceWait)
 {
 	FlushWriteBuffer();
 	SendGSCall(std::bind(&CGSHandler::MarkNewFrame, this));
-	m_framesInFlight++;
-	bool wait = (m_framesInFlight == MAX_INFLIGHT_FRAMES);
+	bool wait = (++m_framesInFlight == MAX_INFLIGHT_FRAMES);
 	wait |= forceWait;
 	SendGSCall(
 	    [this]() {
