@@ -84,6 +84,21 @@ protected:
 		uint32 elementSize = 0;
 	};
 
+	struct MemoryAccessIdxTraits
+	{
+		typedef void (CMipsJitter::*SignExtFunction)();
+		typedef void (CMipsJitter::*MemAccessFunction)(size_t);
+
+		void* getProxyFunction = nullptr;
+		void* setProxyFunction = nullptr;
+
+		MemAccessFunction loadFunction = nullptr;
+		MemAccessFunction storeFunction = nullptr;
+		SignExtFunction signExtFunction = nullptr;
+		uint32 elementSize = 0;
+		bool upper64BitSignExtend = false;
+	};
+
 	//Instruction compiler templates
 	typedef std::function<void(uint8)> TemplateParamedOperationFunctionType;
 	typedef std::function<void()> TemplateOperationFunctionType;
@@ -94,6 +109,8 @@ protected:
 	void Template_Sub64(bool);
 	void Template_Load32(const MemoryAccessTraits&);
 	void Template_Store32(const MemoryAccessTraits&);
+	void Template_Load32Idx(const MemoryAccessIdxTraits&);
+	void Template_Store32Idx(const MemoryAccessIdxTraits&);
 	void Template_ShiftCst32(const TemplateParamedOperationFunctionType&);
 	void Template_ShiftVar32(const TemplateOperationFunctionType&);
 	void Template_Mult32(bool, unsigned int);
@@ -228,6 +245,8 @@ private:
 	static const MemoryAccessTraits g_halfAccessTraits;
 	static const MemoryAccessTraits g_uhalfAccessTraits;
 	static const MemoryAccessTraits g_wordAccessTraits;
+	static const MemoryAccessIdxTraits g_wordAccessIdxTraits;
+	static const MemoryAccessIdxTraits g_uwordAccessIdxTraits;
 
 	//Opcode tables
 	typedef void (CMA_MIPSIV::*InstructionFuncConstant)();

@@ -58,6 +58,28 @@ const CMA_MIPSIV::MemoryAccessTraits CMA_MIPSIV::g_wordAccessTraits =
 	4
 };
 
+const CMA_MIPSIV::MemoryAccessIdxTraits CMA_MIPSIV::g_wordAccessIdxTraits =
+{
+	reinterpret_cast<void*>(&MemoryUtils_GetWordProxy),
+	reinterpret_cast<void*>(&MemoryUtils_SetWordProxy),
+	&CMipsJitter::LoadFromRefIdx,
+	&CMipsJitter::StoreAtRefIdx,
+	nullptr,
+	4,
+	true,
+};
+
+const CMA_MIPSIV::MemoryAccessIdxTraits CMA_MIPSIV::g_uwordAccessIdxTraits =
+{
+	reinterpret_cast<void*>(&MemoryUtils_GetWordProxy),
+	reinterpret_cast<void*>(&MemoryUtils_SetWordProxy),
+	&CMipsJitter::LoadFromRefIdx,
+	&CMipsJitter::StoreAtRefIdx,
+	nullptr,
+	4,
+	false,
+};
+
 static const uint32 g_LWMaskRight[4] =
 {
     0x00FFFFFF,
@@ -597,7 +619,7 @@ void CMA_MIPSIV::LWL()
 //23
 void CMA_MIPSIV::LW()
 {
-	Template_Load32(g_wordAccessTraits);
+	Template_Load32Idx(g_wordAccessIdxTraits);
 }
 
 //24
@@ -636,21 +658,7 @@ void CMA_MIPSIV::LWR()
 //27
 void CMA_MIPSIV::LWU()
 {
-	CheckTLBExceptions(false);
-
-	if(m_nRT == 0) return;
-
-	ComputeMemAccessAddrNoXlat();
-
-	m_codeGen->PushCtx();
-	m_codeGen->PushIdx(1);
-	m_codeGen->Call(reinterpret_cast<void*>(&MemoryUtils_GetWordProxy), 2, true);
-	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
-
-	m_codeGen->PushCst(0);
-	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[1]));
-
-	m_codeGen->PullTop();
+	Template_Load32Idx(g_uwordAccessIdxTraits);
 }
 
 //28
@@ -678,7 +686,7 @@ void CMA_MIPSIV::SWL()
 //2B
 void CMA_MIPSIV::SW()
 {
-	Template_Store32(g_wordAccessTraits);
+	Template_Store32Idx(g_wordAccessIdxTraits);
 }
 
 //2C

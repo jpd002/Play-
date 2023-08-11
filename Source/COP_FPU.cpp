@@ -556,9 +556,9 @@ void CCOP_FPU::LWC1()
 		m_codeGen->PushCst(0);
 		m_codeGen->BeginIf(Jitter::CONDITION_NE);
 		{
-			ComputeMemAccessRef(4);
+			ComputeMemAccessRefIdx(4);
 
-			m_codeGen->LoadFromRef();
+			m_codeGen->LoadFromRefIdx(1);
 			m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP1[m_ft]));
 		}
 		m_codeGen->Else();
@@ -595,10 +595,10 @@ void CCOP_FPU::SWC1()
 		m_codeGen->PushCst(0);
 		m_codeGen->BeginIf(Jitter::CONDITION_NE);
 		{
-			ComputeMemAccessRef(4);
+			ComputeMemAccessRefIdx(4);
 
 			m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP1[m_ft]));
-			m_codeGen->StoreAtRef();
+			m_codeGen->StoreAtRefIdx(1);
 		}
 		m_codeGen->Else();
 	}

@@ -163,6 +163,111 @@ void CMA_MIPSIV::Template_Store32(const MemoryAccessTraits& traits)
 	}
 }
 
+void CMA_MIPSIV::Template_Load32Idx(const MemoryAccessIdxTraits& traits)
+{
+	CheckTLBExceptions(false);
+
+	if(m_nRT == 0) return;
+
+	const auto finishLoad =
+	    [&]() {
+		    if(traits.signExtFunction)
+		    {
+			    //SignExt to 32-bits (if needed)
+			    ((m_codeGen)->*(traits.signExtFunction))();
+		    }
+
+		    //Sign extend to whole 64-bits
+		    if(m_regSize == MIPS_REGSIZE_64)
+		    {
+			    if(traits.upper64BitSignExtend)
+			    {
+				    m_codeGen->PushTop();
+				    m_codeGen->SignExt();
+			    }
+			    else
+			    {
+				    m_codeGen->PushCst(0);
+			    }
+			    m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[1]));
+		    }
+		    m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
+	    };
+
+	bool usePageLookup = (m_pCtx->m_pageLookup != nullptr);
+
+	if(usePageLookup)
+	{
+		ComputeMemAccessPageRef();
+
+		m_codeGen->PushCst(0);
+		m_codeGen->BeginIf(Jitter::CONDITION_NE);
+		{
+			ComputeMemAccessRefIdx(traits.elementSize);
+			((m_codeGen)->*(traits.loadFunction))(1);
+			finishLoad();
+		}
+		m_codeGen->Else();
+	}
+
+	//Standard memory access
+	{
+		ComputeMemAccessAddrNoXlat();
+
+		m_codeGen->PushCtx();
+		m_codeGen->PushIdx(1);
+		m_codeGen->Call(traits.getProxyFunction, 2, true);
+
+		finishLoad();
+
+		m_codeGen->PullTop();
+	}
+
+	if(usePageLookup)
+	{
+		m_codeGen->EndIf();
+	}
+}
+
+void CMA_MIPSIV::Template_Store32Idx(const MemoryAccessIdxTraits& traits)
+{
+	CheckTLBExceptions(true);
+
+	bool usePageLookup = (m_pCtx->m_pageLookup != nullptr);
+
+	if(usePageLookup)
+	{
+		ComputeMemAccessPageRef();
+
+		m_codeGen->PushCst(0);
+		m_codeGen->BeginIf(Jitter::CONDITION_NE);
+		{
+			ComputeMemAccessRefIdx(traits.elementSize);
+
+			m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
+			((m_codeGen)->*(traits.storeFunction))(1);
+		}
+		m_codeGen->Else();
+	}
+
+	//Standard memory access
+	{
+		ComputeMemAccessAddrNoXlat();
+
+		m_codeGen->PushCtx();
+		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
+		m_codeGen->PushIdx(2);
+		m_codeGen->Call(traits.setProxyFunction, 3, false);
+
+		m_codeGen->PullTop();
+	}
+
+	if(usePageLookup)
+	{
+		m_codeGen->EndIf();
+	}
+}
+
 void CMA_MIPSIV::Template_ShiftCst32(const TemplateParamedOperationFunctionType& Function)
 {
 	if(m_nRD == 0) return;
