@@ -120,6 +120,8 @@ set(SRC_FILES
 	${SRC_ROOT}/QtDebugger.h
 	${SRC_ROOT}/QtDialogListWidget.cpp
 	${SRC_ROOT}/QtDialogListWidget.h
+	${SRC_ROOT}/TagsView.cpp
+	${SRC_ROOT}/TagsView.h
 )
 
 set(QT_DEBUGGER_MOC_HEADERS
@@ -131,6 +133,7 @@ set(QT_DEBUGGER_MOC_HEADERS
 	${SRC_ROOT}/QtDebugger.h
 	${SRC_ROOT}/QtDialogListWidget.h
 	${SRC_ROOT}/QtMemoryViewModel.h
+	${SRC_ROOT}/TagsView.h
 	${SRC_ROOT}/FrameDebugger/GsPacketListModel.h
 	${SRC_ROOT}/FrameDebugger/PixelBufferView.h
 	${SRC_ROOT}/FrameDebugger/QtFramedebugger.h
@@ -140,6 +143,7 @@ set(QT_DEBUGGER_MOC_HEADERS
 set(QT_DEBUGGER_UI
 	${SRC_ROOT}/Qt_ui/AddressListViewWnd.ui
 	${SRC_ROOT}/Qt_ui/MemoryViewMIPSWnd.ui
+	${SRC_ROOT}/Qt_ui/TagsView.ui
 
 	${SRC_ROOT}/Qt_ui/QtDebugger.ui
 	${SRC_ROOT}/Qt_ui/QtDialogListWidget.ui

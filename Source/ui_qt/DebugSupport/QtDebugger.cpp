@@ -38,8 +38,8 @@ QtDebugger::QtDebugger(CPS2VM& virtualMachine)
 	//Functions View Initialization
 	m_pFunctionsView = new CFunctionsView(ui->mdiArea);
 	m_pFunctionsView->hide();
-	m_OnFunctionDblClickConnection = m_pFunctionsView->OnFunctionDblClick.Connect(std::bind(&QtDebugger::OnFunctionsViewFunctionDblClick, this, std::placeholders::_1));
-	m_OnFunctionsStateChangeConnection = m_pFunctionsView->OnFunctionsStateChange.Connect(std::bind(&QtDebugger::OnFunctionsViewFunctionsStateChange, this));
+	m_OnFunctionDblClickConnection = m_pFunctionsView->OnItemDblClick.Connect(std::bind(&QtDebugger::OnFunctionsViewFunctionDblClick, this, std::placeholders::_1));
+	m_OnFunctionsStateChangeConnection = m_pFunctionsView->OnStateChange.Connect(std::bind(&QtDebugger::OnFunctionsViewFunctionsStateChange, this));
 
 	//Kernel Objects View Initialization
 	{
