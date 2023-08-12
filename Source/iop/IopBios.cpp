@@ -3889,6 +3889,8 @@ void CIopBios::PrepareModuleDebugInfo(CELF32& elf, const ExecutableRange& module
 	m_cpu.m_analysis->Analyse(moduleRange.first, moduleRange.second);
 
 	bool functionAdded = false;
+	bool variableAdded = false;
+
 	//Look for import tables
 	for(uint32 address = moduleRange.first; address < moduleRange.second; address += 4)
 	{
@@ -3938,11 +3940,20 @@ void CIopBios::PrepareModuleDebugInfo(CELF32& elf, const ExecutableRange& module
 			m_cpu.m_Functions.InsertTag(symbol.nValue + moduleRange.first, name);
 			functionAdded = true;
 		}
+		else if((type == ELF::STT_OBJECT) && (binding == ELF::STB_GLOBAL))
+		{
+			m_cpu.m_Variables.InsertTag(symbol.nValue + moduleRange.first, name);
+			variableAdded = true;
+		}
 	});
 
 	if(functionAdded)
 	{
 		m_cpu.m_Functions.OnTagListChange();
+	}
+	if(variableAdded)
+	{
+		m_cpu.m_Variables.OnTagListChange();
 	}
 
 	CLog::GetInstance().Print(LOGNAME, "Loaded IOP module '%s' @ 0x%08X.\r\n",

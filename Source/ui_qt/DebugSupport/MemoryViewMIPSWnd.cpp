@@ -62,6 +62,11 @@ void CMemoryViewMIPSWnd::SetBytesPerLine(int bytesForLine)
 	ui->tableView->SetBytesPerLine(bytesForLine);
 }
 
+void CMemoryViewMIPSWnd::SetAddress(uint32 address)
+{
+	ui->tableView->SetSelectionStart(address);
+}
+
 void CMemoryViewMIPSWnd::UpdateStatusBar(uint32 address)
 {
 	auto caption = string_format("Address : 0x%08X", address);

@@ -6,6 +6,7 @@
 #include "DebugView.h"
 #include "CallStackWnd.h"
 #include "FunctionsView.h"
+#include "VariablesView.h"
 #include "KernelObjectListView.h"
 #include "AddressListViewWnd.h"
 #include "PS2VM.h"
@@ -49,6 +50,7 @@ private slots:
 
 	void on_actionCall_Stack_triggered();
 	void on_actionFunctions_triggered();
+	void on_actionVariables_triggered();
 	void on_actionELF_File_Information_triggered();
 	void on_actionViewKernelObject_triggered();
 	void on_actionView_Disassmebly_triggered();
@@ -118,6 +120,7 @@ private:
 	//Event handlers
 	void OnFunctionsViewFunctionDblClick(uint32);
 	void OnFunctionsViewFunctionsStateChange();
+	void OnVariablesViewVariableDblClick(uint32);
 	void OnKernelObjectsViewAddressDblClick(uint32);
 	void OnExecutableChangeMsg();
 	void OnExecutableUnloadingMsg();
@@ -128,6 +131,7 @@ private:
 
 	Framework::CSignal<void(uint32)>::Connection m_OnFunctionDblClickConnection;
 	Framework::CSignal<void()>::Connection m_OnFunctionsStateChangeConnection;
+	Framework::CSignal<void(uint32)>::Connection m_OnVariablesDblClickConnection;
 	CKernelObjectListView::OnGotoAddressSignal::Connection m_OnGotoAddressConnection;
 	CKernelObjectListView::OnObjectTypeChangedSignal::Connection m_OnKernelObjectListViewTypeChangedConnection;
 
@@ -141,6 +145,7 @@ private:
 
 	CELFView<CELF32>* m_pELFView = nullptr;
 	CFunctionsView* m_pFunctionsView = nullptr;
+	CVariablesView* m_pVariablesView = nullptr;
 	CKernelObjectListView* m_kernelObjectListView = nullptr;
 	QMdiSubWindow* m_kernelObjectListViewWnd = nullptr;
 	CDebugView* m_pView[DEBUGVIEW_MAX] = {};

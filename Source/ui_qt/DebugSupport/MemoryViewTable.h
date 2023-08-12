@@ -24,6 +24,7 @@ public:
 	void SetBytesPerLine(int);
 
 	void SetData(CQtMemoryViewModel::getByteProto, int);
+	void SetSelectionStart(uint32);
 
 	void ShowEvent();
 	void ResizeEvent();
@@ -41,7 +42,6 @@ private:
 	void GotoAddress();
 	void FollowPointer();
 	void SetActiveUnit(int);
-	void SetSelectionStart(uint32);
 	void SelectionChanged();
 
 	CMIPS* m_context = nullptr;

@@ -81,6 +81,7 @@
     <addaction name="actionView_Registers"/>
     <addaction name="actionCall_Stack"/>
     <addaction name="actionFunctions"/>
+    <addaction name="actionVariables"/>
     <addaction name="actionELF_File_Information"/>
     <addaction name="menuKernelObjects"/>
     <addaction name="separator"/>
@@ -170,6 +171,11 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+F</string>
+   </property>
+  </action>
+  <action name="actionVariables">
+   <property name="text">
+    <string>Variables</string>
    </property>
   </action>
   <action name="actionELF_File_Information">

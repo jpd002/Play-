@@ -41,6 +41,11 @@ QtDebugger::QtDebugger(CPS2VM& virtualMachine)
 	m_OnFunctionDblClickConnection = m_pFunctionsView->OnItemDblClick.Connect(std::bind(&QtDebugger::OnFunctionsViewFunctionDblClick, this, std::placeholders::_1));
 	m_OnFunctionsStateChangeConnection = m_pFunctionsView->OnStateChange.Connect(std::bind(&QtDebugger::OnFunctionsViewFunctionsStateChange, this));
 
+	//Variables View Initialization
+	m_pVariablesView = new CVariablesView(ui->mdiArea);
+	m_pVariablesView->hide();
+	m_OnVariablesDblClickConnection = m_pVariablesView->OnItemDblClick.Connect(std::bind(&QtDebugger::OnVariablesViewVariableDblClick, this, std::placeholders::_1));
+	
 	//Kernel Objects View Initialization
 	{
 		m_kernelObjectListViewWnd = new QMdiSubWindow(ui->mdiArea);
@@ -105,6 +110,7 @@ QtDebugger::~QtDebugger()
 
 	delete m_pELFView;
 	delete m_pFunctionsView;
+	delete m_pVariablesView;
 }
 
 void QtDebugger::closeEvent(QCloseEvent* event)
@@ -492,6 +498,7 @@ void QtDebugger::ActivateView(unsigned int nView)
 	{
 		auto biosDebugInfoProvider = GetCurrentView()->GetBiosDebugInfoProvider();
 		m_pFunctionsView->SetContext(GetCurrentView()->GetContext(), biosDebugInfoProvider);
+		m_pVariablesView->SetContext(GetCurrentView()->GetContext(), biosDebugInfoProvider);
 		m_kernelObjectListView->SetContext(GetCurrentView()->GetContext(), biosDebugInfoProvider);
 
 		ui->menuKernelObjects->clear();
@@ -666,6 +673,11 @@ void QtDebugger::OnFunctionsViewFunctionsStateChange()
 	GetCallStackWindow()->HandleMachineStateChange();
 }
 
+void QtDebugger::OnVariablesViewVariableDblClick(uint32 address)
+{
+	GetMemoryViewWindow()->SetAddress(address);
+}
+
 void QtDebugger::OnKernelObjectsViewAddressDblClick(uint32 address)
 {
 	auto disAsm = GetDisassemblyWindow();
@@ -713,6 +725,7 @@ void QtDebugger::OnExecutableChangeMsg()
 	GetDisassemblyWindow()->HandleMachineStateChange();
 	GetCallStackWindow()->HandleMachineStateChange();
 	m_pFunctionsView->Refresh();
+	m_pVariablesView->Refresh();
 }
 
 void QtDebugger::OnExecutableUnloadingMsg()
@@ -846,6 +859,12 @@ void QtDebugger::on_actionFunctions_triggered()
 {
 	m_pFunctionsView->show();
 	m_pFunctionsView->setFocus(Qt::ActiveWindowFocusReason);
+}
+
+void QtDebugger::on_actionVariables_triggered()
+{
+	m_pVariablesView->show();
+	m_pVariablesView->setFocus(Qt::ActiveWindowFocusReason);
 }
 
 void QtDebugger::on_actionELF_File_Information_triggered()

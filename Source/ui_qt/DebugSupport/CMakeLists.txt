@@ -122,6 +122,8 @@ set(SRC_FILES
 	${SRC_ROOT}/QtDialogListWidget.h
 	${SRC_ROOT}/TagsView.cpp
 	${SRC_ROOT}/TagsView.h
+	${SRC_ROOT}/VariablesView.cpp
+	${SRC_ROOT}/VariablesView.h
 )
 
 set(QT_DEBUGGER_MOC_HEADERS
@@ -138,6 +140,7 @@ set(QT_DEBUGGER_MOC_HEADERS
 	${SRC_ROOT}/FrameDebugger/PixelBufferView.h
 	${SRC_ROOT}/FrameDebugger/QtFramedebugger.h
 	${SRC_ROOT}/FrameDebugger/Vu1ProgramView.h
+	${SRC_ROOT}/VariablesView.h
 )
 
 set(QT_DEBUGGER_UI

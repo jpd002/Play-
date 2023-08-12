@@ -26,6 +26,8 @@ public:
 	int GetBytesPerLine();
 	void SetBytesPerLine(int);
 
+	void SetAddress(uint32);
+
 protected:
 	void showEvent(QShowEvent*) Q_DECL_OVERRIDE;
 	void resizeEvent(QResizeEvent*) Q_DECL_OVERRIDE;

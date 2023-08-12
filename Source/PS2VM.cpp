@@ -343,11 +343,13 @@ CPS2VM::CPU_UTILISATION_INFO CPS2VM::GetCpuUtilisationInfo() const
 #define TAGS_SECTION_TAGS ("tags")
 #define TAGS_SECTION_EE_FUNCTIONS ("ee_functions")
 #define TAGS_SECTION_EE_COMMENTS ("ee_comments")
+#define TAGS_SECTION_EE_VARIABLES ("ee_variables")
 #define TAGS_SECTION_VU1_FUNCTIONS ("vu1_functions")
 #define TAGS_SECTION_VU1_COMMENTS ("vu1_comments")
 #define TAGS_SECTION_IOP ("iop")
 #define TAGS_SECTION_IOP_FUNCTIONS ("functions")
 #define TAGS_SECTION_IOP_COMMENTS ("comments")
+#define TAGS_SECTION_IOP_VARIABLES ("variables")
 
 #define TAGS_PATH ("tags/")
 
@@ -370,6 +372,7 @@ void CPS2VM::LoadDebugTags(const char* packageName)
 		if(!tagsNode) return;
 		m_ee->m_EE.m_Functions.Unserialize(tagsNode, TAGS_SECTION_EE_FUNCTIONS);
 		m_ee->m_EE.m_Comments.Unserialize(tagsNode, TAGS_SECTION_EE_COMMENTS);
+		m_ee->m_EE.m_Variables.Unserialize(tagsNode, TAGS_SECTION_EE_VARIABLES);
 		m_ee->m_VU1.m_Functions.Unserialize(tagsNode, TAGS_SECTION_VU1_FUNCTIONS);
 		m_ee->m_VU1.m_Comments.Unserialize(tagsNode, TAGS_SECTION_VU1_COMMENTS);
 		{
@@ -378,6 +381,7 @@ void CPS2VM::LoadDebugTags(const char* packageName)
 			{
 				m_iop->m_cpu.m_Functions.Unserialize(sectionNode, TAGS_SECTION_IOP_FUNCTIONS);
 				m_iop->m_cpu.m_Comments.Unserialize(sectionNode, TAGS_SECTION_IOP_COMMENTS);
+				m_iop->m_cpu.m_Variables.Unserialize(sectionNode, TAGS_SECTION_IOP_VARIABLES);
 				m_iop->m_bios->LoadDebugTags(sectionNode);
 			}
 		}
@@ -396,12 +400,14 @@ void CPS2VM::SaveDebugTags(const char* packageName)
 		std::unique_ptr<Framework::Xml::CNode> document(new Framework::Xml::CNode(TAGS_SECTION_TAGS, true));
 		m_ee->m_EE.m_Functions.Serialize(document.get(), TAGS_SECTION_EE_FUNCTIONS);
 		m_ee->m_EE.m_Comments.Serialize(document.get(), TAGS_SECTION_EE_COMMENTS);
+		m_ee->m_EE.m_Variables.Serialize(document.get(), TAGS_SECTION_EE_VARIABLES);
 		m_ee->m_VU1.m_Functions.Serialize(document.get(), TAGS_SECTION_VU1_FUNCTIONS);
 		m_ee->m_VU1.m_Comments.Serialize(document.get(), TAGS_SECTION_VU1_COMMENTS);
 		{
 			Framework::Xml::CNode* iopNode = new Framework::Xml::CNode(TAGS_SECTION_IOP, true);
 			m_iop->m_cpu.m_Functions.Serialize(iopNode, TAGS_SECTION_IOP_FUNCTIONS);
 			m_iop->m_cpu.m_Comments.Serialize(iopNode, TAGS_SECTION_IOP_COMMENTS);
+			m_iop->m_cpu.m_Variables.Serialize(iopNode, TAGS_SECTION_IOP_VARIABLES);
 			m_iop->m_bios->SaveDebugTags(iopNode);
 			document->InsertNode(iopNode);
 		}

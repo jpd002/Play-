@@ -177,6 +177,7 @@ public:
 	CMIPSAnalysis* m_analysis = nullptr;
 	CMIPSTags m_Comments;
 	CMIPSTags m_Functions;
+	CMIPSTags m_Variables;
 
 	AddressTranslator m_pAddrTranslator = nullptr;
 	TLBExceptionChecker m_TLBExceptionChecker = nullptr;
