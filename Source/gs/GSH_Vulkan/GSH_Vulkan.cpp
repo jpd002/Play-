@@ -676,12 +676,17 @@ void CGSH_Vulkan::SetRenderingContext(uint64 primReg)
 	auto fba = m_nReg[GS_REG_FBA_1 + context] & 1;
 
 	auto pipelineCaps = make_convertible<CDraw::PIPELINE_CAPS>(0);
-	pipelineCaps.hasTexture = prim.nTexture;
-	pipelineCaps.textureHasAlpha = tex0.nColorComp;
-	pipelineCaps.textureBlackIsTransparent = texA.nAEM;
-	pipelineCaps.textureFunction = tex0.nFunction;
-	pipelineCaps.texClampU = clamp.nWMS;
-	pipelineCaps.texClampV = clamp.nWMT;
+	if(prim.nTexture)
+	{
+		pipelineCaps.hasTexture = 1;
+		pipelineCaps.textureHasAlpha = tex0.nColorComp;
+		pipelineCaps.textureBlackIsTransparent = texA.nAEM;
+		pipelineCaps.textureFunction = tex0.nFunction;
+		pipelineCaps.texClampU = clamp.nWMS;
+		pipelineCaps.texClampV = clamp.nWMT;
+		pipelineCaps.textureFormat = tex0.nPsm;
+		pipelineCaps.clutFormat = tex0.nCPSM;
+	}
 	pipelineCaps.hasFog = prim.nFog;
 	pipelineCaps.scanMask = scanMask;
 	pipelineCaps.hasAlphaBlending = prim.nAlpha && m_alphaBlendingEnabled;
@@ -690,8 +695,6 @@ void CGSH_Vulkan::SetRenderingContext(uint64 primReg)
 	pipelineCaps.hasDstAlphaTest = test.nDestAlphaEnabled;
 	pipelineCaps.dstAlphaTestRef = test.nDestAlphaMode;
 	pipelineCaps.writeDepth = (zbuf.nMask == 0) && (test.nDepthEnabled != 0); //Depth test disabled -> no writes to depth buffer
-	pipelineCaps.textureFormat = tex0.nPsm;
-	pipelineCaps.clutFormat = tex0.nCPSM;
 	pipelineCaps.framebufferFormat = frame.nPsm;
 	pipelineCaps.depthbufferFormat = zbuf.nPsm | 0x30;
 
