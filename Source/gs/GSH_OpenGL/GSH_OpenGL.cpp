@@ -119,8 +119,11 @@ void CGSH_OpenGL::ResetImpl()
 	m_vertexBuffer.clear();
 	m_renderState.isValid = false;
 	m_validGlState = 0;
+	m_nVtxCount = 0;
 	m_drawingToDepth = false;
 	m_primitiveType = PRIM_INVALID;
+	m_pendingPrim = false;
+	m_pendingPrimValue = 0;
 }
 
 void CGSH_OpenGL::FlipImpl()
@@ -1871,33 +1874,9 @@ void CGSH_OpenGL::WriteRegisterImpl(uint8 nRegister, uint64 nData)
 	switch(nRegister)
 	{
 	case GS_REG_PRIM:
-	{
-		unsigned int newPrimitiveType = static_cast<unsigned int>(nData & 0x07);
-		if(newPrimitiveType != m_primitiveType)
-		{
-			FlushVertexBuffer();
-		}
-		m_primitiveType = newPrimitiveType;
-		switch(m_primitiveType)
-		{
-		case PRIM_POINT:
-			m_nVtxCount = 1;
-			break;
-		case PRIM_LINE:
-		case PRIM_LINESTRIP:
-			m_nVtxCount = 2;
-			break;
-		case PRIM_TRIANGLE:
-		case PRIM_TRIANGLESTRIP:
-		case PRIM_TRIANGLEFAN:
-			m_nVtxCount = 3;
-			break;
-		case PRIM_SPRITE:
-			m_nVtxCount = 2;
-			break;
-		}
-	}
-	break;
+		m_pendingPrim = true;
+		m_pendingPrimValue = nData;
+		break;
 
 	case GS_REG_XYZ2:
 	case GS_REG_XYZ3:
@@ -1908,8 +1887,42 @@ void CGSH_OpenGL::WriteRegisterImpl(uint8 nRegister, uint64 nData)
 	}
 }
 
+void CGSH_OpenGL::ProcessPrim(uint64 value)
+{
+	unsigned int newPrimitiveType = static_cast<unsigned int>(value & 0x07);
+	if(newPrimitiveType != m_primitiveType)
+	{
+		FlushVertexBuffer();
+	}
+	m_primitiveType = newPrimitiveType;
+	switch(m_primitiveType)
+	{
+	case PRIM_POINT:
+		m_nVtxCount = 1;
+		break;
+	case PRIM_LINE:
+	case PRIM_LINESTRIP:
+		m_nVtxCount = 2;
+		break;
+	case PRIM_TRIANGLE:
+	case PRIM_TRIANGLESTRIP:
+	case PRIM_TRIANGLEFAN:
+		m_nVtxCount = 3;
+		break;
+	case PRIM_SPRITE:
+		m_nVtxCount = 2;
+		break;
+	}
+}
+
 void CGSH_OpenGL::VertexKick(uint8 nRegister, uint64 nValue)
 {
+	if(m_pendingPrim)
+	{
+		m_pendingPrim = false;
+		ProcessPrim(m_pendingPrimValue);
+	}
+
 	if(m_nVtxCount == 0) return;
 
 	bool nDrawingKick = (nRegister == GS_REG_XYZ2) || (nRegister == GS_REG_XYZF2);

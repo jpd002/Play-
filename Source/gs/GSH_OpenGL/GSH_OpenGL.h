@@ -315,6 +315,7 @@ private:
 	TEXTURE_INFO SearchTextureFramebuffer(const TEX0&);
 	GLuint PreparePalette(const TEX0&);
 
+	void ProcessPrim(uint64);
 	void VertexKick(uint8, uint64);
 
 	Framework::OpenGl::ProgramPtr GetShaderFromCaps(const SHADERCAPS&);
@@ -434,6 +435,8 @@ private:
 	VERTEX m_VtxBuffer[3];
 	int m_nVtxCount;
 
+	bool m_pendingPrim = false;
+	uint64 m_pendingPrimValue = 0;
 	PRMODE m_PrimitiveMode;
 	unsigned int m_primitiveType;
 	bool m_drawingToDepth = false;

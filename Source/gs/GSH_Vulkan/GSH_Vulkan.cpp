@@ -242,6 +242,8 @@ void CGSH_Vulkan::ResetImpl()
 {
 	m_vtxCount = 0;
 	m_primitiveType = PRIM_INVALID;
+	m_pendingPrim = false;
+	m_pendingPrimValue = 0;
 	memset(&m_clutStates, 0, sizeof(m_clutStates));
 	memset(m_memoryCache, 0, RAMSIZE);
 	WriteBackMemoryCache();
@@ -572,8 +574,63 @@ void CGSH_Vulkan::CreateClutBuffer()
 	m_context->SetBufferName(m_context->clutBuffer, "CLUT Buffer");
 }
 
+void CGSH_Vulkan::ProcessPrim(uint64 data)
+{
+	unsigned int newPrimitiveType = static_cast<unsigned int>(data & 0x07);
+	if(newPrimitiveType != m_primitiveType)
+	{
+		if(m_primitiveType == PRIM_LINE)
+		{
+			//Virtua Fighter 2, Sega Rally 95 (and others):
+			//Draws lines and uses result as CLUT for next draw calls.
+
+			//Optimization: We check if the last drawn line UV matches what might currently be in the CLUT
+			//If it's different, we force reset all saved CLUTs, otherwise, we assume we can keep
+			//what we had previously. This helps reducing the number of compute dispatch needed to update the CLUT
+
+			//Optimization lead: The game draws lines to update the CLUT area very often, but a lot of times
+			//the result doesn't seem to be used. We could probably save a lot by not drawing these lines.
+
+			if(
+			    (m_clutLineU != m_lastLineU) ||
+			    (m_clutLineV != m_lastLineV))
+			{
+				memset(&m_clutStates, 0, sizeof(m_clutStates));
+			}
+			m_clutLineU = m_lastLineU;
+			m_clutLineV = m_lastLineV;
+		}
+		m_draw->FlushVertices();
+	}
+	m_primitiveType = newPrimitiveType;
+	switch(m_primitiveType)
+	{
+	case PRIM_POINT:
+		m_vtxCount = 1;
+		break;
+	case PRIM_LINE:
+	case PRIM_LINESTRIP:
+		m_vtxCount = 2;
+		break;
+	case PRIM_TRIANGLE:
+	case PRIM_TRIANGLESTRIP:
+	case PRIM_TRIANGLEFAN:
+		m_vtxCount = 3;
+		break;
+	case PRIM_SPRITE:
+		m_vtxCount = 2;
+		break;
+	}
+}
+
 void CGSH_Vulkan::VertexKick(uint8 registerId, uint64 data)
 {
+	if(m_pendingPrim)
+	{
+		m_pendingPrim = false;
+		ProcessPrim(m_pendingPrimValue);
+	}
+
 	if(m_vtxCount == 0) return;
 
 	bool drawingKick = (registerId == GS_REG_XYZ2) || (registerId == GS_REG_XYZF2);
@@ -1243,54 +1300,9 @@ void CGSH_Vulkan::WriteRegisterImpl(uint8 registerId, uint64 data)
 	switch(registerId)
 	{
 	case GS_REG_PRIM:
-	{
-		unsigned int newPrimitiveType = static_cast<unsigned int>(data & 0x07);
-		if(newPrimitiveType != m_primitiveType)
-		{
-			if(m_primitiveType == PRIM_LINE)
-			{
-				//Virtua Fighter 2, Sega Rally 95 (and others):
-				//Draws lines and uses result as CLUT for next draw calls.
-
-				//Optimization: We check if the last drawn line UV matches what might currently be in the CLUT
-				//If it's different, we force reset all saved CLUTs, otherwise, we assume we can keep
-				//what we had previously. This helps reducing the number of compute dispatch needed to update the CLUT
-
-				//Optimization lead: The game draws lines to update the CLUT area very often, but a lot of times
-				//the result doesn't seem to be used. We could probably save a lot by not drawing these lines.
-
-				if(
-				    (m_clutLineU != m_lastLineU) ||
-				    (m_clutLineV != m_lastLineV))
-				{
-					memset(&m_clutStates, 0, sizeof(m_clutStates));
-				}
-				m_clutLineU = m_lastLineU;
-				m_clutLineV = m_lastLineV;
-			}
-			m_draw->FlushVertices();
-		}
-		m_primitiveType = newPrimitiveType;
-		switch(m_primitiveType)
-		{
-		case PRIM_POINT:
-			m_vtxCount = 1;
-			break;
-		case PRIM_LINE:
-		case PRIM_LINESTRIP:
-			m_vtxCount = 2;
-			break;
-		case PRIM_TRIANGLE:
-		case PRIM_TRIANGLESTRIP:
-		case PRIM_TRIANGLEFAN:
-			m_vtxCount = 3;
-			break;
-		case PRIM_SPRITE:
-			m_vtxCount = 2;
-			break;
-		}
-	}
-	break;
+		m_pendingPrim = true;
+		m_pendingPrimValue = data;
+		break;
 
 	case GS_REG_XYZ2:
 	case GS_REG_XYZ3:

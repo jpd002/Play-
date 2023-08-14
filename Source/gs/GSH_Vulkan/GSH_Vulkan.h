@@ -141,6 +141,7 @@ private:
 	void CreateMemoryBuffer();
 	void CreateClutBuffer();
 
+	void ProcessPrim(uint64);
 	void VertexKick(uint8, uint64);
 	void SetRenderingContext(uint64);
 
@@ -231,6 +232,8 @@ private:
 	//Draw context
 	VERTEX m_vtxBuffer[3];
 	uint32 m_vtxCount = 0;
+	bool m_pendingPrim = false;
+	uint64 m_pendingPrimValue = 0;
 	uint32 m_primitiveType = 0;
 	PRMODE m_primitiveMode;
 	uint32 m_fbBasePtr = 0;
