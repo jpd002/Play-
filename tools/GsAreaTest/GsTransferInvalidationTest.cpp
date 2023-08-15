@@ -3,6 +3,18 @@
 #include "gs/GsPixelFormats.h"
 #include "gs/GsTransferRange.h"
 
+static CGSHandler::BITBLTBUF MakeSrcBltBuf(uint32 psm, uint32 bufPtr, uint32 bufWidth)
+{
+	assert((bufPtr & 0xFF) == 0);
+	assert((bufWidth & 0x3F) == 0);
+
+	auto bltBuf = make_convertible<CGSHandler::BITBLTBUF>(0);
+	bltBuf.nSrcPsm = psm;
+	bltBuf.nSrcPtr = bufPtr / 0x100;
+	bltBuf.nSrcWidth = bufWidth / 0x40;
+	return bltBuf;
+}
+
 static CGSHandler::BITBLTBUF MakeDstBltBuf(uint32 psm, uint32 bufPtr, uint32 bufWidth)
 {
 	assert((bufPtr & 0xFF) == 0);
@@ -21,6 +33,14 @@ static CGSHandler::TRXREG MakeTrxReg(uint32 width, uint32 height)
 	trxReg.nRRW = width;
 	trxReg.nRRH = height;
 	return trxReg;
+}
+
+static CGSHandler::TRXPOS MakeSrcTrxPos(uint32 x, uint32 y)
+{
+	auto trxPos = make_convertible<CGSHandler::TRXPOS>(0);
+	trxPos.nSSAX = x;
+	trxPos.nSSAY = y;
+	return trxPos;
 }
 
 static CGSHandler::TRXPOS MakeDstTrxPos(uint32 x, uint32 y)
@@ -47,6 +67,49 @@ static void SinglePageTransferTest()
 	TEST_VERIFY(transferSize == CGsPixelFormats::PAGESIZE);
 }
 
+template <uint32 psm, typename Storage>
+static void SinglePageOffsetTransferTest(uint32 offsetX, uint32 offsetY)
+{
+	uint32 bufPtr = 0x11A000;
+	uint32 bufWidth = 640;
+
+	assert(offsetX <= bufWidth);
+
+	uint32 pageOffsetX = offsetX / Storage::PAGEWIDTH;
+	uint32 pageOffsetY = offsetY / Storage::PAGEHEIGHT;
+	uint32 pagePitch = bufWidth / Storage::PAGEWIDTH;
+
+	auto bltBuf = MakeSrcBltBuf(psm, bufPtr, bufWidth);
+	auto trxReg = MakeTrxReg(1, 4);
+	auto trxPos = MakeSrcTrxPos(offsetX, offsetY);
+
+	auto [transferAddress, transferSize] = GsTransfer::GetSrcRange(bltBuf, trxReg, trxPos);
+
+	TEST_VERIFY(transferAddress == bufPtr + (((pagePitch * pageOffsetY) + pageOffsetX) * CGsPixelFormats::PAGESIZE));
+	TEST_VERIFY(transferSize == CGsPixelFormats::PAGESIZE);
+}
+
+template <uint32 psm, typename Storage>
+static void MultiPageTransferTest()
+{
+	uint32 bufPtr = 0x120000;
+	uint32 bufWidth = 512;
+
+	uint32 transferHeight = 256;
+
+	uint32 pageCountY = transferHeight / Storage::PAGEHEIGHT;
+	uint32 pagePitch = bufWidth / Storage::PAGEWIDTH;
+
+	auto bltBuf = MakeDstBltBuf(psm, bufPtr, bufWidth);
+	auto trxReg = MakeTrxReg(256, transferHeight);
+	auto trxPos = MakeDstTrxPos(16, 16);
+
+	auto [transferAddress, transferSize] = GsTransfer::GetDstRange(bltBuf, trxReg, trxPos);
+
+	TEST_VERIFY(transferAddress == bufPtr);
+	TEST_VERIFY(transferSize == (pageCountY + 1) * pagePitch * CGsPixelFormats::PAGESIZE);
+}
+
 static void SimpleOffsetYTransferTest()
 {
 	//In this test, the transfer position is skipping a few pages
@@ -65,7 +128,7 @@ static void SimpleOffsetYTransferTest()
 	auto [transferAddress, transferSize] = GsTransfer::GetDstRange(bltBuf, trxReg, trxPos);
 
 	TEST_VERIFY(transferAddress == (bufPtr + (CGsPixelFormats::PAGESIZE * pageCountX * pageOffsetY)));
-	//TEST_VERIFY(transferSize == CGsPixelFormats::PAGESIZE);
+	TEST_VERIFY(transferSize == CGsPixelFormats::PAGESIZE);
 }
 
 static void ZeroBufWidthTransferTest()
@@ -98,8 +161,8 @@ void EspgaludaTransferTest()
 	auto [transferAddress, transferSize] = GsTransfer::GetDstRange(bltBuf, trxReg, trxPos);
 
 	//PSMT8 page size is 128x64
-	//This transfer spans 8 pages on the X dimension -> ceil(1024 / 128)
-	//This transfer also touches 3 pages on the Y dimension -> ceil((128 + 16) / 64)
+	//This transfer spans 8 pages on the X dimension -> ceil(bufWidth / psm8.pageWidth) -> ceil(1024 / 128)
+	//This transfer also touches 3 pages on the Y dimension -> ceil((trxReg.y + trxPos.dy) / psm8.pageHeight) -> ceil((128 + 16) / 64)
 
 	TEST_VERIFY(transferAddress == bufPtr);
 	TEST_VERIFY(transferSize == (8 * 3) * CGsPixelFormats::PAGESIZE);
@@ -110,6 +173,10 @@ void CGsTransferInvalidationTest::Execute()
 	SinglePageTransferTest<CGSHandler::PSMCT32, CGsPixelFormats::STORAGEPSMCT32>();
 	SinglePageTransferTest<CGSHandler::PSMCT16, CGsPixelFormats::STORAGEPSMCT16>();
 	SinglePageTransferTest<CGSHandler::PSMT8, CGsPixelFormats::STORAGEPSMT8>();
+	SinglePageOffsetTransferTest<CGSHandler::PSMZ32, CGsPixelFormats::STORAGEPSMZ32>(158, 259);
+	SinglePageOffsetTransferTest<CGSHandler::PSMZ16S, CGsPixelFormats::STORAGEPSMZ16S>(432, 780);
+	MultiPageTransferTest<CGSHandler::PSMCT32, CGsPixelFormats::STORAGEPSMCT32>();
+	MultiPageTransferTest<CGSHandler::PSMT4, CGsPixelFormats::STORAGEPSMT4>();
 	SimpleOffsetYTransferTest();
 	ZeroBufWidthTransferTest();
 	EspgaludaTransferTest();

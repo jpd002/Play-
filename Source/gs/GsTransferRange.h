@@ -69,22 +69,33 @@ namespace GsTransfer
 			width = trxReg.nRRW;
 		}
 
+		assert(trxReg.nRRW != 0);
+		assert(trxReg.nRRH != 0);
+
+		//Since there's a possibility of using RRW for the buffer width, we need to round up
+		uint32 pagePitch = (width + transferPageSize.first - 1) / transferPageSize.first;
+
 		uint32 sax = TransferRangeTraits::GetSAX(trxPos);
 		uint32 say = TransferRangeTraits::GetSAY(trxPos);
 
-		//Make sure we are within our buffer
-		assert((trxReg.nRRW + sax) <= width);
+		uint32 pageStartX = sax / transferPageSize.first;
+		uint32 pageStartY = say / transferPageSize.second;
+		uint32 pageEndX = (sax + trxReg.nRRW - 1) / transferPageSize.first;
+		uint32 pageEndY = (say + trxReg.nRRH - 1) / transferPageSize.second;
 
-		//Espgaluda uses an offset into a big memory area. The Y offset is not necessarily
-		//a multiple of the page height. We need to make sure to take this into account.
-		uint32 intraPageOffsetY = say % transferPageSize.second;
+		//Single page transfer
+		if((pageStartX == pageEndX) && (pageStartY == pageEndY))
+		{
+			uint32 transferPage = (pageStartY * pagePitch) + pageStartX;
+			uint32 transferOffset = transferPage * CGsPixelFormats::PAGESIZE;
+			return std::make_pair(transferAddress + transferOffset, CGsPixelFormats::PAGESIZE);
+		}
 
-		uint32 pageCountX = (width + transferPageSize.first - 1) / transferPageSize.first;
-		uint32 pageCountY = (intraPageOffsetY + trxReg.nRRH + transferPageSize.second - 1) / transferPageSize.second;
+		uint32 pageCountY = pageEndY - pageStartY + 1;
 
-		uint32 pageCount = pageCountX * pageCountY;
+		uint32 pageCount = pagePitch * pageCountY;
 		uint32 transferSize = pageCount * CGsPixelFormats::PAGESIZE;
-		uint32 transferOffset = (say / transferPageSize.second) * pageCountX * CGsPixelFormats::PAGESIZE;
+		uint32 transferOffset = (pageStartY * pagePitch) + pageStartX * CGsPixelFormats::PAGESIZE;
 
 		return std::make_pair(transferAddress + transferOffset, transferSize);
 	}
