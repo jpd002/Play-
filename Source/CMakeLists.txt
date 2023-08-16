@@ -344,8 +344,12 @@ set(COMMON_SRC_FILES
 	iop/namco_arcade/Iop_NamcoAcRam.h
 	iop/namco_arcade/Iop_NamcoPadMan.cpp
 	iop/namco_arcade/Iop_NamcoPadMan.h
-	iop/namco_arcade/NamcoSys147NANDReader.cpp
-	iop/namco_arcade/NamcoSys147NANDReader.h
+	iop/namco_sys147/NamcoSys147NANDReader.cpp
+	iop/namco_sys147/NamcoSys147NANDReader.h
+	iop/namco_sys147/Iop_NamcoSys147.cpp
+	iop/namco_sys147/Iop_NamcoSys147.h
+	iop/namco_sys147/Iop_NamcoNANDDevice.cpp
+	iop/namco_sys147/Iop_NamcoNANDDevice.h
 	iop/Iop_NamcoArcade.cpp
 	iop/Iop_NamcoArcade.h
 	iop/Iop_PadMan.cpp
