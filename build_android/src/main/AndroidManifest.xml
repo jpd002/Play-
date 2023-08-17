@@ -26,6 +26,7 @@
 		android:theme="@style/Blue"
 		android:requestLegacyExternalStorage="true"
 		android:allowNativeHeapPointerTagging="false"
+		android:hasFragileUserData="true"
 		>
 		<activity 
 			android:name=".MainActivity"
