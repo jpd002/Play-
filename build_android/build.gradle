@@ -30,14 +30,13 @@ android {
 	}
 
 	namespace 'com.virtualapplications.play'
-
-	compileSdkVersion 'android-32'
+	compileSdk 33
 
 	defaultConfig {
 		versionCode (100 + gitVersionCode)
 		versionName gitVersionName
 		minSdkVersion 19
-		targetSdkVersion 32
+		targetSdkVersion 33
 		externalNativeBuild {
 			cmake {
 				arguments "-DANDROID_ARM_NEON=TRUE", "-DANDROID_TOOLCHAIN=clang",
@@ -53,8 +52,8 @@ android {
 	}
 
 	dependencies {
-		api 'androidx.appcompat:appcompat:1.4.2'
-		api 'androidx.preference:preference:1.2.0'
+		api 'androidx.appcompat:appcompat:1.6.1'
+		api 'androidx.preference:preference:1.2.1'
 		implementation 'androidx.documentfile:documentfile:1.0.1'
 		api 'org.apache.commons:commons-lang3:3.4'
 		api 'commons-io:commons-io:2.5'
