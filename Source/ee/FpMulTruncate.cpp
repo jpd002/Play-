@@ -28,7 +28,8 @@ typedef float fp_t;
 
 static rep_t toRep(fp_t x)
 {
-	union {
+	union
+	{
 		fp_t f;
 		rep_t i;
 	} rep;
@@ -38,7 +39,8 @@ static rep_t toRep(fp_t x)
 
 static fp_t fromRep(rep_t x)
 {
-	union {
+	union
+	{
 		fp_t f;
 		rep_t i;
 	} rep;

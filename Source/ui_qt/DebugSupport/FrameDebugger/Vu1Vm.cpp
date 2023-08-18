@@ -19,10 +19,12 @@ CVu1Vm::CVu1Vm()
 		m_vu1.m_executor = std::make_unique<CVuExecutor>(m_vu1, PS2::MICROMEM1SIZE);
 
 		m_vu1.m_pMemoryMap->InsertReadMap(0x00000000, 0x00003FFF, m_vuMem1, 0x00);
-		m_vu1.m_pMemoryMap->InsertReadMap(0x00008000, 0x00008FFF, [&](uint32 address, uint32 value) { return Vu1IoPortReadHandler(address); }, 0x01);
+		m_vu1.m_pMemoryMap->InsertReadMap(
+		    0x00008000, 0x00008FFF, [&](uint32 address, uint32 value) { return Vu1IoPortReadHandler(address); }, 0x01);
 
 		m_vu1.m_pMemoryMap->InsertWriteMap(0x00000000, 0x00003FFF, m_vuMem1, 0x00);
-		m_vu1.m_pMemoryMap->InsertWriteMap(0x00008000, 0x00008FFF, [&](uint32 address, uint32 value) { return Vu1IoPortWriteHandler(address, value); }, 0x01);
+		m_vu1.m_pMemoryMap->InsertWriteMap(
+		    0x00008000, 0x00008FFF, [&](uint32 address, uint32 value) { return Vu1IoPortWriteHandler(address, value); }, 0x01);
 
 		m_vu1.m_pMemoryMap->InsertInstructionMap(0x00000000, 0x00003FFF, m_microMem1, 0x01);
 

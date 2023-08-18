@@ -571,7 +571,7 @@ inline void convertColumn4(uint8* dest, const int destStride, uint8* src, int co
 // If we have a platform that does not have SIMD then implement the basic case here.
 void convertColumn8(uint8* dest, const int destStride, uint8* src, int colNum)
 {
-	
+
 }
 */
 #endif

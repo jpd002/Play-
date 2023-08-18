@@ -66,7 +66,8 @@ namespace Iop
 
 		struct CHANNEL_VOLUME : public convertible<uint16>
 		{
-			union {
+			union
+			{
 				struct
 				{
 					unsigned int unused0 : 15;

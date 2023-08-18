@@ -160,15 +160,15 @@ void CVideoDecoder::DecoderThreadProc(std::string path)
 		/*
 		if(!g_soundStream.IsEOF())
 		{
-			switch(g_soundStreamInfo.subStreamNumber)
-			{
-			case 0xFF:
-				XaSoundStreamProcessor();
-				break;
-			//case 0x80:
-			//	Ac3SoundStreamProcessor();
-			//	break;
-			}
+		    switch(g_soundStreamInfo.subStreamNumber)
+		    {
+		    case 0xFF:
+		        XaSoundStreamProcessor();
+		        break;
+		    //case 0x80:
+		    //	Ac3SoundStreamProcessor();
+		    //	break;
+		    }
 		}
 */
 		CVideoContainer::STATUS status = container->Read();

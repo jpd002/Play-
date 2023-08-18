@@ -64,15 +64,15 @@ void CMainWindow::OnFileOpen()
 		std::wstring fileExtension = filePath.extension().wstring();
 		if(!wcsicmp(fileExtension.c_str(), PLAYLIST_EXTENSION))
 		{
-			LoadPlaylist(filePath);
+		    LoadPlaylist(filePath);
 		}
 		else if(!wcsicmp(fileExtension.c_str(), L".rar") || !wcsicmp(fileExtension.c_str(), L".zip"))
 		{
-			LoadArchive(filePath);
+		    LoadArchive(filePath);
 		}
 		else
 		{
-			LoadSingleFile(filePath);
+		    LoadSingleFile(filePath);
 		}
 */
 	}
