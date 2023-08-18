@@ -28,12 +28,13 @@ jobs:
       id: short_hash
       env:
         LONG_HASH: ${{ github.sha }}
-    - name: Build APKs
+    - name: Build APK/AAB
       if: ${{ matrix.build-type == 'apk' }}
       run: |
         cd build_android
         ./gradlew
         ./gradlew assembleRelease
+        ./gradlew bundleRelease
     - name: Build libretro Core
       if: ${{ matrix.build-type == 'libretro' }}
       run: |
@@ -44,12 +45,13 @@ jobs:
         export ANDROID_TOOLCHAIN_FILE=${ANDROID_NDK}/build/cmake/android.toolchain.cmake
         cd build_retro
         ./android_build.sh
-    - name: Prepare Unsigned APKs for Distribution
+    - name: Prepare Unsigned APKs/AAB for Distribution
       if: ${{ matrix.build-type == 'apk'}}
       run: |
         export ANDROID_BUILD_TOOLS=$ANDROID_HOME/build-tools/29.0.3
         cp build_android/build/outputs/apk/release/Play-release-unsigned.apk .
         cp Play-release-unsigned.apk Play-release.apk
+        cp build_android/build/outputs/bundle/release/Play-release.aab .
         $ANDROID_BUILD_TOOLS/zipalign -c -v 4 Play-release-unsigned.apk
     - name: Prepare Signed APKs for Distribution
       if: ${{ matrix.build-type == 'apk'  && env.ANDROID_KEYSTORE_PASS != null}}
@@ -79,10 +81,11 @@ jobs:
       with:
         name: Play_Android_libretro
         path: build_retro/play_libretro_*_android.so
-    - name: Upload APKs to S3
+    - name: Upload APKs/AAB to S3
       if: ${{ matrix.build-type == 'apk' && env.AWS_ACCESS_KEY_ID != null}}
       run: |
         aws s3 cp Play-release.apk s3://playbuilds/$SHORT_HASH/Play-release.apk --acl public-read
+        aws s3 cp Play-release.aab s3://playbuilds/$SHORT_HASH/Play-release.aab --acl public-read
         aws s3 cp Play-release-unsigned.apk s3://playbuilds/$SHORT_HASH/Play-release-unsigned.apk --acl public-read
       env:
         SHORT_HASH: ${{ steps.short_hash.outputs.VALUE }}
