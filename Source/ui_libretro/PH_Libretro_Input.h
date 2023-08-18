@@ -4,7 +4,6 @@
 #include <mutex>
 #include "PadHandler.h"
 // #include "InputBindingManager.h"
-#include "libretro.h"
 
 class CPH_Libretro_Input : public CPadHandler
 {

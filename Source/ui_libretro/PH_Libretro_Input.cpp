@@ -1,4 +1,5 @@
 #include "PH_Libretro_Input.h"
+#include "ext/libretro.h"
 
 extern bool libretro_supports_bitmasks;
 extern retro_input_poll_t g_input_poll_cb;

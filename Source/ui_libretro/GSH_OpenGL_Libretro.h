@@ -1,7 +1,6 @@
 #pragma once
 
 #include "gs/GSH_OpenGL/GSH_OpenGL.h"
-#include "libretro.h"
 
 class CGSH_OpenGL_Libretro : public CGSH_OpenGL
 {

@@ -1,4 +1,4 @@
-#include "libretro.h"
+#include "ext/libretro.h"
 
 #include "Log.h"
 #include "AppConfig.h"

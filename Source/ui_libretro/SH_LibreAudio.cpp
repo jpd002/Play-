@@ -1,5 +1,5 @@
 #include "SH_LibreAudio.h"
-#include "libretro.h"
+#include "ext/libretro.h"
 #include <cstring>
 #include <mutex>
 

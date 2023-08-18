@@ -1,4 +1,5 @@
 #include "GSH_OpenGL_Libretro.h"
+#include "ext/libretro.h"
 #include "Log.h"
 
 #define LOG_NAME "LIBRETRO"
