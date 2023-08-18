@@ -6,12 +6,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
-    - uses: DoozyX/clang-format-lint-action@v0.11
+    - uses: DoozyX/clang-format-lint-action@v0.16.2
       with:
         source: './Source ./tools'
         exclude: './Source/ui_qt/win32/Resources ./Source/ui_libretro/ext'
         extensions: 'h,cpp,c,m,mm'
-        clangFormatVersion: 6
+        clangFormatVersion: 16
         inplace: True
     - name: Check for changes
       run: |
