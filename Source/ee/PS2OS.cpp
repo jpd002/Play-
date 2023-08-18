@@ -145,6 +145,7 @@
 #define SYSCALL_NAME_SUSPENDTHREAD "osSuspendThread"
 #define SYSCALL_NAME_ISUSPENDTHREAD "osiSuspendThread"
 #define SYSCALL_NAME_RESUMETHREAD "osResumeThread"
+#define SYSCALL_NAME_IRESUMETHREAD "osiResumeThread"
 #define SYSCALL_NAME_ENDOFHEAP "osEndOfHeap"
 #define SYSCALL_NAME_CREATESEMA "osCreateSema"
 #define SYSCALL_NAME_DELETESEMA "osDeleteSema"
@@ -214,6 +215,7 @@ const CPS2OS::SYSCALL_NAME CPS2OS::g_syscallNames[] =
 	{0x0037, SYSCALL_NAME_SUSPENDTHREAD},
 	{0x0038, SYSCALL_NAME_ISUSPENDTHREAD},
 	{0x0039, SYSCALL_NAME_RESUMETHREAD},
+	{0x003A, SYSCALL_NAME_IRESUMETHREAD},
 	{0x003E, SYSCALL_NAME_ENDOFHEAP},
 	{0x0040, SYSCALL_NAME_CREATESEMA},
 	{0x0041, SYSCALL_NAME_DELETESEMA},
@@ -2618,9 +2620,11 @@ void CPS2OS::sc_SuspendThread()
 }
 
 //39
+//3A
 void CPS2OS::sc_ResumeThread()
 {
 	uint32 id = m_ee.m_State.nGPR[SC_PARAM0].nV[0];
+	bool isInt = m_ee.m_State.nGPR[3].nV[0] == 0x3A;
 
 	if(id == m_currentThreadId)
 	{
@@ -2664,7 +2668,10 @@ void CPS2OS::sc_ResumeThread()
 
 	m_ee.m_State.nGPR[SC_RETURN].nD0 = static_cast<int32>(id);
 
-	ThreadShakeAndBake();
+	if(!isInt)
+	{
+		ThreadShakeAndBake();
+	}
 }
 
 //3C
@@ -3676,7 +3683,7 @@ CPS2OS::SystemCallHandler CPS2OS::m_sysCall[0x80] =
 	//0x30
 	&CPS2OS::sc_ReferThreadStatus,	&CPS2OS::sc_ReferThreadStatus,		&CPS2OS::sc_SleepThread,			&CPS2OS::sc_WakeupThread,			&CPS2OS::sc_WakeupThread,		&CPS2OS::sc_CancelWakeupThread,		&CPS2OS::sc_CancelWakeupThread,	&CPS2OS::sc_SuspendThread,
 	//0x38
-	&CPS2OS::sc_SuspendThread,		&CPS2OS::sc_ResumeThread,			&CPS2OS::sc_Unhandled,				&CPS2OS::sc_Unhandled,				&CPS2OS::sc_SetupThread,		&CPS2OS::sc_SetupHeap,				&CPS2OS::sc_EndOfHeap,			&CPS2OS::sc_Unhandled,
+	&CPS2OS::sc_SuspendThread,		&CPS2OS::sc_ResumeThread,			&CPS2OS::sc_ResumeThread,			&CPS2OS::sc_Unhandled,				&CPS2OS::sc_SetupThread,		&CPS2OS::sc_SetupHeap,				&CPS2OS::sc_EndOfHeap,			&CPS2OS::sc_Unhandled,
 	//0x40
 	&CPS2OS::sc_CreateSema,			&CPS2OS::sc_DeleteSema,				&CPS2OS::sc_SignalSema,				&CPS2OS::sc_SignalSema,				&CPS2OS::sc_WaitSema,			&CPS2OS::sc_PollSema,				&CPS2OS::sc_PollSema,			&CPS2OS::sc_ReferSemaStatus,
 	//0x48
