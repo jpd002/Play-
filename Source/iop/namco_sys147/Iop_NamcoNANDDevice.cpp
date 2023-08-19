@@ -1,4 +1,6 @@
 #include "Iop_NamcoNANDDevice.h"
+#include <cassert>
+#include <cstring>
 #include "StringUtils.h"
 #include "MemStream.h"
 
