@@ -12,7 +12,7 @@ namespace Iop
 		class CNamcoNANDDevice : public Ioman::CDevice
 		{
 		public:
-			CNamcoNANDDevice(std::unique_ptr<Framework::CStream>);
+			CNamcoNANDDevice(std::unique_ptr<Framework::CStream>, uint32);
 			virtual ~CNamcoNANDDevice() = default;
 
 			Framework::CStream* GetFile(uint32, const char*) override;
