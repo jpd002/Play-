@@ -161,7 +161,7 @@ void CTagsView::OnNewClick()
 		}
 	}
 
-	m_context->m_Functions.InsertTag(nAddress, name.c_str());
+	m_tags->InsertTag(nAddress, name.c_str());
 
 	RefreshList();
 	OnStateChange();
@@ -224,8 +224,8 @@ void CTagsView::OnDeleteClick()
 		}
 
 		std::vector<uint32> toDelete;
-		for(auto tagIterator = m_context->m_Functions.GetTagsBegin();
-			tagIterator != m_context->m_Functions.GetTagsEnd(); tagIterator++)
+		for(auto tagIterator = m_tags->GetTagsBegin();
+			tagIterator != m_tags->GetTagsEnd(); tagIterator++)
 		{
 			auto tagGroupItem = GetTagGroup(tagIterator->first);
 			if(tagGroupItem == selectedItem)
@@ -236,7 +236,7 @@ void CTagsView::OnDeleteClick()
 
 		for(auto address : toDelete)
 		{
-			m_context->m_Functions.InsertTag(address, nullptr);
+			m_tags->InsertTag(address, nullptr);
 		}
 	}
 	else
@@ -252,7 +252,7 @@ void CTagsView::OnDeleteClick()
 			return;
 		}
 
-		m_context->m_Functions.InsertTag(nAddress, nullptr);
+		m_tags->InsertTag(nAddress, nullptr);
 	}
 
 	RefreshList();
