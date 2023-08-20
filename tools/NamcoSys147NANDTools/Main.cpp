@@ -23,7 +23,7 @@ void ExtractDir(Namco::CSys147NANDReader& reader, uint32 dirSector, fs::path& ou
 			printf("Extracting %s.\n", dirEntry.name);
 			auto fileContents = reader.ReadFile(absSector, dirEntry.size);
 			auto outputFile = outputDir / dirEntry.name;
-			auto outputStream = Framework::CreateOutputStdStream(entryOutputPath);
+			auto outputStream = Framework::CreateOutputStdStream(entryOutputPath.native());
 			outputStream.Write(fileContents.data(), fileContents.size());
 		}
 	}
@@ -39,7 +39,7 @@ int main(int argc, char** argv)
 	auto nandPath = fs::path(argv[1]);
 	int32 rootSector = strtol(argv[2], nullptr, 0);
 	auto outputDir = fs::path(argv[3]);
-	auto inputStream = Framework::CreateInputStdStream(nandPath);
+	auto inputStream = Framework::CreateInputStdStream(nandPath.native());
 	Namco::CSys147NANDReader reader(inputStream, rootSector);
 	ExtractDir(reader, 0, outputDir);
 	return 0;
