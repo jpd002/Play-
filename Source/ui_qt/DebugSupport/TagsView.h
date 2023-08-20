@@ -37,6 +37,19 @@ signals:
 	void OnTagListChange();
 
 protected:
+	struct Strings
+	{
+		QString newTagString;
+		QString renameTagString;
+		QString deleteTagString;
+		QString tagNameString;
+		QString tagAddressString;
+		QString deleteTagConfirmString;
+		QString deleteModuleTagsConfirmString;
+	};
+
+	void SetStrings(const Strings&);
+
 	void SetContext(CMIPS*, CMIPSTags*, CBiosDebugInfoProvider*);
 	void showEvent(QShowEvent*) Q_DECL_OVERRIDE;
 
@@ -48,6 +61,7 @@ protected:
 
 	Framework::CSignal<void()>::Connection m_tagsChangeConnection;
 
+	Strings m_strings;
 	CMIPS* m_context = nullptr;
 	CMIPSTags* m_tags = nullptr;
 	BiosDebugModuleInfoArray m_modules;

@@ -107,6 +107,11 @@ QTreeWidgetItem* CTagsView::GetTagGroup(uint32 address)
 	return ui->treeWidget->topLevelItem(0);
 }
 
+void CTagsView::SetStrings(const Strings& strings)
+{
+	m_strings = strings;
+}
+
 void CTagsView::SetContext(CMIPS* context, CMIPSTags* tags, CBiosDebugInfoProvider* biosDebugInfoProvider)
 {
 	m_context = context;
@@ -135,8 +140,8 @@ void CTagsView::OnNewClick()
 
 	{
 		bool ok;
-		QString res = QInputDialog::getText(this, tr("New Function"),
-											tr("New Function Name:"), QLineEdit::Normal,
+		QString res = QInputDialog::getText(this, m_strings.newTagString,
+											m_strings.tagNameString, QLineEdit::Normal,
 											tr(""), &ok);
 		if(!ok || res.isEmpty())
 			return;
@@ -146,8 +151,8 @@ void CTagsView::OnNewClick()
 
 	{
 		bool ok;
-		QString res = QInputDialog::getText(this, tr("New Function"),
-											tr("New Function Address:"), QLineEdit::Normal,
+		QString res = QInputDialog::getText(this, m_strings.newTagString,
+											m_strings.tagAddressString, QLineEdit::Normal,
 											tr("00000000"), &ok);
 		if(!ok || res.isEmpty())
 			return;
@@ -186,8 +191,8 @@ void CTagsView::OnRenameClick()
 	}
 
 	bool ok;
-	QString res = QInputDialog::getText(this, tr("Rename Function"),
-										tr("New Function Name:"), QLineEdit::Normal,
+	QString res = QInputDialog::getText(this, m_strings.renameTagString,
+										m_strings.tagNameString, QLineEdit::Normal,
 										sName, &ok);
 	if(!ok || res.isEmpty())
 		return;
@@ -215,8 +220,8 @@ void CTagsView::OnDeleteClick()
 			return;
 		}
 
-		int ret = QMessageBox::warning(this, tr("Delete functions?"),
-									   QString("Are you sure you want to delete functions from module '%0'?").arg(selectedModuleName),
+		int ret = QMessageBox::warning(this, m_strings.deleteTagString,
+									   m_strings.deleteModuleTagsConfirmString.arg(selectedModuleName),
 									   QMessageBox::Ok | QMessageBox::Cancel, QMessageBox::Ok);
 		if(ret != QMessageBox::Ok)
 		{
@@ -244,8 +249,8 @@ void CTagsView::OnDeleteClick()
 		auto selectedAddressStr = selectedItem->text(1).toStdString();
 		uint32 nAddress = lexical_cast_hex(selectedAddressStr);
 
-		int ret = QMessageBox::warning(this, tr("Delete this function?"),
-									   tr("Are you sure you want to delete this function?"),
+		int ret = QMessageBox::warning(this, m_strings.deleteTagString,
+									   m_strings.deleteTagConfirmString,
 									   QMessageBox::Ok | QMessageBox::Cancel, QMessageBox::Ok);
 		if(ret != QMessageBox::Ok)
 		{

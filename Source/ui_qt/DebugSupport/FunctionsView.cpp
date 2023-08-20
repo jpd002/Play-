@@ -8,6 +8,16 @@ CFunctionsView::CFunctionsView(QMdiArea* parent)
 {
 	parent->addSubWindow(this);
 	setWindowTitle("Functions");
+	{
+		Strings strings;
+		strings.newTagString = tr("New Function");
+		strings.renameTagString = tr("Rename Function");
+		strings.tagNameString = tr("New Function Name:");
+		strings.tagAddressString = tr("New Function Address:");
+		strings.deleteTagConfirmString = tr("Are you sure you want to delete this function?");
+		strings.deleteModuleTagsConfirmString = tr("Are you sure you want to delete functions from module '%0'?");
+		SetStrings(strings);
+	}
 
 	auto btnImport = new QPushButton("Load ELF symbols", this);
 	ui->bottomButtonsLayout->addWidget(btnImport);
