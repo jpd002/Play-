@@ -131,6 +131,23 @@ static void SimpleOffsetYTransferTest()
 	TEST_VERIFY(transferSize == CGsPixelFormats::PAGESIZE);
 }
 
+static void StraddleOffsetYTransferTest()
+{
+	//Based on FF12 opening movie (when you start a new game)
+
+	uint32 bufPtr = 0;
+	uint32 bufWidth = 512;
+
+	auto bltBuf = MakeDstBltBuf(CGSHandler::PSMCT32, bufPtr, bufWidth);
+	auto trxReg = MakeTrxReg(16, 16);
+	auto trxPos = MakeDstTrxPos(0, 1394);
+
+	auto [transferAddress, transferSize] = GsTransfer::GetDstRange(bltBuf, trxReg, trxPos);
+
+	TEST_VERIFY(transferAddress == 0x002B0000);
+	TEST_VERIFY(transferSize == 0x00020000);
+}
+
 static void ZeroBufWidthTransferTest()
 {
 	//This is done by DBZ: Tenkaichi 2
@@ -178,6 +195,7 @@ void CGsTransferInvalidationTest::Execute()
 	MultiPageTransferTest<CGSHandler::PSMCT32, CGsPixelFormats::STORAGEPSMCT32>();
 	MultiPageTransferTest<CGSHandler::PSMT4, CGsPixelFormats::STORAGEPSMT4>();
 	SimpleOffsetYTransferTest();
+	StraddleOffsetYTransferTest();
 	ZeroBufWidthTransferTest();
 	EspgaludaTransferTest();
 }
