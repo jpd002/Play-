@@ -157,7 +157,12 @@ void CPixelBufferView::OnMouseMoveEvent(QMouseEvent* event)
 void CPixelBufferView::OnMouseWheelEvent(QWheelEvent* event)
 {
 	float newZoom = 0;
-	auto z = event->delta();
+	auto z = 0;
+	auto delta = event->angleDelta();
+	if(!delta.isNull())
+	{
+		z = delta.y();
+	}
 	if(z <= -1)
 	{
 		newZoom = m_zoomFactor / 2;
@@ -170,7 +175,7 @@ void CPixelBufferView::OnMouseWheelEvent(QWheelEvent* event)
 	if(newZoom != 0)
 	{
 		auto clientRect = m_openglpanel->size();
-		auto mousePoint = event->posF();
+		auto mousePoint = event->position();
 		float relPosX = static_cast<float>(mousePoint.x()) / static_cast<float>(clientRect.width());
 		float relPosY = static_cast<float>(mousePoint.y()) / static_cast<float>(clientRect.height());
 		relPosX = std::max(relPosX, 0.f);

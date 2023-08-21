@@ -1,4 +1,5 @@
 #include <QAction>
+#include <QActionGroup>
 #include <QApplication>
 #include <QInputDialog>
 #include <QMenu>

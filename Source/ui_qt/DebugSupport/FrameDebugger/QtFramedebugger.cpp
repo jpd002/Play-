@@ -18,6 +18,7 @@
 #include "gs/GSH_Vulkan/GSH_VulkanOffscreen.h"
 #endif
 
+#include <QActionGroup>
 #include <QMessageBox>
 #include <QFileDialog>
 #include <QOffscreenSurface>

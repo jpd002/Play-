@@ -41,17 +41,17 @@ fs::path S3FileBrowser::GetSelectedPath() const
 	return m_selectedPath;
 }
 
-void S3FileBrowser::refreshButton_clicked()
+void S3FileBrowser::on_refreshButton_clicked()
 {
 	launchUpdate();
 }
 
-void S3FileBrowser::objectList_itemSelectionChanged()
+void S3FileBrowser::on_objectList_itemSelectionChanged()
 {
 	updateOkButtonState();
 }
 
-void S3FileBrowser::searchFilterEdit_textChanged(QString)
+void S3FileBrowser::on_searchFilterEdit_textChanged(QString)
 {
 	m_filterTimer->start(100);
 }
