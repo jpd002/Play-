@@ -95,7 +95,7 @@ namespace GsTransfer
 
 		uint32 pageCount = pagePitch * pageCountY;
 		uint32 transferSize = pageCount * CGsPixelFormats::PAGESIZE;
-		uint32 transferOffset = (pageStartY * pagePitch) + pageStartX * CGsPixelFormats::PAGESIZE;
+		uint32 transferOffset = ((pageStartY * pagePitch) + pageStartX) * CGsPixelFormats::PAGESIZE;
 
 		return std::make_pair(transferAddress + transferOffset, transferSize);
 	}
