@@ -579,27 +579,6 @@ void CGSH_Vulkan::ProcessPrim(uint64 data)
 	unsigned int newPrimitiveType = static_cast<unsigned int>(data & 0x07);
 	if(newPrimitiveType != m_primitiveType)
 	{
-		if(m_primitiveType == PRIM_LINE)
-		{
-			//Virtua Fighter 2, Sega Rally 95 (and others):
-			//Draws lines and uses result as CLUT for next draw calls.
-
-			//Optimization: We check if the last drawn line UV matches what might currently be in the CLUT
-			//If it's different, we force reset all saved CLUTs, otherwise, we assume we can keep
-			//what we had previously. This helps reducing the number of compute dispatch needed to update the CLUT
-
-			//Optimization lead: The game draws lines to update the CLUT area very often, but a lot of times
-			//the result doesn't seem to be used. We could probably save a lot by not drawing these lines.
-
-			if(
-			    (m_clutLineU != m_lastLineU) ||
-			    (m_clutLineV != m_lastLineV))
-			{
-				memset(&m_clutStates, 0, sizeof(m_clutStates));
-			}
-			m_clutLineU = m_lastLineU;
-			m_clutLineV = m_lastLineV;
-		}
 		m_draw->FlushVertices();
 	}
 	m_primitiveType = newPrimitiveType;
@@ -1300,6 +1279,28 @@ void CGSH_Vulkan::WriteRegisterImpl(uint8 registerId, uint64 data)
 	switch(registerId)
 	{
 	case GS_REG_PRIM:
+		//Check if previous primitive set was a line
+		if(m_primitiveType == PRIM_LINE)
+		{
+			//Virtua Fighter 2, Sega Rally 95 (and others):
+			//Draws lines and uses result as CLUT for next draw calls.
+
+			//Optimization: We check if the last drawn line UV matches what might currently be in the CLUT
+			//If it's different, we force reset all saved CLUTs, otherwise, we assume we can keep
+			//what we had previously. This helps reducing the number of compute dispatch needed to update the CLUT
+
+			//Optimization lead: The game draws lines to update the CLUT area very often, but a lot of times
+			//the result doesn't seem to be used. We could probably save a lot by not drawing these lines.
+
+			if(
+			    (m_clutLineU != m_lastLineU) ||
+			    (m_clutLineV != m_lastLineV))
+			{
+				memset(&m_clutStates, 0, sizeof(m_clutStates));
+			}
+			m_clutLineU = m_lastLineU;
+			m_clutLineV = m_lastLineV;
+		}
 		m_pendingPrim = true;
 		m_pendingPrimValue = data;
 		break;
