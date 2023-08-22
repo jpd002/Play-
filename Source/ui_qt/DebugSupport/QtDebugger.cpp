@@ -38,8 +38,14 @@ QtDebugger::QtDebugger(CPS2VM& virtualMachine)
 	//Functions View Initialization
 	m_pFunctionsView = new CFunctionsView(ui->mdiArea);
 	m_pFunctionsView->hide();
-	m_OnFunctionDblClickConnection = m_pFunctionsView->OnItemDblClick.Connect(std::bind(&QtDebugger::OnFunctionsViewFunctionDblClick, this, std::placeholders::_1));
-	m_OnFunctionsStateChangeConnection = m_pFunctionsView->OnStateChange.Connect(std::bind(&QtDebugger::OnFunctionsViewFunctionsStateChange, this));
+	m_OnFunctionDblClickConnection = m_pFunctionsView->OnItemDblClick.Connect(std::bind(&QtDebugger::OnFunctionsCommentsViewItemDblClick, this, std::placeholders::_1));
+	m_OnFunctionsStateChangeConnection = m_pFunctionsView->OnStateChange.Connect(std::bind(&QtDebugger::OnFunctionsCommentsViewStateChange, this));
+
+	//Comments View Initialization
+	m_pCommentsView = new CCommentsView(ui->mdiArea);
+	m_pCommentsView->hide();
+	m_OnCommentDblClickConnection = m_pCommentsView->OnItemDblClick.Connect(std::bind(&QtDebugger::OnFunctionsCommentsViewItemDblClick, this, std::placeholders::_1));
+	m_OnCommentsStateChangeConnection = m_pCommentsView->OnStateChange.Connect(std::bind(&QtDebugger::OnFunctionsCommentsViewStateChange, this));
 
 	//Variables View Initialization
 	m_pVariablesView = new CVariablesView(ui->mdiArea);
@@ -110,6 +116,7 @@ QtDebugger::~QtDebugger()
 
 	delete m_pELFView;
 	delete m_pFunctionsView;
+	delete m_pCommentsView;
 	delete m_pVariablesView;
 }
 
@@ -498,6 +505,7 @@ void QtDebugger::ActivateView(unsigned int nView)
 	{
 		auto biosDebugInfoProvider = GetCurrentView()->GetBiosDebugInfoProvider();
 		m_pFunctionsView->SetContext(GetCurrentView()->GetContext(), biosDebugInfoProvider);
+		m_pCommentsView->SetContext(GetCurrentView()->GetContext(), biosDebugInfoProvider);
 		m_pVariablesView->SetContext(GetCurrentView()->GetContext(), biosDebugInfoProvider);
 		m_kernelObjectListView->SetContext(GetCurrentView()->GetContext(), biosDebugInfoProvider);
 
@@ -662,12 +670,12 @@ std::vector<uint32> QtDebugger::FindWordValueRefs(CMIPS* context, uint32 targetV
 	return refs;
 }
 
-void QtDebugger::OnFunctionsViewFunctionDblClick(uint32 address)
+void QtDebugger::OnFunctionsCommentsViewItemDblClick(uint32 address)
 {
 	GetDisassemblyWindow()->SetAddress(address);
 }
 
-void QtDebugger::OnFunctionsViewFunctionsStateChange()
+void QtDebugger::OnFunctionsCommentsViewStateChange()
 {
 	GetDisassemblyWindow()->HandleMachineStateChange();
 	GetCallStackWindow()->HandleMachineStateChange();
@@ -859,6 +867,12 @@ void QtDebugger::on_actionFunctions_triggered()
 {
 	m_pFunctionsView->show();
 	m_pFunctionsView->setFocus(Qt::ActiveWindowFocusReason);
+}
+
+void QtDebugger::on_actionComments_triggered()
+{
+	m_pCommentsView->show();
+	m_pCommentsView->setFocus(Qt::ActiveWindowFocusReason);
 }
 
 void QtDebugger::on_actionVariables_triggered()

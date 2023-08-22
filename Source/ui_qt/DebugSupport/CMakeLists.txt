@@ -50,6 +50,8 @@ set(SRC_FILES
 	${SRC_ROOT}/DebugExpressionEvaluator.h
 	${SRC_ROOT}/AddressListViewWnd.cpp
 	${SRC_ROOT}/AddressListViewWnd.h
+	${SRC_ROOT}/CommentsView.cpp
+	${SRC_ROOT}/CommentsView.h
 	${SRC_ROOT}/DebugUtils.cpp
 	${SRC_ROOT}/DebugUtils.h
 	${SRC_ROOT}/DebugSupportSettings.cpp
@@ -128,6 +130,7 @@ set(SRC_FILES
 
 set(QT_DEBUGGER_MOC_HEADERS
 	${SRC_ROOT}/AddressListViewWnd.h
+	${SRC_ROOT}/CommentsView.h
 	${SRC_ROOT}/FunctionsView.h
 	${SRC_ROOT}/QtDisAsmTableModel.h
 	${SRC_ROOT}/QtDisAsmVuTableModel.h

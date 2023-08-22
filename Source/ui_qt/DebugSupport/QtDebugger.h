@@ -6,6 +6,7 @@
 #include "DebugView.h"
 #include "CallStackWnd.h"
 #include "FunctionsView.h"
+#include "CommentsView.h"
 #include "VariablesView.h"
 #include "KernelObjectListView.h"
 #include "AddressListViewWnd.h"
@@ -50,6 +51,7 @@ private slots:
 
 	void on_actionCall_Stack_triggered();
 	void on_actionFunctions_triggered();
+	void on_actionComments_triggered();
 	void on_actionVariables_triggered();
 	void on_actionELF_File_Information_triggered();
 	void on_actionViewKernelObject_triggered();
@@ -118,8 +120,8 @@ private:
 	static std::vector<uint32> FindWordValueRefs(CMIPS*, uint32, uint32);
 
 	//Event handlers
-	void OnFunctionsViewFunctionDblClick(uint32);
-	void OnFunctionsViewFunctionsStateChange();
+	void OnFunctionsCommentsViewItemDblClick(uint32);
+	void OnFunctionsCommentsViewStateChange();
 	void OnVariablesViewVariableDblClick(uint32);
 	void OnKernelObjectsViewAddressDblClick(uint32);
 	void OnExecutableChangeMsg();
@@ -131,6 +133,8 @@ private:
 
 	Framework::CSignal<void(uint32)>::Connection m_OnFunctionDblClickConnection;
 	Framework::CSignal<void()>::Connection m_OnFunctionsStateChangeConnection;
+	Framework::CSignal<void(uint32)>::Connection m_OnCommentDblClickConnection;
+	Framework::CSignal<void()>::Connection m_OnCommentsStateChangeConnection;
 	Framework::CSignal<void(uint32)>::Connection m_OnVariablesDblClickConnection;
 	CKernelObjectListView::OnGotoAddressSignal::Connection m_OnGotoAddressConnection;
 	CKernelObjectListView::OnObjectTypeChangedSignal::Connection m_OnKernelObjectListViewTypeChangedConnection;
@@ -145,6 +149,7 @@ private:
 
 	CELFView<CELF32>* m_pELFView = nullptr;
 	CFunctionsView* m_pFunctionsView = nullptr;
+	CCommentsView* m_pCommentsView = nullptr;
 	CVariablesView* m_pVariablesView = nullptr;
 	CKernelObjectListView* m_kernelObjectListView = nullptr;
 	QMdiSubWindow* m_kernelObjectListViewWnd = nullptr;

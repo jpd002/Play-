@@ -340,6 +340,7 @@ bool CMIPSAnalysis::TryGetStringAtAddress(CMIPS* context, uint32 address, std::s
 
 void CMIPSAnalysis::AnalyseStringReferences()
 {
+	bool commentInserted = false;
 	for(auto subroutinePair : m_subroutines)
 	{
 		const auto& subroutine = subroutinePair.second;
@@ -374,11 +375,16 @@ void CMIPSAnalysis::AnalyseStringReferences()
 						if(m_ctx->m_Comments.Find(address) == nullptr)
 						{
 							m_ctx->m_Comments.InsertTag(address, stringConstant.c_str());
+							commentInserted = true;
 						}
 					}
 				}
 			}
 		}
+	}
+	if(commentInserted)
+	{
+		m_ctx->m_Comments.OnTagListChange();
 	}
 }
 

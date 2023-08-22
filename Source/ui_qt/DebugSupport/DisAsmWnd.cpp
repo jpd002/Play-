@@ -411,6 +411,7 @@ void CDisAsmWnd::EditComment()
 		return;
 
 	m_ctx->m_Comments.InsertTag(m_selected, value.toStdString().c_str());
+	m_ctx->m_Comments.OnTagListChange();
 	m_model->Redraw(m_selected);
 }
 
