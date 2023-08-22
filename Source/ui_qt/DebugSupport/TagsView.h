@@ -27,11 +27,12 @@ public:
 	Framework::CSignal<void(uint32)> OnItemDblClick;
 	Framework::CSignal<void(void)> OnStateChange;
 
-public slots:
+private slots:
 	void OnListDblClick(QTreeWidgetItem*, int);
 	void OnNewClick();
 	void OnRenameClick();
 	void OnDeleteClick();
+	void on_filterEdit_textChanged();
 
 signals:
 	void OnTagListChange();
@@ -62,6 +63,7 @@ protected:
 	Framework::CSignal<void()>::Connection m_tagsChangeConnection;
 
 	Strings m_strings;
+	std::string m_filter;
 	CMIPS* m_context = nullptr;
 	CMIPSTags* m_tags = nullptr;
 	BiosDebugModuleInfoArray m_modules;

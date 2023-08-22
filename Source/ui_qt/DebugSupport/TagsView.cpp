@@ -66,6 +66,11 @@ void CTagsView::RefreshList()
 		itTag != m_tags->GetTagsEnd(); itTag++)
 	{
 		std::string sTag(itTag->second);
+		if(!m_filter.empty() && (sTag.find(m_filter) == std::string::npos))
+		{
+			continue;
+		}
+
 		QTreeWidgetItem* childItem = new QTreeWidgetItem();
 		childItem->setText(0, sTag.c_str());
 		childItem->setText(1, string_format("0x%08X", itTag->first).c_str());
@@ -78,6 +83,11 @@ void CTagsView::RefreshList()
 		{
 			ui->treeWidget->addTopLevelItem(childItem);
 		}
+	}
+	
+	if(!m_filter.empty())
+	{
+		ui->treeWidget->expandAll();
 	}
 }
 
@@ -119,6 +129,8 @@ void CTagsView::SetContext(CMIPS* context, CMIPSTags* tags, CBiosDebugInfoProvid
 	m_tags = tags;
 	m_tagsChangeConnection = m_tags->OnTagListChange.Connect(std::bind(&CTagsView::OnTagListChange, this));
 
+	ui->filterEdit->setText(QString());
+	
 	OnTagListChange();
 }
 
@@ -263,4 +275,10 @@ void CTagsView::OnDeleteClick()
 	RefreshList();
 
 	OnStateChange();
+}
+
+void CTagsView::on_filterEdit_textChanged()
+{
+	m_filter = ui->filterEdit->text().toStdString();
+	RefreshList();
 }
