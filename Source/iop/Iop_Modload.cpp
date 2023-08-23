@@ -194,7 +194,14 @@ uint32 CModload::LoadModuleBufferAddress(uint32 modBufPtr, uint32 dstAddr, uint3
 	CLog::GetInstance().Print(LOG_NAME, FUNCTION_LOADMODULEBUFFERADDRESS "(modBufPtr = 0x%08X, dstAddr = 0x%08X, offset = %d);\r\n",
 	                          modBufPtr, dstAddr, offset);
 	assert((modBufPtr & 0x03) == 0);
-	return m_bios.LoadModuleFromAddress(modBufPtr, dstAddr + offset, offset == 0);
+	if(dstAddr == 0)
+	{
+		return m_bios.LoadModuleFromAddress(modBufPtr);
+	}
+	else
+	{
+		return m_bios.LoadModuleFromAddress(modBufPtr, dstAddr + offset, offset == 0);
+	}
 }
 
 uint32 CModload::LoadModuleBuffer(uint32 modBufPtr)
