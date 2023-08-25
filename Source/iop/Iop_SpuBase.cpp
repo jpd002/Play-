@@ -1283,7 +1283,7 @@ void CSpuBase::CSampleReader::UnpackSamples(int16* dst)
 {
 	int32 workBuffer[BUFFER_SAMPLES];
 
-	uint8* nextSample = m_ram + m_nextSampleAddr;
+	const uint8* nextSample = m_ram + m_nextSampleAddr;
 
 	if(m_nextSampleAddr == m_irqAddr)
 	{
