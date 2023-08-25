@@ -136,8 +136,16 @@ ARCADE_MACHINE_DEF ReadArcadeMachineDefinition(const fs::path& arcadeDefPath)
 
 	auto defString =
 	    [&arcadeDefPath]() {
-		    auto defStream = Framework::CreateInputStdStream(arcadeDefPath.native());
-		    return defStream.ReadString();
+		    try
+		    {
+			    auto defStream = Framework::CreateInputStdStream(arcadeDefPath.native());
+			    return defStream.ReadString();
+		    }
+		    catch(...)
+		    {
+			    throw std::runtime_error(string_format("Failed to read arcade definition file located at '%s'.",
+			                                           fs::absolute(arcadeDefPath).string().c_str()));
+		    }
 	    }();
 
 	auto defJson = nlohmann::json::parse(defString);
