@@ -189,6 +189,31 @@
         </widget>
        </item>
        <item>
+        <widget class="QLabel" name="label_8">
+         <property name="text">
+          <string>Arcade ROMs directory:</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout">
+         <item>
+          <widget class="QLineEdit" name="edit_arcadeRoms_dir">
+           <property name="readOnly">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="button_browseArcadeRomsDir">
+           <property name="text">
+            <string>Browse...</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
         <widget class="QCheckBox" name="checkBox_limitFrameRate">
          <property name="text">
           <string>Cap Frame Rate to Video Refresh Rate</string>

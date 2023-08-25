@@ -3,9 +3,11 @@
 #include "PS2VM_Preferences.h"
 #include "PreferenceDefs.h"
 #include "../gs/GSH_OpenGL/GSH_OpenGL.h"
+#include "QStringUtils.h"
 #include <cassert>
 #include <cmath>
 #include <QMessageBox>
+#include <QFileDialog>
 
 #ifdef HAS_GSH_VULKAN
 #include "gs/GSH_Vulkan/GSH_VulkanDeviceInfo.h"
@@ -79,6 +81,7 @@ void SettingsDialog::changePage(QListWidgetItem* current, QListWidgetItem* previ
 void SettingsDialog::LoadPreferences()
 {
 	ui->comboBox_system_language->setCurrentIndex(CAppConfig::GetInstance().GetPreferenceInteger(PREF_SYSTEM_LANGUAGE));
+	ui->edit_arcadeRoms_dir->setText(PathToQString(CAppConfig::GetInstance().GetPreferencePath(PREF_PS2_ARCADEROMS_DIRECTORY)));
 	ui->checkBox_limitFrameRate->setChecked(CAppConfig::GetInstance().GetPreferenceBoolean(PREF_PS2_LIMIT_FRAMERATE));
 	ui->checkBox_showEECPUUsage->setChecked(CAppConfig::GetInstance().GetPreferenceBoolean(PREF_UI_SHOWEECPUUSAGE));
 
@@ -100,6 +103,19 @@ void SettingsDialog::LoadPreferences()
 void SettingsDialog::on_comboBox_system_language_currentIndexChanged(int index)
 {
 	CAppConfig::GetInstance().SetPreferenceInteger(PREF_SYSTEM_LANGUAGE, index);
+}
+
+void SettingsDialog::on_button_browseArcadeRomsDir_clicked()
+{
+	auto prevDir = PathToQString(CAppConfig::GetInstance().GetPreferencePath(PREF_PS2_ARCADEROMS_DIRECTORY));
+	auto newDir = QFileDialog::getExistingDirectory(this, tr("Select Arcade ROMs Directory"), prevDir,
+	                                                QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
+	if(newDir.isEmpty())
+	{
+		return;
+	}
+	CAppConfig::GetInstance().SetPreferencePath(PREF_PS2_ARCADEROMS_DIRECTORY, QStringToPath(newDir));
+	ui->edit_arcadeRoms_dir->setText(newDir);
 }
 
 void SettingsDialog::on_checkBox_limitFrameRate_clicked(bool checked)
