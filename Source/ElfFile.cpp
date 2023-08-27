@@ -2,9 +2,9 @@
 
 CElfFileContainer::CElfFileContainer(Framework::CStream& input)
 {
-	uint32 size = static_cast<uint32>(input.GetLength());
-	m_content = new uint8[size];
-	input.Read(m_content, size);
+	m_size = input.GetLength();
+	m_content = new uint8[m_size];
+	input.Read(m_content, m_size);
 }
 
 CElfFileContainer::~CElfFileContainer()
@@ -15,4 +15,9 @@ CElfFileContainer::~CElfFileContainer()
 uint8* CElfFileContainer::GetFileContent() const
 {
 	return m_content;
+}
+
+uint64 CElfFileContainer::GetFileSize() const
+{
+	return m_size;
 }

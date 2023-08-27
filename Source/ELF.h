@@ -42,10 +42,10 @@ public:
 	typedef typename ElfTraits::ELFSECTIONHEADER SECTIONHEADER;
 	typedef typename ElfTraits::ELFSYMBOL SYMBOL;
 
-	CELF(uint8* content)
+	CELF(uint8* content, uint64 contentSize = ~0ULL)
 	    : m_content(content)
 	{
-		Framework::CPtrStream stream(m_content, -1);
+		Framework::CPtrStream stream(m_content, contentSize);
 
 		stream.Read(&m_header, sizeof(m_header));
 
@@ -173,13 +173,19 @@ private:
 		{
 			SECTIONHEADER zeroSectionHeader = {};
 			stream.Seek(m_header.nSectHeaderStart, Framework::STREAM_SEEK_SET);
-			stream.Read(&zeroSectionHeader, sizeof(zeroSectionHeader));
-			if(m_header.nId[ELF::EI_DATA] == ELF::ELFDATA2MSB)
+			//Some ELF files have their section headers truncated (ex.: Psychonauts PS2)
+			//Make sure that we were able to read the zeroth section header
+			//properly before proceeding
+			auto amountRead = stream.Read(&zeroSectionHeader, sizeof(zeroSectionHeader));
+			if(amountRead == sizeof(zeroSectionHeader))
 			{
-				Framework::CEndian::FromMSBF(zeroSectionHeader.nSize);
+				if(m_header.nId[ELF::EI_DATA] == ELF::ELFDATA2MSB)
+				{
+					Framework::CEndian::FromMSBF(zeroSectionHeader.nSize);
+				}
+				assert(zeroSectionHeader.nSize != 0);
+				sectionHeaderCount = zeroSectionHeader.nSize;
 			}
-			assert(zeroSectionHeader.nSize != 0);
-			sectionHeaderCount = zeroSectionHeader.nSize;
 		}
 		else
 		{
