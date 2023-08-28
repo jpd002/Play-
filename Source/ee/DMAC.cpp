@@ -1120,6 +1120,7 @@ void CDMAC::DisassembleGet(uint32 nAddress)
 		//Channel 9
 		LOG_GET(D9_CHCR)
 		LOG_GET(D9_MADR)
+		LOG_GET(D9_QWC)
 		LOG_GET(D9_TADR)
 		LOG_GET(D9_SADR)
 
