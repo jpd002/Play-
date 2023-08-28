@@ -1,0 +1,16 @@
+{
+	"id": "fateulc",
+	"name": "Fate: Unlimited Codes",
+	"dongle":
+	{
+		"name": "fud1vera.ic002"
+	},
+	"hdd":
+	{
+		"name": "fud-hdd0-a.chd"
+	},
+	"boot": "ac0:FTELOAD",
+	"patches":
+	[
+	]
+}
