@@ -1,13 +1,13 @@
 #include "settingsdialog.h"
+#include <cassert>
+#include <cmath>
+#include <QFileDialog>
+#include <QMessageBox>
 #include "ui_settingsdialog.h"
 #include "PS2VM_Preferences.h"
 #include "PreferenceDefs.h"
 #include "../gs/GSH_OpenGL/GSH_OpenGL.h"
 #include "QStringUtils.h"
-#include <cassert>
-#include <cmath>
-#include <QMessageBox>
-#include <QFileDialog>
 
 #ifdef HAS_GSH_VULKAN
 #include "gs/GSH_Vulkan/GSH_VulkanDeviceInfo.h"
