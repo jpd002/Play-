@@ -102,6 +102,9 @@ static std::string DecodeAddress(uint16 addressId)
 	std::string result;
 	switch(addressId >> 8)
 	{
+	case 0x20:
+		result = "SSA";
+		break;
 	case 0x22:
 		result = "NAX";
 		break;
@@ -240,8 +243,9 @@ void CLibSd::TraceCall(CMIPS& context, unsigned int functionId)
 		                          DecodeSwitch(static_cast<uint16>(context.m_State.nGPR[CMIPS::A0].nV0)).c_str());
 		break;
 	case 9:
-		CLog::GetInstance().Print(LOG_NAME, FUNCTION_SETADDR "(entry = 0x%04X, value = 0x%08X);\r\n",
-		                          context.m_State.nGPR[CMIPS::A0].nV0, context.m_State.nGPR[CMIPS::A1].nV0);
+		CLog::GetInstance().Print(LOG_NAME, FUNCTION_SETADDR "(entry = 0x%04X, value = 0x%08X); //(%s)\r\n",
+		                          context.m_State.nGPR[CMIPS::A0].nV0, context.m_State.nGPR[CMIPS::A1].nV0,
+		                          DecodeAddress(static_cast<uint16>(context.m_State.nGPR[CMIPS::A0].nV0)).c_str());
 		break;
 	case 10:
 		CLog::GetInstance().Print(LOG_NAME, FUNCTION_GETADDR "(entry = 0x%04X); //(%s)\r\n",
