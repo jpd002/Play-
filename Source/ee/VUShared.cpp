@@ -984,6 +984,7 @@ void VUShared::LQbase(CMipsJitter* codeGen, uint8 dest, uint8 it)
 	if(it == 0)
 	{
 		codeGen->PullTop();
+		codeGen->PullTop();
 		return;
 	}
 
