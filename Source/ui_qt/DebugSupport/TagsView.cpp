@@ -13,15 +13,15 @@
 #define addressValueRole (Qt::UserRole)
 
 CTagsView::CTagsView(QMdiArea* parent)
-	: QMdiSubWindow(parent)
-	, ui(new Ui::CTagsView)
+    : QMdiSubWindow(parent)
+    , ui(new Ui::CTagsView)
 {
 	ui->setupUi(this);
 
 	parent->addSubWindow(this);
-	
+
 	setWidget(ui->widget);
-	
+
 	connect(this, &CTagsView::OnTagListChange, this, &CTagsView::RefreshList);
 
 	connect(ui->treeWidget, &QTreeWidget::itemDoubleClicked, this, &CTagsView::OnListDblClick);
@@ -63,7 +63,7 @@ void CTagsView::RefreshList()
 	}
 
 	for(auto itTag(m_tags->GetTagsBegin());
-		itTag != m_tags->GetTagsEnd(); itTag++)
+	    itTag != m_tags->GetTagsEnd(); itTag++)
 	{
 		std::string sTag(itTag->second);
 		if(!m_filter.empty() && (sTag.find(m_filter) == std::string::npos))
@@ -84,7 +84,7 @@ void CTagsView::RefreshList()
 			ui->treeWidget->addTopLevelItem(childItem);
 		}
 	}
-	
+
 	if(!m_filter.empty())
 	{
 		ui->treeWidget->expandAll();
@@ -130,7 +130,7 @@ void CTagsView::SetContext(CMIPS* context, CMIPSTags* tags, CBiosDebugInfoProvid
 	m_tagsChangeConnection = m_tags->OnTagListChange.Connect(std::bind(&CTagsView::OnTagListChange, this));
 
 	ui->filterEdit->setText(QString());
-	
+
 	OnTagListChange();
 }
 
@@ -153,8 +153,8 @@ void CTagsView::OnNewClick()
 	{
 		bool ok;
 		QString res = QInputDialog::getText(this, m_strings.newTagString,
-											m_strings.tagNameString, QLineEdit::Normal,
-											tr(""), &ok);
+		                                    m_strings.tagNameString, QLineEdit::Normal,
+		                                    tr(""), &ok);
 		if(!ok || res.isEmpty())
 			return;
 
@@ -164,8 +164,8 @@ void CTagsView::OnNewClick()
 	{
 		bool ok;
 		QString res = QInputDialog::getText(this, m_strings.newTagString,
-											m_strings.tagAddressString, QLineEdit::Normal,
-											tr("00000000"), &ok);
+		                                    m_strings.tagAddressString, QLineEdit::Normal,
+		                                    tr("00000000"), &ok);
 		if(!ok || res.isEmpty())
 			return;
 
@@ -204,8 +204,8 @@ void CTagsView::OnRenameClick()
 
 	bool ok;
 	QString res = QInputDialog::getText(this, m_strings.renameTagString,
-										m_strings.tagNameString, QLineEdit::Normal,
-										sName, &ok);
+	                                    m_strings.tagNameString, QLineEdit::Normal,
+	                                    sName, &ok);
 	if(!ok || res.isEmpty())
 		return;
 
@@ -233,8 +233,8 @@ void CTagsView::OnDeleteClick()
 		}
 
 		int ret = QMessageBox::warning(this, m_strings.deleteTagString,
-									   m_strings.deleteModuleTagsConfirmString.arg(selectedModuleName),
-									   QMessageBox::Ok | QMessageBox::Cancel, QMessageBox::Ok);
+		                               m_strings.deleteModuleTagsConfirmString.arg(selectedModuleName),
+		                               QMessageBox::Ok | QMessageBox::Cancel, QMessageBox::Ok);
 		if(ret != QMessageBox::Ok)
 		{
 			return;
@@ -242,7 +242,7 @@ void CTagsView::OnDeleteClick()
 
 		std::vector<uint32> toDelete;
 		for(auto tagIterator = m_tags->GetTagsBegin();
-			tagIterator != m_tags->GetTagsEnd(); tagIterator++)
+		    tagIterator != m_tags->GetTagsEnd(); tagIterator++)
 		{
 			auto tagGroupItem = GetTagGroup(tagIterator->first);
 			if(tagGroupItem == selectedItem)
@@ -262,8 +262,8 @@ void CTagsView::OnDeleteClick()
 		uint32 nAddress = lexical_cast_hex(selectedAddressStr);
 
 		int ret = QMessageBox::warning(this, m_strings.deleteTagString,
-									   m_strings.deleteTagConfirmString,
-									   QMessageBox::Ok | QMessageBox::Cancel, QMessageBox::Ok);
+		                               m_strings.deleteTagConfirmString,
+		                               QMessageBox::Ok | QMessageBox::Cancel, QMessageBox::Ok);
 		if(ret != QMessageBox::Ok)
 		{
 			return;

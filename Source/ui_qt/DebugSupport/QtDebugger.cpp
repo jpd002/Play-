@@ -51,7 +51,7 @@ QtDebugger::QtDebugger(CPS2VM& virtualMachine)
 	m_pVariablesView = new CVariablesView(ui->mdiArea);
 	m_pVariablesView->hide();
 	m_OnVariablesDblClickConnection = m_pVariablesView->OnItemDblClick.Connect(std::bind(&QtDebugger::OnVariablesViewVariableDblClick, this, std::placeholders::_1));
-	
+
 	//Kernel Objects View Initialization
 	{
 		m_kernelObjectListViewWnd = new QMdiSubWindow(ui->mdiArea);
