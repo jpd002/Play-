@@ -15,8 +15,6 @@ using namespace Iop;
 #define TIME_SCALE (0x1000)
 #define LOG_NAME ("iop_spubase")
 
-#define INVALID_ADDRESS (~0U)
-
 #define STATE_PATH_FORMAT ("iop_spu/spu_%d.xml")
 #define STATE_REGS_CTRL ("CTRL")
 #define STATE_REGS_IRQADDR ("IRQADDR")
@@ -183,7 +181,7 @@ void CSpuBase::Reset()
 	m_channelOn.f = 0;
 	m_channelReverb.f = 0;
 	m_reverbTicks = 0;
-	m_irqAddr = INVALID_ADDRESS;
+	m_irqAddr = 0;
 	m_irqPending = false;
 	m_transferMode = 0;
 	m_transferAddr = 0;
@@ -771,13 +769,21 @@ void CSpuBase::Render(int16* samples, unsigned int sampleCount)
 		//Simulate SPU CORE0 writing its output in RAM and check for potential interrupts
 		if(m_spuNumber == 0)
 		{
-			if(m_irqAddr == (CORE0_OUTPUT_LEFT + m_core0OutputOffset))
+			if(irqEnabled)
 			{
-				m_irqPending = true;
-			}
-			else if(m_irqAddr == (CORE0_OUTPUT_RIGHT + m_core0OutputOffset))
-			{
-				m_irqPending = true;
+				//TODO: Check which core is responsible for which area
+				if(m_irqAddr == (CORE0_SIN_LEFT + m_core0OutputOffset))
+				{
+					m_irqPending = true;
+				}
+				else if(m_irqAddr == (CORE1_SIN_LEFT + m_core0OutputOffset))
+				{
+					m_irqPending = true;
+				}
+				else if(m_irqAddr == (CORE1_SIN_RIGHT + m_core0OutputOffset))
+				{
+					m_irqPending = true;
+				}
 			}
 			m_core0OutputOffset += 2;
 			m_core0OutputOffset &= (CORE0_OUTPUT_SIZE - 1);
@@ -1128,7 +1134,7 @@ void CSpuBase::CSampleReader::Reset()
 {
 	m_nextSampleAddr = 0;
 	m_repeatAddr = 0;
-	m_irqAddr = INVALID_ADDRESS;
+	m_irqAddr = 0;
 	memset(m_buffer, 0, sizeof(m_buffer));
 	m_pitch = 0;
 	m_srcSampleIdx = 0;
