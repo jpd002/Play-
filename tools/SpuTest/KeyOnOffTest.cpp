@@ -54,10 +54,12 @@ void CKeyOnOffTest::Execute()
 	}
 
 	//Enable IRQs and check that our voice's address is still good
+	//TODO: Check if this still actually needed. Black sets IRQA inside CORE1_SIN areas.
+	//Maybe that test was made before we updated voices all the time and not just when we had an IRQA set
 	SetCoreRegister(testCoreIndex, Iop::Spu2::CCore::CORE_ATTR, Iop::CSpuBase::CONTROL_IRQ);
-	SetCoreAddress(testCoreIndex, Iop::Spu2::CCore::A_IRQA_HI, 0);
+	SetCoreAddress(testCoreIndex, Iop::Spu2::CCore::A_IRQA_HI, ~0);
 
-	RunSpu(64);
+	RunSpu(1024);
 
 	{
 		uint32 irqInfo = m_spu.ReadRegister(Iop::CSpu2::C_IRQINFO);

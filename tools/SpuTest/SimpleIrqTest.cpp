@@ -23,11 +23,11 @@ void CSimpleIrqTest::Execute()
 	SetCoreRegister(0, Iop::Spu2::CCore::A_KON_HI, 0xFFFF);
 	SetCoreRegister(0, Iop::Spu2::CCore::A_KON_LO, 0xFF);
 
-	//Set IRQ parameters
+	//Set IRQ parameters (set IRQA to end of RAM to avoid triggering from CORE0_SIN region)
 	SetCoreRegister(0, Iop::Spu2::CCore::CORE_ATTR, Iop::CSpuBase::CONTROL_IRQ);
-	SetCoreAddress(0, Iop::Spu2::CCore::A_IRQA_HI, 0x10);
+	SetCoreAddress(0, Iop::Spu2::CCore::A_IRQA_HI, ~0);
 
-	RunSpu(128);
+	RunSpu(1024);
 
 	//No IRQ
 	{
@@ -40,7 +40,7 @@ void CSimpleIrqTest::Execute()
 	SetVoiceAddress(0, 0, Iop::Spu2::CCore::VA_SSA_HI, irqSampleAddress);
 	SetCoreRegister(0, Iop::Spu2::CCore::A_KON_HI, 0x1);
 
-	RunSpu(128);
+	RunSpu(1024);
 
 	{
 		uint32 irqInfo = m_spu.ReadRegister(Iop::CSpu2::C_IRQINFO);
