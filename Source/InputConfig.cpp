@@ -31,14 +31,14 @@ std::unique_ptr<CInputConfig> CInputConfig::LoadProfile(std::string name)
 
 Framework::CConfig::PathType CInputConfig::GetProfilePath()
 {
-	auto profile_path = CAppConfig::GetBasePath() / PROFILE_PATH;
+	auto profile_path = CAppConfig::GetInstance().GetBasePath() / PROFILE_PATH;
 	Framework::PathUtils::EnsurePathExists(profile_path);
 	return profile_path;
 }
 
 Framework::CConfig::PathType CInputConfig::GetProfile(std::string name)
 {
-	auto profile_path = CAppConfig::GetBasePath() / PROFILE_PATH;
+	auto profile_path = CAppConfig::GetInstance().GetBasePath() / PROFILE_PATH;
 	Framework::PathUtils::EnsurePathExists(profile_path);
 	profile_path /= name;
 	profile_path.replace_extension(".xml");

@@ -236,7 +236,7 @@ void FetchGameTitles()
 
 void FetchGameCovers()
 {
-	auto coverpath(CAppConfig::GetBasePath() / fs::path("covers"));
+	auto coverpath(CAppConfig::GetInstance().GetBasePath() / fs::path("covers"));
 	Framework::PathUtils::EnsurePathExists(coverpath);
 
 	auto bootables = BootablesDb::CClient::GetInstance().GetBootables();

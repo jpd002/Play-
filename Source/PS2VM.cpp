@@ -75,7 +75,7 @@ CPS2VM::CPS2VM()
 		auto setting = basicDirectorySetting.first;
 		auto path = basicDirectorySetting.second;
 
-		auto absolutePath = CAppConfig::GetBasePath() / path;
+		auto absolutePath = CAppConfig::GetInstance().GetBasePath() / path;
 		Framework::PathUtils::EnsurePathExists(absolutePath);
 		CAppConfig::GetInstance().RegisterPreferencePath(setting, absolutePath);
 
@@ -287,7 +287,7 @@ void CPS2VM::Destroy()
 
 fs::path CPS2VM::GetStateDirectoryPath()
 {
-	return CAppConfig::GetBasePath() / fs::path("states/");
+	return CAppConfig::GetInstance().GetBasePath() / fs::path("states/");
 }
 
 fs::path CPS2VM::GenerateStatePath(unsigned int slot) const

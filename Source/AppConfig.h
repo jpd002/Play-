@@ -3,14 +3,22 @@
 #include "Config.h"
 #include "Singleton.h"
 
-class CAppConfig : public Framework::CConfig, public CSingleton<CAppConfig>
+class CAppConfigBasePath
+{
+public:
+	CAppConfigBasePath();
+	fs::path GetBasePath() const;
+
+private:
+	fs::path m_basePath;
+};
+
+class CAppConfig : public CAppConfigBasePath, public Framework::CConfig, public CSingleton<CAppConfig>
 {
 public:
 	CAppConfig();
 	virtual ~CAppConfig() = default;
 
-	static CConfig::PathType GetBasePath();
-
 private:
-	static CConfig::PathType BuildConfigPath();
+	CConfig::PathType BuildConfigPath();
 };

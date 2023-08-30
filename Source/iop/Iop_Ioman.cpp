@@ -109,8 +109,8 @@ CIoman::CIoman(CIopBios& bios, uint8* ram)
 	{
 		try
 		{
-			auto stdoutPath = CAppConfig::GetBasePath() / "ps2_stdout.txt";
-			auto stderrPath = CAppConfig::GetBasePath() / "ps2_stderr.txt";
+			auto stdoutPath = CAppConfig::GetInstance().GetBasePath() / "ps2_stdout.txt";
+			auto stderrPath = CAppConfig::GetInstance().GetBasePath() / "ps2_stderr.txt";
 
 			m_files[FID_STDOUT] = FileInfo{new Framework::CStdStream(fopen(stdoutPath.string().c_str(), "ab"))};
 			m_files[FID_STDERR] = FileInfo{new Framework::CStdStream(fopen(stderrPath.string().c_str(), "ab"))};

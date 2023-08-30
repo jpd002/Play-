@@ -33,7 +33,7 @@ void CoverUtils::PopulateCache(std::vector<BootablesDb::Bootable> bootables)
 	m_lock.lock();
 	PopulatePlaceholderCover();
 
-	auto coverpath(CAppConfig::GetBasePath() / fs::path("covers"));
+	auto coverpath(CAppConfig::GetInstance().GetBasePath() / fs::path("covers"));
 	Framework::PathUtils::EnsurePathExists(coverpath);
 
 	auto itr = CoverUtils::cache.find("PH");

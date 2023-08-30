@@ -1,47 +1,33 @@
 #include "AppConfig.h"
 #include "PathUtils.h"
-#include <iostream>
-#include <filesystem> // For file system operations
 
-#define CONFIG_FILENAME ("config.xml")
-#define PORTABLE_BASE_DATA_PATH ("Play Data Files")
 #define BASE_DATA_PATH ("Play Data Files")
+#define CONFIG_FILENAME ("config.xml")
 
 CAppConfig::CAppConfig()
     : CConfig(BuildConfigPath())
 {
 }
 
-Framework::CConfig::PathType CAppConfig::GetBasePath()
+Framework::CConfig::PathType CAppConfig::BuildConfigPath()
 {
-	// Check for the presence of the "portable.txt" file
-	if(std::filesystem::exists("portable.txt"))
+	return GetBasePath() / CONFIG_FILENAME;
+}
+
+CAppConfigBasePath::CAppConfigBasePath()
+{
+	if(fs::exists("portable.txt"))
 	{
-		//delete "read content portable.txt"
-		
-		// If "portable.txt" is present, simply use the path specified in PORTABLE_BASE_DATA_PATH
-		auto basePath = PORTABLE_BASE_DATA_PATH;
-
-		// Create the "Play Data Files" directory if it doesn't already exist
-		std::filesystem::create_directories(basePath);
-
-		return basePath; // Return the base path without the complete path
+		m_basePath = BASE_DATA_PATH;
 	}
 	else
 	{
-		// If "portable.txt" is absent, use the original code for the base directory path
-		auto result = Framework::PathUtils::GetPersonalDataPath() / BASE_DATA_PATH;
-
-		// Create the "Play Data Files" directory if it doesn't already exist
-		Framework::PathUtils::EnsurePathExists(result);
-
-		return result;
+		m_basePath = Framework::PathUtils::GetPersonalDataPath() / BASE_DATA_PATH;
 	}
+	Framework::PathUtils::EnsurePathExists(m_basePath);
 }
 
-Framework::CConfig::PathType CAppConfig::BuildConfigPath()
+fs::path CAppConfigBasePath::GetBasePath() const
 {
-	auto basePath(GetBasePath());
-	// "config.xml" is located in the directory of the base path
-	return basePath / CONFIG_FILENAME;
+	return m_basePath;
 }

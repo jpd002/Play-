@@ -33,7 +33,7 @@ CScreenShotUtils::Connection CScreenShotUtils::TriggerGetScreenshot(CPS2VM* virt
 
 fs::path CScreenShotUtils::GetScreenShotDirectoryPath()
 {
-	auto screenshotpath(CAppConfig::GetBasePath() / fs::path("screenshots"));
+	auto screenshotpath(CAppConfig::GetInstance().GetBasePath() / fs::path("screenshots"));
 	Framework::PathUtils::EnsurePathExists(screenshotpath);
 	return screenshotpath;
 }

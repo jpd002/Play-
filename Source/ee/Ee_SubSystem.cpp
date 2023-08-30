@@ -775,7 +775,7 @@ void CSubSystem::FlushInstructionCache()
 
 void CSubSystem::LoadBIOS()
 {
-	auto biosPath = CAppConfig::GetBasePath() / "bios/scph10000.bin";
+	auto biosPath = CAppConfig::GetInstance().GetBasePath() / "bios/scph10000.bin";
 	auto biosStream = Framework::CreateInputStdStream(biosPath.native());
 	biosStream.Read(m_bios, PS2::EE_BIOS_SIZE);
 }

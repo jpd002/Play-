@@ -12,7 +12,7 @@
 CLog::CLog()
 {
 #ifndef DISABLE_LOGGING
-	m_logBasePath = CAppConfig::GetBasePath() / LOG_PATH;
+	m_logBasePath = CAppConfig::GetInstance().GetBasePath() / LOG_PATH;
 	Framework::PathUtils::EnsurePathExists(m_logBasePath);
 	CAppConfig::GetInstance().RegisterPreferenceBoolean(PREF_LOG_SHOWPRINTS, false);
 	m_showPrints = CAppConfig::GetInstance().GetPreferenceBoolean(PREF_LOG_SHOWPRINTS);

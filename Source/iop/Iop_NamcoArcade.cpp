@@ -738,7 +738,7 @@ void CNamcoArcade::ProcessAcFlashCommand(const SIFCMDHEADER*, CSifMan& sifMan)
 
 fs::path CNamcoArcade::GetArcadeSavePath()
 {
-	return CAppConfig::GetBasePath() / fs::path("arcadesaves");
+	return CAppConfig::GetInstance().GetBasePath() / fs::path("arcadesaves");
 }
 
 void CNamcoArcade::ProcessMemRequest(uint8* ram, uint32 infoPtr)
