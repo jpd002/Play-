@@ -232,6 +232,8 @@ void CIPU::SetRegister(uint32 nAddress, uint32 nValue)
 		{
 			m_isBusy = false;
 			m_currentCmd = nullptr;
+			m_nTH0 = 0;
+			m_nTH1 = 0;
 			m_IN_FIFO.Reset();
 			m_OUT_FIFO.Reset();
 		}
@@ -1870,8 +1872,8 @@ bool CIPU::CCSCCommand::Execute()
 			uint32* pPixel = nPixel;
 			unsigned int* pCbCrMap = m_nCbCrMap;
 
-			uint32 alphaTh0 = (m_TH0 & 0xFF) | ((m_TH0 & 0xFF) << 8) | ((m_TH0 & 0xFF) << 16);
-			uint32 alphaTh1 = (m_TH1 & 0xFF) | ((m_TH1 & 0xFF) << 8) | ((m_TH1 & 0xFF) << 16);
+			uint16 alphaTh0 = (m_TH0 & 0x1FF);
+			uint16 alphaTh1 = (m_TH1 & 0x1FF);
 
 			for(unsigned int i = 0; i < 16; i++)
 			{
@@ -1890,12 +1892,15 @@ bool CIPU::CCSCCommand::Execute()
 					nB = std::clamp(nB, 0.f, 255.f);
 
 					uint8 a = 0;
-					uint32 rgb = (static_cast<uint8>(nB) << 16) | (static_cast<uint8>(nG) << 8) | (static_cast<uint8>(nR) << 0);
-					if(rgb < alphaTh0)
+					uint8 r = static_cast<uint8>(nR);
+					uint8 g = static_cast<uint8>(nG);
+					uint8 b = static_cast<uint8>(nB);
+
+					if(r < alphaTh0 && g < alphaTh0 && b < alphaTh0)
 					{
 						a = 0;
 					}
-					else if(rgb < alphaTh1)
+					else if(r < alphaTh1 && g < alphaTh1 && b < alphaTh1)
 					{
 						a = 0x40;
 					}
@@ -1904,7 +1909,7 @@ bool CIPU::CCSCCommand::Execute()
 						a = 0x80;
 					}
 
-					pPixel[j] = (a << 24) | rgb;
+					pPixel[j] = (a << 24) | (b << 16) | (g << 8) | (r << 0);
 				}
 
 				pY += 0x10;
