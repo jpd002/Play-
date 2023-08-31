@@ -9,15 +9,25 @@ CAppConfig::CAppConfig()
 {
 }
 
-Framework::CConfig::PathType CAppConfig::GetBasePath()
-{
-	auto result = Framework::PathUtils::GetPersonalDataPath() / BASE_DATA_PATH;
-	return result;
-}
-
 Framework::CConfig::PathType CAppConfig::BuildConfigPath()
 {
-	auto userPath(GetBasePath());
-	Framework::PathUtils::EnsurePathExists(userPath);
-	return userPath / CONFIG_FILENAME;
+	return GetBasePath() / CONFIG_FILENAME;
+}
+
+CAppConfigBasePath::CAppConfigBasePath()
+{
+	if(fs::exists("portable.txt"))
+	{
+		m_basePath = BASE_DATA_PATH;
+	}
+	else
+	{
+		m_basePath = Framework::PathUtils::GetPersonalDataPath() / BASE_DATA_PATH;
+	}
+	Framework::PathUtils::EnsurePathExists(m_basePath);
+}
+
+fs::path CAppConfigBasePath::GetBasePath() const
+{
+	return m_basePath;
 }

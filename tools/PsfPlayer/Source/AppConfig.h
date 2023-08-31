@@ -1,19 +1,24 @@
-#ifndef _APPCONFIG_H_
-#define _APPCONFIG_H_
+#pragma once
 
 #include "Config.h"
 #include "Singleton.h"
 
-class CAppConfig : public Framework::CConfig, public CSingleton<CAppConfig>
+class CAppConfigBasePath
+{
+public:
+	CAppConfigBasePath();
+	fs::path GetBasePath() const;
+
+private:
+	fs::path m_basePath;
+};
+
+class CAppConfig : public CAppConfigBasePath, public Framework::CConfig, public CSingleton<CAppConfig>
 {
 public:
 	CAppConfig();
-	virtual ~CAppConfig();
-
-	static CConfig::PathType GetBasePath();
+	virtual ~CAppConfig() = default;
 
 private:
-	static CConfig::PathType BuildConfigPath();
+	CConfig::PathType BuildConfigPath();
 };
-
-#endif

@@ -17,6 +17,7 @@ endif()
 
 add_executable(McServTest
 	AppConfig.cpp
+	AppConfig.h
 	GameTestSheet.cpp
 	GameTestSheet.h
 	Main.cpp
