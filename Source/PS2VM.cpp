@@ -355,7 +355,7 @@ CPS2VM::CPU_UTILISATION_INFO CPS2VM::GetCpuUtilisationInfo() const
 
 fs::path CPS2VM::MakeDebugTagsPackagePath(const char* packageName)
 {
-	auto tagsPath = CAppConfig::GetBasePath() / fs::path(TAGS_PATH);
+	auto tagsPath = CAppConfig::GetInstance().GetBasePath() / fs::path(TAGS_PATH);
 	Framework::PathUtils::EnsurePathExists(tagsPath);
 	auto tagsPackagePath = tagsPath / (std::string(packageName) + std::string(".tags.xml"));
 	return tagsPackagePath;

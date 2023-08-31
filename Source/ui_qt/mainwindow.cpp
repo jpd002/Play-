@@ -957,7 +957,7 @@ void MainWindow::ShowFrameDebugger()
 
 fs::path MainWindow::GetFrameDumpDirectoryPath()
 {
-	return CAppConfig::GetBasePath() / fs::path("framedumps/");
+	return CAppConfig::GetInstance().GetBasePath() / fs::path("framedumps/");
 }
 
 void MainWindow::DumpNextFrame()
