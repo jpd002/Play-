@@ -241,6 +241,11 @@ void CCOP_SCU::TLBWI()
 	m_codeGen->Call(reinterpret_cast<void*>(&CCOP_SCU::HandleTLBWrite), 1, Jitter::CJitter::RETURN_VALUE_NONE);
 }
 
+//08
+void CCOP_SCU::TLBP()
+{
+}
+
 //18
 void CCOP_SCU::ERET()
 {
@@ -336,7 +341,7 @@ CCOP_SCU::InstructionFuncConstant CCOP_SCU::m_pOpC0[0x40] =
 	//0x00
 	&CCOP_SCU::Illegal,		&CCOP_SCU::TLBR,		&CCOP_SCU::TLBWI,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,
 	//0x08
-	&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,
+	&CCOP_SCU::TLBP,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,
 	//0x10
 	&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,
 	//0x18

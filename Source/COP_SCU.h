@@ -126,6 +126,7 @@ private:
 	//C0
 	void TLBR();
 	void TLBWI();
+	void TLBP();
 	void ERET();
 	void EI();
 	void DI();

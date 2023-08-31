@@ -260,7 +260,7 @@ INSTRUCTION CCOP_SCU::m_cReflC0[64] =
 	{	NULL,			NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	NULL,			NULL,			NULL,				NULL,				NULL,				NULL			},
 	//0x08
-	{	NULL,			NULL,			NULL,				NULL,				NULL,				NULL			},
+	{	"TLBP",			NULL,			CopyMnemonic,		NULL,				NULL,				NULL			},
 	{	NULL,			NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	NULL,			NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	NULL,			NULL,			NULL,				NULL,				NULL,				NULL			},
