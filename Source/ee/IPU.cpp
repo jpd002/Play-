@@ -80,10 +80,6 @@ CIPU::CIPU(CINTC& intc)
 {
 }
 
-CIPU::~CIPU()
-{
-}
-
 void CIPU::Reset()
 {
 	m_IPU_CTRL = 0;

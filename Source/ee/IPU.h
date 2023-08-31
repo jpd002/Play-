@@ -17,7 +17,7 @@ public:
 	typedef std::function<uint32(const void*, uint32)> Dma3ReceiveHandler;
 
 	CIPU(CINTC&);
-	virtual ~CIPU();
+	virtual ~CIPU() = default;
 
 	enum REGISTER
 	{
