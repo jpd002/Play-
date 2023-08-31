@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+	<!-- Application Navigation -->
+
+	<string name="about_play">Tentang Play!</string>
+	<string name="about_play_emu">Play! Emulator PlayStation 2</string>
+	<string name="about_play_version">Versi:</string>
+	<string name="about_play_date">Tanggal:</string>
+	<string name="about_play_founder">Dibuat oleh</string>
+
+	<string name="main_menu_settings">Pengaturan</string>
+	<string name="main_menu_addfolder">Tambah Folder</string>
+	<string name="main_menu_about">Tentang</string>
+	<string name="main_menu_exit">Keluar</string>
+
+	<string name="game_info">Tdk ada info</string>
+
+	<string name="search_games">Membangun info&#8230;</string>
+	<string name="search_games_msg">Tunggu&#8230;</string>
+	<string name="search_games_scanning">Memindai permainan&#8230;</string>
+	<string name="search_games_scan_folders">Memindai folder yang ditambahkan&#8230;</string>
+	<string name="search_games_fetching_titles">Mengambil judul permainan&#8230;</string>
+	<string name="search_games_fetching">Mengambil permainan&#8230;</string>
+	<string name="search_games_populating">Menambahkan gambar&#8230;</string>
+	<string name="updating_db">Memperbarui koleksi&#8230;</string>
+
+	<string name="launch_game">Menjalankan permainan&#8230;</string>
+	<string name="launch_game_msg">Tunggu sebentar&#8230;</string>
+
+	<string name="navigation_drawer_open">Buka laci navigasi</string>
+	<string name="navigation_drawer_close">Tutup laci navigasi</string>
+
+	<string name="menu_title_open">Menu</string>
+	<string name="menu_title_shut">Permainan</string>
+	<string name="menu_title_look">Cari</string>
+
+	<string name="file_list_recent">Terbaru</string>
+	<string name="file_list_homebrew">Homebrew</string>
+	<string name="file_list_default">Tidak disortir</string>
+
+	<string name="game_unavailable">Permainan tdk ditemukan.\nApakah kamu ingin menghapusnya dari daftar?</string>
+	<string name="not_found">Tidak ditemukan</string>
+	<string name="no_game_found_adapter">Tdk ada permainan.\n\nSilakan buka menu dan pilih \'Tambah Folder\' untuk menambahkan permainan.</string>
+
+	<!-- Application Preferences -->
+
+	<string name="title_activity_settings">Pengaturan</string>
+
+	<string name="preferences_screen_emu">Pengaturan emulator</string>
+
+	<string name="pref_emu_general">Pengaturan umum</string>
+
+	<string name="pref_emu_general_fps_display_title">Tampilkan Bingkai dan Gambar Penghitung Panggilan</string>
+	<string name="pref_emu_general_fps_display_summary">Mengaktifkan tampilan &quot;bingkai per dtk&quot; (f/s) dan &quot;pangilan per bingkai&quot; (dc/f) statistik di layar</string>
+
+	<string name="pref_emu_general_pad_display_title">Tampilkan Virtual Pad</string>
+	<string name="pref_emu_general_pad_display_summary">Mengaktifkan kontroller virtual di layar</string>
+
+	<string name="pref_emu_general_limit_frame_rate_title">Membatasi Frame Rate</string>
+	<string name="pref_emu_general_limit_frame_rate_summary">Membatasi Frame Rate sesuai Refresh Rate</string>
+
+	<string name="pref_emu_video">Pengaturan video</string>
+
+	<string name="pref_emu_video_gs_handler_title">GS Handler</string>
+
+	<string name="pref_emu_video_res_factor_title">Mengatur faktor resolusi</string>
+
+	<string name="pref_emu_video_widescreen_title">Ubah Ukuran Output ke Layar Lebar</string>
+	<string name="pref_emu_video_widescreen_summary">Mengubah ukuran video menjadi rasio 16:9</string>
+
+	<string name="pref_emu_video_force_bilinear_title">Paksa Bilinear Filtering</string>
+	<string name="pref_emu_video_force_bilinear_summary">Mempaksa penggunaan bilinear filtering di semua tekstur</string>
+
+	<string name="pref_emu_video_presentation_mode_title">Mode Presentasi</string>
+
+	<string name="pref_emu_audio">Pengaturan Audio</string>
+
+	<string name="pref_emu_audio_enable_output_title">Nyalakan audio</string>
+	<string name="pref_emu_audio_enable_output_summary">Menyalakan output audio</string>
+
+	<string name="pref_emu_audio_spublockcount_title">Ukuran Buffer</string>
+
+	<string name="preferences_screen_ui">Pengaturan UI</string>
+
+	<string name="preferences_ui">Pengaturan Penyimpanan</string>
+
+	<string name="pref_ui_rescan_all_title">Memindai ulang penyimpanan</string>
+	<string name="pref_ui_rescan_all_summary">Memindai penyimpanan untuk permainan baru</string>
+
+	<string name="pref_ui_clear_unavailable_title">Hapus permainan yg tdk tersedia</string>
+	<string name="pref_ui_clear_unavailable_summary">Hapus semua permainan yg tdk tersedia di daftar</string>
+
+	<string name="pref_ui_reset_cache_title">Reset Cache</string>
+	<string name="pref_ui_reset_cache_summary">Hapus cache gambar yg tersedia</string>
+
+	<string name="pref_ui_migrate_datafiles_title">Migrate Data Files</string>
+	<string name="pref_ui_migrate_datafiles_summary">Migrasikan File Data dari folder di perangkat</string>
+
+	<string name="preferences_theme">Pengaturan Tema</string>
+
+	<string name="pref_title_theme_selection">Pilihan tema</string>
+
+	<string-array name="pref_theme_selection_titles">
+		<item>Amber</item>
+		<item>Biru (Default)</item>
+		<item>Pink</item>
+		<item>Ungu</item>
+		<item>Teal</item>
+		<item>Ungu Gelap</item>
+		<item>Hijau</item>
+	</string-array>
+
+	<string-array name="pref_emu_video_gs_handler_entries">
+		<item>OpenGL</item>
+		<item>Vulkan (Eksperimental)</item>
+	</string-array>
+
+	<string-array name="pref_emu_video_res_factor_entries">
+		<item>1x</item>
+		<item>2x</item>
+		<item>4x</item>
+		<item>8x</item>
+	</string-array>
+
+	<string-array name="pref_emu_video_presentation_mode_entries">
+		<item>Isi Layar</item>
+		<item>Paskan layar(Default)</item>
+		<item>Ukuran asli</item>
+	</string-array>
+
+	<string-array name="pref_emu_audio_spublockcount_entries">
+		<item>400</item>
+		<item>200</item>
+		<item>100</item>
+		<item>50</item>
+		<item>10</item>
+	</string-array>
+
+	<!-- Emulator Drawer -->
+
+	<string name="emulator_drawer_exit">Keluar</string>
+	<string name="emulator_drawer_savestate">Simpan State</string>
+	<string name="emulator_drawer_loadstate">Memuat State</string>
+
+	<string name="emulator_save_state_ok">State berhasil disimpan.</string>
+	<string name="emulator_save_state_fail">State gagal disimpan.</string>
+
+	<string name="emulator_load_state_ok">State berhasil dimuat.</string>
+	<string name="emulator_load_state_fail">Tidak bisa memuat state.</string>
+
+	<!-- Error Reporting / Debugging -->
+
+	<string name="report_issue">Crash Sebelumnya Terdeteksi</string>
+
+	<string name="dismiss">Kembali</string>
+	<string name="report">Laporkan</string>
+
+	<string name="platform">Menyalin konten logcat ke clipboard\nSilakan tempelkan di laporan masalah</string>
+	<string name="log_saved">Log saved to \"Files Dir\" path</string>
+	<string name="no_recent_adapter">No recently played PS2 game found.</string>
+
+	<!-- Editor Menu -->
+	<string name="editor_menu_save">Simpan</string>
+	<string name="editor_menu_reset">Reset</string>
+	<string name="editor_menu_cancel">Batal</string>
+
+	<!-- Game Info Edit Activity -->
+	<string name="gameinfo_edit_activity_gametitle">Judul Permainan</string>
+	<string name="gameinfo_edit_activity_gameoverview">Tinjauan Permainan</string>
+	<string name="gameinfo_edit_activity_gamecover">Gambar Permainan</string>
+	<string name="gameinfo_edit_activity_gamecover_change">Ganti</string>
+	<string name="gameinfo_edit_activity_gamecover_default">Default</string>
+
+	<string name="permission_dialog_title">Permintaan Izin</string>
+	<string name="permission_dialog_summary">Play! membutuhkan akses penyimpanan (read/write). Tanpa itu, Play! tdk akan bisa mencari permainan atau menyimpan progressmu.</string>
+
+	<!-- Data Files Migration -->
+	<string name="migration_title">Migrasi Berkas Data</string>
+	<string name="migration_selectfolder">Pilih lokasi folder File Data sebelumnya (biasanya terletak di root penyimpanan perangkatmu dan diberi nama \'Play Data Files\').</string>
+	<string name="migration_task_msg">Tunggu Sebentar&#8230;</string>
+
+</resources>
