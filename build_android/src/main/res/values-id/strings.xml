@@ -116,8 +116,6 @@
 		<item>Vulkan (Eksperimental)</item>
 	</string-array>
 
-	</string-array>
-
 	<string-array name="pref_emu_video_presentation_mode_entries">
 		<item>Isi Layar</item>
 		<item>Paskan layar(Default)</item>
