@@ -129,13 +129,6 @@
 		<item>Ukuran asli</item>
 	</string-array>
 
-	<string-array name="pref_emu_audio_spublockcount_entries">
-		<item>400</item>
-		<item>200</item>
-		<item>100</item>
-		<item>50</item>
-		<item>10</item>
-	</string-array>
 
 	<!-- Emulator Drawer -->
 
