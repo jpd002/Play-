@@ -3175,35 +3175,42 @@ void CPS2OS::sc_Deci2Call()
 		{
 			uint32 id = GetNextAvailableDeci2HandlerId();
 
-			DECI2HANDLER* handler = GetDeci2Handler(id);
+			auto handler = GetDeci2Handler(id);
 			handler->valid = 1;
 			handler->device = *reinterpret_cast<uint32*>(GetStructPtr(param + 0x00));
 			handler->bufferAddr = *reinterpret_cast<uint32*>(GetStructPtr(param + 0x04));
 
-			m_ee.m_State.nGPR[SC_RETURN].nV[0] = id;
-			m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0;
+			m_ee.m_State.nGPR[SC_RETURN].nD0 = static_cast<int32>(id);
 		}
 		break;
 	case 0x03:
 		//Deci2Send
 		{
 			uint32 id = *reinterpret_cast<uint32*>(GetStructPtr(param + 0x00));
+			auto handler = GetDeci2Handler(id);
 
-			DECI2HANDLER* handler = GetDeci2Handler(id);
-
-			if(handler->valid != 0)
+			assert(handler->valid);
+			if(handler->valid)
 			{
-				uint32 stringAddr = *reinterpret_cast<uint32*>(&m_ram[handler->bufferAddr + 0x10]);
-				stringAddr &= (m_ramSize - 1);
-
-				uint32 length = m_ram[stringAddr + 0x00] - 0x0C;
-				uint8* string = &m_ram[stringAddr + 0x0C];
-
-				m_iopBios.GetIoman()->Write(Iop::CIoman::FID_STDOUT, length, string);
+				auto buffer = reinterpret_cast<DECI2BUFFER*>(GetStructPtr(handler->bufferAddr));
+				if(buffer->dataAddr != 0)
+				{
+					auto sendInfo = reinterpret_cast<DECI2SEND*>(GetStructPtr(buffer->dataAddr));
+					assert(sendInfo->size >= 0x0C);
+					if(sendInfo->size >= 0x0C)
+					{
+						m_iopBios.GetIoman()->Write(Iop::CIoman::FID_STDOUT, sendInfo->size - 0xC, sendInfo->data);
+					}
+					buffer->status0 = 0;
+				}
+				else
+				{
+					//Report an error. F1 2002 seems to send something wrong and expects some error.
+					buffer->status0 = -1;
+				}
 			}
 
-			m_ee.m_State.nGPR[SC_RETURN].nV[0] = 1;
-			m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0;
+			m_ee.m_State.nGPR[SC_RETURN].nD0 = 1;
 		}
 		break;
 	case 0x04:
@@ -3211,14 +3218,15 @@ void CPS2OS::sc_Deci2Call()
 		{
 			uint32 id = *reinterpret_cast<uint32*>(GetStructPtr(param + 0x00));
 
-			DECI2HANDLER* handler = GetDeci2Handler(id);
-			if(handler->valid != 0)
+			auto handler = GetDeci2Handler(id);
+			assert(handler->valid);
+			if(handler->valid)
 			{
-				*(uint32*)&m_ram[handler->bufferAddr + 0x0C] = 0;
+				auto buffer = reinterpret_cast<DECI2BUFFER*>(GetStructPtr(handler->bufferAddr));
+				buffer->status1 = 0;
 			}
 
-			m_ee.m_State.nGPR[SC_RETURN].nV[0] = 1;
-			m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0;
+			m_ee.m_State.nGPR[SC_RETURN].nD0 = 1;
 		}
 		break;
 	case 0x10:

@@ -180,6 +180,25 @@ private:
 		uint32 bufferAddr;
 	};
 
+	//I have no idea about this, purely speculative
+	struct DECI2BUFFER
+	{
+		uint32 unknown0;
+		int32 status0;
+		int32 unknown1;
+		uint32 status1;
+		uint32 dataAddr;
+	};
+	static_assert(sizeof(DECI2BUFFER) == 0x14);
+
+	struct DECI2SEND
+	{
+		uint32 size;
+		uint32 unknown[2];
+		uint8 data[];
+	};
+	static_assert(offsetof(DECI2SEND, data) == 0x0C);
+
 	struct ALARM
 	{
 		uint32 isValid;
