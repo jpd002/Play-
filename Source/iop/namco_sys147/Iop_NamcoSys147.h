@@ -27,7 +27,18 @@ namespace Iop
 				MODULE_ID_003 = 0x01470003,
 				MODULE_ID_200 = 0x01470200, //S147RPC_REQID_SRAM_WRITE
 				MODULE_ID_201 = 0x01470201, //S147RPC_REQID_SRAM_READ
+				MODULE_ID_99 = 0x00014799, //S147LINK
 			};
+			
+			struct MODULE_99_PACKET
+			{
+				uint8 type;
+				uint8 unknown[4];
+				uint8 command;
+				uint8 data[0x39];
+				uint8 checksum;
+			};
+			static_assert(sizeof(MODULE_99_PACKET) == 0x40);
 
 			bool Invoke000(uint32, uint32*, uint32, uint32*, uint32, uint8*);
 			bool Invoke001(uint32, uint32*, uint32, uint32*, uint32, uint8*);
@@ -35,6 +46,7 @@ namespace Iop
 			bool Invoke003(uint32, uint32*, uint32, uint32*, uint32, uint8*);
 			bool Invoke200(uint32, uint32*, uint32, uint32*, uint32, uint8*);
 			bool Invoke201(uint32, uint32*, uint32, uint32*, uint32, uint8*);
+			bool Invoke99(uint32, uint32*, uint32, uint32*, uint32, uint8*);
 
 			CSifModuleAdapter m_module000;
 			CSifModuleAdapter m_module001;
@@ -42,6 +54,9 @@ namespace Iop
 			CSifModuleAdapter m_module003;
 			CSifModuleAdapter m_module200;
 			CSifModuleAdapter m_module201;
+			CSifModuleAdapter m_module99;
+			
+			std::vector<MODULE_99_PACKET> m_pendingReplies;
 		};
 	}
 }
