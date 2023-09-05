@@ -245,12 +245,12 @@ void CGsContextView::RenderDrawKick(Framework::CBitmap& bitmap)
 	case CGSHandler::PRIM_TRIANGLESTRIP:
 	case CGSHandler::PRIM_TRIANGLEFAN:
 	{
-		int x1 = (static_cast<int16>(m_drawingKick.vertex[0].x) / 16) * fbScale;
-		int y1 = (static_cast<int16>(m_drawingKick.vertex[0].y) / 16) * fbScale;
-		int x2 = (static_cast<int16>(m_drawingKick.vertex[1].x) / 16) * fbScale;
-		int y2 = (static_cast<int16>(m_drawingKick.vertex[1].y) / 16) * fbScale;
-		int x3 = (static_cast<int16>(m_drawingKick.vertex[2].x) / 16) * fbScale;
-		int y3 = (static_cast<int16>(m_drawingKick.vertex[2].y) / 16) * fbScale;
+		int x1 = (m_drawingKick.vertex[0].x / 16) * fbScale;
+		int y1 = (m_drawingKick.vertex[0].y / 16) * fbScale;
+		int x2 = (m_drawingKick.vertex[1].x / 16) * fbScale;
+		int y2 = (m_drawingKick.vertex[1].y / 16) * fbScale;
+		int x3 = (m_drawingKick.vertex[2].x / 16) * fbScale;
+		int y3 = (m_drawingKick.vertex[2].y / 16) * fbScale;
 		bitmap.DrawLine(x1, y1, x2, y2, primHighlightColor);
 		bitmap.DrawLine(x1, y1, x3, y3, primHighlightColor);
 		bitmap.DrawLine(x2, y2, x3, y3, primHighlightColor);
@@ -258,10 +258,10 @@ void CGsContextView::RenderDrawKick(Framework::CBitmap& bitmap)
 	break;
 	case CGSHandler::PRIM_SPRITE:
 	{
-		int x1 = (static_cast<int16>(m_drawingKick.vertex[0].x) / 16) * fbScale;
-		int y1 = (static_cast<int16>(m_drawingKick.vertex[0].y) / 16) * fbScale;
-		int x2 = (static_cast<int16>(m_drawingKick.vertex[1].x) / 16) * fbScale;
-		int y2 = (static_cast<int16>(m_drawingKick.vertex[1].y) / 16) * fbScale;
+		int x1 = (m_drawingKick.vertex[0].x / 16) * fbScale;
+		int y1 = (m_drawingKick.vertex[0].y / 16) * fbScale;
+		int x2 = (m_drawingKick.vertex[1].x / 16) * fbScale;
+		int y2 = (m_drawingKick.vertex[1].y / 16) * fbScale;
 		bitmap.DrawLine(x1, y1, x1, y2, primHighlightColor);
 		bitmap.DrawLine(x1, y2, x2, y2, primHighlightColor);
 		bitmap.DrawLine(x2, y2, x2, y1, primHighlightColor);

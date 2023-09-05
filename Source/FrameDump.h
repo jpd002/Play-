@@ -49,8 +49,8 @@ struct DRAWINGKICK_INFO
 {
 	struct VERTEX
 	{
-		uint16 x = 0;
-		uint16 y = 0;
+		int32 x = 0;
+		int32 y = 0;
 	};
 
 	unsigned int context = 0;
