@@ -100,19 +100,36 @@ void CLibSd::Invoke(CMIPS&, unsigned int)
 static std::string DecodeAddress(uint16 addressId)
 {
 	std::string result;
+	bool voiceAddress = false;
 	switch(addressId >> 8)
 	{
+	case 0x1F:
+		result = "IRQA";
+		break;
 	case 0x20:
 		result = "SSA";
+		voiceAddress = true;
+		break;
+	case 0x21:
+		result = "LSAX";
+		voiceAddress = true;
 		break;
 	case 0x22:
 		result = "NAX";
+		voiceAddress = true;
 		break;
 	default:
 		result = string_format("unknown (0x%02X)", addressId >> 8);
 		break;
 	}
-	result += string_format(", CORE%d, VOICE%d", addressId & 1, (addressId & 0x3E) >> 1);
+	if(voiceAddress)
+	{
+		result += string_format(", CORE%d, VOICE%d", addressId & 1, (addressId & 0x3E) >> 1);
+	}
+	else
+	{
+		result += string_format(", CORE%d", addressId & 1);
+	}
 	return result;
 }
 
