@@ -185,6 +185,8 @@ void CMA_VU::CLower::SQ()
 //04
 void CMA_VU::CLower::ILW()
 {
+	if((m_nIT & 0xF) == 0) return;
+
 	m_codeGen->PushRelRef(offsetof(CMIPS, m_vuMem));
 
 	VUShared::ComputeMemAccessAddr(
@@ -215,23 +217,23 @@ void CMA_VU::CLower::ISW()
 //08
 void CMA_VU::CLower::IADDIU()
 {
-	if(m_nIT == 0) return;
+	if((m_nIT & 0xF) == 0) return;
 
 	VUShared::PushIntegerRegister(m_codeGen, m_nIS);
 	m_codeGen->PushCst(static_cast<uint16>(m_nImm15));
 	m_codeGen->Add();
-	m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
+	VUShared::PullIntegerRegister(m_codeGen, m_nIT);
 }
 
 //09
 void CMA_VU::CLower::ISUBIU()
 {
-	if(m_nIT == 0) return;
+	if((m_nIT & 0xF) == 0) return;
 
 	VUShared::PushIntegerRegister(m_codeGen, m_nIS);
 	m_codeGen->PushCst(static_cast<uint16>(m_nImm15));
 	m_codeGen->Sub();
-	m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
+	VUShared::PullIntegerRegister(m_codeGen, m_nIT);
 }
 
 //10
@@ -299,69 +301,81 @@ void CMA_VU::CLower::FSSET()
 //16
 void CMA_VU::CLower::FSAND()
 {
-	VUShared::GetStatus(m_codeGen, offsetof(CMIPS, m_State.nCOP2VI[m_nIT]), m_relativePipeTime);
+	if((m_nIT & 0xF) == 0) return;
+
+	VUShared::GetStatus(m_codeGen, offsetof(CMIPS, m_State.nCOP2VI[m_nIT & 0xF]), m_relativePipeTime);
 
 	//Mask result
-	m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
+	VUShared::PushIntegerRegister(m_codeGen, m_nIT);
 	m_codeGen->PushCst(m_nImm12);
 	m_codeGen->And();
-	m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
+	VUShared::PullIntegerRegister(m_codeGen, m_nIT);
 }
 
 //17
 void CMA_VU::CLower::FSOR()
 {
-	VUShared::GetStatus(m_codeGen, offsetof(CMIPS, m_State.nCOP2VI[m_nIT]), m_relativePipeTime);
+	if((m_nIT & 0xF) == 0) return;
+
+	VUShared::GetStatus(m_codeGen, offsetof(CMIPS, m_State.nCOP2VI[m_nIT & 0xF]), m_relativePipeTime);
 
 	//Mask result
-	m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
+	VUShared::PushIntegerRegister(m_codeGen, m_nIT);
 	m_codeGen->PushCst(m_nImm12);
 	m_codeGen->Or();
-	m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
+	VUShared::PullIntegerRegister(m_codeGen, m_nIT);
 }
 
 //18
 void CMA_VU::CLower::FMEQ()
 {
+	if((m_nIT & 0xF) == 0) return;
+
 	VUShared::CheckFlagPipeline(VUShared::g_pipeInfoMac, m_codeGen, m_relativePipeTime);
 
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2MF));
-	m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIS]));
+	VUShared::PushIntegerRegister(m_codeGen, m_nIS);
 	m_codeGen->Cmp(Jitter::CONDITION_EQ);
-	m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
+	VUShared::PullIntegerRegister(m_codeGen, m_nIT);
 }
 
 //1A
 void CMA_VU::CLower::FMAND()
 {
+	if((m_nIT & 0xF) == 0) return;
+
 	VUShared::CheckFlagPipeline(VUShared::g_pipeInfoMac, m_codeGen, m_relativePipeTime);
 
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2MF));
-	m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIS]));
+	VUShared::PushIntegerRegister(m_codeGen, m_nIS);
 	m_codeGen->And();
-	m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
+	VUShared::PullIntegerRegister(m_codeGen, m_nIT);
 }
 
 //1B
 void CMA_VU::CLower::FMOR()
 {
+	if((m_nIT & 0xF) == 0) return;
+
 	VUShared::CheckFlagPipeline(VUShared::g_pipeInfoMac, m_codeGen, m_relativePipeTime);
 
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2MF));
-	m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIS]));
+	VUShared::PushIntegerRegister(m_codeGen, m_nIS);
 	m_codeGen->Or();
-	m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
+	VUShared::PullIntegerRegister(m_codeGen, m_nIT);
 }
 
 //1C
 void CMA_VU::CLower::FCGET()
 {
+	if((m_nIT & 0xF) == 0) return;
+
 	VUShared::CheckFlagPipeline(VUShared::g_pipeInfoClip, m_codeGen, m_relativePipeTime);
 
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2CF));
 	m_codeGen->PushCst(0xFFF);
 	m_codeGen->And();
-	m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
+	VUShared::PullIntegerRegister(m_codeGen, m_nIT);
 }
 
 //20
@@ -759,6 +773,8 @@ void CMA_VU::CLower::RGET()
 //1A
 void CMA_VU::CLower::XITOP()
 {
+	if((m_nIT & 0xF) == 0) return;
+
 	//Push context
 	m_codeGen->PushCtx();
 
@@ -766,7 +782,7 @@ void CMA_VU::CLower::XITOP()
 	m_codeGen->PushCst(CVpu::VU_ADDR_ITOP);
 
 	m_codeGen->Call(reinterpret_cast<void*>(&MemoryUtils_GetWordProxy), 2, true);
-	m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
+	VUShared::PullIntegerRegister(m_codeGen, m_nIT);
 }
 
 //1C
