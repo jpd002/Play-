@@ -62,7 +62,7 @@ bool VUShared::DestinationHasElement(uint8 nDest, unsigned int nElement)
 
 void VUShared::ComputeMemAccessAddr(CMipsJitter* codeGen, unsigned int baseRegister, uint32 baseOffset, uint32 destOffset, uint32 addressMask)
 {
-	codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[baseRegister]));
+	PushIntegerRegister(codeGen, baseRegister);
 	if(baseOffset != 0)
 	{
 		codeGen->PushCst(baseOffset);
@@ -171,16 +171,24 @@ void VUShared::PullVector(CMipsJitter* codeGen, uint8 dest, size_t vector)
 	                    DestinationHasElement(dest, 3));
 }
 
-void VUShared::PushIntegerRegister(CMipsJitter* codeGen, unsigned int nRegister)
+void VUShared::PushIntegerRegister(CMipsJitter* codeGen, unsigned int regIdx)
 {
-	if(nRegister == 0)
+	regIdx &= 0xF;
+	if(regIdx == 0)
 	{
 		codeGen->PushCst(0);
 	}
 	else
 	{
-		codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[nRegister]));
+		codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[regIdx]));
 	}
+}
+
+void VUShared::PullIntegerRegister(CMipsJitter* codeGen, unsigned int regIdx)
+{
+	regIdx &= 0xF;
+	assert(regIdx != 0);
+	codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[regIdx]));
 }
 
 void VUShared::TestSZFlags(CMipsJitter* codeGen, uint8 dest, size_t regOffset, uint32 relativePipeTime, uint32 compileHints)
@@ -816,6 +824,8 @@ void VUShared::FTOI0(CMipsJitter* codeGen, uint8 nDest, uint8 nFt, uint8 nFs)
 
 void VUShared::FTOI4(CMipsJitter* codeGen, uint8 nDest, uint8 nFt, uint8 nFs)
 {
+	if(nFt == 0) return;
+
 	codeGen->MD_PushRel(offsetof(CMIPS, m_State.nCOP2[nFs]));
 	codeGen->MD_PushCstExpand(16.0f);
 	codeGen->MD_MulS();
@@ -825,6 +835,8 @@ void VUShared::FTOI4(CMipsJitter* codeGen, uint8 nDest, uint8 nFt, uint8 nFs)
 
 void VUShared::FTOI12(CMipsJitter* codeGen, uint8 nDest, uint8 nFt, uint8 nFs)
 {
+	if(nFt == 0) return;
+
 	codeGen->MD_PushRel(offsetof(CMIPS, m_State.nCOP2[nFs]));
 	codeGen->MD_PushCstExpand(4096.0f);
 	codeGen->MD_MulS();
@@ -834,6 +846,8 @@ void VUShared::FTOI12(CMipsJitter* codeGen, uint8 nDest, uint8 nFt, uint8 nFs)
 
 void VUShared::FTOI15(CMipsJitter* codeGen, uint8 nDest, uint8 nFt, uint8 nFs)
 {
+	if(nFt == 0) return;
+
 	codeGen->MD_PushRel(offsetof(CMIPS, m_State.nCOP2[nFs]));
 	codeGen->MD_PushCstExpand(32768.0f);
 	codeGen->MD_MulS();
@@ -843,42 +857,44 @@ void VUShared::FTOI15(CMipsJitter* codeGen, uint8 nDest, uint8 nFt, uint8 nFs)
 
 void VUShared::IADD(CMipsJitter* codeGen, uint8 id, uint8 is, uint8 it)
 {
-	if(id == 0) return;
+	if((id & 0xF) == 0) return;
 
-	codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[is]));
-	codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[it]));
+	PushIntegerRegister(codeGen, is);
+	PushIntegerRegister(codeGen, it);
 	codeGen->Add();
-	codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[id]));
+	PullIntegerRegister(codeGen, id);
 }
 
 void VUShared::IADDI(CMipsJitter* codeGen, uint8 it, uint8 is, uint8 imm5)
 {
-	if(it == 0) return;
+	if((it & 0xF) == 0) return;
 
 	PushIntegerRegister(codeGen, is);
 	codeGen->PushCst(imm5 | ((imm5 & 0x10) != 0 ? 0xFFFFFFE0 : 0x0));
 	codeGen->Add();
-	codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[it]));
+	PullIntegerRegister(codeGen, it);
 }
 
 void VUShared::IAND(CMipsJitter* codeGen, uint8 id, uint8 is, uint8 it)
 {
-	if(id == 0) return;
+	if((id & 0xF) == 0) return;
 
-	codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[is]));
-	codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[it]));
+	PushIntegerRegister(codeGen, is);
+	PushIntegerRegister(codeGen, it);
 	codeGen->And();
-	codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[id]));
+	PullIntegerRegister(codeGen, id);
 }
 
 void VUShared::ILWbase(CMipsJitter* codeGen, uint8 it)
 {
 	codeGen->LoadFromRefIdx(1);
-	codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[it]));
+	PullIntegerRegister(codeGen, it);
 }
 
 void VUShared::ILWR(CMipsJitter* codeGen, uint8 dest, uint8 it, uint8 is, uint32 addressMask)
 {
+	if((it & 0xF) == 0) return;
+
 	//Compute address
 	codeGen->PushRelRef(offsetof(CMIPS, m_vuMem));
 
@@ -889,22 +905,22 @@ void VUShared::ILWR(CMipsJitter* codeGen, uint8 dest, uint8 it, uint8 is, uint32
 
 void VUShared::IOR(CMipsJitter* codeGen, uint8 id, uint8 is, uint8 it)
 {
-	if(id == 0) return;
+	if((id & 0xF) == 0) return;
 
-	codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[is]));
-	codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[it]));
+	PushIntegerRegister(codeGen, is);
+	PushIntegerRegister(codeGen, it);
 	codeGen->Or();
-	codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[id]));
+	PullIntegerRegister(codeGen, id);
 }
 
 void VUShared::ISUB(CMipsJitter* codeGen, uint8 id, uint8 is, uint8 it)
 {
-	if(id == 0) return;
+	if((id & 0xF) == 0) return;
 
-	codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[is]));
-	codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[it]));
+	PushIntegerRegister(codeGen, is);
+	PushIntegerRegister(codeGen, it);
 	codeGen->Sub();
-	codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[id]));
+	PullIntegerRegister(codeGen, id);
 }
 
 void VUShared::ITOF0(CMipsJitter* codeGen, uint8 dest, uint8 ft, uint8 fs)
@@ -918,6 +934,8 @@ void VUShared::ITOF0(CMipsJitter* codeGen, uint8 dest, uint8 ft, uint8 fs)
 
 void VUShared::ITOF4(CMipsJitter* codeGen, uint8 dest, uint8 ft, uint8 fs)
 {
+	if(ft == 0) return;
+
 	codeGen->MD_PushRel(offsetof(CMIPS, m_State.nCOP2[fs]));
 	codeGen->MD_ToSingle();
 	codeGen->MD_PushCstExpand(16.0f);
@@ -938,6 +956,8 @@ void VUShared::ITOF12(CMipsJitter* codeGen, uint8 dest, uint8 ft, uint8 fs)
 
 void VUShared::ITOF15(CMipsJitter* codeGen, uint8 dest, uint8 ft, uint8 fs)
 {
+	if(ft == 0) return;
+
 	codeGen->MD_PushRel(offsetof(CMIPS, m_State.nCOP2[fs]));
 	codeGen->MD_ToSingle();
 	codeGen->MD_PushCstExpand(32768.0f);
@@ -1014,10 +1034,13 @@ void VUShared::LQbase(CMipsJitter* codeGen, uint8 dest, uint8 it)
 
 void VUShared::LQD(CMipsJitter* codeGen, uint8 dest, uint8 it, uint8 is, uint32 addressMask)
 {
-	codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[is]));
-	codeGen->PushCst(1);
-	codeGen->Sub();
-	codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[is]));
+	if((is & 0xF) != 0)
+	{
+		PushIntegerRegister(codeGen, is);
+		codeGen->PushCst(1);
+		codeGen->Sub();
+		PullIntegerRegister(codeGen, is);
+	}
 
 	codeGen->PushRelRef(offsetof(CMIPS, m_vuMem));
 	VUShared::ComputeMemAccessAddr(codeGen, is, 0, 0, addressMask);
@@ -1032,12 +1055,12 @@ void VUShared::LQI(CMipsJitter* codeGen, uint8 dest, uint8 it, uint8 is, uint32 
 
 	VUShared::LQbase(codeGen, dest, it);
 
-	if(is != 0)
+	if((is & 0xF) != 0)
 	{
-		codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[is]));
+		PushIntegerRegister(codeGen, is);
 		codeGen->PushCst(1);
 		codeGen->Add();
-		codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[is]));
+		PullIntegerRegister(codeGen, is);
 	}
 }
 
@@ -1111,6 +1134,7 @@ void VUShared::MADDAq(CMipsJitter* codeGen, uint8 dest, uint8 fs, uint32 relativ
 
 void VUShared::MAX(CMipsJitter* codeGen, uint8 dest, uint8 fd, uint8 fs, uint8 ft)
 {
+	if(fd == 0) return;
 	MAX_base(codeGen, dest,
 	         offsetof(CMIPS, m_State.nCOP2[fd]),
 	         offsetof(CMIPS, m_State.nCOP2[fs]),
@@ -1121,7 +1145,6 @@ void VUShared::MAX(CMipsJitter* codeGen, uint8 dest, uint8 fd, uint8 fs, uint8 f
 void VUShared::MAXbc(CMipsJitter* codeGen, uint8 dest, uint8 fd, uint8 fs, uint8 ft, uint8 bc)
 {
 	if(fd == 0) return;
-
 	MAX_base(codeGen, dest,
 	         offsetof(CMIPS, m_State.nCOP2[fd]),
 	         offsetof(CMIPS, m_State.nCOP2[fs]),
@@ -1178,6 +1201,8 @@ void VUShared::MOVE(CMipsJitter* codeGen, uint8 nDest, uint8 nFt, uint8 nFs)
 
 void VUShared::MR32(CMipsJitter* codeGen, uint8 nDest, uint8 nFt, uint8 nFs)
 {
+	if(nFt == 0) return;
+
 	size_t offset[4];
 
 	if(nFs == nFt)
@@ -1276,6 +1301,7 @@ void VUShared::MSUBAq(CMipsJitter* codeGen, uint8 dest, uint8 fs, uint32 relativ
 
 void VUShared::MFIR(CMipsJitter* codeGen, uint8 dest, uint8 ft, uint8 is)
 {
+	if(ft == 0) return;
 	for(unsigned int i = 0; i < 4; i++)
 	{
 		if(!VUShared::DestinationHasElement(dest, i)) continue;
@@ -1288,8 +1314,9 @@ void VUShared::MFIR(CMipsJitter* codeGen, uint8 dest, uint8 ft, uint8 is)
 
 void VUShared::MTIR(CMipsJitter* codeGen, uint8 it, uint8 fs, uint8 fsf)
 {
+	if((it & 0xF) == 0) return;
 	codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2[fs].nV[fsf]));
-	codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[it]));
+	PullIntegerRegister(codeGen, it);
 }
 
 void VUShared::MUL(CMipsJitter* codeGen, uint8 dest, uint8 fd, uint8 fs, uint8 ft, uint32 relativePipeTime, uint32 compileHints)
@@ -1539,10 +1566,13 @@ void VUShared::SQbase(CMipsJitter* codeGen, uint8 dest, uint8 is)
 void VUShared::SQD(CMipsJitter* codeGen, uint8 dest, uint8 is, uint8 it, uint32 addressMask)
 {
 	//Decrement
-	codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[it]));
-	codeGen->PushCst(1);
-	codeGen->Sub();
-	codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[it]));
+	if((it & 0xF) != 0)
+	{
+		PushIntegerRegister(codeGen, it);
+		codeGen->PushCst(1);
+		codeGen->Sub();
+		PullIntegerRegister(codeGen, it);
+	}
 
 	//Store
 	codeGen->PushRelRef(offsetof(CMIPS, m_vuMem));
@@ -1575,12 +1605,12 @@ void VUShared::SQI(CMipsJitter* codeGen, uint8 dest, uint8 is, uint8 it, uint32 
 	}
 
 	//Increment
-	if(it != 0)
+	if((it & 0xF) != 0)
 	{
-		codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[it]));
+		PushIntegerRegister(codeGen, it);
 		codeGen->PushCst(1);
 		codeGen->Add();
-		codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[it]));
+		PullIntegerRegister(codeGen, it);
 	}
 }
 

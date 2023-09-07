@@ -111,6 +111,7 @@ namespace VUShared
 
 	void PullVector(CMipsJitter*, uint8, size_t);
 	void PushIntegerRegister(CMipsJitter*, unsigned int);
+	void PullIntegerRegister(CMipsJitter*, unsigned int);
 
 	void TestSZFlags(CMipsJitter*, uint8, size_t, uint32, uint32);
 
