@@ -55,11 +55,6 @@ void CVpu::Execute(int32 quota)
 	{
 		//E bit encountered
 		m_running = false;
-
-		//Flush pipelines
-		m_ctx->m_State.pipeQ.counter = 0;
-		m_ctx->m_State.nCOP2Q = m_ctx->m_State.pipeQ.heldValue;
-
 		VuStateChanged(m_running);
 	}
 }

@@ -1877,3 +1877,34 @@ void VUShared::ResetFlagPipeline(const FLAG_PIPEINFO& pipeInfo, CMipsJitter* cod
 	assert(codeGen->GetTopCursor() == valueCursor);
 	codeGen->PullTop();
 }
+
+void VUShared::CheckFlagPipelineImmediate(const FLAG_PIPEINFO& pipeInfo, CMIPS* context, uint32 relativePipeTime)
+{
+	auto rawState = reinterpret_cast<uint8*>(&context->m_State);
+	auto value = reinterpret_cast<uint32*>(rawState + pipeInfo.value);
+	auto pipeIndex = *reinterpret_cast<uint32*>(rawState + pipeInfo.index);
+	auto valueArray = reinterpret_cast<uint32*>(rawState + pipeInfo.valueArray);
+	auto timeArray = reinterpret_cast<uint32*>(rawState + pipeInfo.timeArray);
+
+	for(unsigned int i = 0; i < FLAG_PIPELINE_SLOTS; i++)
+	{
+		unsigned int index = (i + pipeIndex) & (FLAG_PIPELINE_SLOTS - 1);
+		if(timeArray[index] <= (context->m_State.pipeTime + relativePipeTime))
+		{
+			*value = valueArray[index];
+		}
+	}
+}
+
+void VUShared::ResetFlagPipelineImmediate(const FLAG_PIPEINFO& pipeInfo, CMIPS* context, uint32 value)
+{
+	auto rawState = reinterpret_cast<uint8*>(&context->m_State);
+	auto valueArray = reinterpret_cast<uint32*>(rawState + pipeInfo.valueArray);
+	auto timeArray = reinterpret_cast<uint32*>(rawState + pipeInfo.timeArray);
+
+	for(unsigned int i = 0; i < FLAG_PIPELINE_SLOTS; i++)
+	{
+		timeArray[i] = 0;
+		valueArray[i] = value;
+	}
+}

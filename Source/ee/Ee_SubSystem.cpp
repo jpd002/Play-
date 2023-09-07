@@ -626,12 +626,24 @@ uint32 CSubSystem::Vu0IoPortWriteHandler(uint32 address, uint32 value)
 
 void CSubSystem::Vu0StateChanged(bool running)
 {
+	auto flushPipelines =
+	    [](CMIPS& ctx) {
+		    ctx.m_State.pipeQ.counter = 0;
+		    ctx.m_State.nCOP2Q = ctx.m_State.pipeQ.heldValue;
+
+		    VUShared::CheckFlagPipelineImmediate(VUShared::g_pipeInfoMac, &ctx, VUShared::LATENCY_MAC);
+		    VUShared::CheckFlagPipelineImmediate(VUShared::g_pipeInfoSticky, &ctx, VUShared::LATENCY_MAC);
+		    VUShared::CheckFlagPipelineImmediate(VUShared::g_pipeInfoClip, &ctx, VUShared::LATENCY_MAC);
+	    };
+
 	if(running)
 	{
+		flushPipelines(m_EE);
 		CopyVuState(m_VU0, m_EE);
 	}
 	else
 	{
+		flushPipelines(m_VU0);
 		CopyVuState(m_EE, m_VU0);
 	}
 }
@@ -685,15 +697,17 @@ void CSubSystem::CopyVuState(CMIPS& dst, const CMIPS& src)
 	dst.m_State.nCOP2Q = src.m_State.nCOP2Q;
 	dst.m_State.nCOP2I = src.m_State.nCOP2I;
 	dst.m_State.nCOP2R = src.m_State.nCOP2R;
+	dst.m_State.nCOP2MF = src.m_State.nCOP2MF;
 	dst.m_State.nCOP2SF = src.m_State.nCOP2SF;
 	dst.m_State.nCOP2CF = src.m_State.nCOP2CF;
 	dst.m_State.pipeQ.counter = 0;
 	dst.m_State.pipeQ.heldValue = src.m_State.nCOP2Q;
-	for(unsigned int i = 0; i < FLAG_PIPELINE_SLOTS; i++)
-	{
-		dst.m_State.pipeClip.pipeTimes[i] = 0;
-		dst.m_State.pipeClip.values[i] = src.m_State.nCOP2CF;
-	}
+	VUShared::ResetFlagPipelineImmediate(VUShared::g_pipeInfoMac, &dst, src.m_State.nCOP2MF);
+	VUShared::ResetFlagPipelineImmediate(VUShared::g_pipeInfoSticky, &dst, src.m_State.nCOP2SF);
+	VUShared::ResetFlagPipelineImmediate(VUShared::g_pipeInfoClip, &dst, src.m_State.nCOP2CF);
+	dst.m_State.pipeMac.index = src.m_State.pipeMac.index;
+	dst.m_State.pipeSticky.index = src.m_State.pipeSticky.index;
+	dst.m_State.pipeClip.index = src.m_State.pipeClip.index;
 }
 
 void CSubSystem::HandleVu1AreaWrite(uint32 offset, uint32 value)

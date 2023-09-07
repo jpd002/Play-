@@ -227,6 +227,9 @@ namespace VUShared
 	void QueueInFlagPipeline(const FLAG_PIPEINFO&, CMipsJitter*, uint32, uint32);
 	void ResetFlagPipeline(const FLAG_PIPEINFO&, CMipsJitter*);
 
+	void CheckFlagPipelineImmediate(const FLAG_PIPEINFO&, CMIPS*, uint32);
+	void ResetFlagPipelineImmediate(const FLAG_PIPEINFO&, CMIPS*, uint32);
+
 	//Shared addressing modes
 	void ReflOpFdFsI(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
 	void ReflOpFdFsQ(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
