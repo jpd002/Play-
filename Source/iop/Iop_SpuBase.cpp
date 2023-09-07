@@ -474,6 +474,7 @@ void CSpuBase::SendKeyOn(uint32 channels)
 		if(channels & (1 << i))
 		{
 			channel.status = KEY_ON;
+			channel.repeatSet = false;
 		}
 	}
 }
@@ -696,7 +697,6 @@ void CSpuBase::Render(int16* samples, unsigned int sampleCount)
 				reader.ClearEndFlag();
 				channel.status = ATTACK;
 				channel.adsrVolume = 0;
-				channel.repeatSet = false;
 			}
 			else
 			{
