@@ -4,7 +4,7 @@
 	<!-- Application Navigation -->
 
 	<string name="about_play">Acerca de Play!</string>
-	<string name="about_play_emu">Play! Emulador de PlayStation 2</string>
+	<string name="about_play_emu">Play! PlayStation 2 Emulator</string>
 	<string name="about_play_version">Versión:</string>
 	<string name="about_play_date">Fecha:</string>
 	<string name="about_play_founder">Creado por</string>
