@@ -776,7 +776,7 @@ void CNamcoArcade::ProcessMemRequest(uint8* ram, uint32 infoPtr)
 			//0x80 -> Test Mode
 			//0x40 -> Output Level (Voltage) of Video Signal
 			//0x20 -> Monitor Sync Frequency (1: 31Khz or 0: 15Khz)
-			//0x10 -> Video Sync Signal (1: Composite Sync or 0: Separate Sync)
+			//0x10 -> Video Sync Signal (1: Separate Sync or 0: Composite Sync)
 			//ram[recvDataPtr + 0x30] = 0;
 
 			uint16 pktId = sendData[0x0C];
