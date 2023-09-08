@@ -1,6 +1,7 @@
 #include <functional>
 #include "KeyOnOffTest.h"
 #include "SetRepeatTest.h"
+#include "SetRepeatTest2.h"
 #include "SimpleIrqTest.h"
 #include "SweepTest.h"
 
@@ -11,6 +12,7 @@ static const TestFactoryFunction s_factories[] =
 {
 	[]() { return new CKeyOnOffTest(); },
 	[]() { return new CSetRepeatTest(); },
+	[]() { return new CSetRepeatTest2(); },
 	[]() { return new CSimpleIrqTest(); },
 	[]() { return new CSweepTest(); },
 };
