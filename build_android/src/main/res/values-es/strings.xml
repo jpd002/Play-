@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+	<!-- Application Navigation -->
+
+	<string name="about_play">Acerca de Play!</string>
+	<string name="about_play_emu">Play! PlayStation 2 Emulator</string>
+	<string name="about_play_version">Versión:</string>
+	<string name="about_play_date">Fecha:</string>
+	<string name="about_play_founder">Creado por</string>
+
+	<string name="main_menu_settings">Ajustes</string>
+	<string name="main_menu_addfolder">Añadir Carpeta</string>
+	<string name="main_menu_about">Acerca de</string>
+	<string name="main_menu_exit">Cerrar</string>
+
+	<string name="game_info">Sin información</string>
+
+	<string name="search_games">Generando colección&#8230;</string>
+	<string name="search_games_msg">Porfavor espera&#8230;</string>
+	<string name="search_games_scanning">Escaneando juegos&#8230;</string>
+	<string name="search_games_scan_folders">Escaneando las carpetas agregadas&#8230;</string>
+	<string name="search_games_fetching_titles">Obteniendo los títulos de los juegos&#8230;</string>
+	<string name="search_games_fetching">Obteniendo los juegos&#8230;</string>
+	<string name="search_games_populating">Poblando imágenes&#8230;</string>
+	<string name="updating_db">Actualizando colección&#8230;</string>
+
+	<string name="launch_game">Ejecutando juego&#8230;</string>
+	<string name="launch_game_msg">Porfavor espera&#8230;</string>
+
+	<string name="navigation_drawer_open">Menú de navegación abierto</string>
+	<string name="navigation_drawer_close">Menú de navegación cerrado</string>
+
+	<string name="menu_title_open">Menú</string>
+	<string name="menu_title_shut">Juegos</string>
+	<string name="menu_title_look">Buscar</string>
+
+	<string name="file_list_recent">Recientes</string>
+	<string name="file_list_homebrew">Homebrew</string>
+	<string name="file_list_default">Sin organizar</string>
+
+	<string name="game_unavailable">El Juego seleccionado no está disponible.\n¿Te gustaría eliminarlo de la lista?</string>
+	<string name="not_found">No encontrado</string>
+	<string name="no_game_found_adapter">No se encontraron juegos.\n\nPorfavor abre el menú y selecciona \'Añadir Carpeta\' para agregar juegos.</string>
+
+	<!-- Application Preferences -->
+
+	<string name="title_activity_settings">Ajustes</string>
+
+	<string name="preferences_screen_emu">Ajustes de Emulación</string>
+
+	<string name="pref_emu_general">Ajustes generales</string>
+
+	<string name="pref_emu_general_fps_display_title">Mostrar contadores de Frames y Draw Calls</string>
+	<string name="pref_emu_general_fps_display_summary">Habilita la muestra de estadísticas de &quot;fotogramas por segundo&quot; (frames per second) y &quot;llamadas de dibujo por fotograma&quot; (draw calls per frame) en pantalla</string>
+
+	<string name="pref_emu_general_pad_display_title">Mostrar Virtual Pad</string>
+	<string name="pref_emu_general_pad_display_summary">Habilita la muestra de un control virtual en pantalla</string>
+
+	<string name="pref_emu_general_limit_frame_rate_title">Limitar Frame Rate</string>
+	<string name="pref_emu_general_limit_frame_rate_summary">Limita la cantidad de fotogramas por segundo a la velocidad de actualización de la pantalla</string>
+
+	<string name="pref_emu_video">Ajustes de Video</string>
+
+	<string name="pref_emu_video_gs_handler_title">Controladora SG (Sintetizador Gráfico)</string>
+
+	<string name="pref_emu_video_res_factor_title">Factor de Resolución Interna</string>
+
+	<string name="pref_emu_video_widescreen_title">Ajustar Video a Pantalla Ancha</string>
+	<string name="pref_emu_video_widescreen_summary">Ajusta la salida de video a un factor de 16:9</string>
+
+	<string name="pref_emu_video_force_bilinear_title">Forzar Filtrado bilineal</string>
+	<string name="pref_emu_video_force_bilinear_summary">Obliga el uso del filtrado bilinear en todas las texturas.</string>
+
+	<string name="pref_emu_video_presentation_mode_title">Modo Presentación</string>
+
+	<string name="pref_emu_audio">Ajustes de Audio</string>
+
+	<string name="pref_emu_audio_enable_output_title">Habilitar Salida de Audio</string>
+	<string name="pref_emu_audio_enable_output_summary">Habilita la salida de audio</string>
+
+	<string name="pref_emu_audio_spublockcount_title">Tamaño del Buffer</string>
+
+	<string name="preferences_screen_ui">Ajustes de la Interfaz de Usuario</string>
+
+	<string name="preferences_ui">Opciones de almacenamiento</string>
+
+	<string name="pref_ui_rescan_all_title">Volver a escanear el almacenamiento</string>
+	<string name="pref_ui_rescan_all_summary">Escanear el almacenamiento buscando nuevos juegos</string>
+
+	<string name="pref_ui_clear_unavailable_title">Eliminar juegos no disponibles</string>
+	<string name="pref_ui_clear_unavailable_summary">Elimina todo juego al que no sea posible acceder desde la Lista de Juegos</string>
+
+	<string name="pref_ui_reset_cache_title">Resetear Caché</string>
+	<string name="pref_ui_reset_cache_summary">Elimina las carátulas de juegos que estén almacenadas en el dispositivo.</string>
+
+	<string name="pref_ui_migrate_datafiles_title">Migrar Archivos de Datos</string>
+	<string name="pref_ui_migrate_datafiles_summary">Migra los archivos de datos desde una carpeta en el dispositivo a seleccionar</string>
+
+	<string name="preferences_theme">Ajustes de Estilos</string>
+
+	<string name="pref_title_theme_selection">Selección de Estilo</string>
+
+	<string-array name="pref_theme_selection_titles">
+		<item>Ámbar</item>
+		<item>Azul (Opción Predeterminada)</item>
+		<item>Rosa</item>
+		<item>Púrpura</item>
+		<item>Turquesa</item>
+		<item>Púrpura oscuro</item>
+		<item>Verde</item>
+	</string-array>
+
+	<string-array name="pref_emu_video_gs_handler_entries">
+		<item>OpenGL</item>
+		<item>Vulkan (Experimental)</item>
+	</string-array>
+
+	<string-array name="pref_emu_video_res_factor_entries">
+		<item>1x</item>
+		<item>2x</item>
+		<item>4x</item>
+		<item>8x</item>
+	</string-array>
+
+	<string-array name="pref_emu_video_presentation_mode_entries">
+		<item>Pantalla Completa</item>
+		<item>Pantalla Ajustada (Opción Predeterminada)</item>
+		<item>Tamaño Original</item>
+	</string-array>
+
+	<string-array name="pref_emu_audio_spublockcount_entries">
+		<item>400</item>
+		<item>200</item>
+		<item>100</item>
+		<item>50</item>
+		<item>10</item>
+	</string-array>
+
+	<!-- Emulator Drawer -->
+
+	<string name="emulator_drawer_exit">Salir</string>
+	<string name="emulator_drawer_savestate">Guardar Estado</string>
+	<string name="emulator_drawer_loadstate">Cargar Estado</string>
+
+	<string name="emulator_save_state_ok">Estado guardado correctamente.</string>
+	<string name="emulator_save_state_fail">No se pudo guardar el estado.</string>
+
+	<string name="emulator_load_state_ok">Estado cargado correctamente.</string>
+	<string name="emulator_load_state_fail">No se pudo cargar el estado.</string>
+
+	<!-- Error Reporting / Debugging -->
+
+	<string name="report_issue">Se detectó una caída previa.</string>
+
+	<string name="dismiss">Descartar</string>
+	<string name="report">Reportar</string>
+
+	<string name="platform">Copying logcat content to clipboard\nPlease paste in the issue report</string>
+	<string name="log_saved">Log guardado en la carpeta \"Files Dir\" </string>
+	<string name="no_recent_adapter">No se encontraron juegos recientemente utilizados.</string>
+
+	<!-- Editor Menu -->
+	<string name="editor_menu_save">Guardar</string>
+	<string name="editor_menu_reset">Reiniciar</string>
+	<string name="editor_menu_cancel">Cancelar</string>
+
+	<!-- Game Info Edit Activity -->
+	<string name="gameinfo_edit_activity_gametitle">Título del Juego</string>
+	<string name="gameinfo_edit_activity_gameoverview">Descripción</string>
+	<string name="gameinfo_edit_activity_gamecover">Portada</string>
+	<string name="gameinfo_edit_activity_gamecover_change">Cambiar</string>
+	<string name="gameinfo_edit_activity_gamecover_default">Predeterminada</string>
+
+	<string name="permission_dialog_title">Solicitud de Permisos</string>
+	<string name="permission_dialog_summary">Play! necesita acceso al almacenamiento del dispositivo (escritura/lectura). Sin él, Play! no podrá encontrar tus juegos o guardar tu progreso en ellos.</string>
+
+	<!-- Data Files Migration -->
+	<string name="migration_title">Migración de archivos</string>
+	<string name="migration_selectfolder">Porfavor selecciona la ubicación de la carpeta anterior de Datos (usualmente ubicada en la carpeta root del almacenamiento de tu dispositivo, con el nombre \'Play Data Files\').</string>
+	<string name="migration_task_msg">Porfavor espera&#8230;</string>
+
+</resources>
