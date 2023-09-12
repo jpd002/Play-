@@ -147,6 +147,7 @@ bool CSys147::Invoke99(uint32 method, uint32* args, uint32 argsSize, uint32* ret
 
 			//0x0D -> ???
 			//0x0F -> Get PCB info
+			//0x10 -> ???
 			//0x18 -> Switch
 			//0x38 -> SCI
 			//0x39 -> ???
@@ -176,7 +177,65 @@ bool CSys147::Invoke99(uint32 method, uint32* args, uint32 argsSize, uint32* ret
 
 				m_pendingReplies.emplace_back(reply);
 			}
-			
+			if(packet->command == 0x48)
+			{
+				//Coin Sensor
+				MODULE_99_PACKET reply = {};
+				reply.type = 2;
+				reply.command = 0x48;
+				reply.data[0] = packet->data[0];
+				reply.checksum = ComputePacketChecksum(reply);
+				m_pendingReplies.emplace_back(reply);
+			}
+			else if(packet->command == 0x18)
+			{
+				//Switch
+				MODULE_99_PACKET reply = {};
+				reply.type = 2;
+				reply.command = 0x18;
+				reply.data[0] = packet->data[0];
+				reply.checksum = ComputePacketChecksum(reply);
+				m_pendingReplies.emplace_back(reply);
+			}
+			else if(packet->command == 0x58)
+			{
+				//Mechanical Counter
+				MODULE_99_PACKET reply = {};
+				reply.type = 2;
+				reply.command = 0x58;
+				reply.data[0] = packet->data[0];
+				reply.checksum = ComputePacketChecksum(reply);
+				m_pendingReplies.emplace_back(reply);
+			}
+			else if(packet->command == 0x39)
+			{
+				//???
+				MODULE_99_PACKET reply = {};
+				reply.type = 2;
+				reply.command = 0x39;
+				reply.data[0] = packet->data[0];
+				reply.checksum = ComputePacketChecksum(reply);
+				m_pendingReplies.emplace_back(reply);
+			}
+			else if(packet->command == 0x0D)
+			{
+				//???
+				MODULE_99_PACKET reply = {};
+				reply.type = 2;
+				reply.command = 0x0D;
+				reply.data[0] = packet->data[0];
+				reply.checksum = ComputePacketChecksum(reply);
+				m_pendingReplies.emplace_back(reply);
+			}
+			else if(packet->command == 0x10)
+			{
+				MODULE_99_PACKET reply = {};
+				reply.type = 2;
+				reply.command = 0x10;
+				reply.data[0] = packet->data[0];
+				reply.checksum = ComputePacketChecksum(reply);
+				m_pendingReplies.emplace_back(reply);
+			}
 			reinterpret_cast<uint16*>(ret)[0] = 1;
 		}
 		break;
@@ -199,3 +258,14 @@ bool CSys147::Invoke99(uint32 method, uint32* args, uint32 argsSize, uint32* ret
 	}
 	return true;
 }
+
+uint8 CSys147::ComputePacketChecksum(const MODULE_99_PACKET& packet)
+{
+	uint8 checksum = 0;
+	for(const auto& value : packet.data)
+	{
+		checksum += value;
+	}
+	return checksum;
+}
+

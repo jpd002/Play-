@@ -48,6 +48,8 @@ namespace Iop
 			bool Invoke201(uint32, uint32*, uint32, uint32*, uint32, uint8*);
 			bool Invoke99(uint32, uint32*, uint32, uint32*, uint32, uint8*);
 
+			uint8 ComputePacketChecksum(const MODULE_99_PACKET&);
+			
 			CSifModuleAdapter m_module000;
 			CSifModuleAdapter m_module001;
 			CSifModuleAdapter m_module002;
