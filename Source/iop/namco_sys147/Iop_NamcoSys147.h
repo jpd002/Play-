@@ -50,6 +50,12 @@ namespace Iop
 
 			uint8 ComputePacketChecksum(const MODULE_99_PACKET&);
 			
+			static constexpr int32 BACKUP_RAM_SIZE = 0x20000;
+			
+			void ReadBackupRam(uint32, uint8*, uint32);
+			void WriteBackupRam(uint32, const uint8*, uint32);
+			std::string m_gameId = "akaiser";
+
 			CSifModuleAdapter m_module000;
 			CSifModuleAdapter m_module001;
 			CSifModuleAdapter m_module002;

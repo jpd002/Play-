@@ -1,5 +1,8 @@
 #include "Iop_NamcoSys147.h"
 #include "../../Log.h"
+#include "StdStreamUtils.h"
+#include "PathUtils.h"
+#include "AppConfig.h"
 
 using namespace Iop;
 using namespace Iop::Namco;
@@ -95,6 +98,18 @@ bool CSys147::Invoke200(uint32 method, uint32* args, uint32 argsSize, uint32* re
 {
 	switch(method)
 	{
+	case 0:
+		{
+			//Write
+			//0 -> 0x400 -> Data to write
+			//0x400 -> Offset
+			//0x404 -> Size
+			uint32 offset = args[0x100];
+			uint32 size = args[0x101];
+			assert(size <= 0x400);
+			WriteBackupRam(offset, reinterpret_cast<const uint8*>(args), size);
+		}
+		break;
 	default:
 		CLog::GetInstance().Warn(LOG_NAME, "Unknown method invoked (0x%08X, 0x%08X).\r\n", 0x200, method);
 		break;
@@ -106,6 +121,17 @@ bool CSys147::Invoke201(uint32 method, uint32* args, uint32 argsSize, uint32* re
 {
 	switch(method)
 	{
+	case 0:
+		{
+			//Read
+			//0x0 -> Offset
+			//0x4 -> Size
+			uint32 offset = args[0];
+			uint32 size = args[1];
+			assert(size <= 0x400);
+			ReadBackupRam(offset, reinterpret_cast<uint8*>(ret), size);
+		}
+		break;
 	default:
 		CLog::GetInstance().Warn(LOG_NAME, "Unknown method invoked (0x%08X, 0x%08X).\r\n", 0x201, method);
 		break;
@@ -269,3 +295,43 @@ uint8 CSys147::ComputePacketChecksum(const MODULE_99_PACKET& packet)
 	return checksum;
 }
 
+
+//TODO: This is copied from Sys246/256. Move this somewhere else
+
+fs::path GetArcadeSavePath()
+{
+	return CAppConfig::GetInstance().GetBasePath() / fs::path("arcadesaves");
+}
+
+void CSys147::ReadBackupRam(uint32 backupRamAddr, uint8* buffer, uint32 size)
+{
+	memset(buffer, 0, size);
+	if((backupRamAddr >= BACKUP_RAM_SIZE) || ((backupRamAddr + size) > BACKUP_RAM_SIZE))
+	{
+		CLog::GetInstance().Warn(LOG_NAME, "Reading outside of backup RAM bounds.\r\n");
+		return;
+	}
+	auto backupRamPath = GetArcadeSavePath() / (m_gameId + ".backupram");
+	if(!fs::exists(backupRamPath))
+	{
+		return;
+	}
+	auto stream = Framework::CreateInputStdStream(backupRamPath.native());
+	stream.Seek(backupRamAddr, Framework::STREAM_SEEK_SET);
+	stream.Read(buffer, size);
+}
+
+void CSys147::WriteBackupRam(uint32 backupRamAddr, const uint8* buffer, uint32 size)
+{
+	if((backupRamAddr >= BACKUP_RAM_SIZE) || ((backupRamAddr + size) > BACKUP_RAM_SIZE))
+	{
+		CLog::GetInstance().Warn(LOG_NAME, "Writing outside of backup RAM bounds.\r\n");
+		return;
+	}
+	auto arcadeSavePath = GetArcadeSavePath();
+	auto backupRamPath = arcadeSavePath / (m_gameId + ".backupram");
+	Framework::PathUtils::EnsurePathExists(arcadeSavePath);
+	auto stream = fs::exists(backupRamPath) ? Framework::CreateUpdateExistingStdStream(backupRamPath.native()) : Framework::CreateOutputStdStream(backupRamPath.native());
+	stream.Seek(backupRamAddr, Framework::STREAM_SEEK_SET);
+	stream.Write(buffer, size);
+}
