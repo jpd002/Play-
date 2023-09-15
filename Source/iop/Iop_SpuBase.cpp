@@ -185,6 +185,7 @@ void CSpuBase::Reset()
 	m_irqPending = false;
 	m_transferMode = 0;
 	m_transferAddr = 0;
+	m_transferTicks = 0;
 
 	m_core0OutputOffset = 0;
 
@@ -561,7 +562,8 @@ uint32 CSpuBase::ReceiveDma(uint8* buffer, uint32 blockSize, uint32 blockAmount,
 		//- Tsugunai needs voice transfers to be throttled because it starts a DMA transfer
 		//  and then writes data that is necessary to the transfer callback in memory
 		//- Some PSF sets (FF4, Xenogears, Xenosaga 2) are sensitive to aggressive throttling (doesn't like 0x10)
-		blockAmount = std::min<uint32>(blockAmount, 0x100);
+		uint32 blockTicks = m_transferTicks / g_transferTicksPerBlock;
+		blockAmount = std::min<uint32>(blockAmount, blockTicks);
 		assert((m_ctrl & CONTROL_DMA) == CONTROL_DMA_WRITE);
 		unsigned int blocksTransfered = 0;
 		m_sampleCache->ClearRange(m_transferAddr, blockSize * blockAmount);
@@ -572,6 +574,7 @@ uint32 CSpuBase::ReceiveDma(uint8* buffer, uint32 blockSize, uint32 blockAmount,
 			m_transferAddr += blockSize;
 			m_transferAddr &= m_ramSize - 1;
 			buffer += blockSize;
+			m_transferTicks -= g_transferTicksPerBlock;
 			blocksTransfered++;
 		}
 		return blocksTransfered;
@@ -806,6 +809,16 @@ void CSpuBase::Render(int16* samples, unsigned int sampleCount)
 			adjustedSample = std::clamp<float>(adjustedSample, SHRT_MIN, SHRT_MAX);
 			samplesBase[i] = static_cast<int16>(adjustedSample);
 		}
+	}
+	
+	switch(m_ctrl & CONTROL_DMA)
+	{
+	case CONTROL_DMA_STOP:
+		m_transferTicks = 0;
+		break;
+	default:
+		m_transferTicks += sampleCount;
+		break;
 	}
 }
 

@@ -374,6 +374,8 @@ namespace Iop
 		static const uint32 g_linearIncreaseSweepDeltas[0x80];
 		static const uint32 g_linearDecreaseSweepDeltas[0x80];
 
+		static constexpr int32 g_transferTicksPerBlock = 64;
+		
 		uint8* m_ram;
 		uint32 m_ramSize;
 		unsigned int m_spuNumber;
@@ -383,6 +385,7 @@ namespace Iop
 		bool m_irqPending = false;
 		uint16 m_transferMode;
 		uint32 m_transferAddr;
+		int32 m_transferTicks = 0;
 		uint32 m_core0OutputOffset;
 		UNION32_16 m_channelOn;
 		UNION32_16 m_channelReverb;
