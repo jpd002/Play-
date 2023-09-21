@@ -3345,320 +3345,318 @@ void CPS2OS::DisassembleSysCall(uint8 func)
 
 std::string CPS2OS::GetSysCallDescription(uint8 function)
 {
-	char description[256];
-
-	strcpy(description, "");
+	std::string description;
 
 	switch(function)
 	{
 	case 0x02:
-		sprintf(description, "GsSetCrt(interlace = %i, mode = %i, field = %i);",
-		        m_ee.m_State.nGPR[SC_PARAM0].nV[0],
-		        m_ee.m_State.nGPR[SC_PARAM1].nV[0],
-		        m_ee.m_State.nGPR[SC_PARAM2].nV[0]);
+		description = string_format("GsSetCrt(interlace = %i, mode = %i, field = %i);",
+		                            m_ee.m_State.nGPR[SC_PARAM0].nV[0],
+		                            m_ee.m_State.nGPR[SC_PARAM1].nV[0],
+		                            m_ee.m_State.nGPR[SC_PARAM2].nV[0]);
 		break;
 	case 0x04:
-		sprintf(description, SYSCALL_NAME_EXIT "();");
+		description = string_format(SYSCALL_NAME_EXIT "();");
 		break;
 	case 0x06:
-		sprintf(description, SYSCALL_NAME_LOADEXECPS2 "(exec = 0x%08X, argc = %d, argv = 0x%08X);",
-		        m_ee.m_State.nGPR[SC_PARAM0].nV[0],
-		        m_ee.m_State.nGPR[SC_PARAM1].nV[0],
-		        m_ee.m_State.nGPR[SC_PARAM2].nV[0]);
+		description = string_format(SYSCALL_NAME_LOADEXECPS2 "(exec = 0x%08X, argc = %d, argv = 0x%08X);",
+		                            m_ee.m_State.nGPR[SC_PARAM0].nV[0],
+		                            m_ee.m_State.nGPR[SC_PARAM1].nV[0],
+		                            m_ee.m_State.nGPR[SC_PARAM2].nV[0]);
 		break;
 	case 0x07:
-		sprintf(description, SYSCALL_NAME_EXECPS2 "(pc = 0x%08X, gp = 0x%08X, argc = %d, argv = 0x%08X);",
-		        m_ee.m_State.nGPR[SC_PARAM0].nV[0],
-		        m_ee.m_State.nGPR[SC_PARAM1].nV[0],
-		        m_ee.m_State.nGPR[SC_PARAM2].nV[0],
-		        m_ee.m_State.nGPR[SC_PARAM3].nV[0]);
+		description = string_format(SYSCALL_NAME_EXECPS2 "(pc = 0x%08X, gp = 0x%08X, argc = %d, argv = 0x%08X);",
+		                            m_ee.m_State.nGPR[SC_PARAM0].nV[0],
+		                            m_ee.m_State.nGPR[SC_PARAM1].nV[0],
+		                            m_ee.m_State.nGPR[SC_PARAM2].nV[0],
+		                            m_ee.m_State.nGPR[SC_PARAM3].nV[0]);
 		break;
 	case 0x0D:
-		sprintf(description, SYSCALL_NAME_SETVTLBREFILLHANDLER "(cause = %d, handler = 0x%08x);",
-		        m_ee.m_State.nGPR[SC_PARAM0].nV[0],
-		        m_ee.m_State.nGPR[SC_PARAM1].nV[0]);
+		description = string_format(SYSCALL_NAME_SETVTLBREFILLHANDLER "(cause = %d, handler = 0x%08x);",
+		                            m_ee.m_State.nGPR[SC_PARAM0].nV[0],
+		                            m_ee.m_State.nGPR[SC_PARAM1].nV[0]);
 		break;
 	case 0x0E:
-		sprintf(description, SYSCALL_NAME_SETVCOMMONHANDLER "(cause = %d, handler = 0x%08x);",
-		        m_ee.m_State.nGPR[SC_PARAM0].nV[0],
-		        m_ee.m_State.nGPR[SC_PARAM1].nV[0]);
+		description = string_format(SYSCALL_NAME_SETVCOMMONHANDLER "(cause = %d, handler = 0x%08x);",
+		                            m_ee.m_State.nGPR[SC_PARAM0].nV[0],
+		                            m_ee.m_State.nGPR[SC_PARAM1].nV[0]);
 		break;
 	case 0x10:
-		sprintf(description, SYSCALL_NAME_ADDINTCHANDLER "(cause = %i, address = 0x%08X, next = 0x%08X, arg = 0x%08X);",
-		        m_ee.m_State.nGPR[SC_PARAM0].nV[0],
-		        m_ee.m_State.nGPR[SC_PARAM1].nV[0],
-		        m_ee.m_State.nGPR[SC_PARAM2].nV[0],
-		        m_ee.m_State.nGPR[SC_PARAM3].nV[0]);
+		description = string_format(SYSCALL_NAME_ADDINTCHANDLER "(cause = %i, address = 0x%08X, next = 0x%08X, arg = 0x%08X);",
+		                            m_ee.m_State.nGPR[SC_PARAM0].nV[0],
+		                            m_ee.m_State.nGPR[SC_PARAM1].nV[0],
+		                            m_ee.m_State.nGPR[SC_PARAM2].nV[0],
+		                            m_ee.m_State.nGPR[SC_PARAM3].nV[0]);
 		break;
 	case 0x11:
-		sprintf(description, SYSCALL_NAME_REMOVEINTCHANDLER "(cause = %i, id = %i);",
-		        m_ee.m_State.nGPR[SC_PARAM0].nV[0],
-		        m_ee.m_State.nGPR[SC_PARAM1].nV[0]);
+		description = string_format(SYSCALL_NAME_REMOVEINTCHANDLER "(cause = %i, id = %i);",
+		                            m_ee.m_State.nGPR[SC_PARAM0].nV[0],
+		                            m_ee.m_State.nGPR[SC_PARAM1].nV[0]);
 		break;
 	case 0x12:
-		sprintf(description, SYSCALL_NAME_ADDDMACHANDLER "(channel = %i, address = 0x%08X, next = %i, arg = %i);",
-		        m_ee.m_State.nGPR[SC_PARAM0].nV[0],
-		        m_ee.m_State.nGPR[SC_PARAM1].nV[0],
-		        m_ee.m_State.nGPR[SC_PARAM2].nV[0],
-		        m_ee.m_State.nGPR[SC_PARAM3].nV[0]);
+		description = string_format(SYSCALL_NAME_ADDDMACHANDLER "(channel = %i, address = 0x%08X, next = %i, arg = %i);",
+		                            m_ee.m_State.nGPR[SC_PARAM0].nV[0],
+		                            m_ee.m_State.nGPR[SC_PARAM1].nV[0],
+		                            m_ee.m_State.nGPR[SC_PARAM2].nV[0],
+		                            m_ee.m_State.nGPR[SC_PARAM3].nV[0]);
 		break;
 	case 0x13:
-		sprintf(description, SYSCALL_NAME_REMOVEDMACHANDLER "(channel = %i, handler = %i);",
-		        m_ee.m_State.nGPR[SC_PARAM0].nV[0],
-		        m_ee.m_State.nGPR[SC_PARAM1].nV[0]);
+		description = string_format(SYSCALL_NAME_REMOVEDMACHANDLER "(channel = %i, handler = %i);",
+		                            m_ee.m_State.nGPR[SC_PARAM0].nV[0],
+		                            m_ee.m_State.nGPR[SC_PARAM1].nV[0]);
 		break;
 	case 0x14:
-		sprintf(description, SYSCALL_NAME_ENABLEINTC "(cause = %i);",
-		        m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
+		description = string_format(SYSCALL_NAME_ENABLEINTC "(cause = %i);",
+		                            m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
 		break;
 	case 0x15:
-		sprintf(description, SYSCALL_NAME_DISABLEINTC "(cause = %i);",
-		        m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
+		description = string_format(SYSCALL_NAME_DISABLEINTC "(cause = %i);",
+		                            m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
 		break;
 	case 0x16:
-		sprintf(description, SYSCALL_NAME_ENABLEDMAC "(channel = %i);",
-		        m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
+		description = string_format(SYSCALL_NAME_ENABLEDMAC "(channel = %i);",
+		                            m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
 		break;
 	case 0x17:
-		sprintf(description, SYSCALL_NAME_DISABLEDMAC "(channel = %i);",
-		        m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
+		description = string_format(SYSCALL_NAME_DISABLEDMAC "(channel = %i);",
+		                            m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
 		break;
 	case 0x18:
-		sprintf(description, SYSCALL_NAME_SETALARM "(time = %d, proc = 0x%08X, arg = 0x%08X);",
-		        m_ee.m_State.nGPR[SC_PARAM0].nV[0],
-		        m_ee.m_State.nGPR[SC_PARAM1].nV[0],
-		        m_ee.m_State.nGPR[SC_PARAM2].nV[0]);
+		description = string_format(SYSCALL_NAME_SETALARM "(time = %d, proc = 0x%08X, arg = 0x%08X);",
+		                            m_ee.m_State.nGPR[SC_PARAM0].nV[0],
+		                            m_ee.m_State.nGPR[SC_PARAM1].nV[0],
+		                            m_ee.m_State.nGPR[SC_PARAM2].nV[0]);
 		break;
 	case 0x1A:
-		sprintf(description, SYSCALL_NAME_IENABLEINTC "(cause = %d);",
-		        m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
+		description = string_format(SYSCALL_NAME_IENABLEINTC "(cause = %d);",
+		                            m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
 		break;
 	case 0x1B:
-		sprintf(description, SYSCALL_NAME_IDISABLEINTC "(cause = %d);",
-		        m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
+		description = string_format(SYSCALL_NAME_IDISABLEINTC "(cause = %d);",
+		                            m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
 		break;
 	case 0x1C:
-		sprintf(description, SYSCALL_NAME_IENABLEDMAC "(channel = %d);",
-		        m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
+		description = string_format(SYSCALL_NAME_IENABLEDMAC "(channel = %d);",
+		                            m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
 		break;
 	case 0x1D:
-		sprintf(description, SYSCALL_NAME_IDISABLEDMAC "(channel = %d);",
-		        m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
+		description = string_format(SYSCALL_NAME_IDISABLEDMAC "(channel = %d);",
+		                            m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
 		break;
 	case 0x1E:
-		sprintf(description, SYSCALL_NAME_ISETALARM "(time = %d, proc = 0x%08X, arg = 0x%08X);",
-		        m_ee.m_State.nGPR[SC_PARAM0].nV[0],
-		        m_ee.m_State.nGPR[SC_PARAM1].nV[0],
-		        m_ee.m_State.nGPR[SC_PARAM2].nV[0]);
+		description = string_format(SYSCALL_NAME_ISETALARM "(time = %d, proc = 0x%08X, arg = 0x%08X);",
+		                            m_ee.m_State.nGPR[SC_PARAM0].nV[0],
+		                            m_ee.m_State.nGPR[SC_PARAM1].nV[0],
+		                            m_ee.m_State.nGPR[SC_PARAM2].nV[0]);
 		break;
 	case 0x1F:
-		sprintf(description, SYSCALL_NAME_IRELEASEALARM "(id = %d);",
-		        m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
+		description = string_format(SYSCALL_NAME_IRELEASEALARM "(id = %d);",
+		                            m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
 		break;
 	case 0x20:
-		sprintf(description, SYSCALL_NAME_CREATETHREAD "(thread = 0x%08X);",
-		        m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
+		description = string_format(SYSCALL_NAME_CREATETHREAD "(thread = 0x%08X);",
+		                            m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
 		break;
 	case 0x21:
-		sprintf(description, SYSCALL_NAME_DELETETHREAD "(id = 0x%08X);",
-		        m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
+		description = string_format(SYSCALL_NAME_DELETETHREAD "(id = 0x%08X);",
+		                            m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
 		break;
 	case 0x22:
-		sprintf(description, SYSCALL_NAME_STARTTHREAD "(id = 0x%08X, a0 = 0x%08X);",
-		        m_ee.m_State.nGPR[SC_PARAM0].nV[0],
-		        m_ee.m_State.nGPR[SC_PARAM1].nV[0]);
+		description = string_format(SYSCALL_NAME_STARTTHREAD "(id = 0x%08X, a0 = 0x%08X);",
+		                            m_ee.m_State.nGPR[SC_PARAM0].nV[0],
+		                            m_ee.m_State.nGPR[SC_PARAM1].nV[0]);
 		break;
 	case 0x23:
-		sprintf(description, SYSCALL_NAME_EXITTHREAD "();");
+		description = string_format(SYSCALL_NAME_EXITTHREAD "();");
 		break;
 	case 0x24:
-		sprintf(description, SYSCALL_NAME_EXITDELETETHREAD "();");
+		description = string_format(SYSCALL_NAME_EXITDELETETHREAD "();");
 		break;
 	case 0x25:
-		sprintf(description, SYSCALL_NAME_TERMINATETHREAD "(id = 0x%08X);",
-		        m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
+		description = string_format(SYSCALL_NAME_TERMINATETHREAD "(id = 0x%08X);",
+		                            m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
 		break;
 	case 0x29:
-		sprintf(description, SYSCALL_NAME_CHANGETHREADPRIORITY "(id = 0x%08X, priority = %i);",
-		        m_ee.m_State.nGPR[SC_PARAM0].nV[0],
-		        m_ee.m_State.nGPR[SC_PARAM1].nV[0]);
+		description = string_format(SYSCALL_NAME_CHANGETHREADPRIORITY "(id = 0x%08X, priority = %i);",
+		                            m_ee.m_State.nGPR[SC_PARAM0].nV[0],
+		                            m_ee.m_State.nGPR[SC_PARAM1].nV[0]);
 		break;
 	case 0x2A:
-		sprintf(description, SYSCALL_NAME_ICHANGETHREADPRIORITY "(id = 0x%08X, priority = %i);",
-		        m_ee.m_State.nGPR[SC_PARAM0].nV[0],
-		        m_ee.m_State.nGPR[SC_PARAM1].nV[0]);
+		description = string_format(SYSCALL_NAME_ICHANGETHREADPRIORITY "(id = 0x%08X, priority = %i);",
+		                            m_ee.m_State.nGPR[SC_PARAM0].nV[0],
+		                            m_ee.m_State.nGPR[SC_PARAM1].nV[0]);
 		break;
 	case 0x2B:
-		sprintf(description, SYSCALL_NAME_ROTATETHREADREADYQUEUE "(prio = %i);",
-		        m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
+		description = string_format(SYSCALL_NAME_ROTATETHREADREADYQUEUE "(prio = %i);",
+		                            m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
 		break;
 	case 0x2D:
-		sprintf(description, SYSCALL_NAME_RELEASEWAITTHREAD "(id = %d);",
-		        m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
+		description = string_format(SYSCALL_NAME_RELEASEWAITTHREAD "(id = %d);",
+		                            m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
 		break;
 	case 0x2E:
-		sprintf(description, SYSCALL_NAME_IRELEASEWAITTHREAD "(id = %d);",
-		        m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
+		description = string_format(SYSCALL_NAME_IRELEASEWAITTHREAD "(id = %d);",
+		                            m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
 		break;
 	case 0x2F:
-		sprintf(description, SYSCALL_NAME_GETTHREADID "();");
+		description = string_format(SYSCALL_NAME_GETTHREADID "();");
 		break;
 	case 0x30:
-		sprintf(description, SYSCALL_NAME_REFERTHREADSTATUS "(threadId = %d, infoPtr = 0x%08X);",
-		        m_ee.m_State.nGPR[SC_PARAM0].nV[0],
-		        m_ee.m_State.nGPR[SC_PARAM1].nV[0]);
+		description = string_format(SYSCALL_NAME_REFERTHREADSTATUS "(threadId = %d, infoPtr = 0x%08X);",
+		                            m_ee.m_State.nGPR[SC_PARAM0].nV[0],
+		                            m_ee.m_State.nGPR[SC_PARAM1].nV[0]);
 		break;
 	case 0x31:
-		sprintf(description, SYSCALL_NAME_IREFERTHREADSTATUS "(threadId = %d, infoPtr = 0x%08X);",
-		        m_ee.m_State.nGPR[SC_PARAM0].nV[0],
-		        m_ee.m_State.nGPR[SC_PARAM1].nV[0]);
+		description = string_format(SYSCALL_NAME_IREFERTHREADSTATUS "(threadId = %d, infoPtr = 0x%08X);",
+		                            m_ee.m_State.nGPR[SC_PARAM0].nV[0],
+		                            m_ee.m_State.nGPR[SC_PARAM1].nV[0]);
 		break;
 	case 0x32:
-		sprintf(description, SYSCALL_NAME_SLEEPTHREAD "();");
+		description = string_format(SYSCALL_NAME_SLEEPTHREAD "();");
 		break;
 	case 0x33:
-		sprintf(description, SYSCALL_NAME_WAKEUPTHREAD "(id = %i);",
-		        m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
+		description = string_format(SYSCALL_NAME_WAKEUPTHREAD "(id = %i);",
+		                            m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
 		break;
 	case 0x34:
-		sprintf(description, SYSCALL_NAME_IWAKEUPTHREAD "(id = %i);",
-		        m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
+		description = string_format(SYSCALL_NAME_IWAKEUPTHREAD "(id = %i);",
+		                            m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
 		break;
 	case 0x35:
-		sprintf(description, SYSCALL_NAME_CANCELWAKEUPTHREAD "(id = %d);",
-		        m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
+		description = string_format(SYSCALL_NAME_CANCELWAKEUPTHREAD "(id = %d);",
+		                            m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
 		break;
 	case 0x36:
-		sprintf(description, SYSCALL_NAME_ICANCELWAKEUPTHREAD "(id = %d);",
-		        m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
+		description = string_format(SYSCALL_NAME_ICANCELWAKEUPTHREAD "(id = %d);",
+		                            m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
 		break;
 	case 0x37:
-		sprintf(description, SYSCALL_NAME_SUSPENDTHREAD "(id = %i);",
-		        m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
+		description = string_format(SYSCALL_NAME_SUSPENDTHREAD "(id = %i);",
+		                            m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
 		break;
 	case 0x38:
-		sprintf(description, SYSCALL_NAME_ISUSPENDTHREAD "(id = %d);",
-		        m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
+		description = string_format(SYSCALL_NAME_ISUSPENDTHREAD "(id = %d);",
+		                            m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
 		break;
 	case 0x39:
-		sprintf(description, SYSCALL_NAME_RESUMETHREAD "(id = %i);",
-		        m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
+		description = string_format(SYSCALL_NAME_RESUMETHREAD "(id = %i);",
+		                            m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
 		break;
 	case 0x3C:
-		sprintf(description, "SetupThread(gp = 0x%08X, stack = 0x%08X, stack_size = 0x%08X, args = 0x%08X, root_func = 0x%08X);",
-		        m_ee.m_State.nGPR[SC_PARAM0].nV[0],
-		        m_ee.m_State.nGPR[SC_PARAM1].nV[0],
-		        m_ee.m_State.nGPR[SC_PARAM2].nV[0],
-		        m_ee.m_State.nGPR[SC_PARAM3].nV[0],
-		        m_ee.m_State.nGPR[SC_PARAM4].nV[0]);
+		description = string_format("SetupThread(gp = 0x%08X, stack = 0x%08X, stack_size = 0x%08X, args = 0x%08X, root_func = 0x%08X);",
+		                            m_ee.m_State.nGPR[SC_PARAM0].nV[0],
+		                            m_ee.m_State.nGPR[SC_PARAM1].nV[0],
+		                            m_ee.m_State.nGPR[SC_PARAM2].nV[0],
+		                            m_ee.m_State.nGPR[SC_PARAM3].nV[0],
+		                            m_ee.m_State.nGPR[SC_PARAM4].nV[0]);
 		break;
 	case 0x3D:
-		sprintf(description, "SetupHeap(heap_start = 0x%08X, heap_size = 0x%08X);",
-		        m_ee.m_State.nGPR[SC_PARAM0].nV[0],
-		        m_ee.m_State.nGPR[SC_PARAM1].nV[0]);
+		description = string_format("SetupHeap(heap_start = 0x%08X, heap_size = 0x%08X);",
+		                            m_ee.m_State.nGPR[SC_PARAM0].nV[0],
+		                            m_ee.m_State.nGPR[SC_PARAM1].nV[0]);
 		break;
 	case 0x3E:
-		sprintf(description, SYSCALL_NAME_ENDOFHEAP "();");
+		description = string_format(SYSCALL_NAME_ENDOFHEAP "();");
 		break;
 	case 0x40:
-		sprintf(description, SYSCALL_NAME_CREATESEMA "(sema = 0x%08X);",
-		        m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
+		description = string_format(SYSCALL_NAME_CREATESEMA "(sema = 0x%08X);",
+		                            m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
 		break;
 	case 0x41:
-		sprintf(description, SYSCALL_NAME_DELETESEMA "(semaid = %i);",
-		        m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
+		description = string_format(SYSCALL_NAME_DELETESEMA "(semaid = %i);",
+		                            m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
 		break;
 	case 0x42:
-		sprintf(description, SYSCALL_NAME_SIGNALSEMA "(semaid = %i);",
-		        m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
+		description = string_format(SYSCALL_NAME_SIGNALSEMA "(semaid = %i);",
+		                            m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
 		break;
 	case 0x43:
-		sprintf(description, SYSCALL_NAME_ISIGNALSEMA "(semaid = %i);",
-		        m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
+		description = string_format(SYSCALL_NAME_ISIGNALSEMA "(semaid = %i);",
+		                            m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
 		break;
 	case 0x44:
-		sprintf(description, SYSCALL_NAME_WAITSEMA "(semaid = %i);",
-		        m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
+		description = string_format(SYSCALL_NAME_WAITSEMA "(semaid = %i);",
+		                            m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
 		break;
 	case 0x45:
-		sprintf(description, SYSCALL_NAME_POLLSEMA "(semaid = %i);",
-		        m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
+		description = string_format(SYSCALL_NAME_POLLSEMA "(semaid = %i);",
+		                            m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
 		break;
 	case 0x46:
-		sprintf(description, SYSCALL_NAME_IPOLLSEMA "(semaid = %i);",
-		        m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
+		description = string_format(SYSCALL_NAME_IPOLLSEMA "(semaid = %i);",
+		                            m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
 		break;
 	case 0x47:
-		sprintf(description, SYSCALL_NAME_REFERSEMASTATUS "(semaid = %i, status = 0x%08X);",
-		        m_ee.m_State.nGPR[SC_PARAM0].nV[0],
-		        m_ee.m_State.nGPR[SC_PARAM1].nV[0]);
+		description = string_format(SYSCALL_NAME_REFERSEMASTATUS "(semaid = %i, status = 0x%08X);",
+		                            m_ee.m_State.nGPR[SC_PARAM0].nV[0],
+		                            m_ee.m_State.nGPR[SC_PARAM1].nV[0]);
 		break;
 	case 0x48:
-		sprintf(description, SYSCALL_NAME_IREFERSEMASTATUS "(semaid = %i, status = 0x%08X);",
-		        m_ee.m_State.nGPR[SC_PARAM0].nV[0],
-		        m_ee.m_State.nGPR[SC_PARAM1].nV[0]);
+		description = string_format(SYSCALL_NAME_IREFERSEMASTATUS "(semaid = %i, status = 0x%08X);",
+		                            m_ee.m_State.nGPR[SC_PARAM0].nV[0],
+		                            m_ee.m_State.nGPR[SC_PARAM1].nV[0]);
 		break;
 	case 0x4B:
-		sprintf(description, SYSCALL_NAME_GETOSDCONFIGPARAM "(configPtr = 0x%08X);",
-		        m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
+		description = string_format(SYSCALL_NAME_GETOSDCONFIGPARAM "(configPtr = 0x%08X);",
+		                            m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
 		break;
 	case 0x64:
 	case 0x68:
 #ifdef _DEBUG
-//		sprintf(description, SYSCALL_NAME_FLUSHCACHE "();");
+//		description = string_format(SYSCALL_NAME_FLUSHCACHE "();");
 #endif
 		break;
 	case 0x70:
-		sprintf(description, SYSCALL_NAME_GSGETIMR "();");
+		description = string_format(SYSCALL_NAME_GSGETIMR "();");
 		break;
 	case 0x71:
-		sprintf(description, SYSCALL_NAME_GSPUTIMR "(GS_IMR = 0x%08X);",
-		        m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
+		description = string_format(SYSCALL_NAME_GSPUTIMR "(GS_IMR = 0x%08X);",
+		                            m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
 		break;
 	case 0x73:
-		sprintf(description, SYSCALL_NAME_SETVSYNCFLAG "(ptr1 = 0x%08X, ptr2 = 0x%08X);",
-		        m_ee.m_State.nGPR[SC_PARAM0].nV[0],
-		        m_ee.m_State.nGPR[SC_PARAM1].nV[0]);
+		description = string_format(SYSCALL_NAME_SETVSYNCFLAG "(ptr1 = 0x%08X, ptr2 = 0x%08X);",
+		                            m_ee.m_State.nGPR[SC_PARAM0].nV[0],
+		                            m_ee.m_State.nGPR[SC_PARAM1].nV[0]);
 		break;
 	case 0x74:
-		sprintf(description, SYSCALL_NAME_SETSYSCALL "(num = 0x%02X, address = 0x%08X);",
-		        m_ee.m_State.nGPR[SC_PARAM0].nV[0],
-		        m_ee.m_State.nGPR[SC_PARAM1].nV[0]);
+		description = string_format(SYSCALL_NAME_SETSYSCALL "(num = 0x%02X, address = 0x%08X);",
+		                            m_ee.m_State.nGPR[SC_PARAM0].nV[0],
+		                            m_ee.m_State.nGPR[SC_PARAM1].nV[0]);
 		break;
 	case 0x76:
-		sprintf(description, SYSCALL_NAME_SIFDMASTAT "();");
+		description = string_format(SYSCALL_NAME_SIFDMASTAT "();");
 		break;
 	case 0x77:
-		sprintf(description, SYSCALL_NAME_SIFSETDMA "(list = 0x%08X, count = %i);",
-		        m_ee.m_State.nGPR[SC_PARAM0].nV[0],
-		        m_ee.m_State.nGPR[SC_PARAM1].nV[0]);
+		description = string_format(SYSCALL_NAME_SIFSETDMA "(list = 0x%08X, count = %i);",
+		                            m_ee.m_State.nGPR[SC_PARAM0].nV[0],
+		                            m_ee.m_State.nGPR[SC_PARAM1].nV[0]);
 		break;
 	case 0x78:
-		sprintf(description, SYSCALL_NAME_SIFSETDCHAIN "();");
+		description = string_format(SYSCALL_NAME_SIFSETDCHAIN "();");
 		break;
 	case 0x79:
-		sprintf(description, "SifSetReg(register = 0x%08X, value = 0x%08X);",
-		        m_ee.m_State.nGPR[SC_PARAM0].nV[0],
-		        m_ee.m_State.nGPR[SC_PARAM1].nV[0]);
+		description = string_format("SifSetReg(register = 0x%08X, value = 0x%08X);",
+		                            m_ee.m_State.nGPR[SC_PARAM0].nV[0],
+		                            m_ee.m_State.nGPR[SC_PARAM1].nV[0]);
 		break;
 	case 0x7A:
-		sprintf(description, "SifGetReg(register = 0x%08X);",
-		        m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
+		description = string_format("SifGetReg(register = 0x%08X);",
+		                            m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
 		break;
 	case 0x7C:
-		sprintf(description, SYSCALL_NAME_DECI2CALL "(func = 0x%08X, param = 0x%08X);",
-		        m_ee.m_State.nGPR[SC_PARAM0].nV[0],
-		        m_ee.m_State.nGPR[SC_PARAM1].nV[0]);
+		description = string_format(SYSCALL_NAME_DECI2CALL "(func = 0x%08X, param = 0x%08X);",
+		                            m_ee.m_State.nGPR[SC_PARAM0].nV[0],
+		                            m_ee.m_State.nGPR[SC_PARAM1].nV[0]);
 		break;
 	case 0x7E:
-		sprintf(description, SYSCALL_NAME_MACHINETYPE "();");
+		description = string_format(SYSCALL_NAME_MACHINETYPE "();");
 		break;
 	case 0x7F:
-		sprintf(description, "GetMemorySize();");
+		description = string_format("GetMemorySize();");
 		break;
 	}
 
-	return std::string(description);
+	return description;
 }
 
 //////////////////////////////////////////////////
