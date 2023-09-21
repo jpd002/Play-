@@ -380,6 +380,7 @@ private:
 	void sc_PollSema();
 	void sc_ReferSemaStatus();
 	void sc_GetOsdConfigParam();
+	void sc_GetCop0();
 	void sc_FlushCache();
 	void sc_GsGetIMR();
 	void sc_GsPutIMR();

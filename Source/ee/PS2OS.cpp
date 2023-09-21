@@ -137,6 +137,7 @@
 #define SYSCALL_NAME_REFERTHREADSTATUS "osReferThreadStatus"
 #define SYSCALL_NAME_IREFERTHREADSTATUS "osiReferThreadStatus"
 #define SYSCALL_NAME_GETOSDCONFIGPARAM "osGetOsdConfigParam"
+#define SYSCALL_NAME_GETCOP0 "osGetCop0"
 #define SYSCALL_NAME_SLEEPTHREAD "osSleepThread"
 #define SYSCALL_NAME_WAKEUPTHREAD "osWakeupThread"
 #define SYSCALL_NAME_IWAKEUPTHREAD "osiWakeupThread"
@@ -227,6 +228,7 @@ const CPS2OS::SYSCALL_NAME CPS2OS::g_syscallNames[] =
 	{0x0047, SYSCALL_NAME_REFERSEMASTATUS},
 	{0x0048, SYSCALL_NAME_IREFERSEMASTATUS},
 	{0x004B, SYSCALL_NAME_GETOSDCONFIGPARAM},
+	{0x0063, SYSCALL_NAME_GETCOP0},
 	{0x0064, SYSCALL_NAME_FLUSHCACHE},
 	{0x006B, SYSCALL_NAME_SIFSTOPDMA},
 	{0x0070, SYSCALL_NAME_GSGETIMR},
@@ -2967,6 +2969,14 @@ void CPS2OS::sc_GetOsdConfigParam()
 	(*configParamPtr) = configParam;
 }
 
+//63
+void CPS2OS::sc_GetCop0()
+{
+	uint32 regId = m_ee.m_State.nGPR[SC_PARAM0].nV[0];
+	assert(regId < 0x20);
+	m_ee.m_State.nGPR[SC_RETURN].nD0 = static_cast<int32>(m_ee.m_State.nCOP0[regId & 0x1F]);
+}
+
 //64
 void CPS2OS::sc_FlushCache()
 {
@@ -3600,6 +3610,10 @@ std::string CPS2OS::GetSysCallDescription(uint8 function)
 		description = string_format(SYSCALL_NAME_GETOSDCONFIGPARAM "(configPtr = 0x%08X);",
 		                            m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
 		break;
+	case 0x63:
+		description = string_format(SYSCALL_NAME_GETCOP0 "(reg = %d);",
+		                            m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
+		break;
 	case 0x64:
 	case 0x68:
 #ifdef _DEBUG
@@ -3691,7 +3705,7 @@ CPS2OS::SystemCallHandler CPS2OS::m_sysCall[0x80] =
 	//0x58
 	&CPS2OS::sc_Unhandled,			&CPS2OS::sc_Unhandled,				&CPS2OS::sc_Unhandled,				&CPS2OS::sc_Unhandled,				&CPS2OS::sc_Unhandled,			&CPS2OS::sc_Unhandled,				&CPS2OS::sc_Unhandled,			&CPS2OS::sc_Unhandled,
 	//0x60
-	&CPS2OS::sc_Unhandled,			&CPS2OS::sc_Unhandled,				&CPS2OS::sc_Unhandled,				&CPS2OS::sc_Unhandled,				&CPS2OS::sc_FlushCache,			&CPS2OS::sc_Unhandled,				&CPS2OS::sc_Unhandled,			&CPS2OS::sc_Unhandled,
+	&CPS2OS::sc_Unhandled,			&CPS2OS::sc_Unhandled,				&CPS2OS::sc_Unhandled,				&CPS2OS::sc_GetCop0,				&CPS2OS::sc_FlushCache,			&CPS2OS::sc_Unhandled,				&CPS2OS::sc_Unhandled,			&CPS2OS::sc_Unhandled,
 	//0x68
 	&CPS2OS::sc_FlushCache,			&CPS2OS::sc_Unhandled,				&CPS2OS::sc_Unhandled,				&CPS2OS::sc_Unhandled,				&CPS2OS::sc_Unhandled,			&CPS2OS::sc_Unhandled,				&CPS2OS::sc_Unhandled,			&CPS2OS::sc_Unhandled,
 	//0x70
