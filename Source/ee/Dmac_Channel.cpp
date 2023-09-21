@@ -518,7 +518,7 @@ void CChannel::ExecuteSourceChainTransfer(bool isMfifo)
 	uint32 nID = m_CHCR.nTAG >> 12;
 
 	uint32 qwc = m_nQWC;
-	if((nID == DMATAG_SRC_CNT) && isMfifo)
+	if(isMfifo && ((nID == DMATAG_SRC_CNT) || (nID == DMATAG_SRC_END)))
 	{
 		//Adjust QWC in MFIFO mode
 		uint32 ringBufferAddr = m_nMADR - m_dmac.m_D_RBOR;
@@ -538,7 +538,7 @@ void CChannel::ExecuteSourceChainTransfer(bool isMfifo)
 
 	if(isMfifo)
 	{
-		if(nID == DMATAG_SRC_CNT)
+		if(((nID == DMATAG_SRC_CNT) || (nID == DMATAG_SRC_END)))
 		{
 			//Loop MADR if needed
 			uint32 ringBufferSize = m_dmac.m_D_RBSR + 0x10;
