@@ -19,7 +19,6 @@ using namespace PS2;
 #define STATE_SPURAM ("iop_spuram")
 
 #define STATE_TIMING ("iop_timing")
-#define STATE_TIMING_DMA_UPDATE_TICKS ("dmaUpdateTicks")
 #define STATE_TIMING_SPU_IRQ_UPDATE_TICKS ("spuIrqUpdateTicks")
 
 CSubSystem::CSubSystem(bool ps2Mode)
@@ -129,7 +128,6 @@ void CSubSystem::SaveState(Framework::CZipArchiveWriter& archive)
 	//Save timing state
 	{
 		auto registerFile = std::make_unique<CRegisterStateFile>(STATE_TIMING);
-		registerFile->SetRegister32(STATE_TIMING_DMA_UPDATE_TICKS, m_dmaUpdateTicks);
 		registerFile->SetRegister32(STATE_TIMING_SPU_IRQ_UPDATE_TICKS, m_spuIrqUpdateTicks);
 		archive.InsertFile(std::move(registerFile));
 	}
@@ -171,7 +169,6 @@ void CSubSystem::LoadState(Framework::CZipArchiveReader& archive)
 	//Load timing state
 	{
 		CRegisterStateFile registerFile(*archive.BeginReadFile(STATE_TIMING));
-		m_dmaUpdateTicks = registerFile.GetRegister32(STATE_TIMING_DMA_UPDATE_TICKS);
 		m_spuIrqUpdateTicks = registerFile.GetRegister32(STATE_TIMING_SPU_IRQ_UPDATE_TICKS);
 	}
 }
@@ -201,7 +198,6 @@ void CSubSystem::Reset()
 	m_cpu.m_Comments.RemoveTags();
 	m_cpu.m_Functions.RemoveTags();
 
-	m_dmaUpdateTicks = 0;
 	m_spuIrqUpdateTicks = 0;
 }
 
@@ -363,18 +359,12 @@ bool CSubSystem::IsCpuIdle()
 
 void CSubSystem::CountTicks(int ticks)
 {
-	static const int g_dmaUpdateDelay = 10000;
 	static const int g_spuIrqCheckDelay = 1000;
 	m_counters.Update(ticks);
 	m_speed.CountTicks(ticks);
 	m_bios->CountTicks(ticks);
-	m_dmaUpdateTicks += ticks;
-	if(m_dmaUpdateTicks >= g_dmaUpdateDelay)
-	{
-		m_dmac.ResumeDma(Iop::CDmac::CHANNEL_SPU0);
-		m_dmac.ResumeDma(Iop::CDmac::CHANNEL_SPU1);
-		m_dmaUpdateTicks -= g_dmaUpdateDelay;
-	}
+	m_dmac.ResumeDma(Iop::CDmac::CHANNEL_SPU0);
+	m_dmac.ResumeDma(Iop::CDmac::CHANNEL_SPU1);
 	m_spuIrqUpdateTicks += ticks;
 	if(m_spuIrqUpdateTicks >= g_spuIrqCheckDelay)
 	{
