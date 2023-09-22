@@ -374,7 +374,7 @@ namespace Iop
 		static const uint32 g_linearIncreaseSweepDeltas[0x80];
 		static const uint32 g_linearDecreaseSweepDeltas[0x80];
 
-		static constexpr int32 g_transferTicksPerBlock = 64;
+		static constexpr int32 g_transferTicksPerBlock = 16;
 		
 		uint8* m_ram;
 		uint32 m_ramSize;
