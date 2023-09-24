@@ -539,6 +539,7 @@ uint32 CSpuBase::ReceiveDma(uint8* buffer, uint32 blockSize, uint32 blockAmount,
 	CLog::GetInstance().Print(LOG_NAME, "Receiving DMA transfer to 0x%08X. Size = 0x%08X bytes.\r\n",
 	                          m_transferAddr, blockSize * blockAmount);
 #endif
+	uint32 blockTicks = m_transferTicks / g_transferTicksPerBlock;
 	if(m_transferMode == TRANSFER_MODE_VOICE)
 	{
 		if((m_ctrl & CONTROL_DMA) == CONTROL_DMA_STOP)
@@ -562,7 +563,6 @@ uint32 CSpuBase::ReceiveDma(uint8* buffer, uint32 blockSize, uint32 blockAmount,
 		//- Tsugunai needs voice transfers to be throttled because it starts a DMA transfer
 		//  and then writes data that is necessary to the transfer callback in memory
 		//- Some PSF sets (FF4, Xenogears, Xenosaga 2) are sensitive to aggressive throttling (doesn't like 0x10)
-		uint32 blockTicks = m_transferTicks / g_transferTicksPerBlock;
 		blockAmount = std::min<uint32>(blockAmount, blockTicks);
 		assert((m_ctrl & CONTROL_DMA) == CONTROL_DMA_WRITE);
 		unsigned int blocksTransfered = 0;
@@ -590,7 +590,7 @@ uint32 CSpuBase::ReceiveDma(uint8* buffer, uint32 blockSize, uint32 blockAmount,
 
 		uint32 availableBytes = SOUND_INPUT_DATA_SIZE - m_blockWritePtr;
 		uint32 availableBlocks = availableBytes / blockSize;
-		blockAmount = std::min(blockAmount, availableBlocks);
+		blockAmount = std::min({blockAmount, availableBlocks, blockTicks});
 
 		uint32 dstAddr = m_soundInputDataAddr + m_blockWritePtr;
 		memcpy(m_ram + dstAddr, buffer, blockAmount * blockSize);
