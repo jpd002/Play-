@@ -107,8 +107,6 @@ protected:
 	void Template_Add64(bool);
 	void Template_Sub32(bool);
 	void Template_Sub64(bool);
-	void Template_Load32(const MemoryAccessTraits&);
-	void Template_Store32(const MemoryAccessTraits&);
 	void Template_Load32Idx(const MemoryAccessIdxTraits&);
 	void Template_Store32Idx(const MemoryAccessIdxTraits&);
 	void Template_ShiftCst32(const TemplateParamedOperationFunctionType&);
@@ -240,11 +238,6 @@ private:
 	void BLTZALL();
 	void BGEZALL();
 
-	static const MemoryAccessTraits g_byteAccessTraits;
-	static const MemoryAccessTraits g_ubyteAccessTraits;
-	static const MemoryAccessTraits g_halfAccessTraits;
-	static const MemoryAccessTraits g_uhalfAccessTraits;
-	static const MemoryAccessTraits g_wordAccessTraits;
 	static const MemoryAccessIdxTraits g_byteAccessIdxTraits;
 	static const MemoryAccessIdxTraits g_ubyteAccessIdxTraits;
 	static const MemoryAccessIdxTraits g_halfAccessIdxTraits;

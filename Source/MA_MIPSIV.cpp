@@ -8,56 +8,6 @@
 #include "placeholder_def.h"
 
 // clang-format off
-const CMA_MIPSIV::MemoryAccessTraits CMA_MIPSIV::g_byteAccessTraits =
-{
-	reinterpret_cast<void*>(&MemoryUtils_GetByteProxy),
-	reinterpret_cast<void*>(&MemoryUtils_SetByteProxy),
-	&CMipsJitter::Load8FromRef,
-	&CMipsJitter::Store8AtRef,
-	&CMipsJitter::SignExt8,
-	1
-};
-
-const CMA_MIPSIV::MemoryAccessTraits CMA_MIPSIV::g_ubyteAccessTraits =
-{
-	reinterpret_cast<void*>(&MemoryUtils_GetByteProxy),
-	reinterpret_cast<void*>(&MemoryUtils_SetByteProxy),
-	&CMipsJitter::Load8FromRef,
-	&CMipsJitter::Store8AtRef,
-	nullptr,
-	1
-};
-
-const CMA_MIPSIV::MemoryAccessTraits CMA_MIPSIV::g_halfAccessTraits =
-{
-	reinterpret_cast<void*>(&MemoryUtils_GetHalfProxy),
-	reinterpret_cast<void*>(&MemoryUtils_SetHalfProxy),
-	&CMipsJitter::Load16FromRef,
-	&CMipsJitter::Store16AtRef,
-	&CMipsJitter::SignExt16,
-	2
-};
-
-const CMA_MIPSIV::MemoryAccessTraits CMA_MIPSIV::g_uhalfAccessTraits =
-{
-	reinterpret_cast<void*>(&MemoryUtils_GetHalfProxy),
-	reinterpret_cast<void*>(&MemoryUtils_SetHalfProxy),
-	&CMipsJitter::Load16FromRef,
-	&CMipsJitter::Store16AtRef,
-	nullptr,
-	2
-};
-
-const CMA_MIPSIV::MemoryAccessTraits CMA_MIPSIV::g_wordAccessTraits =
-{
-	reinterpret_cast<void*>(&MemoryUtils_GetWordProxy),
-	reinterpret_cast<void*>(&MemoryUtils_SetWordProxy),
-	&CMipsJitter::LoadFromRef,
-	&CMipsJitter::StoreAtRef,
-	nullptr,
-	4
-};
-
 const CMA_MIPSIV::MemoryAccessIdxTraits CMA_MIPSIV::g_byteAccessIdxTraits =
 {
 	reinterpret_cast<void*>(&MemoryUtils_GetByteProxy),
