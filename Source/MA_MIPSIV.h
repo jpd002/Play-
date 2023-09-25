@@ -245,6 +245,8 @@ private:
 	static const MemoryAccessTraits g_halfAccessTraits;
 	static const MemoryAccessTraits g_uhalfAccessTraits;
 	static const MemoryAccessTraits g_wordAccessTraits;
+	static const MemoryAccessIdxTraits g_byteAccessIdxTraits;
+	static const MemoryAccessIdxTraits g_ubyteAccessIdxTraits;
 	static const MemoryAccessIdxTraits g_halfAccessIdxTraits;
 	static const MemoryAccessIdxTraits g_uhalfAccessIdxTraits;
 	static const MemoryAccessIdxTraits g_wordAccessIdxTraits;

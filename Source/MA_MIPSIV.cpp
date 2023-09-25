@@ -58,6 +58,26 @@ const CMA_MIPSIV::MemoryAccessTraits CMA_MIPSIV::g_wordAccessTraits =
 	4
 };
 
+const CMA_MIPSIV::MemoryAccessIdxTraits CMA_MIPSIV::g_byteAccessIdxTraits =
+{
+	reinterpret_cast<void*>(&MemoryUtils_GetByteProxy),
+	reinterpret_cast<void*>(&MemoryUtils_SetByteProxy),
+	&CMipsJitter::Load8FromRefIdx,
+	&CMipsJitter::Store8AtRefIdx,
+	&CMipsJitter::SignExt8,
+	1
+};
+
+const CMA_MIPSIV::MemoryAccessIdxTraits CMA_MIPSIV::g_ubyteAccessIdxTraits =
+{
+	reinterpret_cast<void*>(&MemoryUtils_GetByteProxy),
+	reinterpret_cast<void*>(&MemoryUtils_SetByteProxy),
+	&CMipsJitter::Load8FromRefIdx,
+	&CMipsJitter::Store8AtRefIdx,
+	nullptr,
+	1
+};
+
 const CMA_MIPSIV::MemoryAccessIdxTraits CMA_MIPSIV::g_halfAccessIdxTraits =
 {
 	reinterpret_cast<void*>(&MemoryUtils_GetHalfProxy),
@@ -606,7 +626,7 @@ void CMA_MIPSIV::LDR()
 //20
 void CMA_MIPSIV::LB()
 {
-	Template_Load32(g_byteAccessTraits);
+	Template_Load32Idx(g_byteAccessIdxTraits);
 }
 
 //21
@@ -645,7 +665,7 @@ void CMA_MIPSIV::LW()
 //24
 void CMA_MIPSIV::LBU()
 {
-	Template_Load32(g_ubyteAccessTraits);
+	Template_Load32Idx(g_ubyteAccessIdxTraits);
 }
 
 //25
@@ -684,7 +704,7 @@ void CMA_MIPSIV::LWU()
 //28
 void CMA_MIPSIV::SB()
 {
-	Template_Store32(g_byteAccessTraits);
+	Template_Store32Idx(g_byteAccessIdxTraits);
 }
 
 //29
