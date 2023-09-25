@@ -58,6 +58,26 @@ const CMA_MIPSIV::MemoryAccessTraits CMA_MIPSIV::g_wordAccessTraits =
 	4
 };
 
+const CMA_MIPSIV::MemoryAccessIdxTraits CMA_MIPSIV::g_halfAccessIdxTraits =
+{
+	reinterpret_cast<void*>(&MemoryUtils_GetHalfProxy),
+	reinterpret_cast<void*>(&MemoryUtils_SetHalfProxy),
+	&CMipsJitter::Load16FromRefIdx,
+	&CMipsJitter::Store16AtRefIdx,
+	&CMipsJitter::SignExt16,
+	2
+};
+
+const CMA_MIPSIV::MemoryAccessIdxTraits CMA_MIPSIV::g_uhalfAccessIdxTraits =
+{
+	reinterpret_cast<void*>(&MemoryUtils_GetHalfProxy),
+	reinterpret_cast<void*>(&MemoryUtils_SetHalfProxy),
+	&CMipsJitter::Load16FromRefIdx,
+	&CMipsJitter::Store16AtRefIdx,
+	nullptr,
+	2
+};
+
 const CMA_MIPSIV::MemoryAccessIdxTraits CMA_MIPSIV::g_wordAccessIdxTraits =
 {
 	reinterpret_cast<void*>(&MemoryUtils_GetWordProxy),
@@ -592,7 +612,7 @@ void CMA_MIPSIV::LB()
 //21
 void CMA_MIPSIV::LH()
 {
-	Template_Load32(g_halfAccessTraits);
+	Template_Load32Idx(g_halfAccessIdxTraits);
 }
 
 //22
@@ -631,7 +651,7 @@ void CMA_MIPSIV::LBU()
 //25
 void CMA_MIPSIV::LHU()
 {
-	Template_Load32(g_uhalfAccessTraits);
+	Template_Load32Idx(g_uhalfAccessIdxTraits);
 }
 
 //26
@@ -670,7 +690,7 @@ void CMA_MIPSIV::SB()
 //29
 void CMA_MIPSIV::SH()
 {
-	Template_Store32(g_halfAccessTraits);
+	Template_Store32Idx(g_halfAccessIdxTraits);
 }
 
 //2A
