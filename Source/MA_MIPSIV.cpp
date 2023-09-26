@@ -15,7 +15,8 @@ const CMA_MIPSIV::MemoryAccessIdxTraits CMA_MIPSIV::g_byteAccessIdxTraits =
 	&CMipsJitter::Load8FromRefIdx,
 	&CMipsJitter::Store8AtRefIdx,
 	&CMipsJitter::SignExt8,
-	1
+	1,
+	true,
 };
 
 const CMA_MIPSIV::MemoryAccessIdxTraits CMA_MIPSIV::g_ubyteAccessIdxTraits =
@@ -25,7 +26,8 @@ const CMA_MIPSIV::MemoryAccessIdxTraits CMA_MIPSIV::g_ubyteAccessIdxTraits =
 	&CMipsJitter::Load8FromRefIdx,
 	&CMipsJitter::Store8AtRefIdx,
 	nullptr,
-	1
+	1,
+	false,
 };
 
 const CMA_MIPSIV::MemoryAccessIdxTraits CMA_MIPSIV::g_halfAccessIdxTraits =
@@ -35,7 +37,8 @@ const CMA_MIPSIV::MemoryAccessIdxTraits CMA_MIPSIV::g_halfAccessIdxTraits =
 	&CMipsJitter::Load16FromRefIdx,
 	&CMipsJitter::Store16AtRefIdx,
 	&CMipsJitter::SignExt16,
-	2
+	2,
+	true,
 };
 
 const CMA_MIPSIV::MemoryAccessIdxTraits CMA_MIPSIV::g_uhalfAccessIdxTraits =
@@ -45,7 +48,8 @@ const CMA_MIPSIV::MemoryAccessIdxTraits CMA_MIPSIV::g_uhalfAccessIdxTraits =
 	&CMipsJitter::Load16FromRefIdx,
 	&CMipsJitter::Store16AtRefIdx,
 	nullptr,
-	2
+	2,
+	false,
 };
 
 const CMA_MIPSIV::MemoryAccessIdxTraits CMA_MIPSIV::g_wordAccessIdxTraits =
