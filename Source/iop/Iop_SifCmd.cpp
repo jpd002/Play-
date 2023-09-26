@@ -411,6 +411,13 @@ void CSifCmd::BuildExportTable()
 
 			//sleepThread:
 			assembler.MarkLabel(sleepThreadLabel);
+
+			//Enable interrupts. Some games (Dokodemo Isshou: My Picture Book) leave
+			//them off upon exit of their SIF RPC handler.
+			assembler.MFC0(CMIPS::T0, CCOP_SCU::STATUS);
+			assembler.ORI(CMIPS::T0, CMIPS::T0, CMIPS::STATUS_IE);
+			assembler.MTC0(CMIPS::T0, CCOP_SCU::STATUS);
+
 			assembler.JAL(sleepThreadAddr);
 			assembler.NOP();
 			assembler.BEQ(CMIPS::R0, CMIPS::R0, checkNextRequestLabel);
