@@ -325,6 +325,7 @@ uint16 CSpuBase::GetControl() const
 void CSpuBase::SetControl(uint16 value)
 {
 	m_ctrl = value;
+	m_transferTicks = 0;
 	if((m_ctrl & CONTROL_IRQ) == 0)
 	{
 		ClearIrqPending();
@@ -378,6 +379,7 @@ uint16 CSpuBase::GetTransferMode() const
 void CSpuBase::SetTransferMode(uint16 transferMode)
 {
 	m_transferMode = transferMode;
+	m_transferTicks = 0;
 }
 
 uint32 CSpuBase::GetTransferAddress() const
@@ -591,6 +593,7 @@ uint32 CSpuBase::ReceiveDma(uint8* buffer, uint32 blockSize, uint32 blockAmount,
 		uint32 availableBytes = SOUND_INPUT_DATA_SIZE - m_blockWritePtr;
 		uint32 availableBlocks = availableBytes / blockSize;
 		blockAmount = std::min({blockAmount, availableBlocks, blockTicks});
+		m_transferTicks -= (g_transferTicksPerBlock * blockAmount);
 
 		uint32 dstAddr = m_soundInputDataAddr + m_blockWritePtr;
 		memcpy(m_ram + dstAddr, buffer, blockAmount * blockSize);
@@ -811,15 +814,7 @@ void CSpuBase::Render(int16* samples, unsigned int sampleCount)
 		}
 	}
 	
-	switch(m_ctrl & CONTROL_DMA)
-	{
-	case CONTROL_DMA_STOP:
-		m_transferTicks = 0;
-		break;
-	default:
-		m_transferTicks += sampleCount;
-		break;
-	}
+	m_transferTicks += sampleCount;
 }
 
 uint32 CSpuBase::GetAdsrDelta(unsigned int index) const
