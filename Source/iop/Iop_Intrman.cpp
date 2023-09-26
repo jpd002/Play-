@@ -197,7 +197,7 @@ uint32 CIntrman::SuspendInterrupts(CMIPS& context, uint32 statePtr)
 	                          statePtr);
 #endif
 	uint32& statusRegister = context.m_State.nCOP0[CCOP_SCU::STATUS];
-	uint32 result = ((statusRegister & CMIPS::STATUS_IE) != 0) ? 0 : -1;
+	uint32 result = ((statusRegister & CMIPS::STATUS_IE) != 0) ? CIopBios::KERNEL_RESULT_OK : CIopBios::KERNEL_RESULT_ERROR_CPUDI;
 	if(statePtr != 0)
 	{
 		uint32* state = reinterpret_cast<uint32*>(m_ram + statePtr);
