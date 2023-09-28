@@ -621,6 +621,10 @@ bool CNamcoArcade::Invoke001(uint32 method, uint32* args, uint32 argsSize, uint3
 			{
 				m_acRam.Read(ramAddr - 0x40000000, ram + dstPtr, size);
 			}
+			else if(ramAddr >= 0x60000000 && ramAddr < 0x70000000)
+			{
+				ReadBackupRam(ramAddr - 0x60000000, ram + dstPtr, size);
+			}
 			ret[0] = 0;
 			ret[1] = size;
 		}
@@ -654,6 +658,10 @@ bool CNamcoArcade::Invoke001(uint32 method, uint32* args, uint32 argsSize, uint3
 			if(ramAddr >= 0x40000000 && ramAddr < 0x50000000)
 			{
 				m_acRam.Write(ramAddr - 0x40000000, ram + srcPtr, size);
+			}
+			else if(ramAddr >= 0x60000000 && ramAddr < 0x70000000)
+			{
+				WriteBackupRam(ramAddr - 0x60000000, ram + srcPtr, size);
 			}
 			ret[0] = 0;
 			ret[1] = size;
