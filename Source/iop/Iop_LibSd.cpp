@@ -149,6 +149,12 @@ static std::string DecodeParam(uint16 paramId)
 	case 0x02:
 		result = "PITCH";
 		break;
+	case 0x03:
+		result = "ADSR1";
+		break;
+	case 0x04:
+		result = "ADSR2";
+		break;
 	case 0x05:
 		result = "ENVX";
 		break;
@@ -199,6 +205,9 @@ static std::string DecodeSwitch(uint16 switchId)
 	std::string result;
 	switch(switchId >> 8)
 	{
+	case 0x13:
+		result = "PMON";
+		break;
 	case 0x14:
 		result = "NON";
 		break;
