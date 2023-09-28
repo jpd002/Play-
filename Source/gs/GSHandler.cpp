@@ -173,6 +173,7 @@ void CGSHandler::ResetBase()
 #ifdef _DEBUG
 	m_transferCount = 0;
 #endif
+	m_framesInFlight = 0;
 	m_writeBufferSize = 0;
 	m_writeBufferProcessIndex = 0;
 	m_writeBufferSubmitIndex = 0;
