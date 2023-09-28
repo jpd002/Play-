@@ -243,6 +243,15 @@ void CNamcoArcade::ProcessJvsPacket(const uint8* input, uint8* output)
 
 				(*dstSize) += 8;
 			}
+			else if(m_jvsMode == JVS_MODE::TOUCHSCREEN)
+			{
+				(*output++) = 0x06; //Screen Pos Input
+				(*output++) = 0x10; //X pos bits
+				(*output++) = 0x10; //Y pos bits
+				(*output++) = 0x01; //channels
+
+				(*dstSize) += 4;
+			}
 			else if(m_jvsMode == JVS_MODE::DRUM)
 			{
 				(*output++) = 0x03;                 //Analog Input
@@ -393,10 +402,18 @@ void CNamcoArcade::ProcessJvsPacket(const uint8* input, uint8* output)
 			if(m_jvsMode == JVS_MODE::LIGHTGUN)
 			{
 				assert(channel == 2);
-				(*output++) = static_cast<uint8>(m_jvsGunPosX >> 8); //Pos X MSB
-				(*output++) = static_cast<uint8>(m_jvsGunPosX);      //Pos X LSB
-				(*output++) = static_cast<uint8>(m_jvsGunPosY >> 8); //Pos Y MSB
-				(*output++) = static_cast<uint8>(m_jvsGunPosY);      //Pos Y LSB
+				(*output++) = static_cast<uint8>(m_jvsAnlPosX >> 8); //Pos X MSB
+				(*output++) = static_cast<uint8>(m_jvsAnlPosX);      //Pos X LSB
+				(*output++) = static_cast<uint8>(m_jvsAnlPosY >> 8); //Pos Y MSB
+				(*output++) = static_cast<uint8>(m_jvsAnlPosY);      //Pos Y LSB
+			}
+			else if(m_jvsMode == JVS_MODE::TOUCHSCREEN)
+			{
+				assert(channel == 2);
+				(*output++) = static_cast<uint8>(m_jvsAnlPosX >> 8); //Pos X MSB
+				(*output++) = static_cast<uint8>(m_jvsAnlPosX);      //Pos X LSB
+				(*output++) = static_cast<uint8>(m_jvsAnlPosY >> 8); //Pos Y MSB
+				(*output++) = static_cast<uint8>(m_jvsAnlPosY);      //Pos Y LSB
 			}
 			else if(m_jvsMode == JVS_MODE::DRUM)
 			{
@@ -433,10 +450,10 @@ void CNamcoArcade::ProcessJvsPacket(const uint8* input, uint8* output)
 
 			(*output++) = 0x01; //Command success
 
-			(*output++) = static_cast<uint8>(m_jvsGunPosX >> 8); //Pos X MSB
-			(*output++) = static_cast<uint8>(m_jvsGunPosX);      //Pos X LSB
-			(*output++) = static_cast<uint8>(m_jvsGunPosY >> 8); //Pos Y MSB
-			(*output++) = static_cast<uint8>(m_jvsGunPosY);      //Pos Y LSB
+			(*output++) = static_cast<uint8>(m_jvsAnlPosX >> 8); //Pos X MSB
+			(*output++) = static_cast<uint8>(m_jvsAnlPosX);      //Pos X LSB
+			(*output++) = static_cast<uint8>(m_jvsAnlPosY >> 8); //Pos Y MSB
+			(*output++) = static_cast<uint8>(m_jvsAnlPosY);      //Pos Y LSB
 
 			(*dstSize) += 5;
 		}
@@ -476,9 +493,9 @@ void CNamcoArcade::SetButton(unsigned int buttonIndex, PS2::CControllerInfo::BUT
 	m_jvsButtonBits[buttonValue] = (1 << buttonIndex);
 }
 
-void CNamcoArcade::SetAnalogueXform(const std::array<float, 4>& lightGunXform)
+void CNamcoArcade::SetAnalogueXform(const std::array<float, 4>& analogueXform)
 {
-	m_lightGunXform = lightGunXform;
+	m_analogueXform = analogueXform;
 }
 
 void CNamcoArcade::SetButtonState(unsigned int padNumber, PS2::CControllerInfo::BUTTON button, bool pressed, uint8* ram)
@@ -596,10 +613,10 @@ void CNamcoArcade::SetAxisState(unsigned int padNumber, PS2::CControllerInfo::BU
 	}
 }
 
-void CNamcoArcade::SetGunPosition(float x, float y)
+void CNamcoArcade::SetAnaloguePosition(float x, float y)
 {
-	m_jvsGunPosX = static_cast<int16>((x * m_lightGunXform[0]) + m_lightGunXform[1]);
-	m_jvsGunPosY = static_cast<int16>((y * m_lightGunXform[2]) + m_lightGunXform[3]);
+	m_jvsAnlPosX = static_cast<int16>((x * m_analogueXform[0]) + m_analogueXform[1]);
+	m_jvsAnlPosY = static_cast<int16>((y * m_analogueXform[2]) + m_analogueXform[3]);
 }
 
 bool CNamcoArcade::Invoke001(uint32 method, uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)

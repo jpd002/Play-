@@ -24,6 +24,7 @@ struct ARCADE_MACHINE_DEF
 	{
 		DEFAULT,
 		LIGHTGUN,
+		TOUCHSCREEN,
 		DRUM,
 		DRIVE,
 	};
@@ -42,7 +43,7 @@ struct ARCADE_MACHINE_DEF
 	std::string hddFileName;
 	std::map<unsigned int, PS2::CControllerInfo::BUTTON> buttons;
 	INPUT_MODE inputMode = INPUT_MODE::DEFAULT;
-	std::array<float, 4> lightGunXform = {65535, 0, 65535, 0};
+	std::array<float, 4> analogueXform = {65535, 0, 65535, 0};
 	uint32 eeFreqScaleNumerator = 1;
 	uint32 eeFreqScaleDenominator = 1;
 	std::string boot;
@@ -74,6 +75,7 @@ static const std::pair<const char*, ARCADE_MACHINE_DEF::INPUT_MODE> g_inputModeV
 {
 	{ "default", ARCADE_MACHINE_DEF::INPUT_MODE::DEFAULT },
 	{ "lightgun", ARCADE_MACHINE_DEF::INPUT_MODE::LIGHTGUN },
+	{ "touchscreen", ARCADE_MACHINE_DEF::INPUT_MODE::TOUCHSCREEN },
 	{ "drum", ARCADE_MACHINE_DEF::INPUT_MODE::DRUM },
 	{ "drive", ARCADE_MACHINE_DEF::INPUT_MODE::DRIVE },
 };
@@ -174,14 +176,14 @@ ARCADE_MACHINE_DEF ReadArcadeMachineDefinition(const fs::path& arcadeDefPath)
 		std::string inputModeString = defJson["inputMode"];
 		def.inputMode = ParseEnumValue(inputModeString.c_str(), std::begin(g_inputModeValues), std::end(g_inputModeValues));
 	}
-	if(defJson.contains("lightGunXform"))
+	if(defJson.contains("analogueXform"))
 	{
-		auto lightGunXformArray = defJson["lightGunXform"];
-		if(lightGunXformArray.is_array() && (lightGunXformArray.size() >= 4))
+		auto analogueXformArray = defJson["analogueXform"];
+		if(analogueXformArray.is_array() && (analogueXformArray.size() >= 4))
 		{
 			for(int i = 0; i < 4; i++)
 			{
-				def.lightGunXform[i] = lightGunXformArray[i];
+				def.analogueXform[i] = analogueXformArray[i];
 			}
 		}
 	}
@@ -307,9 +309,14 @@ void PrepareArcadeEnvironment(CPS2VM* virtualMachine, const ARCADE_MACHINE_DEF& 
 			switch(def.inputMode)
 			{
 			case ARCADE_MACHINE_DEF::INPUT_MODE::LIGHTGUN:
-				virtualMachine->SetGunListener(namcoArcadeModule.get());
+				virtualMachine->SetAnalogueListener(namcoArcadeModule.get());
 				namcoArcadeModule->SetJvsMode(Iop::CNamcoArcade::JVS_MODE::LIGHTGUN);
-				namcoArcadeModule->SetAnalogueXform(def.lightGunXform);
+				namcoArcadeModule->SetAnalogueXform(def.analogueXform);
+				break;
+			case ARCADE_MACHINE_DEF::INPUT_MODE::TOUCHSCREEN:
+				virtualMachine->SetAnalogueListener(namcoArcadeModule.get());
+				namcoArcadeModule->SetJvsMode(Iop::CNamcoArcade::JVS_MODE::TOUCHSCREEN);
+				namcoArcadeModule->SetAnalogueXform(def.analogueXform);
 				break;
 			case ARCADE_MACHINE_DEF::INPUT_MODE::DRUM:
 				namcoArcadeModule->SetJvsMode(Iop::CNamcoArcade::JVS_MODE::DRUM);

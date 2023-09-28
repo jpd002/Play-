@@ -5,7 +5,7 @@
 #include "Iop_SifMan.h"
 #include "../SifModuleAdapter.h"
 #include "../PadListener.h"
-#include "../GunListener.h"
+#include "../AnalogueListener.h"
 #include "filesystem_def.h"
 
 namespace Iop
@@ -17,13 +17,14 @@ namespace Iop
 		class CAcRam;
 	}
 
-	class CNamcoArcade : public CModule, public CPadListener, public CGunListener
+	class CNamcoArcade : public CModule, public CPadListener, public CAnalogueListener
 	{
 	public:
 		enum class JVS_MODE
 		{
 			DEFAULT,
 			LIGHTGUN,
+			TOUCHSCREEN,
 			DRUM,
 			DRIVE,
 		};
@@ -46,8 +47,8 @@ namespace Iop
 		void SetButtonState(unsigned int, PS2::CControllerInfo::BUTTON, bool, uint8*) override;
 		void SetAxisState(unsigned int, PS2::CControllerInfo::BUTTON, uint8, uint8*) override;
 
-		//CGunListener
-		void SetGunPosition(float, float) override;
+		//CAnalogueListener
+		void SetAnaloguePosition(float, float) override;
 
 	private:
 		enum MODULE_ID
@@ -117,13 +118,13 @@ namespace Iop
 		uint32 m_sendAddr = 0;
 
 		JVS_MODE m_jvsMode = JVS_MODE::DEFAULT;
-		std::array<float, 4> m_lightGunXform = {65535, 0, 65535, 0};
+		std::array<float, 4> m_analogueXform = {65535, 0, 65535, 0};
 
 		std::array<uint16, PS2::CControllerInfo::MAX_BUTTONS> m_jvsButtonBits = {};
 		uint16 m_jvsButtonState[JVS_PLAYER_COUNT] = {};
 		uint16 m_jvsSystemButtonState = 0;
-		uint16 m_jvsGunPosX = 0x7FFF;
-		uint16 m_jvsGunPosY = 0x7FFF;
+		uint16 m_jvsAnlPosX = 0x7FFF;
+		uint16 m_jvsAnlPosY = 0x7FFF;
 		uint16 m_jvsDrumChannels[JVS_DRUM_CHANNEL_MAX] = {};
 		uint16 m_jvsWheelChannels[JVS_WHEEL_CHANNEL_MAX] = {};
 		uint16 m_jvsWheel = 0x0;

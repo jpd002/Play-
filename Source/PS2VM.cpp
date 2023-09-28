@@ -128,21 +128,21 @@ CPadHandler* CPS2VM::GetPadHandler()
 	return m_pad;
 }
 
-bool CPS2VM::HasGunListener() const
+bool CPS2VM::HasAnalogueListener() const
 {
-	return m_gunListener != nullptr;
+	return m_analogueListener != nullptr;
 }
 
-void CPS2VM::SetGunListener(CGunListener* listener)
+void CPS2VM::SetAnalogueListener(CAnalogueListener* listener)
 {
-	m_gunListener = listener;
+	m_analogueListener = listener;
 }
 
-void CPS2VM::ReportGunPosition(float x, float y)
+void CPS2VM::ReportAnaloguePosition(float x, float y)
 {
-	if(m_gunListener)
+	if(m_analogueListener)
 	{
-		m_gunListener->SetGunPosition(x, y);
+		m_analogueListener->SetAnaloguePosition(x, y);
 	}
 }
 
@@ -493,7 +493,7 @@ void CPS2VM::ResetVM()
 	m_iop->m_spuCore1.SetDestinationSamplingRate(DST_SAMPLE_RATE);
 
 	RegisterModulesInPadHandler();
-	m_gunListener = nullptr;
+	m_analogueListener = nullptr;
 }
 
 void CPS2VM::DestroyVM()

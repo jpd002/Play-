@@ -829,7 +829,7 @@ void MainWindow::focusInEvent(QFocusEvent* event)
 
 void MainWindow::outputWindow_doubleClickEvent(QMouseEvent* ev)
 {
-	if(!m_virtualMachine->HasGunListener() && (ev->button() == Qt::LeftButton))
+	if(!m_virtualMachine->HasAnalogueListener() && (ev->button() == Qt::LeftButton))
 	{
 		on_actionToggleFullscreen_triggered();
 	}
@@ -837,7 +837,7 @@ void MainWindow::outputWindow_doubleClickEvent(QMouseEvent* ev)
 
 void MainWindow::outputWindow_mouseMoveEvent(QMouseEvent* ev)
 {
-	if(m_virtualMachine->HasGunListener())
+	if(m_virtualMachine->HasAnalogueListener())
 	{
 		auto gsHandler = m_virtualMachine->GetGSHandler();
 		if(!gsHandler) return;
@@ -856,7 +856,7 @@ void MainWindow::outputWindow_mouseMoveEvent(QMouseEvent* ev)
 		mouseY -= vpOfsY;
 		mouseX = std::clamp<float>(mouseX, 0, vpWidth);
 		mouseY = std::clamp<float>(mouseY, 0, vpHeight);
-		m_virtualMachine->ReportGunPosition(
+		m_virtualMachine->ReportAnaloguePosition(
 		    static_cast<float>(mouseX) / static_cast<float>(vpWidth),
 		    static_cast<float>(mouseY) / static_cast<float>(vpHeight));
 	}
@@ -865,11 +865,23 @@ void MainWindow::outputWindow_mouseMoveEvent(QMouseEvent* ev)
 void MainWindow::outputWindow_mousePressEvent(QMouseEvent* ev)
 {
 	m_qtMouseInputProvider->OnMousePress(ev->button());
+	if(m_virtualMachine->HasAnalogueListener())
+	{
+		m_virtualMachine->ReportTouchPress(
+			// TODO: Set tap to true
+		)
+	}
 }
 
 void MainWindow::outputWindow_mouseReleaseEvent(QMouseEvent* ev)
 {
 	m_qtMouseInputProvider->OnMouseRelease(ev->button());
+	if(m_virtualMachine->HasAnalogueListener())
+	{
+		m_virtualMachine->ReportTouchRelease(
+			// TODO: Set tap to false
+		)
+	}
 }
 
 void MainWindow::on_actionToggleFullscreen_triggered()
