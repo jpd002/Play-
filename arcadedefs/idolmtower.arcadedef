@@ -1,6 +1,6 @@
 {
-	"id": "idolmtower",
-	"name": "The iDOLM@STER/偶像大师 (Tower)",
+	"id": "idolm",
+	"name": "The iDOLM@STER/偶像大师",
 	"dongle":
 	{
 		"name": "NM00022 IDMT1, Ver.D a026061342184a [Tower] [Rebuilt].bin"
@@ -9,6 +9,8 @@
 	{
 		"name": "NM00022 IDM1-HA (HDD).chd"
 	},
+	"inputMode": "touchscreen",
+	"analogueXform": [ 65535, 0, -65535, 0 ],
 	"eeFrequencyScale": [4, 3],
 	"boot": "ac0:IDLLOAD",
 	"patches":
