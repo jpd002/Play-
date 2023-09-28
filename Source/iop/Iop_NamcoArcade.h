@@ -40,7 +40,7 @@ namespace Iop
 
 		void SetJvsMode(JVS_MODE);
 		void SetButton(unsigned int, PS2::CControllerInfo::BUTTON);
-		void SetLightGunXform(const std::array<float, 4>&);
+		void SetAnalogueXform(const std::array<float, 4>&);
 
 		//CPadListener
 		void SetButtonState(unsigned int, PS2::CControllerInfo::BUTTON, bool, uint8*) override;

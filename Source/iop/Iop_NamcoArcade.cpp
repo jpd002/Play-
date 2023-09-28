@@ -476,7 +476,7 @@ void CNamcoArcade::SetButton(unsigned int buttonIndex, PS2::CControllerInfo::BUT
 	m_jvsButtonBits[buttonValue] = (1 << buttonIndex);
 }
 
-void CNamcoArcade::SetLightGunXform(const std::array<float, 4>& lightGunXform)
+void CNamcoArcade::SetAnalogueXform(const std::array<float, 4>& lightGunXform)
 {
 	m_lightGunXform = lightGunXform;
 }

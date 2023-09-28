@@ -309,7 +309,7 @@ void PrepareArcadeEnvironment(CPS2VM* virtualMachine, const ARCADE_MACHINE_DEF& 
 			case ARCADE_MACHINE_DEF::INPUT_MODE::LIGHTGUN:
 				virtualMachine->SetGunListener(namcoArcadeModule.get());
 				namcoArcadeModule->SetJvsMode(Iop::CNamcoArcade::JVS_MODE::LIGHTGUN);
-				namcoArcadeModule->SetLightGunXform(def.lightGunXform);
+				namcoArcadeModule->SetAnalogueXform(def.lightGunXform);
 				break;
 			case ARCADE_MACHINE_DEF::INPUT_MODE::DRUM:
 				namcoArcadeModule->SetJvsMode(Iop::CNamcoArcade::JVS_MODE::DRUM);
