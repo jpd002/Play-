@@ -1403,7 +1403,10 @@ void CSpuBase::CSampleReader::SetRepeat(uint32 repeatAddr)
 
 uint32 CSpuBase::CSampleReader::GetCurrent() const
 {
-	return m_nextSampleAddr;
+	//Simulate a kind of progress inside the current sample address.
+	//Doesn't need to be accurate, but it needs to change. Needed by Romancing Saga.
+	uint32 intraSampleIdx = std::min<uint32>((m_srcSampleIdx / PITCH_BASE) / 2, 0x0E);
+	return m_nextSampleAddr + intraSampleIdx;
 }
 
 void CSpuBase::CSampleReader::SetIrqAddress(uint32 irqAddr)
