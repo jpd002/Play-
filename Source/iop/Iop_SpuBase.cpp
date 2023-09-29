@@ -1398,7 +1398,7 @@ uint32 CSpuBase::CSampleReader::GetRepeat() const
 
 void CSpuBase::CSampleReader::SetRepeat(uint32 repeatAddr)
 {
-	m_repeatAddr = repeatAddr;
+	m_repeatAddr = repeatAddr & (m_ramSize - 1);
 }
 
 uint32 CSpuBase::CSampleReader::GetCurrent() const
