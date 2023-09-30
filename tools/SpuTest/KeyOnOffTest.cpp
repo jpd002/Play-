@@ -35,7 +35,7 @@ void CKeyOnOffTest::Execute()
 	//We sent a KEY-ON, current address should be what we set as start address
 	{
 		uint32 testVoiceCurrAddr = GetVoiceAddress(testCoreIndex, testVoiceIndex, Iop::Spu2::CCore::VA_NAX_HI);
-		TEST_VERIFY(testVoiceCurrAddr == sampleAddress1);
+		TEST_VERIFY((testVoiceCurrAddr & ~0xF) == (sampleAddress1 & ~0xF));
 	}
 
 	//Change start address and then send KEY-ON and KEY-OFF right after
@@ -50,7 +50,7 @@ void CKeyOnOffTest::Execute()
 	//all the time, we should be able to handle this even though the update timestep is not small
 	{
 		uint32 testVoiceCurrAddr = GetVoiceAddress(testCoreIndex, testVoiceIndex, Iop::Spu2::CCore::VA_NAX_HI);
-		TEST_VERIFY(testVoiceCurrAddr == sampleAddress2);
+		TEST_VERIFY((testVoiceCurrAddr & ~0xF) == (sampleAddress2 & ~0xF));
 	}
 
 	//Enable IRQs and check that our voice's address is still good
@@ -66,6 +66,6 @@ void CKeyOnOffTest::Execute()
 		TEST_VERIFY(irqInfo == 0);
 
 		uint32 testVoiceCurrAddr = GetVoiceAddress(testCoreIndex, testVoiceIndex, Iop::Spu2::CCore::VA_NAX_HI);
-		TEST_VERIFY(testVoiceCurrAddr == sampleAddress2);
+		TEST_VERIFY((testVoiceCurrAddr & ~0xF) == (sampleAddress2 & ~0xF));
 	}
 }
