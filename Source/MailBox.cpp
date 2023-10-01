@@ -77,6 +77,6 @@ void CMailBox::ReceiveCall()
 	{
 		std::lock_guard<std::mutex> waitLock(m_callMutex);
 		m_callDone = true;
-		m_callFinished.notify_all();
+		m_callFinished.notify_one();
 	}
 }
