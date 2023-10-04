@@ -72,7 +72,8 @@ public:
 private:
 	enum
 	{
-		FIFO_SIZE = 0x10,
+		FIFO_QWC = 0x10,
+		FIFO_SIZE = FIFO_QWC * 0x10,
 	};
 
 	enum SIGNAL_STATE
@@ -94,6 +95,7 @@ private:
 	uint32 ProcessImage(const uint8*, uint32, uint32, uint32);
 
 	void ProcessFifoWrite(uint32, uint32);
+	void DrainFifo();
 
 	void DisassembleGet(uint32);
 	void DisassembleSet(uint32, uint32);

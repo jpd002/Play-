@@ -6,6 +6,7 @@
 #include "../Log.h"
 #include "../FrameDump.h"
 #include "../states/RegisterStateFile.h"
+#include "../states/MemoryStateFile.h"
 #include "GIF.h"
 #include "DMAC.h"
 
@@ -25,8 +26,9 @@
 #define STATE_REGS_EOP ("EOP")
 #define STATE_REGS_QTEMP ("QTEMP")
 #define STATE_REGS_PATH3_XFER_ACTIVE_TICKS ("Path3XferActiveTicks")
-#define STATE_REGS_FIFO_BUFFER ("FifoBuffer")
 #define STATE_REGS_FIFO_INDEX ("FifoIndex")
+
+#define STATE_FIFO_BUFFER ("gif/fifo")
 
 CGIF::CGIF(CGSHandler*& gs, CDMAC& dmac, uint8* ram, uint8* spr)
     : m_qtemp(QTEMP_INIT)
@@ -59,39 +61,45 @@ void CGIF::Reset()
 
 void CGIF::LoadState(Framework::CZipArchiveReader& archive)
 {
-	CRegisterStateFile registerFile(*archive.BeginReadFile(STATE_REGS_XML));
-	m_path3Masked = registerFile.GetRegister32(STATE_REGS_M3P) != 0;
-	m_activePath = registerFile.GetRegister32(STATE_REGS_ACTIVEPATH);
-	m_MODE = registerFile.GetRegister32(STATE_REGS_MODE);
-	m_loops = static_cast<uint16>(registerFile.GetRegister32(STATE_REGS_LOOPS));
-	m_cmd = static_cast<uint8>(registerFile.GetRegister32(STATE_REGS_CMD));
-	m_regs = static_cast<uint8>(registerFile.GetRegister32(STATE_REGS_REGS));
-	m_regsTemp = static_cast<uint8>(registerFile.GetRegister32(STATE_REGS_REGSTEMP));
-	m_regList = registerFile.GetRegister64(STATE_REGS_REGLIST);
-	m_eop = registerFile.GetRegister32(STATE_REGS_EOP) != 0;
-	m_qtemp = registerFile.GetRegister32(STATE_REGS_QTEMP);
-	m_path3XferActiveTicks = registerFile.GetRegister32(STATE_REGS_PATH3_XFER_ACTIVE_TICKS);
-	*reinterpret_cast<uint128*>(&m_fifoBuffer) = registerFile.GetRegister128(STATE_REGS_FIFO_BUFFER);
-	m_fifoIndex = registerFile.GetRegister32(STATE_REGS_FIFO_INDEX);
+	{
+		CRegisterStateFile registerFile(*archive.BeginReadFile(STATE_REGS_XML));
+		m_path3Masked = registerFile.GetRegister32(STATE_REGS_M3P) != 0;
+		m_activePath = registerFile.GetRegister32(STATE_REGS_ACTIVEPATH);
+		m_MODE = registerFile.GetRegister32(STATE_REGS_MODE);
+		m_loops = static_cast<uint16>(registerFile.GetRegister32(STATE_REGS_LOOPS));
+		m_cmd = static_cast<uint8>(registerFile.GetRegister32(STATE_REGS_CMD));
+		m_regs = static_cast<uint8>(registerFile.GetRegister32(STATE_REGS_REGS));
+		m_regsTemp = static_cast<uint8>(registerFile.GetRegister32(STATE_REGS_REGSTEMP));
+		m_regList = registerFile.GetRegister64(STATE_REGS_REGLIST);
+		m_eop = registerFile.GetRegister32(STATE_REGS_EOP) != 0;
+		m_qtemp = registerFile.GetRegister32(STATE_REGS_QTEMP);
+		m_path3XferActiveTicks = registerFile.GetRegister32(STATE_REGS_PATH3_XFER_ACTIVE_TICKS);
+		m_fifoIndex = registerFile.GetRegister32(STATE_REGS_FIFO_INDEX);
+	}
+
+	archive.BeginReadFile(STATE_FIFO_BUFFER)->Read(m_fifoBuffer, FIFO_SIZE);
 }
 
 void CGIF::SaveState(Framework::CZipArchiveWriter& archive)
 {
-	auto registerFile = std::make_unique<CRegisterStateFile>(STATE_REGS_XML);
-	registerFile->SetRegister32(STATE_REGS_M3P, m_path3Masked ? 1 : 0);
-	registerFile->SetRegister32(STATE_REGS_ACTIVEPATH, m_activePath);
-	registerFile->SetRegister32(STATE_REGS_MODE, m_MODE);
-	registerFile->SetRegister32(STATE_REGS_LOOPS, m_loops);
-	registerFile->SetRegister32(STATE_REGS_CMD, m_cmd);
-	registerFile->SetRegister32(STATE_REGS_REGS, m_regs);
-	registerFile->SetRegister32(STATE_REGS_REGSTEMP, m_regsTemp);
-	registerFile->SetRegister64(STATE_REGS_REGLIST, m_regList);
-	registerFile->SetRegister32(STATE_REGS_EOP, m_eop ? 1 : 0);
-	registerFile->SetRegister32(STATE_REGS_QTEMP, m_qtemp);
-	registerFile->SetRegister32(STATE_REGS_PATH3_XFER_ACTIVE_TICKS, m_path3XferActiveTicks);
-	registerFile->SetRegister128(STATE_REGS_FIFO_BUFFER, *reinterpret_cast<uint128*>(&m_fifoBuffer));
-	registerFile->SetRegister32(STATE_REGS_FIFO_INDEX, m_fifoIndex);
-	archive.InsertFile(std::move(registerFile));
+	{
+		auto registerFile = std::make_unique<CRegisterStateFile>(STATE_REGS_XML);
+		registerFile->SetRegister32(STATE_REGS_M3P, m_path3Masked ? 1 : 0);
+		registerFile->SetRegister32(STATE_REGS_ACTIVEPATH, m_activePath);
+		registerFile->SetRegister32(STATE_REGS_MODE, m_MODE);
+		registerFile->SetRegister32(STATE_REGS_LOOPS, m_loops);
+		registerFile->SetRegister32(STATE_REGS_CMD, m_cmd);
+		registerFile->SetRegister32(STATE_REGS_REGS, m_regs);
+		registerFile->SetRegister32(STATE_REGS_REGSTEMP, m_regsTemp);
+		registerFile->SetRegister64(STATE_REGS_REGLIST, m_regList);
+		registerFile->SetRegister32(STATE_REGS_EOP, m_eop ? 1 : 0);
+		registerFile->SetRegister32(STATE_REGS_QTEMP, m_qtemp);
+		registerFile->SetRegister32(STATE_REGS_PATH3_XFER_ACTIVE_TICKS, m_path3XferActiveTicks);
+		registerFile->SetRegister32(STATE_REGS_FIFO_INDEX, m_fifoIndex);
+		archive.InsertFile(std::move(registerFile));
+	}
+
+	archive.InsertFile(std::make_unique<CMemoryStateFile>(STATE_FIFO_BUFFER, m_fifoBuffer, FIFO_SIZE));
 }
 
 uint32 CGIF::ProcessPacked(const uint8* memory, uint32 address, uint32 end)
@@ -381,6 +389,11 @@ uint32 CGIF::ProcessSinglePacket(const uint8* memory, uint32 memorySize, uint32 
 		}
 	}
 
+	if((m_activePath == 0) && (packetMetadata.pathIndex != 3) && (m_fifoIndex != 0))
+	{
+		DrainFifo();
+	}
+
 	m_gs->ProcessWriteBuffer(&packetMetadata);
 
 #ifdef _DEBUG
@@ -430,14 +443,21 @@ uint32 CGIF::ProcessMultiplePackets(const uint8* memory, uint32 memorySize, uint
 
 void CGIF::ProcessFifoWrite(uint32 address, uint32 value)
 {
+	static constexpr uint32 qwSize = 0x10;
 	*reinterpret_cast<uint32*>(m_fifoBuffer + m_fifoIndex) = value;
 	m_fifoIndex += 4;
-	if(m_fifoIndex == FIFO_SIZE)
+	if(m_fifoIndex == qwSize)
 	{
-		FRAMEWORK_MAYBE_UNUSED uint32 processed = ProcessMultiplePackets(m_fifoBuffer, FIFO_SIZE, 0, FIFO_SIZE, CGsPacketMetadata(3));
-		assert(processed == FIFO_SIZE);
-		m_fifoIndex = 0;
+		DrainFifo();
 	}
+}
+
+void CGIF::DrainFifo()
+{
+	FRAMEWORK_MAYBE_UNUSED uint32 processed = ProcessMultiplePackets(m_fifoBuffer, m_fifoIndex, 0, m_fifoIndex, CGsPacketMetadata(3));
+	assert(processed == m_fifoIndex);
+	m_fifoIndex = 0;
+	assert(m_activePath == 0);
 }
 
 uint32 CGIF::ReceiveDMA(uint32 address, uint32 qwc, uint32 unused, bool tagIncluded)
@@ -469,6 +489,18 @@ uint32 CGIF::ReceiveDMA(uint32 address, uint32 qwc, uint32 unused, bool tagInclu
 		address += 0x10;
 	}
 
+	if((m_activePath != 0) && (m_activePath != 3) && (qwc <= FIFO_QWC))
+	{
+		//Check that we have enough space to write the contents of transfer to FIFO
+		assert((size + m_fifoIndex) <= FIFO_SIZE);
+		if((size + m_fifoIndex) <= FIFO_SIZE)
+		{
+			memcpy(m_fifoBuffer + m_fifoIndex, memory + address, size);
+			m_fifoIndex += size;
+		}
+		return qwc;
+	}
+
 	address += ProcessMultiplePackets(memory, memorySize, address, end, CGsPacketMetadata(3));
 	assert(address <= end);
 
@@ -489,8 +521,8 @@ uint32 CGIF::GetRegister(uint32 address)
 		if(m_path3Masked)
 		{
 			result |= GIF_STAT_M3P;
-			//Indicate that FIFO is full (15 qwords) (needed for GTA: San Andreas)
-			result |= (0x1F << 24);
+			//Indicate that FIFO is full (16 qwords) (needed for GTA: San Andreas)
+			result |= (FIFO_QWC << 24);
 		}
 
 		//Wizardry: Tale of the Forsaken Land expects bit to be set.
