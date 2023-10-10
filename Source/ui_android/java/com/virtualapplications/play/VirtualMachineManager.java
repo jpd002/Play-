@@ -8,17 +8,24 @@ import android.os.AsyncTask;
 
 public class VirtualMachineManager
 {
+	public interface OnGameLaunchCompleteListener
+	{
+		void onComplete();
+	}
+
 	private static final class GameLauncher extends AsyncTask<Void, Void, Void>
 	{
 		private ProgressDialog progDialog;
 		final Context _ctx;
 		final String _bootablePath;
+		final OnGameLaunchCompleteListener _completeListener;
 		Exception _exception;
 
-		public GameLauncher(Context ctx, String bootablePath)
+		public GameLauncher(Context ctx, String bootablePath, OnGameLaunchCompleteListener completeListener)
 		{
-			_bootablePath = bootablePath;
 			_ctx = ctx;
+			_bootablePath = bootablePath;
+			_completeListener = completeListener;
 		}
 
 		protected void onPreExecute()
@@ -69,6 +76,13 @@ public class VirtualMachineManager
 			{
 				displaySimpleMessage("Error", _exception.getMessage());
 			}
+			else
+			{
+				if(_completeListener != null)
+				{
+					_completeListener.onComplete();
+				}
+			}
 		}
 
 		private void displaySimpleMessage(String title, String message)
@@ -77,14 +91,20 @@ public class VirtualMachineManager
 					.setTitle(title)
 					.setMessage(message)
 					.setPositiveButton(android.R.string.ok, null)
+					.setOnDismissListener(dialogInterface -> {
+						if(_completeListener != null)
+						{
+							_completeListener.onComplete();
+						}
+					})
 					.create()
 					.show();
 		}
 	}
 
-	public static void launchGame(Context ctx, String bootablePath)
+	public static void launchGame(Context ctx, String bootablePath, OnGameLaunchCompleteListener completeListener)
 	{
-		GameLauncher launcher = new GameLauncher(ctx, bootablePath);
+		GameLauncher launcher = new GameLauncher(ctx, bootablePath, completeListener);
 		launcher.execute();
 	}
 }

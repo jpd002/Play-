@@ -142,6 +142,21 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 		sortMethod = sp.getInt("sortMethod", SORT_NONE);
 		onNavigationDrawerItemSelected(sortMethod);
 		sp.registerOnSharedPreferenceChangeListener(this);
+
+		Intent intent = getIntent();
+		if(intent.getAction() != null && intent.getAction().equals(Intent.ACTION_VIEW))
+		{
+			try
+			{
+				Uri uri = intent.getData();
+				VirtualMachineManager.launchGame(this, uri.toString(), this::finish);
+			}
+			catch(Exception e)
+			{
+				displaySimpleMessage("Error", e.getMessage());
+				finish();
+			}
+		}
 	}
 
 	@Override
@@ -561,7 +576,7 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 			setLastBootedTime(game.path, System.currentTimeMillis());
 			try
 			{
-				VirtualMachineManager.launchGame(this, game.path);
+				VirtualMachineManager.launchGame(this, game.path, null);
 			}
 			catch(Exception e)
 			{

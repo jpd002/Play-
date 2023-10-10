@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:tools="http://schemas.android.com/tools"
+	xmlns:android="http://schemas.android.com/apk/res/android">
 	<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 	<uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
@@ -40,43 +41,21 @@
 				<category android:name="android.intent.category.LEANBACK_LAUNCHER" />
 				<category android:name="android.intent.category.LAUNCHER" />
 			</intent-filter>
-		</activity>
-		<activity
-			android:name=".ExternalEmulatorLauncher"
-			android:enabled="true"
-			android:exported="true"
-			android:label="@string/app_name">
 			<intent-filter>
 				<action android:name="android.intent.action.VIEW" />
-				
+
 				<category android:name="android.intent.category.DEFAULT" />
 				<category android:name="android.intent.category.BROWSABLE" />
-				
-				<data
-					android:host="*"
-					android:mimeType="*/*"
-					android:pathPattern=".*\\.iso"
-					android:scheme="file" />
-				<data
-					android:host="*"
-					android:mimeType="*/*"
-					android:pathPattern=".*\\.bin"
-					android:scheme="file" />
-				<data
-					android:host="*"
-					android:mimeType="*/*"
-					android:pathPattern=".*\\.cso"
-					android:scheme="file" />
-				<data
-					android:host="*"
-					android:mimeType="*/*"
-					android:pathPattern=".*\\.isz"
-					android:scheme="file" />
-				<data
-					android:host="*"
-					android:mimeType="*/*"
-					android:pathPattern=".*\\.elf"
-					android:scheme="file" />
+
+				<data android:host="*" />
+				<data android:mimeType="*/*" />
+				<data android:scheme="file" />
+				<data android:scheme="content" />
+				<data android:pathPattern=".*\\.iso" />
+				<data android:pathPattern=".*\\.bin" />
+				<data android:pathPattern=".*\\.cso" />
+				<data android:pathPattern=".*\\.isz" />
+				<data android:pathPattern=".*\\.elf" />
 			</intent-filter>
 		</activity>
 		<activity
