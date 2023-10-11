@@ -240,12 +240,19 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 
 	private void displayFolderPicker()
 	{
-		Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
-		intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-		intent.addFlags(Intent.FLAG_GRANT_PREFIX_URI_PERMISSION);
-		intent.addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION);
-		intent.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
-		startActivityForResult(intent, g_folderPickerRequestCode);
+		try
+		{
+			Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
+			intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+			intent.addFlags(Intent.FLAG_GRANT_PREFIX_URI_PERMISSION);
+			intent.addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION);
+			intent.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
+			startActivityForResult(intent, g_folderPickerRequestCode);
+		}
+		catch(Exception ex)
+		{
+			displaySimpleMessage("Error", String.format("Error occurred while trying to use ACTION_OPEN_DOCUMENT_TREE intent:\n%s", ex.toString()));
+		}
 	}
 
 	protected void onActivityResult(int requestCode, int resultCode, Intent data)
