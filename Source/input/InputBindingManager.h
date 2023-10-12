@@ -61,6 +61,7 @@ public:
 	void SetSimpleBinding(uint32, PS2::CControllerInfo::BUTTON, const BINDINGTARGET&);
 	void SetPovHatBinding(uint32, PS2::CControllerInfo::BUTTON, const BINDINGTARGET&, uint32);
 	void SetSimulatedAxisBinding(uint32, PS2::CControllerInfo::BUTTON, const BINDINGTARGET&, const BINDINGTARGET&);
+	void ResetBinding(uint32, PS2::CControllerInfo::BUTTON);
 
 	float GetAnalogSensitivity(uint32) const;
 	void SetAnalogSensitivity(uint32, float);

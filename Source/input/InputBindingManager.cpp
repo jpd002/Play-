@@ -335,6 +335,15 @@ void CInputBindingManager::SetSimulatedAxisBinding(uint32 pad, PS2::CControllerI
 	m_bindings[pad][button] = std::make_shared<CSimulatedAxisBinding>(binding1, binding2);
 }
 
+void CInputBindingManager::ResetBinding(uint32 pad, PS2::CControllerInfo::BUTTON button)
+{
+	if((pad >= MAX_PADS) || (button >= PS2::CControllerInfo::MAX_BUTTONS))
+	{
+		throw std::exception();
+	}
+	m_bindings[pad][button].reset();
+}
+
 ////////////////////////////////////////////////
 // SimpleBinding
 ////////////////////////////////////////////////

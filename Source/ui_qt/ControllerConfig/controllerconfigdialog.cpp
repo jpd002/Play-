@@ -7,6 +7,8 @@
 #include <QAbstractButton>
 #include <QPushButton>
 #include <QInputDialog>
+#include <QShortcut>
+#include <QMessageBox>
 
 #include "AppConfig.h"
 #include "PreferenceDefs.h"
@@ -46,6 +48,9 @@ ControllerConfigDialog::ControllerConfigDialog(CInputBindingManager* inputBindin
 		uiElements.analogSensitivitySlider->setMaximum(ANALOG_SENSITIVITY_MAX * ANALOG_SENSITIVITY_SCALE);
 		uiElements.analogSensitivitySlider->setValue(m_inputManager->GetAnalogSensitivity(padIndex) * ANALOG_SENSITIVITY_SCALE);
 		UpdateAnalogSensitivityValueLabel(padIndex);
+
+		QShortcut* shortcut = new QShortcut(QKeySequence(Qt::Key_Delete), uiElements.bindingsView);
+		connect(shortcut, SIGNAL(activated()), this, SLOT(bindingsViewDeleteItem()));
 
 		QObject::connect(uiElements.analogSensitivitySlider, &QSlider::sliderMoved, this, [this, padIndex](int value) { analogSensitivityValueChanged(padIndex, value); });
 		QObject::connect(uiElements.analogSensitivitySlider, &QSlider::valueChanged, this, [this, padIndex](int value) { analogSensitivityValueChanged(padIndex, value); });
@@ -133,6 +138,27 @@ void ControllerConfigDialog::bindingsViewDoubleClicked(const QModelIndex& index)
 	uint32 padIndex = ui->tabWidget->currentIndex();
 	assert(padIndex < CInputBindingManager::MAX_PADS);
 	OpenBindConfigDialog(padIndex, index.row());
+}
+
+void ControllerConfigDialog::bindingsViewDeleteItem()
+{
+	uint32 padIndex = ui->tabWidget->currentIndex();
+	assert(padIndex < CInputBindingManager::MAX_PADS);
+	QItemSelectionModel* selModel = m_padUiElements[padIndex].bindingsView->selectionModel();
+	auto selRows = selModel->selectedRows();
+	if(selRows.empty())
+	{
+		return;
+	}
+	auto message = QString("Clear %1 binding(s)?").arg(selRows.size());
+	auto result = QMessageBox::question(this, tr("Clear bindings"), message, QMessageBox::Ok, QMessageBox::Cancel);
+	if(result == QMessageBox::Ok)
+	{
+		for(const auto& selRow : selRows)
+		{
+			m_inputManager->ResetBinding(padIndex, static_cast<PS2::CControllerInfo::BUTTON>(selRow.row()));
+		}
+	}
 }
 
 void ControllerConfigDialog::analogSensitivityValueChanged(uint32 padIndex, int value)

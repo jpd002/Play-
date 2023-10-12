@@ -82,7 +82,11 @@ QGroupBox::title {
         </layout>
        </item>
        <item row="0" column="0">
-        <widget class="QTableView" name="pad1TableView"/>
+        <widget class="QTableView" name="pad1TableView">
+         <property name="selectionBehavior">
+          <enum>QAbstractItemView::SelectRows</enum>
+         </property>
+        </widget>
        </item>
       </layout>
      </widget>
@@ -117,7 +121,11 @@ QGroupBox::title {
         </layout>
        </item>
        <item row="0" column="0">
-        <widget class="QTableView" name="pad2TableView"/>
+        <widget class="QTableView" name="pad2TableView">
+         <property name="selectionBehavior">
+          <enum>QAbstractItemView::SelectRows</enum>
+         </property>
+        </widget>
        </item>
       </layout>
      </widget>
