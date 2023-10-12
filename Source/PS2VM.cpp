@@ -183,19 +183,23 @@ void CPS2VM::SetEeFrequencyScale(uint32 numerator, uint32 denominator)
 
 void CPS2VM::ReloadFrameRateLimit()
 {
-	uint32 frameRate = 60;
+	uint32 hRefreshRate = PS2::GS_NTSC_HSYNC_FREQ;
+	uint32 vRefreshRate = 60;
 	if(m_ee && m_ee->m_gs)
 	{
-		frameRate = m_ee->m_gs->GetCrtFrameRate();
+		hRefreshRate = m_ee->m_gs->GetCrtHSyncFrequency();
+		vRefreshRate = m_ee->m_gs->GetCrtFrameRate();
 	}
 	bool limitFrameRate = CAppConfig::GetInstance().GetPreferenceBoolean(PREF_PS2_LIMIT_FRAMERATE);
-	m_frameLimiter.SetFrameRate(limitFrameRate ? frameRate : 0);
+	m_frameLimiter.SetFrameRate(limitFrameRate ? vRefreshRate : 0);
 
 	//At 1x scale, IOP runs 8 times slower than EE
 	uint32 eeFreqScaled = PS2::EE_CLOCK_FREQ * m_eeFreqScaleNumerator / m_eeFreqScaleDenominator;
 	m_iopTickStep = (m_eeTickStep / 8) * m_eeFreqScaleDenominator / m_eeFreqScaleNumerator;
 
-	uint32 frameTicks = eeFreqScaled / frameRate;
+	m_hblankTicksTotal = eeFreqScaled / hRefreshRate;
+
+	uint32 frameTicks = eeFreqScaled / vRefreshRate;
 	m_onScreenTicksTotal = frameTicks * 9 / 10;
 	m_vblankTicksTotal = frameTicks / 10;
 
@@ -481,6 +485,7 @@ void CPS2VM::ResetVM()
 
 	SetEeFrequencyScale(1, 1);
 
+	m_hblankTicks = m_hblankTicksTotal;
 	m_vblankTicks = m_onScreenTicksTotal;
 	m_spuUpdateTicks = m_spuUpdateTicksTotal;
 	m_inVblank = false;
@@ -715,6 +720,7 @@ void CPS2VM::UpdateEe()
 		m_eeExecutionTicks -= executed;
 		m_spuUpdateTicks -= (static_cast<int64>(executed) << SPU_UPDATE_TICKS_PRECISION);
 		m_ee->CountTicks(executed);
+		m_hblankTicks -= executed;
 		m_vblankTicks -= executed;
 
 #ifdef DEBUGGER_INCLUDED
@@ -897,6 +903,15 @@ void CPS2VM::EmuThread()
 			}
 
 			{
+				if(m_hblankTicks <= 0)
+				{
+					if(m_ee->m_gs)
+					{
+						m_ee->m_gs->SetHBlank();
+						m_hblankTicks += m_hblankTicksTotal;
+					}
+				}
+
 				//Check vblank stuff
 				if(m_vblankTicks <= 0)
 				{

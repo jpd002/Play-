@@ -158,8 +158,10 @@ private:
 	uint32 m_eeFreqScaleDenominator = 1;
 	uint32 m_eeRamSize = PS2::EE_BASE_RAM_SIZE;
 	uint32 m_iopRamSize = PS2::IOP_BASE_RAM_SIZE;
+	uint32 m_hblankTicksTotal = 0;
 	uint32 m_onScreenTicksTotal = 0;
 	uint32 m_vblankTicksTotal = 0;
+	int m_hblankTicks = 0;
 	int m_vblankTicks = 0;
 	bool m_inVblank = false;
 	int64 m_spuUpdateTicks = 0;

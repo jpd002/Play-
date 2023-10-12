@@ -375,6 +375,13 @@ void CGSHandler::SetDrawEnabled(bool drawEnabled)
 	m_drawEnabled = drawEnabled;
 }
 
+void CGSHandler::SetHBlank()
+{
+	std::lock_guard registerMutexLock(m_registerMutex);
+	m_nCSR |= CSR_HSYNC_INT;
+	NotifyEvent(CSR_HSYNC_INT);
+}
+
 void CGSHandler::SetVBlank()
 {
 	{
@@ -412,14 +419,11 @@ uint32 CGSHandler::ReadPrivRegister(uint32 nAddress)
 	{
 	case GS_CSR:
 	case GS_CSR_ALT:
-		//Force CSR to have the H-Blank bit set.
-		{
-			std::lock_guard registerMutexLock(m_registerMutex);
-			m_nCSR |= CSR_HSYNC_INT;
-			NotifyEvent(CSR_HSYNC_INT);
-			R_REG(nAddress, nData, m_nCSR);
-		}
-		break;
+	{
+		std::lock_guard registerMutexLock(m_registerMutex);
+		R_REG(nAddress, nData, m_nCSR);
+	}
+	break;
 	case GS_IMR:
 		R_REG(nAddress, nData, m_nIMR);
 		break;
@@ -469,6 +473,10 @@ void CGSHandler::WritePrivRegister(uint32 nAddress, uint32 nData)
 			if(nData & CSR_FINISH_EVENT)
 			{
 				m_nCSR &= ~CSR_FINISH_EVENT;
+			}
+			if(nData & CSR_HSYNC_INT)
+			{
+				m_nCSR &= ~CSR_HSYNC_INT;
 			}
 			if(nData & CSR_VSYNC_INT)
 			{

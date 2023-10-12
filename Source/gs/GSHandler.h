@@ -845,6 +845,7 @@ public:
 	void SetLoggingEnabled(bool);
 	static std::string DisassembleWrite(uint8, uint64);
 
+	void SetHBlank();
 	void SetVBlank();
 	void ResetVBlank();
 
