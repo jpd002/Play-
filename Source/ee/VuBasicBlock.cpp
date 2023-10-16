@@ -52,6 +52,8 @@ void CVuBasicBlock::CompileRange(CMipsJitter* jitter)
 	uint32 relativePipeTime = 0;
 	uint32 instructionIndex = 0;
 
+	int32 extraPipeTimeIndex = 0;
+
 	for(uint32 address = m_begin; address <= m_end; address += 8)
 	{
 		uint32 addressLo = address + 0;
@@ -76,6 +78,52 @@ void CVuBasicBlock::CompileRange(CMipsJitter* jitter)
 		assert(hiOps.readP == false);
 
 		bool loIsXgKick = (opcodeLo & ~(0x1F << 11)) == 0x800006FC;
+
+		if(extraPipeTimeIndex < 3)
+		{
+			uint128 stallMask = {};
+			auto setStallBits = [&stallMask](unsigned int regId, unsigned int dest) {
+				if(regId != 0)
+				{
+					stallMask.nV[(regId * 4) / 32] |= dest << ((regId * 4) & 0x1F);
+				}
+			};
+			setStallBits(hiOps.readF0, hiOps.readElemF0);
+			setStallBits(hiOps.readF1, hiOps.readElemF1);
+			setStallBits(loOps.readF0, loOps.readElemF0);
+			setStallBits(loOps.readF1, loOps.readElemF1);
+			for(int32 i = extraPipeTimeIndex; i < 3; i++)
+			{
+				for(int32 stallIdx = 0; stallIdx < 4; stallIdx++)
+				{
+					if(stallMask.nV[stallIdx] != 0)
+					{
+						jitter->PushRel(offsetof(CMIPS, m_State.pipeFmacWrite[i].nV[stallIdx]));
+						jitter->PushCst(stallMask.nV[stallIdx]);
+						jitter->And();
+						jitter->PushCst(0);
+						jitter->BeginIf(Jitter::CONDITION_NE);
+						{
+							//Clear writes
+							jitter->MD_PushCstExpand(0U);
+							jitter->MD_PullRel(offsetof(CMIPS, m_State.pipeFmacWrite[i]));
+
+							//Increment pipe time
+							jitter->PushRel(offsetof(CMIPS, m_State.pipeTime));
+							jitter->PushCst(1);
+							jitter->Add();
+							jitter->PullRel(offsetof(CMIPS, m_State.pipeTime));
+						}
+						jitter->EndIf();
+					}
+				}
+			}
+
+			//Clear writes
+			jitter->MD_PushCstExpand(0U);
+			jitter->MD_PullRel(offsetof(CMIPS, m_State.pipeFmacWrite[extraPipeTimeIndex]));
+		}
+		extraPipeTimeIndex++;
 
 		if(loOps.syncQ)
 		{
@@ -216,6 +264,38 @@ void CVuBasicBlock::CompileRange(CMipsJitter* jitter)
 		jitter->PushCst(relativePipeTime);
 		jitter->Add();
 		jitter->PullRel(offsetof(CMIPS, m_State.pipeTime));
+	}
+
+	for(int32 i = extraPipeTimeIndex; i < 3; i++)
+	{
+		//Clear unused writes
+		//TODO: Find a way to push that to the next block (would become index 0 of next block)
+		jitter->MD_PushCstExpand(0U);
+		jitter->MD_PullRel(offsetof(CMIPS, m_State.pipeFmacWrite[i]));
+	}
+
+	//Dump out any register writes that will occur outside of this block
+	for(int32 extraPipeTime = 0; extraPipeTime < 3; extraPipeTime++)
+	{
+		uint32 pipeTime = relativePipeTime + extraPipeTime;
+		uint128 stall = {};
+		for(int32 stallIdx = 0; stallIdx < 128; stallIdx++)
+		{
+			int regId = stallIdx / 4;
+			int field = stallIdx & 0x3;
+			if(fmacPipelineInfo.regWriteTimes[regId][field] > pipeTime)
+			{
+				stall.nV[stallIdx / 32] |= (1 << (stallIdx & 0x1F));
+			}
+		}
+		for(int32 i = 0; i < 4; i++)
+		{
+			if(stall.nV[i] != 0)
+			{
+				jitter->PushCst(stall.nV[i]);
+				jitter->PullRel(offsetof(CMIPS, m_State.pipeFmacWrite[extraPipeTime].nV[i]));
+			}
+		}
 	}
 
 	bool loopsOnItself = [&]() {
