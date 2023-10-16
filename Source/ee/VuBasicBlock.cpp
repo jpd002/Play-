@@ -31,15 +31,7 @@ void CVuBasicBlock::CompileRange(CMipsJitter* jitter)
 		    hasPendingXgKick = false;
 	    };
 
-	BlockFmacPipelineInfo prevBlockFmacPipelineInfo;
-	auto prevBlockWindow = GetPreviousBlockWindow();
-	if((prevBlockWindow.second - prevBlockWindow.first) != 0)
-	{
-		prevBlockFmacPipelineInfo = ComputeFmacStallDelays(prevBlockWindow.first, prevBlockWindow.second);
-		OffsetFmacWriteTimes(prevBlockFmacPipelineInfo);
-	}
-
-	auto fmacPipelineInfo = ComputeFmacStallDelays(m_begin, m_end, prevBlockFmacPipelineInfo.regWriteTimes);
+	auto fmacPipelineInfo = ComputeFmacStallDelays(m_begin, m_end);
 
 	auto integerBranchDelayInfo = ComputeIntegerBranchDelayInfo(fmacPipelineInfo.stallDelays);
 
@@ -506,7 +498,7 @@ void CVuBasicBlock::ComputeSkipFlagsHints(const std::vector<uint32>& fmacStallDe
 	}
 }
 
-CVuBasicBlock::BlockFmacPipelineInfo CVuBasicBlock::ComputeFmacStallDelays(uint32 begin, uint32 end, FmacRegWriteTimes initWriteFTime) const
+CVuBasicBlock::BlockFmacPipelineInfo CVuBasicBlock::ComputeFmacStallDelays(uint32 begin, uint32 end) const
 {
 	auto arch = static_cast<CMA_VU*>(m_context.m_pArch);
 
@@ -520,10 +512,6 @@ CVuBasicBlock::BlockFmacPipelineInfo CVuBasicBlock::ComputeFmacStallDelays(uint3
 	uint32 relativePipeTime = 0;
 	FmacRegWriteTimes writeFTime = {};
 	FmacRegWriteTimes writeITime = {};
-	if(initWriteFTime != nullptr)
-	{
-		memcpy(writeFTime, initWriteFTime, sizeof(writeFTime));
-	}
 
 	auto adjustPipeTime =
 	    [](uint32 pipeTime, const FmacRegWriteTimes& writeTime, uint32 dest, uint32 regIndex) {
@@ -618,36 +606,4 @@ CVuBasicBlock::BlockFmacPipelineInfo CVuBasicBlock::ComputeFmacStallDelays(uint3
 	result.stallDelays = fmacStallDelays;
 	memcpy(result.regWriteTimes, writeFTime, sizeof(writeFTime));
 	return result;
-}
-
-std::pair<uint32, uint32> CVuBasicBlock::GetPreviousBlockWindow() const
-{
-	//3 previous instructions
-	static const uint32 windowSize = (3 * 8);
-	auto result = std::make_pair(0U, 0U);
-	if(m_begin >= windowSize)
-	{
-		//TODO: Check for unconditional jumps
-		result = std::make_pair(m_begin - windowSize, m_begin - 4);
-		assert((result.second + 4) == m_begin);
-	}
-	assert(result.second >= result.first);
-	return result;
-}
-
-void CVuBasicBlock::OffsetFmacWriteTimes(BlockFmacPipelineInfo& pipelineInfo)
-{
-	auto& writeFTime = pipelineInfo.regWriteTimes;
-
-	//Resync all write times
-	for(uint32 reg = 0; reg < 32; reg++)
-	{
-		for(uint32 elem = 0; elem < 4; elem++)
-		{
-			if(writeFTime[reg][elem] >= pipelineInfo.pipeTime)
-			{
-				writeFTime[reg][elem] -= pipelineInfo.pipeTime;
-			}
-		}
-	}
 }
