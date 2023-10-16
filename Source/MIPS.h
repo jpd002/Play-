@@ -116,6 +116,13 @@ struct MIPSSTATE
 	FLAG_PIPELINE pipeSticky;
 	FLAG_PIPELINE pipeClip;
 
+#ifdef _WIN32
+	__declspec(align(16))
+#else
+	__attribute__((aligned(16)))
+#endif
+	    uint128 pipeFmacWrite[3]; //Pending FMAC write operations (for dynamic stall computation)
+
 	uint32 pipeTime;
 
 	uint32 cmsar0;
