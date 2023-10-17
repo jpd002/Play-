@@ -41,7 +41,7 @@ uint32 CTestVm::IoPortWriteHandler(uint32 address, uint32 value)
 {
 	switch(address)
 	{
-	case CVpu::VU_XGKICK:
+	case CVpu::VU_ADDR_XGKICK:
 		m_xgKickSnapshots.push_back(std::vector(m_vuMem, m_vuMem + PS2::VUMEM1SIZE));
 		break;
 	default:
