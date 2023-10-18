@@ -88,6 +88,11 @@ void CVuBasicBlock::CompileRange(CMipsJitter* jitter)
 		auto fmacStallDelay = fmacPipelineInfo.stallDelays[instructionIndex];
 		relativePipeTime += fmacStallDelay;
 
+		if(relativePipeTime >= nextXgKickTime)
+		{
+			clearPendingXgKick();
+		}
+
 		if(hiOps.readQ)
 		{
 			VUShared::CheckPipeline(VUShared::g_pipeInfoQ, jitter, relativePipeTime);
@@ -162,11 +167,6 @@ void CVuBasicBlock::CompileRange(CMipsJitter* jitter)
 		{
 			jitter->MD_PushRel(offsetof(CMIPS, m_State.nCOP2VF_UpRes));
 			jitter->MD_PullRel(offsetof(CMIPS, m_State.nCOP2[savedReg]));
-		}
-
-		if(relativePipeTime >= nextXgKickTime)
-		{
-			clearPendingXgKick();
 		}
 
 		if(loIsXgKick)
@@ -250,6 +250,17 @@ bool CVuBasicBlock::IsNonConditionalBranch(uint32 opcodeLo)
 {
 	uint32 id = (opcodeLo >> 25) & 0x7F;
 	return (id == 0x20);
+}
+
+bool CVuBasicBlock::IsLsuOperation(uint32 opcodeLo)
+{
+	uint32 id = (opcodeLo >> 25) & 0x7F;
+	if(id == 0x40)
+	{
+		uint32 op = opcodeLo & 0x7FF;
+		return (op == 0x3FE) || (op == 0x3FF);
+	}
+	return (id == 0x04) || (id == 0x05);
 }
 
 CVuBasicBlock::INTEGER_BRANCH_DELAY_INFO CVuBasicBlock::ComputeIntegerBranchDelayInfo(const std::vector<uint32>& fmacStallDelays) const
@@ -438,7 +449,10 @@ CVuBasicBlock::BlockFmacPipelineInfo CVuBasicBlock::ComputeFmacStallDelays(uint3
 
 	uint32 relativePipeTime = 0;
 	FmacRegWriteTimes writeFTime = {};
+	//writeITime maintains the times at which results are available to the LSU (writes)
+	//writeILsuTime maintains the times at which results from LSU (reads) are available
 	FmacRegWriteTimes writeITime = {};
+	FmacRegWriteTimes writeILsuTime = {};
 	if(initWriteFTime != nullptr)
 	{
 		memcpy(writeFTime, initWriteFTime, sizeof(writeFTime));
@@ -471,6 +485,8 @@ CVuBasicBlock::BlockFmacPipelineInfo CVuBasicBlock::ComputeFmacStallDelays(uint3
 		auto loOps = arch->GetAffectedOperands(&m_context, addressLo, opcodeLo);
 		auto hiOps = arch->GetAffectedOperands(&m_context, addressHi, opcodeHi);
 
+		bool isLsuOp = IsLsuOperation(opcodeLo);
+
 		uint32 loDest = (opcodeLo >> 21) & 0xF;
 		uint32 hiDest = (opcodeHi >> 21) & 0xF;
 
@@ -484,8 +500,16 @@ CVuBasicBlock::BlockFmacPipelineInfo CVuBasicBlock::ComputeFmacStallDelays(uint3
 		relativePipeTime = adjustPipeTime(relativePipeTime, writeFTime, hiOps.readElemF0, hiOps.readF0);
 		relativePipeTime = adjustPipeTime(relativePipeTime, writeFTime, hiOps.readElemF1, hiOps.readF1);
 
-		relativePipeTime = adjustPipeTime(relativePipeTime, writeITime, 0xF, loOps.readI0);
-		relativePipeTime = adjustPipeTime(relativePipeTime, writeITime, 0xF, loOps.readI1);
+		//Check stalls for results coming from LSU
+		relativePipeTime = adjustPipeTime(relativePipeTime, writeILsuTime, 0xF, loOps.readI0);
+		relativePipeTime = adjustPipeTime(relativePipeTime, writeILsuTime, 0xF, loOps.readI1);
+
+		//Check stalls for results that LSU might be waiting for
+		if(isLsuOp)
+		{
+			relativePipeTime = adjustPipeTime(relativePipeTime, writeITime, 0xF, loOps.readI0);
+			relativePipeTime = adjustPipeTime(relativePipeTime, writeITime, 0xF, loOps.readI1);
+		}
 
 		if(prevRelativePipeTime != relativePipeTime)
 		{
@@ -507,13 +531,16 @@ CVuBasicBlock::BlockFmacPipelineInfo CVuBasicBlock::ComputeFmacStallDelays(uint3
 			}
 		}
 
-		//Not FMAC, but we consider LSU (load/store unit) stalls here too
-		if(loOps.writeILsu != 0)
+		if(loOps.writeI != 0)
 		{
-			assert(loOps.writeILsu < 32);
+			assert(loOps.writeI < 32);
 			for(uint32 i = 0; i < 4; i++)
 			{
-				writeITime[loOps.writeILsu][i] = relativePipeTime + VUShared::LATENCY_MAC;
+				writeITime[loOps.writeI][i] = relativePipeTime + VUShared::LATENCY_MAC;
+				if(isLsuOp)
+				{
+					writeILsuTime[loOps.writeI][i] = relativePipeTime + VUShared::LATENCY_MAC;
+				}
 			}
 		}
 

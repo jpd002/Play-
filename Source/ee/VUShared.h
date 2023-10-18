@@ -59,7 +59,6 @@ namespace VUShared
 		unsigned int readF1;
 		unsigned int readElemF1;
 		unsigned int writeI;
-		unsigned int writeILsu;
 		unsigned int readI0;
 		unsigned int readI1;
 		bool syncQ;

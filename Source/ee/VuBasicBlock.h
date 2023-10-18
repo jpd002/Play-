@@ -23,6 +23,7 @@ private:
 
 	static bool IsConditionalBranch(uint32);
 	static bool IsNonConditionalBranch(uint32);
+	static bool IsLsuOperation(uint32);
 
 	typedef uint32 FmacRegWriteTimes[32][4];
 	struct BlockFmacPipelineInfo
