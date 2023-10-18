@@ -12,7 +12,8 @@ CTestVm::CTestVm()
 	m_cpu.m_pMemoryMap->InsertReadMap(0x00000000, 0x00003FFF, m_vuMem, 0x00);
 
 	m_cpu.m_pMemoryMap->InsertWriteMap(0x00000000, 0x00003FFF, m_vuMem, 0x00);
-	m_cpu.m_pMemoryMap->InsertWriteMap(0x00008000, 0x00008FFF, [this](uint32 address, uint32 value) { return IoPortWriteHandler(address, value); }, 0x01);
+	m_cpu.m_pMemoryMap->InsertWriteMap(
+	    0x00008000, 0x00008FFF, [this](uint32 address, uint32 value) { return IoPortWriteHandler(address, value); }, 0x01);
 
 	m_cpu.m_pMemoryMap->InsertInstructionMap(0x00000000, 0x00003FFF, m_microMem, 0x01);
 
