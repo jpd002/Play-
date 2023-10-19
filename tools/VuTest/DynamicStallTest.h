@@ -2,7 +2,7 @@
 
 #include "Test.h"
 
-class CStallTest7 : public CTest
+class CDynamicStallTest : public CTest
 {
 public:
 	void Execute(CTestVm&) override;

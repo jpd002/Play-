@@ -18,6 +18,7 @@ endif()
 add_executable(VuTest
 	AddTest.cpp
 	BranchTest.cpp
+	DynamicStallTest.cpp
 	FdivEfuMixTest.cpp
 	FlagsTest.cpp
 	FlagsTest2.cpp
@@ -34,13 +35,13 @@ add_executable(VuTest
 	StallTest4.cpp
 	StallTest5.cpp
 	StallTest6.cpp
-	StallTest7.cpp
 	TestVm.cpp
 	TriAceTest.cpp
 	VuAssembler.cpp
 
 	AddTest.h
 	BranchTest.h
+	DynamicStallTest.h
 	FdivEfuMixTest.h
 	FlagsTest.h
 	FlagsTest2.h
@@ -56,7 +57,6 @@ add_executable(VuTest
 	StallTest4.h
 	StallTest5.h
 	StallTest6.h
-	StallTest7.h
 	Test.h
 	TestVm.h
 	TriAceTest.h

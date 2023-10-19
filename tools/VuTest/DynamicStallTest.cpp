@@ -1,7 +1,7 @@
-#include "StallTest7.h"
+#include "DynamicStallTest.h"
 #include "VuAssembler.h"
 
-void CStallTest7::Execute(CTestVm& virtualMachine)
+void CDynamicStallTest::Execute(CTestVm& virtualMachine)
 {
 	virtualMachine.Reset();
 
