@@ -61,12 +61,7 @@ struct MIPSSTATE
 	uint32 nHasException;
 	int32 cycleQuota;
 
-#ifdef _WIN32
-	__declspec(align(16))
-#else
-	__attribute__((aligned(16)))
-#endif
-	    uint128 nGPR[32];
+	alignas(16) uint128 nGPR[32];
 
 	uint32 nHI[2];
 	uint32 nLO[2];
@@ -86,12 +81,7 @@ struct MIPSSTATE
 	uint32 nFCSR;
 
 	//COP2
-#ifdef _WIN32
-	__declspec(align(16))
-#else
-	__attribute__((aligned(16)))
-#endif
-	    uint128 nCOP2[33];
+	alignas(16) uint128 nCOP2[33];
 
 	uint128 nCOP2A;
 
@@ -116,12 +106,7 @@ struct MIPSSTATE
 	FLAG_PIPELINE pipeSticky;
 	FLAG_PIPELINE pipeClip;
 
-#ifdef _WIN32
-	__declspec(align(16))
-#else
-	__attribute__((aligned(16)))
-#endif
-	    uint128 pipeFmacWrite[3]; //Pending FMAC write operations (for dynamic stall computation)
+	alignas(16) uint128 pipeFmacWrite[3]; //Pending FMAC write operations (for dynamic stall computation)
 
 	uint32 pipeTime;
 
