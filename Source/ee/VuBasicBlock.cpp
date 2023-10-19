@@ -545,7 +545,6 @@ CVuBasicBlock::BlockFmacPipelineInfo CVuBasicBlock::ComputeFmacStallDelays(uint3
 
 		//Instruction executes...
 
-		relativePipeTime++;
 		uint32 prevRelativePipeTime = relativePipeTime;
 
 		relativePipeTime = adjustPipeTime(relativePipeTime, writeFTime, loOps.readElemF0, loOps.readF0);
@@ -597,6 +596,8 @@ CVuBasicBlock::BlockFmacPipelineInfo CVuBasicBlock::ComputeFmacStallDelays(uint3
 				}
 			}
 		}
+
+		relativePipeTime++;
 	}
 
 	//TODO: Check that we don't have unconditional branches?
