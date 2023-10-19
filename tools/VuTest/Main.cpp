@@ -5,6 +5,7 @@
 #include "AddTest.h"
 #include "BranchTest.h"
 #include "DynamicStallTest.h"
+#include "DynamicStallTest2.h"
 #include "FdivEfuMixTest.h"
 #include "FlagsTest.h"
 #include "FlagsTest2.h"
@@ -30,6 +31,7 @@ static const TestFactoryFunction s_factories[] =
 	[]() { return new CAddTest(); },
 	[]() { return new CBranchTest(); },
 	[]() { return new CDynamicStallTest(); },
+	[]() { return new CDynamicStallTest2(); },
 	[]() { return new CFdivEfuMixTest(); },
 	[]() { return new CFlagsTest(); },
 	[]() { return new CFlagsTest2(); },

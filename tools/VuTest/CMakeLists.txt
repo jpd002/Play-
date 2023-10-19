@@ -19,6 +19,7 @@ add_executable(VuTest
 	AddTest.cpp
 	BranchTest.cpp
 	DynamicStallTest.cpp
+	DynamicStallTest2.cpp
 	FdivEfuMixTest.cpp
 	FlagsTest.cpp
 	FlagsTest2.cpp
@@ -42,6 +43,7 @@ add_executable(VuTest
 	AddTest.h
 	BranchTest.h
 	DynamicStallTest.h
+	DynamicStallTest2.h
 	FdivEfuMixTest.h
 	FlagsTest.h
 	FlagsTest2.h
