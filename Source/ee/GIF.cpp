@@ -389,8 +389,15 @@ uint32 CGIF::ProcessSinglePacket(const uint8* memory, uint32 memorySize, uint32 
 		}
 	}
 
-	if((m_activePath == 0) && (packetMetadata.pathIndex != 3) && (m_fifoIndex != 0))
+	if(
+	    (m_activePath == 0) &&
+	    (packetMetadata.pathIndex != 3) &&
+	    (m_fifoIndex != 0) &&
+	    (m_signalState == SIGNAL_STATE_NONE))
 	{
+		//We only drain if haven't seen any signal since ProcessSinglePacket might clobber the signal state.
+		//Soul Calibur 2 breaks if we attempt to drain the FIFO here (writes to SIGNAL from PATH3 too, probably
+		//need to handle that better).
 		DrainFifo();
 	}
 
@@ -454,10 +461,11 @@ void CGIF::ProcessFifoWrite(uint32 address, uint32 value)
 
 void CGIF::DrainFifo()
 {
-	FRAMEWORK_MAYBE_UNUSED uint32 processed = ProcessMultiplePackets(m_fifoBuffer, m_fifoIndex, 0, m_fifoIndex, CGsPacketMetadata(3));
-	assert(processed == m_fifoIndex);
-	m_fifoIndex = 0;
-	assert(m_activePath == 0);
+	uint32 processed = ProcessMultiplePackets(m_fifoBuffer, m_fifoIndex, 0, m_fifoIndex, CGsPacketMetadata(3));
+	assert(processed <= m_fifoIndex);
+	uint32 remainSize = m_fifoIndex - processed;
+	memmove(m_fifoBuffer, m_fifoBuffer + processed, remainSize);
+	m_fifoIndex = remainSize;
 }
 
 uint32 CGIF::ReceiveDMA(uint32 address, uint32 qwc, uint32 unused, bool tagIncluded)
@@ -489,16 +497,35 @@ uint32 CGIF::ReceiveDMA(uint32 address, uint32 qwc, uint32 unused, bool tagInclu
 		address += 0x10;
 	}
 
-	if((m_activePath != 0) && (m_activePath != 3) && (qwc <= FIFO_QWC))
+	bool canProcessPath3 = (m_activePath == 0) || (m_activePath == 3);
+
+	//If the transfer is allowed to go through, make sure we've drained FIFO first.
+	if(canProcessPath3 && (m_fifoIndex != 0))
 	{
+		DrainFifo();
+	}
+
+	//If we haven't drained the FIFO here for some reason, stop processing.
+	if(m_fifoIndex != 0)
+	{
+		return 0;
+	}
+
+	//If transfer can't go through because GIF is busy, check if we can hold transfer in FIFO
+	if(!canProcessPath3)
+	{
+		assert(end >= address);
+		uint32 dataSize = end - address;
+		assert((dataSize & 0x0F) == 0);
 		//Check that we have enough space to write the contents of transfer to FIFO
-		assert((size + m_fifoIndex) <= FIFO_SIZE);
-		if((size + m_fifoIndex) <= FIFO_SIZE)
+		if((dataSize + m_fifoIndex) <= FIFO_SIZE)
 		{
-			memcpy(m_fifoBuffer + m_fifoIndex, memory + address, size);
-			m_fifoIndex += size;
+			memcpy(m_fifoBuffer + m_fifoIndex, memory + address, dataSize);
+			m_fifoIndex += dataSize;
+			return qwc;
 		}
-		return qwc;
+
+		return 0;
 	}
 
 	address += ProcessMultiplePackets(memory, memorySize, address, end, CGsPacketMetadata(3));
