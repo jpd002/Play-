@@ -29,6 +29,7 @@ using namespace Ee;
 //Really not sure about these
 #define MC2_RESULT_OK 0
 #define MC2_RESULT_ERROR_NOT_FOUND 0x81010002
+#define MC2_RESULT_ERROR_ALREADY_EXISTS 0x81010011
 
 CLibMc2::CLibMc2(uint8* ram, CPS2OS& eeBios, CIopBios& iopBios)
     : m_ram(ram)
@@ -646,9 +647,16 @@ int32 CLibMc2::MkDirAsync(uint32 socketId, uint32 pathPtr)
 
 	mcServ->Invoke(MCSERV_CMD(CMD_ID_OPEN), reinterpret_cast<uint32*>(&cmd), sizeof(cmd), reinterpret_cast<uint32*>(&result), sizeof(uint32), nullptr);
 
-	assert(result >= 0);
+	if(result < 0)
+	{
+		assert(result == Iop::CMcServ::RET_NO_ENTRY);
+		m_lastResult = MC2_RESULT_ERROR_ALREADY_EXISTS;
+	}
+	else
+	{
+		m_lastResult = MC2_RESULT_OK;
+	}
 
-	m_lastResult = MC2_RESULT_OK;
 	m_lastCmd = SYSCALL_MC2_MKDIR_ASYNC & 0xFF;
 
 	return 0;
