@@ -28,12 +28,17 @@ void CMailBox::FlushCalls()
 
 void CMailBox::SendCall(const FunctionType& function, bool waitForCompletion)
 {
-	std::unique_lock<std::mutex> callLock(m_callMutex);
-
+	std::future<void> future;
 	{
+		std::unique_lock<std::mutex> callLock(m_callMutex);
 		MESSAGE message;
 		message.function = function;
-		message.sync = waitForCompletion;
+
+		if(waitForCompletion)
+		{
+			future = message.promise.get_future();
+		}
+
 		m_calls.push_back(std::move(message));
 	}
 
@@ -41,11 +46,7 @@ void CMailBox::SendCall(const FunctionType& function, bool waitForCompletion)
 
 	if(waitForCompletion)
 	{
-		m_callDone = false;
-		while(!m_callDone)
-		{
-			m_callFinished.wait(callLock);
-		}
+		future.wait();
 	}
 }
 
@@ -56,7 +57,6 @@ void CMailBox::SendCall(FunctionType&& function)
 	{
 		MESSAGE message;
 		message.function = std::move(function);
-		message.sync = false;
 		m_calls.push_back(std::move(message));
 	}
 
@@ -73,10 +73,5 @@ void CMailBox::ReceiveCall()
 		m_calls.pop_front();
 	}
 	message.function();
-	if(message.sync)
-	{
-		std::lock_guard<std::mutex> waitLock(m_callMutex);
-		m_callDone = true;
-		m_callFinished.notify_one();
-	}
+	message.promise.set_value();
 }
