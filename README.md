@@ -36,6 +36,14 @@ You can also build the emulator yourself and launch it through Xcode's debugger,
 
 **If you try to play a game without JIT enabled, you will experience a crash when you launch the game.**
 
+### Adding games to the library ###
+
+Please refer to the following guides for instructions regarding adding your disc images to the Play! application on your iOS device:
+- https://support.apple.com/HT201301
+- https://support.apple.com/HT210598
+
+If your device is jailbroken, the emulator will look through all bootable files in the `/private/var/mobile` directory and all of its subdirectories.
+
 ## Namco System 2x6 Arcade Support ##
 
 ### Placing dongle images and disc images ###
