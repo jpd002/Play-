@@ -58,6 +58,7 @@
 		{
 			NSLog(@"Successfully enabled JIT compilation!");
 			[[ALTServerManager sharedManager] stopDiscovering];
+			self.jitEnabled = true;
 		}
 		else
 		{

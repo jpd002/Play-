@@ -9,6 +9,26 @@
 #import "CoverViewCell.h"
 #import "AltServerJitService.h"
 
+static bool IsJitAvailable()
+{
+	//If ppid != 1, it means we're being run in the debugger
+	if(getppid() != 1) return true;
+	if([[AltServerJitService sharedAltServerJitService] jitEnabled])
+	{
+		return true;
+	}
+	{
+		//Check if we can scan the mobile directory (only possible if jailbroken)
+		std::error_code errorCode;
+		fs::directory_iterator dirIterator("/private/var/mobile", errorCode);
+		if(!errorCode)
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
 @interface CoverViewController ()
 
 @end
@@ -166,6 +186,42 @@ static NSString* const reuseIdentifier = @"coverCell";
 }
 
 #pragma mark <UICollectionViewDelegate>
+
+- (BOOL)shouldPerformSegueWithIdentifier:(NSString*)identifier sender:(id)sender
+{
+	if([identifier isEqualToString:@"showEmulator"] && !IsJitAvailable())
+	{
+		UIAlertController* alert = [UIAlertController alertControllerWithTitle:@"JIT unavailable" message:@"JIT doesn't seem to be available at the moment. If JIT is not available, the emulator will crash. Do you wish to continue?" preferredStyle:UIAlertControllerStyleAlert];
+		{
+			UIAlertAction* continueAction = [UIAlertAction
+			    actionWithTitle:@"Continue"
+			              style:UIAlertActionStyleDefault
+			            handler:^(UIAlertAction*) {
+				          [self performSegueWithIdentifier:@"showEmulator" sender:sender];
+			            }];
+			[alert addAction:continueAction];
+		}
+		{
+			UIAlertAction* cancelAction = [UIAlertAction
+			    actionWithTitle:@"Cancel"
+			              style:UIAlertActionStyleCancel
+			            handler:^(UIAlertAction*){}];
+			[alert addAction:cancelAction];
+		}
+		{
+			UIAlertAction* helpAction = [UIAlertAction
+			    actionWithTitle:@"Help"
+			              style:UIAlertActionStyleDefault
+			            handler:^(UIAlertAction*) {
+				          [[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"https://github.com/jpd002/Play-#running-on-ios"]];
+			            }];
+			[alert addAction:helpAction];
+		}
+		[self presentViewController:alert animated:YES completion:nil];
+		return NO;
+	}
+	return YES;
+}
 
 - (void)prepareForSegue:(UIStoryboardSegue*)segue sender:(id)sender
 {

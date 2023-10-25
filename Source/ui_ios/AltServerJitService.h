@@ -7,5 +7,6 @@
 - (void)startProcess;
 
 @property bool processStarted;
+@property bool jitEnabled;
 
 @end
