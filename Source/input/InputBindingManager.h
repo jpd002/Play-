@@ -13,6 +13,7 @@ class CInputBindingManager
 {
 public:
 	using ProviderPtr = std::shared_ptr<CInputProvider>;
+	using ProviderConnectionMap = std::map<uint32, CInputProvider::OnInputSignalConnection>;
 
 	enum
 	{
@@ -50,7 +51,7 @@ public:
 	bool HasBindings() const;
 
 	void RegisterInputProvider(const ProviderPtr&);
-	void OverrideInputEventHandler(const InputEventFunction&);
+	ProviderConnectionMap OverrideInputEventHandler(const InputEventFunction&);
 
 	std::string GetTargetDescription(const BINDINGTARGET&) const;
 
@@ -159,4 +160,5 @@ private:
 
 	std::unique_ptr<CInputConfig> m_config;
 	ProviderMap m_providers;
+	ProviderConnectionMap m_providersConnection;
 };

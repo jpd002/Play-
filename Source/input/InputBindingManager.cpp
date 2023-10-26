@@ -123,22 +123,21 @@ bool CInputBindingManager::HasBindings() const
 
 void CInputBindingManager::RegisterInputProvider(const ProviderPtr& provider)
 {
-	provider->OnInput = [this](auto target, auto value) { this->OnInputEventReceived(target, value); };
+	auto connection = provider->OnInput.Connect([this](auto target, auto value) { this->OnInputEventReceived(target, value); });
 	m_providers.insert(std::make_pair(provider->GetId(), provider));
+	m_providersConnection.insert(std::make_pair(provider->GetId(), connection));
 }
 
-void CInputBindingManager::OverrideInputEventHandler(const InputEventFunction& inputEventHandler)
+CInputBindingManager::ProviderConnectionMap CInputBindingManager::OverrideInputEventHandler(const InputEventFunction& inputEventHandler)
 {
-	InputEventFunction actualHandler = inputEventHandler;
-	if(!actualHandler)
-	{
-		actualHandler = [this](auto target, auto value) { this->OnInputEventReceived(target, value); };
-	}
+	CInputBindingManager::ProviderConnectionMap providersOverrideConnection;
 	for(auto& providerPair : m_providers)
 	{
 		auto& provider = providerPair.second;
-		provider->OnInput = actualHandler;
+		auto connection = provider->OnInput.ConnectOverride(inputEventHandler);
+		providersOverrideConnection.insert(std::make_pair(provider->GetId(), connection));
 	}
+	return providersOverrideConnection;
 }
 
 std::string CInputBindingManager::GetTargetDescription(const BINDINGTARGET& target) const

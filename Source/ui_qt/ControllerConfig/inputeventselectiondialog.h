@@ -57,6 +57,8 @@ private:
 	CInputBindingManager::BINDINGTYPE m_bindingType = CInputBindingManager::BINDING_UNBOUND;
 	uint32 m_bindingValue = 0;
 
+	CInputBindingManager::ProviderConnectionMap m_providersOverrideConnection;
+
 	QString m_bindingText = QString("Select new binding for\n%1");
 	QString m_nextbindingText = QString("Select axis negative binding for\n%1");
 	QString m_countingText = QString("Press & Hold Button for %1 Seconds to assign key");

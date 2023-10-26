@@ -104,12 +104,10 @@ BINDINGTARGET CInputProviderEmscripten::MakeBindingTarget(const EM_UTF8* code)
 
 void CInputProviderEmscripten::OnKeyDown(const EM_UTF8* code)
 {
-	if(!OnInput) return;
 	OnInput(MakeBindingTarget(code), 1);
 }
 
 void CInputProviderEmscripten::OnKeyUp(const EM_UTF8* code)
 {
-	if(!OnInput) return;
 	OnInput(MakeBindingTarget(code), 0);
 }
