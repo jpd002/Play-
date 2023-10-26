@@ -33,12 +33,10 @@ BINDINGTARGET CInputProviderQtMouse::MakeBindingTarget(Qt::MouseButton mouseButt
 
 void CInputProviderQtMouse::OnMousePress(Qt::MouseButton mouseButton)
 {
-	if(!OnInput) return;
 	OnInput(MakeBindingTarget(mouseButton), 1);
 }
 
 void CInputProviderQtMouse::OnMouseRelease(Qt::MouseButton mouseButton)
 {
-	if(!OnInput) return;
 	OnInput(MakeBindingTarget(mouseButton), 0);
 }

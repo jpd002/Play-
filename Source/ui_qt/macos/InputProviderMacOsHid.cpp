@@ -129,18 +129,13 @@ void CInputProviderMacOsHid::OnDeviceMatched(IOReturn result, void* sender, IOHI
 	}
 	else
 	{
-		if(OnInput)
-		{
-			SetInitialBindValues(device);
-		}
+		SetInitialBindValues(device);
 		IOHIDDeviceRegisterInputValueCallback(device, &InputValueCallbackStub, &deviceInfo);
 	}
 }
 
 void CInputProviderMacOsHid::InputValueCallback(DEVICE_INFO* deviceInfo, IOReturn result, void* sender, IOHIDValueRef valueRef)
 {
-	if(!OnInput) return;
-
 	IOHIDElementRef elementRef = IOHIDValueGetElement(valueRef);
 	uint32 usagePage = IOHIDElementGetUsagePage(elementRef);
 	if(
@@ -181,42 +176,39 @@ void CInputProviderMacOsHid::InputReportCallback_DS3(DEVICE_INFO* deviceInfo, IO
 		OnInput(tgt, new_btn_state->btn);                                    \
 	}
 
-	if(OnInput)
-	{
-		deviceInfo->first_run = false;
+	deviceInfo->first_run = false;
 
-		checkbtnstate(prev_btn_state, new_btn_state, Select, 1, BINDINGTARGET::KEYTYPE::BUTTON);
-		checkbtnstate(prev_btn_state, new_btn_state, L3, 2, BINDINGTARGET::KEYTYPE::BUTTON);
-		checkbtnstate(prev_btn_state, new_btn_state, R3, 3, BINDINGTARGET::KEYTYPE::BUTTON);
-		checkbtnstate(prev_btn_state, new_btn_state, Start, 4, BINDINGTARGET::KEYTYPE::BUTTON);
+	checkbtnstate(prev_btn_state, new_btn_state, Select, 1, BINDINGTARGET::KEYTYPE::BUTTON);
+	checkbtnstate(prev_btn_state, new_btn_state, L3, 2, BINDINGTARGET::KEYTYPE::BUTTON);
+	checkbtnstate(prev_btn_state, new_btn_state, R3, 3, BINDINGTARGET::KEYTYPE::BUTTON);
+	checkbtnstate(prev_btn_state, new_btn_state, Start, 4, BINDINGTARGET::KEYTYPE::BUTTON);
 
-		checkbtnstate(prev_btn_state, new_btn_state, DPadU, 5, BINDINGTARGET::KEYTYPE::BUTTON);
-		checkbtnstate(prev_btn_state, new_btn_state, DPadR, 6, BINDINGTARGET::KEYTYPE::BUTTON);
-		checkbtnstate(prev_btn_state, new_btn_state, DPadD, 7, BINDINGTARGET::KEYTYPE::BUTTON);
-		checkbtnstate(prev_btn_state, new_btn_state, DPadL, 8, BINDINGTARGET::KEYTYPE::BUTTON);
+	checkbtnstate(prev_btn_state, new_btn_state, DPadU, 5, BINDINGTARGET::KEYTYPE::BUTTON);
+	checkbtnstate(prev_btn_state, new_btn_state, DPadR, 6, BINDINGTARGET::KEYTYPE::BUTTON);
+	checkbtnstate(prev_btn_state, new_btn_state, DPadD, 7, BINDINGTARGET::KEYTYPE::BUTTON);
+	checkbtnstate(prev_btn_state, new_btn_state, DPadL, 8, BINDINGTARGET::KEYTYPE::BUTTON);
 
-		checkbtnstate(prev_btn_state, new_btn_state, R2, 9, BINDINGTARGET::KEYTYPE::BUTTON);
-		checkbtnstate(prev_btn_state, new_btn_state, L2, 10, BINDINGTARGET::KEYTYPE::BUTTON);
-		checkbtnstate(prev_btn_state, new_btn_state, R1, 11, BINDINGTARGET::KEYTYPE::BUTTON);
-		checkbtnstate(prev_btn_state, new_btn_state, L1, 12, BINDINGTARGET::KEYTYPE::BUTTON);
+	checkbtnstate(prev_btn_state, new_btn_state, R2, 9, BINDINGTARGET::KEYTYPE::BUTTON);
+	checkbtnstate(prev_btn_state, new_btn_state, L2, 10, BINDINGTARGET::KEYTYPE::BUTTON);
+	checkbtnstate(prev_btn_state, new_btn_state, R1, 11, BINDINGTARGET::KEYTYPE::BUTTON);
+	checkbtnstate(prev_btn_state, new_btn_state, L1, 12, BINDINGTARGET::KEYTYPE::BUTTON);
 
-		checkbtnstate(prev_btn_state, new_btn_state, PSHome, 13, BINDINGTARGET::KEYTYPE::BUTTON);
+	checkbtnstate(prev_btn_state, new_btn_state, PSHome, 13, BINDINGTARGET::KEYTYPE::BUTTON);
 
-		checkbtnstate(prev_btn_state, new_btn_state, LX, 14, BINDINGTARGET::KEYTYPE::AXIS);
-		checkbtnstate(prev_btn_state, new_btn_state, LY, 15, BINDINGTARGET::KEYTYPE::AXIS);
-		checkbtnstate(prev_btn_state, new_btn_state, RX, 16, BINDINGTARGET::KEYTYPE::AXIS);
-		checkbtnstate(prev_btn_state, new_btn_state, RY, 17, BINDINGTARGET::KEYTYPE::AXIS);
+	checkbtnstate(prev_btn_state, new_btn_state, LX, 14, BINDINGTARGET::KEYTYPE::AXIS);
+	checkbtnstate(prev_btn_state, new_btn_state, LY, 15, BINDINGTARGET::KEYTYPE::AXIS);
+	checkbtnstate(prev_btn_state, new_btn_state, RX, 16, BINDINGTARGET::KEYTYPE::AXIS);
+	checkbtnstate(prev_btn_state, new_btn_state, RY, 17, BINDINGTARGET::KEYTYPE::AXIS);
 
-		//checkbtnstate(prev_btn_state, new_btn_state, L2T, 18, 3);
-		//checkbtnstate(prev_btn_state, new_btn_state, R2T, 19, 3);
-		//checkbtnstate(prev_btn_state, new_btn_state, L1T, 20, 3);
-		//checkbtnstate(prev_btn_state, new_btn_state, R1T, 21, 3);
+	//checkbtnstate(prev_btn_state, new_btn_state, L2T, 18, 3);
+	//checkbtnstate(prev_btn_state, new_btn_state, R2T, 19, 3);
+	//checkbtnstate(prev_btn_state, new_btn_state, L1T, 20, 3);
+	//checkbtnstate(prev_btn_state, new_btn_state, R1T, 21, 3);
 
-		checkbtnstate(prev_btn_state, new_btn_state, Triangle, 22, BINDINGTARGET::KEYTYPE::BUTTON);
-		checkbtnstate(prev_btn_state, new_btn_state, Circle, 23, BINDINGTARGET::KEYTYPE::BUTTON);
-		checkbtnstate(prev_btn_state, new_btn_state, Cross, 24, BINDINGTARGET::KEYTYPE::BUTTON);
-		checkbtnstate(prev_btn_state, new_btn_state, Square, 25, BINDINGTARGET::KEYTYPE::BUTTON);
-	}
+	checkbtnstate(prev_btn_state, new_btn_state, Triangle, 22, BINDINGTARGET::KEYTYPE::BUTTON);
+	checkbtnstate(prev_btn_state, new_btn_state, Circle, 23, BINDINGTARGET::KEYTYPE::BUTTON);
+	checkbtnstate(prev_btn_state, new_btn_state, Cross, 24, BINDINGTARGET::KEYTYPE::BUTTON);
+	checkbtnstate(prev_btn_state, new_btn_state, Square, 25, BINDINGTARGET::KEYTYPE::BUTTON);
 #undef checkbtnstate
 
 	if(is_change > 0)
@@ -245,36 +237,34 @@ void CInputProviderMacOsHid::InputReportCallback_DS4(DEVICE_INFO* deviceInfo, IO
 		OnInput(tgt, new_btn_state->btn);                                    \
 	}
 
-	if(OnInput)
-	{
-		deviceInfo->first_run = false;
+	deviceInfo->first_run = false;
 
-		checkbtnstate(prev_btn_state, new_btn_state, LX, 1, BINDINGTARGET::KEYTYPE::AXIS);
-		checkbtnstate(prev_btn_state, new_btn_state, LY, 2, BINDINGTARGET::KEYTYPE::AXIS);
-		checkbtnstate(prev_btn_state, new_btn_state, RX, 3, BINDINGTARGET::KEYTYPE::AXIS);
-		checkbtnstate(prev_btn_state, new_btn_state, RY, 4, BINDINGTARGET::KEYTYPE::AXIS);
+	checkbtnstate(prev_btn_state, new_btn_state, LX, 1, BINDINGTARGET::KEYTYPE::AXIS);
+	checkbtnstate(prev_btn_state, new_btn_state, LY, 2, BINDINGTARGET::KEYTYPE::AXIS);
+	checkbtnstate(prev_btn_state, new_btn_state, RX, 3, BINDINGTARGET::KEYTYPE::AXIS);
+	checkbtnstate(prev_btn_state, new_btn_state, RY, 4, BINDINGTARGET::KEYTYPE::AXIS);
 
-		checkbtnstate(prev_btn_state, new_btn_state, DPad, 5, BINDINGTARGET::KEYTYPE::POVHAT);
-		checkbtnstate(prev_btn_state, new_btn_state, Triangle, 6, BINDINGTARGET::KEYTYPE::BUTTON);
-		checkbtnstate(prev_btn_state, new_btn_state, Circle, 7, BINDINGTARGET::KEYTYPE::BUTTON);
-		checkbtnstate(prev_btn_state, new_btn_state, Cross, 8, BINDINGTARGET::KEYTYPE::BUTTON);
-		checkbtnstate(prev_btn_state, new_btn_state, Square, 9, BINDINGTARGET::KEYTYPE::BUTTON);
+	checkbtnstate(prev_btn_state, new_btn_state, DPad, 5, BINDINGTARGET::KEYTYPE::POVHAT);
+	checkbtnstate(prev_btn_state, new_btn_state, Triangle, 6, BINDINGTARGET::KEYTYPE::BUTTON);
+	checkbtnstate(prev_btn_state, new_btn_state, Circle, 7, BINDINGTARGET::KEYTYPE::BUTTON);
+	checkbtnstate(prev_btn_state, new_btn_state, Cross, 8, BINDINGTARGET::KEYTYPE::BUTTON);
+	checkbtnstate(prev_btn_state, new_btn_state, Square, 9, BINDINGTARGET::KEYTYPE::BUTTON);
 
-		checkbtnstate(prev_btn_state, new_btn_state, L1, 10, BINDINGTARGET::KEYTYPE::BUTTON);
-		checkbtnstate(prev_btn_state, new_btn_state, R1, 11, BINDINGTARGET::KEYTYPE::BUTTON);
-		//checkbtnstate(prev_btn_state, new_btn_state, L2, 12, 1);
-		//checkbtnstate(prev_btn_state, new_btn_state, R2, 13, 1);
+	checkbtnstate(prev_btn_state, new_btn_state, L1, 10, BINDINGTARGET::KEYTYPE::BUTTON);
+	checkbtnstate(prev_btn_state, new_btn_state, R1, 11, BINDINGTARGET::KEYTYPE::BUTTON);
+	//checkbtnstate(prev_btn_state, new_btn_state, L2, 12, 1);
+	//checkbtnstate(prev_btn_state, new_btn_state, R2, 13, 1);
 
-		checkbtnstate(prev_btn_state, new_btn_state, Share, 14, BINDINGTARGET::KEYTYPE::BUTTON);
-		checkbtnstate(prev_btn_state, new_btn_state, Option, 15, BINDINGTARGET::KEYTYPE::BUTTON);
-		checkbtnstate(prev_btn_state, new_btn_state, L3, 16, BINDINGTARGET::KEYTYPE::BUTTON);
-		checkbtnstate(prev_btn_state, new_btn_state, R3, 17, BINDINGTARGET::KEYTYPE::BUTTON);
+	checkbtnstate(prev_btn_state, new_btn_state, Share, 14, BINDINGTARGET::KEYTYPE::BUTTON);
+	checkbtnstate(prev_btn_state, new_btn_state, Option, 15, BINDINGTARGET::KEYTYPE::BUTTON);
+	checkbtnstate(prev_btn_state, new_btn_state, L3, 16, BINDINGTARGET::KEYTYPE::BUTTON);
+	checkbtnstate(prev_btn_state, new_btn_state, R3, 17, BINDINGTARGET::KEYTYPE::BUTTON);
 
-		checkbtnstate(prev_btn_state, new_btn_state, PSHome, 18, BINDINGTARGET::KEYTYPE::BUTTON);
-		checkbtnstate(prev_btn_state, new_btn_state, TouchPad, 19, BINDINGTARGET::KEYTYPE::BUTTON);
-		checkbtnstate(prev_btn_state, new_btn_state, LT, 20, BINDINGTARGET::KEYTYPE::AXIS);
-		checkbtnstate(prev_btn_state, new_btn_state, RT, 21, BINDINGTARGET::KEYTYPE::AXIS);
-	}
+	checkbtnstate(prev_btn_state, new_btn_state, PSHome, 18, BINDINGTARGET::KEYTYPE::BUTTON);
+	checkbtnstate(prev_btn_state, new_btn_state, TouchPad, 19, BINDINGTARGET::KEYTYPE::BUTTON);
+	checkbtnstate(prev_btn_state, new_btn_state, LT, 20, BINDINGTARGET::KEYTYPE::AXIS);
+	checkbtnstate(prev_btn_state, new_btn_state, RT, 21, BINDINGTARGET::KEYTYPE::AXIS);
+
 #undef checkbtnstate
 
 	if(is_change > 0)

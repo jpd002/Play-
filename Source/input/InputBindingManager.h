@@ -12,7 +12,8 @@
 class CInputBindingManager
 {
 public:
-	typedef std::shared_ptr<CInputProvider> ProviderPtr;
+	using ProviderPtr = std::shared_ptr<CInputProvider>;
+	using ProviderConnectionMap = std::map<uint32, CInputProvider::OnInputSignalConnection>;
 
 	enum
 	{
@@ -50,7 +51,7 @@ public:
 	bool HasBindings() const;
 
 	void RegisterInputProvider(const ProviderPtr&);
-	void OverrideInputEventHandler(const InputEventFunction&);
+	ProviderConnectionMap OverrideInputEventHandler(const InputEventFunction&);
 
 	std::string GetTargetDescription(const BINDINGTARGET&) const;
 
@@ -147,8 +148,8 @@ private:
 		uint32 m_key2State = 0;
 	};
 
-	typedef std::shared_ptr<CBinding> BindingPtr;
-	typedef std::map<uint32, ProviderPtr> ProviderMap;
+	using BindingPtr = std::shared_ptr<CBinding>;
+	using ProviderMap = std::map<uint32, ProviderPtr>;
 
 	void OnInputEventReceived(const BINDINGTARGET&, uint32);
 
@@ -159,4 +160,5 @@ private:
 
 	std::unique_ptr<CInputConfig> m_config;
 	ProviderMap m_providers;
+	ProviderConnectionMap m_providersConnection;
 };

@@ -24,7 +24,6 @@ InputEventSelectionDialog::InputEventSelectionDialog(QWidget* parent)
 
 InputEventSelectionDialog::~InputEventSelectionDialog()
 {
-	m_inputManager->OverrideInputEventHandler(InputEventFunction());
 	delete ui;
 }
 
@@ -38,7 +37,7 @@ void InputEventSelectionDialog::Setup(const char* text, CInputBindingManager* in
 	m_qtMouseInputProvider = qtMouseInputProvider;
 	ui->bindinglabel->setText(m_bindingText.arg(m_buttonName));
 
-	m_inputManager->OverrideInputEventHandler([this](auto target, auto value) { this->onInputEvent(target, value); });
+	m_providersOverrideConnection = m_inputManager->OverrideInputEventHandler([this](auto target, auto value) { this->onInputEvent(target, value); });
 	connect(this, SIGNAL(countdownComplete()), this, SLOT(confirmBinding()));
 }
 

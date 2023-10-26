@@ -24,12 +24,10 @@ BINDINGTARGET CInputProviderQtKey::MakeBindingTarget(int keyCode)
 
 void CInputProviderQtKey::OnKeyPress(int keyCode)
 {
-	if(!OnInput) return;
 	OnInput(MakeBindingTarget(keyCode), 1);
 }
 
 void CInputProviderQtKey::OnKeyRelease(int keyCode)
 {
-	if(!OnInput) return;
 	OnInput(MakeBindingTarget(keyCode), 0);
 }

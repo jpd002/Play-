@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Types.h"
+#include "signal/Signal.h"
 #include <array>
 #include <functional>
 #include <string>
@@ -70,5 +71,7 @@ public:
 	virtual uint32 GetId() const = 0;
 	virtual std::string GetTargetDescription(const BINDINGTARGET&) const = 0;
 
-	InputEventFunction OnInput;
+	using OnInputSignal = Framework::CSignal<void(const BINDINGTARGET&, uint32)>;
+	using OnInputSignalConnection = OnInputSignal::Connection;
+	OnInputSignal OnInput;
 };
