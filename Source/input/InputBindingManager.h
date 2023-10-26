@@ -12,7 +12,7 @@
 class CInputBindingManager
 {
 public:
-	typedef std::shared_ptr<CInputProvider> ProviderPtr;
+	using ProviderPtr = std::shared_ptr<CInputProvider>;
 
 	enum
 	{
@@ -147,8 +147,8 @@ private:
 		uint32 m_key2State = 0;
 	};
 
-	typedef std::shared_ptr<CBinding> BindingPtr;
-	typedef std::map<uint32, ProviderPtr> ProviderMap;
+	using BindingPtr = std::shared_ptr<CBinding>;
+	using ProviderMap = std::map<uint32, ProviderPtr>;
 
 	void OnInputEventReceived(const BINDINGTARGET&, uint32);
 
