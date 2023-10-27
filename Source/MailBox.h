@@ -4,6 +4,7 @@
 #include <deque>
 #include <mutex>
 #include <condition_variable>
+#include <future>
 
 class CMailBox
 {
@@ -33,14 +34,12 @@ private:
 		MESSAGE& operator=(const MESSAGE&) = delete;
 
 		FunctionType function;
-		bool sync = false;
+		std::promise<void> promise;
 	};
 
 	typedef std::deque<MESSAGE> FunctionCallQueue;
 
 	FunctionCallQueue m_calls;
 	std::mutex m_callMutex;
-	std::condition_variable m_callFinished;
 	std::condition_variable m_waitCondition;
-	bool m_callDone = false;
 };
