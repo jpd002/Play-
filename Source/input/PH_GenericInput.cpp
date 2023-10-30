@@ -27,6 +27,14 @@ void CPH_GenericInput::Update(uint8* ram)
 			interface->GetVibration(pad, largeMotor, smallMotor);
 		}
 	}
+
+	for(auto& [pad, motorInfo] : vibrationMap)
+	{
+		auto motorBinding = m_bindingManager.GetMotorBinding(pad);
+		if(!motorBinding) continue;
+		auto& [largeMotor, smallMotor] = motorInfo;
+		motorBinding->ProcessEvent(largeMotor, smallMotor);
+	}
 }
 
 CInputBindingManager& CPH_GenericInput::GetBindingManager()

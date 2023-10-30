@@ -18,7 +18,8 @@ struct BINDINGTARGET
 	{
 		BUTTON,
 		AXIS,
-		POVHAT
+		POVHAT,
+		MOTOR
 	};
 
 	enum

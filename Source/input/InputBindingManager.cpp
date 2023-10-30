@@ -192,6 +192,10 @@ void CInputBindingManager::Reload()
 			}
 			CPovHatBinding::RegisterPreferences(*m_config, prefBase.c_str());
 		}
+		{
+			auto prefBase = Framework::CConfig::MakePreferenceName(CONFIG_PREFIX, m_padPreferenceName[pad], "motor");
+			RegisterBindingTargetPreference(*m_config, Framework::CConfig::MakePreferenceName(prefBase, CONFIG_BINDINGTARGET1).c_str());
+		}
 	}
 
 	for(unsigned int pad = 0; pad < MAX_PADS; pad++)
@@ -226,6 +230,12 @@ void CInputBindingManager::Reload()
 			}
 			m_bindings[pad][button] = binding;
 		}
+		{
+			auto binding = std::make_shared<CMotorBinding>(m_providers);
+			auto prefBase = Framework::CConfig::MakePreferenceName(CONFIG_PREFIX, m_padPreferenceName[pad], "motor");
+			binding->Load(*m_config, prefBase.c_str());
+			m_motorBindings[pad] = binding;
+		}
 	}
 	ResetBindingValues();
 }
@@ -246,6 +256,21 @@ void CInputBindingManager::Save()
 			auto prefBase = Framework::CConfig::MakePreferenceName(CONFIG_PREFIX, m_padPreferenceName[pad], PS2::CControllerInfo::m_buttonName[button]);
 			auto prefBindingType = Framework::CConfig::MakePreferenceName(prefBase, CONFIG_BINDING_TYPE);
 			const auto& binding = m_bindings[pad][button];
+			if(binding)
+			{
+				m_config->SetPreferenceInteger(prefBindingType.c_str(), binding->GetBindingType());
+				binding->Save(*m_config, prefBase.c_str());
+			}
+			else
+			{
+				m_config->SetPreferenceInteger(prefBindingType.c_str(), BINDING_UNBOUND);
+			}
+		}
+
+		{
+			auto prefBase = Framework::CConfig::MakePreferenceName(CONFIG_PREFIX, m_padPreferenceName[pad], "motor");
+			auto prefBindingType = Framework::CConfig::MakePreferenceName(prefBase, CONFIG_BINDING_TYPE);
+			const auto& binding = m_motorBindings[pad];
 			if(binding)
 			{
 				m_config->SetPreferenceInteger(prefBindingType.c_str(), binding->GetBindingType());
@@ -570,4 +595,77 @@ void CInputBindingManager::CSimulatedAxisBinding::Load(Framework::CConfig& confi
 	auto key2PrefBase = Framework::CConfig::MakePreferenceName(buttonBase, CONFIG_BINDINGTARGET2);
 	m_key1Binding = LoadBindingTargetPreference(config, key1PrefBase.c_str());
 	m_key2Binding = LoadBindingTargetPreference(config, key2PrefBase.c_str());
+}
+
+////////////////////////////////////////////////
+// MotorBinding, Specialised binding that can communicate back to a provider
+////////////////////////////////////////////////
+CInputBindingManager::CMotorBinding* CInputBindingManager::GetMotorBinding(uint32 pad) const
+{
+	if(pad >= MAX_PADS)
+	{
+		throw std::exception();
+	}
+	return m_motorBindings[pad].get();
+}
+void CInputBindingManager::SetMotorBinding(uint32 pad, const BINDINGTARGET& binding)
+{
+	m_motorBindings[pad] = std::make_shared<CMotorBinding>(binding, m_providers);
+}
+
+
+CInputBindingManager::CMotorBinding::CMotorBinding(const BINDINGTARGET& binding, CInputBindingManager::ProviderMap& providers)
+    : m_binding(binding)
+    , m_providers(providers)
+    , m_value(0)
+{
+}
+
+void CInputBindingManager::CMotorBinding::ProcessEvent(uint8 largeMotor, uint8 smallMotor)
+{
+	for(auto& [id, provider] : m_providers)
+	{
+		if(id == m_binding.providerId)
+		{
+			provider->SetVibration(m_binding.deviceId, largeMotor, smallMotor);
+		}
+	}
+	m_value = (largeMotor | smallMotor << 8);
+}
+
+CInputBindingManager::BINDINGTYPE CInputBindingManager::CMotorBinding::GetBindingType() const
+{
+	return BINDING_MOTOR;
+}
+
+const char* CInputBindingManager::CMotorBinding::GetBindingTypeName() const
+{
+	return "motorbinding";
+}
+
+uint32 CInputBindingManager::CMotorBinding::GetValue() const
+{
+	return m_value;
+}
+
+void CInputBindingManager::CMotorBinding::SetValue(uint32 value)
+{
+	m_value = value;
+}
+
+std::string CInputBindingManager::CMotorBinding::GetDescription(CInputBindingManager* bindingManager) const
+{
+	return bindingManager->GetTargetDescription(m_binding);
+}
+
+void CInputBindingManager::CMotorBinding::Save(Framework::CConfig& config, const char* buttonBase) const
+{
+	auto prefBase = Framework::CConfig::MakePreferenceName(buttonBase, CONFIG_BINDINGTARGET1);
+	SaveBindingTargetPreference(config, prefBase.c_str(), m_binding);
+}
+
+void CInputBindingManager::CMotorBinding::Load(Framework::CConfig& config, const char* buttonBase)
+{
+	auto prefBase = Framework::CConfig::MakePreferenceName(buttonBase, CONFIG_BINDINGTARGET1);
+	m_binding = LoadBindingTargetPreference(config, prefBase.c_str());
 }
