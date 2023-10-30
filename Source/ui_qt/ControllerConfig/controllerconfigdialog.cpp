@@ -35,9 +35,10 @@ ControllerConfigDialog::ControllerConfigDialog(CInputBindingManager* inputBindin
 {
 	ui->setupUi(this);
 
-	m_padUiElements.push_back({ui->pad1TableView, ui->pad1AnalogSensitivitySlider, ui->pad1AnalogSensitivityValueLabel});
-	m_padUiElements.push_back({ui->pad2TableView, ui->pad2AnalogSensitivitySlider, ui->pad2AnalogSensitivityValueLabel});
+	m_padUiElements.push_back({ui->pad1TableView, ui->pad1AnalogSensitivitySlider, ui->pad1AnalogSensitivityValueLabel, ui->pad1hapticFeedbackComboBox});
+	m_padUiElements.push_back({ui->pad2TableView, ui->pad2AnalogSensitivitySlider, ui->pad2AnalogSensitivityValueLabel, ui->pad2hapticFeedbackComboBox});
 
+	auto devices = m_inputManager->GetDevices();
 	for(uint32 padIndex = 0; padIndex < m_padUiElements.size(); padIndex++)
 	{
 		PrepareBindingsView(padIndex);
@@ -55,8 +56,38 @@ ControllerConfigDialog::ControllerConfigDialog(CInputBindingManager* inputBindin
 		QObject::connect(uiElements.analogSensitivitySlider, &QSlider::sliderMoved, this, [this, padIndex](int value) { analogSensitivityValueChanged(padIndex, value); });
 		QObject::connect(uiElements.analogSensitivitySlider, &QSlider::valueChanged, this, [this, padIndex](int value) { analogSensitivityValueChanged(padIndex, value); });
 		QObject::connect(uiElements.bindingsView, SIGNAL(doubleClicked(const QModelIndex&)), this, SLOT(bindingsViewDoubleClicked(const QModelIndex&)));
-	}
 
+		auto motorBinding = inputBindingManager->GetMotorBinding(padIndex);
+		uiElements.hapticFeedbackComboBox->addItem("Disabled");
+
+		for(auto index = 0; index < devices.size(); ++index)
+		{
+			auto devInfo = devices[index];
+			uiElements.hapticFeedbackComboBox->addItem(devInfo.name.c_str());
+			if(!motorBinding)
+				continue;
+
+			auto targetBinding = BINDINGTARGET(devInfo.providerId, devInfo.deviceId, -1, BINDINGTARGET::KEYTYPE::MOTOR);
+			if(motorBinding->GetBindingTarget() == targetBinding)
+			{
+				uiElements.hapticFeedbackComboBox->setCurrentIndex(index + 1);
+			}
+		}
+
+		QObject::connect(uiElements.hapticFeedbackComboBox, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+						[this, padIndex, inputBindingManager, devices](int index)
+		{
+			if(index == 0)
+			{
+				inputBindingManager->SetMotorBinding(padIndex, {});
+				return;
+			}
+			auto devInfo = devices[index - 1];
+			auto targetBinding = BINDINGTARGET(devInfo.providerId, devInfo.deviceId, -1, BINDINGTARGET::KEYTYPE::MOTOR);
+			inputBindingManager->SetMotorBinding(padIndex, targetBinding);
+			inputBindingManager->GetMotorBinding(padIndex)->ProcessEvent(0, 1);
+		});
+	}
 	PrepareProfiles();
 }
 

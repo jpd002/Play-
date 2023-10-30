@@ -174,6 +174,7 @@ private:
 
 		void ProcessEvent(uint8 largeMotor, uint8 smallMotor);
 
+		BINDINGTARGET GetBindingTarget() const;
 		BINDINGTYPE GetBindingType() const;
 		const char* GetBindingTypeName() const;
 		std::string GetDescription(CInputBindingManager*) const;

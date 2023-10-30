@@ -654,6 +654,11 @@ const char* CInputBindingManager::CMotorBinding::GetBindingTypeName() const
 	return "motorbinding";
 }
 
+BINDINGTARGET CInputBindingManager::CMotorBinding::GetBindingTarget() const
+{
+	return m_binding;
+}
+
 uint32 CInputBindingManager::CMotorBinding::GetValue() const
 {
 	return m_value;
