@@ -10,6 +10,13 @@
 static const uint32 DeviceIdTypeCount = 6;
 typedef std::array<uint32, DeviceIdTypeCount> DeviceIdType;
 
+struct DEVICEINFO
+{
+	uint32 providerId = 0;
+	DeviceIdType deviceId = {{0, 0, 0, 0, 0, 0}};
+	std::string name;
+};
+
 struct BINDINGTARGET
 {
 	//AXIS has a value from 0x00 to 0xFF (0x7F is neutral)
@@ -71,6 +78,7 @@ public:
 	virtual ~CInputProvider() = default;
 	virtual uint32 GetId() const = 0;
 	virtual std::string GetTargetDescription(const BINDINGTARGET&) const = 0;
+	virtual std::vector<DEVICEINFO> GetDevices() const { return {}; };
 	virtual void SetVibration(DeviceIdType deviceId, uint8 largeMotor, uint8 smallMotor) {};
 
 	using OnInputSignal = Framework::CSignal<void(const BINDINGTARGET&, uint32)>;

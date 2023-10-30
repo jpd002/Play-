@@ -58,6 +58,23 @@ std::string CInputProviderDirectInput::GetTargetDescription(const BINDINGTARGET&
 	return string_format("%s: %s", deviceName.c_str(), deviceKeyName.c_str());
 }
 
+std::vector<DEVICEINFO> CInputProviderDirectInput::GetDevices() const
+{
+	std::vector<DEVICEINFO> devices;
+	for(auto deviceGuid : m_diManager->GetDevicesIds())
+	{
+		std::string deviceName = "Unknown Device";
+		DIDEVICEINSTANCE deviceInstance = {};
+		if(m_diManager->GetDeviceInfo(deviceGuid, &deviceInstance))
+		{
+			deviceName = string_cast<std::string>(deviceInstance.tszInstanceName);
+		}
+		auto deviceId = GuidToDeviceId(deviceGuid);
+		devices.push_back({GetId(), deviceId, string_format("%s : 0x%X", deviceName.c_str(), deviceId)});
+	}
+	return devices;
+}
+
 void CInputProviderDirectInput::SetVibration(DeviceIdType deviceId, uint8 largeMotor, uint8 smallMotor)
 {
 	auto guid = DeviceIdToGuid(deviceId);

@@ -70,6 +70,21 @@ std::string CInputProviderXInput::GetTargetDescription(const BINDINGTARGET& targ
 	return string_format("XInput Device %d : %s", target.deviceId[0], g_keyNames[target.keyId]);
 }
 
+std::vector<DEVICEINFO> CInputProviderXInput::GetDevices() const
+{
+	std::vector<DEVICEINFO> devices;
+	for(unsigned int deviceIndex = 0; deviceIndex < MAX_DEVICES; deviceIndex++)
+	{
+		auto& currState = m_states[deviceIndex];
+		if(!currState.connected)
+			continue;
+
+		DeviceIdType deviceId = {deviceIndex};
+		devices.push_back({GetId(), deviceId, string_format("XInput Device %d", deviceIndex)});
+	}
+	return devices;
+}
+
 void CInputProviderXInput::SetVibration(DeviceIdType deviceId, uint8 largeMotor, uint8 smallMotor)
 {
 	WORD scaledLargeMotor = largeMotor == 255 ? 65535 : largeMotor * 256;

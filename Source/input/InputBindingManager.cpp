@@ -151,6 +151,17 @@ std::string CInputBindingManager::GetTargetDescription(const BINDINGTARGET& targ
 	return provider->GetTargetDescription(target);
 }
 
+std::vector<DEVICEINFO> CInputBindingManager::GetDevices() const
+{
+	std::vector<DEVICEINFO> devices;
+	for(auto& [_, provider] : m_providers)
+	{
+		auto providerDevices = provider->GetDevices();
+		devices.insert(devices.end(), providerDevices.begin(), providerDevices.end());
+	}
+	return devices;
+}
+
 void CInputBindingManager::OnInputEventReceived(const BINDINGTARGET& target, uint32 value)
 {
 	for(unsigned int pad = 0; pad < MAX_PADS; pad++)

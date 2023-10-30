@@ -70,6 +70,7 @@ public:
 	void SetSimulatedAxisBinding(uint32, PS2::CControllerInfo::BUTTON, const BINDINGTARGET&, const BINDINGTARGET&);
 	void ResetBinding(uint32, PS2::CControllerInfo::BUTTON);
 
+	std::vector<DEVICEINFO> GetDevices() const;
 	CMotorBinding* GetMotorBinding(uint32) const;
 	void SetMotorBinding(uint32, const BINDINGTARGET&);
 

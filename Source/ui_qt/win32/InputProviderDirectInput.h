@@ -11,6 +11,7 @@ public:
 
 	uint32 GetId() const override;
 	std::string GetTargetDescription(const BINDINGTARGET&) const override;
+	std::vector<DEVICEINFO> GetDevices() const override;
 	void SetVibration(DeviceIdType deviceId, uint8 largeMotor, uint8 smallMotor) override;
 
 private:
