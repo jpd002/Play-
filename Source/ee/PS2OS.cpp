@@ -3080,10 +3080,10 @@ void CPS2OS::sc_SifDmaStat()
 		return;
 	}
 
-	//If SIF dma has just been set (100 cycle delay), return 'queued' status.
-	//This is required for Okami
+	//If SIF dma has just been set (1000 cycle delay), return 'queued' status.
+	//This is required for Okami & God Hand (Clover Studio games) which expect to see the queued status.
 	int64 timerDiff = static_cast<uint64>(m_ee.m_State.nCOP0[CCOP_SCU::COUNT]) - static_cast<uint64>(m_sifDmaTimes[queueIdx]);
-	if((timerDiff < 0) || (timerDiff > 100))
+	if((timerDiff < 0) || (timerDiff > 1000))
 	{
 		//Completed
 		m_ee.m_State.nGPR[SC_RETURN].nD0 = static_cast<int32>(-1);
