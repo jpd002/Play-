@@ -2,7 +2,7 @@
 
 void CPH_GenericInput::Update(uint8* ram)
 {
-	std::map<unsigned int, std::pair<uint8, uint8>> vibMap;
+	std::map<unsigned int, std::pair<uint8, uint8>> vibrationMap;
 	for(auto* interface : m_interfaces)
 	{
 		for(unsigned int pad = 0; pad < CInputBindingManager::MAX_PADS; pad++)
@@ -22,6 +22,9 @@ void CPH_GenericInput::Update(uint8* ram)
 					interface->SetButtonState(pad, button, value != 0, ram);
 				}
 			}
+			// Only Sio2 currently provides vibration information
+			auto& [largeMotor, smallMotor] = vibrationMap[pad];
+			interface->GetVibration(pad, largeMotor, smallMotor);
 		}
 	}
 }

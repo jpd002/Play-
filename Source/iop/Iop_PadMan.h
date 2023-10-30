@@ -28,6 +28,7 @@ namespace Iop
 		void LoadState(Framework::CZipArchiveReader&) override;
 		void SetButtonState(unsigned int, PS2::CControllerInfo::BUTTON, bool, uint8*) override;
 		void SetAxisState(unsigned int, PS2::CControllerInfo::BUTTON, uint8, uint8*) override;
+		void GetVibration(unsigned int padId, uint8& largeMotor, uint8& smallMotor) override {};
 
 		enum MODULE_ID
 		{
