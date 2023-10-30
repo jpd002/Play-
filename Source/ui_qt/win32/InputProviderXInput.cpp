@@ -70,6 +70,22 @@ std::string CInputProviderXInput::GetTargetDescription(const BINDINGTARGET& targ
 	return string_format("XInput Device %d : %s", target.deviceId[0], g_keyNames[target.keyId]);
 }
 
+void CInputProviderXInput::SetVibration(DeviceIdType deviceId, uint8 largeMotor, uint8 smallMotor)
+{
+	WORD scaledLargeMotor = largeMotor == 255 ? 65535 : largeMotor * 256;
+	WORD scaledSmallMotor = smallMotor ? 65535 : 0;
+
+	auto& currState = m_states[deviceId[0]];
+	if(!currState.connected)
+		return;
+
+	XINPUT_VIBRATION vibration;
+	ZeroMemory(&vibration, sizeof(XINPUT_VIBRATION));
+	vibration.wLeftMotorSpeed = scaledLargeMotor;
+	vibration.wRightMotorSpeed = scaledSmallMotor;
+	XInputSetState(deviceId[0], &vibration);
+}
+
 void CInputProviderXInput::PollDevices()
 {
 	while(m_pollingEnabled)

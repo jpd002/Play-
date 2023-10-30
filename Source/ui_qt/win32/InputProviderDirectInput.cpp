@@ -58,6 +58,12 @@ std::string CInputProviderDirectInput::GetTargetDescription(const BINDINGTARGET&
 	return string_format("%s: %s", deviceName.c_str(), deviceKeyName.c_str());
 }
 
+void CInputProviderDirectInput::SetVibration(DeviceIdType deviceId, uint8 largeMotor, uint8 smallMotor)
+{
+	auto guid = DeviceIdToGuid(deviceId);
+	m_diManager->SetVibration(guid, largeMotor, smallMotor);
+}
+
 void CInputProviderDirectInput::HandleInputEvent(const GUID& deviceId, uint32 keyId, uint32 value)
 {
 	DIDEVICEOBJECTINSTANCE objectInstance = {};

@@ -70,6 +70,7 @@ public:
 	virtual ~CInputProvider() = default;
 	virtual uint32 GetId() const = 0;
 	virtual std::string GetTargetDescription(const BINDINGTARGET&) const = 0;
+	virtual void SetVibration(DeviceIdType deviceId, uint8 largeMotor, uint8 smallMotor) {};
 
 	using OnInputSignal = Framework::CSignal<void(const BINDINGTARGET&, uint32)>;
 	using OnInputSignalConnection = OnInputSignal::Connection;
