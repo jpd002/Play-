@@ -48,19 +48,19 @@ void CPH_Libretro_Input::UpdateInputState()
 void CPH_Libretro_Input::Update(uint8* ram)
 {
 	std::lock_guard<std::mutex> lock(m_input_mutex);
-	for(auto* listener : m_listeners)
+	for(auto* interface : m_interfaces)
 	{
 		for(unsigned int i = 0; i < PS2::CControllerInfo::MAX_BUTTONS; i++)
 		{
 			auto currentButtonId = static_cast<PS2::CControllerInfo::BUTTON>(i);
 			if(PS2::CControllerInfo::IsAxis(currentButtonId))
 			{
-				listener->SetAxisState(0, currentButtonId, m_axis_btn_state[currentButtonId], ram);
+				interface->SetAxisState(0, currentButtonId, m_axis_btn_state[currentButtonId], ram);
 			}
 			else
 			{
 				uint32 val = m_btns_state & (1 << g_ds2_to_retro_btn_map[currentButtonId]);
-				listener->SetButtonState(0, currentButtonId, val != 0, ram);
+				interface->SetButtonState(0, currentButtonId, val != 0, ram);
 			}
 		}
 	}

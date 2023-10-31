@@ -454,8 +454,8 @@ set(COMMON_SRC_FILES
 	OpticalMedia.h
 	PadHandler.cpp
 	PadHandler.h
-	PadListener.cpp
-	PadListener.h
+	PadInterface.cpp
+	PadInterface.h
 	Pch.cpp
 	Pch.h
 	PH_Generic.cpp

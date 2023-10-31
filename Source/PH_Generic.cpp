@@ -19,7 +19,7 @@ CPadHandler::FactoryFunction CPH_Generic::GetFactoryFunction()
 
 void CPH_Generic::Update(uint8* ram)
 {
-	for(auto& listener : m_listeners)
+	for(auto& interface : m_interfaces)
 	{
 		for(unsigned int i = 0; i < PS2::CControllerInfo::MAX_BUTTONS; i++)
 		{
@@ -27,11 +27,11 @@ void CPH_Generic::Update(uint8* ram)
 			if(PS2::CControllerInfo::IsAxis(button))
 			{
 				float buttonValue = ((m_axisStates[i] + 1.0f) / 2.0f) * 255.f;
-				listener->SetAxisState(0, button, static_cast<uint8>(buttonValue), ram);
+				interface->SetAxisState(0, button, static_cast<uint8>(buttonValue), ram);
 			}
 			else
 			{
-				listener->SetButtonState(0, button, m_buttonStates[i], ram);
+				interface->SetButtonState(0, button, m_buttonStates[i], ram);
 			}
 		}
 	}

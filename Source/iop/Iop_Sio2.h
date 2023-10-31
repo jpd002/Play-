@@ -2,12 +2,12 @@
 
 #include "Types.h"
 #include "Iop_Intc.h"
-#include "../PadListener.h"
+#include "../PadInterface.h"
 #include <deque>
 
 namespace Iop
 {
-	class CSio2 : public CPadListener
+	class CSio2 : public CPadInterface
 	{
 	public:
 		enum

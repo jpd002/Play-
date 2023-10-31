@@ -3,7 +3,7 @@
 #include "Iop_Module.h"
 #include "Iop_SifMan.h"
 #include "Iop_SifModuleProvider.h"
-#include "../PadListener.h"
+#include "../PadInterface.h"
 #include <functional>
 #include "zip/ZipArchiveWriter.h"
 #include "zip/ZipArchiveReader.h"
@@ -12,7 +12,7 @@
 
 namespace Iop
 {
-	class CPadMan : public CModule, public CPadListener, public CSifModule, public CSifModuleProvider
+	class CPadMan : public CModule, public CPadInterface, public CSifModule, public CSifModuleProvider
 	{
 	public:
 		CPadMan() = default;
