@@ -624,7 +624,6 @@ void CInputBindingManager::SetMotorBinding(uint32 pad, const BINDINGTARGET& bind
 	m_motorBindings[pad] = std::make_shared<CMotorBinding>(binding, m_providers);
 }
 
-
 CInputBindingManager::CMotorBinding::CMotorBinding(const BINDINGTARGET& binding, const CInputBindingManager::ProviderMap& providers)
     : m_binding(binding)
     , m_providers(providers)

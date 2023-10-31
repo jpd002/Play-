@@ -74,19 +74,18 @@ ControllerConfigDialog::ControllerConfigDialog(CInputBindingManager* inputBindin
 			}
 		}
 
-		QObject::connect(uiElements.hapticFeedbackComboBox, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
-						[this, padIndex, inputBindingManager, devices](int index)
-		{
-			if(index == 0)
-			{
-				inputBindingManager->SetMotorBinding(padIndex, {});
-				return;
-			}
-			auto devInfo = devices[index - 1];
-			auto targetBinding = BINDINGTARGET(devInfo.providerId, devInfo.deviceId, -1, BINDINGTARGET::KEYTYPE::MOTOR);
-			inputBindingManager->SetMotorBinding(padIndex, targetBinding);
-			inputBindingManager->GetMotorBinding(padIndex)->ProcessEvent(0, 1);
-		});
+		QObject::connect(uiElements.hapticFeedbackComboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+		                 [this, padIndex, inputBindingManager, devices](int index) {
+			                 if(index == 0)
+			                 {
+				                 inputBindingManager->SetMotorBinding(padIndex, {});
+				                 return;
+			                 }
+			                 auto devInfo = devices[index - 1];
+			                 auto targetBinding = BINDINGTARGET(devInfo.providerId, devInfo.deviceId, -1, BINDINGTARGET::KEYTYPE::MOTOR);
+			                 inputBindingManager->SetMotorBinding(padIndex, targetBinding);
+			                 inputBindingManager->GetMotorBinding(padIndex)->ProcessEvent(0, 1);
+		                 });
 	}
 	PrepareProfiles();
 }
