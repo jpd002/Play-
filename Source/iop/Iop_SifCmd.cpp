@@ -52,6 +52,7 @@ using namespace Iop;
 #define SYSTEM_COMMAND_ID 0x80000000
 
 static constexpr uint32 INVALID_SEMAPHORE_ID = ~0U;
+static constexpr uint32 DUMMY_PACKET_ADDR = 0xCAFECAFE;
 
 CSifCmd::CSifCmd(CIopBios& bios, CSifMan& sifMan, CSysmem& sysMem, uint8* ram)
     : m_bios(bios)
@@ -669,6 +670,7 @@ void CSifCmd::ProcessRpcRequestEnd(uint32 commandHeaderAddr)
 	{
 		assert(0);
 	}
+	clientData->header.packetAddr = 0;
 	//Unlock/delete semaphore
 	if(clientData->header.semaId != INVALID_SEMAPHORE_ID)
 	{
@@ -876,6 +878,9 @@ void CSifCmd::SifCallRpc(CMIPS& context)
 
 	auto clientData = reinterpret_cast<SIFRPCCLIENTDATA*>(m_ram + clientDataAddr);
 	assert(clientData->serverDataAddr != 0);
+	assert(clientData->header.packetAddr == 0);
+	//Set packet addr to properly support testing for request completion with SifCheckStatRpc
+	clientData->header.packetAddr = DUMMY_PACKET_ADDR;
 	clientData->endFctPtr = endFctAddr;
 	clientData->endParam = endParam;
 	if((mode & CALL_MODE_NOWAIT) == 0)
@@ -1008,10 +1013,15 @@ void CSifCmd::SifExecRequest(CMIPS& context)
 	context.m_State.nPC = m_sifExecRequestAddr;
 }
 
-uint32 CSifCmd::SifCheckStatRpc(uint32 clientDataAddress)
+uint32 CSifCmd::SifCheckStatRpc(uint32 clientDataAddr)
 {
 	CLog::GetInstance().Print(LOG_NAME, FUNCTION_SIFCHECKSTATRPC "(clientData = 0x%08X);\r\n",
-	                          clientDataAddress);
+	                          clientDataAddr);
+	auto clientData = reinterpret_cast<SIFRPCCLIENTDATA*>(m_ram + clientDataAddr);
+	if(clientData->header.packetAddr != 0)
+	{
+		return 1;
+	}
 	return 0;
 }
 
