@@ -625,11 +625,33 @@ void CInputBindingManager::SetMotorBinding(uint32 pad, const BINDINGTARGET& bind
 }
 
 
-CInputBindingManager::CMotorBinding::CMotorBinding(const BINDINGTARGET& binding, CInputBindingManager::ProviderMap& providers)
+CInputBindingManager::CMotorBinding::CMotorBinding(const BINDINGTARGET& binding, const CInputBindingManager::ProviderMap& providers)
     : m_binding(binding)
     , m_providers(providers)
-    , m_value(0)
+    , m_running(true)
+    , m_nextTimeout(std::chrono::steady_clock::now())
 {
+	m_thread = std::thread(&CInputBindingManager::CMotorBinding::ThreadProc, this);
+}
+
+CInputBindingManager::CMotorBinding::CMotorBinding(ProviderMap& providers)
+    : CMotorBinding(BINDINGTARGET(), providers)
+{
+}
+
+CInputBindingManager::CMotorBinding::CMotorBinding()
+    : CMotorBinding(BINDINGTARGET(), {})
+{
+}
+
+CInputBindingManager::CMotorBinding::~CMotorBinding()
+{
+	m_running = false;
+	m_cv.notify_all();
+	if(m_thread.joinable())
+	{
+		m_thread.join();
+	}
 }
 
 void CInputBindingManager::CMotorBinding::ProcessEvent(uint8 largeMotor, uint8 smallMotor)
@@ -639,9 +661,13 @@ void CInputBindingManager::CMotorBinding::ProcessEvent(uint8 largeMotor, uint8 s
 		if(id == m_binding.providerId)
 		{
 			provider->SetVibration(m_binding.deviceId, largeMotor, smallMotor);
+			if(largeMotor + smallMotor)
+			{
+				m_nextTimeout = std::chrono::steady_clock::now() + std::chrono::seconds(1);
+				m_cv.notify_all();
+			}
 		}
 	}
-	m_value = (largeMotor | smallMotor << 8);
 }
 
 CInputBindingManager::BINDINGTYPE CInputBindingManager::CMotorBinding::GetBindingType() const
@@ -649,29 +675,9 @@ CInputBindingManager::BINDINGTYPE CInputBindingManager::CMotorBinding::GetBindin
 	return BINDING_MOTOR;
 }
 
-const char* CInputBindingManager::CMotorBinding::GetBindingTypeName() const
-{
-	return "motorbinding";
-}
-
 BINDINGTARGET CInputBindingManager::CMotorBinding::GetBindingTarget() const
 {
 	return m_binding;
-}
-
-uint32 CInputBindingManager::CMotorBinding::GetValue() const
-{
-	return m_value;
-}
-
-void CInputBindingManager::CMotorBinding::SetValue(uint32 value)
-{
-	m_value = value;
-}
-
-std::string CInputBindingManager::CMotorBinding::GetDescription(CInputBindingManager* bindingManager) const
-{
-	return bindingManager->GetTargetDescription(m_binding);
 }
 
 void CInputBindingManager::CMotorBinding::Save(Framework::CConfig& config, const char* buttonBase) const
@@ -684,4 +690,26 @@ void CInputBindingManager::CMotorBinding::Load(Framework::CConfig& config, const
 {
 	auto prefBase = Framework::CConfig::MakePreferenceName(buttonBase, CONFIG_BINDINGTARGET1);
 	m_binding = LoadBindingTargetPreference(config, prefBase.c_str());
+}
+
+void CInputBindingManager::CMotorBinding::ThreadProc()
+{
+	while(m_running)
+	{
+		std::unique_lock<std::mutex> lock(m_mutex);
+		m_cv.wait(lock);
+
+		while(m_running && m_nextTimeout.load() > std::chrono::steady_clock::now())
+		{
+			std::this_thread::sleep_for(std::chrono::milliseconds(16));
+		}
+
+		for(auto& [id, provider] : m_providers)
+		{
+			if(id == m_binding.providerId)
+			{
+				provider->SetVibration(m_binding.deviceId, 0, 0);
+			}
+		}
+	}
 }

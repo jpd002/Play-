@@ -4,7 +4,10 @@
 #include "InputConfig.h"
 #include "ControllerInfo.h"
 #include "InputProvider.h"
+#include <atomic>
 #include <array>
+#include <condition_variable>
+#include <thread>
 #include <memory>
 #include <functional>
 #include <string>
@@ -49,6 +52,35 @@ public:
 
 		virtual void Save(Framework::CConfig&, const char*) const = 0;
 		virtual void Load(Framework::CConfig&, const char*) = 0;
+	};
+
+	class CMotorBinding
+	{
+	public:
+		CMotorBinding(const BINDINGTARGET&, const ProviderMap&);
+		CMotorBinding(ProviderMap& providers);
+		CMotorBinding();
+		~CMotorBinding();
+
+		void ProcessEvent(uint8 largeMotor, uint8 smallMotor);
+
+		BINDINGTYPE GetBindingType() const;
+		BINDINGTARGET GetBindingTarget() const;
+
+		void Save(Framework::CConfig&, const char*) const;
+		void Load(Framework::CConfig&, const char*);
+
+	private:
+		void ThreadProc();
+
+		BINDINGTARGET m_binding;
+		const CInputBindingManager::ProviderMap& m_providers;
+
+		std::thread m_thread;
+		std::condition_variable m_cv;
+		std::mutex m_mutex;
+		bool m_running = false;
+		std::atomic<std::chrono::steady_clock::time_point> m_nextTimeout;
 	};
 
 	CInputBindingManager();
@@ -156,39 +188,6 @@ private:
 
 		uint32 m_key1State = 0;
 		uint32 m_key2State = 0;
-	};
-
-	class CMotorBinding
-	{
-	private:
-		static const CInputBindingManager::ProviderMap& GetEmpty()
-		{
-			static CInputBindingManager::ProviderMap empty;
-			return empty;
-		};
-
-	public:
-		CMotorBinding() : m_providers(GetEmpty()) {};
-		CMotorBinding(ProviderMap& providers) : m_providers(providers) {};
-		CMotorBinding(const BINDINGTARGET&, ProviderMap&);
-
-		void ProcessEvent(uint8 largeMotor, uint8 smallMotor);
-
-		BINDINGTARGET GetBindingTarget() const;
-		BINDINGTYPE GetBindingType() const;
-		const char* GetBindingTypeName() const;
-		std::string GetDescription(CInputBindingManager*) const;
-
-		uint32 GetValue() const;
-		void SetValue(uint32);
-
-		void Save(Framework::CConfig&, const char*) const;
-		void Load(Framework::CConfig&, const char*);
-
-	private:
-		BINDINGTARGET m_binding;
-		uint32 m_value = 0;
-		const CInputBindingManager::ProviderMap& m_providers;
 	};
 
 	void OnInputEventReceived(const BINDINGTARGET&, uint32);
