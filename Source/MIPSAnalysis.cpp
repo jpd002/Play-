@@ -7,10 +7,6 @@ CMIPSAnalysis::CMIPSAnalysis(CMIPS* ctx)
 {
 }
 
-CMIPSAnalysis::~CMIPSAnalysis()
-{
-}
-
 void CMIPSAnalysis::Clear()
 {
 	m_subroutines.clear();

@@ -24,7 +24,6 @@ public:
 	typedef std::vector<uint32> CallStackItemArray;
 
 	CMIPSAnalysis(CMIPS*);
-	~CMIPSAnalysis();
 	void Analyse(uint32, uint32, uint32 = -1);
 	const SUBROUTINE* FindSubroutine(uint32) const;
 	void Clear();
