@@ -314,6 +314,7 @@ void CMIPSAnalysis::ExpandSubroutines(uint32 executableStart, uint32 executableE
 
 bool CMIPSAnalysis::TryGetStringAtAddress(CMIPS* context, uint32 address, std::string& result)
 {
+	result.clear();
 	uint8 byteBefore = context->m_pMemoryMap->GetByte(address - 1);
 	if(byteBefore != 0) return false;
 	while(1)
@@ -334,6 +335,80 @@ bool CMIPSAnalysis::TryGetStringAtAddress(CMIPS* context, uint32 address, std::s
 	return (result.length() > 1);
 }
 
+bool CMIPSAnalysis::TryGetSJISLatinStringAtAddress(CMIPS* context, uint32 address, std::string& result)
+{
+	enum DECODE_STATE
+	{
+		DECODE_STATE_NORMAL,
+		DECODE_STATE_81,
+		DECODE_STATE_82,
+	};
+
+	DECODE_STATE state = DECODE_STATE_NORMAL;
+
+	result.clear();
+	
+	while(1)
+	{
+		uint8 byte = context->m_pMemoryMap->GetByte(address++);
+		if(byte == 0) break;
+		switch(state)
+		{
+		case DECODE_STATE_NORMAL:
+			if(byte == 0x81)
+			{
+				state = DECODE_STATE_81;
+			}
+			else if(byte == 0x82)
+			{
+				state = DECODE_STATE_82;
+			}
+			else if(byte < 0x80)
+			{
+				result += byte;
+				state = DECODE_STATE_NORMAL;
+			}
+			else
+			{
+				return false;
+			}
+			break;
+		case DECODE_STATE_81:
+			if(byte == 0x40)
+			{
+				result += ' ';
+				state = DECODE_STATE_NORMAL;
+			}
+			else if(byte == 0x5E)
+			{
+				result += '/';
+				state = DECODE_STATE_NORMAL;
+			}
+			else
+			{
+				return false;
+			}
+			break;
+		case DECODE_STATE_82:
+			if(byte >= 0x4F && byte < 0x59)
+			{
+				result += (byte - 0x4F) + '0';
+				state = DECODE_STATE_NORMAL;
+			}
+			else if(byte >= 0x60 && byte < 0x7A)
+			{
+				result += (byte - 0x60) + 'A';
+				state = DECODE_STATE_NORMAL;
+			}
+			else
+			{
+				return false;
+			}
+			break;
+		}
+	}
+	return (result.length() > 1);
+}
 void CMIPSAnalysis::AnalyseStringReferences()
 {
 	bool commentInserted = false;
@@ -366,7 +441,8 @@ void CMIPSAnalysis::AnalyseStringReferences()
 					registerWritten[rs] = false;
 
 					std::string stringConstant;
-					if(TryGetStringAtAddress(m_ctx, targetAddress, stringConstant))
+					if(TryGetStringAtAddress(m_ctx, targetAddress, stringConstant) ||
+					   TryGetSJISLatinStringAtAddress(m_ctx, targetAddress, stringConstant))
 					{
 						if(!m_ctx->m_Comments.Find(address))
 						{

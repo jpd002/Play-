@@ -34,6 +34,7 @@ public:
 
 	static CallStackItemArray GetCallStack(CMIPS*, uint32 pc, uint32 sp, uint32 ra);
 	static bool TryGetStringAtAddress(CMIPS*, uint32, std::string&);
+	static bool TryGetSJISLatinStringAtAddress(CMIPS*, uint32, std::string&);
 
 private:
 	typedef std::map<uint32, SUBROUTINE, std::greater<uint32>> SubroutineList;
