@@ -343,6 +343,10 @@ void CSio2::ProcessController(unsigned int portId, size_t outputOffset, uint32 d
 			//Pad data goes here
 			m_outputBuffer[outputOffset + 0x03] = static_cast<uint8>(padState.buttonState >> 8);
 			m_outputBuffer[outputOffset + 0x04] = static_cast<uint8>(padState.buttonState & 0xFF);
+
+			padState.smallMotor = m_inputBuffer[0x03] & 0x01;
+			padState.largeMotor = m_inputBuffer[0x04];
+
 			if(dstSize >= 9)
 			{
 				//Analog stuff
@@ -660,4 +664,11 @@ void CSio2::DisassembleWrite(uint32 address, uint32 value)
 		CLog::GetInstance().Print(LOG_NAME, "Write 0x%08X to an unknown register 0x%08X.\r\n", value, address);
 		break;
 	}
+}
+
+void CSio2::GetVibration(unsigned int padId, uint8& largeMotor, uint8& smallMotor)
+{
+	auto& padState = m_padState[padId];
+	largeMotor = padState.largeMotor;
+	smallMotor = padState.smallMotor;
 }

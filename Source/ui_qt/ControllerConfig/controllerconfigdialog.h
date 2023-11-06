@@ -13,6 +13,7 @@ namespace Ui
 class QTableView;
 class QSlider;
 class QLabel;
+class QComboBox;
 class CInputProviderQtKey;
 class CInputProviderQtMouse;
 
@@ -44,6 +45,7 @@ private:
 		QTableView* bindingsView = nullptr;
 		QSlider* analogSensitivitySlider = nullptr;
 		QLabel* analogSensitivityValueLabel = nullptr;
+		QComboBox* hapticFeedbackComboBox = nullptr;
 	};
 
 	void PrepareBindingsView(uint32 padIndex);

@@ -1,5 +1,6 @@
 #include <cassert>
 #include "InputBindingManager.h"
+#include "ThreadUtils.h"
 #include "AppConfig.h"
 #include "string_format.h"
 
@@ -151,6 +152,17 @@ std::string CInputBindingManager::GetTargetDescription(const BINDINGTARGET& targ
 	return provider->GetTargetDescription(target);
 }
 
+std::vector<DEVICEINFO> CInputBindingManager::GetDevices() const
+{
+	std::vector<DEVICEINFO> devices;
+	for(auto& [_, provider] : m_providers)
+	{
+		auto providerDevices = provider->GetDevices();
+		devices.insert(devices.end(), providerDevices.begin(), providerDevices.end());
+	}
+	return devices;
+}
+
 void CInputBindingManager::OnInputEventReceived(const BINDINGTARGET& target, uint32 value)
 {
 	for(unsigned int pad = 0; pad < MAX_PADS; pad++)
@@ -192,6 +204,10 @@ void CInputBindingManager::Reload()
 			}
 			CPovHatBinding::RegisterPreferences(*m_config, prefBase.c_str());
 		}
+		{
+			auto prefBase = Framework::CConfig::MakePreferenceName(CONFIG_PREFIX, m_padPreferenceName[pad], "motor");
+			RegisterBindingTargetPreference(*m_config, Framework::CConfig::MakePreferenceName(prefBase, CONFIG_BINDINGTARGET1).c_str());
+		}
 	}
 
 	for(unsigned int pad = 0; pad < MAX_PADS; pad++)
@@ -226,6 +242,12 @@ void CInputBindingManager::Reload()
 			}
 			m_bindings[pad][button] = binding;
 		}
+		{
+			auto binding = std::make_shared<CMotorBinding>(m_providers);
+			auto prefBase = Framework::CConfig::MakePreferenceName(CONFIG_PREFIX, m_padPreferenceName[pad], "motor");
+			binding->Load(*m_config, prefBase.c_str());
+			m_motorBindings[pad] = binding;
+		}
 	}
 	ResetBindingValues();
 }
@@ -256,6 +278,21 @@ void CInputBindingManager::Save()
 				m_config->SetPreferenceInteger(prefBindingType.c_str(), BINDING_UNBOUND);
 			}
 		}
+
+		{
+			auto prefBase = Framework::CConfig::MakePreferenceName(CONFIG_PREFIX, m_padPreferenceName[pad], "motor");
+			auto prefBindingType = Framework::CConfig::MakePreferenceName(prefBase, CONFIG_BINDING_TYPE);
+			const auto& binding = m_motorBindings[pad];
+			if(binding)
+			{
+				m_config->SetPreferenceInteger(prefBindingType.c_str(), binding->GetBindingType());
+				binding->Save(*m_config, prefBase.c_str());
+			}
+			else
+			{
+				m_config->SetPreferenceInteger(prefBindingType.c_str(), BINDING_UNBOUND);
+			}
+		}
 	}
 	m_config->Save();
 }
@@ -267,6 +304,20 @@ const CInputBindingManager::CBinding* CInputBindingManager::GetBinding(uint32 pa
 		throw std::exception();
 	}
 	return m_bindings[pad][button].get();
+}
+
+CInputBindingManager::CMotorBinding* CInputBindingManager::GetMotorBinding(uint32 pad) const
+{
+	if(pad >= MAX_PADS)
+	{
+		throw std::exception();
+	}
+	return m_motorBindings[pad].get();
+}
+
+void CInputBindingManager::SetMotorBinding(uint32 pad, const BINDINGTARGET& binding)
+{
+	m_motorBindings[pad] = std::make_shared<CMotorBinding>(binding, m_providers);
 }
 
 float CInputBindingManager::GetAnalogSensitivity(uint32 pad) const
@@ -570,4 +621,97 @@ void CInputBindingManager::CSimulatedAxisBinding::Load(Framework::CConfig& confi
 	auto key2PrefBase = Framework::CConfig::MakePreferenceName(buttonBase, CONFIG_BINDINGTARGET2);
 	m_key1Binding = LoadBindingTargetPreference(config, key1PrefBase.c_str());
 	m_key2Binding = LoadBindingTargetPreference(config, key2PrefBase.c_str());
+}
+
+////////////////////////////////////////////////
+// CMotorBinding, Specialised binding that can communicate back to a provider
+////////////////////////////////////////////////
+CInputBindingManager::CMotorBinding::CMotorBinding(const BINDINGTARGET& binding, const CInputBindingManager::ProviderMap& providers)
+    : m_binding(binding)
+    , m_providers(providers)
+    , m_running(true)
+    , m_nextTimeout(std::chrono::steady_clock::now())
+{
+	m_thread = std::thread(&CInputBindingManager::CMotorBinding::ThreadProc, this);
+	Framework::ThreadUtils::SetThreadName(m_thread, "MotorBinding Thread");
+}
+
+CInputBindingManager::CMotorBinding::CMotorBinding(ProviderMap& providers)
+    : CMotorBinding(BINDINGTARGET(), providers)
+{
+}
+
+CInputBindingManager::CMotorBinding::CMotorBinding()
+    : CMotorBinding(BINDINGTARGET(), {})
+{
+}
+
+CInputBindingManager::CMotorBinding::~CMotorBinding()
+{
+	m_running = false;
+	m_cv.notify_all();
+	if(m_thread.joinable())
+	{
+		m_thread.join();
+	}
+}
+
+void CInputBindingManager::CMotorBinding::ProcessEvent(uint8 largeMotor, uint8 smallMotor)
+{
+	for(auto& [id, provider] : m_providers)
+	{
+		if(id == m_binding.providerId)
+		{
+			provider->SetVibration(m_binding.deviceId, largeMotor, smallMotor);
+			if(largeMotor + smallMotor)
+			{
+				m_nextTimeout = std::chrono::steady_clock::now() + std::chrono::seconds(1);
+				m_cv.notify_all();
+			}
+		}
+	}
+}
+
+CInputBindingManager::BINDINGTYPE CInputBindingManager::CMotorBinding::GetBindingType() const
+{
+	return BINDING_MOTOR;
+}
+
+BINDINGTARGET CInputBindingManager::CMotorBinding::GetBindingTarget() const
+{
+	return m_binding;
+}
+
+void CInputBindingManager::CMotorBinding::Save(Framework::CConfig& config, const char* buttonBase) const
+{
+	auto prefBase = Framework::CConfig::MakePreferenceName(buttonBase, CONFIG_BINDINGTARGET1);
+	SaveBindingTargetPreference(config, prefBase.c_str(), m_binding);
+}
+
+void CInputBindingManager::CMotorBinding::Load(Framework::CConfig& config, const char* buttonBase)
+{
+	auto prefBase = Framework::CConfig::MakePreferenceName(buttonBase, CONFIG_BINDINGTARGET1);
+	m_binding = LoadBindingTargetPreference(config, prefBase.c_str());
+}
+
+void CInputBindingManager::CMotorBinding::ThreadProc()
+{
+	while(m_running)
+	{
+		std::unique_lock<std::mutex> lock(m_mutex);
+		m_cv.wait(lock);
+
+		while(m_running && m_nextTimeout.load() > std::chrono::steady_clock::now())
+		{
+			std::this_thread::sleep_for(std::chrono::milliseconds(16));
+		}
+
+		for(auto& [id, provider] : m_providers)
+		{
+			if(id == m_binding.providerId)
+			{
+				provider->SetVibration(m_binding.deviceId, 0, 0);
+			}
+		}
+	}
 }

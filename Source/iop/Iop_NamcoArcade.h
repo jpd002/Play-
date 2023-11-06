@@ -4,7 +4,7 @@
 #include "Iop_Module.h"
 #include "Iop_SifMan.h"
 #include "../SifModuleAdapter.h"
-#include "../PadListener.h"
+#include "../PadInterface.h"
 #include "../GunListener.h"
 #include "filesystem_def.h"
 
@@ -17,7 +17,7 @@ namespace Iop
 		class CAcRam;
 	}
 
-	class CNamcoArcade : public CModule, public CPadListener, public CGunListener
+	class CNamcoArcade : public CModule, public CPadInterface, public CGunListener
 	{
 	public:
 		enum class JVS_MODE
@@ -42,9 +42,10 @@ namespace Iop
 		void SetButton(unsigned int, PS2::CControllerInfo::BUTTON);
 		void SetLightGunXform(const std::array<float, 4>&);
 
-		//CPadListener
+		//CPadInterface
 		void SetButtonState(unsigned int, PS2::CControllerInfo::BUTTON, bool, uint8*) override;
 		void SetAxisState(unsigned int, PS2::CControllerInfo::BUTTON, uint8, uint8*) override;
+		void GetVibration(unsigned int, uint8& largeMotor, uint8& smallMotor) override{};
 
 		//CGunListener
 		void SetGunPosition(float, float) override;

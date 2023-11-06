@@ -4,7 +4,10 @@
 #include "InputConfig.h"
 #include "ControllerInfo.h"
 #include "InputProvider.h"
+#include <atomic>
 #include <array>
+#include <condition_variable>
+#include <thread>
 #include <memory>
 #include <functional>
 #include <string>
@@ -12,8 +15,13 @@
 class CInputBindingManager
 {
 public:
+	class CBinding;
+	class CMotorBinding;
 	using ProviderPtr = std::shared_ptr<CInputProvider>;
 	using ProviderConnectionMap = std::map<uint32, CInputProvider::OnInputSignalConnection>;
+	using BindingPtr = std::shared_ptr<CBinding>;
+	using MotorBindingPtr = std::shared_ptr<CMotorBinding>;
+	using ProviderMap = std::map<uint32, ProviderPtr>;
 
 	enum
 	{
@@ -26,6 +34,7 @@ public:
 		BINDING_SIMPLE = 1,
 		BINDING_SIMULATEDAXIS = 2,
 		BINDING_POVHAT = 3,
+		BINDING_MOTOR = 4,
 	};
 
 	class CBinding
@@ -43,6 +52,35 @@ public:
 
 		virtual void Save(Framework::CConfig&, const char*) const = 0;
 		virtual void Load(Framework::CConfig&, const char*) = 0;
+	};
+
+	class CMotorBinding
+	{
+	public:
+		CMotorBinding(const BINDINGTARGET&, const ProviderMap&);
+		CMotorBinding(ProviderMap& providers);
+		CMotorBinding();
+		~CMotorBinding();
+
+		void ProcessEvent(uint8 largeMotor, uint8 smallMotor);
+
+		BINDINGTYPE GetBindingType() const;
+		BINDINGTARGET GetBindingTarget() const;
+
+		void Save(Framework::CConfig&, const char*) const;
+		void Load(Framework::CConfig&, const char*);
+
+	private:
+		void ThreadProc();
+
+		BINDINGTARGET m_binding;
+		const CInputBindingManager::ProviderMap& m_providers;
+
+		std::thread m_thread;
+		std::condition_variable m_cv;
+		std::mutex m_mutex;
+		bool m_running = false;
+		std::atomic<std::chrono::steady_clock::time_point> m_nextTimeout;
 	};
 
 	CInputBindingManager();
@@ -63,6 +101,10 @@ public:
 	void SetPovHatBinding(uint32, PS2::CControllerInfo::BUTTON, const BINDINGTARGET&, uint32);
 	void SetSimulatedAxisBinding(uint32, PS2::CControllerInfo::BUTTON, const BINDINGTARGET&, const BINDINGTARGET&);
 	void ResetBinding(uint32, PS2::CControllerInfo::BUTTON);
+
+	std::vector<DEVICEINFO> GetDevices() const;
+	CMotorBinding* GetMotorBinding(uint32) const;
+	void SetMotorBinding(uint32, const BINDINGTARGET&);
 
 	float GetAnalogSensitivity(uint32) const;
 	void SetAnalogSensitivity(uint32, float);
@@ -148,17 +190,16 @@ private:
 		uint32 m_key2State = 0;
 	};
 
-	using BindingPtr = std::shared_ptr<CBinding>;
-	using ProviderMap = std::map<uint32, ProviderPtr>;
-
 	void OnInputEventReceived(const BINDINGTARGET&, uint32);
 
-	BindingPtr m_bindings[MAX_PADS][PS2::CControllerInfo::MAX_BUTTONS];
-	std::array<float, MAX_PADS> m_analogSensitivity;
 	static uint32 m_buttonDefaultValue[PS2::CControllerInfo::MAX_BUTTONS];
 	static const char* m_padPreferenceName[MAX_PADS];
 
-	std::unique_ptr<CInputConfig> m_config;
 	ProviderMap m_providers;
 	ProviderConnectionMap m_providersConnection;
+
+	std::unique_ptr<CInputConfig> m_config;
+	std::array<float, MAX_PADS> m_analogSensitivity;
+	BindingPtr m_bindings[MAX_PADS][PS2::CControllerInfo::MAX_BUTTONS];
+	MotorBindingPtr m_motorBindings[MAX_PADS];
 };

@@ -1,11 +1,11 @@
 #include "PadHandler.h"
 
-void CPadHandler::InsertListener(CPadListener* pListener)
+void CPadHandler::InsertListener(CPadInterface* pListener)
 {
-	m_listeners.push_back(pListener);
+	m_interfaces.push_back(pListener);
 }
 
 void CPadHandler::RemoveAllListeners()
 {
-	m_listeners.clear();
+	m_interfaces.clear();
 }

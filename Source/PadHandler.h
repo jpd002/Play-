@@ -1,7 +1,7 @@
 #ifndef _PADHANDLER_H_
 #define _PADHANDLER_H_
 
-#include "PadListener.h"
+#include "PadInterface.h"
 #include <list>
 #include <functional>
 
@@ -13,12 +13,12 @@ public:
 	CPadHandler() = default;
 	virtual ~CPadHandler() = default;
 	virtual void Update(uint8*) = 0;
-	void InsertListener(CPadListener*);
+	void InsertListener(CPadInterface*);
 	void RemoveAllListeners();
 
 protected:
-	typedef std::list<CPadListener*> ListenerList;
-	ListenerList m_listeners;
+	typedef std::list<CPadInterface*> ListenerList;
+	ListenerList m_interfaces;
 };
 
 #endif

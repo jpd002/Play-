@@ -2,12 +2,12 @@
 
 #include "Types.h"
 #include "Iop_Intc.h"
-#include "../PadListener.h"
+#include "../PadInterface.h"
 #include <deque>
 
 namespace Iop
 {
-	class CSio2 : public CPadListener
+	class CSio2 : public CPadInterface
 	{
 	public:
 		enum
@@ -32,6 +32,7 @@ namespace Iop
 
 		void SetButtonState(unsigned int, PS2::CControllerInfo::BUTTON, bool, uint8*) override;
 		void SetAxisState(unsigned int, PS2::CControllerInfo::BUTTON, uint8, uint8*) override;
+		void GetVibration(unsigned int padId, uint8& largeMotor, uint8& smallMotor) override;
 
 	private:
 		enum REGISTERS
@@ -72,6 +73,8 @@ namespace Iop
 			uint8 pollMask[3];
 			uint16 buttonState;
 			uint8 analogStickState[4];
+			uint8 smallMotor;
+			uint8 largeMotor;
 		};
 
 		typedef std::deque<uint8> ByteBufferType;

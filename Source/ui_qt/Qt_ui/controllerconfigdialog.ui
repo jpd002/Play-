@@ -56,28 +56,46 @@ QGroupBox::title {
        <string>Pad1</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout">
-       <item row="1" column="0">
-        <layout class="QHBoxLayout" name="horizontalLayout">
+       <item row="3" column="0">
+        <layout class="QVBoxLayout" name="verticalLayout_3">
          <item>
-          <widget class="QLabel" name="label_2">
-           <property name="text">
-            <string>Analog Stick Sensitivity:</string>
-           </property>
-          </widget>
+          <layout class="QHBoxLayout" name="horizontalLayout">
+           <item>
+            <widget class="QLabel" name="label_2">
+             <property name="text">
+              <string>Analog Stick Sensitivity:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QSlider" name="pad1AnalogSensitivitySlider">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="pad1AnalogSensitivityValueLabel">
+             <property name="text">
+              <string>1.000</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
          </item>
          <item>
-          <widget class="QSlider" name="pad1AnalogSensitivitySlider">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLabel" name="pad1AnalogSensitivityValueLabel">
-           <property name="text">
-            <string>1.000</string>
-           </property>
-          </widget>
+          <layout class="QHBoxLayout" name="horizontalLayout_4">
+           <item>
+            <widget class="QLabel" name="pad2hapticlabel">
+             <property name="text">
+              <string>Haptic Feedback Device:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QComboBox" name="pad1hapticFeedbackComboBox"/>
+           </item>
+          </layout>
          </item>
         </layout>
        </item>
@@ -96,27 +114,45 @@ QGroupBox::title {
       </attribute>
       <layout class="QGridLayout" name="gridLayout1">
        <item row="1" column="0">
-        <layout class="QHBoxLayout" name="horizontalLayout1">
+        <layout class="QVBoxLayout" name="verticalLayout_4">
          <item>
-          <widget class="QLabel" name="label_3">
-           <property name="text">
-            <string>Analog Stick Sensitivity:</string>
-           </property>
-          </widget>
+          <layout class="QHBoxLayout" name="horizontalLayout1">
+           <item>
+            <widget class="QLabel" name="label_3">
+             <property name="text">
+              <string>Analog Stick Sensitivity:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QSlider" name="pad2AnalogSensitivitySlider">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="pad2AnalogSensitivityValueLabel">
+             <property name="text">
+              <string>1.000</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
          </item>
          <item>
-          <widget class="QSlider" name="pad2AnalogSensitivitySlider">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLabel" name="pad2AnalogSensitivityValueLabel">
-           <property name="text">
-            <string>1.000</string>
-           </property>
-          </widget>
+          <layout class="QHBoxLayout" name="horizontalLayout_5">
+           <item>
+            <widget class="QLabel" name="pad2hapticlabel">
+             <property name="text">
+              <string>Haptic Feedback Device:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QComboBox" name="pad2hapticFeedbackComboBox"/>
+           </item>
+          </layout>
          </item>
         </layout>
        </item>
