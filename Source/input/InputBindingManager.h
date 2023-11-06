@@ -192,14 +192,14 @@ private:
 
 	void OnInputEventReceived(const BINDINGTARGET&, uint32);
 
-	BindingPtr m_bindings[MAX_PADS][PS2::CControllerInfo::MAX_BUTTONS];
-	MotorBindingPtr m_motorBindings[MAX_PADS];
-
-	std::array<float, MAX_PADS> m_analogSensitivity;
 	static uint32 m_buttonDefaultValue[PS2::CControllerInfo::MAX_BUTTONS];
 	static const char* m_padPreferenceName[MAX_PADS];
 
-	std::unique_ptr<CInputConfig> m_config;
 	ProviderMap m_providers;
 	ProviderConnectionMap m_providersConnection;
+
+	std::unique_ptr<CInputConfig> m_config;
+	std::array<float, MAX_PADS> m_analogSensitivity;
+	BindingPtr m_bindings[MAX_PADS][PS2::CControllerInfo::MAX_BUTTONS];
+	MotorBindingPtr m_motorBindings[MAX_PADS];
 };

@@ -306,6 +306,20 @@ const CInputBindingManager::CBinding* CInputBindingManager::GetBinding(uint32 pa
 	return m_bindings[pad][button].get();
 }
 
+CInputBindingManager::CMotorBinding* CInputBindingManager::GetMotorBinding(uint32 pad) const
+{
+	if(pad >= MAX_PADS)
+	{
+		throw std::exception();
+	}
+	return m_motorBindings[pad].get();
+}
+
+void CInputBindingManager::SetMotorBinding(uint32 pad, const BINDINGTARGET& binding)
+{
+	m_motorBindings[pad] = std::make_shared<CMotorBinding>(binding, m_providers);
+}
+
 float CInputBindingManager::GetAnalogSensitivity(uint32 pad) const
 {
 	return m_analogSensitivity[pad];
@@ -610,21 +624,8 @@ void CInputBindingManager::CSimulatedAxisBinding::Load(Framework::CConfig& confi
 }
 
 ////////////////////////////////////////////////
-// MotorBinding, Specialised binding that can communicate back to a provider
+// CMotorBinding, Specialised binding that can communicate back to a provider
 ////////////////////////////////////////////////
-CInputBindingManager::CMotorBinding* CInputBindingManager::GetMotorBinding(uint32 pad) const
-{
-	if(pad >= MAX_PADS)
-	{
-		throw std::exception();
-	}
-	return m_motorBindings[pad].get();
-}
-void CInputBindingManager::SetMotorBinding(uint32 pad, const BINDINGTARGET& binding)
-{
-	m_motorBindings[pad] = std::make_shared<CMotorBinding>(binding, m_providers);
-}
-
 CInputBindingManager::CMotorBinding::CMotorBinding(const BINDINGTARGET& binding, const CInputBindingManager::ProviderMap& providers)
     : m_binding(binding)
     , m_providers(providers)
