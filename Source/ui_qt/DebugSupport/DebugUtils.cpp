@@ -1,6 +1,7 @@
 #include "DebugUtils.h"
 #include "string_cast.h"
 #include "string_format.h"
+#include "MIPS.h"
 #include "DebugSupportSettings.h"
 
 std::string DebugUtils::PrintAddressLocation(uint32 address, CMIPS* context, const BiosDebugModuleInfoArray& modules)

@@ -2,8 +2,9 @@
 
 #include <string>
 #include <QFont>
-#include "MIPS.h"
 #include "BiosDebugInfoProvider.h"
+
+class CMIPS;
 
 namespace DebugUtils
 {
