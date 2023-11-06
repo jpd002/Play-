@@ -1,5 +1,6 @@
 #include <cassert>
 #include "InputBindingManager.h"
+#include "ThreadUtils.h"
 #include "AppConfig.h"
 #include "string_format.h"
 
@@ -631,6 +632,7 @@ CInputBindingManager::CMotorBinding::CMotorBinding(const BINDINGTARGET& binding,
     , m_nextTimeout(std::chrono::steady_clock::now())
 {
 	m_thread = std::thread(&CInputBindingManager::CMotorBinding::ThreadProc, this);
+	Framework::ThreadUtils::SetThreadName(m_thread, "MotorBinding Thread");
 }
 
 CInputBindingManager::CMotorBinding::CMotorBinding(ProviderMap& providers)
