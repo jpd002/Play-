@@ -1,5 +1,6 @@
 #include "ELFSectionView.h"
 #include "string_format.h"
+#include "StringUtils.h"
 #include "lexical_cast_ex.h"
 
 #include <QLabel>
@@ -133,32 +134,26 @@ void CELFSectionView<ElfType>::FillInformation(int section)
 
 #undef CASE_ELF_ENUM
 
+	std::vector<std::string> flagNames;
+
+#define ADD_ELF_FLAG(flagValue)     \
+	if(pH->nFlags & ELF::flagValue) \
+		flagNames.push_back(#flagValue);
+
+	ADD_ELF_FLAG(SHF_WRITE)
+	ADD_ELF_FLAG(SHF_ALLOC)
+	ADD_ELF_FLAG(SHF_EXECINSTR)
+	ADD_ELF_FLAG(SHF_TLS)
+
+#undef ADD_ELF_FLAG
+
 	sTemp = string_format("0x%08X", pH->nFlags);
-	if(pH->nFlags & 0x7)
+
+	if(!flagNames.empty())
 	{
-		sTemp += " (";
-		if(pH->nFlags & ELF::SHF_WRITE)
-		{
-			sTemp += "SHF_WRITE";
-			if(pH->nFlags & 0x06)
-			{
-				sTemp += " | ";
-			}
-		}
-		if(pH->nFlags & ELF::SHF_ALLOC)
-		{
-			sTemp += "SHF_ALLOC";
-			if(pH->nFlags & 0x04)
-			{
-				sTemp += " | ";
-			}
-		}
-		if(pH->nFlags & ELF::SHF_EXECINSTR)
-		{
-			sTemp += "SHF_EXECINSTR";
-		}
-		sTemp += ")";
+		sTemp += string_format(" (%s)", StringUtils::Join(flagNames, " | ").c_str());
 	}
+
 	m_editFields[i++]->setText(sTemp.c_str());
 
 	sTemp = string_format("0x%08X", pH->nStart);

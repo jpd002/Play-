@@ -76,34 +76,28 @@ void CELFProgramView<ElfType>::FillInformation(int program)
 	std::string sTemp;
 	auto pH = m_pELF->GetProgram(program);
 
+#define CASE_ELF_ENUM(enumValue) \
+	case ELF::enumValue:         \
+		sTemp = #enumValue;      \
+		break;
+
 	switch(pH->nType)
 	{
-	case ELF::PT_NULL:
-		sTemp = "PT_NULL";
-		break;
-	case ELF::PT_LOAD:
-		sTemp = "PT_LOAD";
-		break;
-	case ELF::PT_DYNAMIC:
-		sTemp = "PT_DYNAMIC";
-		break;
-	case ELF::PT_INTERP:
-		sTemp = "PT_INTERP";
-		break;
-	case ELF::PT_NOTE:
-		sTemp = "PT_NOTE";
-		break;
-	case ELF::PT_SHLIB:
-		sTemp = "PT_SHLIB";
-		break;
-	case ELF::PT_PHDR:
-		sTemp = "PT_PHDR";
-		break;
+		CASE_ELF_ENUM(PT_NULL)
+		CASE_ELF_ENUM(PT_LOAD)
+		CASE_ELF_ENUM(PT_DYNAMIC)
+		CASE_ELF_ENUM(PT_INTERP)
+		CASE_ELF_ENUM(PT_NOTE)
+		CASE_ELF_ENUM(PT_SHLIB)
+		CASE_ELF_ENUM(PT_PHDR)
+		CASE_ELF_ENUM(PT_TLS)
 	default:
 		sTemp = string_format("Unknown (0x%08X)", pH->nType);
 		break;
 	}
 	m_editFields[i++]->setText(sTemp.c_str());
+
+#undef CASE_ELF_ENUM
 
 	sTemp = string_format("0x%08X", pH->nOffset);
 	m_editFields[i++]->setText(sTemp.c_str());

@@ -196,6 +196,7 @@ namespace ELF
 		SHF_WRITE = 0x0001,
 		SHF_ALLOC = 0x0002,
 		SHF_EXECINSTR = 0x0004,
+		SHF_TLS = 0x0400,
 	};
 
 	enum SECTION_HEADER_NUMBER
@@ -215,6 +216,7 @@ namespace ELF
 		PT_NOTE = 4,
 		PT_SHLIB = 5,
 		PT_PHDR = 6,
+		PT_TLS = 7,
 	};
 
 	enum PROGRAM_HEADER_FLAG
