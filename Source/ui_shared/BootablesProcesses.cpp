@@ -5,6 +5,7 @@
 #include "TheGamesDbClient.h"
 #include "DiskUtils.h"
 #include "PathUtils.h"
+#include "StringUtils.h"
 #include "string_format.h"
 #include "StdStreamUtils.h"
 #include "http/HttpClientFactory.h"
@@ -39,16 +40,14 @@ static void BootableLog(const char* format, ...)
 
 bool IsBootableExecutablePath(const fs::path& filePath)
 {
-	auto extension = filePath.extension().string();
-	std::transform(extension.begin(), extension.end(), extension.begin(), ::tolower);
+	auto extension = StringUtils::ToLower(filePath.extension().string());
 	return (extension == ".elf");
 }
 
 bool IsBootableDiscImagePath(const fs::path& filePath)
 {
 	const auto& supportedExtensions = DiskUtils::GetSupportedExtensions();
-	auto extension = filePath.extension().string();
-	std::transform(extension.begin(), extension.end(), extension.begin(), ::tolower);
+	auto extension = StringUtils::ToLower(filePath.extension().string());
 	auto extensionIterator = supportedExtensions.find(extension);
 	return extensionIterator != std::end(supportedExtensions);
 }

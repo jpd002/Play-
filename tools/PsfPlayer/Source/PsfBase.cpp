@@ -1,5 +1,6 @@
 #include "PsfBase.h"
 #include "MemStream.h"
+#include "StringUtils.h"
 #include <assert.h>
 #include <string.h>
 #include <ctype.h>
@@ -157,9 +158,8 @@ void CPsfBase::ReadTags(CStream& stream)
 			const char* tagEnd = tagBegin + line.length();
 			if(tagSeparator != NULL)
 			{
-				std::string tagName = std::string(tagBegin, tagSeparator);
+				std::string tagName = StringUtils::ToLower(std::string(tagBegin, tagSeparator));
 				std::string tagValue = std::string(tagSeparator + 1, tagEnd);
-				std::transform(tagName.begin(), tagName.end(), tagName.begin(), tolower);
 				TagMap::iterator tagIterator(m_tags.find(tagName));
 				if(tagIterator != m_tags.end())
 				{
