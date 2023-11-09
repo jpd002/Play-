@@ -195,11 +195,18 @@ private:
 	static uint32 m_buttonDefaultValue[PS2::CControllerInfo::MAX_BUTTONS];
 	static const char* m_padPreferenceName[MAX_PADS];
 
+	//Order of members is quite important here:
+	//- m_providersConnection should be last so that it can be destroyed first to avoid
+	//  anything from calling into this (some providers run on threads) while dtor is running.
+	//- m_motorBindings needs to appear after m_providers. Motor bindings run threads
+	//  that can push updates to input providers, so they need to be destroyed before.
+
 	ProviderMap m_providers;
-	ProviderConnectionMap m_providersConnection;
 
 	std::unique_ptr<CInputConfig> m_config;
 	std::array<float, MAX_PADS> m_analogSensitivity;
 	BindingPtr m_bindings[MAX_PADS][PS2::CControllerInfo::MAX_BUTTONS];
 	MotorBindingPtr m_motorBindings[MAX_PADS];
+
+	ProviderConnectionMap m_providersConnection;
 };
