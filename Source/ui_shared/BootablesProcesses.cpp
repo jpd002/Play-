@@ -38,26 +38,6 @@ static void BootableLog(const char* format, ...)
 #endif
 }
 
-bool IsBootableExecutablePath(const fs::path& filePath)
-{
-	auto extension = StringUtils::ToLower(filePath.extension().string());
-	return (extension == ".elf");
-}
-
-bool IsBootableDiscImagePath(const fs::path& filePath)
-{
-	const auto& supportedExtensions = DiskUtils::GetSupportedExtensions();
-	auto extension = StringUtils::ToLower(filePath.extension().string());
-	auto extensionIterator = supportedExtensions.find(extension);
-	return extensionIterator != std::end(supportedExtensions);
-}
-
-bool IsBootableArcadeDefPath(const fs::path& filePath)
-{
-	auto extension = filePath.extension().string();
-	return (extension == ".arcadedef");
-}
-
 bool DoesBootableExist(const fs::path& filePath)
 {
 	//TODO: Properly support S3 paths. Also, beware when implementing this because Android
@@ -81,9 +61,9 @@ bool TryRegisterBootable(const fs::path& path)
 		BootablesDb::BOOTABLE_TYPE bootableType = BootablesDb::BOOTABLE_TYPE::UNKNOWN;
 		if(
 		    !BootablesDb::CClient::GetInstance().BootableExists(path) &&
-		    !IsBootableExecutablePath(path) &&
-		    !(IsBootableDiscImagePath(path) && DiskUtils::TryGetDiskId(path, &serial)) &&
-		    !IsBootableArcadeDefPath(path))
+		    !DiskUtils::IsBootableExecutablePath(path) &&
+		    !(DiskUtils::IsBootableDiscImagePath(path) && DiskUtils::TryGetDiskId(path, &serial)) &&
+		    !DiskUtils::IsBootableArcadeDefPath(path))
 		{
 			return false;
 		}

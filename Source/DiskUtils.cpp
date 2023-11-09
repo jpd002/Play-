@@ -249,3 +249,25 @@ bool DiskUtils::TryGetDiskId(const fs::path& imagePath, std::string* diskIdPtr)
 		return false;
 	}
 }
+
+bool DiskUtils::IsBootableExecutablePath(const fs::path& filePath)
+{
+	auto extension = filePath.extension().string();
+	std::transform(extension.begin(), extension.end(), extension.begin(), ::tolower);
+	return (extension == ".elf");
+}
+
+bool DiskUtils::IsBootableDiscImagePath(const fs::path& filePath)
+{
+	const auto& supportedExtensions = DiskUtils::GetSupportedExtensions();
+	auto extension = filePath.extension().string();
+	std::transform(extension.begin(), extension.end(), extension.begin(), ::tolower);
+	auto extensionIterator = supportedExtensions.find(extension);
+	return extensionIterator != std::end(supportedExtensions);
+}
+
+bool DiskUtils::IsBootableArcadeDefPath(const fs::path& filePath)
+{
+	auto extension = filePath.extension().string();
+	return (extension == ".arcadedef");
+}

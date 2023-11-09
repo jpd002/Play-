@@ -1,5 +1,6 @@
 #include "../ui_shared/BootablesProcesses.h"
 #include "../ui_shared/BootablesDbClient.h"
+#include "DiskUtils.h"
 #include "com_virtualapplications_play_Bootable.h"
 #include "NativeShared.h"
 
@@ -108,7 +109,7 @@ extern "C" JNIEXPORT void Java_com_virtualapplications_play_BootablesInterop_set
 extern "C" JNIEXPORT jboolean Java_com_virtualapplications_play_BootablesInterop_IsBootableExecutablePath(JNIEnv* env, jclass clazz, jstring bootablePathString)
 {
 	auto bootablePath = fs::path(GetStringFromJstring(env, bootablePathString));
-	return IsBootableExecutablePath(bootablePath);
+	return DiskUtils::IsBootableExecutablePath(bootablePath);
 }
 
 extern "C" JNIEXPORT jboolean Java_com_virtualapplications_play_BootablesInterop_DoesBootableExist(JNIEnv* env, jclass clazz, jstring bootablePathString)

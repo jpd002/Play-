@@ -1187,16 +1187,16 @@ void MainWindow::SetupBootableView()
 	QBootablesView::BootCallback bootGameCallback = [&, showEmu](fs::path filePath) {
 		try
 		{
-			if(IsBootableDiscImagePath(filePath))
+			if(DiskUtils::IsBootableDiscImagePath(filePath))
 			{
 				LoadCDROM(filePath);
 				BootCDROM();
 			}
-			else if(IsBootableExecutablePath(filePath))
+			else if(DiskUtils::IsBootableExecutablePath(filePath))
 			{
 				BootElf(filePath);
 			}
-			else if(IsBootableArcadeDefPath(filePath))
+			else if(DiskUtils::IsBootableArcadeDefPath(filePath))
 			{
 				BootArcadeMachine(filePath);
 			}
