@@ -97,6 +97,21 @@ public:
 		return INVALID_ID;
 	}
 
+	uint32 Allocate(uint32 startId)
+	{
+		startId -= m_idBase;
+		for(unsigned int i = 0; i < m_structMax; i++)
+		{
+			uint32 index = (startId + i) % m_structMax;
+			if(!m_structBase[index].isValid)
+			{
+				m_structBase[index].isValid = true;
+				return (index + m_idBase);
+			}
+		}
+		return INVALID_ID;
+	}
+
 	void Free(uint32 id)
 	{
 		StructType* structPtr = (*this)[id];

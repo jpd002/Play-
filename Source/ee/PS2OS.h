@@ -75,6 +75,29 @@ public:
 	Framework::CSignal<void()> OnCrtModeChange;
 
 private:
+	enum
+	{
+		BIOS_SIFDMA_COUNT = 0x20,
+	};
+
+	struct BIOS_STATE
+	{
+		uint32 padding[4];
+		uint32 IDLE_THREAD_ID;
+		uint32 CURRENT_THREAD_ID;
+		uint32 VSYNCFLAG_VALUE1PTR;
+		uint32 VSYNCFLAG_VALUE2PTR;
+		uint32 THREADSCHEDULE_BASE;
+		uint32 INTCHANDLERQUEUE_BASE;
+		uint32 DMACHANDLERQUEUE_BASE;
+		uint32 TLB_READEXCEPTION_HANDLER;
+		uint32 TLB_WRITEEXCEPTION_HANDLER;
+		uint32 TRAPEXCEPTION_HANDLER;
+		uint32 CREATETHREAD_NEXTID;
+		uint32 SIFDMA_NEXT_INDEX;
+		uint32 SIFDMA_TIMES[BIOS_SIFDMA_COUNT];
+	};
+
 	struct SEMAPHOREPARAM
 	{
 		uint32 count;
@@ -441,6 +464,7 @@ private:
 	OsVariableWrapper<uint32> m_trapExceptionHandler;
 	OsVariableWrapper<uint32> m_sifDmaNextIdx;
 
+	BIOS_STATE* m_state = nullptr;
 	uint32* m_sifDmaTimes = nullptr;
 
 	ThreadQueue m_threadSchedule;
