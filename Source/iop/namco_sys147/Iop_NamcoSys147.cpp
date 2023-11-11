@@ -233,6 +233,25 @@ bool CSys147::Invoke99(uint32 method, uint32* args, uint32 argsSize, uint32* ret
 				reply.checksum = ComputePacketChecksum(reply);
 				m_pendingReplies.emplace_back(reply);
 			}
+			else if(packet->command == 0x31)
+			{
+				//Seems related to barcode reader
+				//data[0] = ?
+				//data[1] = size of data
+				//data[4] = start of data
+				MODULE_99_PACKET reply = {};
+				reply.type = 2;
+				reply.command = 0x31;
+				reply.data[1] = 0x6;
+				reply.data[4 + 0] = 0x02;
+				reply.data[4 + 1] = 0x02;
+				reply.data[4 + 2] = 0x80;
+				reply.data[4 + 3] = 0x02; //This is used for result
+				reply.data[4 + 4] = 0x03;
+				reply.data[4 + 5] = 0x03;
+				reply.checksum = ComputePacketChecksum(reply);
+				m_pendingReplies.emplace_back(reply);
+			}
 			else if(packet->command == 0x39)
 			{
 				//???
