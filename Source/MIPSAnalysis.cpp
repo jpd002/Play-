@@ -379,9 +379,29 @@ bool CMIPSAnalysis::TryGetSJISLatinStringAtAddress(CMIPS* context, uint32 addres
 				result += ' ';
 				state = DECODE_STATE_NORMAL;
 			}
+			else if(byte == 0x44)
+			{
+				result += '.';
+				state = DECODE_STATE_NORMAL;
+			}
+			else if(byte == 0x46)
+			{
+				result += ':';
+				state = DECODE_STATE_NORMAL;
+			}
 			else if(byte == 0x5E)
 			{
 				result += '/';
+				state = DECODE_STATE_NORMAL;
+			}
+			else if(byte == 0x69)
+			{
+				result += '(';
+				state = DECODE_STATE_NORMAL;
+			}
+			else if(byte == 0x6A)
+			{
+				result += ')';
 				state = DECODE_STATE_NORMAL;
 			}
 			else
@@ -398,6 +418,11 @@ bool CMIPSAnalysis::TryGetSJISLatinStringAtAddress(CMIPS* context, uint32 addres
 			else if(byte >= 0x60 && byte < 0x7A)
 			{
 				result += (byte - 0x60) + 'A';
+				state = DECODE_STATE_NORMAL;
+			}
+			else if(byte >= 0x81 && byte < 0x9B)
+			{
+				result += (byte - 0x81) + 'a';
 				state = DECODE_STATE_NORMAL;
 			}
 			else
