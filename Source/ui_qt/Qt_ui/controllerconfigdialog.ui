@@ -86,7 +86,7 @@ QGroupBox::title {
          <item>
           <layout class="QHBoxLayout" name="horizontalLayout_4">
            <item>
-            <widget class="QLabel" name="pad2hapticlabel">
+            <widget class="QLabel" name="pad1hapticlabel">
              <property name="text">
               <string>Haptic Feedback Device:</string>
              </property>
