@@ -24,7 +24,7 @@ CRegisterStateFile::~CRegisterStateFile()
 void CRegisterStateFile::Read(Framework::CStream& stream)
 {
 	m_registers.clear();
-	auto rootNode = std::unique_ptr<Framework::Xml::CNode>(Framework::Xml::CParser::ParseDocument(stream));
+	auto rootNode = Framework::Xml::CParser::ParseDocument(stream);
 	auto registerList = rootNode->SelectNodes("RegisterFile/Register");
 	for(Framework::Xml::CNode::NodeIterator nodeIterator(registerList.begin());
 	    nodeIterator != registerList.end(); nodeIterator++)
@@ -56,12 +56,12 @@ void CRegisterStateFile::Read(Framework::CStream& stream)
 
 void CRegisterStateFile::Write(Framework::CStream& stream)
 {
-	auto rootNode = new Framework::Xml::CNode("RegisterFile", true);
+	auto rootNode = std::make_unique<Framework::Xml::CNode>("RegisterFile", true);
 	for(auto registerIterator(m_registers.begin());
 	    registerIterator != m_registers.end(); registerIterator++)
 	{
 		const Register& reg(registerIterator->second);
-		auto registerNode = new Framework::Xml::CNode("Register", true);
+		auto registerNode = std::make_unique<Framework::Xml::CNode>("Register", true);
 		std::string valueString;
 		for(unsigned int i = 0; i < reg.first; i++)
 		{
@@ -69,10 +69,9 @@ void CRegisterStateFile::Write(Framework::CStream& stream)
 		}
 		registerNode->InsertAttribute("Name", registerIterator->first.c_str());
 		registerNode->InsertAttribute("Value", valueString.c_str());
-		rootNode->InsertNode(registerNode);
+		rootNode->InsertNode(std::move(registerNode));
 	}
-	Framework::Xml::CWriter::WriteDocument(stream, rootNode);
-	delete rootNode;
+	Framework::Xml::CWriter::WriteDocument(stream, rootNode.get());
 }
 
 void CRegisterStateFile::SetRegister32(const char* name, uint32 value)

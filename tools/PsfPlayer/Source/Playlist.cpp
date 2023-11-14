@@ -155,7 +155,7 @@ void CPlaylist::Read(const fs::path& playlistPath)
 	std::unique_ptr<Framework::Xml::CNode> document;
 	{
 		auto stream(Framework::CreateInputStdStream(playlistPath.native()));
-		document = std::unique_ptr<Framework::Xml::CNode>(Framework::Xml::CParser::ParseDocument(stream));
+		document = Framework::Xml::CParser::ParseDocument(stream);
 	}
 	if(!document)
 	{

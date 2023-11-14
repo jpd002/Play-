@@ -21,7 +21,7 @@ Framework::Xml::CNode* CXmlStateFile::GetRoot() const
 
 void CXmlStateFile::Read(Framework::CStream& stream)
 {
-	m_root = std::unique_ptr<Framework::Xml::CNode>(Framework::Xml::CParser::ParseDocument(stream));
+	m_root = Framework::Xml::CParser::ParseDocument(stream);
 }
 
 void CXmlStateFile::Write(Framework::CStream& stream)

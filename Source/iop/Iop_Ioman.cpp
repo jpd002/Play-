@@ -1060,12 +1060,12 @@ void CIoman::SaveFilesState(Framework::CZipArchiveWriter& archive) const
 
 		const auto& file = filePair.second;
 
-		auto fileStateNode = new Framework::Xml::CNode(STATE_FILES_FILENODE, true);
+		auto fileStateNode = std::make_unique<Framework::Xml::CNode>(STATE_FILES_FILENODE, true);
 		fileStateNode->InsertAttribute(Framework::Xml::CreateAttributeIntValue(STATE_FILES_FILENODE_IDATTRIBUTE, filePair.first));
 		fileStateNode->InsertAttribute(Framework::Xml::CreateAttributeIntValue(STATE_FILES_FILENODE_FLAGSATTRIBUTE, file.flags));
 		fileStateNode->InsertAttribute(Framework::Xml::CreateAttributeIntValue(STATE_FILES_FILENODE_DESCPTRATTRIBUTE, file.descPtr));
 		fileStateNode->InsertAttribute(Framework::Xml::CreateAttributeStringValue(STATE_FILES_FILENODE_PATHATTRIBUTE, file.path.c_str()));
-		filesStateNode->InsertNode(fileStateNode);
+		filesStateNode->InsertNode(std::move(fileStateNode));
 	}
 
 	archive.InsertFile(std::move(fileStateFile));
@@ -1078,10 +1078,10 @@ void CIoman::SaveUserDevicesState(Framework::CZipArchiveWriter& archive) const
 
 	for(const auto& devicePair : m_userDevices)
 	{
-		auto deviceStateNode = new Framework::Xml::CNode(STATE_USERDEVICES_DEVICENODE, true);
+		auto deviceStateNode = std::make_unique<Framework::Xml::CNode>(STATE_USERDEVICES_DEVICENODE, true);
 		deviceStateNode->InsertAttribute(Framework::Xml::CreateAttributeStringValue(STATE_USERDEVICES_DEVICENODE_NAMEATTRIBUTE, devicePair.first.c_str()));
 		deviceStateNode->InsertAttribute(Framework::Xml::CreateAttributeIntValue(STATE_USERDEVICES_DEVICENODE_DESCPTRATTRIBUTE, devicePair.second));
-		devicesStateNode->InsertNode(deviceStateNode);
+		devicesStateNode->InsertNode(std::move(deviceStateNode));
 	}
 
 	archive.InsertFile(std::move(deviceStateFile));
@@ -1094,10 +1094,10 @@ void CIoman::SaveMountedDevicesState(Framework::CZipArchiveWriter& archive) cons
 
 	for(const auto& devicePair : m_mountedDevices)
 	{
-		auto deviceStateNode = new Framework::Xml::CNode(STATE_MOUNTEDDEVICES_DEVICENODE, true);
+		auto deviceStateNode = std::make_unique<Framework::Xml::CNode>(STATE_MOUNTEDDEVICES_DEVICENODE, true);
 		deviceStateNode->InsertAttribute(Framework::Xml::CreateAttributeStringValue(STATE_MOUNTEDDEVICES_DEVICENODE_NAMEATTRIBUTE, devicePair.first.c_str()));
 		deviceStateNode->InsertAttribute(Framework::Xml::CreateAttributeStringValue(STATE_MOUNTEDDEVICES_DEVICENODE_PATHATTRIBUTE, devicePair.second.c_str()));
-		devicesStateNode->InsertNode(deviceStateNode);
+		devicesStateNode->InsertNode(std::move(deviceStateNode));
 	}
 
 	archive.InsertFile(std::move(deviceStateFile));

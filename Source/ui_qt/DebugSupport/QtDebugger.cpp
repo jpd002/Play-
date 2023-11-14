@@ -352,7 +352,7 @@ void QtDebugger::FindEeFunctions()
 
 	auto functionsPath = Framework::PathUtils::GetAppResourcesPath() / "ee_functions.xml";
 	auto functionsStream = Framework::CreateInputStdStream(functionsPath.native());
-	auto functionsDocument = std::unique_ptr<Framework::Xml::CNode>(Framework::Xml::CParser::ParseDocument(functionsStream));
+	auto functionsDocument = Framework::Xml::CParser::ParseDocument(functionsStream);
 	auto functionsNode = functionsDocument->Select("Functions");
 
 	//Check function patterns

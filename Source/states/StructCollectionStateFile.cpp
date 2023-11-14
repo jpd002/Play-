@@ -48,7 +48,7 @@ void CStructCollectionStateFile::InsertStruct(const char* name, const CStructFil
 void CStructCollectionStateFile::Read(Framework::CStream& stream)
 {
 	m_structs.clear();
-	auto rootNode = std::unique_ptr<Framework::Xml::CNode>(Framework::Xml::CParser::ParseDocument(stream));
+	auto rootNode = Framework::Xml::CParser::ParseDocument(stream);
 	auto registerList = rootNode->SelectNodes((std::string(STRUCT_DOCUMENT_HEADER) + "/" + std::string(STRUCT_DOCUMENT_DETAIL)).c_str());
 	for(auto nodeIterator(registerList.begin());
 	    nodeIterator != registerList.end(); nodeIterator++)
@@ -70,16 +70,15 @@ void CStructCollectionStateFile::Read(Framework::CStream& stream)
 
 void CStructCollectionStateFile::Write(Framework::CStream& stream)
 {
-	auto rootNode = new Framework::Xml::CNode(STRUCT_DOCUMENT_HEADER, true);
+	auto rootNode = std::make_unique<Framework::Xml::CNode>(STRUCT_DOCUMENT_HEADER, true);
 	for(auto structIterator(m_structs.begin());
 	    structIterator != m_structs.end(); structIterator++)
 	{
 		const auto& structFile(structIterator->second);
-		auto structNode = new Framework::Xml::CNode(STRUCT_DOCUMENT_DETAIL, true);
+		auto structNode = std::make_unique<Framework::Xml::CNode>(STRUCT_DOCUMENT_DETAIL, true);
 		structNode->InsertAttribute(STRUCT_DOCUMENT_DETAIL_NAME, structIterator->first.c_str());
-		structFile.Write(structNode);
-		rootNode->InsertNode(structNode);
+		structFile.Write(structNode.get());
+		rootNode->InsertNode(std::move(structNode));
 	}
-	Framework::Xml::CWriter::WriteDocument(stream, rootNode);
-	delete rootNode;
+	Framework::Xml::CWriter::WriteDocument(stream, rootNode.get());
 }

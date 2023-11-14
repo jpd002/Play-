@@ -601,7 +601,7 @@ void CPS2OS::ApplyPatches()
 		auto patchesPath = Framework::PathUtils::GetAppResourcesPath() / PATCHESFILENAME;
 		Framework::CStdStream patchesStream(Framework::CreateInputStdStream(patchesPath.native()));
 #endif
-		document = std::unique_ptr<Framework::Xml::CNode>(Framework::Xml::CParser::ParseDocument(patchesStream));
+		document = Framework::Xml::CParser::ParseDocument(patchesStream);
 		if(!document) return;
 	}
 	catch(const std::exception& exception)

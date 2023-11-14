@@ -48,7 +48,7 @@ void CStructFile::Write(Xml::CNode* rootNode) const
 	for(const auto& registerIterator : m_registers)
 	{
 		const Register& reg(registerIterator.second);
-		Xml::CNode* fieldNode = new Xml::CNode(STRUCT_FIELD, true);
+		auto fieldNode = std::make_unique<Xml::CNode>(STRUCT_FIELD, true);
 		string valueString;
 		for(unsigned int i = 0; i < reg.first; i++)
 		{
@@ -56,7 +56,7 @@ void CStructFile::Write(Xml::CNode* rootNode) const
 		}
 		fieldNode->InsertAttribute(STRUCT_FIELD_NAME, registerIterator.first.c_str());
 		fieldNode->InsertAttribute(STRUCT_FIELD_VALUE, valueString.c_str());
-		rootNode->InsertNode(fieldNode);
+		rootNode->InsertNode(std::move(fieldNode));
 	}
 }
 

@@ -38,7 +38,7 @@ const CGameTestSheet::TestArray& CGameTestSheet::GetTests() const
 
 void CGameTestSheet::ParseSheet(Framework::CStream& stream)
 {
-	auto document = std::unique_ptr<Framework::Xml::CNode>(Framework::Xml::CParser::ParseDocument(stream));
+	auto document = Framework::Xml::CParser::ParseDocument(stream);
 	//Environments
 	{
 		auto environmentNodes = document->SelectNodes("Game/Environments/Environment");
@@ -50,9 +50,9 @@ void CGameTestSheet::ParseSheet(Framework::CStream& stream)
 			{
 				if(!actionNode->IsTag()) continue;
 				auto actionType = actionNode->GetText();
-				auto actionName = Framework::Xml::GetAttributeStringValue(actionNode, "Name");
+				auto actionName = Framework::Xml::GetAttributeStringValue(actionNode.get(), "Name");
 				int actionSize = 0;
-				Framework::Xml::GetAttributeIntValue(actionNode, "Size", &actionSize);
+				Framework::Xml::GetAttributeIntValue(actionNode.get(), "Size", &actionSize);
 				ENVIRONMENT_ACTION action;
 				action.name = actionName;
 				action.size = actionSize;

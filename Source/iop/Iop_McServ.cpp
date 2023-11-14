@@ -1146,10 +1146,10 @@ void CMcServ::SaveState(Framework::CZipArchiveWriter& archive) const
 
 	for(unsigned int i = 0; i < MAX_PORTS; i++)
 	{
-		auto cardNode = new Framework::Xml::CNode(STATE_MEMCARDS_CARDNODE, true);
+		auto cardNode = std::make_unique<Framework::Xml::CNode>(STATE_MEMCARDS_CARDNODE, true);
 		cardNode->InsertAttribute(Framework::Xml::CreateAttributeIntValue(STATE_MEMCARDS_CARDNODE_PORTATTRIBUTE, i));
 		cardNode->InsertAttribute(Framework::Xml::CreateAttributeBoolValue(STATE_MEMCARDS_CARDNODE_KNOWNATTRIBUTE, m_knownMemoryCards[i]));
-		stateNode->InsertNode(cardNode);
+		stateNode->InsertNode(std::move(cardNode));
 	}
 
 	archive.InsertFile(std::move(stateFile));

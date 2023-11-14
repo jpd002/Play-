@@ -371,8 +371,8 @@ void CPS2VM::LoadDebugTags(const char* packageName)
 	{
 		auto packagePath = MakeDebugTagsPackagePath(packageName);
 		auto stream = Framework::CreateInputStdStream(packagePath.native());
-		std::unique_ptr<Framework::Xml::CNode> document(Framework::Xml::CParser::ParseDocument(stream));
-		Framework::Xml::CNode* tagsNode = document->Select(TAGS_SECTION_TAGS);
+		auto document = Framework::Xml::CParser::ParseDocument(stream);
+		auto tagsNode = document->Select(TAGS_SECTION_TAGS);
 		if(!tagsNode) return;
 		m_ee->m_EE.m_Functions.Unserialize(tagsNode, TAGS_SECTION_EE_FUNCTIONS);
 		m_ee->m_EE.m_Comments.Unserialize(tagsNode, TAGS_SECTION_EE_COMMENTS);
@@ -380,7 +380,7 @@ void CPS2VM::LoadDebugTags(const char* packageName)
 		m_ee->m_VU1.m_Functions.Unserialize(tagsNode, TAGS_SECTION_VU1_FUNCTIONS);
 		m_ee->m_VU1.m_Comments.Unserialize(tagsNode, TAGS_SECTION_VU1_COMMENTS);
 		{
-			Framework::Xml::CNode* sectionNode = tagsNode->Select(TAGS_SECTION_IOP);
+			auto sectionNode = tagsNode->Select(TAGS_SECTION_IOP);
 			if(sectionNode)
 			{
 				m_iop->m_cpu.m_Functions.Unserialize(sectionNode, TAGS_SECTION_IOP_FUNCTIONS);
@@ -401,19 +401,19 @@ void CPS2VM::SaveDebugTags(const char* packageName)
 	{
 		auto packagePath = MakeDebugTagsPackagePath(packageName);
 		auto stream = Framework::CreateOutputStdStream(packagePath.native());
-		std::unique_ptr<Framework::Xml::CNode> document(new Framework::Xml::CNode(TAGS_SECTION_TAGS, true));
+		auto document = std::make_unique<Framework::Xml::CNode>(TAGS_SECTION_TAGS, true);
 		m_ee->m_EE.m_Functions.Serialize(document.get(), TAGS_SECTION_EE_FUNCTIONS);
 		m_ee->m_EE.m_Comments.Serialize(document.get(), TAGS_SECTION_EE_COMMENTS);
 		m_ee->m_EE.m_Variables.Serialize(document.get(), TAGS_SECTION_EE_VARIABLES);
 		m_ee->m_VU1.m_Functions.Serialize(document.get(), TAGS_SECTION_VU1_FUNCTIONS);
 		m_ee->m_VU1.m_Comments.Serialize(document.get(), TAGS_SECTION_VU1_COMMENTS);
 		{
-			Framework::Xml::CNode* iopNode = new Framework::Xml::CNode(TAGS_SECTION_IOP, true);
-			m_iop->m_cpu.m_Functions.Serialize(iopNode, TAGS_SECTION_IOP_FUNCTIONS);
-			m_iop->m_cpu.m_Comments.Serialize(iopNode, TAGS_SECTION_IOP_COMMENTS);
-			m_iop->m_cpu.m_Variables.Serialize(iopNode, TAGS_SECTION_IOP_VARIABLES);
-			m_iop->m_bios->SaveDebugTags(iopNode);
-			document->InsertNode(iopNode);
+			auto iopNode = std::make_unique<Framework::Xml::CNode>(TAGS_SECTION_IOP, true);
+			m_iop->m_cpu.m_Functions.Serialize(iopNode.get(), TAGS_SECTION_IOP_FUNCTIONS);
+			m_iop->m_cpu.m_Comments.Serialize(iopNode.get(), TAGS_SECTION_IOP_COMMENTS);
+			m_iop->m_cpu.m_Variables.Serialize(iopNode.get(), TAGS_SECTION_IOP_VARIABLES);
+			m_iop->m_bios->SaveDebugTags(iopNode.get());
+			document->InsertNode(std::move(iopNode));
 		}
 		Framework::Xml::CWriter::WriteDocument(stream, document.get());
 	}

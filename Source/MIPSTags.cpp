@@ -92,9 +92,9 @@ void CMIPSTags::Unserialize(const char* sPath)
 
 void CMIPSTags::Serialize(Framework::Xml::CNode* parentNode, const char* sectionName) const
 {
-	auto section = new Framework::Xml::CNode(sectionName, true);
-	Serialize(section);
-	parentNode->InsertNode(section);
+	auto section = std::make_unique<Framework::Xml::CNode>(sectionName, true);
+	Serialize(section.get());
+	parentNode->InsertNode(std::move(section));
 }
 
 void CMIPSTags::Unserialize(Framework::Xml::CNode* parentNode, const char* sectionName)
@@ -108,10 +108,10 @@ void CMIPSTags::Serialize(Framework::Xml::CNode* parentNode) const
 {
 	for(const auto& tagPair : m_tags)
 	{
-		auto node = new Framework::Xml::CNode(TAG_ELEMENT_NAME, true);
+		auto node = std::make_unique<Framework::Xml::CNode>(TAG_ELEMENT_NAME, true);
 		node->InsertAttribute(TAG_ELEMENT_ATTRIBUTE_ADDRESS, lexical_cast_hex<std::string>(tagPair.first, 8).c_str());
 		node->InsertAttribute(TAG_ELEMENT_ATTRIBUTE_VALUE, tagPair.second.c_str());
-		parentNode->InsertNode(node);
+		parentNode->InsertNode(std::move(node));
 	}
 }
 
