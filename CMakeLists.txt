@@ -86,6 +86,7 @@ if(BUILD_TESTS)
 	add_subdirectory(tools/McServTest/)
 	add_subdirectory(tools/SpuTest/)
 	add_subdirectory(tools/VuTest/)
+	add_subdirectory(deps/Framework/build_cmake/Tests)
 endif()
 
 if(BUILD_PSFPLAYER)
