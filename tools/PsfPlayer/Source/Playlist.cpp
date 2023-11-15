@@ -199,8 +199,8 @@ void CPlaylist::Read(const fs::path& playlistPath)
 
 void CPlaylist::Write(const fs::path& playlistPath)
 {
-	std::unique_ptr<Framework::Xml::CNode> document(new Framework::Xml::CNode());
-	auto playlistNode = document->InsertNode(new Framework::Xml::CNode(PLAYLIST_NODE_TAG, true));
+	auto document = std::make_unique<Framework::Xml::CNode>();
+	auto playlistNode = document->InsertNode(std::make_unique<Framework::Xml::CNode>(PLAYLIST_NODE_TAG, true));
 
 	auto parentPath = playlistPath.parent_path();
 
@@ -212,7 +212,7 @@ void CPlaylist::Write(const fs::path& playlistPath)
 		auto itemPath = fs::path(item.path);
 		auto itemRelativePath(naive_uncomplete(itemPath, parentPath));
 
-		auto itemNode = playlistNode->InsertNode(new Framework::Xml::CNode(PLAYLIST_ITEM_NODE_TAG, true));
+		auto itemNode = playlistNode->InsertNode(std::make_unique<Framework::Xml::CNode>(PLAYLIST_ITEM_NODE_TAG, true));
 		itemNode->InsertAttribute(PLAYLIST_ITEM_PATH_ATTRIBUTE, Framework::Utf8::ConvertTo(itemRelativePath.wstring()).c_str());
 		itemNode->InsertAttribute(PLAYLIST_ITEM_TITLE_ATTRIBUTE, Framework::Utf8::ConvertTo(item.title).c_str());
 		itemNode->InsertAttribute(Framework::Xml::CreateAttributeIntValue(PLAYLIST_ITEM_LENGTH_ATTRIBUTE, item.length));

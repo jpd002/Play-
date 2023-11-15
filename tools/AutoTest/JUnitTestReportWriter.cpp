@@ -7,11 +7,8 @@
 CJUnitTestReportWriter::CJUnitTestReportWriter()
 {
 	m_reportNode = std::make_unique<Framework::Xml::CNode>("", true);
-	auto testSuitesNode = new Framework::Xml::CNode("testsuites", true);
-	m_reportNode->InsertNode(testSuitesNode);
-
-	m_testSuiteNode = new Framework::Xml::CNode("testsuite", true);
-	testSuitesNode->InsertNode(m_testSuiteNode);
+	auto testSuitesNode = m_reportNode->InsertNode(std::make_unique<Framework::Xml::CNode>("testsuites", true));
+	m_testSuiteNode = testSuitesNode->InsertNode(std::make_unique<Framework::Xml::CNode>("testsuite", true));
 }
 
 CJUnitTestReportWriter::~CJUnitTestReportWriter()
@@ -20,7 +17,7 @@ CJUnitTestReportWriter::~CJUnitTestReportWriter()
 
 void CJUnitTestReportWriter::ReportTestEntry(const std::string& testName, const TESTRESULT& result)
 {
-	auto testCaseNode = new Framework::Xml::CNode("testcase", true);
+	auto testCaseNode = std::make_unique<Framework::Xml::CNode>("testcase", true);
 	testCaseNode->InsertAttribute("name", testName.c_str());
 
 	if(!result.succeeded)
@@ -35,12 +32,12 @@ void CJUnitTestReportWriter::ReportTestEntry(const std::string& testName, const 
 			    lineDiff.result.c_str(), lineDiff.expected.c_str());
 			failureDetails += failureLine;
 		}
-		auto resultNode = new Framework::Xml::CNode("failure", true);
+		auto resultNode = std::make_unique<Framework::Xml::CNode>("failure", true);
 		resultNode->InsertTextNode(failureDetails.c_str());
-		testCaseNode->InsertNode(resultNode);
+		testCaseNode->InsertNode(std::move(resultNode));
 	}
 
-	m_testSuiteNode->InsertNode(testCaseNode);
+	m_testSuiteNode->InsertNode(std::move(testCaseNode));
 
 	m_testCount++;
 }

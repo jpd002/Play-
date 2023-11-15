@@ -69,7 +69,7 @@ extern "C" JNIEXPORT jstring JNICALL Java_com_virtualapplications_play_InputMana
 	auto documentNode = std::make_unique<Framework::Xml::CNode>("Document", true);
 	for(const auto& item : items)
 	{
-		auto itemNode = new Framework::Xml::CNode("Item", true);
+		auto itemNode = std::make_unique<Framework::Xml::CNode>("Item", true);
 		itemNode->InsertAttribute("isAnalog", item.isAnalog ? "true" : "false");
 		itemNode->InsertAttribute("x1", std::to_string(item.x1).c_str());
 		itemNode->InsertAttribute("y1", std::to_string(item.y1).c_str());
@@ -79,7 +79,7 @@ extern "C" JNIEXPORT jstring JNICALL Java_com_virtualapplications_play_InputMana
 		itemNode->InsertAttribute("code1", std::to_string(item.code1).c_str());
 		itemNode->InsertAttribute("caption", item.caption.c_str());
 		itemNode->InsertAttribute("imageName", item.imageName.c_str());
-		documentNode->InsertNode(itemNode);
+		documentNode->InsertNode(std::move(itemNode));
 	}
 	Framework::CMemStream outputStream;
 	Framework::Xml::CWriter::WriteDocument(outputStream, documentNode.get());
