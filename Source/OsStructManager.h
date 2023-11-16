@@ -69,6 +69,11 @@ public:
 		return m_structBase;
 	}
 
+	uint32 GetIdBase() const
+	{
+		return m_idBase;
+	}
+
 	StructType* operator[](uint32 index) const
 	{
 		index -= m_idBase;
@@ -97,16 +102,19 @@ public:
 		return INVALID_ID;
 	}
 
-	uint32 Allocate(uint32 startId)
+	uint32 AllocateAt(uint32& nextId)
 	{
-		startId -= m_idBase;
+		assert(nextId >= m_idBase);
+		uint32 nextIndex = nextId - m_idBase;
 		for(unsigned int i = 0; i < m_structMax; i++)
 		{
-			uint32 index = (startId + i) % m_structMax;
+			uint32 index = (i + nextIndex) % m_structMax;
 			if(!m_structBase[index].isValid)
 			{
 				m_structBase[index].isValid = true;
-				return (index + m_idBase);
+				nextIndex = (index + 1) % m_structMax;
+				nextId = nextIndex + m_idBase;
+				return index + m_idBase;
 			}
 		}
 		return INVALID_ID;

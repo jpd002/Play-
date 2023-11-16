@@ -83,20 +83,21 @@ private:
 	struct BIOS_STATE
 	{
 		uint32 padding[4];
-		uint32 IDLE_THREAD_ID;
-		uint32 CURRENT_THREAD_ID;
-		uint32 VSYNCFLAG_VALUE1PTR;
-		uint32 VSYNCFLAG_VALUE2PTR;
-		uint32 THREADSCHEDULE_BASE;
-		uint32 INTCHANDLERQUEUE_BASE;
-		uint32 DMACHANDLERQUEUE_BASE;
-		uint32 TLB_READEXCEPTION_HANDLER;
-		uint32 TLB_WRITEEXCEPTION_HANDLER;
-		uint32 TRAPEXCEPTION_HANDLER;
-		uint32 CREATETHREAD_NEXTID;
-		uint32 SIFDMA_NEXT_INDEX;
-		uint32 SIFDMA_TIMES[BIOS_SIFDMA_COUNT];
+		uint32 idleThreadId;
+		uint32 currentThreadId;
+		uint32 vsyncFlagValue1Ptr;
+		uint32 vsyncFlagValue2Ptr;
+		uint32 threadScheduleBase;
+		uint32 intcHandlerQueueBase;
+		uint32 dmacHandlerQueueBase;
+		uint32 tlblExceptionHandler;
+		uint32 tlbsExceptionHandler;
+		uint32 trapExceptionHandler;
+		uint32 allocateThreadNextId;
+		uint32 sifDmaNextIdx;
+		uint32 sifDmaTimes[BIOS_SIFDMA_COUNT];
 	};
+	static_assert((sizeof(BIOS_STATE) & 0xF) == 0, "Size of BIOS_STATE must be a multiple of 16.");
 
 	struct SEMAPHOREPARAM
 	{
@@ -457,14 +458,13 @@ private:
 	DmacHandlerList m_dmacHandlers;
 	AlarmList m_alarms;
 
+	BIOS_STATE* m_state = nullptr;
 	OsVariableWrapper<uint32> m_currentThreadId;
 	OsVariableWrapper<uint32> m_idleThreadId;
 	OsVariableWrapper<uint32> m_tlblExceptionHandler;
 	OsVariableWrapper<uint32> m_tlbsExceptionHandler;
 	OsVariableWrapper<uint32> m_trapExceptionHandler;
 	OsVariableWrapper<uint32> m_sifDmaNextIdx;
-
-	BIOS_STATE* m_state = nullptr;
 	uint32* m_sifDmaTimes = nullptr;
 
 	ThreadQueue m_threadSchedule;

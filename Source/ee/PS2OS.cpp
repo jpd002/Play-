@@ -31,23 +31,7 @@
 #include "PS2VM_Preferences.h"
 
 #define BIOS_ADDRESS_STATE_BASE 0x1000
-
-#define DECLARE_BIOS_STATE_ADDRESS(member) \
-	constexpr uint32_t BIOS_ADDRESS_##member = offsetof(CPS2OS::BIOS_STATE, ##member) + BIOS_ADDRESS_STATE_BASE;
-
-DECLARE_BIOS_STATE_ADDRESS(IDLE_THREAD_ID)
-DECLARE_BIOS_STATE_ADDRESS(CURRENT_THREAD_ID)
-DECLARE_BIOS_STATE_ADDRESS(VSYNCFLAG_VALUE1PTR)
-DECLARE_BIOS_STATE_ADDRESS(VSYNCFLAG_VALUE2PTR)
-DECLARE_BIOS_STATE_ADDRESS(THREADSCHEDULE_BASE)
-DECLARE_BIOS_STATE_ADDRESS(INTCHANDLERQUEUE_BASE)
-DECLARE_BIOS_STATE_ADDRESS(DMACHANDLERQUEUE_BASE)
-DECLARE_BIOS_STATE_ADDRESS(TLB_READEXCEPTION_HANDLER)
-DECLARE_BIOS_STATE_ADDRESS(TLB_WRITEEXCEPTION_HANDLER)
-DECLARE_BIOS_STATE_ADDRESS(TRAPEXCEPTION_HANDLER)
-DECLARE_BIOS_STATE_ADDRESS(CREATETHREAD_NEXTID)
-DECLARE_BIOS_STATE_ADDRESS(SIFDMA_NEXT_INDEX)
-DECLARE_BIOS_STATE_ADDRESS(SIFDMA_TIMES)
+#define BIOS_ADDRESS_STATE_ITEM(a) (BIOS_ADDRESS_STATE_BASE + offsetof(BIOS_STATE, a))
 
 #define BIOS_ADDRESS_INTERRUPT_THREAD_CONTEXT (BIOS_ADDRESS_STATE_BASE + sizeof(BIOS_STATE))
 #define BIOS_ADDRESS_INTCHANDLER_BASE 0x0000A000
@@ -239,17 +223,17 @@ CPS2OS::CPS2OS(CMIPS& ee, uint8* ram, uint8* bios, uint8* spr, CGSHandler*& gs, 
     , m_intcHandlers(reinterpret_cast<INTCHANDLER*>(m_ram + BIOS_ADDRESS_INTCHANDLER_BASE), BIOS_ID_BASE, MAX_INTCHANDLER)
     , m_dmacHandlers(reinterpret_cast<DMACHANDLER*>(m_ram + BIOS_ADDRESS_DMACHANDLER_BASE), BIOS_ID_BASE, MAX_DMACHANDLER)
     , m_alarms(reinterpret_cast<ALARM*>(m_ram + BIOS_ADDRESS_ALARM_BASE), BIOS_ID_BASE, MAX_ALARM)
-    , m_currentThreadId(reinterpret_cast<uint32*>(m_ram + BIOS_ADDRESS_CURRENT_THREAD_ID))
-    , m_idleThreadId(reinterpret_cast<uint32*>(m_ram + BIOS_ADDRESS_IDLE_THREAD_ID))
-    , m_tlblExceptionHandler(reinterpret_cast<uint32*>(m_ram + BIOS_ADDRESS_TLB_READEXCEPTION_HANDLER))
-    , m_tlbsExceptionHandler(reinterpret_cast<uint32*>(m_ram + BIOS_ADDRESS_TLB_WRITEEXCEPTION_HANDLER))
-    , m_trapExceptionHandler(reinterpret_cast<uint32*>(m_ram + BIOS_ADDRESS_TRAPEXCEPTION_HANDLER))
-    , m_sifDmaNextIdx(reinterpret_cast<uint32*>(m_ram + BIOS_ADDRESS_SIFDMA_NEXT_INDEX))
-    , m_sifDmaTimes(reinterpret_cast<uint32*>(m_ram + BIOS_ADDRESS_SIFDMA_TIMES))
     , m_state(reinterpret_cast<BIOS_STATE*>(m_ram + BIOS_ADDRESS_STATE_BASE))
-    , m_threadSchedule(m_threads, reinterpret_cast<uint32*>(m_ram + BIOS_ADDRESS_THREADSCHEDULE_BASE))
-    , m_intcHandlerQueue(m_intcHandlers, reinterpret_cast<uint32*>(m_ram + BIOS_ADDRESS_INTCHANDLERQUEUE_BASE))
-    , m_dmacHandlerQueue(m_dmacHandlers, reinterpret_cast<uint32*>(m_ram + BIOS_ADDRESS_DMACHANDLERQUEUE_BASE))
+    , m_currentThreadId(&m_state->currentThreadId)
+    , m_idleThreadId(&m_state->idleThreadId)
+    , m_tlblExceptionHandler(&m_state->tlblExceptionHandler)
+    , m_tlbsExceptionHandler(&m_state->tlbsExceptionHandler)
+    , m_trapExceptionHandler(&m_state->trapExceptionHandler)
+    , m_sifDmaNextIdx(&m_state->sifDmaNextIdx)
+    , m_sifDmaTimes(m_state->sifDmaTimes)
+    , m_threadSchedule(m_threads, &m_state->threadScheduleBase)
+    , m_intcHandlerQueue(m_intcHandlers, &m_state->intcHandlerQueueBase)
+    , m_dmacHandlerQueue(m_dmacHandlers, &m_state->dmacHandlerQueueBase)
 {
 	static_assert((BIOS_ADDRESS_SEMAPHORE_BASE + (sizeof(SEMAPHORE) * MAX_SEMAPHORE)) <= BIOS_ADDRESS_CUSTOMSYSCALL_BASE, "Semaphore overflow");
 
@@ -267,6 +251,7 @@ void CPS2OS::Initialize(uint32 ramSize)
 	m_idleEvaluator.Reset();
 	m_ramSize = ramSize;
 
+	m_state->allocateThreadNextId = m_threads.GetIdBase();
 	SetVsyncFlagPtrs(0, 0);
 	UpdateTLBEnabledState();
 
@@ -822,7 +807,7 @@ void CPS2OS::AssembleDmacHandler()
 	assembler.SW(CMIPS::T0, 0x0000, CMIPS::T1);
 
 	//Initialize DMAC handler loop
-	assembler.LI(nextIdPtrRegister, BIOS_ADDRESS_DMACHANDLERQUEUE_BASE);
+	assembler.LI(nextIdPtrRegister, BIOS_ADDRESS_STATE_ITEM(dmacHandlerQueueBase));
 
 	assembler.MarkLabel(checkHandlerLabel);
 
@@ -900,7 +885,7 @@ void CPS2OS::AssembleIntcHandler()
 	assembler.SW(CMIPS::T0, 0x0000, CMIPS::T1);
 
 	//Initialize INTC handler loop
-	assembler.LI(nextIdPtrRegister, BIOS_ADDRESS_INTCHANDLERQUEUE_BASE);
+	assembler.LI(nextIdPtrRegister, BIOS_ADDRESS_STATE_ITEM(intcHandlerQueueBase));
 	assembler.ADDU(causeRegister, CMIPS::A0, CMIPS::R0);
 
 	assembler.MarkLabel(checkHandlerLabel);
@@ -1385,7 +1370,7 @@ void CPS2OS::AlarmUpdateCompare()
 
 void CPS2OS::CreateIdleThread()
 {
-	m_idleThreadId = m_threads.Allocate();
+	m_idleThreadId = m_threads.AllocateAt(m_state->allocateThreadNextId);
 	auto thread = m_threads[m_idleThreadId];
 	thread->epc = BIOS_ADDRESS_IDLETHREADPROC;
 	thread->status = THREAD_ZOMBIE;
@@ -1393,15 +1378,13 @@ void CPS2OS::CreateIdleThread()
 
 std::pair<uint32, uint32> CPS2OS::GetVsyncFlagPtrs() const
 {
-	uint32 value1Ptr = *reinterpret_cast<uint32*>(m_ram + BIOS_ADDRESS_VSYNCFLAG_VALUE1PTR);
-	uint32 value2Ptr = *reinterpret_cast<uint32*>(m_ram + BIOS_ADDRESS_VSYNCFLAG_VALUE2PTR);
-	return std::make_pair(value1Ptr, value2Ptr);
+	return std::make_pair(m_state->vsyncFlagValue1Ptr, m_state->vsyncFlagValue2Ptr);
 }
 
 void CPS2OS::SetVsyncFlagPtrs(uint32 value1Ptr, uint32 value2Ptr)
 {
-	*reinterpret_cast<uint32*>(m_ram + BIOS_ADDRESS_VSYNCFLAG_VALUE1PTR) = value1Ptr;
-	*reinterpret_cast<uint32*>(m_ram + BIOS_ADDRESS_VSYNCFLAG_VALUE2PTR) = value2Ptr;
+	m_state->vsyncFlagValue1Ptr = value1Ptr;
+	m_state->vsyncFlagValue2Ptr = value2Ptr;
 }
 
 uint8* CPS2OS::GetStructPtr(uint32 address) const
@@ -2081,7 +2064,7 @@ void CPS2OS::sc_CreateThread()
 {
 	auto threadParam = reinterpret_cast<THREADPARAM*>(GetStructPtr(m_ee.m_State.nGPR[SC_PARAM0].nV0));
 
-	uint32 id = m_threads.Allocate(m_state->CREATETHREAD_NEXTID);
+	uint32 id = m_threads.AllocateAt(m_state->allocateThreadNextId);
 	if(static_cast<int32>(id) == -1)
 	{
 		m_ee.m_State.nGPR[SC_RETURN].nD0 = static_cast<int32>(id);
@@ -2106,8 +2089,6 @@ void CPS2OS::sc_CreateThread()
 	thread->stackSize = threadParam->stackSize;
 
 	ThreadReset(id);
-
-	m_state->CREATETHREAD_NEXTID = id + 1;
 
 	m_ee.m_State.nGPR[SC_RETURN].nD0 = static_cast<int32>(id);
 }
@@ -2703,7 +2684,7 @@ void CPS2OS::sc_SetupThread()
 	    (m_currentThreadId == m_idleThreadId))
 	{
 		//No thread has been started, spawn a new thread
-		threadId = m_threads.Allocate();
+		threadId = m_threads.AllocateAt(m_state->allocateThreadNextId);
 	}
 	else
 	{
