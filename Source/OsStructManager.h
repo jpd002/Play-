@@ -1,4 +1,5 @@
 #pragma once
+
 #include "Types.h"
 #include <cassert>
 #include <exception>

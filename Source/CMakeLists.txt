@@ -452,6 +452,9 @@ set(COMMON_SRC_FILES
 	MIPSTags.h
 	OpticalMedia.cpp
 	OpticalMedia.h
+	OsStructManager.h
+	OsStructQueue.h
+	OsVariableWrapper.h
 	PadHandler.cpp
 	PadHandler.h
 	PadInterface.cpp
