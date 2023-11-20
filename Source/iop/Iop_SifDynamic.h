@@ -10,7 +10,7 @@ namespace Iop
 	{
 	public:
 		CSifDynamic(CSifCmd&, uint32);
-		virtual ~CSifDynamic();
+		virtual ~CSifDynamic() = default;
 		bool Invoke(uint32, uint32*, uint32, uint32*, uint32, uint8*) override;
 
 		uint32 GetServerDataAddress() const;
