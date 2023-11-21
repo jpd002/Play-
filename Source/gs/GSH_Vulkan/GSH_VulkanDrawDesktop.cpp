@@ -486,16 +486,9 @@ Framework::Vulkan::CShaderModule CDrawDesktop::CreateFragmentShader(const PIPELI
 
 			auto getTextureColor =
 			    [&](CInt2Value textureIuv, CFloat4Lvalue& textureColor) {
-				    if(caps.textureUseMemoryCopy)
-				    {
-					    textureColor = CDrawUtils::GetTextureColor(b, caps.textureFormat, caps.clutFormat, textureIuv,
-					                                               memoryBufferCopy, clutBuffer, texSwizzleTable, texBufAddress, texBufWidth, texCsa);
-				    }
-				    else
-				    {
-					    textureColor = CDrawUtils::GetTextureColor(b, caps.textureFormat, caps.clutFormat, textureIuv,
-					                                               memoryBuffer, clutBuffer, texSwizzleTable, texBufAddress, texBufWidth, texCsa);
-				    }
+				    auto textureSource = caps.textureUseMemoryCopy ? memoryBufferCopy : memoryBuffer;
+				    textureColor = CDrawUtils::GetTextureColor(b, caps.textureFormat, caps.clutFormat, textureIuv,
+				                                               textureSource, clutBuffer, texSwizzleTable, texBufAddress, texBufWidth, texCsa);
 				    if(caps.textureHasAlpha)
 				    {
 					    CDrawUtils::ExpandAlpha(b, caps.textureFormat, caps.clutFormat, caps.textureBlackIsTransparent, textureColor, texA0, texA1);
