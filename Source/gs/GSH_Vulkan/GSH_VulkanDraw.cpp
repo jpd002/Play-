@@ -206,6 +206,9 @@ void CDraw::AddVertices(const PRIM_VERTEX* vertexBeginPtr, const PRIM_VERTEX* ve
 		//- Metal Gear Solid 3
 		//- MK: Shaolin Monks
 		//- Tales of Legendia
+		//Rationale: m_memoryCopyRegion maintains the "dirty" area of our memory copy. If this draw
+		//doesn't overlap any previous draw, it means we can still use our current copy since it's still
+		//the same as when we did the copy.
 		const auto topLeftCorner = vertexBeginPtr;
 		const auto bottomRightCorner = vertexBeginPtr + 5;
 		CGsSpriteRect rect(topLeftCorner->x, topLeftCorner->y, bottomRightCorner->x, bottomRightCorner->y);
