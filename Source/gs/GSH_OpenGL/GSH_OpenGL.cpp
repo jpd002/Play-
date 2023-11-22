@@ -2239,9 +2239,12 @@ Framework::CBitmap CGSH_OpenGL::GetTexture(uint64 tex0Reg, uint32 maxMip, uint64
 Framework::CBitmap CGSH_OpenGL::GetTextureImpl(uint64 tex0Reg, uint32 maxMip, uint64 miptbp1Reg, uint64 miptbp2Reg, uint32 mipLevel)
 {
 #ifndef GLES_COMPATIBILITY
-	// auto miptbp1 = make_convertible<MIPTBP1>(miptbp1Reg);
-	// auto miptbp2 = make_convertible<MIPTBP2>(miptbp2Reg);
-	// auto texInfo = LoadTexture(tex0, maxMip, miptbp1, miptbp2);
+	if(mipLevel != 0)
+	{
+		//Not supported
+		return Framework::CBitmap();
+	}
+
 	auto tex0 = make_convertible<TEX0>(tex0Reg);
 	auto width = std::max<uint32>(tex0.GetWidth() >> mipLevel, 1);
 	auto height = std::max<uint32>(tex0.GetHeight() >> mipLevel, 1);
