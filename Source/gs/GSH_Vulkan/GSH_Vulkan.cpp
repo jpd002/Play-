@@ -1686,8 +1686,34 @@ Framework::CBitmap CGSH_Vulkan::GetDepthbufferImpl(uint64 frameReg, uint64 zbufR
 Framework::CBitmap CGSH_Vulkan::GetTextureImpl(uint64 tex0Reg, uint32 maxMip, uint64 miptbp1Reg, uint64 miptbp2Reg, uint32 mipLevel)
 {
 	auto tex0 = make_convertible<TEX0>(tex0Reg);
+	auto miptbp1 = make_convertible<MIPTBP1>(miptbp1Reg);
+	auto miptbp2 = make_convertible<MIPTBP2>(miptbp2Reg);
+
 	auto width = std::max<uint32>(tex0.GetWidth() >> mipLevel, 1);
 	auto height = std::max<uint32>(tex0.GetHeight() >> mipLevel, 1);
+	auto [tbp, tbw] =
+	    [&]() {
+		    switch(mipLevel)
+		    {
+		    default:
+			    assert(false);
+			    [[fallthrough]];
+		    case 0:
+			    return std::make_pair(tex0.GetBufPtr(), static_cast<uint32>(tex0.nBufWidth));
+		    case 1:
+			    return std::make_pair(miptbp1.GetTbp1(), static_cast<uint32>(miptbp1.tbw1));
+		    case 2:
+			    return std::make_pair(miptbp1.GetTbp2(), static_cast<uint32>(miptbp1.tbw2));
+		    case 3:
+			    return std::make_pair(miptbp1.GetTbp3(), static_cast<uint32>(miptbp1.tbw3));
+		    case 4:
+			    return std::make_pair(miptbp2.GetTbp4(), static_cast<uint32>(miptbp2.tbw4));
+		    case 5:
+			    return std::make_pair(miptbp2.GetTbp5(), static_cast<uint32>(miptbp2.tbw5));
+		    case 6:
+			    return std::make_pair(miptbp2.GetTbp6(), static_cast<uint32>(miptbp2.tbw6));
+		    }
+	    }();
 
 	SyncMemoryCache();
 
@@ -1696,29 +1722,17 @@ Framework::CBitmap CGSH_Vulkan::GetTextureImpl(uint64 tex0Reg, uint32 maxMip, ui
 	switch(tex0.nPsm)
 	{
 	case PSMCT32:
-	{
-		bitmap = ReadImage32<CGsPixelFormats::CPixelIndexorPSMCT32>(GetRam(), tex0.GetBufPtr(),
-		                                                            tex0.nBufWidth, tex0.GetWidth(), tex0.GetHeight());
-	}
-	break;
+		bitmap = ReadImage32<CGsPixelFormats::CPixelIndexorPSMCT32>(GetRam(), tbp, tbw, width, height);
+		break;
 	case PSMCT24:
-	{
-		bitmap = ReadImage32<CGsPixelFormats::CPixelIndexorPSMCT32, 0x00FFFFFF>(GetRam(), tex0.GetBufPtr(),
-		                                                                        tex0.nBufWidth, tex0.GetWidth(), tex0.GetHeight());
-	}
-	break;
+		bitmap = ReadImage32<CGsPixelFormats::CPixelIndexorPSMCT32, 0x00FFFFFF>(GetRam(), tbp, tbw, width, height);
+		break;
 	case PSMT8:
-	{
-		bitmap = ReadImage8<CGsPixelFormats::CPixelIndexorPSMT8>(GetRam(), tex0.GetBufPtr(),
-		                                                         tex0.nBufWidth, tex0.GetWidth(), tex0.GetHeight());
-	}
-	break;
+		bitmap = ReadImage8<CGsPixelFormats::CPixelIndexorPSMT8>(GetRam(), tbp, tbw, width, height);
+		break;
 	case PSMT4:
-	{
-		bitmap = ReadImage8<CGsPixelFormats::CPixelIndexorPSMT4>(GetRam(), tex0.GetBufPtr(),
-		                                                         tex0.nBufWidth, tex0.GetWidth(), tex0.GetHeight());
-	}
-	break;
+		bitmap = ReadImage8<CGsPixelFormats::CPixelIndexorPSMT4>(GetRam(), tbp, tbw, width, height);
+		break;
 	}
 
 	return bitmap;
