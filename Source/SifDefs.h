@@ -24,7 +24,7 @@ static_assert(sizeof(SIFDMAREG) == 0x10, "sizeof(SIFDMAREG) must be 16 bytes.");
 
 enum SIFDMAREG_FLAGS
 {
-	SIFDMAREG_FLAG_INT_O = 0x04, //Trigger interrupt on receiving size (not totally sure?)
+	SIFDMAREG_FLAG_INT_O = 0x04, //Trigger interrupt on receiving side (not totally sure?)
 };
 
 struct SIFCMDHEADER
