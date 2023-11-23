@@ -772,6 +772,11 @@ void CGSH_Vulkan::SetRenderingContext(uint64 primReg)
 
 	uint32 fbWriteMask = ~frame.nMask;
 
+	uint32 texBufPtr = tex0.GetBufPtr();
+	uint32 texBufWidth = tex0.GetBufWidth();
+	uint32 texWidth = tex0.GetWidth();
+	uint32 texHeight = tex0.GetHeight();
+
 	if(prim.nTexture)
 	{
 		bool minLinear = false;
@@ -805,6 +810,57 @@ void CGSH_Vulkan::SetRenderingContext(uint64 primReg)
 		if(tex1.nMaxMip == 0)
 		{
 			minLinear = magLinear;
+		}
+		else
+		{
+			//Check if the game uses mipmaps as a kind of texture array
+			//In this case, we can use the proper mip level instead of mip level 0.
+			bool mipNearest =
+			    (tex1.nMinFilter == MIN_FILTER_NEAREST_MIP_NEAREST) ||
+			    (tex1.nMinFilter == MIN_FILTER_LINEAR_MIP_NEAREST);
+			if(mipNearest && tex1.nLODMethod == LOD_CALC_STATIC)
+			{
+				auto miptbp1 = make_convertible<MIPTBP1>(m_nReg[GS_REG_MIPTBP1_1 + context]);
+				auto miptbp2 = make_convertible<MIPTBP2>(m_nReg[GS_REG_MIPTBP2_1 + context]);
+
+				int k = trunc(tex1.GetK());
+				int level = std::clamp<int>(k, 0, tex1.nMaxMip);
+				texWidth >>= level;
+				texHeight >>= level;
+				switch(level)
+				{
+				default:
+					assert(false);
+					[[fallthrough]];
+				case 0:
+					//We already have proper texture settings
+					break;
+				case 1:
+					texBufPtr = miptbp1.GetTbp1();
+					texBufWidth = miptbp1.GetTbw1();
+					break;
+				case 2:
+					texBufPtr = miptbp1.GetTbp2();
+					texBufWidth = miptbp1.GetTbw2();
+					break;
+				case 3:
+					texBufPtr = miptbp1.GetTbp3();
+					texBufWidth = miptbp1.GetTbw3();
+					break;
+				case 4:
+					texBufPtr = miptbp2.GetTbp4();
+					texBufWidth = miptbp2.GetTbw4();
+					break;
+				case 5:
+					texBufPtr = miptbp2.GetTbp5();
+					texBufWidth = miptbp2.GetTbw5();
+					break;
+				case 6:
+					texBufPtr = miptbp2.GetTbp6();
+					texBufWidth = miptbp2.GetTbw6();
+					break;
+				}
+			}
 		}
 
 		pipelineCaps.textureUseLinearFiltering = (minLinear && magLinear);
@@ -910,8 +966,7 @@ void CGSH_Vulkan::SetRenderingContext(uint64 primReg)
 	m_draw->SetPipelineCaps(pipelineCaps);
 	m_draw->SetFramebufferParams(frame.GetBasePtr(), frame.GetWidth(), fbWriteMask);
 	m_draw->SetDepthbufferParams(zbuf.GetBasePtr(), frame.GetWidth());
-	m_draw->SetTextureParams(tex0.GetBufPtr(), tex0.GetBufWidth(),
-	                         tex0.GetWidth(), tex0.GetHeight(), tex0.nCSA * 0x10);
+	m_draw->SetTextureParams(texBufPtr, texBufWidth, texWidth, texHeight, tex0.nCSA * 0x10);
 	m_draw->SetTextureAlphaParams(texA.nTA0, texA.nTA1);
 	m_draw->SetTextureClampParams(
 	    clamp.GetMinU(), clamp.GetMinV(),
