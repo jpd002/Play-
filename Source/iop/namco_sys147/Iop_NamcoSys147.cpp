@@ -235,20 +235,38 @@ bool CSys147::Invoke99(uint32 method, uint32* args, uint32 argsSize, uint32* ret
 			}
 			else if(packet->command == 0x31)
 			{
-				//Seems related to barcode reader
-				//data[0] = ?
+				//Barcode Reader & IC Card
+				//data[0] = channel?
 				//data[1] = size of data
 				//data[4] = start of data
+				uint8 channel = packet->data[0];
+				uint8 inputSize = packet->data[1];
+				CLog::GetInstance().Warn(LOG_NAME, "Received command buffer channel: %d, size: %d\r\n",
+										 channel, inputSize);
 				MODULE_99_PACKET reply = {};
 				reply.type = 2;
 				reply.command = 0x31;
-				reply.data[1] = 0x6;
-				reply.data[4 + 0] = 0x02;
-				reply.data[4 + 1] = 0x02;
-				reply.data[4 + 2] = 0x80;
-				reply.data[4 + 3] = 0x02; //This is used for result
-				reply.data[4 + 4] = 0x03;
-				reply.data[4 + 5] = 0x03;
+				if(channel == 0)
+				{
+					assert(inputSize == 4);
+					//Barcode Reader
+					reply.data[0] = channel;
+					reply.data[1] = 0x6; //Data Size
+					reply.data[4 + 0] = 0x02;
+					reply.data[4 + 1] = 0x02;
+					reply.data[4 + 2] = 0x80;
+					reply.data[4 + 3] = 0x02; //This is used for result
+					reply.data[4 + 4] = 0x03;
+					reply.data[4 + 5] = 0x03;
+				}
+				else if(channel == 2)
+				{
+					ProcessIcCard(reply, *packet);
+				}
+				else
+				{
+					assert(false);
+				}
 				reply.checksum = ComputePacketChecksum(reply);
 				m_pendingReplies.emplace_back(reply);
 			}
@@ -302,6 +320,111 @@ bool CSys147::Invoke99(uint32 method, uint32* args, uint32 argsSize, uint32* ret
 		break;
 	}
 	return true;
+}
+
+void CSys147::ProcessIcCard(MODULE_99_PACKET& output, const MODULE_99_PACKET& input)
+{
+	uint32 channel = input.data[0];
+	assert(channel == 2);
+	uint32 dataSize = input.data[1];
+	uint32 commandId = input.data[5];
+	uint32 replySize = 0;
+	static const uint32 replyBase = 4;
+	output.data[replyBase + 0] = 0x02;
+	output.data[replyBase + 1] = commandId; //Command ID
+	switch(commandId)
+	{
+	case 0x78:
+		{
+			//??
+			assert(dataSize == 0x07);
+			replySize = 6;
+			output.data[replyBase + 3] = 0x00; //Command result?
+			output.data[replyBase + 4] = 0x00;
+			output.data[replyBase + 5] = 0xFF;
+
+		}
+		break;
+	case 0x7A:
+		{
+			//Ok next?
+			assert(dataSize == 0x12);
+			replySize = 4;
+			output.data[replyBase + 3] = 0x00; //Command result?
+		}
+		break;
+	case 0x7B:
+		{
+			assert(dataSize == 0x05);
+			replySize = 6;
+			output.data[replyBase + 3] = 0x00; //Command result? (0x03 -> No IC card)
+			output.data[replyBase + 4] = 0x00; //??
+			output.data[replyBase + 5] = 0x00; //??
+		}
+		break;
+	case 0x80:
+		{
+			//??
+			assert(dataSize == 0x05);
+			replySize = 4;
+			output.data[replyBase + 3] = 0x0D; //Command result?
+		}
+		break;
+	case 0x9F:
+		{
+			//??
+			assert(dataSize == 0x0D);
+			replySize = 4;
+			output.data[replyBase + 3] = 0x00; //Command result?
+		}
+		break;
+	case 0xA7:
+		{
+			//Init?
+			assert(dataSize == 0x0D);
+			replySize = 4;
+			output.data[replyBase + 3] = 0x00; //Command result?
+		}
+		break;
+	case 0xAC:
+		{
+			//Some key stuff (parity)? (game expects 8 bytes in payload)
+			assert(dataSize == 0x05);
+			replySize = 12;
+			output.data[replyBase + 3] = 0x00; //Command result?
+			output.data[replyBase + 4] = 0xAA;
+			output.data[replyBase + 5] = 0xAA;
+			output.data[replyBase + 6] = 0xAA;
+			output.data[replyBase + 7] = 0xAA;
+			output.data[replyBase + 8] = 0x55;
+			output.data[replyBase + 9] = 0x55;
+			output.data[replyBase + 10] = 0x55;
+			output.data[replyBase + 11] = 0x55;
+		}
+		break;
+	case 0xAF:
+		{
+			//More key stuff (checksum)? (game expects 16 bytes in payload)
+			assert(dataSize == 0x05);
+			replySize = 20;
+			output.data[replyBase + 3] = 0x00; //Command result?
+		}
+		break;
+	default:
+		assert(false);
+		break;
+	}
+	uint8 replySizePlusParity = replySize + 1;
+	assert(replySizePlusParity >= 5);
+	output.data[0] = channel;
+	output.data[1] = replySizePlusParity; //This needs to be at least 5
+	output.data[replyBase + 2] = replySizePlusParity - 5;
+	uint8 parity = 0;
+	for(int i = 1; i < replySize; i++)
+	{
+		parity ^= output.data[replyBase + i];
+	}
+	output.data[replyBase + replySize] = parity;
 }
 
 uint8 CSys147::ComputePacketChecksum(const MODULE_99_PACKET& packet)

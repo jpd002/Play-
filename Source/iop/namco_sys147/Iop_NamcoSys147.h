@@ -48,6 +48,7 @@ namespace Iop
 			bool Invoke201(uint32, uint32*, uint32, uint32*, uint32, uint8*);
 			bool Invoke99(uint32, uint32*, uint32, uint32*, uint32, uint8*);
 
+			void ProcessIcCard(MODULE_99_PACKET&, const MODULE_99_PACKET&);
 			uint8 ComputePacketChecksum(const MODULE_99_PACKET&);
 			
 			static constexpr int32 BACKUP_RAM_SIZE = 0x20000;
