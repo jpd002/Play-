@@ -962,7 +962,7 @@ fs::path MainWindow::GetFrameDumpDirectoryPath()
 
 void MainWindow::DumpNextFrame()
 {
-	m_virtualMachine->TriggerFrameDump(
+	m_virtualMachine->m_ee->m_gs->TriggerFrameDump(
 	    [&](const CFrameDump& frameDump) {
 		    try
 		    {

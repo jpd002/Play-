@@ -336,22 +336,38 @@ void CGSHandler::Copy(CGSHandler* source)
 	SendGSCall([&]() { WriteBackMemoryCache(); });
 }
 
-void CGSHandler::BeginFrameDump(CFrameDump* frameDump)
+void CGSHandler::TriggerFrameDump(const FrameDumpCallback& frameDumpCallback)
 {
-	m_frameDump = frameDump;
-
-	//This is expected to be called from the GS thread
-	SyncMemoryCache();
-
-	memcpy(m_frameDump->GetInitialGsRam(), GetRam(), RAMSIZE);
-	memcpy(m_frameDump->GetInitialGsRegisters(), GetRegisters(), CGSHandler::REGISTER_MAX * sizeof(uint64));
-	m_frameDump->SetInitialSMODE2(GetSMODE2());
+#ifdef DEBUGGER_INCLUDED
+	m_mailBox.SendCall(
+	    [=]() {
+		    if(m_frameDumpCallback) return;
+		    m_frameDumpCallback = frameDumpCallback;
+	    });
+#endif
 }
 
-void CGSHandler::EndFrameDump()
+void CGSHandler::UpdateFrameDumpState()
 {
-	assert(m_frameDump);
-	m_frameDump = nullptr;
+#ifdef DEBUGGER_INCLUDED
+	if(m_frameDump && !m_frameDump->GetPackets().empty())
+	{
+		m_frameDumpCallback(*m_frameDump.get());
+		m_frameDumpCallback = FrameDumpCallback();
+		m_frameDump.reset();
+	}
+	else if(m_frameDumpCallback)
+	{
+		m_frameDump = std::make_unique<CFrameDump>();
+
+		//This is expected to be called from the GS thread
+		SyncMemoryCache();
+
+		memcpy(m_frameDump->GetInitialGsRam(), GetRam(), RAMSIZE);
+		memcpy(m_frameDump->GetInitialGsRegisters(), GetRegisters(), CGSHandler::REGISTER_MAX * sizeof(uint64));
+		m_frameDump->SetInitialSMODE2(GetSMODE2());
+	}
+#endif
 }
 
 void CGSHandler::InitFromFrameDump(CFrameDump* frameDump)
@@ -570,6 +586,7 @@ void CGSHandler::MarkNewFrame()
 {
 	OnNewFrame(m_drawCallCount);
 	m_drawCallCount = 0;
+	UpdateFrameDumpState();
 #ifdef _DEBUG
 	CLog::GetInstance().Print(LOG_NAME, "Frame Done.\r\n---------------------------------------------------------------------------------\r\n");
 #endif
@@ -614,14 +631,14 @@ void CGSHandler::FeedImageData(const void* data, uint32 length)
 
 	std::vector<uint8> imageData(length + 0x10);
 	memcpy(imageData.data(), data, length);
-#ifdef DEBUGGER_INCLUDED
-	if(m_frameDump)
-	{
-		m_frameDump->AddImagePacket(imageData.data(), length);
-	}
-#endif
 	SendGSCall(
 	    [this, imageData = std::move(imageData), length]() {
+#ifdef DEBUGGER_INCLUDED
+		    if(m_frameDump)
+		    {
+			    m_frameDump->AddImagePacket(imageData.data(), length);
+		    }
+#endif
 		    FeedImageDataImpl(imageData.data(), length);
 	    });
 }
@@ -638,13 +655,18 @@ void CGSHandler::ProcessWriteBuffer(const CGsPacketMetadata* metadata)
 	assert(m_writeBufferProcessIndex <= m_writeBufferSize);
 	assert(m_writeBufferSubmitIndex <= m_writeBufferProcessIndex);
 #ifdef DEBUGGER_INCLUDED
-	if(m_frameDump)
+	if(uint32 packetSize = m_writeBufferSize - m_writeBufferProcessIndex; packetSize != 0)
 	{
-		uint32 packetSize = m_writeBufferSize - m_writeBufferProcessIndex;
-		if(packetSize != 0)
-		{
-			m_frameDump->AddRegisterPacket(m_currentWriteBuffer + m_writeBufferProcessIndex, packetSize, metadata);
-		}
+		SendGSCall(
+		    [this,
+		     packet = m_currentWriteBuffer + m_writeBufferProcessIndex,
+		     packetSize,
+		     metadata = metadata ? *metadata : CGsPacketMetadata()]() {
+			    if(m_frameDump)
+			    {
+				    m_frameDump->AddRegisterPacket(packet, packetSize, &metadata);
+			    }
+		    });
 	}
 #endif
 	for(uint32 writeIndex = m_writeBufferProcessIndex; writeIndex < m_writeBufferSize; writeIndex++)

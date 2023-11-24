@@ -13,7 +13,6 @@
 #include "ee/Ee_SubSystem.h"
 #include "iop/Iop_SubSystem.h"
 #include "../tools/PsfPlayer/Source/SoundHandler.h"
-#include "FrameDump.h"
 #include "FrameLimiter.h"
 #include "Profiler.h"
 
@@ -32,7 +31,6 @@ public:
 	typedef std::unique_ptr<COpticalMedia> OpticalMediaPtr;
 	typedef std::unique_ptr<Ee::CSubSystem> EeSubSystemPtr;
 	typedef std::unique_ptr<Iop::CSubSystem> IopSubSystemPtr;
-	typedef std::function<void(const CFrameDump&)> FrameDumpCallback;
 	typedef Framework::CSignal<void(const CProfiler::ZoneArray&)> ProfileFrameDoneSignal;
 	typedef std::function<void(CPS2VM*)> ExecutableReloadedHandler;
 
@@ -78,8 +76,6 @@ public:
 
 	std::future<bool> SaveState(const fs::path&);
 	std::future<bool> LoadState(const fs::path&);
-
-	void TriggerFrameDump(const FrameDumpCallback&);
 
 	CPU_UTILISATION_INFO GetCpuUtilisationInfo() const;
 
@@ -142,8 +138,6 @@ private:
 	void UpdateIop();
 	void UpdateSpu();
 
-	void OnGsNewFrame();
-
 	void SetIopOpticalMedia(COpticalMedia*);
 
 	void RegisterModulesInPadHandler();
@@ -179,13 +173,6 @@ private:
 	bool m_singleStepVu0 = false;
 	bool m_singleStepVu1 = false;
 
-#ifdef DEBUGGER_INCLUDED
-	CFrameDump m_frameDump;
-	FrameDumpCallback m_frameDumpCallback;
-	std::mutex m_frameDumpCallbackMutex;
-	bool m_dumpingFrame = false;
-#endif
-
 	//SPU update parameters
 	enum
 	{
@@ -211,5 +198,4 @@ private:
 
 	CPS2OS::RequestLoadExecutableEvent::Connection m_OnRequestLoadExecutableConnection;
 	Framework::CSignal<void()>::Connection m_OnCrtModeChangeConnection;
-	Framework::CSignal<void(uint32)>::Connection m_OnNewFrameConnection;
 };

@@ -324,19 +324,6 @@ std::future<bool> CPS2VM::LoadState(const fs::path& statePath)
 	return future;
 }
 
-void CPS2VM::TriggerFrameDump(const FrameDumpCallback& frameDumpCallback)
-{
-#ifdef DEBUGGER_INCLUDED
-	m_mailBox.SendCall(
-	    [=]() {
-		    std::unique_lock<std::mutex> frameDumpCallbackMutexLock(m_frameDumpCallbackMutex);
-		    if(m_frameDumpCallback) return;
-		    m_frameDumpCallback = frameDumpCallback;
-	    },
-	    false);
-#endif
-}
-
 CPS2VM::CPU_UTILISATION_INFO CPS2VM::GetCpuUtilisationInfo() const
 {
 	return m_cpuUtilisation;
@@ -633,7 +620,6 @@ void CPS2VM::CreateGsHandlerImpl(const CGSHandler::FactoryFunction& factoryFunct
 		gs->Release();
 		delete gs;
 	}
-	m_OnNewFrameConnection = m_ee->m_gs->OnNewFrame.Connect(std::bind(&CPS2VM::OnGsNewFrame, this));
 }
 
 void CPS2VM::DestroyGsHandlerImpl()
@@ -677,26 +663,6 @@ void CPS2VM::DestroySoundHandlerImpl()
 	if(m_soundHandler == nullptr) return;
 	delete m_soundHandler;
 	m_soundHandler = nullptr;
-}
-
-void CPS2VM::OnGsNewFrame()
-{
-#ifdef DEBUGGER_INCLUDED
-	std::unique_lock<std::mutex> dumpFrameCallbackMutexLock(m_frameDumpCallbackMutex);
-	if(m_dumpingFrame && !m_frameDump.GetPackets().empty())
-	{
-		m_ee->m_gs->EndFrameDump();
-		m_frameDumpCallback(m_frameDump);
-		m_dumpingFrame = false;
-		m_frameDumpCallback = FrameDumpCallback();
-	}
-	else if(m_frameDumpCallback)
-	{
-		m_frameDump.Reset();
-		m_ee->m_gs->BeginFrameDump(&m_frameDump);
-		m_dumpingFrame = true;
-	}
-#endif
 }
 
 void CPS2VM::UpdateEe()

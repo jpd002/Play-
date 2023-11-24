@@ -813,6 +813,8 @@ public:
 	typedef std::vector<RegisterWrite> RegisterWriteList;
 	typedef std::function<CGSHandler*(void)> FactoryFunction;
 
+	typedef std::function<void(const CFrameDump&)> FrameDumpCallback;
+
 	typedef Framework::CSignal<void()> FlipCompleteEvent;
 	typedef Framework::CSignal<void(uint32)> NewFrameEvent;
 
@@ -831,8 +833,7 @@ public:
 	virtual void LoadState(Framework::CZipArchiveReader&);
 	void Copy(CGSHandler*);
 
-	void BeginFrameDump(CFrameDump*);
-	void EndFrameDump();
+	void TriggerFrameDump(const FrameDumpCallback&);
 
 	void InitFromFrameDump(CFrameDump*);
 
@@ -1042,6 +1043,8 @@ protected:
 	void ReadImageDataImpl(void*, uint32);
 	void SubmitWriteBufferImpl(const RegisterWrite*, const RegisterWrite*);
 
+	void UpdateFrameDumpState();
+
 	void BeginTransfer();
 
 	virtual void BeginTransferWrite();
@@ -1124,7 +1127,8 @@ protected:
 #endif
 	std::atomic<int> m_framesInFlight;
 	bool m_threadDone = false;
-	CFrameDump* m_frameDump = nullptr;
+	std::unique_ptr<CFrameDump> m_frameDump;
+	FrameDumpCallback m_frameDumpCallback;
 	bool m_regsDirty = false;
 	bool m_drawEnabled = true;
 	CINTC* m_intc = nullptr;
