@@ -150,17 +150,17 @@ bool CSys147::Invoke99(uint32 method, uint32* args, uint32 argsSize, uint32* ret
 		CLog::GetInstance().Warn(LOG_NAME, "LINK_02000000();\r\n");
 		//Receive Responses?
 		{
-			if(!m_pendingReplies.empty())
+			uint16 maxPackets = reinterpret_cast<uint16*>(args)[0];
+			assert(m_pendingReplies.size() < 0x10000);
+			uint16 xferPackets = std::min(maxPackets, static_cast<uint16>(m_pendingReplies.size()));
+			auto outputPacket = reinterpret_cast<MODULE_99_PACKET*>(ret + 1);
+			for(int i = 0; i < xferPackets; i++)
 			{
-				auto outputPacket = reinterpret_cast<MODULE_99_PACKET*>(ret + 1);
 				memcpy(outputPacket, &m_pendingReplies.front(), sizeof(MODULE_99_PACKET));
 				m_pendingReplies.erase(m_pendingReplies.begin());
-				reinterpret_cast<uint16*>(ret)[0] = 1;
+				outputPacket++;
 			}
-			else
-			{
-				reinterpret_cast<uint16*>(ret)[0] = 0;
-			}
+			reinterpret_cast<uint16*>(ret)[0] = xferPackets;
 		}
 		break;
 	case 0x03004002:
