@@ -26,7 +26,7 @@ namespace Iop
 		virtual void RegisterModule(uint32, CSifModule*) = 0;
 		virtual bool IsModuleRegistered(uint32) = 0;
 		virtual void UnregisterModule(uint32) = 0;
-		virtual void SendPacket(void*, uint32) = 0;
+		virtual void SendPacket(const void*, uint32) = 0;
 		virtual void SetDmaBuffer(uint32, uint32) = 0;
 		virtual void SetCmdBuffer(uint32, uint32) = 0;
 		virtual void SendCallReply(uint32, const void*) = 0;

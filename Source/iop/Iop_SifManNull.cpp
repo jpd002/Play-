@@ -15,7 +15,7 @@ void CSifManNull::UnregisterModule(uint32)
 {
 }
 
-void CSifManNull::SendPacket(void*, uint32)
+void CSifManNull::SendPacket(const void*, uint32)
 {
 }
 

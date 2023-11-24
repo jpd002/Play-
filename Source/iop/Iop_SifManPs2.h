@@ -14,7 +14,7 @@ namespace Iop
 		void RegisterModule(uint32, CSifModule*) override;
 		bool IsModuleRegistered(uint32) override;
 		void UnregisterModule(uint32) override;
-		void SendPacket(void*, uint32) override;
+		void SendPacket(const void*, uint32) override;
 		void SetDmaBuffer(uint32, uint32) override;
 		void SetCmdBuffer(uint32, uint32) override;
 		void SendCallReply(uint32, const void*) override;
