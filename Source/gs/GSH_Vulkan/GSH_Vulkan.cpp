@@ -164,23 +164,23 @@ void CGSH_Vulkan::InitializeImpl()
 	m_context->swizzleTablePSMZ16View = m_swizzleTablePSMZ16.CreateImageView();
 	m_context->swizzleTablePSMZ16SView = m_swizzleTablePSMZ16S.CreateImageView();
 
-	m_context->SetImageName(m_swizzleTablePSMCT32, "Swizzle Table PSMCT32");
-	m_context->SetImageName(m_swizzleTablePSMCT16, "Swizzle Table PSMCT16");
-	m_context->SetImageName(m_swizzleTablePSMCT16S, "Swizzle Table PSMCT16S");
-	m_context->SetImageName(m_swizzleTablePSMT8, "Swizzle Table PSMT8");
-	m_context->SetImageName(m_swizzleTablePSMT4, "Swizzle Table PSMT4");
-	m_context->SetImageName(m_swizzleTablePSMZ32, "Swizzle Table PSMZ32");
-	m_context->SetImageName(m_swizzleTablePSMZ16, "Swizzle Table PSMZ16");
-	m_context->SetImageName(m_swizzleTablePSMZ16S, "Swizzle Table PSMZ16S");
+	m_context->annotations.SetImageName(m_swizzleTablePSMCT32, "Swizzle Table PSMCT32");
+	m_context->annotations.SetImageName(m_swizzleTablePSMCT16, "Swizzle Table PSMCT16");
+	m_context->annotations.SetImageName(m_swizzleTablePSMCT16S, "Swizzle Table PSMCT16S");
+	m_context->annotations.SetImageName(m_swizzleTablePSMT8, "Swizzle Table PSMT8");
+	m_context->annotations.SetImageName(m_swizzleTablePSMT4, "Swizzle Table PSMT4");
+	m_context->annotations.SetImageName(m_swizzleTablePSMZ32, "Swizzle Table PSMZ32");
+	m_context->annotations.SetImageName(m_swizzleTablePSMZ16, "Swizzle Table PSMZ16");
+	m_context->annotations.SetImageName(m_swizzleTablePSMZ16S, "Swizzle Table PSMZ16S");
 
-	m_context->SetImageViewName(m_context->swizzleTablePSMCT32View, "Swizzle Table View PSMCT32");
-	m_context->SetImageViewName(m_context->swizzleTablePSMCT16View, "Swizzle Table View PSMCT16");
-	m_context->SetImageViewName(m_context->swizzleTablePSMCT16SView, "Swizzle Table View PSMCT16S");
-	m_context->SetImageViewName(m_context->swizzleTablePSMT8View, "Swizzle Table View PSMT8");
-	m_context->SetImageViewName(m_context->swizzleTablePSMT4View, "Swizzle Table View PSMT4");
-	m_context->SetImageViewName(m_context->swizzleTablePSMZ32View, "Swizzle Table View PSMZ32");
-	m_context->SetImageViewName(m_context->swizzleTablePSMZ16View, "Swizzle Table View PSMZ16");
-	m_context->SetImageViewName(m_context->swizzleTablePSMZ16SView, "Swizzle Table View PSMZ16S");
+	m_context->annotations.SetImageViewName(m_context->swizzleTablePSMCT32View, "Swizzle Table View PSMCT32");
+	m_context->annotations.SetImageViewName(m_context->swizzleTablePSMCT16View, "Swizzle Table View PSMCT16");
+	m_context->annotations.SetImageViewName(m_context->swizzleTablePSMCT16SView, "Swizzle Table View PSMCT16S");
+	m_context->annotations.SetImageViewName(m_context->swizzleTablePSMT8View, "Swizzle Table View PSMT8");
+	m_context->annotations.SetImageViewName(m_context->swizzleTablePSMT4View, "Swizzle Table View PSMT4");
+	m_context->annotations.SetImageViewName(m_context->swizzleTablePSMZ32View, "Swizzle Table View PSMZ32");
+	m_context->annotations.SetImageViewName(m_context->swizzleTablePSMZ16View, "Swizzle Table View PSMZ16");
+	m_context->annotations.SetImageViewName(m_context->swizzleTablePSMZ16SView, "Swizzle Table View PSMZ16S");
 
 	m_frameCommandBuffer = std::make_shared<CFrameCommandBuffer>(m_context);
 	m_clutLoad = std::make_shared<CClutLoad>(m_context, m_frameCommandBuffer);
@@ -487,6 +487,8 @@ void CGSH_Vulkan::CreateDevice(VkPhysicalDevice physicalDevice)
 		m_context->storageBufferAlignment = deviceProperties.limits.minStorageBufferOffsetAlignment;
 		m_context->computeWorkgroupInvocations = deviceProperties.limits.maxComputeWorkGroupInvocations;
 	}
+
+	m_context->annotations = decltype(m_context->annotations)(m_context->instance, &m_context->device);
 }
 
 void CGSH_Vulkan::CreateDescriptorPool()
@@ -547,7 +549,7 @@ void CGSH_Vulkan::CreateMemoryBuffer()
 	                                                     VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
 	                                                     VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
 	                                                     RAMSIZE);
-	m_context->SetBufferName(m_context->memoryBuffer, "GS Memory");
+	m_context->annotations.SetBufferName(m_context->memoryBuffer, "GS Memory");
 
 	m_memoryCache = new uint8[RAMSIZE];
 	memset(m_memoryCache, 0, RAMSIZE);
@@ -560,14 +562,14 @@ void CGSH_Vulkan::CreateMemoryBuffer()
 	                                                         VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
 	                                                         VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
 	                                                         RAMSIZE);
-	m_context->SetBufferName(m_context->memoryBufferCopy, "GS Memory Copy");
+	m_context->annotations.SetBufferName(m_context->memoryBufferCopy, "GS Memory Copy");
 
 	m_context->memoryBufferTransfer = Framework::Vulkan::CBuffer(m_context->device,
 	                                                             m_context->physicalDeviceMemoryProperties,
 	                                                             VK_BUFFER_USAGE_TRANSFER_DST_BIT,
 	                                                             VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
 	                                                             RAMSIZE);
-	m_context->SetBufferName(m_context->memoryBufferTransfer, "GS Memory Transfer");
+	m_context->annotations.SetBufferName(m_context->memoryBufferTransfer, "GS Memory Transfer");
 }
 
 void CGSH_Vulkan::CreateClutBuffer()
@@ -580,7 +582,7 @@ void CGSH_Vulkan::CreateClutBuffer()
 	                                                   VK_BUFFER_USAGE_STORAGE_BUFFER_BIT,
 	                                                   VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
 	                                                   clutBufferSize);
-	m_context->SetBufferName(m_context->clutBuffer, "CLUT Buffer");
+	m_context->annotations.SetBufferName(m_context->clutBuffer, "CLUT Buffer");
 }
 
 void CGSH_Vulkan::ProcessPrim(uint64 data)

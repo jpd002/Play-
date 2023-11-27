@@ -2,6 +2,7 @@
 
 #include "vulkan/VulkanDef.h"
 #include "vulkan/StructDefs.h"
+#include "vulkan/Annotations.h"
 #include "vulkan/Device.h"
 #include "vulkan/Buffer.h"
 #include "vulkan/CommandBufferPool.h"
@@ -21,6 +22,7 @@ namespace GSH_Vulkan
 		Framework::Vulkan::CInstance* instance = nullptr;
 		VkPhysicalDevice physicalDevice;
 		Framework::Vulkan::CDevice device;
+		Framework::Vulkan::CAnnotations<GSH_VULKAN_USE_ANNOTATIONS> annotations;
 		VkSurfaceKHR surface = VK_NULL_HANDLE;
 		VkSurfaceFormatKHR surfaceFormat = {VK_FORMAT_UNDEFINED, VK_COLOR_SPACE_SRGB_NONLINEAR_KHR};
 		uint32 storageBufferAlignment = 0;
@@ -72,54 +74,6 @@ namespace GSH_Vulkan
 			case CGSHandler::PSMZ16S:
 				return swizzleTablePSMZ16SView;
 			}
-		}
-
-		void SetObjectName(uint64_t objectHandle, const char* objectName, VkObjectType objectType)
-		{
-#if GSH_VULKAN_USE_ANNOTATIONS
-			auto objectNameInfo = Framework::Vulkan::DebugUtilsObjectNameInfoEXT();
-			objectNameInfo.objectType = objectType;
-			objectNameInfo.objectHandle = objectHandle;
-			objectNameInfo.pObjectName = objectName;
-
-			VkResult result = instance->vkSetDebugUtilsObjectNameEXT(device, &objectNameInfo);
-			CHECKVULKANERROR(result);
-#endif
-		}
-
-		void PushCommandLabel(VkCommandBuffer commandBuffer, const char* labelName)
-		{
-#if GSH_VULKAN_USE_ANNOTATIONS
-			auto labelInfo = Framework::Vulkan::DebugUtilsLabelEXT();
-			labelInfo.pLabelName = labelName;
-			labelInfo.color[0] = 1.0f;
-			labelInfo.color[1] = 1.0f;
-			labelInfo.color[2] = 1.0f;
-			labelInfo.color[3] = 1.0f;
-			instance->vkCmdBeginDebugUtilsLabelEXT(commandBuffer, &labelInfo);
-#endif
-		}
-
-		void PopCommandLabel(VkCommandBuffer commandBuffer)
-		{
-#if GSH_VULKAN_USE_ANNOTATIONS
-			instance->vkCmdEndDebugUtilsLabelEXT(commandBuffer);
-#endif
-		}
-
-		void SetBufferName(VkBuffer buffer, const char* name)
-		{
-			SetObjectName((uint64_t)buffer, name, VK_OBJECT_TYPE_BUFFER);
-		}
-
-		void SetImageName(VkImage image, const char* name)
-		{
-			SetObjectName((uint64_t)image, name, VK_OBJECT_TYPE_IMAGE);
-		}
-
-		void SetImageViewName(VkImageView imageView, const char* name)
-		{
-			SetObjectName((uint64_t)imageView, name, VK_OBJECT_TYPE_IMAGE_VIEW);
 		}
 	};
 

@@ -120,7 +120,7 @@ void CPresent::UpdateBackbuffer(uint32 imageIndex, const CGSHandler::DISPLAY_INF
 	result = m_context->device.vkBeginCommandBuffer(commandBuffer, &commandBufferBeginInfo);
 	CHECKVULKANERROR(result);
 
-	m_context->PushCommandLabel(commandBuffer, "Present");
+	m_context->annotations.PushCommandLabel(commandBuffer, "Present");
 
 	//Transition image from present to color attachment
 	{
@@ -235,7 +235,7 @@ void CPresent::UpdateBackbuffer(uint32 imageIndex, const CGSHandler::DISPLAY_INF
 		                                       0, 0, nullptr, 0, nullptr, 1, &imageMemoryBarrier);
 	}
 
-	m_context->PopCommandLabel(commandBuffer);
+	m_context->annotations.PopCommandLabel(commandBuffer);
 
 	m_context->device.vkEndCommandBuffer(commandBuffer);
 
