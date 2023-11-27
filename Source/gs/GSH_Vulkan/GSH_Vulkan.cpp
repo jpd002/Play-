@@ -56,11 +56,29 @@ Framework::Vulkan::CInstance CGSH_Vulkan::CreateInstance(bool useValidationLayer
 {
 	auto instanceCreateInfo = Framework::Vulkan::InstanceCreateInfo();
 
+	std::vector<const char*> layers;
+#if defined(_DEBUG)
+	static const char* validationLayerName = "VK_LAYER_KHRONOS_validation";
+	if(useValidationLayers)
+	{
+		useValidationLayers = Framework::Vulkan::CLoader::GetInstance().IsInstanceLayerPresent(validationLayerName);
+	}
+	if(useValidationLayers)
+	{
+		layers.push_back(validationLayerName);
+	}
+#endif
+
 	std::vector<const char*> extensions;
 	extensions.push_back(VK_KHR_SURFACE_EXTENSION_NAME);
 	extensions.push_back(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME);
 #if GSH_VULKAN_USE_ANNOTATIONS
-	if(Framework::Vulkan::CLoader::GetInstance().IsInstanceExtensionPresent(VK_EXT_DEBUG_UTILS_EXTENSION_NAME))
+	if(
+	    Framework::Vulkan::CLoader::GetInstance().IsInstanceExtensionPresent(VK_EXT_DEBUG_UTILS_EXTENSION_NAME)
+#if defined(__ANDROID__)
+	    || useValidationLayers //On Android, the validation layer implements the debug utils extension, but it doesn't seem to be reported properly
+#endif
+	)
 	{
 		extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
 	}
@@ -81,19 +99,6 @@ Framework::Vulkan::CInstance CGSH_Vulkan::CreateInstance(bool useValidationLayer
 #else
 	extensions.push_back(VK_KHR_XCB_SURFACE_EXTENSION_NAME);
 #endif
-#endif
-
-	std::vector<const char*> layers;
-#if defined(_DEBUG)
-	static const char* validationLayerName = "VK_LAYER_KHRONOS_validation";
-	if(useValidationLayers)
-	{
-		useValidationLayers = Framework::Vulkan::CLoader::GetInstance().IsInstanceLayerPresent(validationLayerName);
-	}
-	if(useValidationLayers)
-	{
-		layers.push_back(validationLayerName);
-	}
 #endif
 
 	auto appInfo = Framework::Vulkan::ApplicationInfo();
