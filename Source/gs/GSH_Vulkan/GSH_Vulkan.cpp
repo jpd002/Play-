@@ -774,8 +774,7 @@ void CGSH_Vulkan::SetRenderingContext(uint64 primReg)
 
 	uint32 texBufPtr = tex0.GetBufPtr();
 	uint32 texBufWidth = tex0.GetBufWidth();
-	uint32 texWidth = tex0.GetWidth();
-	uint32 texHeight = tex0.GetHeight();
+	uint32 texMipLevel = 0;
 
 	if(prim.nTexture)
 	{
@@ -824,10 +823,8 @@ void CGSH_Vulkan::SetRenderingContext(uint64 primReg)
 				auto miptbp2 = make_convertible<MIPTBP2>(m_nReg[GS_REG_MIPTBP2_1 + context]);
 
 				int k = trunc(tex1.GetK());
-				int level = std::clamp<int>(k, 0, tex1.nMaxMip);
-				texWidth >>= level;
-				texHeight >>= level;
-				switch(level)
+				texMipLevel = std::clamp<int>(k, 0, tex1.nMaxMip);
+				switch(texMipLevel)
 				{
 				default:
 					assert(false);
@@ -966,7 +963,7 @@ void CGSH_Vulkan::SetRenderingContext(uint64 primReg)
 	m_draw->SetPipelineCaps(pipelineCaps);
 	m_draw->SetFramebufferParams(frame.GetBasePtr(), frame.GetWidth(), fbWriteMask);
 	m_draw->SetDepthbufferParams(zbuf.GetBasePtr(), frame.GetWidth());
-	m_draw->SetTextureParams(texBufPtr, texBufWidth, texWidth, texHeight, tex0.nCSA * 0x10);
+	m_draw->SetTextureParams(texBufPtr, texBufWidth, tex0.GetWidth(), tex0.GetHeight(), texMipLevel, tex0.nCSA * 0x10);
 	m_draw->SetTextureAlphaParams(texA.nTA0, texA.nTA1);
 	m_draw->SetTextureClampParams(
 	    clamp.GetMinU(), clamp.GetMinV(),

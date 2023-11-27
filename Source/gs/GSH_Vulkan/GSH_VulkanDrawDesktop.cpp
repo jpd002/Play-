@@ -456,9 +456,10 @@ Framework::Vulkan::CShaderModule CDrawDesktop::CreateFragmentShader(const PIPELI
 		auto texBufWidth = texParams0->y();
 		auto texSize = texParams0->zw();
 
-		auto texCsa = texParams1->x();
-		auto texA0 = ToFloat(texParams1->y()) / NewFloat(b, 255.f);
-		auto texA1 = ToFloat(texParams1->z()) / NewFloat(b, 255.f);
+		auto texMipLevel = texParams1->x();
+		auto texCsa = texParams1->y();
+		auto texA0 = ToFloat(texParams1->z()) / NewFloat(b, 255.f);
+		auto texA1 = ToFloat(texParams1->w()) / NewFloat(b, 255.f);
 
 		auto clampMin = texParams2->xy();
 		auto clampMax = texParams2->zw();
@@ -485,9 +486,10 @@ Framework::Vulkan::CShaderModule CDrawDesktop::CreateFragmentShader(const PIPELI
 			    };
 
 			auto getTextureColor =
-			    [&](CInt2Value textureIuv, CFloat4Lvalue& textureColor) {
+			    [&](CInt2Value textureIuv, CIntValue texMipLevel, CFloat4Lvalue& textureColor) {
+				    auto mipIuv = textureIuv->xy() / (NewInt2(b, 1, 1) << texMipLevel->xx());
 				    auto textureSource = caps.textureUseMemoryCopy ? memoryBufferCopy : memoryBuffer;
-				    textureColor = CDrawUtils::GetTextureColor(b, caps.textureFormat, caps.clutFormat, textureIuv,
+				    textureColor = CDrawUtils::GetTextureColor(b, caps.textureFormat, caps.clutFormat, mipIuv,
 				                                               textureSource, clutBuffer, texSwizzleTable, texBufAddress, texBufWidth, texCsa);
 				    if(caps.textureHasAlpha)
 				    {
@@ -521,10 +523,10 @@ Framework::Vulkan::CShaderModule CDrawDesktop::CreateFragmentShader(const PIPELI
 				auto textureClampIuv0 = clampCoordinates(textureIuv0);
 				auto textureClampIuv1 = clampCoordinates(textureIuv1);
 
-				getTextureColor(NewInt2(textureClampIuv0->x(), textureClampIuv0->y()), textureColorA);
-				getTextureColor(NewInt2(textureClampIuv1->x(), textureClampIuv0->y()), textureColorB);
-				getTextureColor(NewInt2(textureClampIuv0->x(), textureClampIuv1->y()), textureColorC);
-				getTextureColor(NewInt2(textureClampIuv1->x(), textureClampIuv1->y()), textureColorD);
+				getTextureColor(NewInt2(textureClampIuv0->x(), textureClampIuv0->y()), texMipLevel, textureColorA);
+				getTextureColor(NewInt2(textureClampIuv1->x(), textureClampIuv0->y()), texMipLevel, textureColorB);
+				getTextureColor(NewInt2(textureClampIuv0->x(), textureClampIuv1->y()), texMipLevel, textureColorC);
+				getTextureColor(NewInt2(textureClampIuv1->x(), textureClampIuv1->y()), texMipLevel, textureColorD);
 
 				auto factorA = (NewFloat(b, 1.0f) - textureLinearAb->x()) * (NewFloat(b, 1.0f) - textureLinearAb->y());
 				auto factorB = textureLinearAb->x() * (NewFloat(b, 1.0f) - textureLinearAb->y());
@@ -543,7 +545,7 @@ Framework::Vulkan::CShaderModule CDrawDesktop::CreateFragmentShader(const PIPELI
 				//------------------------------
 				auto texelPos = ToInt(textureSt * ToFloat(texSize));
 				auto clampTexPos = clampCoordinates(texelPos);
-				getTextureColor(clampTexPos, textureColor);
+				getTextureColor(clampTexPos, texMipLevel, textureColor);
 			}
 
 			switch(caps.textureFunction)

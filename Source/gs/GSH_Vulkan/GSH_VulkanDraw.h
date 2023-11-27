@@ -86,7 +86,7 @@ namespace GSH_Vulkan
 		virtual void SetPipelineCaps(const PIPELINE_CAPS&);
 		virtual void SetFramebufferParams(uint32, uint32, uint32);
 		virtual void SetDepthbufferParams(uint32, uint32);
-		void SetTextureParams(uint32, uint32, uint32, uint32, uint32);
+		void SetTextureParams(uint32, uint32, uint32, uint32, uint32, uint32);
 		void SetClutBufferOffset(uint32);
 		void SetTextureAlphaParams(uint32, uint32);
 		void SetTextureClampParams(uint32, uint32, uint32, uint32);
@@ -144,10 +144,10 @@ namespace GSH_Vulkan
 			uint32 texHeight = 0;
 
 			//texParams1
+			uint32 texMipLevel = 0;
 			uint32 texCsa = 0;
 			uint32 texA0 = 0;
 			uint32 texA1 = 0;
-			uint32 texParams1Reserved = 0;
 
 			//texParams2
 			uint32 clampMin[2];

@@ -82,13 +82,14 @@ void CDraw::SetDepthbufferParams(uint32 addr, uint32 width)
 	m_pushConstants.depthBufWidth = width;
 }
 
-void CDraw::SetTextureParams(uint32 bufAddr, uint32 bufWidth, uint32 width, uint32 height, uint32 csa)
+void CDraw::SetTextureParams(uint32 bufAddr, uint32 bufWidth, uint32 width, uint32 height, uint32 mipLevel, uint32 csa)
 {
 	bool changed =
 	    (m_pushConstants.texBufAddr != bufAddr) ||
 	    (m_pushConstants.texBufWidth != bufWidth) ||
 	    (m_pushConstants.texWidth != width) ||
 	    (m_pushConstants.texHeight != height) ||
+	    (m_pushConstants.texMipLevel != mipLevel) ||
 	    (m_pushConstants.texCsa != csa);
 	if(!changed) return;
 	FlushVertices();
@@ -96,6 +97,7 @@ void CDraw::SetTextureParams(uint32 bufAddr, uint32 bufWidth, uint32 width, uint
 	m_pushConstants.texBufWidth = bufWidth;
 	m_pushConstants.texWidth = width;
 	m_pushConstants.texHeight = height;
+	m_pushConstants.texMipLevel = mipLevel;
 	m_pushConstants.texCsa = csa;
 }
 
