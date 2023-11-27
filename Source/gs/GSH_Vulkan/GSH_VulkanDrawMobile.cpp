@@ -878,9 +878,9 @@ Framework::Vulkan::CShaderModule CDrawMobile::CreateDrawFragmentShader(const PIP
 		auto texBufWidth = texParams0->y();
 		auto texSize = texParams0->zw();
 
-		auto texCsa = texParams1->x();
-		auto texA0 = ToFloat(texParams1->y()) / NewFloat(b, 255.f);
-		auto texA1 = ToFloat(texParams1->z()) / NewFloat(b, 255.f);
+		auto texCsa = texParams1->y();
+		auto texA0 = ToFloat(texParams1->z()) / NewFloat(b, 255.f);
+		auto texA1 = ToFloat(texParams1->w()) / NewFloat(b, 255.f);
 
 		auto clampMin = texParams2->xy();
 		auto clampMax = texParams2->zw();
