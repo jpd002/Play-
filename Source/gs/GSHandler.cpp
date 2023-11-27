@@ -757,8 +757,31 @@ void CGSHandler::WriteRegisterImpl(uint8 nRegister, uint64 nData)
 	{
 		unsigned int nContext = nRegister - GS_REG_TEX0_1;
 		assert(nContext == 0 || nContext == 1);
-		auto tex0 = make_convertible<TEX0>(m_nReg[GS_REG_TEX0_1 + nContext]);
+		auto tex0 = make_convertible<TEX0>(m_nReg[nRegister]);
 		SyncCLUT(tex0);
+
+		auto tex1 = make_convertible<TEX1>(m_nReg[GS_REG_TEX1_1 + nContext]);
+		if(tex1.nMipBaseAddr)
+		{
+			uint32 bufAddr = tex0.GetBufPtr();
+			uint32 bufWidth = tex0.nBufWidth;
+			uint32 width = tex0.GetWidth();
+			uint32 height = tex0.GetHeight();
+			uint32 pixelSize = CGsPixelFormats::GetPsmPixelSize(tex0.nPsm);
+			uint64 miptbp[3] = {};
+			for(int i = 0; i < 3; i++)
+			{
+				uint32 levelSize = (width * height * pixelSize) / 8;
+				bufAddr = bufAddr + levelSize;
+				bufWidth = std::max(bufWidth >> 1, 1U);
+				width = std::max(width >> 1, 1U);
+				height = std::max(width >> 1, 1U);
+				uint32 tbp = (bufAddr / 256) & 0x3FFF;
+				uint32 tbw = bufWidth & 0x3F;
+				miptbp[i] = tbp | (tbw << 14);
+			}
+			m_nReg[GS_REG_MIPTBP1_1 + nContext] = miptbp[0] | (miptbp[1] << 20) | (miptbp[2] << 40);
+		}
 	}
 	break;
 
