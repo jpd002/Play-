@@ -1449,6 +1449,26 @@ void CGSH_Vulkan::ProcessLocalToLocalTransfer()
 	pipelineCaps.srcFormat = bltBuf.nSrcPsm;
 	pipelineCaps.dstFormat = bltBuf.nDstPsm;
 
+	if(bltBuf.GetSrcPtr() == bltBuf.GetDstPtr())
+	{
+		//If src and dst pointers are the same, we need to copy the memory area in our memoryBufferCopy.
+		//This is needed for Tairyou Jigoku for a scrolling effect in the sewer level.
+		//TODO: Handle overlapping regions (even if memory addresses don't match)
+
+		auto [transferAddress, transferSize] = GsTransfer::GetSrcRange(bltBuf, trxReg, trxPos);
+
+		auto commandBuffer = m_frameCommandBuffer->GetCommandBuffer();
+
+		VkBufferCopy bufferCopy = {};
+		bufferCopy.srcOffset = transferAddress;
+		bufferCopy.dstOffset = transferAddress;
+		bufferCopy.size = transferSize;
+
+		m_context->device.vkCmdCopyBuffer(commandBuffer, m_context->memoryBuffer, m_context->memoryBufferCopy, 1, &bufferCopy);
+
+		pipelineCaps.srcUseMemoryCopy = true;
+	}
+
 	m_transferLocal->SetPipelineCaps(pipelineCaps);
 	m_transferLocal->DoTransfer();
 }

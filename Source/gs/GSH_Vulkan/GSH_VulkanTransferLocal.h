@@ -19,6 +19,7 @@ namespace GSH_Vulkan
 		{
 			uint32 srcFormat : 6;
 			uint32 dstFormat : 6;
+			uint32 srcUseMemoryCopy : 1;
 		};
 
 		struct XFERPARAMS

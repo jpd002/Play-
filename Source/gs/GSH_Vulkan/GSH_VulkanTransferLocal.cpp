@@ -7,11 +7,15 @@
 
 using namespace GSH_Vulkan;
 
-#define DESCRIPTOR_LOCATION_MEMORY 0
-#define DESCRIPTOR_LOCATION_SWIZZLETABLE_SRC 1
-#define DESCRIPTOR_LOCATION_SWIZZLETABLE_DST 2
-#define DESCRIPTOR_LOCATION_MEMORY_8BIT 3
-#define DESCRIPTOR_LOCATION_MEMORY_16BIT 4
+enum DESCRIPTORS
+{
+	DESCRIPTOR_LOCATION_MEMORY,
+	DESCRIPTOR_LOCATION_MEMORY_8BIT,
+	DESCRIPTOR_LOCATION_MEMORY_16BIT,
+	DESCRIPTOR_LOCATION_MEMORY_COPY,
+	DESCRIPTOR_LOCATION_SWIZZLETABLE_SRC,
+	DESCRIPTOR_LOCATION_SWIZZLETABLE_DST,
+};
 
 #define TRANSFER_USE_8_16_BIT GSH_VULKAN_IS_DESKTOP
 
@@ -100,6 +104,10 @@ VkDescriptorSet CTransferLocal::PrepareDescriptorSet(VkDescriptorSetLayout descr
 		descriptorMemoryBufferInfo.buffer = m_context->memoryBuffer;
 		descriptorMemoryBufferInfo.range = VK_WHOLE_SIZE;
 
+		VkDescriptorBufferInfo descriptorMemoryCopyBufferInfo = {};
+		descriptorMemoryCopyBufferInfo.buffer = m_context->memoryBufferCopy;
+		descriptorMemoryCopyBufferInfo.range = VK_WHOLE_SIZE;
+
 		VkDescriptorImageInfo descriptorSrcSwizzleTableInfo = {};
 		descriptorSrcSwizzleTableInfo.imageView = m_context->GetSwizzleTable(caps.srcPsm);
 		descriptorSrcSwizzleTableInfo.imageLayout = VK_IMAGE_LAYOUT_GENERAL;
@@ -140,6 +148,17 @@ VkDescriptorSet CTransferLocal::PrepareDescriptorSet(VkDescriptorSetLayout descr
 			writeSet.descriptorCount = 1;
 			writeSet.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
 			writeSet.pBufferInfo = &descriptorMemoryBufferInfo;
+			writes.push_back(writeSet);
+		}
+
+		//Memory Copy Image Descriptor
+		{
+			auto writeSet = Framework::Vulkan::WriteDescriptorSet();
+			writeSet.dstSet = descriptorSet;
+			writeSet.dstBinding = DESCRIPTOR_LOCATION_MEMORY_COPY;
+			writeSet.descriptorCount = 1;
+			writeSet.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+			writeSet.pBufferInfo = &descriptorMemoryCopyBufferInfo;
 			writes.push_back(writeSet);
 		}
 
@@ -189,6 +208,8 @@ Framework::Vulkan::CShaderModule CTransferLocal::CreateShader(const PIPELINE_CAP
 		auto memoryBuffer8 = CArrayUcharValue(b.CreateUniformArrayUchar("memoryBuffer8", DESCRIPTOR_LOCATION_MEMORY_8BIT));
 		auto memoryBuffer16 = CArrayUshortValue(b.CreateUniformArrayUshort("memoryBuffer16", DESCRIPTOR_LOCATION_MEMORY_16BIT));
 #endif
+		auto memoryBufferCopy = CArrayUintValue(b.CreateUniformArrayUint("memoryBufferCopy", DESCRIPTOR_LOCATION_MEMORY_COPY));
+
 		auto srcSwizzleTable = CImageUint2DValue(b.CreateImage2DUint(DESCRIPTOR_LOCATION_SWIZZLETABLE_SRC));
 		auto dstSwizzleTable = CImageUint2DValue(b.CreateImage2DUint(DESCRIPTOR_LOCATION_SWIZZLETABLE_DST));
 
@@ -203,6 +224,8 @@ Framework::Vulkan::CShaderModule CTransferLocal::CreateShader(const PIPELINE_CAP
 
 		auto srcOffset = offsetParams->xy();
 		auto dstOffset = offsetParams->zw();
+
+		auto srcBuffer = caps.srcUseMemoryCopy ? memoryBufferCopy : memoryBuffer;
 
 		auto size = sizeParams->xy();
 
@@ -230,28 +253,28 @@ Framework::Vulkan::CShaderModule CTransferLocal::CreateShader(const PIPELINE_CAP
 		{
 			auto address = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT32>(
 			    b, srcSwizzleTable, srcBufAddress, srcBufWidth, srcPos);
-			pixel = CMemoryUtils::Memory_Read32(b, memoryBuffer, address);
+			pixel = CMemoryUtils::Memory_Read32(b, srcBuffer, address);
 		}
 		break;
 		case CGSHandler::PSMCT16:
 		{
 			auto address = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT16>(
 			    b, srcSwizzleTable, srcBufAddress, srcBufWidth, srcPos);
-			pixel = CMemoryUtils::Memory_Read16(b, memoryBuffer, address);
+			pixel = CMemoryUtils::Memory_Read16(b, srcBuffer, address);
 		}
 		break;
 		case CGSHandler::PSMT8:
 		{
 			auto address = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMT8>(
 			    b, srcSwizzleTable, srcBufAddress, srcBufWidth, srcPos);
-			pixel = CMemoryUtils::Memory_Read8(b, memoryBuffer, address);
+			pixel = CMemoryUtils::Memory_Read8(b, srcBuffer, address);
 		}
 		break;
 		case CGSHandler::PSMT4:
 		{
 			auto texAddress = CMemoryUtils::GetPixelAddress_PSMT4(
 			    b, srcSwizzleTable, srcBufAddress, srcBufWidth, srcPos);
-			pixel = CMemoryUtils::Memory_Read4(b, memoryBuffer, texAddress);
+			pixel = CMemoryUtils::Memory_Read4(b, srcBuffer, texAddress);
 		}
 		break;
 		default:
@@ -362,6 +385,16 @@ PIPELINE CTransferLocal::CreatePipeline(const PIPELINE_CAPS& caps)
 		{
 			VkDescriptorSetLayoutBinding binding = {};
 			binding.binding = DESCRIPTOR_LOCATION_MEMORY_16BIT;
+			binding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+			binding.descriptorCount = 1;
+			binding.stageFlags = VK_SHADER_STAGE_COMPUTE_BIT;
+			bindings.push_back(binding);
+		}
+
+		//GS memory copy
+		{
+			VkDescriptorSetLayoutBinding binding = {};
+			binding.binding = DESCRIPTOR_LOCATION_MEMORY_COPY;
 			binding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
 			binding.descriptorCount = 1;
 			binding.stageFlags = VK_SHADER_STAGE_COMPUTE_BIT;
