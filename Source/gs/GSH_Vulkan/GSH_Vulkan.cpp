@@ -9,6 +9,7 @@
 #include "GSH_VulkanDrawDesktop.h"
 #include "GSH_VulkanDrawMobile.h"
 #include "GSH_VulkanDeviceInfo.h"
+#include "vulkan/Loader.h"
 #include "vulkan/StructDefs.h"
 #include "vulkan/StructChain.h"
 #include "vulkan/Utils.h"
@@ -59,7 +60,10 @@ Framework::Vulkan::CInstance CGSH_Vulkan::CreateInstance(bool useValidationLayer
 	extensions.push_back(VK_KHR_SURFACE_EXTENSION_NAME);
 	extensions.push_back(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME);
 #if GSH_VULKAN_USE_ANNOTATIONS
-	extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+	if(Framework::Vulkan::CLoader::GetInstance().IsInstanceExtensionPresent(VK_EXT_DEBUG_UTILS_EXTENSION_NAME))
+	{
+		extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+	}
 #endif
 #ifdef _WIN32
 	extensions.push_back(VK_KHR_WIN32_SURFACE_EXTENSION_NAME);
@@ -80,10 +84,15 @@ Framework::Vulkan::CInstance CGSH_Vulkan::CreateInstance(bool useValidationLayer
 #endif
 
 	std::vector<const char*> layers;
-#if defined(_DEBUG) && !defined(__APPLE__)
+#if defined(_DEBUG)
+	static const char* validationLayerName = "VK_LAYER_KHRONOS_validation";
 	if(useValidationLayers)
 	{
-		layers.push_back("VK_LAYER_KHRONOS_validation");
+		useValidationLayers = Framework::Vulkan::CLoader::GetInstance().IsInstanceLayerPresent(validationLayerName);
+	}
+	if(useValidationLayers)
+	{
+		layers.push_back(validationLayerName);
 	}
 #endif
 
