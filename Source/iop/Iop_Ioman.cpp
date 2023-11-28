@@ -24,6 +24,7 @@ using namespace Iop;
 #define STATE_FILES_FILENODE_PATHATTRIBUTE ("Path")
 #define STATE_FILES_FILENODE_FLAGSATTRIBUTE ("Flags")
 #define STATE_FILES_FILENODE_DESCPTRATTRIBUTE ("DescPtr")
+#define STATE_FILES_FILENODE_POSITIONATTRIBUTE ("Position")
 
 #define STATE_USERDEVICES_FILENAME ("iop_ioman/userdevices.xml")
 #define STATE_USERDEVICES_DEVICESNODE "Devices"
@@ -1064,6 +1065,7 @@ void CIoman::SaveFilesState(Framework::CZipArchiveWriter& archive) const
 		fileStateNode->InsertAttribute(Framework::Xml::CreateAttributeIntValue(STATE_FILES_FILENODE_IDATTRIBUTE, filePair.first));
 		fileStateNode->InsertAttribute(Framework::Xml::CreateAttributeIntValue(STATE_FILES_FILENODE_FLAGSATTRIBUTE, file.flags));
 		fileStateNode->InsertAttribute(Framework::Xml::CreateAttributeIntValue(STATE_FILES_FILENODE_DESCPTRATTRIBUTE, file.descPtr));
+		fileStateNode->InsertAttribute(Framework::Xml::CreateAttributeInt64Value(STATE_FILES_FILENODE_POSITIONATTRIBUTE, file.stream->Tell()));
 		fileStateNode->InsertAttribute(Framework::Xml::CreateAttributeStringValue(STATE_FILES_FILENODE_PATHATTRIBUTE, file.path.c_str()));
 		filesStateNode->InsertNode(std::move(fileStateNode));
 	}
@@ -1118,17 +1120,20 @@ void CIoman::LoadFilesState(Framework::CZipArchiveReader& archive)
 	for(auto fileNode : fileNodes)
 	{
 		int32 id = 0, flags = 0, descPtr = 0;
+		int64 position = 0;
 		std::string path;
 		if(!Framework::Xml::GetAttributeIntValue(fileNode, STATE_FILES_FILENODE_IDATTRIBUTE, &id)) break;
 		if(!Framework::Xml::GetAttributeStringValue(fileNode, STATE_FILES_FILENODE_PATHATTRIBUTE, &path)) break;
 		if(!Framework::Xml::GetAttributeIntValue(fileNode, STATE_FILES_FILENODE_FLAGSATTRIBUTE, &flags)) break;
 		if(!Framework::Xml::GetAttributeIntValue(fileNode, STATE_FILES_FILENODE_DESCPTRATTRIBUTE, &descPtr)) break;
+		if(!Framework::Xml::GetAttributeInt64Value(fileNode, STATE_FILES_FILENODE_POSITIONATTRIBUTE, &position)) break;
 
 		FileInfo fileInfo;
 		fileInfo.flags = flags;
 		fileInfo.path = path;
 		fileInfo.descPtr = descPtr;
 		fileInfo.stream = (descPtr == 0) ? OpenInternal(flags, path.c_str()) : nullptr;
+		fileInfo.stream->Seek(position, Framework::STREAM_SEEK_SET);
 		m_files[id] = std::move(fileInfo);
 
 		maxFileId = std::max(maxFileId, id);
