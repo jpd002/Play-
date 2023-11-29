@@ -579,17 +579,6 @@ void CMcServ::Read(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, u
 	CLog::GetInstance().Print(LOG_NAME, "Read(handle = %i, size = 0x%08X, bufferAddress = 0x%08X, paramAddress = 0x%08X);\r\n",
 	                          cmd->handle, cmd->size, cmd->bufferAddress, cmd->paramAddress);
 
-	auto file = GetFileFromHandle(cmd->handle);
-	if(file == nullptr)
-	{
-		ret[0] = -1;
-		assert(0);
-		return;
-	}
-
-	assert(cmd->bufferAddress != 0);
-	void* dst = &ram[cmd->bufferAddress];
-
 	if(cmd->paramAddress != 0)
 	{
 		//This param buffer is used in the callback after calling this method... No clue what it's for
@@ -597,7 +586,19 @@ void CMcServ::Read(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, u
 		reinterpret_cast<uint32*>(&ram[cmd->paramAddress])[1] = 0;
 	}
 
-	if(file->IsEOF())
+	assert(cmd->bufferAddress != 0);
+	void* dst = &ram[cmd->bufferAddress];
+
+	auto file = GetFileFromHandle(cmd->handle);
+	if(file == nullptr)
+	{
+		// It would be logical for this to return -4, file not found.
+		// If we do that though, Champions Return to Arms quits its current memcard batch of commands and never executes a required CHDIR
+		// resulting in a hang.
+		// Treating a missing file like an empty file appears to work.
+		ret[0] = 0;
+	}
+	else if(file->IsEOF())
 	{
 		ret[0] = 0;
 	}
@@ -727,7 +728,9 @@ void CMcServ::ChDir(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, 
 		}
 		else
 		{
-			//Not found (I guess)
+			// Not found (I guess)
+			// This resets the current dir to the root folder.
+			currentDirectory = MakeAbsolutePath("");
 			result = RET_NO_ENTRY;
 		}
 	}
@@ -784,7 +787,8 @@ void CMcServ::GetDir(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize,
 				return;
 			}
 
-			assert(*mcPath.string().rbegin() != '/');
+			// Some games will do a GETDIR on the root (Champions: Return to Arms for example when looking for Chamions of Norrath save data).
+			//assert(*mcPath.string().rbegin() != '/');
 			m_pathFinder.Search(mcPath, cmd->name);
 		}
 
