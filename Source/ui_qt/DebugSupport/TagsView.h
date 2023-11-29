@@ -55,8 +55,8 @@ protected:
 	void showEvent(QShowEvent*) Q_DECL_OVERRIDE;
 
 	void RefreshList();
-	void InitializeModuleGrouper();
-	QTreeWidgetItem* GetTagGroup(uint32);
+	void InitializeModuleItems();
+	QTreeWidgetItem* GetModuleItem(uint32);
 
 	Ui::CTagsView* ui;
 
@@ -68,5 +68,7 @@ protected:
 	CMIPSTags* m_tags = nullptr;
 	BiosDebugModuleInfoArray m_modules;
 	CBiosDebugInfoProvider* m_biosDebugInfoProvider = nullptr;
-	std::map<uint32, QTreeWidgetItem*> m_groupMap;
+
+	QSharedPointer<QTreeWidgetItem> m_globalItem;
+	std::map<uint32, QSharedPointer<QTreeWidgetItem>> m_moduleItems;
 };

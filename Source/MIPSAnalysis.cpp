@@ -372,9 +372,9 @@ void CMIPSAnalysis::AnalyseStringReferences()
 					std::string stringConstant;
 					if(TryGetStringAtAddress(m_ctx, targetAddress, stringConstant))
 					{
-						if(m_ctx->m_Comments.Find(address) == nullptr)
+						if(!m_ctx->m_Comments.Find(address))
 						{
-							m_ctx->m_Comments.InsertTag(address, stringConstant.c_str());
+							m_ctx->m_Comments.InsertTag(address, std::move(stringConstant));
 							commentInserted = true;
 						}
 					}

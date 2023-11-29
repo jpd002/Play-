@@ -43,7 +43,8 @@ void CTagsView::Refresh()
 
 void CTagsView::RefreshList()
 {
-	m_groupMap.clear();
+	m_globalItem.reset();
+	m_moduleItems.clear();
 	ui->treeWidget->clear();
 
 	if(!m_context) return;
@@ -55,34 +56,31 @@ void CTagsView::RefreshList()
 	{
 		m_modules.clear();
 	}
-	bool groupingEnabled = m_modules.size() != 0;
 
-	if(groupingEnabled)
-	{
-		InitializeModuleGrouper();
-	}
+	InitializeModuleItems();
 
 	for(auto itTag(m_tags->GetTagsBegin());
 	    itTag != m_tags->GetTagsEnd(); itTag++)
 	{
-		std::string sTag(itTag->second);
+		const auto& sTag(itTag->second);
 		if(!m_filter.empty() && (sTag.find(m_filter) == std::string::npos))
 		{
 			continue;
 		}
 
 		QTreeWidgetItem* childItem = new QTreeWidgetItem();
-		childItem->setText(0, sTag.c_str());
-		childItem->setText(1, string_format("0x%08X", itTag->first).c_str());
+		childItem->setText(0, QString::fromStdString(sTag));
+		childItem->setText(1, QString::fromStdString(string_format("0x%08X", itTag->first)));
 		childItem->setData(addressValueColumn, addressValueRole, itTag->first);
-		if(groupingEnabled)
-		{
-			GetTagGroup(itTag->first)->addChild(childItem);
-		}
-		else
-		{
-			ui->treeWidget->addTopLevelItem(childItem);
-		}
+
+		auto moduleItem = GetModuleItem(itTag->first);
+		moduleItem->addChild(childItem);
+	}
+
+	ui->treeWidget->addTopLevelItem(m_globalItem.get());
+	for(const auto& moduleItemPair : m_moduleItems)
+	{
+		ui->treeWidget->addTopLevelItem(moduleItemPair.second.get());
 	}
 
 	if(!m_filter.empty())
@@ -91,30 +89,28 @@ void CTagsView::RefreshList()
 	}
 }
 
-void CTagsView::InitializeModuleGrouper()
+void CTagsView::InitializeModuleItems()
 {
-	QTreeWidgetItem* rootItem = new QTreeWidgetItem(ui->treeWidget);
-	rootItem->setText(0, DEFAULT_GROUPNAME);
-	rootItem->setText(1, "");
-	ui->treeWidget->addTopLevelItem(rootItem);
+	m_globalItem = QSharedPointer<QTreeWidgetItem>::create();
+	m_globalItem->setText(0, DEFAULT_GROUPNAME);
+	m_globalItem->setText(1, "");
 
 	for(const auto& module : m_modules)
 	{
-		QTreeWidgetItem* rootItem = new QTreeWidgetItem(ui->treeWidget);
-		rootItem->setText(0, module.name.c_str());
-		rootItem->setText(1, string_format("0x%08X -- 0x%08X", module.begin, module.end).c_str());
-		m_groupMap.emplace(module.begin, rootItem);
-		ui->treeWidget->addTopLevelItem(rootItem);
+		auto moduleItem = QSharedPointer<QTreeWidgetItem>::create();
+		moduleItem->setText(0, module.name.c_str());
+		moduleItem->setText(1, string_format("0x%08X -- 0x%08X", module.begin, module.end).c_str());
+		m_moduleItems.emplace(module.begin, std::move(moduleItem));
 	}
 }
 
-QTreeWidgetItem* CTagsView::GetTagGroup(uint32 address)
+QTreeWidgetItem* CTagsView::GetModuleItem(uint32 address)
 {
 	for(const auto& module : m_modules)
 	{
-		if(address >= module.begin && address < module.end) return m_groupMap[module.begin];
+		if(address >= module.begin && address < module.end) return m_moduleItems[module.begin].get();
 	}
-	return ui->treeWidget->topLevelItem(0);
+	return m_globalItem.get();
 }
 
 void CTagsView::SetStrings(const Strings& strings)
@@ -244,7 +240,7 @@ void CTagsView::OnDeleteClick()
 		for(auto tagIterator = m_tags->GetTagsBegin();
 		    tagIterator != m_tags->GetTagsEnd(); tagIterator++)
 		{
-			auto tagGroupItem = GetTagGroup(tagIterator->first);
+			auto tagGroupItem = GetModuleItem(tagIterator->first);
 			if(tagGroupItem == selectedItem)
 			{
 				toDelete.push_back(tagIterator->first);
@@ -253,7 +249,7 @@ void CTagsView::OnDeleteClick()
 
 		for(auto address : toDelete)
 		{
-			m_tags->InsertTag(address, nullptr);
+			m_tags->RemoveTag(address);
 		}
 	}
 	else
@@ -269,7 +265,7 @@ void CTagsView::OnDeleteClick()
 			return;
 		}
 
-		m_tags->InsertTag(nAddress, nullptr);
+		m_tags->RemoveTag(nAddress);
 	}
 
 	RefreshList();

@@ -3923,9 +3923,10 @@ void CIopBios::PrepareModuleDebugInfo(CELF32& elf, const ExecutableRange& module
 					sprintf(functionNameTemp, "unknown_%04X", functionId);
 					functionName = functionNameTemp;
 				}
-				if(m_cpu.m_Functions.Find(address) == NULL)
+				if(!m_cpu.m_Functions.Find(address))
 				{
-					m_cpu.m_Functions.InsertTag(entryAddress, (std::string(moduleName) + "_" + functionName).c_str());
+					auto fullFunctionName = std::string(moduleName) + "_" + functionName;
+					m_cpu.m_Functions.InsertTag(entryAddress, std::move(fullFunctionName));
 					functionAdded = true;
 				}
 				entryAddress += 8;

@@ -1,37 +1,22 @@
 #include <cstring>
 #include "MIPSTags.h"
 #include "StdStream.h"
-#include "lexical_cast_ex.h"
+#include "string_format.h"
 #include "xml/FilteringNodeIterator.h"
 
 #define TAG_ELEMENT_NAME ("tag")
 #define TAG_ELEMENT_ATTRIBUTE_ADDRESS ("address")
 #define TAG_ELEMENT_ATTRIBUTE_VALUE ("value")
 
-void CMIPSTags::InsertTag(uint32 nAddress, const char* sTag)
+void CMIPSTags::InsertTag(uint32 address, std::string tag)
 {
-	bool nErase = false;
-	if(sTag == nullptr)
-	{
-		nErase = true;
-	}
-	else
-	{
-		nErase = (strlen(sTag) == 0);
-	}
+	assert(!tag.empty());
+	m_tags[address] = std::move(tag);
+}
 
-	if(nErase)
-	{
-		auto tagIterator = m_tags.find(nAddress);
-		if(tagIterator != m_tags.end())
-		{
-			m_tags.erase(tagIterator);
-		}
-	}
-	else
-	{
-		m_tags[nAddress] = sTag;
-	}
+void CMIPSTags::RemoveTag(uint32 address)
+{
+	m_tags.erase(address);
 }
 
 void CMIPSTags::RemoveTags()
@@ -109,7 +94,7 @@ void CMIPSTags::Serialize(Framework::Xml::CNode* parentNode) const
 	for(const auto& tagPair : m_tags)
 	{
 		auto node = std::make_unique<Framework::Xml::CNode>(TAG_ELEMENT_NAME, true);
-		node->InsertAttribute(TAG_ELEMENT_ATTRIBUTE_ADDRESS, lexical_cast_hex<std::string>(tagPair.first, 8).c_str());
+		node->InsertAttribute(TAG_ELEMENT_ATTRIBUTE_ADDRESS, string_format("%08X", tagPair.first).c_str());
 		node->InsertAttribute(TAG_ELEMENT_ATTRIBUTE_VALUE, tagPair.second.c_str());
 		parentNode->InsertNode(std::move(node));
 	}
@@ -124,7 +109,7 @@ void CMIPSTags::Unserialize(Framework::Xml::CNode* parentNode)
 		auto addressText = node->GetAttribute(TAG_ELEMENT_ATTRIBUTE_ADDRESS);
 		auto valueText = node->GetAttribute(TAG_ELEMENT_ATTRIBUTE_VALUE);
 		if(!addressText || !valueText) continue;
-		uint32 address = lexical_cast_hex<std::string>(addressText);
+		uint32 address = strtoul(addressText, nullptr, 16);
 		InsertTag(address, valueText);
 	}
 }

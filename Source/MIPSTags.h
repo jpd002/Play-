@@ -14,7 +14,8 @@ public:
 
 	Framework::CSignal<void()> OnTagListChange;
 
-	void InsertTag(uint32, const char*);
+	void InsertTag(uint32, std::string);
+	void RemoveTag(uint32);
 	void RemoveTags();
 	const char* Find(uint32) const;
 
