@@ -579,23 +579,24 @@ void CMcServ::Read(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, u
 	CLog::GetInstance().Print(LOG_NAME, "Read(handle = %i, size = 0x%08X, bufferAddress = 0x%08X, paramAddress = 0x%08X);\r\n",
 	                          cmd->handle, cmd->size, cmd->bufferAddress, cmd->paramAddress);
 
-	auto file = GetFileFromHandle(cmd->handle);
-	if(file == nullptr)
+	if(cmd->paramAddress != 0)
 	{
-		ret[0] = -1;
-		assert(0);
+		//This param buffer is used in the callback after calling this method.
+		//It seems to be used to ferry some data to reduce the number of transfers between IOP and EE.
+		reinterpret_cast<uint32*>(&ram[cmd->paramAddress])[0] = 0;
+		reinterpret_cast<uint32*>(&ram[cmd->paramAddress])[1] = 0;
+	}
+
+	auto file = GetFileFromHandle(cmd->handle);
+	if(!file)
+	{
+		CLog::GetInstance().Warn(LOG_NAME, "Warning. Attempted to read from an invalid fd (%d).\r\n", cmd->handle);
+		ret[0] = RET_PERMISSION_DENIED;
 		return;
 	}
 
 	assert(cmd->bufferAddress != 0);
 	void* dst = &ram[cmd->bufferAddress];
-
-	if(cmd->paramAddress != 0)
-	{
-		//This param buffer is used in the callback after calling this method... No clue what it's for
-		reinterpret_cast<uint32*>(&ram[cmd->paramAddress])[0] = 0;
-		reinterpret_cast<uint32*>(&ram[cmd->paramAddress])[1] = 0;
-	}
 
 	if(file->IsEOF())
 	{
