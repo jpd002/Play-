@@ -3,12 +3,13 @@
 #include "../Iop_Module.h"
 #include "../Iop_SifMan.h"
 #include "../../SifModuleAdapter.h"
+#include "../../PadListener.h"
 
 namespace Iop
 {
 	namespace Namco
 	{
-		class CSys147 : public CModule
+		class CSys147 : public CModule, public CPadListener
 		{
 		public:
 			CSys147(CSifMan&);
@@ -17,6 +18,10 @@ namespace Iop
 			std::string GetId() const override;
 			std::string GetFunctionName(unsigned int) const override;
 			void Invoke(CMIPS&, unsigned int) override;
+
+			//CPadListener
+			void SetButtonState(unsigned int, PS2::CControllerInfo::BUTTON, bool, uint8*) override;
+			void SetAxisState(unsigned int, PS2::CControllerInfo::BUTTON, uint8, uint8*) override;
 
 		private:
 			enum MODULE_ID
@@ -66,6 +71,10 @@ namespace Iop
 			CSifModuleAdapter m_module99;
 			
 			std::vector<MODULE_99_PACKET> m_pendingReplies;
+			
+			bool m_buttonPressed = false;
+			bool m_crossPressed = false;
+			uint8 packetData[0x10] = {};
 		};
 	}
 }

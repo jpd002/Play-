@@ -45,6 +45,48 @@ std::string CSys147::GetFunctionName(unsigned int functionId) const
 	return "unknown";
 }
 
+void CSys147::SetButtonState(unsigned int padNumber, PS2::CControllerInfo::BUTTON button, bool pressed, uint8* ram)
+{
+	if(button == PS2::CControllerInfo::SQUARE)
+	{
+		m_buttonPressed = pressed;
+	}
+	if(button == PS2::CControllerInfo::CROSS)
+	{
+		//if(!pressed && m_crossPressed)
+		{
+			static const uint8 zePacket[0x10] = { 0x6D, 0xBE, 0xD6, 0x58, 0x59, 0xD3, 0xBF, 0x04, 0x7D, 0x12, 0xD9, 0x1E, 0x6F, 0x73, 0x11, 0x2A};
+
+			static int count = 0;
+			for(int i = 0; i < 8; i++)
+			{
+				//if(count == 0)
+				//{
+					packetData[i] = pressed ? zePacket[i] : 0;
+				//}
+				//else
+				//{
+				//	packetData[i] = rand() % 0xFF;
+				//}
+			}
+			packetData[0] = 0x6C;
+			//count++;
+			//printf("Pressed Cross Packet Data:\r\n");
+			//for(int i = 0; i < 0x10; i++)
+			//{
+			//	printf("0x%02X, ", packetData[i]);
+			//}
+			//printf("\r\n");
+		}
+		m_crossPressed = pressed;
+	}
+}
+
+void CSys147::SetAxisState(unsigned int padNumber, PS2::CControllerInfo::BUTTON button, uint8 axisValue, uint8* ram)
+{
+	
+}
+
 void CSys147::Invoke(CMIPS& context, unsigned int functionId)
 {
 	throw std::runtime_error("Not implemented.");
@@ -272,11 +314,15 @@ bool CSys147::Invoke99(uint32 method, uint32* args, uint32 argsSize, uint32* ret
 			}
 			else if(packet->command == 0x39)
 			{
-				//???
+				//Seems to be related to switch values?
 				MODULE_99_PACKET reply = {};
 				reply.type = 2;
 				reply.command = 0x39;
 				reply.data[0] = packet->data[0];
+				for(int i = 0; i < 0x10; i++)
+				{
+					reply.data[i] = packetData[i];
+				}
 				reply.checksum = ComputePacketChecksum(reply);
 				m_pendingReplies.emplace_back(reply);
 			}
