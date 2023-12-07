@@ -1,15 +1,14 @@
 #pragma once
 
 #include "zip/ZipFile.h"
-#include "uint128.h"
-#include <map>
+#include "RegisterState.h"
 
 class CRegisterStateFile : public Framework::CZipFile
 {
 public:
 	CRegisterStateFile(const char*);
 	CRegisterStateFile(Framework::CStream&);
-	virtual ~CRegisterStateFile();
+	virtual ~CRegisterStateFile() = default;
 
 	void SetRegister32(const char*, uint32);
 	void SetRegister64(const char*, uint64);
@@ -23,8 +22,5 @@ public:
 	void Write(Framework::CStream&) override;
 
 private:
-	typedef std::pair<uint8, uint128> Register;
-	typedef std::map<std::string, Register> RegisterList;
-
-	RegisterList m_registers;
+	CRegisterState m_registers;
 };

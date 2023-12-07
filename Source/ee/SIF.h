@@ -8,7 +8,6 @@
 #include "zip/ZipArchiveWriter.h"
 #include "zip/ZipArchiveReader.h"
 #include "../states/RegisterStateFile.h"
-#include "../states/StructFile.h"
 
 class CSIF
 {
@@ -76,13 +75,13 @@ private:
 	static CallReplyMap LoadCallReplies(Framework::CZipArchiveReader&);
 	static BindReplyMap LoadBindReplies(Framework::CZipArchiveReader&);
 
-	static void SaveState_Header(const std::string&, CStructFile&, const SIFCMDHEADER&);
-	static void SaveState_RpcCall(CStructFile&, const SIFRPCCALL&);
-	static void SaveState_RequestEnd(CStructFile&, const SIFRPCREQUESTEND&);
+	static void SaveState_Header(const std::string&, CRegisterState&, const SIFCMDHEADER&);
+	static void SaveState_RpcCall(CRegisterState&, const SIFRPCCALL&);
+	static void SaveState_RequestEnd(CRegisterState&, const SIFRPCREQUESTEND&);
 
-	static void LoadState_Header(const std::string&, const CStructFile&, SIFCMDHEADER&);
-	static void LoadState_RpcCall(const CStructFile&, SIFRPCCALL&);
-	static void LoadState_RequestEnd(const CStructFile&, SIFRPCREQUESTEND&);
+	static void LoadState_Header(const std::string&, const CRegisterState&, SIFCMDHEADER&);
+	static void LoadState_RpcCall(const CRegisterState&, SIFRPCCALL&);
+	static void LoadState_RequestEnd(const CRegisterState&, SIFRPCREQUESTEND&);
 
 	void Cmd_SetEERecvAddr(const SIFCMDHEADER*);
 	void Cmd_Initialize(const SIFCMDHEADER*);

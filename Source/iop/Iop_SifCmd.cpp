@@ -5,7 +5,7 @@
 #include "../COP_SCU.h"
 #include "../ee/SIF.h"
 #include "../Log.h"
-#include "../states/StructCollectionStateFile.h"
+#include "../states/RegisterStateCollectionFile.h"
 
 using namespace Iop;
 
@@ -79,13 +79,12 @@ void CSifCmd::LoadState(Framework::CZipArchiveReader& archive)
 {
 	ClearServers();
 
-	auto modulesFile = CStructCollectionStateFile(*archive.BeginReadFile(STATE_MODULES));
+	auto modulesFile = CRegisterStateCollectionFile(*archive.BeginReadFile(STATE_MODULES));
 	{
-		for(CStructCollectionStateFile::StructIterator structIterator(modulesFile.GetStructBegin());
-		    structIterator != modulesFile.GetStructEnd(); ++structIterator)
+		for(const auto& moduleStatePair : modulesFile)
 		{
-			const auto& structFile(structIterator->second);
-			uint32 serverDataAddress = structFile.GetRegister32(STATE_MODULE_SERVER_DATA_ADDRESS);
+			const auto& moduleState(moduleStatePair.second);
+			uint32 serverDataAddress = moduleState.GetRegister32(STATE_MODULE_SERVER_DATA_ADDRESS);
 			auto serverData = reinterpret_cast<SIFRPCSERVERDATA*>(m_ram + serverDataAddress);
 			auto module = new CSifDynamic(*this, serverDataAddress);
 			m_servers.push_back(module);
@@ -96,18 +95,18 @@ void CSifCmd::LoadState(Framework::CZipArchiveReader& archive)
 
 void CSifCmd::SaveState(Framework::CZipArchiveWriter& archive) const
 {
-	auto modulesFile = std::make_unique<CStructCollectionStateFile>(STATE_MODULES);
+	auto modulesFile = std::make_unique<CRegisterStateCollectionFile>(STATE_MODULES);
 	{
 		int moduleIndex = 0;
 		for(const auto& module : m_servers)
 		{
 			auto moduleName = std::string(STATE_MODULE) + std::to_string(moduleIndex++);
-			CStructFile moduleStruct;
+			CRegisterState moduleState;
 			{
 				uint32 serverDataAddress = module->GetServerDataAddress();
-				moduleStruct.SetRegister32(STATE_MODULE_SERVER_DATA_ADDRESS, serverDataAddress);
+				moduleState.SetRegister32(STATE_MODULE_SERVER_DATA_ADDRESS, serverDataAddress);
 			}
-			modulesFile->InsertStruct(moduleName.c_str(), moduleStruct);
+			modulesFile->InsertRegisterState(moduleName.c_str(), moduleState);
 		}
 	}
 	archive.InsertFile(std::move(modulesFile));

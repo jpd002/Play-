@@ -1,15 +1,14 @@
-#ifndef _STRUCTFILE_H_
-#define _STRUCTFILE_H_
+#pragma once
 
 #include <map>
 #include "xml/Node.h"
 #include "uint128.h"
 
-class CStructFile
+class CRegisterState
 {
 public:
-	CStructFile();
-	virtual ~CStructFile();
+	CRegisterState() = default;
+	virtual ~CRegisterState() = default;
 
 	void Read(Framework::Xml::CNode*);
 	void Write(Framework::Xml::CNode*) const;
@@ -28,5 +27,3 @@ private:
 
 	RegisterList m_registers;
 };
-
-#endif

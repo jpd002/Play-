@@ -17,7 +17,7 @@
 #include "../MipsExecutor.h"
 #include "Iop_Intc.h"
 #include "../states/MemoryStateFile.h"
-#include "../states/StructCollectionStateFile.h"
+#include "../states/RegisterStateCollectionFile.h"
 
 #ifdef _IOP_EMULATE_MODULES
 #include "Iop_IomanX.h"
@@ -326,18 +326,18 @@ uint32& CIopBios::ModuleStartRequestFree() const
 
 void CIopBios::SaveState(Framework::CZipArchiveWriter& archive)
 {
-	auto modulesFile = std::make_unique<CStructCollectionStateFile>(STATE_MODULES);
+	auto modulesFile = std::make_unique<CRegisterStateCollectionFile>(STATE_MODULES);
 	{
 		for(const auto& modulePair : m_modules)
 		{
 			if(auto dynamicModule = std::dynamic_pointer_cast<Iop::CDynamic>(modulePair.second))
 			{
-				CStructFile moduleStruct;
+				CRegisterState moduleState;
 				{
 					uint32 importTableAddress = reinterpret_cast<uint8*>(dynamicModule->GetExportTable()) - m_ram;
-					moduleStruct.SetRegister32(STATE_MODULE_IMPORT_TABLE_ADDRESS, importTableAddress);
+					moduleState.SetRegister32(STATE_MODULE_IMPORT_TABLE_ADDRESS, importTableAddress);
 				}
-				modulesFile->InsertStruct(dynamicModule->GetId().c_str(), moduleStruct);
+				modulesFile->InsertRegisterState(dynamicModule->GetId().c_str(), moduleState);
 			}
 		}
 	}
@@ -374,13 +374,12 @@ void CIopBios::LoadState(Framework::CZipArchiveReader& archive)
 		module->LoadState(archive);
 	}
 
-	CStructCollectionStateFile modulesFile(*archive.BeginReadFile(STATE_MODULES));
+	CRegisterStateCollectionFile modulesFile(*archive.BeginReadFile(STATE_MODULES));
 	{
-		for(auto structIterator(modulesFile.GetStructBegin());
-		    structIterator != modulesFile.GetStructEnd(); structIterator++)
+		for(const auto& moduleStatePair : modulesFile)
 		{
-			const CStructFile& structFile(structIterator->second);
-			uint32 importTableAddress = structFile.GetRegister32(STATE_MODULE_IMPORT_TABLE_ADDRESS);
+			const auto& moduleState(moduleStatePair.second);
+			uint32 importTableAddress = moduleState.GetRegister32(STATE_MODULE_IMPORT_TABLE_ADDRESS);
 			auto module = std::make_shared<Iop::CDynamic>(reinterpret_cast<uint32*>(m_ram + importTableAddress));
 			FRAMEWORK_MAYBE_UNUSED bool result = RegisterModule(module);
 			assert(result);

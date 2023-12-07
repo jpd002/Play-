@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include "../Log.h"
 #include "../Ps2Const.h"
-#include "../states/StructCollectionStateFile.h"
+#include "../states/RegisterStateCollectionFile.h"
 #include "../states/MemoryStateFile.h"
 #include "../iop/IopBios.h"
 #include "SIF.h"
@@ -332,34 +332,34 @@ void CSIF::SaveState(Framework::CZipArchiveWriter& archive)
 
 void CSIF::SaveCallReplies(Framework::CZipArchiveWriter& archive)
 {
-	auto callRepliesFile = std::make_unique<CStructCollectionStateFile>(STATE_CALL_REPLIES_XML);
+	auto callRepliesFile = std::make_unique<CRegisterStateCollectionFile>(STATE_CALL_REPLIES_XML);
 	for(const auto& callReplyIterator : m_callReplies)
 	{
 		const auto& callReply(callReplyIterator.second);
 		auto replyId = string_format("%08x", callReplyIterator.first);
-		CStructFile replyStruct;
+		CRegisterState replyState;
 		{
-			SaveState_RpcCall(replyStruct, callReply.call);
-			SaveState_RequestEnd(replyStruct, callReply.reply);
+			SaveState_RpcCall(replyState, callReply.call);
+			SaveState_RequestEnd(replyState, callReply.reply);
 		}
-		callRepliesFile->InsertStruct(replyId.c_str(), replyStruct);
+		callRepliesFile->InsertRegisterState(replyId.c_str(), replyState);
 	}
 	archive.InsertFile(std::move(callRepliesFile));
 }
 
 void CSIF::SaveBindReplies(Framework::CZipArchiveWriter& archive)
 {
-	auto bindRepliesFile = std::make_unique<CStructCollectionStateFile>(STATE_BIND_REPLIES_XML);
+	auto bindRepliesFile = std::make_unique<CRegisterStateCollectionFile>(STATE_BIND_REPLIES_XML);
 	for(const auto& bindReplyIterator : m_bindReplies)
 	{
 		const auto& bindReply(bindReplyIterator.second);
 		auto replyId = string_format("%08x", bindReplyIterator.first);
-		CStructFile replyStruct;
+		CRegisterState replyState;
 		{
-			SaveState_RequestEnd(replyStruct, bindReply.reply);
+			SaveState_RequestEnd(replyState, bindReply.reply);
 		}
-		replyStruct.SetRegister32(STATE_BIND_REPLY_TIMEOUT, bindReply.timeout);
-		bindRepliesFile->InsertStruct(replyId.c_str(), replyStruct);
+		replyState.SetRegister32(STATE_BIND_REPLY_TIMEOUT, bindReply.timeout);
+		bindRepliesFile->InsertRegisterState(replyId.c_str(), replyState);
 	}
 	archive.InsertFile(std::move(bindRepliesFile));
 }
@@ -382,14 +382,14 @@ CSIF::PacketQueue CSIF::LoadPacketQueue(Framework::CZipArchiveReader& archive)
 CSIF::CallReplyMap CSIF::LoadCallReplies(Framework::CZipArchiveReader& archive)
 {
 	CallReplyMap callReplies;
-	auto callRepliesFile = CStructCollectionStateFile(*archive.BeginReadFile(STATE_CALL_REPLIES_XML));
-	for(const auto& structFilePair : callRepliesFile)
+	auto callRepliesFile = CRegisterStateCollectionFile(*archive.BeginReadFile(STATE_CALL_REPLIES_XML));
+	for(const auto& replyStatePair : callRepliesFile)
 	{
-		const auto& structFile(structFilePair.second);
-		uint32 replyId = lexical_cast_hex<std::string>(structFilePair.first);
+		const auto& replyState(replyStatePair.second);
+		uint32 replyId = lexical_cast_hex<std::string>(replyStatePair.first);
 		CALLREQUESTINFO callReply;
-		LoadState_RpcCall(structFile, callReply.call);
-		LoadState_RequestEnd(structFile, callReply.reply);
+		LoadState_RpcCall(replyState, callReply.call);
+		LoadState_RequestEnd(replyState, callReply.reply);
 		callReplies[replyId] = callReply;
 	}
 	return callReplies;
@@ -398,91 +398,91 @@ CSIF::CallReplyMap CSIF::LoadCallReplies(Framework::CZipArchiveReader& archive)
 CSIF::BindReplyMap CSIF::LoadBindReplies(Framework::CZipArchiveReader& archive)
 {
 	BindReplyMap bindReplies;
-	auto bindRepliesFile = CStructCollectionStateFile(*archive.BeginReadFile(STATE_BIND_REPLIES_XML));
-	for(const auto& structFilePair : bindRepliesFile)
+	auto bindRepliesFile = CRegisterStateCollectionFile(*archive.BeginReadFile(STATE_BIND_REPLIES_XML));
+	for(const auto& replyStatePair : bindRepliesFile)
 	{
-		const auto& structFile(structFilePair.second);
-		uint32 replyId = lexical_cast_hex<std::string>(structFilePair.first);
+		const auto& replyState(replyStatePair.second);
+		uint32 replyId = lexical_cast_hex<std::string>(replyStatePair.first);
 		BINDREQUESTINFO bindReply;
-		LoadState_RequestEnd(structFile, bindReply.reply);
-		bindReply.timeout = structFile.GetRegister32(STATE_BIND_REPLY_TIMEOUT);
+		LoadState_RequestEnd(replyState, bindReply.reply);
+		bindReply.timeout = replyState.GetRegister32(STATE_BIND_REPLY_TIMEOUT);
 		bindReplies[replyId] = bindReply;
 	}
 	return bindReplies;
 }
 
-void CSIF::SaveState_Header(const std::string& prefix, CStructFile& file, const SIFCMDHEADER& packetHeader)
+void CSIF::SaveState_Header(const std::string& prefix, CRegisterState& state, const SIFCMDHEADER& packetHeader)
 {
-	file.SetRegister32((prefix + STATE_PACKET_HEADER_PACKETSIZE).c_str(), packetHeader.packetSize);
-	file.SetRegister32((prefix + STATE_PACKET_HEADER_DESTSIZE).c_str(), packetHeader.destSize);
-	file.SetRegister32((prefix + STATE_PACKET_HEADER_DEST).c_str(), packetHeader.dest);
-	file.SetRegister32((prefix + STATE_PACKET_HEADER_CID).c_str(), packetHeader.commandId);
-	file.SetRegister32((prefix + STATE_PACKET_HEADER_OPTIONAL).c_str(), packetHeader.optional);
+	state.SetRegister32((prefix + STATE_PACKET_HEADER_PACKETSIZE).c_str(), packetHeader.packetSize);
+	state.SetRegister32((prefix + STATE_PACKET_HEADER_DESTSIZE).c_str(), packetHeader.destSize);
+	state.SetRegister32((prefix + STATE_PACKET_HEADER_DEST).c_str(), packetHeader.dest);
+	state.SetRegister32((prefix + STATE_PACKET_HEADER_CID).c_str(), packetHeader.commandId);
+	state.SetRegister32((prefix + STATE_PACKET_HEADER_OPTIONAL).c_str(), packetHeader.optional);
 }
 
-void CSIF::LoadState_Header(const std::string& prefix, const CStructFile& file, SIFCMDHEADER& packetHeader)
+void CSIF::LoadState_Header(const std::string& prefix, const CRegisterState& state, SIFCMDHEADER& packetHeader)
 {
-	packetHeader.packetSize = file.GetRegister32((prefix + STATE_PACKET_HEADER_PACKETSIZE).c_str());
-	packetHeader.destSize = file.GetRegister32((prefix + STATE_PACKET_HEADER_DESTSIZE).c_str());
-	packetHeader.dest = file.GetRegister32((prefix + STATE_PACKET_HEADER_DEST).c_str());
-	packetHeader.commandId = file.GetRegister32((prefix + STATE_PACKET_HEADER_CID).c_str());
-	packetHeader.optional = file.GetRegister32((prefix + STATE_PACKET_HEADER_OPTIONAL).c_str());
+	packetHeader.packetSize = state.GetRegister32((prefix + STATE_PACKET_HEADER_PACKETSIZE).c_str());
+	packetHeader.destSize = state.GetRegister32((prefix + STATE_PACKET_HEADER_DESTSIZE).c_str());
+	packetHeader.dest = state.GetRegister32((prefix + STATE_PACKET_HEADER_DEST).c_str());
+	packetHeader.commandId = state.GetRegister32((prefix + STATE_PACKET_HEADER_CID).c_str());
+	packetHeader.optional = state.GetRegister32((prefix + STATE_PACKET_HEADER_OPTIONAL).c_str());
 }
 
-void CSIF::SaveState_RpcCall(CStructFile& file, const SIFRPCCALL& call)
+void CSIF::SaveState_RpcCall(CRegisterState& state, const SIFRPCCALL& call)
 {
-	SaveState_Header("call", file, call.header);
-	file.SetRegister32(STATE_PACKET_CALL_RECORDID, call.recordId);
-	file.SetRegister32(STATE_PACKET_CALL_PACKETADDR, call.packetAddr);
-	file.SetRegister32(STATE_PACKET_CALL_RPCID, call.rpcId);
-	file.SetRegister32(STATE_PACKET_CALL_CLIENTDATAADDR, call.clientDataAddr);
-	file.SetRegister32(STATE_PACKET_CALL_RPCNUMBER, call.rpcNumber);
-	file.SetRegister32(STATE_PACKET_CALL_SENDSIZE, call.sendSize);
-	file.SetRegister32(STATE_PACKET_CALL_RECV, call.recv);
-	file.SetRegister32(STATE_PACKET_CALL_RECVSIZE, call.recvSize);
-	file.SetRegister32(STATE_PACKET_CALL_RECVMODE, call.recvMode);
-	file.SetRegister32(STATE_PACKET_CALL_SERVERDATAADDR, call.serverDataAddr);
+	SaveState_Header("call", state, call.header);
+	state.SetRegister32(STATE_PACKET_CALL_RECORDID, call.recordId);
+	state.SetRegister32(STATE_PACKET_CALL_PACKETADDR, call.packetAddr);
+	state.SetRegister32(STATE_PACKET_CALL_RPCID, call.rpcId);
+	state.SetRegister32(STATE_PACKET_CALL_CLIENTDATAADDR, call.clientDataAddr);
+	state.SetRegister32(STATE_PACKET_CALL_RPCNUMBER, call.rpcNumber);
+	state.SetRegister32(STATE_PACKET_CALL_SENDSIZE, call.sendSize);
+	state.SetRegister32(STATE_PACKET_CALL_RECV, call.recv);
+	state.SetRegister32(STATE_PACKET_CALL_RECVSIZE, call.recvSize);
+	state.SetRegister32(STATE_PACKET_CALL_RECVMODE, call.recvMode);
+	state.SetRegister32(STATE_PACKET_CALL_SERVERDATAADDR, call.serverDataAddr);
 }
 
-void CSIF::LoadState_RpcCall(const CStructFile& file, SIFRPCCALL& call)
+void CSIF::LoadState_RpcCall(const CRegisterState& state, SIFRPCCALL& call)
 {
-	LoadState_Header("call", file, call.header);
-	call.recordId = file.GetRegister32(STATE_PACKET_CALL_RECORDID);
-	call.packetAddr = file.GetRegister32(STATE_PACKET_CALL_PACKETADDR);
-	call.rpcId = file.GetRegister32(STATE_PACKET_CALL_RPCID);
-	call.clientDataAddr = file.GetRegister32(STATE_PACKET_CALL_CLIENTDATAADDR);
-	call.rpcNumber = file.GetRegister32(STATE_PACKET_CALL_RPCNUMBER);
-	call.sendSize = file.GetRegister32(STATE_PACKET_CALL_SENDSIZE);
-	call.recv = file.GetRegister32(STATE_PACKET_CALL_RECV);
-	call.recvSize = file.GetRegister32(STATE_PACKET_CALL_RECVSIZE);
-	call.recvMode = file.GetRegister32(STATE_PACKET_CALL_RECVMODE);
-	call.serverDataAddr = file.GetRegister32(STATE_PACKET_CALL_SERVERDATAADDR);
+	LoadState_Header("call", state, call.header);
+	call.recordId = state.GetRegister32(STATE_PACKET_CALL_RECORDID);
+	call.packetAddr = state.GetRegister32(STATE_PACKET_CALL_PACKETADDR);
+	call.rpcId = state.GetRegister32(STATE_PACKET_CALL_RPCID);
+	call.clientDataAddr = state.GetRegister32(STATE_PACKET_CALL_CLIENTDATAADDR);
+	call.rpcNumber = state.GetRegister32(STATE_PACKET_CALL_RPCNUMBER);
+	call.sendSize = state.GetRegister32(STATE_PACKET_CALL_SENDSIZE);
+	call.recv = state.GetRegister32(STATE_PACKET_CALL_RECV);
+	call.recvSize = state.GetRegister32(STATE_PACKET_CALL_RECVSIZE);
+	call.recvMode = state.GetRegister32(STATE_PACKET_CALL_RECVMODE);
+	call.serverDataAddr = state.GetRegister32(STATE_PACKET_CALL_SERVERDATAADDR);
 }
 
-void CSIF::SaveState_RequestEnd(CStructFile& file, const SIFRPCREQUESTEND& requestEnd)
+void CSIF::SaveState_RequestEnd(CRegisterState& state, const SIFRPCREQUESTEND& requestEnd)
 {
-	SaveState_Header("requestEnd", file, requestEnd.header);
-	file.SetRegister32(STATE_PACKET_REQUEST_END_RECORDID, requestEnd.recordId);
-	file.SetRegister32(STATE_PACKET_REQUEST_END_PACKETADDR, requestEnd.packetAddr);
-	file.SetRegister32(STATE_PACKET_REQUEST_END_RPCID, requestEnd.rpcId);
-	file.SetRegister32(STATE_PACKET_REQUEST_END_CLIENTDATAADDR, requestEnd.clientDataAddr);
-	file.SetRegister32(STATE_PACKET_REQUEST_END_CID, requestEnd.commandId);
-	file.SetRegister32(STATE_PACKET_REQUEST_END_SERVERDATAADDR, requestEnd.serverDataAddr);
-	file.SetRegister32(STATE_PACKET_REQUEST_END_BUFFER, requestEnd.buffer);
-	file.SetRegister32(STATE_PACKET_REQUEST_END_CLIENTBUFFER, requestEnd.cbuffer);
+	SaveState_Header("requestEnd", state, requestEnd.header);
+	state.SetRegister32(STATE_PACKET_REQUEST_END_RECORDID, requestEnd.recordId);
+	state.SetRegister32(STATE_PACKET_REQUEST_END_PACKETADDR, requestEnd.packetAddr);
+	state.SetRegister32(STATE_PACKET_REQUEST_END_RPCID, requestEnd.rpcId);
+	state.SetRegister32(STATE_PACKET_REQUEST_END_CLIENTDATAADDR, requestEnd.clientDataAddr);
+	state.SetRegister32(STATE_PACKET_REQUEST_END_CID, requestEnd.commandId);
+	state.SetRegister32(STATE_PACKET_REQUEST_END_SERVERDATAADDR, requestEnd.serverDataAddr);
+	state.SetRegister32(STATE_PACKET_REQUEST_END_BUFFER, requestEnd.buffer);
+	state.SetRegister32(STATE_PACKET_REQUEST_END_CLIENTBUFFER, requestEnd.cbuffer);
 }
 
-void CSIF::LoadState_RequestEnd(const CStructFile& file, SIFRPCREQUESTEND& requestEnd)
+void CSIF::LoadState_RequestEnd(const CRegisterState& state, SIFRPCREQUESTEND& requestEnd)
 {
-	LoadState_Header("requestEnd", file, requestEnd.header);
-	requestEnd.recordId = file.GetRegister32(STATE_PACKET_REQUEST_END_RECORDID);
-	requestEnd.packetAddr = file.GetRegister32(STATE_PACKET_REQUEST_END_PACKETADDR);
-	requestEnd.rpcId = file.GetRegister32(STATE_PACKET_REQUEST_END_RPCID);
-	requestEnd.clientDataAddr = file.GetRegister32(STATE_PACKET_REQUEST_END_CLIENTDATAADDR);
-	requestEnd.commandId = file.GetRegister32(STATE_PACKET_REQUEST_END_CID);
-	requestEnd.serverDataAddr = file.GetRegister32(STATE_PACKET_REQUEST_END_SERVERDATAADDR);
-	requestEnd.buffer = file.GetRegister32(STATE_PACKET_REQUEST_END_BUFFER);
-	requestEnd.cbuffer = file.GetRegister32(STATE_PACKET_REQUEST_END_CLIENTBUFFER);
+	LoadState_Header("requestEnd", state, requestEnd.header);
+	requestEnd.recordId = state.GetRegister32(STATE_PACKET_REQUEST_END_RECORDID);
+	requestEnd.packetAddr = state.GetRegister32(STATE_PACKET_REQUEST_END_PACKETADDR);
+	requestEnd.rpcId = state.GetRegister32(STATE_PACKET_REQUEST_END_RPCID);
+	requestEnd.clientDataAddr = state.GetRegister32(STATE_PACKET_REQUEST_END_CLIENTDATAADDR);
+	requestEnd.commandId = state.GetRegister32(STATE_PACKET_REQUEST_END_CID);
+	requestEnd.serverDataAddr = state.GetRegister32(STATE_PACKET_REQUEST_END_SERVERDATAADDR);
+	requestEnd.buffer = state.GetRegister32(STATE_PACKET_REQUEST_END_BUFFER);
+	requestEnd.cbuffer = state.GetRegister32(STATE_PACKET_REQUEST_END_CLIENTBUFFER);
 }
 
 /////////////////////////////////////////////////////////

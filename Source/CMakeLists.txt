@@ -499,12 +499,12 @@ set(COMMON_SRC_FILES
 	SifModuleAdapter.h
 	states/MemoryStateFile.cpp
 	states/MemoryStateFile.h
+	states/RegisterState.cpp
+	states/RegisterState.h
+	states/RegisterStateCollectionFile.cpp
+	states/RegisterStateCollectionFile.h
 	states/RegisterStateFile.cpp
 	states/RegisterStateFile.h
-	states/StructCollectionStateFile.cpp
-	states/StructCollectionStateFile.h
-	states/StructFile.cpp
-	states/StructFile.h
 	states/XmlStateFile.cpp
 	states/XmlStateFile.h
 	static_loop.h
