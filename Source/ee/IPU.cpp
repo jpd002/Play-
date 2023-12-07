@@ -801,10 +801,6 @@ CIPU::CINFIFO::CINFIFO()
 {
 }
 
-CIPU::CINFIFO::~CINFIFO()
-{
-}
-
 void CIPU::CINFIFO::Write(void* data, unsigned int size)
 {
 	if((size + m_size) > BUFFERSIZE)

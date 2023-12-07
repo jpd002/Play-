@@ -150,7 +150,7 @@ private:
 	{
 	public:
 		CINFIFO();
-		virtual ~CINFIFO();
+		virtual ~CINFIFO() = default;
 
 		void Write(void*, unsigned int);
 
@@ -187,9 +187,7 @@ private:
 	class CCommand
 	{
 	public:
-		virtual ~CCommand()
-		{
-		}
+		virtual ~CCommand() = default;
 		virtual bool Execute() = 0;
 		virtual void CountTicks(uint32)
 		{
