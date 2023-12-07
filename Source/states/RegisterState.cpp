@@ -7,10 +7,7 @@
 #define NODE_REGISTER_ATTR_NAME ("Name")
 #define NODE_REGISTER_ATTR_VALUE ("Value")
 
-using namespace Framework;
-using namespace std;
-
-void CRegisterState::Read(Xml::CNode* rootNode)
+void CRegisterState::Read(Framework::Xml::CNode* rootNode)
 {
 	m_registers.clear();
 	auto registerList = rootNode->SelectNodes(NODE_REGISTER);
@@ -21,15 +18,16 @@ void CRegisterState::Read(Xml::CNode* rootNode)
 			const char* namePtr = node->GetAttribute(NODE_REGISTER_ATTR_NAME);
 			const char* valuePtr = node->GetAttribute(NODE_REGISTER_ATTR_VALUE);
 			if(!namePtr || !valuePtr) continue;
-			std::string valueString(valuePtr);
+			std::string_view valueString(valuePtr);
 			uint128 value = {};
 			for(unsigned int i = 0; i < 4; i++)
 			{
 				if(valueString.length() == 0) break;
+				//This takes every 8 chars starting from the end of the string
 				int start = std::max<int>(0, static_cast<int>(valueString.length()) - 8);
-				std::string subString(valueString.begin() + start, valueString.end());
-				value.nV[i] = lexical_cast_hex<std::string>(subString);
-				valueString = std::string(valueString.begin(), valueString.begin() + start);
+				auto subString = valueString.substr(start);
+				value.nV[i] = lexical_cast_hex<std::string>(std::string(subString));
+				valueString = valueString.substr(0, start);
 			}
 			m_registers[namePtr] = Register(4, value);
 		}
@@ -39,7 +37,7 @@ void CRegisterState::Read(Xml::CNode* rootNode)
 	}
 }
 
-void CRegisterState::Write(Xml::CNode* rootNode) const
+void CRegisterState::Write(Framework::Xml::CNode* rootNode) const
 {
 	for(auto registerIterator(m_registers.begin());
 	    registerIterator != m_registers.end(); registerIterator++)
