@@ -342,7 +342,7 @@ void CSIF::SaveCallReplies(Framework::CZipArchiveWriter& archive)
 			SaveState_RpcCall(replyState, callReply.call);
 			SaveState_RequestEnd(replyState, callReply.reply);
 		}
-		callRepliesFile->InsertRegisterState(replyId.c_str(), replyState);
+		callRepliesFile->InsertRegisterState(replyId.c_str(), std::move(replyState));
 	}
 	archive.InsertFile(std::move(callRepliesFile));
 }
@@ -359,7 +359,7 @@ void CSIF::SaveBindReplies(Framework::CZipArchiveWriter& archive)
 			SaveState_RequestEnd(replyState, bindReply.reply);
 		}
 		replyState.SetRegister32(STATE_BIND_REPLY_TIMEOUT, bindReply.timeout);
-		bindRepliesFile->InsertRegisterState(replyId.c_str(), replyState);
+		bindRepliesFile->InsertRegisterState(replyId.c_str(), std::move(replyState));
 	}
 	archive.InsertFile(std::move(bindRepliesFile));
 }

@@ -106,7 +106,7 @@ void CSifCmd::SaveState(Framework::CZipArchiveWriter& archive) const
 				uint32 serverDataAddress = module->GetServerDataAddress();
 				moduleState.SetRegister32(STATE_MODULE_SERVER_DATA_ADDRESS, serverDataAddress);
 			}
-			modulesFile->InsertRegisterState(moduleName.c_str(), moduleState);
+			modulesFile->InsertRegisterState(moduleName.c_str(), std::move(moduleState));
 		}
 	}
 	archive.InsertFile(std::move(modulesFile));

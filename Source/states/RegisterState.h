@@ -4,12 +4,10 @@
 #include "xml/Node.h"
 #include "uint128.h"
 
-class CRegisterState
+//NOTE: Making this inheritable prevents moving the object.
+class CRegisterState final
 {
 public:
-	CRegisterState() = default;
-	virtual ~CRegisterState() = default;
-
 	void Read(Framework::Xml::CNode*);
 	void Write(Framework::Xml::CNode*) const;
 

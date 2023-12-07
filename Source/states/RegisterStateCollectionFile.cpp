@@ -31,9 +31,9 @@ CRegisterStateCollectionFile::RegisterStateIterator CRegisterStateCollectionFile
 	return std::end(m_registerStates);
 }
 
-void CRegisterStateCollectionFile::InsertRegisterState(const char* name, const CRegisterState& registerState)
+void CRegisterStateCollectionFile::InsertRegisterState(const char* name, CRegisterState registerState)
 {
-	m_registerStates[name] = registerState;
+	m_registerStates[name] = std::move(registerState);
 }
 
 void CRegisterStateCollectionFile::Read(Framework::CStream& stream)

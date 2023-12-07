@@ -14,7 +14,7 @@ public:
 	CRegisterStateCollectionFile(Framework::CStream&);
 	virtual ~CRegisterStateCollectionFile() = default;
 
-	void InsertRegisterState(const char*, const CRegisterState&);
+	void InsertRegisterState(const char*, CRegisterState);
 	void Read(Framework::CStream&);
 	void Write(Framework::CStream&) override;
 
