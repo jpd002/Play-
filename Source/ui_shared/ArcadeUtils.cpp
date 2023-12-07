@@ -17,6 +17,8 @@
 #include "iop/namco_arcade/Iop_NamcoAcCdvd.h"
 #include "iop/namco_arcade/Iop_NamcoAcRam.h"
 #include "iop/namco_arcade/Iop_NamcoPadMan.h"
+#include "iop/namco_sys147/Iop_NamcoNANDDevice.h"
+#include "iop/namco_sys147/Iop_NamcoSys147.h"
 
 struct ARCADE_MACHINE_DEF
 {
@@ -36,10 +38,12 @@ struct ARCADE_MACHINE_DEF
 
 	std::string id;
 	std::string parent;
+	std::string driver;
 	std::string name;
 	std::string dongleFileName;
 	std::string cdvdFileName;
 	std::string hddFileName;
+	std::string nandFileName;
 	std::map<unsigned int, PS2::CControllerInfo::BUTTON> buttons;
 	INPUT_MODE inputMode = INPUT_MODE::DEFAULT;
 	std::array<float, 4> lightGunXform = {65535, 0, 65535, 0};
@@ -155,8 +159,15 @@ ARCADE_MACHINE_DEF ReadArcadeMachineDefinition(const fs::path& arcadeDefPath)
 	{
 		def.parent = defJson["parent"];
 	}
+	if(defJson.contains("driver"))
+	{
+		def.driver = defJson["driver"];
+	}
 	def.name = defJson["name"];
-	def.dongleFileName = defJson["dongle"]["name"];
+	if(defJson.contains("dongle"))
+	{
+		def.dongleFileName = defJson["dongle"]["name"];
+	}
 	if(defJson.contains("cdvd"))
 	{
 		def.cdvdFileName = defJson["cdvd"]["name"];
@@ -164,6 +175,10 @@ ARCADE_MACHINE_DEF ReadArcadeMachineDefinition(const fs::path& arcadeDefPath)
 	if(defJson.contains("hdd"))
 	{
 		def.hddFileName = defJson["hdd"]["name"];
+	}
+	if(defJson.contains("nand"))
+	{
+		def.nandFileName = defJson["nand"]["name"];
 	}
 	if(defJson.contains("buttons"))
 	{
@@ -200,6 +215,48 @@ ARCADE_MACHINE_DEF ReadArcadeMachineDefinition(const fs::path& arcadeDefPath)
 		def.patches = parsePatches(defJson["patches"]);
 	}
 	return def;
+}
+
+void PrepareNamcoSys147Environment(CPS2VM* virtualMachine, const ARCADE_MACHINE_DEF& def)
+{
+	auto baseId = def.parent.empty() ? def.id : def.parent;
+	fs::path arcadeRomPath = CAppConfig::GetInstance().GetPreferencePath(PREF_PS2_ARCADEROMS_DIRECTORY);
+
+	fs::path nandPath = arcadeRomPath / baseId / def.nandFileName;
+	if(!fs::exists(nandPath))
+	{
+		throw std::runtime_error(string_format("Failed to find '%s' in game's directory.", def.nandFileName.c_str()));
+	}
+
+	static std::pair<const char*, uint32> mounts[] =
+	{
+		std::make_pair("atfile0", 0x6000),
+		std::make_pair("atfile1", 0x10000),
+		std::make_pair("atfile2", 0x20000),
+		std::make_pair("atfile3", 0x30000),
+		std::make_pair("atfile4", 0x40000),
+		std::make_pair("atfile5", 0x50000),
+		std::make_pair("atfile6", 0x60000)
+	};
+	
+	auto iopBios = dynamic_cast<CIopBios*>(virtualMachine->m_iop->m_bios.get());
+	for(const auto& mount : mounts)
+	{
+		iopBios->GetIoman()->RegisterDevice(mount.first, std::make_shared<Iop::Namco::CNamcoNANDDevice>( std::make_unique<Framework::CStdStream>(nandPath.string().c_str(), "rb"), mount.second));
+	}
+	
+	//auto acRam = std::make_shared<Iop::Namco::CAcRam>(virtualMachine->m_iop->m_ram);
+	//iopBios->RegisterModule(acRam);
+	//iopBios->RegisterHleModuleReplacement("Arcade_Ext._Memory", acRam);
+
+	{
+		auto sys147Module = std::make_shared<Iop::Namco::CSys147>(*iopBios->GetSifman());
+		iopBios->RegisterModule(sys147Module);
+		iopBios->RegisterHleModuleReplacement("S147LINK", sys147Module);
+		virtualMachine->m_pad->InsertListener(sys147Module.get());
+	}
+
+	virtualMachine->m_ee->m_os->BootFromVirtualPath(def.boot.c_str(), {});
 }
 
 void PrepareArcadeEnvironment(CPS2VM* virtualMachine, const ARCADE_MACHINE_DEF& def)
@@ -390,6 +447,12 @@ void ArcadeUtils::BootArcadeMachine(CPS2VM* virtualMachine, const fs::path& arca
 	virtualMachine->Pause();
 	virtualMachine->Reset(PS2::EE_EXT_RAM_SIZE, PS2::IOP_EXT_RAM_SIZE);
 
+	if(def.driver == "sys147")
+	{
+		PrepareNamcoSys147Environment(virtualMachine, def);
+		return;
+	}
+	
 	PrepareArcadeEnvironment(virtualMachine, def);
 
 	//Boot mc0:/BOOT (from def)
