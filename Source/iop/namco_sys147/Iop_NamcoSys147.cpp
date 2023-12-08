@@ -1,3 +1,4 @@
+#include <cstring>
 #include "Iop_NamcoSys147.h"
 #include "../../Log.h"
 #include "StdStreamUtils.h"
