@@ -74,10 +74,17 @@ static CVLCTable::DECODE_STATUS FilterSymbolError(CVLCTable::DECODE_STATUS resul
 
 CIPU::CIPU(CINTC& intc)
     : m_intc(intc)
-    , m_IPU_CTRL(0)
-    , m_isBusy(false)
-    , m_currentCmd(nullptr)
 {
+	m_commands[IPU_CMD_BCLR] = &m_BCLRCommand;
+	m_commands[IPU_CMD_IDEC] = &m_IDECCommand;
+	m_commands[IPU_CMD_BDEC] = &m_BDECCommand;
+	m_commands[IPU_CMD_VDEC] = &m_VDECCommand;
+	m_commands[IPU_CMD_FDEC] = &m_FDECCommand;
+	m_commands[IPU_CMD_SETIQ] = &m_SETIQCommand;
+	m_commands[IPU_CMD_SETVQ] = &m_SETVQCommand;
+	m_commands[IPU_CMD_CSC] = &m_CSCCommand;
+	m_commands[IPU_CMD_PACK] = nullptr;
+	m_commands[IPU_CMD_SETTH] = &m_SETTHCommand;
 }
 
 void CIPU::Reset()
@@ -87,7 +94,11 @@ void CIPU::Reset()
 	m_IPU_CMD[1] = 0;
 	m_nTH0 = 0;
 	m_nTH1 = 0;
-	m_lastCmd = 0;
+	m_currentCmdId = IPU_INVALID_CMDID;
+	m_lastCmdId = IPU_INVALID_CMDID;
+	m_nDcPredictor[0] = 0;
+	m_nDcPredictor[1] = 0;
+	m_nDcPredictor[2] = 0;
 
 	static_assert(sizeof(m_nIntraIQ) == sizeof(g_defaultIntraIQ));
 	memcpy(m_nIntraIQ, g_defaultIntraIQ, sizeof(g_defaultIntraIQ));
@@ -96,7 +107,6 @@ void CIPU::Reset()
 	memcpy(m_nNonIntraIQ, g_defaultNonIntraIQ, sizeof(g_defaultNonIntraIQ));
 
 	m_isBusy = false;
-	m_currentCmd = nullptr;
 
 	m_IN_FIFO.Reset();
 	m_OUT_FIFO.Reset();
@@ -112,7 +122,7 @@ uint32 CIPU::GetRegister(uint32 nAddress)
 	{
 	case IPU_CMD + 0x0:
 		//Seems reading from CMD is always defined (Quake 3 Arena relies on this)
-		if((m_lastCmd != IPU_CMD_VDEC) && (m_lastCmd != IPU_CMD_FDEC))
+		if((m_lastCmdId != IPU_CMD_VDEC) && (m_lastCmdId != IPU_CMD_FDEC))
 		{
 			unsigned int availableSize = std::min<unsigned int>(32, m_IN_FIFO.GetAvailableBits());
 			//If no bits are available, return zero immediately, shift below won't have any effect
@@ -205,12 +215,14 @@ void CIPU::SetRegister(uint32 nAddress, uint32 nValue)
 		//Set BUSY states
 		{
 			assert(m_isBusy == false);
-			if(m_currentCmd != NULL)
+			if(m_currentCmdId != IPU_INVALID_CMDID)
 			{
 				assert(m_IPU_CTRL & IPU_CTRL_ECD);
 			}
 			m_IPU_CTRL &= ~IPU_CTRL_ECD;
 			m_IPU_CTRL &= ~IPU_CTRL_SCD;
+			unsigned int nCmd = (nValue >> 28);
+			m_currentCmdId = m_lastCmdId = nCmd;
 			InitializeCommand(nValue);
 			m_isBusy = true;
 		}
@@ -227,7 +239,8 @@ void CIPU::SetRegister(uint32 nAddress, uint32 nValue)
 		if(nValue & IPU_CTRL_RST)
 		{
 			m_isBusy = false;
-			m_currentCmd = nullptr;
+			m_currentCmdId = IPU_INVALID_CMDID;
+			m_lastCmdId = IPU_INVALID_CMDID;
 			m_nTH0 = 0;
 			m_nTH1 = 0;
 			m_IN_FIFO.Reset();
@@ -257,17 +270,17 @@ void CIPU::SetRegister(uint32 nAddress, uint32 nValue)
 
 void CIPU::CountTicks(uint32 ticks)
 {
-	if(m_currentCmd)
+	if(m_currentCmdId != IPU_INVALID_CMDID)
 	{
-		m_currentCmd->CountTicks(ticks);
+		m_commands[m_currentCmdId]->CountTicks(ticks);
 	}
 }
 
 bool CIPU::IsCommandDelayed() const
 {
-	if(m_currentCmd)
+	if(m_currentCmdId != IPU_INVALID_CMDID)
 	{
-		return m_currentCmd->IsDelayed();
+		return m_commands[m_currentCmdId]->IsDelayed();
 	}
 	return false;
 }
@@ -277,13 +290,13 @@ void CIPU::ExecuteCommand()
 	assert(WillExecuteCommand());
 	try
 	{
-		assert(m_currentCmd != NULL);
-		bool result = m_currentCmd->Execute();
+		assert(m_currentCmdId != IPU_INVALID_CMDID);
+		bool result = m_commands[m_currentCmdId]->Execute();
 		if(!result)
 		{
 			return;
 		}
-		m_currentCmd = nullptr;
+		m_currentCmdId = IPU_INVALID_CMDID;
 
 		//Clear BUSY states
 		m_isBusy = false;
@@ -294,14 +307,14 @@ void CIPU::ExecuteCommand()
 	}
 	catch(const CStartCodeException&)
 	{
-		m_currentCmd = nullptr;
+		m_currentCmdId = IPU_INVALID_CMDID;
 		m_isBusy = false;
 		m_IPU_CTRL |= IPU_CTRL_SCD;
 		CLog::GetInstance().Print(LOG_NAME, "Start code encountered.\r\n");
 	}
 	catch(const CVLCTable::CVLCTableException&)
 	{
-		m_currentCmd = nullptr;
+		m_currentCmdId = IPU_INVALID_CMDID;
 		m_isBusy = false;
 		m_IPU_CTRL |= IPU_CTRL_ECD;
 		CLog::GetInstance().Warn(LOG_NAME, "VLC error encountered.\r\n");
@@ -325,69 +338,42 @@ void CIPU::FlushOUTFIFOData()
 
 void CIPU::InitializeCommand(uint32 value)
 {
-	unsigned int nCmd = (value >> 28);
-	m_lastCmd = nCmd;
-
-	switch(nCmd)
+	unsigned int cmd = (value >> 28);
+	switch(cmd)
 	{
 	case IPU_CMD_BCLR:
-	{
 		m_BCLRCommand.Initialize(&m_IN_FIFO, value);
-		m_currentCmd = &m_BCLRCommand;
-	}
-	break;
+		break;
 	case IPU_CMD_IDEC:
-	{
 		m_IDECCommand.Initialize(&m_BDECCommand, &m_CSCCommand, &m_IN_FIFO, &m_OUT_FIFO, value, GetDecoderContext(), m_nTH0, m_nTH1);
-		m_currentCmd = &m_IDECCommand;
-	}
-	break;
+		break;
 	case IPU_CMD_BDEC:
-	{
 		m_BDECCommand.Initialize(&m_IN_FIFO, &m_OUT_FIFO, value, true, GetDecoderContext());
-		m_currentCmd = &m_BDECCommand;
-	}
-	break;
+		break;
 	case IPU_CMD_VDEC:
-	{
 		m_VDECCommand.Initialize(&m_IN_FIFO, value, GetPictureType(), &m_IPU_CMD[0]);
-		m_currentCmd = &m_VDECCommand;
-	}
-	break;
+		break;
 	case IPU_CMD_FDEC:
-	{
 		m_FDECCommand.Initialize(&m_IN_FIFO, value, &m_IPU_CMD[0]);
-		m_currentCmd = &m_FDECCommand;
-	}
-	break;
+		break;
 	case IPU_CMD_SETIQ:
 	{
 		uint8* matrix = (value & 0x08000000) ? m_nNonIntraIQ : m_nIntraIQ;
 		m_SETIQCommand.Initialize(&m_IN_FIFO, matrix);
-		m_currentCmd = &m_SETIQCommand;
 	}
 	break;
 	case IPU_CMD_SETVQ:
-	{
 		m_SETVQCommand.Initialize(&m_IN_FIFO, m_nVQCLUT);
-		m_currentCmd = &m_SETVQCommand;
-	}
-	break;
+		break;
 	case IPU_CMD_CSC:
-	{
 		m_CSCCommand.Initialize(&m_IN_FIFO, &m_OUT_FIFO, value, m_nTH0, m_nTH1);
-		m_currentCmd = &m_CSCCommand;
-	}
-	break;
+		break;
 	case IPU_CMD_SETTH:
-	{
 		m_SETTHCommand.Initialize(value, &m_nTH0, &m_nTH1);
-		m_currentCmd = &m_SETTHCommand;
-	}
-	break;
+		break;
 	default:
 		assert(0);
-		CLog::GetInstance().Print(LOG_NAME, "Unhandled command execution requested (%d).\r\n", value >> 28);
+		CLog::GetInstance().Warn(LOG_NAME, "Unhandled command execution requested (%d).\r\n", value >> 28);
 		break;
 	}
 }
@@ -1293,7 +1279,7 @@ bool CIPU::CBDECCommand::Execute()
 		break;
 		case STATE_DECODEBLOCK_BEGIN:
 		{
-			BLOCKENTRY& blockInfo(m_blocks[m_currentBlockIndex]);
+			const BLOCKENTRY& blockInfo(m_blocks[m_currentBlockIndex]);
 			memset(blockInfo.block, 0, sizeof(int16) * 64);
 
 			if((m_codedBlockPattern & (1 << (5 - m_currentBlockIndex))))

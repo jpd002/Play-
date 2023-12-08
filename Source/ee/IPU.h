@@ -1,5 +1,6 @@
 #pragma once
 
+#include <array>
 #include <functional>
 #include "Types.h"
 #include "BitStream.h"
@@ -62,7 +63,9 @@ private:
 		IPU_CMD_CSC,
 		IPU_CMD_PACK,
 		IPU_CMD_SETTH,
+		IPU_CMD_MAX,
 	};
+	static constexpr uint32 IPU_INVALID_CMDID = ~0U;
 
 	struct FIFO_STATE
 	{
@@ -173,7 +176,7 @@ private:
 	private:
 		void SyncLookupBits();
 
-		uint8 m_buffer[BUFFERSIZE];
+		uint8 m_buffer[BUFFERSIZE] = {};
 		uint64 m_lookupBits;
 		bool m_lookupBitsDirty;
 		unsigned int m_size;
@@ -359,9 +362,9 @@ private:
 
 		BLOCKENTRY m_blocks[6];
 
-		int16 m_yBlock[4][64];
-		int16 m_cbBlock[64];
-		int16 m_crBlock[64];
+		int16 m_yBlock[4][64] = {};
+		int16 m_cbBlock[64] = {};
+		int16 m_crBlock[64] = {};
 
 		unsigned int m_currentBlockIndex = 0;
 
@@ -533,10 +536,10 @@ private:
 	uint32 m_IPU_CTRL;
 	COUTFIFO m_OUT_FIFO;
 	CINFIFO m_IN_FIFO;
-	uint32 m_lastCmd;
+	uint32 m_currentCmdId;
+	uint32 m_lastCmdId;
 	bool m_isBusy;
 
-	CCommand* m_currentCmd;
 	CBCLRCommand m_BCLRCommand;
 	CIDECCommand m_IDECCommand;
 	CBDECCommand m_BDECCommand;
@@ -546,4 +549,5 @@ private:
 	CSETVQCommand m_SETVQCommand;
 	CCSCCommand m_CSCCommand;
 	CSETTHCommand m_SETTHCommand;
+	std::array<CCommand*, IPU_CMD_MAX> m_commands;
 };
