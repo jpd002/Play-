@@ -24,11 +24,37 @@
 #include "DMAC.h"
 #include "INTC.h"
 #include "Ps2Const.h"
+#include "../states/RegisterStateFile.h"
+#include "../states/RegisterStateUtils.h"
+#include "../states/MemoryStateFile.h"
 
 #define LOG_NAME ("ee_ipu")
 
 //#define _DECODE_LOGGING
 #define DECODE_LOG_NAME ("ipu_decode")
+
+#define STATE_REGS_XML ("ipu/regs.xml")
+#define STATE_INFIFO_REGS_XML ("ipu/infifo.xml")
+#define STATE_OUTFIFO ("ipu/outfifo")
+#define STATE_INTRAIQ ("ipu/intraiq")
+#define STATE_NONINTRAIQ ("ipu/nonintraiq")
+#define STATE_VQCLUT ("ipu/vqclut")
+
+#define STATE_REGS_CTRL ("CTRL")
+#define STATE_REGS_CMD0 ("CMD0")
+#define STATE_REGS_CMD1 ("CMD1")
+#define STATE_REGS_TH0 ("TH0")
+#define STATE_REGS_TH1 ("TH1")
+#define STATE_REGS_CURRENTCMDID ("currentCmdId")
+#define STATE_REGS_LASTCMDID ("lastCmdId")
+#define STATE_REGS_ISBUSY ("isBusy")
+#define STATE_REGS_DCPRED0 ("dcPredictor0")
+#define STATE_REGS_DCPRED1 ("dcPredictor1")
+#define STATE_REGS_DCPRED2 ("dcPredictor2")
+
+#define STATE_INFIFO_REGS_SIZE ("size")
+#define STATE_INFIFO_REGS_BITPOSITION ("bitPosition")
+#define STATE_INFIFO_REGS_BUFFER_FORMAT ("Buffer%d")
 
 using namespace IPU;
 using namespace MPEG2;
@@ -266,6 +292,59 @@ void CIPU::SetRegister(uint32 nAddress, uint32 nValue)
 		CLog::GetInstance().Warn(LOG_NAME, "Writing 0x%08X to an unhandled register (0x%08X).\r\n", nValue, nAddress);
 		break;
 	}
+}
+
+void CIPU::SaveState(Framework::CZipArchiveWriter& archive)
+{
+	{
+		auto registerFile = std::make_unique<CRegisterStateFile>(STATE_REGS_XML);
+		registerFile->SetRegister32(STATE_REGS_CTRL, m_IPU_CTRL);
+		registerFile->SetRegister32(STATE_REGS_CMD0, m_IPU_CMD[0]);
+		registerFile->SetRegister32(STATE_REGS_CMD1, m_IPU_CMD[1]);
+		registerFile->SetRegister32(STATE_REGS_TH0, m_nTH0);
+		registerFile->SetRegister32(STATE_REGS_TH1, m_nTH1);
+		registerFile->SetRegister32(STATE_REGS_CURRENTCMDID, m_currentCmdId);
+		registerFile->SetRegister32(STATE_REGS_LASTCMDID, m_lastCmdId);
+		registerFile->SetRegister32(STATE_REGS_ISBUSY, m_isBusy ? 1 : 0);
+		registerFile->SetRegister32(STATE_REGS_DCPRED0, m_nDcPredictor[0]);
+		registerFile->SetRegister32(STATE_REGS_DCPRED1, m_nDcPredictor[1]);
+		registerFile->SetRegister32(STATE_REGS_DCPRED2, m_nDcPredictor[2]);
+		archive.InsertFile(std::move(registerFile));
+	}
+
+	m_IN_FIFO.SaveState(STATE_INFIFO_REGS_XML, archive);
+
+	archive.InsertFile(std::make_unique<CMemoryStateFile>(STATE_INTRAIQ, m_nIntraIQ, sizeof(m_nIntraIQ)));
+	archive.InsertFile(std::make_unique<CMemoryStateFile>(STATE_NONINTRAIQ, m_nNonIntraIQ, sizeof(m_nNonIntraIQ)));
+	archive.InsertFile(std::make_unique<CMemoryStateFile>(STATE_VQCLUT, m_nVQCLUT, sizeof(m_nVQCLUT)));
+
+	assert(m_currentCmdId == IPU_INVALID_CMDID);
+}
+
+void CIPU::LoadState(Framework::CZipArchiveReader& archive)
+{
+	{
+		auto registerFile = CRegisterStateFile(*archive.BeginReadFile(STATE_REGS_XML));
+		m_IPU_CTRL = registerFile.GetRegister32(STATE_REGS_CTRL);
+		m_IPU_CMD[0] = registerFile.GetRegister32(STATE_REGS_CMD0);
+		m_IPU_CMD[1] = registerFile.GetRegister32(STATE_REGS_CMD1);
+		m_nTH0 = registerFile.GetRegister32(STATE_REGS_TH0);
+		m_nTH1 = registerFile.GetRegister32(STATE_REGS_TH1);
+		m_currentCmdId = registerFile.GetRegister32(STATE_REGS_CURRENTCMDID);
+		m_lastCmdId = registerFile.GetRegister32(STATE_REGS_LASTCMDID);
+		m_isBusy = registerFile.GetRegister32(STATE_REGS_ISBUSY) != 0;
+		m_nDcPredictor[0] = registerFile.GetRegister32(STATE_REGS_DCPRED0);
+		m_nDcPredictor[1] = registerFile.GetRegister32(STATE_REGS_DCPRED1);
+		m_nDcPredictor[2] = registerFile.GetRegister32(STATE_REGS_DCPRED2);
+	}
+
+	m_IN_FIFO.LoadState(STATE_INFIFO_REGS_XML, archive);
+
+	archive.BeginReadFile(STATE_INTRAIQ)->Read(m_nIntraIQ, sizeof(m_nIntraIQ));
+	archive.BeginReadFile(STATE_NONINTRAIQ)->Read(m_nNonIntraIQ, sizeof(m_nNonIntraIQ));
+	archive.BeginReadFile(STATE_VQCLUT)->Read(m_nVQCLUT, sizeof(m_nVQCLUT));
+
+	assert(m_currentCmdId == IPU_INVALID_CMDID);
 }
 
 void CIPU::CountTicks(uint32 ticks)
@@ -895,6 +974,23 @@ void CIPU::CINFIFO::Reset()
 	m_size = 0;
 	m_lookupBits = 0;
 	m_lookupBitsDirty = false;
+}
+
+void CIPU::CINFIFO::SaveState(const char* regsFileName, Framework::CZipArchiveWriter& archive)
+{
+	auto registerFile = std::make_unique<CRegisterStateFile>(regsFileName);
+	registerFile->SetRegister32(STATE_INFIFO_REGS_SIZE, m_size);
+	registerFile->SetRegister32(STATE_INFIFO_REGS_BITPOSITION, m_bitPosition);
+	RegisterStateUtils::WriteArray(*registerFile.get(), m_buffer, STATE_INFIFO_REGS_BUFFER_FORMAT);
+	archive.InsertFile(std::move(registerFile));
+}
+
+void CIPU::CINFIFO::LoadState(const char* regsFileName, Framework::CZipArchiveReader& archive)
+{
+	auto registerFile = CRegisterStateFile(*archive.BeginReadFile(regsFileName));
+	m_size = registerFile.GetRegister32(STATE_INFIFO_REGS_SIZE);
+	m_bitPosition = registerFile.GetRegister32(STATE_INFIFO_REGS_BITPOSITION);
+	RegisterStateUtils::ReadArray(registerFile, m_buffer, STATE_INFIFO_REGS_BUFFER_FORMAT);
 }
 
 void CIPU::CINFIFO::SyncLookupBits()

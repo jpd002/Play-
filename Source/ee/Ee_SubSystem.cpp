@@ -379,6 +379,7 @@ void CSubSystem::SaveState(Framework::CZipArchiveWriter& archive)
 	m_vpu1->SaveState(archive);
 	m_timer.SaveState(archive);
 	m_gif.SaveState(archive);
+	m_ipu.SaveState(archive);
 	m_os->GetLibMc2().SaveState(archive);
 }
 
@@ -405,6 +406,7 @@ void CSubSystem::LoadState(Framework::CZipArchiveReader& archive)
 	m_vpu1->LoadState(archive);
 	m_timer.LoadState(archive);
 	m_gif.LoadState(archive);
+	m_ipu.LoadState(archive);
 	m_os->GetLibMc2().LoadState(archive);
 }
 

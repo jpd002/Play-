@@ -501,6 +501,7 @@ set(COMMON_SRC_FILES
 	states/MemoryStateFile.h
 	states/RegisterState.cpp
 	states/RegisterState.h
+	states/RegisterStateUtils.h
 	states/RegisterStateCollectionFile.cpp
 	states/RegisterStateCollectionFile.h
 	states/RegisterStateFile.cpp

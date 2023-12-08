@@ -9,6 +9,8 @@
 #include "mpeg2/DctCoefficientTable.h"
 #include "../MailBox.h"
 #include "Convertible.h"
+#include "zip/ZipArchiveWriter.h"
+#include "zip/ZipArchiveReader.h"
 
 class CINTC;
 
@@ -33,6 +35,10 @@ public:
 	void Reset();
 	uint32 GetRegister(uint32);
 	void SetRegister(uint32, uint32);
+
+	void SaveState(Framework::CZipArchiveWriter&);
+	void LoadState(Framework::CZipArchiveReader&);
+
 	void SetDMA3ReceiveHandler(const Dma3ReceiveHandler&);
 	uint32 ReceiveDMA4(uint32, uint32, bool, uint8*, uint8*);
 
@@ -166,7 +172,10 @@ private:
 		void SetBitPosition(unsigned int);
 		unsigned int GetSize() const;
 		unsigned int GetAvailableBits() const;
+
 		void Reset();
+		void SaveState(const char*, Framework::CZipArchiveWriter&);
+		void LoadState(const char*, Framework::CZipArchiveReader&);
 
 		enum BUFFERSIZE
 		{
