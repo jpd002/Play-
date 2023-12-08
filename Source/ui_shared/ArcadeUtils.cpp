@@ -103,6 +103,15 @@ uint32 ParseHexStringValue(const std::string& value)
 	return result;
 }
 
+void ApplyPatchesFromArcadeDefinition(CPS2VM* virtualMachine, const ARCADE_MACHINE_DEF& def)
+{
+	for(const auto& patch : def.patches)
+	{
+		assert(patch.address < PS2::EE_RAM_SIZE);
+		*reinterpret_cast<uint32*>(virtualMachine->m_ee->m_ram + patch.address) = patch.value;
+	}
+}
+
 ARCADE_MACHINE_DEF ReadArcadeMachineDefinition(const fs::path& arcadeDefPath)
 {
 	auto parseButtons =
@@ -215,48 +224,6 @@ ARCADE_MACHINE_DEF ReadArcadeMachineDefinition(const fs::path& arcadeDefPath)
 		def.patches = parsePatches(defJson["patches"]);
 	}
 	return def;
-}
-
-void PrepareNamcoSys147Environment(CPS2VM* virtualMachine, const ARCADE_MACHINE_DEF& def)
-{
-	auto baseId = def.parent.empty() ? def.id : def.parent;
-	fs::path arcadeRomPath = CAppConfig::GetInstance().GetPreferencePath(PREF_PS2_ARCADEROMS_DIRECTORY);
-
-	fs::path nandPath = arcadeRomPath / baseId / def.nandFileName;
-	if(!fs::exists(nandPath))
-	{
-		throw std::runtime_error(string_format("Failed to find '%s' in game's directory.", def.nandFileName.c_str()));
-	}
-
-	static std::pair<const char*, uint32> mounts[] =
-	{
-		std::make_pair("atfile0", 0x6000),
-		std::make_pair("atfile1", 0x10000),
-		std::make_pair("atfile2", 0x20000),
-		std::make_pair("atfile3", 0x30000),
-		std::make_pair("atfile4", 0x40000),
-		std::make_pair("atfile5", 0x50000),
-		std::make_pair("atfile6", 0x60000)
-	};
-	
-	auto iopBios = dynamic_cast<CIopBios*>(virtualMachine->m_iop->m_bios.get());
-	for(const auto& mount : mounts)
-	{
-		iopBios->GetIoman()->RegisterDevice(mount.first, std::make_shared<Iop::Namco::CNamcoNANDDevice>( std::make_unique<Framework::CStdStream>(nandPath.string().c_str(), "rb"), mount.second));
-	}
-	
-	//auto acRam = std::make_shared<Iop::Namco::CAcRam>(virtualMachine->m_iop->m_ram);
-	//iopBios->RegisterModule(acRam);
-	//iopBios->RegisterHleModuleReplacement("Arcade_Ext._Memory", acRam);
-
-	{
-		auto sys147Module = std::make_shared<Iop::Namco::CSys147>(*iopBios->GetSifman());
-		iopBios->RegisterModule(sys147Module);
-		iopBios->RegisterHleModuleReplacement("S147LINK", sys147Module);
-		virtualMachine->m_pad->InsertListener(sys147Module.get());
-	}
-
-	virtualMachine->m_ee->m_os->BootFromVirtualPath(def.boot.c_str(), {});
 }
 
 void PrepareArcadeEnvironment(CPS2VM* virtualMachine, const ARCADE_MACHINE_DEF& def)
@@ -390,13 +357,44 @@ void PrepareArcadeEnvironment(CPS2VM* virtualMachine, const ARCADE_MACHINE_DEF& 
 	}
 }
 
-void ApplyPatchesFromArcadeDefinition(CPS2VM* virtualMachine, const ARCADE_MACHINE_DEF& def)
+void PrepareNamcoSys147Environment(CPS2VM* virtualMachine, const ARCADE_MACHINE_DEF& def)
 {
-	for(const auto& patch : def.patches)
+	auto baseId = def.parent.empty() ? def.id : def.parent;
+	fs::path arcadeRomPath = CAppConfig::GetInstance().GetPreferencePath(PREF_PS2_ARCADEROMS_DIRECTORY);
+
+	fs::path nandPath = arcadeRomPath / baseId / def.nandFileName;
+	if(!fs::exists(nandPath))
 	{
-		assert(patch.address < PS2::EE_RAM_SIZE);
-		*reinterpret_cast<uint32*>(virtualMachine->m_ee->m_ram + patch.address) = patch.value;
+		throw std::runtime_error(string_format("Failed to find '%s' in game's directory.", def.nandFileName.c_str()));
 	}
+
+	static std::pair<const char*, uint32> mounts[] =
+	{
+		std::make_pair("atfile0", 0x6000),
+		std::make_pair("atfile1", 0x10000),
+		std::make_pair("atfile2", 0x20000),
+		std::make_pair("atfile3", 0x30000),
+		std::make_pair("atfile4", 0x40000),
+		std::make_pair("atfile5", 0x50000),
+		std::make_pair("atfile6", 0x60000)
+	};
+	
+	auto iopBios = dynamic_cast<CIopBios*>(virtualMachine->m_iop->m_bios.get());
+	for(const auto& mount : mounts)
+	{
+		iopBios->GetIoman()->RegisterDevice(mount.first, std::make_shared<Iop::Namco::CNamcoNANDDevice>( std::make_unique<Framework::CStdStream>(nandPath.string().c_str(), "rb"), mount.second));
+	}
+	
+	{
+		auto sys147Module = std::make_shared<Iop::Namco::CSys147>(*iopBios->GetSifman());
+		iopBios->RegisterModule(sys147Module);
+		iopBios->RegisterHleModuleReplacement("S147LINK", sys147Module);
+		virtualMachine->m_pad->InsertListener(sys147Module.get());
+	}
+
+	virtualMachine->m_ee->m_os->BootFromVirtualPath(def.boot.c_str(), {});
+	
+	ApplyPatchesFromArcadeDefinition(virtualMachine, def);
 }
 
 void ArcadeUtils::RegisterArcadeMachines()

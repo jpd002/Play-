@@ -1,0 +1,43 @@
+{
+	"id": "akaiser",
+	"name": "Animal Kaiser",
+	"driver": "sys147",
+	"nand":
+	{
+		"name": "kp012b_k9k8g08u0b.ic31"
+	},
+	"boot": "atfile0:main.elf",
+	"patches":
+	[
+		{
+			"address": "0x001D495C",
+			"value": "0",
+			"description": "Fix I/O PCB config"
+		},
+		{
+			"address": "0x001D497C",
+			"value": "0",
+			"description": "Fix I/O PCB config"
+		},
+		{
+			"address": "0x001021E8",
+			"value": "0",
+			"description": "Prevent storing dispenser jammed & no cards"
+		},
+		{
+			"address": "0x00102208",
+			"value": "0",
+			"description": "Prevent storing dispenser jammed & no cards"
+		},
+		{
+			"address": "0x0015FA18",
+			"value": "0",
+			"description": "Fake IC card key parity & checksum success"
+		},
+		{
+			"address": "0x0015FC20",
+			"value": "0",
+			"description": "Fake IC card key parity & checksum success"
+		}
+	]
+}
