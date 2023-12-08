@@ -7,7 +7,7 @@
 #include "zip/ZipArchiveWriter.h"
 #include "zip/ZipArchiveReader.h"
 
-class CRegisterStateFile;
+class CRegisterState;
 
 namespace Iop
 {
@@ -279,8 +279,8 @@ namespace Iop
 			void SetSampleCache(CSpuSampleCache*);
 			void SetDestinationSamplingRate(uint32);
 
-			void LoadState(const CRegisterStateFile&, const std::string&);
-			void SaveState(CRegisterStateFile*, const std::string&) const;
+			void LoadState(const CRegisterState&);
+			void SaveState(CRegisterState&) const;
 
 			void SetParamsRead(uint32, uint32);
 			void SetParamsNoRead(uint32, uint32);

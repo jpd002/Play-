@@ -31,6 +31,12 @@ CRegisterStateCollectionFile::RegisterStateIterator CRegisterStateCollectionFile
 	return std::end(m_registerStates);
 }
 
+const CRegisterState& CRegisterStateCollectionFile::GetRegisterState(const char* name)
+{
+	assert(m_registerStates.find(name) != std::end(m_registerStates));
+	return m_registerStates[name];
+}
+
 void CRegisterStateCollectionFile::InsertRegisterState(const char* name, CRegisterState registerState)
 {
 	m_registerStates[name] = std::move(registerState);

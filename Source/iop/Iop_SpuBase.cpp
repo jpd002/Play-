@@ -5,7 +5,8 @@
 #include <algorithm>
 #include "string_format.h"
 #include "../Log.h"
-#include "../states/RegisterStateFile.h"
+#include "../states/RegisterStateCollectionFile.h"
+#include "../states/RegisterStateUtils.h"
 #include "Iop_SpuBase.h"
 
 using namespace Iop;
@@ -16,6 +17,8 @@ using namespace Iop;
 #define LOG_NAME ("iop_spubase")
 
 #define STATE_PATH_FORMAT ("iop_spu/spu_%d.xml")
+
+#define STATE_REGS ("GlobalRegs")
 #define STATE_REGS_CTRL ("CTRL")
 #define STATE_REGS_IRQADDR ("IRQADDR")
 #define STATE_REGS_TRANSFERADDR ("TRANSFERADDR")
@@ -28,7 +31,7 @@ using namespace Iop;
 #define STATE_REGS_REVERBCURRADDR ("REVERBCURRADDR")
 #define STATE_REGS_REVERB_FORMAT ("REVERB%d")
 
-#define STATE_CHANNEL_REGS_PREFIX ("CHANNEL%02d_")
+#define STATE_CHANNEL_REGS_FORMAT ("Channel%02dRegs")
 #define STATE_CHANNEL_REGS_VOLUMELEFT ("VOLUMELEFT")
 #define STATE_CHANNEL_REGS_VOLUMERIGHT ("VOLUMERIGHT")
 #define STATE_CHANNEL_REGS_VOLUMELEFTABS ("VOLUMELEFTABS")
@@ -56,7 +59,7 @@ using namespace Iop;
 #define STATE_SAMPLEREADER_REGS_ENDFLAG ("EndFlag")
 #define STATE_SAMPLEREADER_REGS_IRQPENDING ("IrqPending")
 #define STATE_SAMPLEREADER_REGS_DIDCHANGEREPEAT ("DidChangeRepeat")
-#define STATE_SAMPLEREADER_REGS_BUFFER_FORMAT ("%sBuffer%d")
+#define STATE_SAMPLEREADER_REGS_BUFFER_FORMAT ("Buffer%d")
 
 // clang-format off
 bool CSpuBase::g_reverbParamIsAddress[REVERB_PARAM_COUNT] =
@@ -212,93 +215,94 @@ void CSpuBase::Reset()
 void CSpuBase::LoadState(Framework::CZipArchiveReader& archive)
 {
 	auto path = string_format(STATE_PATH_FORMAT, m_spuNumber);
+	auto stateCollectionFile = CRegisterStateCollectionFile(*archive.BeginReadFile(path.c_str()));
 
-	auto registerFile = CRegisterStateFile(*archive.BeginReadFile(path.c_str()));
-	m_ctrl = registerFile.GetRegister32(STATE_REGS_CTRL);
-	m_irqAddr = registerFile.GetRegister32(STATE_REGS_IRQADDR);
-	m_transferMode = registerFile.GetRegister32(STATE_REGS_TRANSFERMODE);
-	m_transferAddr = registerFile.GetRegister32(STATE_REGS_TRANSFERADDR);
-	m_core0OutputOffset = registerFile.GetRegister32(STATE_REGS_CORE0OUTPUTOFFSET);
-	m_channelOn.f = registerFile.GetRegister32(STATE_REGS_CHANNELON);
-	m_channelReverb.f = registerFile.GetRegister32(STATE_REGS_CHANNELREVERB);
-	m_reverbWorkAddrStart = registerFile.GetRegister32(STATE_REGS_REVERBWORKADDRSTART);
-	m_reverbWorkAddrEnd = registerFile.GetRegister32(STATE_REGS_REVERBWORKADDREND);
-	m_reverbCurrAddr = registerFile.GetRegister32(STATE_REGS_REVERBCURRADDR);
-
-	static const uint32 reverbRegisterCount = sizeof(m_reverb) / (sizeof(uint128));
-	for(uint32 i = 0; i < reverbRegisterCount; i++)
 	{
-		auto reverbRegisterName = string_format(STATE_REGS_REVERB_FORMAT, i);
-		reinterpret_cast<uint128*>(m_reverb)[i] = registerFile.GetRegister128(reverbRegisterName.c_str());
+		const auto& state = stateCollectionFile.GetRegisterState(STATE_REGS);
+		m_ctrl = state.GetRegister32(STATE_REGS_CTRL);
+		m_irqAddr = state.GetRegister32(STATE_REGS_IRQADDR);
+		m_transferMode = state.GetRegister32(STATE_REGS_TRANSFERMODE);
+		m_transferAddr = state.GetRegister32(STATE_REGS_TRANSFERADDR);
+		m_core0OutputOffset = state.GetRegister32(STATE_REGS_CORE0OUTPUTOFFSET);
+		m_channelOn.f = state.GetRegister32(STATE_REGS_CHANNELON);
+		m_channelReverb.f = state.GetRegister32(STATE_REGS_CHANNELREVERB);
+		m_reverbWorkAddrStart = state.GetRegister32(STATE_REGS_REVERBWORKADDRSTART);
+		m_reverbWorkAddrEnd = state.GetRegister32(STATE_REGS_REVERBWORKADDREND);
+		m_reverbCurrAddr = state.GetRegister32(STATE_REGS_REVERBCURRADDR);
+		RegisterStateUtils::ReadArray(state, m_reverb, STATE_REGS_REVERB_FORMAT);
 	}
 
 	for(unsigned int i = 0; i < MAX_CHANNEL; i++)
 	{
 		auto& channel = m_channel[i];
 		auto& reader = m_reader[i];
-		auto channelPrefix = string_format(STATE_CHANNEL_REGS_PREFIX, i);
-		channel.volumeLeft <<= registerFile.GetRegister32((channelPrefix + STATE_CHANNEL_REGS_VOLUMELEFT).c_str());
-		channel.volumeRight <<= registerFile.GetRegister32((channelPrefix + STATE_CHANNEL_REGS_VOLUMERIGHT).c_str());
-		channel.volumeLeftAbs = registerFile.GetRegister32((channelPrefix + STATE_CHANNEL_REGS_VOLUMELEFTABS).c_str());
-		channel.volumeRightAbs = registerFile.GetRegister32((channelPrefix + STATE_CHANNEL_REGS_VOLUMERIGHTABS).c_str());
-		channel.status = registerFile.GetRegister32((channelPrefix + STATE_CHANNEL_REGS_STATUS).c_str());
-		channel.pitch = registerFile.GetRegister32((channelPrefix + STATE_CHANNEL_REGS_PITCH).c_str());
-		channel.adsrLevel <<= registerFile.GetRegister32((channelPrefix + STATE_CHANNEL_REGS_ADSRLEVEL).c_str());
-		channel.adsrRate <<= registerFile.GetRegister32((channelPrefix + STATE_CHANNEL_REGS_ADSRRATE).c_str());
-		channel.adsrVolume = registerFile.GetRegister32((channelPrefix + STATE_CHANNEL_REGS_ADSRVOLUME).c_str());
-		channel.address = registerFile.GetRegister32((channelPrefix + STATE_CHANNEL_REGS_ADDRESS).c_str());
-		channel.repeat = registerFile.GetRegister32((channelPrefix + STATE_CHANNEL_REGS_REPEAT).c_str());
-		channel.repeatSet = registerFile.GetRegister32((channelPrefix + STATE_CHANNEL_REGS_REPEATSET).c_str()) != 0;
-		channel.current = registerFile.GetRegister32((channelPrefix + STATE_CHANNEL_REGS_CURRENT).c_str());
-		reader.LoadState(registerFile, channelPrefix);
+
+		auto channelRegsName = string_format(STATE_CHANNEL_REGS_FORMAT, i);
+		const auto& channelState = stateCollectionFile.GetRegisterState(channelRegsName.c_str());
+
+		channel.volumeLeft <<= channelState.GetRegister32(STATE_CHANNEL_REGS_VOLUMELEFT);
+		channel.volumeRight <<= channelState.GetRegister32(STATE_CHANNEL_REGS_VOLUMERIGHT);
+		channel.volumeLeftAbs = channelState.GetRegister32(STATE_CHANNEL_REGS_VOLUMELEFTABS);
+		channel.volumeRightAbs = channelState.GetRegister32(STATE_CHANNEL_REGS_VOLUMERIGHTABS);
+		channel.status = channelState.GetRegister32(STATE_CHANNEL_REGS_STATUS);
+		channel.pitch = channelState.GetRegister32(STATE_CHANNEL_REGS_PITCH);
+		channel.adsrLevel <<= channelState.GetRegister32(STATE_CHANNEL_REGS_ADSRLEVEL);
+		channel.adsrRate <<= channelState.GetRegister32(STATE_CHANNEL_REGS_ADSRRATE);
+		channel.adsrVolume = channelState.GetRegister32(STATE_CHANNEL_REGS_ADSRVOLUME);
+		channel.address = channelState.GetRegister32(STATE_CHANNEL_REGS_ADDRESS);
+		channel.repeat = channelState.GetRegister32(STATE_CHANNEL_REGS_REPEAT);
+		channel.repeatSet = channelState.GetRegister32(STATE_CHANNEL_REGS_REPEATSET) != 0;
+		channel.current = channelState.GetRegister32(STATE_CHANNEL_REGS_CURRENT);
+		reader.LoadState(channelState);
 	}
 }
 
 void CSpuBase::SaveState(Framework::CZipArchiveWriter& archive)
 {
 	auto path = string_format(STATE_PATH_FORMAT, m_spuNumber);
+	auto stateCollectionFile = std::make_unique<CRegisterStateCollectionFile>(path.c_str());
 
-	auto registerFile = std::make_unique<CRegisterStateFile>(path.c_str());
-	registerFile->SetRegister32(STATE_REGS_CTRL, m_ctrl);
-	registerFile->SetRegister32(STATE_REGS_IRQADDR, m_irqAddr);
-	registerFile->SetRegister32(STATE_REGS_TRANSFERMODE, m_transferMode);
-	registerFile->SetRegister32(STATE_REGS_TRANSFERADDR, m_transferAddr);
-	registerFile->SetRegister32(STATE_REGS_CORE0OUTPUTOFFSET, m_core0OutputOffset);
-	registerFile->SetRegister32(STATE_REGS_CHANNELON, m_channelOn.f);
-	registerFile->SetRegister32(STATE_REGS_CHANNELREVERB, m_channelReverb.f);
-	registerFile->SetRegister32(STATE_REGS_REVERBWORKADDRSTART, m_reverbWorkAddrStart);
-	registerFile->SetRegister32(STATE_REGS_REVERBWORKADDREND, m_reverbWorkAddrEnd);
-	registerFile->SetRegister32(STATE_REGS_REVERBCURRADDR, m_reverbCurrAddr);
-
-	static const uint32 reverbRegisterCount = sizeof(m_reverb) / (sizeof(uint128));
-	for(uint32 i = 0; i < reverbRegisterCount; i++)
 	{
-		auto reverbRegisterName = string_format(STATE_REGS_REVERB_FORMAT, i);
-		registerFile->SetRegister128(reverbRegisterName.c_str(), reinterpret_cast<const uint128*>(m_reverb)[i]);
+		CRegisterState state;
+		state.SetRegister32(STATE_REGS_CTRL, m_ctrl);
+		state.SetRegister32(STATE_REGS_IRQADDR, m_irqAddr);
+		state.SetRegister32(STATE_REGS_TRANSFERMODE, m_transferMode);
+		state.SetRegister32(STATE_REGS_TRANSFERADDR, m_transferAddr);
+		state.SetRegister32(STATE_REGS_CORE0OUTPUTOFFSET, m_core0OutputOffset);
+		state.SetRegister32(STATE_REGS_CHANNELON, m_channelOn.f);
+		state.SetRegister32(STATE_REGS_CHANNELREVERB, m_channelReverb.f);
+		state.SetRegister32(STATE_REGS_REVERBWORKADDRSTART, m_reverbWorkAddrStart);
+		state.SetRegister32(STATE_REGS_REVERBWORKADDREND, m_reverbWorkAddrEnd);
+		state.SetRegister32(STATE_REGS_REVERBCURRADDR, m_reverbCurrAddr);
+		RegisterStateUtils::WriteArray(state, m_reverb, STATE_REGS_REVERB_FORMAT);
+		stateCollectionFile->InsertRegisterState(STATE_REGS, std::move(state));
 	}
 
 	for(unsigned int i = 0; i < MAX_CHANNEL; i++)
 	{
 		const auto& channel = m_channel[i];
 		const auto& reader = m_reader[i];
-		auto channelPrefix = string_format(STATE_CHANNEL_REGS_PREFIX, i);
-		registerFile->SetRegister32((channelPrefix + STATE_CHANNEL_REGS_VOLUMELEFT).c_str(), channel.volumeLeft);
-		registerFile->SetRegister32((channelPrefix + STATE_CHANNEL_REGS_VOLUMERIGHT).c_str(), channel.volumeRight);
-		registerFile->SetRegister32((channelPrefix + STATE_CHANNEL_REGS_VOLUMELEFTABS).c_str(), channel.volumeLeftAbs);
-		registerFile->SetRegister32((channelPrefix + STATE_CHANNEL_REGS_VOLUMERIGHTABS).c_str(), channel.volumeRightAbs);
-		registerFile->SetRegister32((channelPrefix + STATE_CHANNEL_REGS_STATUS).c_str(), channel.status);
-		registerFile->SetRegister32((channelPrefix + STATE_CHANNEL_REGS_PITCH).c_str(), channel.pitch);
-		registerFile->SetRegister32((channelPrefix + STATE_CHANNEL_REGS_ADSRLEVEL).c_str(), channel.adsrLevel);
-		registerFile->SetRegister32((channelPrefix + STATE_CHANNEL_REGS_ADSRRATE).c_str(), channel.adsrRate);
-		registerFile->SetRegister32((channelPrefix + STATE_CHANNEL_REGS_ADSRVOLUME).c_str(), channel.adsrVolume);
-		registerFile->SetRegister32((channelPrefix + STATE_CHANNEL_REGS_ADDRESS).c_str(), channel.address);
-		registerFile->SetRegister32((channelPrefix + STATE_CHANNEL_REGS_REPEAT).c_str(), channel.repeat);
-		registerFile->SetRegister32((channelPrefix + STATE_CHANNEL_REGS_REPEATSET).c_str(), channel.repeatSet);
-		registerFile->SetRegister32((channelPrefix + STATE_CHANNEL_REGS_CURRENT).c_str(), channel.current);
-		reader.SaveState(registerFile.get(), channelPrefix);
+		CRegisterState channelState;
+		channelState.SetRegister32(STATE_CHANNEL_REGS_VOLUMELEFT, channel.volumeLeft);
+		channelState.SetRegister32(STATE_CHANNEL_REGS_VOLUMERIGHT, channel.volumeRight);
+		channelState.SetRegister32(STATE_CHANNEL_REGS_VOLUMELEFTABS, channel.volumeLeftAbs);
+		channelState.SetRegister32(STATE_CHANNEL_REGS_VOLUMERIGHTABS, channel.volumeRightAbs);
+		channelState.SetRegister32(STATE_CHANNEL_REGS_STATUS, channel.status);
+		channelState.SetRegister32(STATE_CHANNEL_REGS_PITCH, channel.pitch);
+		channelState.SetRegister32(STATE_CHANNEL_REGS_ADSRLEVEL, channel.adsrLevel);
+		channelState.SetRegister32(STATE_CHANNEL_REGS_ADSRRATE, channel.adsrRate);
+		channelState.SetRegister32(STATE_CHANNEL_REGS_ADSRVOLUME, channel.adsrVolume);
+		channelState.SetRegister32(STATE_CHANNEL_REGS_ADDRESS, channel.address);
+		channelState.SetRegister32(STATE_CHANNEL_REGS_REPEAT, channel.repeat);
+		channelState.SetRegister32(STATE_CHANNEL_REGS_REPEATSET, channel.repeatSet);
+		channelState.SetRegister32(STATE_CHANNEL_REGS_CURRENT, channel.current);
+		reader.SaveState(channelState);
+
+		auto channelRegsName = string_format(STATE_CHANNEL_REGS_FORMAT, i);
+		stateCollectionFile->InsertRegisterState(channelRegsName.c_str(), std::move(channelState));
 	}
 
-	archive.InsertFile(std::move(registerFile));
+	archive.InsertFile(std::move(stateCollectionFile));
 }
 
 bool CSpuBase::IsEnabled() const
@@ -1168,54 +1172,42 @@ void CSpuBase::CSampleReader::SetDestinationSamplingRate(uint32 samplingRate)
 	UpdateSampleStep();
 }
 
-void CSpuBase::CSampleReader::LoadState(const CRegisterStateFile& registerFile, const std::string& channelPrefix)
+void CSpuBase::CSampleReader::LoadState(const CRegisterState& channelState)
 {
-	m_srcSampleIdx = registerFile.GetRegister32((channelPrefix + STATE_SAMPLEREADER_REGS_SRCSAMPLEIDX).c_str());
-	m_srcSamplingRate = registerFile.GetRegister32((channelPrefix + STATE_SAMPLEREADER_REGS_SRCSAMPLINGRATE).c_str());
-	m_nextSampleAddr = registerFile.GetRegister32((channelPrefix + STATE_SAMPLEREADER_REGS_NEXTSAMPLEADDR).c_str());
-	m_repeatAddr = registerFile.GetRegister32((channelPrefix + STATE_SAMPLEREADER_REGS_REPEATADDR).c_str());
-	m_irqAddr = registerFile.GetRegister32((channelPrefix + STATE_SAMPLEREADER_REGS_IRQADDR).c_str());
-	m_pitch = registerFile.GetRegister32((channelPrefix + STATE_SAMPLEREADER_REGS_PITCH).c_str());
-	m_s1 = registerFile.GetRegister32((channelPrefix + STATE_SAMPLEREADER_REGS_S1).c_str());
-	m_s2 = registerFile.GetRegister32((channelPrefix + STATE_SAMPLEREADER_REGS_S2).c_str());
-	m_done = registerFile.GetRegister32((channelPrefix + STATE_SAMPLEREADER_REGS_DONE).c_str()) != 0;
-	m_nextValid = registerFile.GetRegister32((channelPrefix + STATE_SAMPLEREADER_REGS_NEXTVALID).c_str()) != 0;
-	m_endFlag = registerFile.GetRegister32((channelPrefix + STATE_SAMPLEREADER_REGS_ENDFLAG).c_str()) != 0;
-	m_irqPending = registerFile.GetRegister32((channelPrefix + STATE_SAMPLEREADER_REGS_IRQPENDING).c_str()) != 0;
-	m_didChangeRepeat = registerFile.GetRegister32((channelPrefix + STATE_SAMPLEREADER_REGS_DIDCHANGEREPEAT).c_str()) != 0;
-
-	static const uint32 bufferRegisterCount = sizeof(m_buffer) / (sizeof(uint128));
-	for(uint32 i = 0; i < bufferRegisterCount; i++)
-	{
-		auto bufferRegisterName = string_format(STATE_SAMPLEREADER_REGS_BUFFER_FORMAT, channelPrefix.c_str(), i);
-		reinterpret_cast<uint128*>(m_buffer)[i] = registerFile.GetRegister128(bufferRegisterName.c_str());
-	}
+	m_srcSampleIdx = channelState.GetRegister32(STATE_SAMPLEREADER_REGS_SRCSAMPLEIDX);
+	m_srcSamplingRate = channelState.GetRegister32(STATE_SAMPLEREADER_REGS_SRCSAMPLINGRATE);
+	m_nextSampleAddr = channelState.GetRegister32(STATE_SAMPLEREADER_REGS_NEXTSAMPLEADDR);
+	m_repeatAddr = channelState.GetRegister32(STATE_SAMPLEREADER_REGS_REPEATADDR);
+	m_irqAddr = channelState.GetRegister32(STATE_SAMPLEREADER_REGS_IRQADDR);
+	m_pitch = channelState.GetRegister32(STATE_SAMPLEREADER_REGS_PITCH);
+	m_s1 = channelState.GetRegister32(STATE_SAMPLEREADER_REGS_S1);
+	m_s2 = channelState.GetRegister32(STATE_SAMPLEREADER_REGS_S2);
+	m_done = channelState.GetRegister32(STATE_SAMPLEREADER_REGS_DONE) != 0;
+	m_nextValid = channelState.GetRegister32(STATE_SAMPLEREADER_REGS_NEXTVALID) != 0;
+	m_endFlag = channelState.GetRegister32(STATE_SAMPLEREADER_REGS_ENDFLAG) != 0;
+	m_irqPending = channelState.GetRegister32(STATE_SAMPLEREADER_REGS_IRQPENDING) != 0;
+	m_didChangeRepeat = channelState.GetRegister32(STATE_SAMPLEREADER_REGS_DIDCHANGEREPEAT) != 0;
+	RegisterStateUtils::ReadArray(channelState, m_buffer, STATE_SAMPLEREADER_REGS_BUFFER_FORMAT);
 
 	UpdateSampleStep();
 }
 
-void CSpuBase::CSampleReader::SaveState(CRegisterStateFile* registerFile, const std::string& channelPrefix) const
+void CSpuBase::CSampleReader::SaveState(CRegisterState& channelState) const
 {
-	registerFile->SetRegister32((channelPrefix + STATE_SAMPLEREADER_REGS_SRCSAMPLEIDX).c_str(), m_srcSampleIdx);
-	registerFile->SetRegister32((channelPrefix + STATE_SAMPLEREADER_REGS_SRCSAMPLINGRATE).c_str(), m_srcSamplingRate);
-	registerFile->SetRegister32((channelPrefix + STATE_SAMPLEREADER_REGS_NEXTSAMPLEADDR).c_str(), m_nextSampleAddr);
-	registerFile->SetRegister32((channelPrefix + STATE_SAMPLEREADER_REGS_REPEATADDR).c_str(), m_repeatAddr);
-	registerFile->SetRegister32((channelPrefix + STATE_SAMPLEREADER_REGS_IRQADDR).c_str(), m_irqAddr);
-	registerFile->SetRegister32((channelPrefix + STATE_SAMPLEREADER_REGS_PITCH).c_str(), m_pitch);
-	registerFile->SetRegister32((channelPrefix + STATE_SAMPLEREADER_REGS_S1).c_str(), m_s1);
-	registerFile->SetRegister32((channelPrefix + STATE_SAMPLEREADER_REGS_S2).c_str(), m_s2);
-	registerFile->SetRegister32((channelPrefix + STATE_SAMPLEREADER_REGS_DONE).c_str(), m_done);
-	registerFile->SetRegister32((channelPrefix + STATE_SAMPLEREADER_REGS_NEXTVALID).c_str(), m_nextValid);
-	registerFile->SetRegister32((channelPrefix + STATE_SAMPLEREADER_REGS_ENDFLAG).c_str(), m_endFlag);
-	registerFile->SetRegister32((channelPrefix + STATE_SAMPLEREADER_REGS_IRQPENDING).c_str(), m_irqPending);
-	registerFile->SetRegister32((channelPrefix + STATE_SAMPLEREADER_REGS_DIDCHANGEREPEAT).c_str(), m_didChangeRepeat);
-
-	static const uint32 bufferRegisterCount = sizeof(m_buffer) / (sizeof(uint128));
-	for(uint32 i = 0; i < bufferRegisterCount; i++)
-	{
-		auto bufferRegisterName = string_format(STATE_SAMPLEREADER_REGS_BUFFER_FORMAT, channelPrefix.c_str(), i);
-		registerFile->SetRegister128(bufferRegisterName.c_str(), reinterpret_cast<const uint128*>(m_buffer)[i]);
-	}
+	channelState.SetRegister32(STATE_SAMPLEREADER_REGS_SRCSAMPLEIDX, m_srcSampleIdx);
+	channelState.SetRegister32(STATE_SAMPLEREADER_REGS_SRCSAMPLINGRATE, m_srcSamplingRate);
+	channelState.SetRegister32(STATE_SAMPLEREADER_REGS_NEXTSAMPLEADDR, m_nextSampleAddr);
+	channelState.SetRegister32(STATE_SAMPLEREADER_REGS_REPEATADDR, m_repeatAddr);
+	channelState.SetRegister32(STATE_SAMPLEREADER_REGS_IRQADDR, m_irqAddr);
+	channelState.SetRegister32(STATE_SAMPLEREADER_REGS_PITCH, m_pitch);
+	channelState.SetRegister32(STATE_SAMPLEREADER_REGS_S1, m_s1);
+	channelState.SetRegister32(STATE_SAMPLEREADER_REGS_S2, m_s2);
+	channelState.SetRegister32(STATE_SAMPLEREADER_REGS_DONE, m_done);
+	channelState.SetRegister32(STATE_SAMPLEREADER_REGS_NEXTVALID, m_nextValid);
+	channelState.SetRegister32(STATE_SAMPLEREADER_REGS_ENDFLAG, m_endFlag);
+	channelState.SetRegister32(STATE_SAMPLEREADER_REGS_IRQPENDING, m_irqPending);
+	channelState.SetRegister32(STATE_SAMPLEREADER_REGS_DIDCHANGEREPEAT, m_didChangeRepeat);
+	RegisterStateUtils::WriteArray(channelState, m_buffer, STATE_SAMPLEREADER_REGS_BUFFER_FORMAT);
 }
 
 void CSpuBase::CSampleReader::SetParams(uint32 address, uint32 repeat)
