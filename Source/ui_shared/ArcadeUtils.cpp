@@ -386,7 +386,7 @@ void PrepareNamcoSys147Environment(CPS2VM* virtualMachine, const ARCADE_MACHINE_
 	}
 	
 	{
-		auto sys147Module = std::make_shared<Iop::Namco::CSys147>(*iopBios->GetSifman());
+		auto sys147Module = std::make_shared<Iop::Namco::CSys147>(*iopBios->GetSifman(), def.id);
 		iopBios->RegisterModule(sys147Module);
 		iopBios->RegisterHleModuleReplacement("S147LINK", sys147Module);
 		virtualMachine->m_pad->InsertListener(sys147Module.get());

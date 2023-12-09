@@ -12,7 +12,7 @@ namespace Iop
 		class CSys147 : public CModule, public CPadInterface
 		{
 		public:
-			CSys147(CSifMan&);
+			CSys147(CSifMan&, const std::string&);
 			virtual ~CSys147() = default;
 
 			std::string GetId() const override;
@@ -61,7 +61,6 @@ namespace Iop
 			
 			void ReadBackupRam(uint32, uint8*, uint32);
 			void WriteBackupRam(uint32, const uint8*, uint32);
-			std::string m_gameId = "akaiser";
 
 			CSifModuleAdapter m_module000;
 			CSifModuleAdapter m_module001;
@@ -71,6 +70,8 @@ namespace Iop
 			CSifModuleAdapter m_module201;
 			CSifModuleAdapter m_module99;
 			
+			std::string m_gameId;
+
 			std::vector<MODULE_99_PACKET> m_pendingReplies;
 			
 			bool m_buttonPressed = false;

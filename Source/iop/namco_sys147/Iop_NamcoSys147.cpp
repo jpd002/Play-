@@ -10,7 +10,8 @@ using namespace Iop::Namco;
 
 #define LOG_NAME ("iop_namco_sys147")
 
-CSys147::CSys147(CSifMan& sifMan)
+CSys147::CSys147(CSifMan& sifMan, const std::string& gameId)
+: m_gameId(gameId)
 {
 	m_module000 = CSifModuleAdapter(std::bind(&CSys147::Invoke000, this,
 											  std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5, std::placeholders::_6));
