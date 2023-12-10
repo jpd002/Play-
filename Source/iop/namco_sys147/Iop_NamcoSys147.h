@@ -73,10 +73,7 @@ namespace Iop
 			std::string m_gameId;
 
 			std::vector<MODULE_99_PACKET> m_pendingReplies;
-			
-			bool m_buttonPressed = false;
-			bool m_crossPressed = false;
-			uint8 packetData[0x10] = {};
+			std::map<uint8, uint8> m_switchStates;
 		};
 	}
 }

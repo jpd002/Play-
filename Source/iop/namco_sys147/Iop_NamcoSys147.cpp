@@ -10,6 +10,19 @@ using namespace Iop::Namco;
 
 #define LOG_NAME ("iop_namco_sys147")
 
+enum
+{
+	SWITCH_TEST = 0x6C,
+	SWITCH_ENTER = 0x6D,
+	SWITCH_UP = 0x6E,
+	SWITCH_DOWN = 0x6F,
+	SWITCH_1P_LEFT = 0x74,
+	SWITCH_1P_RIGHT = 0x75,
+	SWITCH_2P_LEFT = 0x77,
+	SWITCH_2P_RIGHT = 0x76
+
+};
+
 CSys147::CSys147(CSifMan& sifMan, const std::string& gameId)
 : m_gameId(gameId)
 {
@@ -35,6 +48,15 @@ CSys147::CSys147(CSifMan& sifMan, const std::string& gameId)
 	sifMan.RegisterModule(MODULE_ID_200, &m_module200);
 	sifMan.RegisterModule(MODULE_ID_201, &m_module201);
 	sifMan.RegisterModule(MODULE_ID_99, &m_module99);
+	
+	m_switchStates[SWITCH_TEST] = 0;
+	m_switchStates[SWITCH_ENTER] = 0;
+	m_switchStates[SWITCH_UP] = 0;
+	m_switchStates[SWITCH_DOWN] = 0;
+	m_switchStates[SWITCH_1P_LEFT] = 0;
+	m_switchStates[SWITCH_1P_RIGHT] = 0;
+	m_switchStates[SWITCH_2P_LEFT] = 0;
+	m_switchStates[SWITCH_2P_RIGHT] = 0;
 }
 
 std::string CSys147::GetId() const
@@ -49,38 +71,29 @@ std::string CSys147::GetFunctionName(unsigned int functionId) const
 
 void CSys147::SetButtonState(unsigned int padNumber, PS2::CControllerInfo::BUTTON button, bool pressed, uint8* ram)
 {
-	if(button == PS2::CControllerInfo::SQUARE)
+	if(padNumber != 0) return;
+	switch(button)
 	{
-		m_buttonPressed = pressed;
-	}
-	if(button == PS2::CControllerInfo::CROSS)
-	{
-		//if(!pressed && m_crossPressed)
-		{
-			static const uint8 zePacket[0x10] = { 0x6D, 0xBE, 0xD6, 0x58, 0x59, 0xD3, 0xBF, 0x04, 0x7D, 0x12, 0xD9, 0x1E, 0x6F, 0x73, 0x11, 0x2A};
-
-			static int count = 0;
-			for(int i = 0; i < 8; i++)
-			{
-				//if(count == 0)
-				//{
-					packetData[i] = pressed ? zePacket[i] : 0;
-				//}
-				//else
-				//{
-				//	packetData[i] = rand() % 0xFF;
-				//}
-			}
-			packetData[0] = 0x6C;
-			//count++;
-			//printf("Pressed Cross Packet Data:\r\n");
-			//for(int i = 0; i < 0x10; i++)
-			//{
-			//	printf("0x%02X, ", packetData[i]);
-			//}
-			//printf("\r\n");
-		}
-		m_crossPressed = pressed;
+	case PS2::CControllerInfo::DPAD_UP:
+		m_switchStates[SWITCH_UP] = pressed ? 0xFF : 0x00;
+		break;
+	case PS2::CControllerInfo::DPAD_DOWN:
+		m_switchStates[SWITCH_DOWN] = pressed ? 0xFF : 0x00;
+		break;
+	case PS2::CControllerInfo::DPAD_LEFT:
+		m_switchStates[SWITCH_1P_LEFT] = pressed ? 0xFF : 0x00;
+		break;
+	case PS2::CControllerInfo::DPAD_RIGHT:
+		m_switchStates[SWITCH_1P_RIGHT] = pressed ? 0xFF : 0x00;
+		break;
+	case PS2::CControllerInfo::CROSS:
+		m_switchStates[SWITCH_ENTER] = pressed ? 0xFF : 0x00;
+		break;
+	case PS2::CControllerInfo::L1:
+		m_switchStates[SWITCH_TEST] = pressed ? 0xFF : 0x00;
+		break;
+	default:
+		break;
 	}
 }
 
@@ -317,16 +330,16 @@ bool CSys147::Invoke99(uint32 method, uint32* args, uint32 argsSize, uint32* ret
 			else if(packet->command == 0x39)
 			{
 				//Seems to be related to switch values?
-				MODULE_99_PACKET reply = {};
-				reply.type = 2;
-				reply.command = 0x39;
-				reply.data[0] = packet->data[0];
-				for(int i = 0; i < 0x10; i++)
+				for(const auto& switchState : m_switchStates)
 				{
-					reply.data[i] = packetData[i];
+					MODULE_99_PACKET reply = {};
+					reply.type = 2;
+					reply.command = 0x39;
+					reply.data[0] = switchState.first;
+					reply.data[4] = switchState.second;
+					reply.checksum = ComputePacketChecksum(reply);
+					m_pendingReplies.emplace_back(reply);
 				}
-				reply.checksum = ComputePacketChecksum(reply);
-				m_pendingReplies.emplace_back(reply);
 			}
 			else if(packet->command == 0x0D)
 			{
