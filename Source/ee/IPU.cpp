@@ -991,6 +991,7 @@ void CIPU::CINFIFO::LoadState(const char* regsFileName, Framework::CZipArchiveRe
 	m_size = registerFile.GetRegister32(STATE_INFIFO_REGS_SIZE);
 	m_bitPosition = registerFile.GetRegister32(STATE_INFIFO_REGS_BITPOSITION);
 	RegisterStateUtils::ReadArray(registerFile, m_buffer, STATE_INFIFO_REGS_BUFFER_FORMAT);
+	m_lookupBitsDirty = true;
 }
 
 void CIPU::CINFIFO::SyncLookupBits()
