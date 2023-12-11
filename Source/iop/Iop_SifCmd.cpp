@@ -53,6 +53,7 @@ using namespace Iop;
 
 static constexpr uint32 INVALID_SEMAPHORE_ID = ~0U;
 static constexpr uint32 DUMMY_PACKET_ADDR = 0xCAFECAFE;
+static constexpr uint32 RPC_MODE_NOWAIT = 0x01;
 
 CSifCmd::CSifCmd(CIopBios& bios, CSifMan& sifMan, CSysmem& sysMem, uint8* ram)
     : m_bios(bios)
@@ -857,8 +858,6 @@ void CSifCmd::SifBindRpc(CMIPS& context)
 
 void CSifCmd::SifCallRpc(CMIPS& context)
 {
-	static constexpr uint32 CALL_MODE_NOWAIT = 0x01;
-
 	uint32 clientDataAddr = context.m_State.nGPR[CMIPS::A0].nV0;
 	uint32 rpcNumber = context.m_State.nGPR[CMIPS::A1].nV0;
 	uint32 mode = context.m_State.nGPR[CMIPS::A2].nV0;
@@ -869,7 +868,7 @@ void CSifCmd::SifCallRpc(CMIPS& context)
 	uint32 endFctAddr = context.m_pMemoryMap->GetWord(context.m_State.nGPR[CMIPS::SP].nV0 + 0x1C);
 	uint32 endParam = context.m_pMemoryMap->GetWord(context.m_State.nGPR[CMIPS::SP].nV0 + 0x20);
 
-	assert((mode == 0) || (mode == CALL_MODE_NOWAIT));
+	assert((mode == 0) || (mode == RPC_MODE_NOWAIT));
 
 	CLog::GetInstance().Print(LOG_NAME, FUNCTION_SIFCALLRPC "(clientDataAddr = 0x%08X, rpcNumber = 0x%08X, mode = 0x%08X, sendAddr = 0x%08X, sendSize = 0x%08X, "
 	                                                        "recvAddr = 0x%08X, recvSize = 0x%08X, endFctAddr = 0x%08X, endParam = 0x%08X);\r\n",
@@ -882,7 +881,7 @@ void CSifCmd::SifCallRpc(CMIPS& context)
 	clientData->header.packetAddr = DUMMY_PACKET_ADDR;
 	clientData->endFctPtr = endFctAddr;
 	clientData->endParam = endParam;
-	if((mode & CALL_MODE_NOWAIT) == 0)
+	if((mode & RPC_MODE_NOWAIT) == 0)
 	{
 		clientData->header.semaId = m_bios.CreateSemaphore(0, 1, 0, 0);
 		assert(static_cast<int32>(clientData->header.semaId) >= 0);
@@ -1012,12 +1011,12 @@ void CSifCmd::SifExecRequest(CMIPS& context)
 	context.m_State.nPC = m_sifExecRequestAddr;
 }
 
-uint32 CSifCmd::SifCheckStatRpc(uint32 clientDataAddr)
+uint32 CSifCmd::SifCheckStatRpc(uint32 headerAddr)
 {
-	CLog::GetInstance().Print(LOG_NAME, FUNCTION_SIFCHECKSTATRPC "(clientData = 0x%08X);\r\n",
-	                          clientDataAddr);
-	auto clientData = reinterpret_cast<SIFRPCCLIENTDATA*>(m_ram + clientDataAddr);
-	if(clientData->header.packetAddr != 0)
+	CLog::GetInstance().Print(LOG_NAME, FUNCTION_SIFCHECKSTATRPC "(headerAddr = 0x%08X);\r\n",
+	                          headerAddr);
+	auto header = reinterpret_cast<const SIFRPCHEADER*>(m_ram + headerAddr);
+	if(header->packetAddr != 0)
 	{
 		return 1;
 	}
@@ -1073,7 +1072,14 @@ uint32 CSifCmd::SifGetOtherData(uint32 packetPtr, uint32 src, uint32 dst, uint32
 {
 	CLog::GetInstance().Print(LOG_NAME, FUNCTION_SIFGETOTHERDATA "(packetPtr = 0x%08X, src = 0x%08X, dst = 0x%08X, size = 0x%08X, mode = %d);\r\n",
 	                          packetPtr, src, dst, size, mode);
+	assert((mode == 0) || (mode == RPC_MODE_NOWAIT));
 	m_sifMan.GetOtherData(dst, src, size);
+	if((mode & RPC_MODE_NOWAIT) != 0)
+	{
+		//Clear packetAddr to make sure SifCheckStatRpc returns properly
+		auto receiveData = reinterpret_cast<SIFRPCRECEIVEDATA*>(m_ram + packetPtr);
+		receiveData->header.packetAddr = 0;
+	}
 	return 0;
 }
 

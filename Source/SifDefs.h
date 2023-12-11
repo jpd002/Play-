@@ -122,6 +122,15 @@ struct SIFRPCHEADER
 };
 static_assert(sizeof(SIFRPCHEADER) == 0x10, "sizeof(SIFRPCHEADER) must be 16 bytes.");
 
+struct SIFRPCRECEIVEDATA
+{
+	SIFRPCHEADER header;
+	uint32 srcPtr;
+	uint32 dstPtr;
+	uint32 size;
+};
+static_assert(sizeof(SIFRPCRECEIVEDATA) == 0x1C, "sizeof(SIFRPCRECEIVEDATA) must be 28 bytes.");
+
 struct SIFRPCCLIENTDATA
 {
 	SIFRPCHEADER header;
