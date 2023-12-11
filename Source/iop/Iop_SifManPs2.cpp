@@ -77,6 +77,7 @@ uint32 CSifManPs2::SifSetDma(uint32 structAddr, uint32 count)
 	{
 		const auto& dmaReg = dmaRegs[i];
 		uint32 dstAddr = dmaReg.dstAddr & (PS2::EE_RAM_SIZE - 1);
+		assert(dstAddr != 0);
 		const uint8* src = m_iopRam + (dmaReg.srcAddr & (PS2::IOP_RAM_SIZE - 1));
 		if(dmaReg.flags & SIFDMAREG_FLAG_INT_O)
 		{
