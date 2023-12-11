@@ -11,32 +11,32 @@
 	[
 		{
 			"address": "0x001D495C",
-			"value": "0",
+			"value": "0x0",
 			"description": "Fix I/O PCB config"
 		},
 		{
 			"address": "0x001D497C",
-			"value": "0",
+			"value": "0x0",
 			"description": "Fix I/O PCB config"
 		},
 		{
 			"address": "0x001021E8",
-			"value": "0",
+			"value": "0x0",
 			"description": "Prevent storing dispenser jammed & no cards"
 		},
 		{
 			"address": "0x00102208",
-			"value": "0",
+			"value": "0x0",
 			"description": "Prevent storing dispenser jammed & no cards"
 		},
 		{
 			"address": "0x0015FA18",
-			"value": "0",
+			"value": "0x0",
 			"description": "Fake IC card key parity & checksum success"
 		},
 		{
 			"address": "0x0015FC20",
-			"value": "0",
+			"value": "0x0",
 			"description": "Fake IC card key parity & checksum success"
 		}
 	]
