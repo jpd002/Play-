@@ -38,6 +38,11 @@
 			"address": "0x0015FC20",
 			"value": "0x0",
 			"description": "Fake IC card key parity & checksum success"
+		},
+		{
+			"address": "0x001D8A0C",
+			"value": "0x24027FFF",
+			"description": "Set audio level to 7"
 		}
 	]
 }
