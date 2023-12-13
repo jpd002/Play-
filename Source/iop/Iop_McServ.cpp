@@ -131,17 +131,21 @@ std::string CMcServ::MakeAbsolutePath(const std::string& inputPath)
 {
 	auto frags = StringUtils::Split(inputPath, '/', true);
 	std::vector<std::string> newFrags;
-	for(auto fragIterator = std::rbegin(frags);
-	    fragIterator != std::rend(frags); fragIterator++)
+	for(const auto& frag : frags)
 	{
-		if(*fragIterator == "..")
+		if(frag.empty()) continue;
+		if(frag == "..")
 		{
-			fragIterator++;
-			fragIterator++;
+			if(newFrags.empty())
+			{
+				//Going up too much, don't bother
+				continue;
+			}
+			newFrags.pop_back();
 		}
 		else
 		{
-			newFrags.insert(std::begin(newFrags), *fragIterator);
+			newFrags.push_back(frag);
 		}
 	}
 	auto outputPath = std::string();
@@ -711,19 +715,20 @@ void CMcServ::ChDir(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, 
 			newCurrentDirectory = currentDirectory + SEPARATOR_CHAR + requestedDirectory;
 		}
 
+		newCurrentDirectory = MakeAbsolutePath(newCurrentDirectory);
+
 		auto mcPath = CAppConfig::GetInstance().GetPreferencePath(m_mcPathPreference[cmd->port]);
 		auto hostPath = Iop::PathUtils::MakeHostPath(mcPath, newCurrentDirectory.c_str());
 
 		if(!Iop::PathUtils::IsInsideBasePath(mcPath, hostPath))
 		{
-			//Some games (EA games) will try to ChDir('..') from the MC's root
-			//Kim Possible: What's the Switch will also attempt this and rely on the result
-			//to consider other MC operations to be successes
-			result = 0;
+			//This shouldn't happen, but fail just in case.
+			assert(false);
+			result = RET_NO_ENTRY;
 		}
 		else if(fs::exists(hostPath) && fs::is_directory(hostPath))
 		{
-			currentDirectory = MakeAbsolutePath(newCurrentDirectory);
+			currentDirectory = newCurrentDirectory;
 			result = 0;
 		}
 		else
