@@ -225,7 +225,7 @@ namespace Iop
 
 		uint32 GenerateHandle();
 		Framework::CStdStream* GetFileFromHandle(uint32);
-		fs::path GetAbsoluteFilePath(unsigned int, unsigned int, const char*) const;
+		fs::path GetHostFilePath(unsigned int, unsigned int, const char*) const;
 
 		CIopBios& m_bios;
 		CSifMan& m_sifMan;

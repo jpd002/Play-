@@ -439,7 +439,7 @@ void CMcServ::Open(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, u
 
 	try
 	{
-		filePath = GetAbsoluteFilePath(cmd->port, cmd->slot, name.c_str());
+		filePath = GetHostFilePath(cmd->port, cmd->slot, name.c_str());
 	}
 	catch(const std::exception& exception)
 	{
@@ -821,8 +821,8 @@ void CMcServ::SetFileInfo(uint32* args, uint32 argsSize, uint32* ret, uint32 ret
 
 	if(flags & MC_FILE_ATTR_FILE)
 	{
-		auto filePath1 = GetAbsoluteFilePath(cmd->port, cmd->slot, cmd->name);
-		auto filePath2 = GetAbsoluteFilePath(cmd->port, cmd->slot, cmd->name);
+		auto filePath1 = GetHostFilePath(cmd->port, cmd->slot, cmd->name);
+		auto filePath2 = GetHostFilePath(cmd->port, cmd->slot, cmd->name);
 		filePath2.replace_filename(reinterpret_cast<const char*>(entry->name));
 
 		if(filePath1 != filePath2)
@@ -869,7 +869,7 @@ void CMcServ::Delete(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize,
 
 	try
 	{
-		auto filePath = GetAbsoluteFilePath(cmd->port, cmd->slot, cmd->name);
+		auto filePath = GetHostFilePath(cmd->port, cmd->slot, cmd->name);
 		if(fs::exists(filePath))
 		{
 			fs::remove(filePath);
@@ -1113,21 +1113,27 @@ Framework::CStdStream* CMcServ::GetFileFromHandle(uint32 handle)
 	return &file;
 }
 
-fs::path CMcServ::GetAbsoluteFilePath(unsigned int port, unsigned int slot, const char* name) const
+fs::path CMcServ::GetHostFilePath(unsigned int port, unsigned int slot, const char* path) const
 {
 	auto mcPath = CAppConfig::GetInstance().GetPreferencePath(m_mcPathPreference[port]);
 
-	auto nameLength = strlen(name);
+	auto nameLength = strlen(path);
 	if(nameLength == 0) return mcPath;
 
-	if(name[0] == SEPARATOR_CHAR)
+	std::string guestPath;
+	if(path[0] == SEPARATOR_CHAR)
 	{
-		return Iop::PathUtils::MakeHostPath(mcPath, name);
+		guestPath = path;
 	}
 	else
 	{
-		return Iop::PathUtils::MakeHostPath(Iop::PathUtils::MakeHostPath(mcPath, m_currentDirectory[port].c_str()), name);
+		const auto& currentDirectory = m_currentDirectory[port];
+		guestPath = currentDirectory + SEPARATOR_CHAR + std::string(path);
 	}
+
+	guestPath = MakeAbsolutePath(guestPath);
+
+	return Iop::PathUtils::MakeHostPath(mcPath, guestPath.c_str());
 }
 
 void CMcServ::LoadState(Framework::CZipArchiveReader& archive)
