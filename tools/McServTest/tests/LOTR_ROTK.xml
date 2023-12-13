@@ -1,0 +1,26 @@
+<Game>
+	<Environments>
+		<Environment Id="1">
+			<Directory Name="/BASLUS-20770LOTRROTK" />
+			<File Name="/BASLUS-20770LOTRROTK/icon.sys" Size="964" />
+		</Environment>
+	</Environments>
+	<Tests>
+		<Test Query="icon.sys" CurrentDirectory="../BASLUS-20770LOTRROTK" EnvironmentId="1" MaxEntries="1" Result="1">
+			<Entry Name="icon.sys" />
+		</Test>
+		<!-- Game doesn't use the cases below, but just testing some odd ones -->
+		<Test Query="BASLUS-20770LOTRROTK" CurrentDirectory="../../../../" EnvironmentId="1" MaxEntries="1" Result="1">
+			<Entry Name="BASLUS-20770LOTRROTK" />
+		</Test>
+		<Test Query="icon.sys" CurrentDirectory="../../BASLUS-20770LOTRROTK" EnvironmentId="1" MaxEntries="1" Result="1">
+			<Entry Name="icon.sys" />
+		</Test>
+		<Test Query="icon.sys" CurrentDirectory="../../../BASLUS-20770LOTRROTK" EnvironmentId="1" MaxEntries="1" Result="1">
+			<Entry Name="icon.sys" />
+		</Test>
+		<Test Query="icon.sys" CurrentDirectory="dummy1/dummy2/../../BASLUS-20770LOTRROTK/" EnvironmentId="1" MaxEntries="1" Result="1">
+			<Entry Name="icon.sys" />
+		</Test>
+	</Tests>
+</Game>
