@@ -37,9 +37,9 @@ public:
 	};
 	typedef std::vector<TEST> TestArray;
 
-	CGameTestSheet();
+	CGameTestSheet() = default;
 	CGameTestSheet(Framework::CStream&);
-	virtual ~CGameTestSheet();
+	virtual ~CGameTestSheet() = default;
 
 	ENVIRONMENT GetEnvironment(uint32) const;
 	const TestArray& GetTests() const;

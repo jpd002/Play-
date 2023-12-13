@@ -5,17 +5,9 @@
 #include "xml/Parser.h"
 #include "xml/Utils.h"
 
-CGameTestSheet::CGameTestSheet()
-{
-}
-
 CGameTestSheet::CGameTestSheet(Framework::CStream& stream)
 {
 	ParseSheet(stream);
-}
-
-CGameTestSheet::~CGameTestSheet()
-{
 }
 
 CGameTestSheet::ENVIRONMENT CGameTestSheet::GetEnvironment(uint32 id) const
