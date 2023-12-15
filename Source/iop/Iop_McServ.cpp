@@ -715,6 +715,10 @@ void CMcServ::ChDir(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, 
 			newCurrentDirectory = currentDirectory + SEPARATOR_CHAR + requestedDirectory;
 		}
 
+		//Some games (EA games) will try to ChDir('..') from the MC's root
+		//Kim Possible: What's the Switch will also attempt this and rely on the result
+		//to consider other MC operations to be successes.
+
 		newCurrentDirectory = MakeAbsolutePath(newCurrentDirectory);
 
 		auto mcPath = CAppConfig::GetInstance().GetPreferencePath(m_mcPathPreference[cmd->port]);
