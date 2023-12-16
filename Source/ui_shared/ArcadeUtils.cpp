@@ -250,8 +250,12 @@ void ArcadeUtils::BootArcadeMachine(CPS2VM* virtualMachine, const fs::path& arca
 	virtualMachine->Pause();
 	virtualMachine->Reset(PS2::EE_EXT_RAM_SIZE, PS2::IOP_EXT_RAM_SIZE);
 
+	if(def.driver == ARCADE_MACHINE_DEF::DRIVER::UNKNOWN)
+	{
+		throw std::runtime_error("Arcade driver unspecified.");
+	}
+	
 	auto driver = g_drivers[def.driver];
-	assert(driver);
 	driver->PrepareEnvironment(virtualMachine, def);
 	driver->Launch(virtualMachine, def);
 	
