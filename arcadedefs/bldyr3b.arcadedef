@@ -1,6 +1,7 @@
 {
 	"id": "bldyr3b",
 	"name": "Bloody Roar 3",
+	"driver": "sys246",
 	"dongle":
 	{
 		"name": "br3-dongle.bin"

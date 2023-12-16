@@ -1,6 +1,7 @@
 {
 	"id": "idolmtower",
 	"name": "The iDOLM@STER/偶像大师 (Tower)",
+	"driver": "sys246",
 	"dongle":
 	{
 		"name": "NM00022 IDMT1, Ver.D a026061342184a [Tower] [Rebuilt].bin"

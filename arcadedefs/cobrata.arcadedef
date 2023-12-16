@@ -1,6 +1,7 @@
 {
 	"id": "cobrata",
 	"name": "Cobra: The Arcade",
+	"driver": "sys246",
 	"dongle":
 	{
 		"name": "cbr1verb.ic002"

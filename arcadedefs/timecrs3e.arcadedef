@@ -2,6 +2,7 @@
 	"id": "timecrs3e",
 	"parent": "timecrs3",
 	"name": "Time Crisis 3 (TST2 Ver. A)",
+	"driver": "sys246",
 	"dongle":
 	{
 		"name": "timecrs3e/tst2vera.ic002"

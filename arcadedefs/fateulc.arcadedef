@@ -1,6 +1,7 @@
 {
 	"id": "fateulc",
 	"name": "Fate: Unlimited Codes",
+	"driver": "sys246",
 	"dongle":
 	{
 		"name": "fud1vera.ic002"

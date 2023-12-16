@@ -1,6 +1,7 @@
 {
 	"id": "timecrs4",
 	"name": "Time Crisis 4",
+	"driver": "sys246",
 	"dongle":
 	{
 		"name": "tsf1002-na-a.ic002"

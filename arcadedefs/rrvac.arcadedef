@@ -1,6 +1,7 @@
 {
 	"id": "rrvac",
 	"name": "Ridge Racer V: Arcade Battle",
+	"driver": "sys246",
 	"dongle":
 	{
 		"name": "rrv3vera.ic002"

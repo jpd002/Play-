@@ -1,6 +1,7 @@
 {
 	"id": "tekken51",
 	"name": "Tekken 5.1",
+	"driver": "sys246",
 	"dongle":
 	{
 		"name": "te51verb.ic002"

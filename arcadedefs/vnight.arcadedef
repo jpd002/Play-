@@ -1,6 +1,7 @@
 {
 	"id": "vnight",
 	"name": "Vampire Night",
+	"driver": "sys246",
 	"dongle":
 	{
 		"name": "vpn3verb.ic002"

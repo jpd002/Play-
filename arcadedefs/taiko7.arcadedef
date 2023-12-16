@@ -1,6 +1,7 @@
 {
 	"id": "taiko7",
 	"name": "Taiko no Tatsujin 7",
+	"driver": "sys246",
 	"dongle":
 	{
 		"name": "tk71.ic002"

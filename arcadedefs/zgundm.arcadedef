@@ -1,6 +1,7 @@
 {
 	"id": "zgundm",
 	"name": "Mobile Suit Z-Gundam: A.E.U.G. vs Titans",
+	"driver": "sys246",
 	"dongle":
 	{
 		"name": "zga1vera.ic002"

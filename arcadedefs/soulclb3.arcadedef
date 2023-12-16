@@ -1,6 +1,7 @@
 {
 	"id": "soulclb3",
 	"name": "Soul Calibur 3",
+	"driver": "sys246",
 	"dongle":
 	{
 		"name": "sc31001-na-a.ic002"

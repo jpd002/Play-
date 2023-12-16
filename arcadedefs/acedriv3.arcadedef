@@ -1,6 +1,7 @@
 {
 	"id": "acedriv3",
 	"name": "Ace Driver 3: Final Turn",
+	"driver": "sys246",
 	"dongle":
 	{
 		"name": "adt1005-na-a.ic002"

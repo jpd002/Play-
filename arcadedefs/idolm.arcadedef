@@ -1,6 +1,7 @@
 {
 	"id": "idolm",
 	"name": "The iDOLM@STER/偶像大师",
+	"driver": "sys246",
 	"dongle":
 	{
 		"name": "NM00022 IDMS1, Ver.D a026061343464a [Station].bin"

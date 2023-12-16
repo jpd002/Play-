@@ -1,6 +1,7 @@
 {
 	"id": "gdvsgd",
 	"name": "Mobile Suit Gundam - Gundam vs. Gundam",
+	"driver": "sys246",
 	"dongle":
 	{
 		"name": "gvs1vera.ic002"

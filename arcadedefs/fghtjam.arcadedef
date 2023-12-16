@@ -1,6 +1,7 @@
 {
 	"id": "fghtjam",
 	"name": "Capcom Fighting Jam",
+	"driver": "sys246",
 	"dongle":
 	{
 		"name": "jam1vera.ic002"

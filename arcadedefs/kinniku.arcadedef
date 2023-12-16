@@ -1,6 +1,7 @@
 {
 	"id": "kinniku",
 	"name": "Kinnikuman Muscle Grand Prix",
+	"driver": "sys246",
 	"dongle":
 	{
 		"name": "kn1vera.ic002"

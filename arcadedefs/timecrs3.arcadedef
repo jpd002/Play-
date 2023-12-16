@@ -1,6 +1,7 @@
 {
 	"id": "timecrs3",
 	"name": "Time Crisis 3",
+	"driver": "sys246",
 	"dongle":
 	{
 		"name": "tst1vera.ic002"

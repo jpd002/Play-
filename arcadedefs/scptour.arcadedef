@@ -1,6 +1,7 @@
 {
 	"id": "scptour",
 	"name": "Smash Court Pro Tournament",
+	"driver": "sys246",
 	"dongle":
 	{
 		"name": "scp1vera.ic002"

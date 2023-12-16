@@ -1,6 +1,7 @@
 {
 	"id": "gundzaft",
 	"name": "Mobile Suit Gundam SEED: O.M.N.I. vs Z.A.F.T",
+	"driver": "sys246",
 	"dongle":
 	{
 		"name": "sed1vera.ic002"

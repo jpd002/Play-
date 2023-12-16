@@ -1,6 +1,7 @@
 {
 	"id": "prdgp03",
 	"name": "Pride GP 2003",
+	"driver": "sys246",
 	"dongle":
 	{
 		"name": "pr21vera.ic002"

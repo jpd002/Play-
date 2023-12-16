@@ -1,6 +1,7 @@
 {
 	"id": "motogp",
 	"name": "Moto GP",
+	"driver": "sys246",
 	"dongle":
 	{
 		"name": "mgp1004-na-b.ic002"

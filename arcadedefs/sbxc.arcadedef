@@ -1,6 +1,7 @@
 {
 	"id": "sbxc",
 	"name": "Sengoku Basara X Cross",
+	"driver": "sys246",
 	"dongle":
 	{
 		"name": "bax1vera.ic002"

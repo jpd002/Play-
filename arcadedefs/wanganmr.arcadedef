@@ -1,6 +1,7 @@
 {
 	"id": "wanganmr",
 	"name": "Wangan Midnight R",
+	"driver": "sys246",
 	"dongle":
 	{
 		"name": "wmr1vera.ic002"
