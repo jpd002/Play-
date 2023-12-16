@@ -48,6 +48,12 @@ endif()
 list(APPEND SHARED_UI_PROJECT_LIBS PlayCore)
 
 set(SHARED_UI_SRC_FILES
+	arcadedrivers/ArcadeDriver.h
+	arcadedrivers/NamcoSys147Driver.cpp
+	arcadedrivers/NamcoSys147Driver.h
+	arcadedrivers/NamcoSys246Driver.cpp
+	arcadedrivers/NamcoSys246Driver.h
+	ArcadeDefinition.h
 	ArcadeUtils.cpp
 	ArcadeUtils.h
 	BootablesDbClient.cpp

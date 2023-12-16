@@ -5,55 +5,21 @@
 #include "StdStreamUtils.h"
 #include "PS2VM.h"
 #include "PS2VM_Preferences.h"
-#include "DiskUtils.h"
 #include "AppConfig.h"
 #include "BootablesDbClient.h"
 #include "BootablesProcesses.h"
-#include "hdd/HddDefs.h"
-#include "discimages/ChdImageStream.h"
-#include "iop/ioman/McDumpDevice.h"
-#include "iop/ioman/HardDiskDumpDevice.h"
-#include "iop/Iop_NamcoArcade.h"
-#include "iop/namco_arcade/Iop_NamcoAcCdvd.h"
-#include "iop/namco_arcade/Iop_NamcoAcRam.h"
-#include "iop/namco_arcade/Iop_NamcoPadMan.h"
-#include "iop/namco_sys147/Iop_NamcoNANDDevice.h"
-#include "iop/namco_sys147/Iop_NamcoSys147.h"
+#include "ArcadeDefinition.h"
 
-struct ARCADE_MACHINE_DEF
-{
-	enum class INPUT_MODE
-	{
-		DEFAULT,
-		LIGHTGUN,
-		DRUM,
-		DRIVE,
-	};
-
-	struct PATCH
-	{
-		uint32 address = 0;
-		uint32 value = 0;
-	};
-
-	std::string id;
-	std::string parent;
-	std::string driver;
-	std::string name;
-	std::string dongleFileName;
-	std::string cdvdFileName;
-	std::string hddFileName;
-	std::string nandFileName;
-	std::map<unsigned int, PS2::CControllerInfo::BUTTON> buttons;
-	INPUT_MODE inputMode = INPUT_MODE::DEFAULT;
-	std::array<float, 4> lightGunXform = {65535, 0, 65535, 0};
-	uint32 eeFreqScaleNumerator = 1;
-	uint32 eeFreqScaleDenominator = 1;
-	std::string boot;
-	std::vector<PATCH> patches;
-};
+#include "arcadedrivers/NamcoSys246Driver.h"
+#include "arcadedrivers/NamcoSys147Driver.h"
 
 // clang-format off
+static const std::pair<const char*, ARCADE_MACHINE_DEF::DRIVER> g_driverValues[] =
+{
+	{ "sys246", ARCADE_MACHINE_DEF::DRIVER::NAMCO_SYSTEM_246 },
+	{ "sys147", ARCADE_MACHINE_DEF::DRIVER::NAMCO_SYSTEM_147 },
+};
+
 static const std::pair<const char*, PS2::CControllerInfo::BUTTON> g_buttonValues[] =
 {
 	{ "dpad_up", PS2::CControllerInfo::DPAD_UP },
@@ -170,7 +136,8 @@ ARCADE_MACHINE_DEF ReadArcadeMachineDefinition(const fs::path& arcadeDefPath)
 	}
 	if(defJson.contains("driver"))
 	{
-		def.driver = defJson["driver"];
+		std::string driverName = defJson["driver"];
+		def.driver = ParseEnumValue(driverName.c_str(), std::begin(g_driverValues), std::end(g_driverValues));
 	}
 	def.name = defJson["name"];
 	if(defJson.contains("dongle"))
@@ -226,177 +193,6 @@ ARCADE_MACHINE_DEF ReadArcadeMachineDefinition(const fs::path& arcadeDefPath)
 	return def;
 }
 
-void PrepareArcadeEnvironment(CPS2VM* virtualMachine, const ARCADE_MACHINE_DEF& def)
-{
-	auto baseId = def.parent.empty() ? def.id : def.parent;
-	auto romArchiveFileName = string_format("%s.zip", baseId.c_str());
-
-	fs::path arcadeRomPath = CAppConfig::GetInstance().GetPreferencePath(PREF_PS2_ARCADEROMS_DIRECTORY);
-	fs::path arcadeRomArchivePath = arcadeRomPath / romArchiveFileName;
-
-	if(!fs::exists(arcadeRomArchivePath))
-	{
-		throw std::runtime_error(string_format("Failed to find '%s' in arcade ROMs directory.", romArchiveFileName.c_str()));
-	}
-
-	//Mount CDVD
-	if(!def.cdvdFileName.empty())
-	{
-		fs::path cdvdPath = arcadeRomPath / baseId / def.cdvdFileName;
-		if(!fs::exists(cdvdPath))
-		{
-			throw std::runtime_error(string_format("Failed to find '%s' in game's directory.", def.cdvdFileName.c_str()));
-		}
-
-		//Try to create the optical media for sanity checks (will throw exceptions on errors).
-		DiskUtils::CreateOpticalMediaFromPath(cdvdPath);
-
-		CAppConfig::GetInstance().SetPreferencePath(PREF_PS2_CDROM0_PATH, cdvdPath);
-
-		virtualMachine->CDROM0_SyncPath();
-	}
-
-	//Mount HDD
-	if(!def.hddFileName.empty())
-	{
-		fs::path hddPath = arcadeRomPath / baseId / def.hddFileName;
-		if(!fs::exists(hddPath))
-		{
-			throw std::runtime_error(string_format("Failed to find '%s' in game's directory.", def.hddFileName.c_str()));
-		}
-
-		auto imageStream = std::make_unique<CChdImageStream>(std::make_unique<Framework::CStdStream>(hddPath.string().c_str(), "rb"));
-		assert(imageStream->GetUnitSize() == Hdd::g_sectorSize);
-		auto device = std::make_shared<Iop::Ioman::CHardDiskDumpDevice>(std::move(imageStream));
-
-		auto iopBios = dynamic_cast<CIopBios*>(virtualMachine->m_iop->m_bios.get());
-		iopBios->GetIoman()->RegisterDevice("hdd0", device);
-	}
-
-	std::vector<uint8> mcDumpContents;
-
-	{
-		auto inputStream = Framework::CreateInputStdStream(arcadeRomArchivePath.native());
-		Framework::CZipArchiveReader archiveReader(inputStream);
-		auto header = archiveReader.GetFileHeader(def.dongleFileName.c_str());
-		if(!header)
-		{
-			throw std::runtime_error(string_format("Failed to find file '%s' in archive '%s'.", def.dongleFileName.c_str(), romArchiveFileName.c_str()));
-		}
-		auto fileStream = archiveReader.BeginReadFile(def.dongleFileName.c_str());
-		mcDumpContents.resize(header->uncompressedSize);
-		fileStream->Read(mcDumpContents.data(), header->uncompressedSize);
-	}
-
-	//Override mc0 device with special device reading directly from zip file
-	{
-		auto device = std::make_shared<Iop::Ioman::CMcDumpDevice>(std::move(mcDumpContents));
-		auto iopBios = dynamic_cast<CIopBios*>(virtualMachine->m_iop->m_bios.get());
-		iopBios->GetIoman()->RegisterDevice("mc0", device);
-		iopBios->GetIoman()->RegisterDevice("ac0", device);
-
-		//Ridge Racer 5: Arcade Battle doesn't have any FILEIO in its IOPRP
-		//Assuming that the BIOS image for arcade boards is version 2.0.5
-		iopBios->SetDefaultImageVersion(2050);
-
-		auto acRam = std::make_shared<Iop::Namco::CAcRam>(virtualMachine->m_iop->m_ram);
-		iopBios->RegisterModule(acRam);
-		iopBios->RegisterHleModuleReplacement("Arcade_Ext._Memory", acRam);
-
-		auto acCdvdModule = std::make_shared<Iop::Namco::CAcCdvd>(*iopBios->GetSifman(), *iopBios->GetCdvdman(), virtualMachine->m_iop->m_ram, *acRam.get());
-		acCdvdModule->SetOpticalMedia(virtualMachine->m_cdrom0.get());
-		iopBios->RegisterModule(acCdvdModule);
-		iopBios->RegisterHleModuleReplacement("ATA/ATAPI_driver", acCdvdModule);
-		iopBios->RegisterHleModuleReplacement("CD/DVD_Compatible", acCdvdModule);
-
-		//Taiko no Tatsujin loads and use these, but we don't have a proper HLE
-		//for PADMAN at the version that's provided by the SYS2x6 BIOS.
-		//Using our current HLE PADMAN causes the game to crash due to differences in structure layouts.
-		//Bloody Roar 3 also loads PADMAN and expects some response from it.
-		//Just provide a dummy module instead to make sure loading succeeds.
-		//Games rely on JVS for input anyways, so, it shouldn't be a problem if they can't use PADMAN.
-		auto padManModule = std::make_shared<Iop::Namco::CPadMan>();
-		iopBios->RegisterHleModuleReplacement("rom0:PADMAN", padManModule);
-		iopBios->RegisterHleModuleReplacement("rom0:SIO2MAN", padManModule);
-
-		{
-			auto namcoArcadeModule = std::make_shared<Iop::CNamcoArcade>(*iopBios->GetSifman(), *iopBios->GetSifcmd(), *acRam, def.id);
-			iopBios->RegisterModule(namcoArcadeModule);
-			iopBios->RegisterHleModuleReplacement("rom0:DAEMON", namcoArcadeModule);
-			virtualMachine->m_pad->InsertListener(namcoArcadeModule.get());
-			for(const auto& buttonPair : def.buttons)
-			{
-				namcoArcadeModule->SetButton(buttonPair.first, buttonPair.second);
-			}
-			switch(def.inputMode)
-			{
-			case ARCADE_MACHINE_DEF::INPUT_MODE::LIGHTGUN:
-				virtualMachine->SetGunListener(namcoArcadeModule.get());
-				namcoArcadeModule->SetJvsMode(Iop::CNamcoArcade::JVS_MODE::LIGHTGUN);
-				namcoArcadeModule->SetLightGunXform(def.lightGunXform);
-				break;
-			case ARCADE_MACHINE_DEF::INPUT_MODE::DRUM:
-				namcoArcadeModule->SetJvsMode(Iop::CNamcoArcade::JVS_MODE::DRUM);
-				break;
-			case ARCADE_MACHINE_DEF::INPUT_MODE::DRIVE:
-				namcoArcadeModule->SetJvsMode(Iop::CNamcoArcade::JVS_MODE::DRIVE);
-				break;
-			default:
-				break;
-			}
-		}
-	}
-
-	virtualMachine->SetEeFrequencyScale(def.eeFreqScaleNumerator, def.eeFreqScaleDenominator);
-	if((def.eeFreqScaleNumerator != 1) || (def.eeFreqScaleDenominator != 1))
-	{
-		//Adjust SPU sampling rate with EE frequency scale. Not quite sure this is right.
-		uint32 baseSamplingRate = Iop::Spu2::CCore::DEFAULT_BASE_SAMPLING_RATE * def.eeFreqScaleNumerator / def.eeFreqScaleDenominator;
-		virtualMachine->m_iop->m_spu2.GetCore(0)->SetBaseSamplingRate(baseSamplingRate);
-		virtualMachine->m_iop->m_spu2.GetCore(1)->SetBaseSamplingRate(baseSamplingRate);
-	}
-}
-
-void PrepareNamcoSys147Environment(CPS2VM* virtualMachine, const ARCADE_MACHINE_DEF& def)
-{
-	auto baseId = def.parent.empty() ? def.id : def.parent;
-	fs::path arcadeRomPath = CAppConfig::GetInstance().GetPreferencePath(PREF_PS2_ARCADEROMS_DIRECTORY);
-
-	fs::path nandPath = arcadeRomPath / baseId / def.nandFileName;
-	if(!fs::exists(nandPath))
-	{
-		throw std::runtime_error(string_format("Failed to find '%s' in game's directory.", def.nandFileName.c_str()));
-	}
-
-	static std::pair<const char*, uint32> mounts[] =
-	{
-		std::make_pair("atfile0", 0x6000),
-		std::make_pair("atfile1", 0x10000),
-		std::make_pair("atfile2", 0x20000),
-		std::make_pair("atfile3", 0x30000),
-		std::make_pair("atfile4", 0x40000),
-		std::make_pair("atfile5", 0x50000),
-		std::make_pair("atfile6", 0x60000)
-	};
-	
-	auto iopBios = dynamic_cast<CIopBios*>(virtualMachine->m_iop->m_bios.get());
-	for(const auto& mount : mounts)
-	{
-		iopBios->GetIoman()->RegisterDevice(mount.first, std::make_shared<Iop::Namco::CNamcoNANDDevice>( std::make_unique<Framework::CStdStream>(nandPath.string().c_str(), "rb"), mount.second));
-	}
-	
-	{
-		auto sys147Module = std::make_shared<Iop::Namco::CSys147>(*iopBios->GetSifman(), def.id);
-		iopBios->RegisterModule(sys147Module);
-		iopBios->RegisterHleModuleReplacement("S147LINK", sys147Module);
-		virtualMachine->m_pad->InsertListener(sys147Module.get());
-	}
-
-	virtualMachine->m_ee->m_os->BootFromVirtualPath(def.boot.c_str(), {});
-	
-	ApplyPatchesFromArcadeDefinition(virtualMachine, def);
-}
-
 void ArcadeUtils::RegisterArcadeMachines()
 {
 	//Remove any arcade bootable registered the old way
@@ -436,31 +232,35 @@ void ArcadeUtils::RegisterArcadeMachines()
 	}
 }
 
+static CNamcoSys246Driver g_sys246Driver;
+static CNamcoSys147Driver g_sys147Driver;
+static CArcadeDriver* g_drivers[] =
+{
+	nullptr,
+	&g_sys246Driver,
+	&g_sys147Driver,
+};
+
 void ArcadeUtils::BootArcadeMachine(CPS2VM* virtualMachine, const fs::path& arcadeDefFilename)
 {
 	auto arcadeDefsPath = Framework::PathUtils::GetAppResourcesPath() / "arcadedefs";
 	auto def = ReadArcadeMachineDefinition(arcadeDefsPath / arcadeDefFilename);
-
+	
 	//Reset PS2VM
 	virtualMachine->Pause();
 	virtualMachine->Reset(PS2::EE_EXT_RAM_SIZE, PS2::IOP_EXT_RAM_SIZE);
 
-	if(def.driver == "sys147")
-	{
-		PrepareNamcoSys147Environment(virtualMachine, def);
-		return;
-	}
+	auto driver = g_drivers[def.driver];
+	assert(driver);
+	driver->PrepareEnvironment(virtualMachine, def);
+	driver->Launch(virtualMachine, def);
 	
-	PrepareArcadeEnvironment(virtualMachine, def);
-
-	//Boot mc0:/BOOT (from def)
-	virtualMachine->m_ee->m_os->BootFromVirtualPath(def.boot.c_str(), {"DANGLE"});
-
 	ApplyPatchesFromArcadeDefinition(virtualMachine, def);
 
 	virtualMachine->BeforeExecutableReloaded =
 	    [def](CPS2VM* virtualMachine) {
-		    PrepareArcadeEnvironment(virtualMachine, def);
+			auto driver = g_drivers[def.driver];
+			driver->PrepareEnvironment(virtualMachine, def);
 	    };
 
 	virtualMachine->AfterExecutableReloaded =
