@@ -163,6 +163,11 @@ void CheckVectorNaN(CMipsJitter* codeGen, uint8 dest, size_t vector)
 
 void VUShared::PullVector(CMipsJitter* codeGen, uint8 dest, size_t vector)
 {
+	if(dest == 0)
+	{
+		codeGen->PullTop();
+		return;
+	}
 	assert(vector != offsetof(CMIPS, m_State.nCOP2[0]));
 	codeGen->MD_PullRel(vector,
 	                    DestinationHasElement(dest, 0),
