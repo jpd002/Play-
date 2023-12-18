@@ -68,11 +68,22 @@ CSaveImporterBase::OVERWRITE_PROMPT_RETURN MemoryCardManagerDialog::OnImportOver
 {
 	std::string fileName = filePath.filename().string();
 	QString msg("File %1 already exists.\n\nOverwrite?");
-	QMessageBox::StandardButton resBtn = QMessageBox::question(this, "Overwrite?",
-	                                                           msg.arg(fileName.c_str()),
-	                                                           QMessageBox::Yes | QMessageBox::No,
-	                                                           QMessageBox::Yes);
-	return (resBtn == QMessageBox::Yes) ? CSaveImporterBase::OVERWRITE_YES : CSaveImporterBase::OVERWRITE_NO;
+	auto resBtn = QMessageBox::question(this, "Overwrite?",
+	                                    msg.arg(fileName.c_str()),
+	                                    QMessageBox::Yes | QMessageBox::No | QMessageBox::YesToAll,
+	                                    QMessageBox::Yes);
+	switch(resBtn)
+	{
+	default:
+		assert(false);
+		[[fallthrough]];
+	case QMessageBox::No:
+		return CSaveImporterBase::OVERWRITE_NO;
+	case QMessageBox::Yes:
+		return CSaveImporterBase::OVERWRITE_YES;
+	case QMessageBox::YesToAll:
+		return CSaveImporterBase::OVERWRITE_YESTOALL;
+	}
 }
 
 void MemoryCardManagerDialog::on_comboBox_currentIndexChanged(int index)
