@@ -1,15 +1,11 @@
-#ifndef _PSUSAVEIMPORTER_H_
-#define _PSUSAVEIMPORTER_H_
+#pragma once
 
 #include "SaveImporterBase.h"
 
 class CPsuSaveImporter : public CSaveImporterBase
 {
 public:
-	CPsuSaveImporter();
-	virtual ~CPsuSaveImporter();
+	virtual ~CPsuSaveImporter() = default;
 
 	void Import(Framework::CStream&, const fs::path&) override;
 };
-
-#endif

@@ -2,14 +2,6 @@
 #include "XpsSaveImporter.h"
 #include "StdStreamUtils.h"
 
-CXpsSaveImporter::CXpsSaveImporter()
-{
-}
-
-CXpsSaveImporter::~CXpsSaveImporter()
-{
-}
-
 void CXpsSaveImporter::Import(Framework::CStream& input, const fs::path& outputPath)
 {
 	input.Seek(4, Framework::STREAM_SEEK_SET);

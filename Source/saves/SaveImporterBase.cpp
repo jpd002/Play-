@@ -1,14 +1,5 @@
 #include "SaveImporterBase.h"
 
-CSaveImporterBase::CSaveImporterBase()
-    : m_overwriteAll(false)
-{
-}
-
-CSaveImporterBase::~CSaveImporterBase()
-{
-}
-
 void CSaveImporterBase::SetOverwritePromptHandler(const OverwritePromptHandlerType& overwritePromptHandler)
 {
 	m_overwritePromptHandler = overwritePromptHandler;
@@ -26,6 +17,7 @@ bool CSaveImporterBase::CanExtractFile(const fs::path& filePath)
 	{
 	case OVERWRITE_YESTOALL:
 		m_overwriteAll = true;
+		[[fallthrough]];
 	case OVERWRITE_YES:
 		return true;
 		break;

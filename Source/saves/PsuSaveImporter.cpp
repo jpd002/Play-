@@ -1,14 +1,6 @@
 #include "PsuSaveImporter.h"
 #include "StdStreamUtils.h"
 
-CPsuSaveImporter::CPsuSaveImporter()
-{
-}
-
-CPsuSaveImporter::~CPsuSaveImporter()
-{
-}
-
 void CPsuSaveImporter::Import(Framework::CStream& input, const fs::path& basePath)
 {
 	if(!fs::exists(basePath))

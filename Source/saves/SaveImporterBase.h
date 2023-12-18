@@ -1,5 +1,4 @@
-#ifndef _SAVEIMPORTERBASE_H_
-#define _SAVEIMPORTERBASE_H_
+#pragma once
 
 #include "filesystem_def.h"
 #include <functional>
@@ -17,8 +16,8 @@ public:
 
 	typedef std::function<OVERWRITE_PROMPT_RETURN(const fs::path&)> OverwritePromptHandlerType;
 
-	CSaveImporterBase();
-	virtual ~CSaveImporterBase();
+	CSaveImporterBase() = default;
+	virtual ~CSaveImporterBase() = default;
 
 	virtual void Import(Framework::CStream&, const fs::path&) = 0;
 
@@ -28,8 +27,6 @@ protected:
 	bool CanExtractFile(const fs::path&);
 
 private:
-	bool m_overwriteAll;
+	bool m_overwriteAll = false;
 	OverwritePromptHandlerType m_overwritePromptHandler;
 };
-
-#endif

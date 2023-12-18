@@ -1,5 +1,4 @@
-#ifndef _MAXSAVEIMPORTER_H_
-#define _MAXSAVEIMPORTER_H_
+#pragma once
 
 #include "SaveImporterBase.h"
 
@@ -10,5 +9,3 @@ public:
 
 	void Import(Framework::CStream&, const fs::path&) override;
 };
-
-#endif
