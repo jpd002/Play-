@@ -1023,6 +1023,22 @@ void VUShared::LQbase(CMipsJitter* codeGen, uint8 dest, uint8 it)
 	{
 		codeGen->AddRef();
 
+		//Try some aligned 64-bit reads first
+		for(unsigned int i = 0; i < 3; i += 2)
+		{
+			uint8 mask = (0x03 << i);
+			if((dest & mask) == mask)
+			{
+				unsigned int element = (i ^ 0x03) - 1;
+				codeGen->PushTop();
+				codeGen->PushCst(element * 4);
+				codeGen->Load64FromRefIdx(1);
+				codeGen->PullRel64(offsetof(CMIPS, m_State.nCOP2[it].nV[element]));
+				dest &= ~mask;
+			}
+		}
+
+		//Read any remaining data
 		for(unsigned int i = 0; i < 4; i++)
 		{
 			if(VUShared::DestinationHasElement(static_cast<uint8>(dest), i))
@@ -1554,6 +1570,22 @@ void VUShared::SQbase(CMipsJitter* codeGen, uint8 dest, uint8 is)
 	{
 		codeGen->AddRef();
 
+		//Try some aligned 64-bit writes first
+		for(unsigned int i = 0; i < 3; i += 2)
+		{
+			uint8 mask = (0x03 << i);
+			if((dest & mask) == mask)
+			{
+				unsigned int element = (i ^ 0x03) - 1;
+				codeGen->PushTop();
+				codeGen->PushCst(element * 4);
+				codeGen->PushRel64(offsetof(CMIPS, m_State.nCOP2[is].nV[element]));
+				codeGen->Store64AtRefIdx(1);
+				dest &= ~mask;
+			}
+		}
+
+		//Write any remaining data
 		for(unsigned int i = 0; i < 4; i++)
 		{
 			if(VUShared::DestinationHasElement(static_cast<uint8>(dest), i))
