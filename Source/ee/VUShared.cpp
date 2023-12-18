@@ -515,6 +515,7 @@ void VUShared::MUL_base(CMipsJitter* codeGen, uint8 dest, size_t fd, size_t fs, 
 	{
 		codeGen->MD_PushRel(ft);
 	}
+	codeGen->MD_ClampS();
 	codeGen->MD_MulS();
 	PullVector(codeGen, dest, fd);
 	TestSZFlags(codeGen, dest, fd, relativePipeTime, compileHints);
