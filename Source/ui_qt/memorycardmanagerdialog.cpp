@@ -37,7 +37,7 @@ void MemoryCardManagerDialog::on_import_saves_button_clicked()
 	QFileDialog dialog(this);
 	dialog.setDirectory(m_lastpath);
 	dialog.setFileMode(QFileDialog::ExistingFiles);
-	dialog.setNameFilter(tr("All Supported types (*.psu *.sps *.xps *.max);;EMS Memory Adapter Save Dumps (*.psu);;Sharkport/X-Port Save Dumps (*.sps; *.xps);;Action Replay MAX Save Dumps (*.max);;All files (*.*)"));
+	dialog.setNameFilter(tr("All Supported types (*.psu *.sps *.xps *.max; *.ps2);;EMS Memory Adapter Save Dumps (*.psu);;Sharkport/X-Port Save Dumps (*.sps; *.xps);;Action Replay MAX Save Dumps (*.max);;Raw Memory Card Dumps (*.ps2);;All files (*.*)"));
 	if(dialog.exec())
 	{
 		QString fileName = dialog.selectedFiles().first();

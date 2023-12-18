@@ -46,7 +46,7 @@ CMcDumpReader::CMcDumpReader(Framework::CStream& stream)
 	m_rawPageSize = m_header.pageSize + pageSpareSize;
 }
 
-CMcDumpReader::Directory CMcDumpReader::ReadDirectory(uint32 dirCluster)
+CMcDumpReader::Directory CMcDumpReader::ReadDirectory(uint32 dirCluster, int32 entryCount)
 {
 	std::vector<DIRENTRY> result;
 	CFatReader reader(*this, dirCluster);
@@ -54,8 +54,13 @@ CMcDumpReader::Directory CMcDumpReader::ReadDirectory(uint32 dirCluster)
 	FRAMEWORK_MAYBE_UNUSED uint32 readAmount = reader.Read(&baseDirEntry, sizeof(DIRENTRY));
 	assert(readAmount == sizeof(DIRENTRY));
 	result.push_back(baseDirEntry);
-	assert(baseDirEntry.length >= 2);
-	for(uint32 i = 0; i < (baseDirEntry.length - 1); i++)
+	if(entryCount == -1)
+	{
+		//Use number of entries from entry itself, only seems to work with root dir.
+		entryCount = baseDirEntry.length;
+	}
+	assert(entryCount >= 2);
+	for(uint32 i = 0; i < (entryCount - 1); i++)
 	{
 		DIRENTRY dirEntry = {};
 		readAmount = reader.Read(&dirEntry, sizeof(DIRENTRY));

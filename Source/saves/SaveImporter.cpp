@@ -3,6 +3,7 @@
 #include "PsuSaveImporter.h"
 #include "XpsSaveImporter.h"
 #include "MaxSaveImporter.h"
+#include "McDumpSaveImporter.h"
 
 void CSaveImporter::ImportSave(Framework::CStream& input, const fs::path& outputPath, const OverwritePromptHandlerType& overwritePromptHandler)
 {
@@ -22,6 +23,10 @@ void CSaveImporter::ImportSave(Framework::CStream& input, const fs::path& output
 	else if(signature == 0x50327350)
 	{
 		importer = std::make_shared<CMaxSaveImporter>();
+	}
+	else if(signature == 0x796E6F53)
+	{
+		importer = std::make_shared<CMcDumpSaveImporter>();
 	}
 	else
 	{

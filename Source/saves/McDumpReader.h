@@ -58,7 +58,7 @@ public:
 
 	CMcDumpReader(Framework::CStream&);
 
-	Directory ReadDirectory(uint32);
+	Directory ReadDirectory(uint32, int32 = -1);
 	Directory ReadRootDirectory();
 	std::vector<uint8> ReadFile(uint32, uint32);
 
