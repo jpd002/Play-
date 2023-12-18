@@ -1,4 +1,6 @@
 #include "McDumpSaveImporter.h"
+#include <cassert>
+#include <cstring>
 #include "StdStreamUtils.h"
 
 void CMcDumpSaveImporter::Import(Framework::CStream& input, const fs::path& basePath)
