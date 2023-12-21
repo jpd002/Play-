@@ -338,20 +338,20 @@ set(COMMON_SRC_FILES
 	iop/Iop_Module.h
 	iop/Iop_MtapMan.cpp
 	iop/Iop_MtapMan.h
-	iop/namco_arcade/Iop_NamcoAcCdvd.cpp
-	iop/namco_arcade/Iop_NamcoAcCdvd.h
-	iop/namco_arcade/Iop_NamcoAcRam.cpp
-	iop/namco_arcade/Iop_NamcoAcRam.h
-	iop/namco_arcade/Iop_NamcoPadMan.cpp
-	iop/namco_arcade/Iop_NamcoPadMan.h
 	iop/namco_sys147/NamcoSys147NANDReader.cpp
 	iop/namco_sys147/NamcoSys147NANDReader.h
-	iop/namco_sys147/Iop_NamcoSys147.cpp
-	iop/namco_sys147/Iop_NamcoSys147.h
 	iop/namco_sys147/Iop_NamcoNANDDevice.cpp
 	iop/namco_sys147/Iop_NamcoNANDDevice.h
-	iop/Iop_NamcoArcade.cpp
-	iop/Iop_NamcoArcade.h
+	iop/namco_sys147/Iop_NamcoSys147.cpp
+	iop/namco_sys147/Iop_NamcoSys147.h
+	iop/namco_sys246/Iop_NamcoAcCdvd.cpp
+	iop/namco_sys246/Iop_NamcoAcCdvd.h
+	iop/namco_sys246/Iop_NamcoAcRam.cpp
+	iop/namco_sys246/Iop_NamcoAcRam.h
+	iop/namco_sys246/Iop_NamcoPadMan.cpp
+	iop/namco_sys246/Iop_NamcoPadMan.h
+	iop/namco_sys246/Iop_NamcoSys246.cpp
+	iop/namco_sys246/Iop_NamcoSys246.h
 	iop/Iop_PadMan.cpp
 	iop/Iop_PadMan.h
 	iop/Iop_PathUtils.cpp
