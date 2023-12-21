@@ -22,7 +22,7 @@ struct ARCADE_MACHINE_DEF
 		NAMCO_SYSTEM_246,
 		NAMCO_SYSTEM_147,
 	};
-	
+
 	struct PATCH
 	{
 		uint32 address = 0;

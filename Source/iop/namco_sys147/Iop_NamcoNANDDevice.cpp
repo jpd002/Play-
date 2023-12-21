@@ -8,8 +8,8 @@ using namespace Iop;
 using namespace Iop::Namco;
 
 CNamcoNANDDevice::CNamcoNANDDevice(std::unique_ptr<Framework::CStream> nandDumpStream, uint32 rootSector)
-	: m_nandDumpStream(std::move(nandDumpStream))
-	, m_nandReader(*m_nandDumpStream.get(), rootSector)
+    : m_nandDumpStream(std::move(nandDumpStream))
+    , m_nandReader(*m_nandDumpStream.get(), rootSector)
 {
 }
 
@@ -43,7 +43,7 @@ Framework::CStream* CNamcoNANDDevice::GetFile(uint32 flags, const char* path)
 				break;
 			}
 		}
-		
+
 		if(!found)
 		{
 			return nullptr;

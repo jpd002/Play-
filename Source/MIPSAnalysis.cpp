@@ -347,7 +347,7 @@ bool CMIPSAnalysis::TryGetSJISLatinStringAtAddress(CMIPS* context, uint32 addres
 	DECODE_STATE state = DECODE_STATE_NORMAL;
 
 	result.clear();
-	
+
 	while(1)
 	{
 		uint8 byte = context->m_pMemoryMap->GetByte(address++);

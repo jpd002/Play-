@@ -33,13 +33,13 @@ namespace Namco
 		typedef std::vector<DIRENTRY> Directory;
 
 		CSys147NANDReader(Framework::CStream&, uint32);
-		
+
 		Directory ReadDirectory(uint32);
 		std::vector<uint8> ReadFile(uint32, uint32);
-		
+
 	private:
 		void ReadSector(uint32, void*);
-		
+
 		static constexpr uint32 m_sectorSize = 0x840;
 		static constexpr uint32 m_dataSize = 0x800;
 		static constexpr uint32 m_eccSize = 0x40;

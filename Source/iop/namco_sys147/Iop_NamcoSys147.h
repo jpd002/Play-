@@ -33,9 +33,9 @@ namespace Iop
 				MODULE_ID_003 = 0x01470003,
 				MODULE_ID_200 = 0x01470200, //S147RPC_REQID_SRAM_WRITE
 				MODULE_ID_201 = 0x01470201, //S147RPC_REQID_SRAM_READ
-				MODULE_ID_99 = 0x00014799, //S147LINK
+				MODULE_ID_99 = 0x00014799,  //S147LINK
 			};
-			
+
 			struct MODULE_99_PACKET
 			{
 				uint8 type;
@@ -56,9 +56,9 @@ namespace Iop
 
 			void ProcessIcCard(MODULE_99_PACKET&, const MODULE_99_PACKET&);
 			uint8 ComputePacketChecksum(const MODULE_99_PACKET&);
-			
+
 			static constexpr int32 BACKUP_RAM_SIZE = 0x20000;
-			
+
 			void ReadBackupRam(uint32, uint8*, uint32);
 			void WriteBackupRam(uint32, const uint8*, uint32);
 
@@ -69,7 +69,7 @@ namespace Iop
 			CSifModuleAdapter m_module200;
 			CSifModuleAdapter m_module201;
 			CSifModuleAdapter m_module99;
-			
+
 			std::string m_gameId;
 
 			std::vector<MODULE_99_PACKET> m_pendingReplies;

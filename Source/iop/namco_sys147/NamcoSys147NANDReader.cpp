@@ -6,8 +6,8 @@
 using namespace Namco;
 
 CSys147NANDReader::CSys147NANDReader(Framework::CStream& stream, uint32 baseSector)
-	: m_stream(stream)
-	, m_baseSector(baseSector)
+    : m_stream(stream)
+    , m_baseSector(baseSector)
 {
 	m_baseSector = baseSector;
 }

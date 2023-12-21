@@ -234,18 +234,20 @@ void ArcadeUtils::RegisterArcadeMachines()
 
 static CNamcoSys246Driver g_sys246Driver;
 static CNamcoSys147Driver g_sys147Driver;
+// clang-format off
 static CArcadeDriver* g_drivers[] =
 {
 	nullptr,
 	&g_sys246Driver,
 	&g_sys147Driver,
 };
+// clang-format on
 
 void ArcadeUtils::BootArcadeMachine(CPS2VM* virtualMachine, const fs::path& arcadeDefFilename)
 {
 	auto arcadeDefsPath = Framework::PathUtils::GetAppResourcesPath() / "arcadedefs";
 	auto def = ReadArcadeMachineDefinition(arcadeDefsPath / arcadeDefFilename);
-	
+
 	//Reset PS2VM
 	virtualMachine->Pause();
 	virtualMachine->Reset(PS2::EE_EXT_RAM_SIZE, PS2::IOP_EXT_RAM_SIZE);
@@ -254,17 +256,17 @@ void ArcadeUtils::BootArcadeMachine(CPS2VM* virtualMachine, const fs::path& arca
 	{
 		throw std::runtime_error("Arcade driver unspecified.");
 	}
-	
+
 	auto driver = g_drivers[def.driver];
 	driver->PrepareEnvironment(virtualMachine, def);
 	driver->Launch(virtualMachine, def);
-	
+
 	ApplyPatchesFromArcadeDefinition(virtualMachine, def);
 
 	virtualMachine->BeforeExecutableReloaded =
 	    [def](CPS2VM* virtualMachine) {
-			auto driver = g_drivers[def.driver];
-			driver->PrepareEnvironment(virtualMachine, def);
+		    auto driver = g_drivers[def.driver];
+		    driver->PrepareEnvironment(virtualMachine, def);
 	    };
 
 	virtualMachine->AfterExecutableReloaded =

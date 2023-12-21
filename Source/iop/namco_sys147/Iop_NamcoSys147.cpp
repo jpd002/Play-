@@ -25,23 +25,23 @@ enum
 };
 
 CSys147::CSys147(CSifMan& sifMan, const std::string& gameId)
-: m_gameId(gameId)
+    : m_gameId(gameId)
 {
 	m_module000 = CSifModuleAdapter(std::bind(&CSys147::Invoke000, this,
-											  std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5, std::placeholders::_6));
+	                                          std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5, std::placeholders::_6));
 	m_module001 = CSifModuleAdapter(std::bind(&CSys147::Invoke001, this,
-											  std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5, std::placeholders::_6));
+	                                          std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5, std::placeholders::_6));
 	m_module002 = CSifModuleAdapter(std::bind(&CSys147::Invoke002, this,
-											  std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5, std::placeholders::_6));
+	                                          std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5, std::placeholders::_6));
 	m_module003 = CSifModuleAdapter(std::bind(&CSys147::Invoke003, this,
-											  std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5, std::placeholders::_6));
+	                                          std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5, std::placeholders::_6));
 	m_module200 = CSifModuleAdapter(std::bind(&CSys147::Invoke200, this,
-											  std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5, std::placeholders::_6));
+	                                          std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5, std::placeholders::_6));
 	m_module201 = CSifModuleAdapter(std::bind(&CSys147::Invoke201, this,
-											  std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5, std::placeholders::_6));
+	                                          std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5, std::placeholders::_6));
 	m_module99 = CSifModuleAdapter(std::bind(&CSys147::Invoke99, this,
-											 std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5, std::placeholders::_6));
-	
+	                                         std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5, std::placeholders::_6));
+
 	sifMan.RegisterModule(MODULE_ID_000, &m_module000);
 	sifMan.RegisterModule(MODULE_ID_001, &m_module001);
 	sifMan.RegisterModule(MODULE_ID_002, &m_module002);
@@ -49,7 +49,7 @@ CSys147::CSys147(CSifMan& sifMan, const std::string& gameId)
 	sifMan.RegisterModule(MODULE_ID_200, &m_module200);
 	sifMan.RegisterModule(MODULE_ID_201, &m_module201);
 	sifMan.RegisterModule(MODULE_ID_99, &m_module99);
-	
+
 	m_switchStates[SWITCH_TEST] = 0;
 	m_switchStates[SWITCH_ENTER] = 0;
 	m_switchStates[SWITCH_UP] = 0;
@@ -100,7 +100,6 @@ void CSys147::SetButtonState(unsigned int padNumber, PS2::CControllerInfo::BUTTO
 
 void CSys147::SetAxisState(unsigned int padNumber, PS2::CControllerInfo::BUTTON button, uint8 axisValue, uint8* ram)
 {
-	
 }
 
 void CSys147::Invoke(CMIPS& context, unsigned int functionId)
@@ -157,17 +156,17 @@ bool CSys147::Invoke200(uint32 method, uint32* args, uint32 argsSize, uint32* re
 	switch(method)
 	{
 	case 0:
-		{
-			//Write
-			//0 -> 0x400 -> Data to write
-			//0x400 -> Offset
-			//0x404 -> Size
-			uint32 offset = args[0x100];
-			uint32 size = args[0x101];
-			assert(size <= 0x400);
-			WriteBackupRam(offset, reinterpret_cast<const uint8*>(args), size);
-		}
-		break;
+	{
+		//Write
+		//0 -> 0x400 -> Data to write
+		//0x400 -> Offset
+		//0x404 -> Size
+		uint32 offset = args[0x100];
+		uint32 size = args[0x101];
+		assert(size <= 0x400);
+		WriteBackupRam(offset, reinterpret_cast<const uint8*>(args), size);
+	}
+	break;
 	default:
 		CLog::GetInstance().Warn(LOG_NAME, "Unknown method invoked (0x%08X, 0x%08X).\r\n", 0x200, method);
 		break;
@@ -180,16 +179,16 @@ bool CSys147::Invoke201(uint32 method, uint32* args, uint32 argsSize, uint32* re
 	switch(method)
 	{
 	case 0:
-		{
-			//Read
-			//0x0 -> Offset
-			//0x4 -> Size
-			uint32 offset = args[0];
-			uint32 size = args[1];
-			assert(size <= 0x400);
-			ReadBackupRam(offset, reinterpret_cast<uint8*>(ret), size);
-		}
-		break;
+	{
+		//Read
+		//0x0 -> Offset
+		//0x4 -> Size
+		uint32 offset = args[0];
+		uint32 size = args[1];
+		assert(size <= 0x400);
+		ReadBackupRam(offset, reinterpret_cast<uint8*>(ret), size);
+	}
+	break;
 	default:
 		CLog::GetInstance().Warn(LOG_NAME, "Unknown method invoked (0x%08X, 0x%08X).\r\n", 0x201, method);
 		break;
@@ -300,7 +299,7 @@ bool CSys147::Invoke99(uint32 method, uint32* args, uint32 argsSize, uint32* ret
 				uint8 channel = packet->data[0];
 				uint8 inputSize = packet->data[1];
 				CLog::GetInstance().Warn(LOG_NAME, "Received command buffer channel: %d, size: %d\r\n",
-										 channel, inputSize);
+				                         channel, inputSize);
 				MODULE_99_PACKET reply = {};
 				reply.type = 2;
 				reply.command = 0x31;
@@ -397,81 +396,80 @@ void CSys147::ProcessIcCard(MODULE_99_PACKET& output, const MODULE_99_PACKET& in
 	switch(commandId)
 	{
 	case 0x78:
-		{
-			//??
-			assert(dataSize == 0x07);
-			replySize = 6;
-			output.data[replyBase + 3] = 0x00; //Command result?
-			output.data[replyBase + 4] = 0x00;
-			output.data[replyBase + 5] = 0xFF;
-
-		}
-		break;
+	{
+		//??
+		assert(dataSize == 0x07);
+		replySize = 6;
+		output.data[replyBase + 3] = 0x00; //Command result?
+		output.data[replyBase + 4] = 0x00;
+		output.data[replyBase + 5] = 0xFF;
+	}
+	break;
 	case 0x7A:
-		{
-			//Ok next?
-			assert(dataSize == 0x12);
-			replySize = 4;
-			output.data[replyBase + 3] = 0x00; //Command result?
-		}
-		break;
+	{
+		//Ok next?
+		assert(dataSize == 0x12);
+		replySize = 4;
+		output.data[replyBase + 3] = 0x00; //Command result?
+	}
+	break;
 	case 0x7B:
-		{
-			assert(dataSize == 0x05);
-			replySize = 6;
-			output.data[replyBase + 3] = 0x00; //Command result? (0x03 -> No IC card)
-			output.data[replyBase + 4] = 0x00; //??
-			output.data[replyBase + 5] = 0x00; //??
-		}
-		break;
+	{
+		assert(dataSize == 0x05);
+		replySize = 6;
+		output.data[replyBase + 3] = 0x00; //Command result? (0x03 -> No IC card)
+		output.data[replyBase + 4] = 0x00; //??
+		output.data[replyBase + 5] = 0x00; //??
+	}
+	break;
 	case 0x80:
-		{
-			//??
-			assert(dataSize == 0x05);
-			replySize = 4;
-			output.data[replyBase + 3] = 0x0D; //Command result?
-		}
-		break;
+	{
+		//??
+		assert(dataSize == 0x05);
+		replySize = 4;
+		output.data[replyBase + 3] = 0x0D; //Command result?
+	}
+	break;
 	case 0x9F:
-		{
-			//??
-			assert(dataSize == 0x0D);
-			replySize = 4;
-			output.data[replyBase + 3] = 0x00; //Command result?
-		}
-		break;
+	{
+		//??
+		assert(dataSize == 0x0D);
+		replySize = 4;
+		output.data[replyBase + 3] = 0x00; //Command result?
+	}
+	break;
 	case 0xA7:
-		{
-			//Init?
-			assert(dataSize == 0x0D);
-			replySize = 4;
-			output.data[replyBase + 3] = 0x00; //Command result?
-		}
-		break;
+	{
+		//Init?
+		assert(dataSize == 0x0D);
+		replySize = 4;
+		output.data[replyBase + 3] = 0x00; //Command result?
+	}
+	break;
 	case 0xAC:
-		{
-			//Some key stuff (parity)? (game expects 8 bytes in payload)
-			assert(dataSize == 0x05);
-			replySize = 12;
-			output.data[replyBase + 3] = 0x00; //Command result?
-			output.data[replyBase + 4] = 0xAA;
-			output.data[replyBase + 5] = 0xAA;
-			output.data[replyBase + 6] = 0xAA;
-			output.data[replyBase + 7] = 0xAA;
-			output.data[replyBase + 8] = 0x55;
-			output.data[replyBase + 9] = 0x55;
-			output.data[replyBase + 10] = 0x55;
-			output.data[replyBase + 11] = 0x55;
-		}
-		break;
+	{
+		//Some key stuff (parity)? (game expects 8 bytes in payload)
+		assert(dataSize == 0x05);
+		replySize = 12;
+		output.data[replyBase + 3] = 0x00; //Command result?
+		output.data[replyBase + 4] = 0xAA;
+		output.data[replyBase + 5] = 0xAA;
+		output.data[replyBase + 6] = 0xAA;
+		output.data[replyBase + 7] = 0xAA;
+		output.data[replyBase + 8] = 0x55;
+		output.data[replyBase + 9] = 0x55;
+		output.data[replyBase + 10] = 0x55;
+		output.data[replyBase + 11] = 0x55;
+	}
+	break;
 	case 0xAF:
-		{
-			//More key stuff (checksum)? (game expects 16 bytes in payload)
-			assert(dataSize == 0x05);
-			replySize = 20;
-			output.data[replyBase + 3] = 0x00; //Command result?
-		}
-		break;
+	{
+		//More key stuff (checksum)? (game expects 16 bytes in payload)
+		assert(dataSize == 0x05);
+		replySize = 20;
+		output.data[replyBase + 3] = 0x00; //Command result?
+	}
+	break;
 	default:
 		assert(false);
 		break;
@@ -498,7 +496,6 @@ uint8 CSys147::ComputePacketChecksum(const MODULE_99_PACKET& packet)
 	}
 	return checksum;
 }
-
 
 //TODO: This is copied from Sys246/256. Move this somewhere else
 
