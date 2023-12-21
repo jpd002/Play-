@@ -11,10 +11,10 @@
 #include "discimages/ChdImageStream.h"
 #include "iop/ioman/McDumpDevice.h"
 #include "iop/ioman/HardDiskDumpDevice.h"
-#include "iop/Iop_NamcoArcade.h"
-#include "iop/namco_arcade/Iop_NamcoAcCdvd.h"
-#include "iop/namco_arcade/Iop_NamcoAcRam.h"
-#include "iop/namco_arcade/Iop_NamcoPadMan.h"
+#include "iop/namco_sys246/Iop_NamcoSys246.h"
+#include "iop/namco_sys246/Iop_NamcoAcCdvd.h"
+#include "iop/namco_sys246/Iop_NamcoAcRam.h"
+#include "iop/namco_sys246/Iop_NamcoPadMan.h"
 
 void CNamcoSys246Driver::PrepareEnvironment(CPS2VM* virtualMachine, const ARCADE_MACHINE_DEF& def)
 {
@@ -110,7 +110,7 @@ void CNamcoSys246Driver::PrepareEnvironment(CPS2VM* virtualMachine, const ARCADE
 		iopBios->RegisterHleModuleReplacement("rom0:SIO2MAN", padManModule);
 
 		{
-			auto namcoArcadeModule = std::make_shared<Iop::CNamcoArcade>(*iopBios->GetSifman(), *iopBios->GetSifcmd(), *acRam, def.id);
+			auto namcoArcadeModule = std::make_shared<Iop::Namco::CSys246>(*iopBios->GetSifman(), *iopBios->GetSifcmd(), *acRam, def.id);
 			iopBios->RegisterModule(namcoArcadeModule);
 			iopBios->RegisterHleModuleReplacement("rom0:DAEMON", namcoArcadeModule);
 			virtualMachine->m_pad->InsertListener(namcoArcadeModule.get());
@@ -122,14 +122,14 @@ void CNamcoSys246Driver::PrepareEnvironment(CPS2VM* virtualMachine, const ARCADE
 			{
 			case ARCADE_MACHINE_DEF::INPUT_MODE::LIGHTGUN:
 				virtualMachine->SetGunListener(namcoArcadeModule.get());
-				namcoArcadeModule->SetJvsMode(Iop::CNamcoArcade::JVS_MODE::LIGHTGUN);
+				namcoArcadeModule->SetJvsMode(Iop::Namco::CSys246::JVS_MODE::LIGHTGUN);
 				namcoArcadeModule->SetLightGunXform(def.lightGunXform);
 				break;
 			case ARCADE_MACHINE_DEF::INPUT_MODE::DRUM:
-				namcoArcadeModule->SetJvsMode(Iop::CNamcoArcade::JVS_MODE::DRUM);
+				namcoArcadeModule->SetJvsMode(Iop::Namco::CSys246::JVS_MODE::DRUM);
 				break;
 			case ARCADE_MACHINE_DEF::INPUT_MODE::DRIVE:
-				namcoArcadeModule->SetJvsMode(Iop::CNamcoArcade::JVS_MODE::DRIVE);
+				namcoArcadeModule->SetJvsMode(Iop::Namco::CSys246::JVS_MODE::DRIVE);
 				break;
 			default:
 				break;

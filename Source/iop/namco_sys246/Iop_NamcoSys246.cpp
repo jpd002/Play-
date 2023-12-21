@@ -1,18 +1,19 @@
-#include "Iop_NamcoArcade.h"
+#include "Iop_NamcoSys246.h"
 #include <cstring>
 #include "StdStreamUtils.h"
 #include "zip/ZipArchiveReader.h"
 #include "zip/ZipArchiveWriter.h"
-#include "../AppConfig.h"
-#include "../Log.h"
-#include "../states/RegisterStateFile.h"
+#include "AppConfig.h"
+#include "Log.h"
+#include "states/RegisterStateFile.h"
 #include "PathUtils.h"
-#include "Iop_SifCmd.h"
-#include "namco_arcade/Iop_NamcoAcRam.h"
+#include "iop/Iop_SifCmd.h"
+#include "iop/namco_sys246/Iop_NamcoAcRam.h"
 
 using namespace Iop;
+using namespace Iop::Namco;
 
-#define LOG_NAME "iop_namcoarcade"
+#define LOG_NAME ("iop_namco_sys246")
 
 #define STATE_FILE ("iop_namcoarcade/state.xml")
 #define STATE_RECV_ADDR ("recvAddr")
@@ -91,43 +92,43 @@ static const std::array<uint16, PS2::CControllerInfo::MAX_BUTTONS> g_defaultJvsS
 };
 // clang-format on
 
-CNamcoArcade::CNamcoArcade(CSifMan& sifMan, CSifCmd& sifCmd, Namco::CAcRam& acRam, const std::string& gameId)
+CSys246::CSys246(CSifMan& sifMan, CSifCmd& sifCmd, Namco::CAcRam& acRam, const std::string& gameId)
     : m_acRam(acRam)
     , m_gameId(gameId)
 {
-	m_module001 = CSifModuleAdapter(std::bind(&CNamcoArcade::Invoke001, this,
+	m_module001 = CSifModuleAdapter(std::bind(&CSys246::Invoke001, this,
 	                                          std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5, std::placeholders::_6));
-	m_module003 = CSifModuleAdapter(std::bind(&CNamcoArcade::Invoke003, this,
+	m_module003 = CSifModuleAdapter(std::bind(&CSys246::Invoke003, this,
 	                                          std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5, std::placeholders::_6));
-	m_module004 = CSifModuleAdapter(std::bind(&CNamcoArcade::Invoke004, this,
+	m_module004 = CSifModuleAdapter(std::bind(&CSys246::Invoke004, this,
 	                                          std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5, std::placeholders::_6));
 
 	sifMan.RegisterModule(MODULE_ID_1, &m_module001);
 	sifMan.RegisterModule(MODULE_ID_3, &m_module003);
 	sifMan.RegisterModule(MODULE_ID_4, &m_module004);
 
-	sifCmd.AddHleCmdHandler(COMMAND_ID_ACFLASH, std::bind(&CNamcoArcade::ProcessAcFlashCommand, this,
+	sifCmd.AddHleCmdHandler(COMMAND_ID_ACFLASH, std::bind(&CSys246::ProcessAcFlashCommand, this,
 	                                                      std::placeholders::_1, std::placeholders::_2));
 
 	m_jvsButtonBits = g_defaultJvsButtonBits;
 }
 
-std::string CNamcoArcade::GetId() const
+std::string CSys246::GetId() const
 {
 	return "namcoarcade";
 }
 
-std::string CNamcoArcade::GetFunctionName(unsigned int) const
+std::string CSys246::GetFunctionName(unsigned int) const
 {
 	return "unknown";
 }
 
-void CNamcoArcade::Invoke(CMIPS& context, unsigned int functionId)
+void CSys246::Invoke(CMIPS& context, unsigned int functionId)
 {
 	throw std::runtime_error("Not implemented.");
 }
 
-void CNamcoArcade::ProcessJvsPacket(const uint8* input, uint8* output)
+void CSys246::ProcessJvsPacket(const uint8* input, uint8* output)
 {
 	assert(*input == JVS_SYNC);
 	input++;
@@ -451,7 +452,7 @@ void CNamcoArcade::ProcessJvsPacket(const uint8* input, uint8* output)
 	assert(inChecksum == (inWorkChecksum & 0xFF));
 }
 
-void CNamcoArcade::SaveState(Framework::CZipArchiveWriter& archive) const
+void CSys246::SaveState(Framework::CZipArchiveWriter& archive) const
 {
 	auto registerFile = std::make_unique<CRegisterStateFile>(STATE_FILE);
 	registerFile->SetRegister32(STATE_RECV_ADDR, m_recvAddr);
@@ -459,29 +460,29 @@ void CNamcoArcade::SaveState(Framework::CZipArchiveWriter& archive) const
 	archive.InsertFile(std::move(registerFile));
 }
 
-void CNamcoArcade::LoadState(Framework::CZipArchiveReader& archive)
+void CSys246::LoadState(Framework::CZipArchiveReader& archive)
 {
 	auto registerFile = CRegisterStateFile(*archive.BeginReadFile(STATE_FILE));
 	m_recvAddr = registerFile.GetRegister32(STATE_RECV_ADDR);
 	m_sendAddr = registerFile.GetRegister32(STATE_SEND_ADDR);
 }
 
-void CNamcoArcade::SetJvsMode(JVS_MODE jvsMode)
+void CSys246::SetJvsMode(JVS_MODE jvsMode)
 {
 	m_jvsMode = jvsMode;
 }
 
-void CNamcoArcade::SetButton(unsigned int buttonIndex, PS2::CControllerInfo::BUTTON buttonValue)
+void CSys246::SetButton(unsigned int buttonIndex, PS2::CControllerInfo::BUTTON buttonValue)
 {
 	m_jvsButtonBits[buttonValue] = (1 << buttonIndex);
 }
 
-void CNamcoArcade::SetLightGunXform(const std::array<float, 4>& lightGunXform)
+void CSys246::SetLightGunXform(const std::array<float, 4>& lightGunXform)
 {
 	m_lightGunXform = lightGunXform;
 }
 
-void CNamcoArcade::SetButtonState(unsigned int padNumber, PS2::CControllerInfo::BUTTON button, bool pressed, uint8* ram)
+void CSys246::SetButtonState(unsigned int padNumber, PS2::CControllerInfo::BUTTON button, bool pressed, uint8* ram)
 {
 	//For Ridge Racer V (coin button)
 	//if(pressed && (m_recvAddr != 0))
@@ -572,7 +573,7 @@ void CNamcoArcade::SetButtonState(unsigned int padNumber, PS2::CControllerInfo::
 	}
 }
 
-void CNamcoArcade::SetAxisState(unsigned int padNumber, PS2::CControllerInfo::BUTTON button, uint8 axisValue, uint8* ram)
+void CSys246::SetAxisState(unsigned int padNumber, PS2::CControllerInfo::BUTTON button, uint8 axisValue, uint8* ram)
 {
 	switch(button)
 	{
@@ -596,13 +597,13 @@ void CNamcoArcade::SetAxisState(unsigned int padNumber, PS2::CControllerInfo::BU
 	}
 }
 
-void CNamcoArcade::SetGunPosition(float x, float y)
+void CSys246::SetGunPosition(float x, float y)
 {
 	m_jvsGunPosX = static_cast<int16>((x * m_lightGunXform[0]) + m_lightGunXform[1]);
 	m_jvsGunPosY = static_cast<int16>((y * m_lightGunXform[2]) + m_lightGunXform[3]);
 }
 
-bool CNamcoArcade::Invoke001(uint32 method, uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
+bool CSys246::Invoke001(uint32 method, uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
 {
 	//JVIO stuff?
 	switch(method)
@@ -674,7 +675,7 @@ bool CNamcoArcade::Invoke001(uint32 method, uint32* args, uint32 argsSize, uint3
 	return true;
 }
 
-bool CNamcoArcade::Invoke003(uint32 method, uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
+bool CSys246::Invoke003(uint32 method, uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
 {
 	//method 0x02 -> jvsif_starts
 	//method 0x04 -> jvsif_registers
@@ -704,7 +705,7 @@ bool CNamcoArcade::Invoke003(uint32 method, uint32* args, uint32 argsSize, uint3
 	return true;
 }
 
-bool CNamcoArcade::Invoke004(uint32 method, uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
+bool CSys246::Invoke004(uint32 method, uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
 {
 	//ac194 - Ridge Racer V & Wangan, force feedback
 	switch(method)
@@ -723,7 +724,7 @@ bool CNamcoArcade::Invoke004(uint32 method, uint32* args, uint32 argsSize, uint3
 	return true;
 }
 
-void CNamcoArcade::ProcessAcFlashCommand(const SIFCMDHEADER*, CSifMan& sifMan)
+void CSys246::ProcessAcFlashCommand(const SIFCMDHEADER*, CSifMan& sifMan)
 {
 	//This is needed for Tekken 5: Dark Ressurection and Tekken 5.1
 	//Not sure what these games use this for, but they will hang after
@@ -744,12 +745,12 @@ void CNamcoArcade::ProcessAcFlashCommand(const SIFCMDHEADER*, CSifMan& sifMan)
 	sifMan.SendPacket(&reply, sizeof(ACFLASH_REPLY));
 }
 
-fs::path CNamcoArcade::GetArcadeSavePath()
+fs::path CSys246::GetArcadeSavePath()
 {
 	return CAppConfig::GetInstance().GetBasePath() / fs::path("arcadesaves");
 }
 
-void CNamcoArcade::ProcessMemRequest(uint8* ram, uint32 infoPtr)
+void CSys246::ProcessMemRequest(uint8* ram, uint32 infoPtr)
 {
 	CLog::GetInstance().Print(LOG_NAME, "ProcessMemRequest(infoPtr = 0x%08X);\r\n", infoPtr);
 	uint32* info = reinterpret_cast<uint32*>(ram + infoPtr);
@@ -831,7 +832,7 @@ void CNamcoArcade::ProcessMemRequest(uint8* ram, uint32 infoPtr)
 	}
 }
 
-void CNamcoArcade::ReadBackupRam(uint32 backupRamAddr, uint8* buffer, uint32 size)
+void CSys246::ReadBackupRam(uint32 backupRamAddr, uint8* buffer, uint32 size)
 {
 	memset(buffer, 0, size);
 	if((backupRamAddr >= BACKUP_RAM_SIZE) || ((backupRamAddr + size) > BACKUP_RAM_SIZE))
@@ -849,7 +850,7 @@ void CNamcoArcade::ReadBackupRam(uint32 backupRamAddr, uint8* buffer, uint32 siz
 	stream.Read(buffer, size);
 }
 
-void CNamcoArcade::WriteBackupRam(uint32 backupRamAddr, const uint8* buffer, uint32 size)
+void CSys246::WriteBackupRam(uint32 backupRamAddr, const uint8* buffer, uint32 size)
 {
 	if((backupRamAddr >= BACKUP_RAM_SIZE) || ((backupRamAddr + size) > BACKUP_RAM_SIZE))
 	{
