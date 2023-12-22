@@ -1318,16 +1318,19 @@ void CMA_EE::PREVH()
 //1C
 void CMA_EE::PMULTH()
 {
+	// clang-format off
 	static const size_t offsets[8] =
-	    {
-	        offsetof(CMIPS, m_State.nLO[0]),
-	        offsetof(CMIPS, m_State.nLO[1]),
-	        offsetof(CMIPS, m_State.nHI[0]),
-	        offsetof(CMIPS, m_State.nHI[1]),
-	        offsetof(CMIPS, m_State.nLO1[0]),
-	        offsetof(CMIPS, m_State.nLO1[1]),
-	        offsetof(CMIPS, m_State.nHI1[0]),
-	        offsetof(CMIPS, m_State.nHI1[1])};
+	{
+		offsetof(CMIPS, m_State.nLO[0]),
+		offsetof(CMIPS, m_State.nLO[1]),
+		offsetof(CMIPS, m_State.nHI[0]),
+		offsetof(CMIPS, m_State.nHI[1]),
+		offsetof(CMIPS, m_State.nLO1[0]),
+		offsetof(CMIPS, m_State.nLO1[1]),
+		offsetof(CMIPS, m_State.nHI1[0]),
+		offsetof(CMIPS, m_State.nHI1[1])
+	};
+	// clang-format on
 
 	for(unsigned int i = 0; i < 4; i++)
 	{
