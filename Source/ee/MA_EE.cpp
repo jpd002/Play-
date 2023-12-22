@@ -1380,6 +1380,105 @@ void CMA_EE::PMULTH()
 	}
 }
 
+//1D
+void CMA_EE::PDIVBW()
+{
+	// clang-format off
+	static const size_t loOffsets[4] =
+	{
+		offsetof(CMIPS, m_State.nLO[0]),
+		offsetof(CMIPS, m_State.nLO[1]),
+		offsetof(CMIPS, m_State.nLO1[0]),
+		offsetof(CMIPS, m_State.nLO1[1]),
+	};
+
+	static const size_t hiOffsets[4] =
+	{
+		offsetof(CMIPS, m_State.nHI[0]),
+		offsetof(CMIPS, m_State.nHI[1]),
+		offsetof(CMIPS, m_State.nHI1[0]),
+		offsetof(CMIPS, m_State.nHI1[1]),
+	};
+	// clang-format on
+
+	auto rtOffset = offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]);
+
+	for(int i = 0; i < 4; i++)
+	{
+		auto rsOffset = offsetof(CMIPS, m_State.nGPR[m_nRS].nV[i]);
+
+		//Check Zero
+		m_codeGen->PushRel(rtOffset);
+		m_codeGen->SignExt16();
+
+		m_codeGen->PushCst(0);
+		m_codeGen->BeginIf(Jitter::CONDITION_EQ);
+		{
+			//If r[rs] < 0, then lo = 1 else lo = ~0
+			m_codeGen->PushRel(rsOffset);
+			m_codeGen->PushCst(0);
+			m_codeGen->BeginIf(Jitter::CONDITION_LT);
+			{
+				m_codeGen->PushCst(1);
+				m_codeGen->PullRel(loOffsets[i]);
+			}
+			m_codeGen->Else();
+			{
+				m_codeGen->PushCst(~0);
+				m_codeGen->PullRel(loOffsets[i]);
+			}
+			m_codeGen->EndIf();
+
+			m_codeGen->PushRel(rsOffset);
+			m_codeGen->PullRel(hiOffsets[i]);
+		}
+		m_codeGen->Else();
+		{
+			//Check for overflow condition (0x80000000 / 0xFFFF)
+			m_codeGen->PushRel(rsOffset);
+			m_codeGen->PushCst(0x80000000);
+			m_codeGen->Cmp(Jitter::CONDITION_EQ);
+
+			m_codeGen->PushRel(rtOffset);
+			m_codeGen->SignExt16();
+			m_codeGen->PushCst(0xFFFFFFFF);
+			m_codeGen->Cmp(Jitter::CONDITION_EQ);
+
+			m_codeGen->And();
+
+			m_codeGen->PushCst(0);
+			m_codeGen->BeginIf(Jitter::CONDITION_NE);
+			{
+				//Overflow
+				m_codeGen->PushCst(0x80000000);
+				m_codeGen->PullRel(loOffsets[i]);
+
+				m_codeGen->PushCst(0);
+				m_codeGen->PullRel(hiOffsets[i]);
+			}
+			m_codeGen->Else();
+			{
+				m_codeGen->PushRel(rsOffset);
+
+				m_codeGen->PushRel(rtOffset);
+				m_codeGen->SignExt16();
+
+				m_codeGen->DivS();
+
+				m_codeGen->PushTop();
+
+				m_codeGen->ExtLow64();
+				m_codeGen->PullRel(loOffsets[i]);
+
+				m_codeGen->ExtHigh64();
+				m_codeGen->PullRel(hiOffsets[i]);
+			}
+			m_codeGen->EndIf();
+		}
+		m_codeGen->EndIf();
+	}
+}
+
 //1E
 void CMA_EE::PEXEW()
 {
@@ -1954,7 +2053,7 @@ CMA_EE::InstructionFuncConstant CMA_EE::m_pOpMmi2[0x20] =
 	//0x10
 	&CMA_EE::PMADDH,		&CMA_EE::PHMADH,		&CMA_EE::PAND,			&CMA_EE::PXOR,			&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,
 	//0x18
-	&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::PEXEH,			&CMA_EE::PREVH,			&CMA_EE::PMULTH,		&CMA_EE::Illegal,		&CMA_EE::PEXEW,			&CMA_EE::PROT3W,
+	&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::PEXEH,			&CMA_EE::PREVH,			&CMA_EE::PMULTH,		&CMA_EE::PDIVBW,		&CMA_EE::PEXEW,			&CMA_EE::PROT3W,
 };
 
 CMA_EE::InstructionFuncConstant CMA_EE::m_pOpMmi3[0x20] = 

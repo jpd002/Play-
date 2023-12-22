@@ -140,6 +140,7 @@ private:
 	void PEXEH();
 	void PREVH();
 	void PMULTH();
+	void PDIVBW();
 	void PEXEW();
 	void PROT3W();
 
