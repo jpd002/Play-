@@ -49,6 +49,7 @@ namespace Iop
 		uint32 GetSystemTimeLow();
 		uint32 SetAlarm(uint32, uint32, uint32);
 		uint32 CancelAlarm(uint32, uint32);
+		uint32 iCancelAlarm(uint32, uint32);
 		void USecToSysClock(uint32, uint32);
 		void SysClockToUSec(uint32, uint32, uint32);
 		uint32 GetCurrentThreadPriority();

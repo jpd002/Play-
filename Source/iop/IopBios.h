@@ -228,7 +228,7 @@ public:
 	int32 DelayThread(uint32);
 	void DelayThreadTicks(uint32);
 	uint32 SetAlarm(uint32, uint32, uint32);
-	uint32 CancelAlarm(uint32, uint32);
+	uint32 CancelAlarm(uint32, uint32, bool);
 	THREAD* GetThread(uint32);
 	int32 GetCurrentThreadId();
 	int32 GetCurrentThreadIdRaw() const;

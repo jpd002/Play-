@@ -29,6 +29,7 @@ using namespace Iop;
 #define FUNCTION_GETSYSTEMTIMELOW "GetSystemTimeLow"
 #define FUNCTION_SETALARM "SetAlarm"
 #define FUNCTION_CANCELALARM "CancelAlarm"
+#define FUNCTION_ICANCELALARM "iCancelAlarm"
 #define FUNCTION_USECTOSYSCLOCK "USecToSysClock"
 #define FUNCTION_SYSCLOCKTOUSEC "SysClockToUSec"
 #define FUNCTION_GETCURRENTTHREADPRIORITY "GetCurrentThreadPriority"
@@ -114,6 +115,9 @@ std::string CThbase::GetFunctionName(unsigned int functionId) const
 		break;
 	case 37:
 		return FUNCTION_CANCELALARM;
+		break;
+	case 38:
+		return FUNCTION_ICANCELALARM;
 		break;
 	case 39:
 		return FUNCTION_USECTOSYSCLOCK;
@@ -231,6 +235,11 @@ void CThbase::Invoke(CMIPS& context, unsigned int functionId)
 		break;
 	case 37:
 		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(CancelAlarm(
+		    context.m_State.nGPR[CMIPS::A0].nV0,
+		    context.m_State.nGPR[CMIPS::A1].nV0));
+		break;
+	case 38:
+		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(iCancelAlarm(
 		    context.m_State.nGPR[CMIPS::A0].nV0,
 		    context.m_State.nGPR[CMIPS::A1].nV0));
 		break;
@@ -402,7 +411,16 @@ uint32 CThbase::CancelAlarm(uint32 alarmFunction, uint32 param)
 	CLog::GetInstance().Print(LOG_NAME, "%d : CancelAlarm(alarmFunction = 0x%08X, param = 0x%08X);\r\n",
 	                          m_bios.GetCurrentThreadIdRaw(), alarmFunction, param);
 #endif
-	return m_bios.CancelAlarm(alarmFunction, param);
+	return m_bios.CancelAlarm(alarmFunction, param, false);
+}
+
+uint32 CThbase::iCancelAlarm(uint32 alarmFunction, uint32 param)
+{
+#ifdef _DEBUG
+	CLog::GetInstance().Print(LOG_NAME, "%d : iCancelAlarm(alarmFunction = 0x%08X, param = 0x%08X);\r\n",
+	                          m_bios.GetCurrentThreadIdRaw(), alarmFunction, param);
+#endif
+	return m_bios.CancelAlarm(alarmFunction, param, true);
 }
 
 void CThbase::USecToSysClock(uint32 usec, uint32 timePtr)

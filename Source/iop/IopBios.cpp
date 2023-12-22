@@ -1346,7 +1346,7 @@ uint32 CIopBios::SetAlarm(uint32 timePtr, uint32 alarmFunction, uint32 param)
 	return 0;
 }
 
-uint32 CIopBios::CancelAlarm(uint32 alarmFunction, uint32 param)
+uint32 CIopBios::CancelAlarm(uint32 alarmFunction, uint32 param, bool inInterrupt)
 {
 	//TODO: This needs to garantee that the alarm handler function won't be called after the cancel
 
