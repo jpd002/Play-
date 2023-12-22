@@ -2,4 +2,7 @@
 	<Executable Name="SLES_501.76;1" Title="Oni" Region="EU">
 		<Patch Address="0x001cef7c" Value="0x00000000 // bc0f $001cef7c" Description="Fix hang by skip branch if copro 0 condition false." />
 	</Executable>
+	<Executable Name="SLPM_551.91;1" Title="L2 - Love x Loop">
+		<Patch Address="0x001B4828" Value="0x10000008" Description="Avoid bug in code that fiddles with SP and causes the stack to be clobbered by SifCallRpc. Requires proper data cache handling to avoid issue." />
+	</Executable>
 </Patches>
