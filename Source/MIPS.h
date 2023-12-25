@@ -173,6 +173,7 @@ public:
 
 	AddressTranslator m_pAddrTranslator = nullptr;
 	TLBExceptionChecker m_TLBExceptionChecker = nullptr;
+	std::function<void()> m_VCallMsHandler;
 
 	enum REGISTER
 	{

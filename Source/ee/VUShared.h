@@ -1,6 +1,7 @@
 #ifndef _VUSHARED_H_
 #define _VUSHARED_H_
 
+#include "MIPS.h"
 #include "../MIPSReflection.h"
 #include "../MipsJitter.h"
 #include "../uint128.h"
@@ -227,8 +228,36 @@ namespace VUShared
 	void QueueInFlagPipeline(const FLAG_PIPEINFO&, CMipsJitter*, uint32, uint32);
 	void ResetFlagPipeline(const FLAG_PIPEINFO&, CMipsJitter*);
 
-	void CheckFlagPipelineImmediate(const FLAG_PIPEINFO&, CMIPS*, uint32);
-	void ResetFlagPipelineImmediate(const FLAG_PIPEINFO&, CMIPS*, uint32);
+	static void CheckFlagPipelineImmediate(const FLAG_PIPEINFO& pipeInfo, CMIPS* context, uint32 relativePipeTime)
+	{
+		auto rawState = reinterpret_cast<uint8*>(&context->m_State);
+		auto value = reinterpret_cast<uint32*>(rawState + pipeInfo.value);
+		auto pipeIndex = *reinterpret_cast<uint32*>(rawState + pipeInfo.index);
+		auto valueArray = reinterpret_cast<uint32*>(rawState + pipeInfo.valueArray);
+		auto timeArray = reinterpret_cast<uint32*>(rawState + pipeInfo.timeArray);
+
+		for(unsigned int i = 0; i < FLAG_PIPELINE_SLOTS; i++)
+		{
+			unsigned int index = (i + pipeIndex) & (FLAG_PIPELINE_SLOTS - 1);
+			if(timeArray[index] <= (context->m_State.pipeTime + relativePipeTime))
+			{
+				*value = valueArray[index];
+			}
+		}
+	}
+
+	static void ResetFlagPipelineImmediate(const FLAG_PIPEINFO& pipeInfo, CMIPS* context, uint32 value)
+	{
+		auto rawState = reinterpret_cast<uint8*>(&context->m_State);
+		auto valueArray = reinterpret_cast<uint32*>(rawState + pipeInfo.valueArray);
+		auto timeArray = reinterpret_cast<uint32*>(rawState + pipeInfo.timeArray);
+
+		for(unsigned int i = 0; i < FLAG_PIPELINE_SLOTS; i++)
+		{
+			timeArray[i] = 0;
+			valueArray[i] = value;
+		}
+	}
 
 	//Shared addressing modes
 	void ReflOpFdFsI(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);

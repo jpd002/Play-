@@ -100,6 +100,13 @@ CSubSystem::CSubSystem(uint8* iopRam, CIopBios& iopBios)
 		m_EE.m_pCOP[2] = &m_COP_VU;
 
 		m_EE.m_pAddrTranslator = CPS2OS::TranslateAddress;
+		m_EE.m_VCallMsHandler = [&]()
+		{
+			assert(!m_vpu0->IsVuRunning());
+			m_vpu0->ExecuteMicroProgram(m_EE.m_State.callMsAddr);
+			assert(!m_vpu0->IsVuRunning());
+			m_EE.m_State.callMsAddr = m_VU0.m_State.nPC;
+		};
 	}
 
 	//Vector Unit 0 context setup

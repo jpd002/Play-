@@ -564,17 +564,24 @@ void CCOP_VU::VIOR()
 	VUShared::IOR(m_codeGen, m_nID, m_nIS, m_nIT);
 }
 
+void FastExecMs(CMIPS* ctx)
+{
+	ctx->m_VCallMsHandler();
+}
+
 //38
 void CCOP_VU::VCALLMS()
 {
-	m_codeGen->PushCst(1);
-	m_codeGen->PullRel(offsetof(CMIPS, m_State.callMsEnabled));
+	//m_codeGen->PushCst(1);
+	//m_codeGen->PullRel(offsetof(CMIPS, m_State.callMsEnabled));
 
 	m_codeGen->PushCst(static_cast<uint32>(m_nImm15) * 8);
 	m_codeGen->PullRel(offsetof(CMIPS, m_State.callMsAddr));
 
-	m_codeGen->PushCst(MIPS_EXCEPTION_CALLMS);
-	m_codeGen->PullRel(offsetof(CMIPS, m_State.nHasException));
+	m_codeGen->Call(reinterpret_cast<void*>(&FastExecMs), 0, Jitter::CJitter::RETURN_VALUE_NONE);
+	
+	//m_codeGen->PushCst(MIPS_EXCEPTION_CALLMS);
+	//m_codeGen->PullRel(offsetof(CMIPS, m_State.nHasException));
 }
 
 //39
