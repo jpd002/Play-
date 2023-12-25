@@ -700,7 +700,8 @@ uint32 CSubSystem::Vu1IoPortWriteHandler(uint32 address, uint32 value)
 
 void CSubSystem::CopyVuState(CMIPS& dst, const CMIPS& src)
 {
-	memcpy(&dst.m_State.nCOP2, &src.m_State.nCOP2, sizeof(dst.m_State.nCOP2));
+	//Only copy VF1 to VF31
+	memcpy(&dst.m_State.nCOP2[1], &src.m_State.nCOP2[1], sizeof(uint128) * 31);
 	memcpy(&dst.m_State.nCOP2A, &src.m_State.nCOP2A, sizeof(dst.m_State.nCOP2A));
 	memcpy(&dst.m_State.nCOP2VI, &src.m_State.nCOP2VI, sizeof(dst.m_State.nCOP2VI));
 	dst.m_State.nCOP2Q = src.m_State.nCOP2Q;
