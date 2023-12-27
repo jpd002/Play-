@@ -72,29 +72,45 @@ std::string CSys147::GetFunctionName(unsigned int functionId) const
 
 void CSys147::SetButtonState(unsigned int padNumber, PS2::CControllerInfo::BUTTON button, bool pressed, uint8* ram)
 {
-	if(padNumber != 0) return;
-	switch(button)
+	if(padNumber == 0)
 	{
-	case PS2::CControllerInfo::DPAD_UP:
-		m_switchStates[SWITCH_UP] = pressed ? 0xFF : 0x00;
-		break;
-	case PS2::CControllerInfo::DPAD_DOWN:
-		m_switchStates[SWITCH_DOWN] = pressed ? 0xFF : 0x00;
-		break;
-	case PS2::CControllerInfo::DPAD_LEFT:
-		m_switchStates[SWITCH_1P_LEFT] = pressed ? 0xFF : 0x00;
-		break;
-	case PS2::CControllerInfo::DPAD_RIGHT:
-		m_switchStates[SWITCH_1P_RIGHT] = pressed ? 0xFF : 0x00;
-		break;
-	case PS2::CControllerInfo::CROSS:
-		m_switchStates[SWITCH_ENTER] = pressed ? 0xFF : 0x00;
-		break;
-	case PS2::CControllerInfo::L1:
-		m_switchStates[SWITCH_TEST] = pressed ? 0xFF : 0x00;
-		break;
-	default:
-		break;
+		switch(button)
+		{
+		case PS2::CControllerInfo::DPAD_UP:
+			m_switchStates[SWITCH_UP] = pressed ? 0xFF : 0x00;
+			break;
+		case PS2::CControllerInfo::DPAD_DOWN:
+			m_switchStates[SWITCH_DOWN] = pressed ? 0xFF : 0x00;
+			break;
+		case PS2::CControllerInfo::DPAD_LEFT:
+			m_switchStates[SWITCH_1P_LEFT] = pressed ? 0xFF : 0x00;
+			break;
+		case PS2::CControllerInfo::DPAD_RIGHT:
+			m_switchStates[SWITCH_1P_RIGHT] = pressed ? 0xFF : 0x00;
+			break;
+		case PS2::CControllerInfo::CROSS:
+			m_switchStates[SWITCH_ENTER] = pressed ? 0xFF : 0x00;
+			break;
+		case PS2::CControllerInfo::L1:
+			m_switchStates[SWITCH_TEST] = pressed ? 0xFF : 0x00;
+			break;
+		default:
+			break;
+		}
+	}
+	else if(padNumber == 1)
+	{
+		switch(button)
+		{
+		case PS2::CControllerInfo::DPAD_LEFT:
+			m_switchStates[SWITCH_2P_LEFT] = pressed ? 0xFF : 0x00;
+			break;
+		case PS2::CControllerInfo::DPAD_RIGHT:
+			m_switchStates[SWITCH_2P_RIGHT] = pressed ? 0xFF : 0x00;
+			break;
+		default:
+			break;
+		}
 	}
 }
 
