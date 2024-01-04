@@ -251,7 +251,11 @@ void CPS2OS::Initialize(uint32 ramSize)
 	m_idleEvaluator.Reset();
 	m_ramSize = ramSize;
 
-	m_state->allocateThreadNextId = m_threads.GetIdBase();
+	//Specially selected next thread id to make sure main thread id is 1.
+	//First thread to be created is the idle thread, which will cause next id to become 1
+	//for when main thread will be created through SetupThread.
+	m_state->allocateThreadNextId = m_threads.GetIdBase() + MAX_THREAD - 1;
+
 	SetVsyncFlagPtrs(0, 0);
 	UpdateTLBEnabledState();
 
@@ -2685,6 +2689,9 @@ void CPS2OS::sc_SetupThread()
 	{
 		//No thread has been started, spawn a new thread
 		threadId = m_threads.AllocateAt(m_state->allocateThreadNextId);
+
+		//Some games (Metropolismania 2) expect main thread's id to be 1
+		assert(threadId == 1);
 	}
 	else
 	{
