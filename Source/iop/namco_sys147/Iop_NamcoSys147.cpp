@@ -356,6 +356,40 @@ bool CSys147::Invoke99(uint32 method, uint32* args, uint32 argsSize, uint32* ret
 					reply.checksum = ComputePacketChecksum(reply);
 					m_pendingReplies.emplace_back(reply);
 				}
+				
+				{
+					MODULE_99_PACKET reply = {};
+					reply.type = 2;
+					reply.command = 0x31;
+					//Barcode Reader
+					reply.data[0] = 0;
+					reply.data[1] = 6 + 10; //Data Size
+
+					reply.data[4 + 0] = 0x02;
+					reply.data[4 + 1] = 0x02;
+					reply.data[4 + 2] = 0x80;
+					reply.data[4 + 3] = 0x02; //This is used for result
+					reply.data[4 + 4] = 0x03;
+					reply.data[4 + 5] = 0x03;
+
+					//Barcode Payload
+
+					//0x02 = Header
+					//8 bytes of data (0x62,0x6E,0x30,0x63,0x30,0x7D,0x58,0x31)
+					//0x03 = Footer
+
+					reply.data[4 + 6] = 0x02;
+					reply.data[4 + 7] = 0x62;
+					reply.data[4 + 8] = 0x6E;
+					reply.data[4 + 9] = 0x30;
+					reply.data[4 + 10] = 0x63;
+					reply.data[4 + 11] = 0x30;
+					reply.data[4 + 12] = 0x7D;
+					reply.data[4 + 13] = 0x58;
+					reply.data[4 + 14] = 0x31;
+					reply.data[4 + 15] = 0x03;
+					m_pendingReplies.emplace_back(reply);
+				}
 			}
 			else if(packet->command == 0x0D)
 			{
