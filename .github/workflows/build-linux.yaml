@@ -38,7 +38,7 @@ jobs:
     - name: Force Fetch Git Tags
       run: git fetch --tags --force
     - name: Set SHORT_HASH
-      run: echo "::set-output name=VALUE::${LONG_HASH:0:8}"
+      run: echo "VALUE=${LONG_HASH:0:8}" >> $GITHUB_OUTPUT
       id: short_hash
       env:
         LONG_HASH: ${{ github.sha }}

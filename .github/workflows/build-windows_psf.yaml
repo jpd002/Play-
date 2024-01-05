@@ -43,7 +43,7 @@ jobs:
     - name: Set SHORT_HASH
       run: |
         $short_hash = "${{ env.LONG_HASH }}".substring(0, 8)
-        echo "::set-output name=VALUE::$short_hash"
+        echo "VALUE=$short_hash" >> $GITHUB_OUTPUT
       id: short_hash
       env:
         LONG_HASH: ${{ github.sha }}
