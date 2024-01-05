@@ -1,6 +1,6 @@
 #pragma once
 
-#include <list>
+#include <unordered_set>
 #include "MIPS.h"
 #include "BasicBlock.h"
 
@@ -125,7 +125,7 @@ public:
 #endif
 
 protected:
-	typedef std::list<BasicBlockPtr> BlockList;
+	typedef std::unordered_set<BasicBlockPtr> BlockStore;
 
 	bool HasBlockAt(uint32 address) const
 	{
@@ -139,7 +139,7 @@ protected:
 		auto block = BlockFactory(m_context, start, end);
 		ResetBlockOutLinks(block.get());
 		m_blockLookup.AddBlock(block.get());
-		m_blocks.push_back(std::move(block));
+		m_blocks.insert(std::move(block));
 	}
 
 	void ResetBlockOutLinks(CBasicBlock* block)
@@ -311,13 +311,13 @@ protected:
 			}
 		}
 
-		if(!clearedBlocks.empty())
+		for(auto* clearedBlock : clearedBlocks)
 		{
-			m_blocks.remove_if([&](const BasicBlockPtr& block) { return clearedBlocks.find(block.get()) != std::end(clearedBlocks); });
+			m_blocks.erase(clearedBlock->shared_from_this());
 		}
 	}
 
-	BlockList m_blocks;
+	BlockStore m_blocks;
 	BasicBlockPtr m_emptyBlock;
 	BlockOutLinkMap m_blockOutLinks;
 	CMIPS& m_context;

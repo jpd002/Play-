@@ -67,7 +67,7 @@ typedef std::multimap<uint32, BLOCK_OUT_LINK> BlockOutLinkMap;
 //to their outgoing link definitions inside the map
 typedef BlockOutLinkMap::iterator BlockOutLinkPointer;
 
-class CBasicBlock
+class CBasicBlock : public std::enable_shared_from_this<CBasicBlock>
 {
 public:
 	CBasicBlock(CMIPS&, uint32 = MIPS_INVALID_PC, uint32 = MIPS_INVALID_PC, BLOCK_CATEGORY = BLOCK_CATEGORY_UNKNOWN);
