@@ -166,6 +166,7 @@ namespace ELF
 		EM_860 = 7,
 		EM_MIPS = 8,
 		EM_PPC64 = 21,
+		EM_SPU = 23,
 		EM_ARM = 40,
 	};
 

@@ -61,25 +61,20 @@ void CELFHeaderView<ElfType>::FillInformation()
 {
 	int i = 0;
 	std::string sTemp;
-	auto pH = &m_pELF->GetHeader();
+	const auto* pH = &m_pELF->GetHeader();
+
+#define CASE_ELF_ENUM(enumValue) \
+	case ELF::enumValue:         \
+		sTemp = #enumValue;      \
+		break;
 
 	switch(pH->nType)
 	{
-	case ELF::ET_NONE:
-		sTemp = ("ET_NONE");
-		break;
-	case ELF::ET_REL:
-		sTemp = ("ET_REL");
-		break;
-	case ELF::ET_EXEC:
-		sTemp = ("ET_EXEC");
-		break;
-	case ELF::ET_DYN:
-		sTemp = ("ET_DYN");
-		break;
-	case ELF::ET_CORE:
-		sTemp = ("ET_CORE");
-		break;
+		CASE_ELF_ENUM(ET_NONE)
+		CASE_ELF_ENUM(ET_REL)
+		CASE_ELF_ENUM(ET_EXEC)
+		CASE_ELF_ENUM(ET_DYN)
+		CASE_ELF_ENUM(ET_CORE)
 	default:
 		sTemp = string_format(("Unknown (%i)"), pH->nType);
 		break;
@@ -88,36 +83,17 @@ void CELFHeaderView<ElfType>::FillInformation()
 
 	switch(pH->nCPU)
 	{
-	case ELF::EM_NONE:
-		sTemp = ("EM_NONE");
-		break;
-	case ELF::EM_M32:
-		sTemp = ("EM_M32");
-		break;
-	case ELF::EM_SPARC:
-		sTemp = ("EM_SPARC");
-		break;
-	case ELF::EM_386:
-		sTemp = ("EM_386");
-		break;
-	case ELF::EM_68K:
-		sTemp = ("EM_68K");
-		break;
-	case ELF::EM_88K:
-		sTemp = ("EM_88K");
-		break;
-	case ELF::EM_860:
-		sTemp = ("EM_860");
-		break;
-	case ELF::EM_MIPS:
-		sTemp = ("EM_MIPS");
-		break;
-	case ELF::EM_PPC64:
-		sTemp = ("EM_PPC64");
-		break;
-	case ELF::EM_ARM:
-		sTemp = ("EM_ARM");
-		break;
+		CASE_ELF_ENUM(EM_NONE)
+		CASE_ELF_ENUM(EM_M32)
+		CASE_ELF_ENUM(EM_SPARC)
+		CASE_ELF_ENUM(EM_386)
+		CASE_ELF_ENUM(EM_68K)
+		CASE_ELF_ENUM(EM_88K)
+		CASE_ELF_ENUM(EM_860)
+		CASE_ELF_ENUM(EM_MIPS)
+		CASE_ELF_ENUM(EM_PPC64)
+		CASE_ELF_ENUM(EM_SPU)
+		CASE_ELF_ENUM(EM_ARM)
 	default:
 		sTemp = string_format(("Unknown (%i)"), pH->nCPU);
 		break;
@@ -126,17 +102,15 @@ void CELFHeaderView<ElfType>::FillInformation()
 
 	switch(pH->nVersion)
 	{
-	case ELF::EV_NONE:
-		sTemp = ("EV_NONE");
-		break;
-	case ELF::EV_CURRENT:
-		sTemp = ("EV_CURRENT");
-		break;
+		CASE_ELF_ENUM(EV_NONE)
+		CASE_ELF_ENUM(EV_CURRENT)
 	default:
 		sTemp = string_format(("Unknown (%i)"), pH->nVersion);
 		break;
 	}
 	m_editFields[i++]->setText(sTemp.c_str());
+
+#undef CASE_ELF_ENUM
 
 	m_editFields[i++]->setText((("0x") + lexical_cast_hex<std::string>(pH->nEntryPoint, 8)).c_str());
 	m_editFields[i++]->setText((("0x") + lexical_cast_hex<std::string>(pH->nFlags, 8)).c_str());
