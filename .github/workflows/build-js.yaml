@@ -8,7 +8,7 @@ jobs:
     - name: Setup Emscripten
       uses: mymindstorm/setup-emsdk@v12
       with:
-        version: 3.1.19
+        version: 3.1.51
     - name: Checkout
       uses: actions/checkout@v3
       with:
