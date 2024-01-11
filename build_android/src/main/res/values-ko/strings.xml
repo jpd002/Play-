@@ -4,10 +4,10 @@
 	<!-- Application Navigation -->
 
 	<string name="about_play">Play! 정보</string>
-	<string name="about_play_emu">Play! PlayStation 2 Emulator</string>
+	<string name="about_play_emu">Play! 플레이스테이션 2 에뮬레이터</string>
 	<string name="about_play_version">버전:</string>
-	<string name="about_play_date">Date:</string>
-	<string name="about_play_founder">Created by</string>
+	<string name="about_play_date">날짜:</string>
+	<string name="about_play_founder">작성자</string>
 
 	<string name="main_menu_settings">설정</string>
 	<string name="main_menu_addfolder">폴더 추가</string>
@@ -107,7 +107,7 @@
 		<item>분홍색</item>
 		<item>보라색</item>
 		<item>청록색</item>
-		<item>어두운 보라색</item>
+		<item>진한 보라색</item>
 		<item>초록색</item>
 	</string-array>
 
