@@ -410,7 +410,14 @@ void CDisAsmWnd::EditComment()
 	if(!ok)
 		return;
 
-	m_ctx->m_Comments.InsertTag(m_selected, value.toStdString().c_str());
+	if(!value.isEmpty())
+	{
+		m_ctx->m_Comments.InsertTag(m_selected, value.toStdString().c_str());
+	}
+	else
+	{
+		m_ctx->m_Comments.RemoveTag(m_selected);
+	}
 	m_ctx->m_Comments.OnTagListChange();
 	m_model->Redraw(m_selected);
 }
