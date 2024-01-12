@@ -902,13 +902,12 @@ void CPS2VM::EmuThread()
 							m_pad->Update(m_ee->m_ram);
 						}
 #ifdef PROFILE
-						{
-							CProfiler::GetInstance().CountCurrentZone();
-							auto stats = CProfiler::GetInstance().GetStats();
-							ProfileFrameDone(stats);
-							CProfiler::GetInstance().Reset();
-						}
-
+						//Finish up profile
+						CProfiler::GetInstance().CountCurrentZone();
+#endif
+						OnNewFrame();
+#ifdef PROFILE
+						CProfiler::GetInstance().Reset();
 #endif
 						m_cpuUtilisation = CPU_UTILISATION_INFO();
 					}

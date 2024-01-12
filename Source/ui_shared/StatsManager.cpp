@@ -3,17 +3,39 @@
 #include "string_format.h"
 #include "PS2VM.h"
 
-void CStatsManager::OnNewFrame(CPS2VM* virtualMachine, uint32 drawCalls)
+void CStatsManager::OnNewFrame(CPS2VM* virtualMachine)
+{
+	{
+		std::lock_guard<std::mutex> statsLock(m_statsMutex);
+		auto cpuUtilisation = virtualMachine->GetCpuUtilisationInfo();
+		m_cpuUtilisation.eeTotalTicks += cpuUtilisation.eeTotalTicks;
+		m_cpuUtilisation.eeIdleTicks += cpuUtilisation.eeIdleTicks;
+		m_cpuUtilisation.iopTotalTicks += cpuUtilisation.iopTotalTicks;
+		m_cpuUtilisation.iopIdleTicks += cpuUtilisation.iopIdleTicks;
+	}
+
+#ifdef PROFILE
+	std::lock_guard<std::mutex> profileZonesLock(m_profilerZonesMutex);
+
+	auto zones = CProfiler::GetInstance().GetStats();
+	for(auto& zone : zones)
+	{
+		auto& zoneInfo = m_profilerZones[zone.name];
+		zoneInfo.currentValue += zone.totalTime;
+		if(zone.totalTime != 0)
+		{
+			zoneInfo.minValue = std::min<uint64>(zoneInfo.minValue, zone.totalTime);
+		}
+		zoneInfo.maxValue = std::max<uint64>(zoneInfo.maxValue, zone.totalTime);
+	}
+#endif
+}
+
+void CStatsManager::OnGsNewFrame(uint32 drawCalls)
 {
 	std::lock_guard<std::mutex> statsLock(m_statsMutex);
 	m_frames++;
 	m_drawCalls += drawCalls;
-
-	auto cpuUtilisation = virtualMachine->GetCpuUtilisationInfo();
-	m_cpuUtilisation.eeTotalTicks += cpuUtilisation.eeTotalTicks;
-	m_cpuUtilisation.eeIdleTicks += cpuUtilisation.eeIdleTicks;
-	m_cpuUtilisation.iopTotalTicks += cpuUtilisation.iopTotalTicks;
-	m_cpuUtilisation.iopIdleTicks += cpuUtilisation.iopIdleTicks;
 }
 
 float CStatsManager::ComputeCpuUsageRatio(int32 idleTicks, int32 totalTicks)
@@ -103,23 +125,3 @@ void CStatsManager::ClearStats()
 	}
 #endif
 }
-
-#ifdef PROFILE
-
-void CStatsManager::OnProfileFrameDone(const CProfiler::ZoneArray& zones)
-{
-	std::lock_guard<std::mutex> profileZonesLock(m_profilerZonesMutex);
-
-	for(auto& zone : zones)
-	{
-		auto& zoneInfo = m_profilerZones[zone.name];
-		zoneInfo.currentValue += zone.totalTime;
-		if(zone.totalTime != 0)
-		{
-			zoneInfo.minValue = std::min<uint64>(zoneInfo.minValue, zone.totalTime);
-		}
-		zoneInfo.maxValue = std::max<uint64>(zoneInfo.maxValue, zone.totalTime);
-	}
-}
-
-#endif

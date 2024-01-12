@@ -103,7 +103,6 @@ private:
 	QLabel* m_gsLabel = nullptr;
 #ifdef PROFILE
 	QLabel* m_profileStatsLabel = nullptr;
-	CPS2VM::ProfileFrameDoneSignal::Connection m_profileFrameDoneConnection;
 #endif
 	ElidedLabel* m_msgLabel = nullptr;
 	QTimer* m_fpsTimer = nullptr;
@@ -117,7 +116,8 @@ private:
 	fs::path m_lastPath;
 
 	Framework::CSignal<void()>::Connection m_OnExecutableChangeConnection;
-	CGSHandler::NewFrameEvent::Connection m_OnNewFrameConnection;
+	CPS2VM::NewFrameEvent::Connection m_OnNewFrameConnection;
+	CGSHandler::NewFrameEvent::Connection m_OnGsNewFrameConnection;
 	CScreenShotUtils::Connection m_screenShotCompleteConnection;
 	CVirtualMachine::RunningStateChangeEvent::Connection m_onRunningStateChangeConnection;
 

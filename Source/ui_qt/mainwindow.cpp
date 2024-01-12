@@ -196,10 +196,6 @@ void MainWindow::InitVirtualMachine()
 		}
 	}
 
-#ifdef PROFILE
-	m_profileFrameDoneConnection = m_virtualMachine->ProfileFrameDone.Connect(std::bind(&CStatsManager::OnProfileFrameDone, &CStatsManager::GetInstance(), std::placeholders::_1));
-#endif
-
 	//OnExecutableChange might be called from another thread, we need to wrap it around a Qt signal
 	m_OnExecutableChangeConnection = m_virtualMachine->m_ee->m_os->OnExecutableChange.Connect(std::bind(&MainWindow::EmitOnExecutableChange, this));
 	connect(this, SIGNAL(onExecutableChange()), this, SLOT(HandleOnExecutableChange()));
@@ -258,7 +254,8 @@ void MainWindow::SetupGsHandler()
 	connect(m_outputwindow, SIGNAL(mousePress(QMouseEvent*)), this, SLOT(outputWindow_mousePressEvent(QMouseEvent*)));
 	connect(m_outputwindow, SIGNAL(mouseRelease(QMouseEvent*)), this, SLOT(outputWindow_mouseReleaseEvent(QMouseEvent*)));
 
-	m_OnNewFrameConnection = m_virtualMachine->m_ee->m_gs->OnNewFrame.Connect(std::bind(&CStatsManager::OnNewFrame, &CStatsManager::GetInstance(), m_virtualMachine, std::placeholders::_1));
+	m_OnNewFrameConnection = m_virtualMachine->OnNewFrame.Connect(std::bind(&CStatsManager::OnNewFrame, &CStatsManager::GetInstance(), m_virtualMachine));
+	m_OnGsNewFrameConnection = m_virtualMachine->m_ee->m_gs->OnNewFrame.Connect(std::bind(&CStatsManager::OnGsNewFrame, &CStatsManager::GetInstance(), std::placeholders::_1));
 }
 
 void MainWindow::SetupSoundHandler()

@@ -31,7 +31,7 @@ public:
 	typedef std::unique_ptr<COpticalMedia> OpticalMediaPtr;
 	typedef std::unique_ptr<Ee::CSubSystem> EeSubSystemPtr;
 	typedef std::unique_ptr<Iop::CSubSystem> IopSubSystemPtr;
-	typedef Framework::CSignal<void(const CProfiler::ZoneArray&)> ProfileFrameDoneSignal;
+	typedef Framework::CSignal<void()> NewFrameEvent;
 	typedef std::function<void(CPS2VM*)> ExecutableReloadedHandler;
 
 	CPS2VM();
@@ -95,7 +95,7 @@ public:
 	EeSubSystemPtr m_ee;
 	IopSubSystemPtr m_iop;
 
-	ProfileFrameDoneSignal ProfileFrameDone;
+	NewFrameEvent OnNewFrame;
 
 	ExecutableReloadedHandler BeforeExecutableReloaded;
 	ExecutableReloadedHandler AfterExecutableReloaded;

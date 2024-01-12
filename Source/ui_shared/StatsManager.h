@@ -10,7 +10,8 @@
 class CStatsManager : public CSingleton<CStatsManager>
 {
 public:
-	void OnNewFrame(CPS2VM*, uint32);
+	void OnNewFrame(CPS2VM*);
+	void OnGsNewFrame(uint32);
 
 	static float ComputeCpuUsageRatio(int32 idleTicks, int32 totalTicks);
 
@@ -22,10 +23,6 @@ public:
 #endif
 
 	void ClearStats();
-
-#ifdef PROFILE
-	void OnProfileFrameDone(const CProfiler::ZoneArray&);
-#endif
 
 private:
 	std::mutex m_statsMutex;
