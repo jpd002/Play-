@@ -17,9 +17,9 @@
 #include "../ui_shared/StatsManager.h"
 
 CPS2VM* g_virtualMachine = nullptr;
-CGSHandler::NewFrameEvent::Connection g_newFrameConnection;
+CGSHandler::NewFrameEvent::Connection g_gsNewFrameConnection;
 #ifdef PROFILE
-CPS2VM::ProfileFrameDoneSignal::Connection g_profileFrameDoneConnection;
+CPS2VM::NewFrameEvent::Connection g_newFrameConnection;
 #endif
 
 @interface EmulatorViewController () <SaveStateDelegate>
@@ -152,9 +152,9 @@ CPS2VM::ProfileFrameDoneSignal::Connection g_profileFrameDoneConnection;
 	g_virtualMachine->Destroy();
 	delete g_virtualMachine;
 	g_virtualMachine = nullptr;
-	g_newFrameConnection.reset();
+	g_gsNewFrameConnection.reset();
 #ifdef PROFILE
-	g_profileFrameDoneConnection.reset();
+	g_newFrameConnection.reset();
 #endif
 }
 
@@ -337,9 +337,9 @@ CPS2VM::ProfileFrameDoneSignal::Connection g_profileFrameDoneConnection;
 	[self.view addSubview:self.profilerStatsLabel];
 #endif
 
-	g_newFrameConnection = g_virtualMachine->GetGSHandler()->OnNewFrame.Connect(std::bind(&CStatsManager::OnNewFrame, &CStatsManager::GetInstance(), g_virtualMachine, std::placeholders::_1));
+	g_gsNewFrameConnection = g_virtualMachine->GetGSHandler()->OnNewFrame.Connect(std::bind(&CStatsManager::OnGsNewFrame, &CStatsManager::GetInstance(), std::placeholders::_1));
 #ifdef PROFILE
-	g_profileFrameDoneConnection = g_virtualMachine->ProfileFrameDone.Connect(std::bind(&CStatsManager::OnProfileFrameDone, &CStatsManager::GetInstance(), std::placeholders::_1));
+	g_newFrameConnection = g_virtualMachine->OnNewFrame.Connect(std::bind(&CStatsManager::OnNewFrame, &CStatsManager::GetInstance(), g_virtualMachine));
 #endif
 	self.fpsCounterTimer = [NSTimer scheduledTimerWithTimeInterval:1 target:self selector:@selector(updateFpsCounter) userInfo:nil repeats:YES];
 }

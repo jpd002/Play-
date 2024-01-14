@@ -30,8 +30,8 @@
 #include "http/java_net_URL.h"
 
 CPS2VM* g_virtualMachine = nullptr;
-CPS2VM::ProfileFrameDoneSignal::Connection g_ProfileFrameDoneConnection;
-Framework::CSignal<void(uint32)>::Connection g_OnNewFrameConnection;
+CPS2VM::NewFrameEvent::Connection g_OnNewFrameConnection;
+CGSHandler::NewFrameEvent::Connection g_OnGsNewFrameConnection;
 int g_currentGsHandlerId = -1;
 
 #define PREF_VIDEO_GS_HANDLER ("video.gshandler")
@@ -116,7 +116,7 @@ extern "C" JNIEXPORT void JNICALL Java_com_virtualapplications_play_NativeIntero
 	g_virtualMachine->Initialize();
 	g_virtualMachine->CreatePadHandler(CPH_Generic::GetFactoryFunction());
 #ifdef PROFILE
-	g_ProfileFrameDoneConnection = g_virtualMachine->ProfileFrameDone.Connect(std::bind(&CStatsManager::OnProfileFrameDone, &CStatsManager::GetInstance(), std::placeholders::_1));
+	g_OnNewFrameConnection = g_virtualMachine->OnNewFrame.Connect(std::bind(&CStatsManager::OnNewFrame, &CStatsManager::GetInstance(), g_virtualMachine));
 #endif
 	CAppConfig::GetInstance().RegisterPreferenceInteger(PREF_VIDEO_GS_HANDLER, PREFERENCE_VALUE_VIDEO_GS_HANDLER_OPENGL);
 	CAppConfig::GetInstance().RegisterPreferenceBoolean(PREF_AUDIO_ENABLEOUTPUT, true);
@@ -221,8 +221,8 @@ extern "C" JNIEXPORT void JNICALL Java_com_virtualapplications_play_NativeIntero
 			break;
 		}
 		g_currentGsHandlerId = gsHandlerId;
-		g_OnNewFrameConnection = g_virtualMachine->m_ee->m_gs->OnNewFrame.Connect(
-		    std::bind(&CStatsManager::OnNewFrame, &CStatsManager::GetInstance(), g_virtualMachine, std::placeholders::_1));
+		g_OnGsNewFrameConnection = g_virtualMachine->m_ee->m_gs->OnNewFrame.Connect(
+		    std::bind(&CStatsManager::OnGsNewFrame, &CStatsManager::GetInstance(), std::placeholders::_1));
 	}
 	else
 	{
