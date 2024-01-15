@@ -37,7 +37,7 @@ if(NOT TARGET ui_shared)
 		${CMAKE_CURRENT_SOURCE_DIR}/../ui_shared
 		${CMAKE_CURRENT_BINARY_DIR}/ui_shared
 	)
-	endif()
+endif()
 list(APPEND PROJECT_LIBS ui_shared)
 
 set(ANDROID_SRC_FILES
