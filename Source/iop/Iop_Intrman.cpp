@@ -159,13 +159,28 @@ uint32 CIntrman::DisableIntrLine(CMIPS& context, uint32 line, uint32 res)
 	CLog::GetInstance().Print(LOGNAME, FUNCTION_DISABLEINTRLINE "(line = %d, res = %08X);\r\n",
 	                          line, res);
 #endif
+	uint32 ret = CIopBios::KERNEL_RESULT_OK;
+	uint32 stat = line;
 	UNION64_32 mask(
 	    context.m_pMemoryMap->GetWord(CIntc::MASK0),
 	    context.m_pMemoryMap->GetWord(CIntc::MASK1));
-	mask.f &= ~(1LL << line);
-	context.m_pMemoryMap->SetWord(CIntc::MASK0, mask.h0);
-	context.m_pMemoryMap->SetWord(CIntc::MASK1, mask.h1);
-	return 0;
+	if(mask.f & (1LL << line))
+	{
+		mask.f &= ~(1LL << line);
+		context.m_pMemoryMap->SetWord(CIntc::MASK0, mask.h0);
+		context.m_pMemoryMap->SetWord(CIntc::MASK1, mask.h1);
+	}
+	else
+	{
+		ret = CIopBios::KERNEL_RESULT_ERROR_INTRDISABLE;
+		stat = CIopBios::KERNEL_RESULT_ERROR_INTRDISABLE;
+	}
+	if(res != 0)
+	{
+		uint32* state = reinterpret_cast<uint32*>(m_ram + res);
+		(*state) = stat;
+	}
+	return ret;
 }
 
 uint32 CIntrman::EnableInterrupts(CMIPS& context)
@@ -210,7 +225,7 @@ uint32 CIntrman::SuspendInterrupts(CMIPS& context, uint32 statePtr)
 uint32 CIntrman::ResumeInterrupts(CMIPS& context, uint32 state)
 {
 #ifdef _DEBUG
-	CLog::GetInstance().Print(LOGNAME, FUNCTION_RESUMEINTERRUPTS "();\r\n");
+	CLog::GetInstance().Print(LOGNAME, FUNCTION_RESUMEINTERRUPTS "(0x%x);\r\n", state);
 #endif
 	uint32& statusRegister = context.m_State.nCOP0[CCOP_SCU::STATUS];
 	if(state)
