@@ -606,7 +606,7 @@ void CMA_MIPSIV::LWL()
 	ComputeMemAccessAddrNoXlat();
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
 	m_codeGen->PushCtx();
-	m_codeGen->Call(reinterpret_cast<void*>(&LWL_Proxy), 3, true);
+	m_codeGen->Call(reinterpret_cast<void*>(&LWL_Proxy), 3, Jitter::CJitter::RETURN_VALUE_32);
 
 	if(m_regSize == MIPS_REGSIZE_64)
 	{
@@ -645,7 +645,7 @@ void CMA_MIPSIV::LWR()
 	ComputeMemAccessAddrNoXlat();
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
 	m_codeGen->PushCtx();
-	m_codeGen->Call(reinterpret_cast<void*>(&LWR_Proxy), 3, true);
+	m_codeGen->Call(reinterpret_cast<void*>(&LWR_Proxy), 3, Jitter::CJitter::RETURN_VALUE_32);
 
 	if(m_regSize == MIPS_REGSIZE_64)
 	{
@@ -681,7 +681,7 @@ void CMA_MIPSIV::SWL()
 	ComputeMemAccessAddrNoXlat();
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
 	m_codeGen->PushCtx();
-	m_codeGen->Call(reinterpret_cast<void*>(&SWL_Proxy), 3, false);
+	m_codeGen->Call(reinterpret_cast<void*>(&SWL_Proxy), 3, Jitter::CJitter::RETURN_VALUE_NONE);
 }
 
 //2B
@@ -698,7 +698,7 @@ void CMA_MIPSIV::SDL()
 	ComputeMemAccessAddrNoXlat();
 	m_codeGen->PushRel64(offsetof(CMIPS, m_State.nGPR[m_nRT]));
 	m_codeGen->PushCtx();
-	m_codeGen->Call(reinterpret_cast<void*>(&SDL_Proxy), 3, false);
+	m_codeGen->Call(reinterpret_cast<void*>(&SDL_Proxy), 3, Jitter::CJitter::RETURN_VALUE_NONE);
 }
 
 //2D
@@ -709,7 +709,7 @@ void CMA_MIPSIV::SDR()
 	ComputeMemAccessAddrNoXlat();
 	m_codeGen->PushRel64(offsetof(CMIPS, m_State.nGPR[m_nRT]));
 	m_codeGen->PushCtx();
-	m_codeGen->Call(reinterpret_cast<void*>(&SDR_Proxy), 3, false);
+	m_codeGen->Call(reinterpret_cast<void*>(&SDR_Proxy), 3, Jitter::CJitter::RETURN_VALUE_NONE);
 }
 
 //2E
@@ -719,7 +719,7 @@ void CMA_MIPSIV::SWR()
 	ComputeMemAccessAddrNoXlat();
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
 	m_codeGen->PushCtx();
-	m_codeGen->Call(reinterpret_cast<void*>(&SWR_Proxy), 3, false);
+	m_codeGen->Call(reinterpret_cast<void*>(&SWR_Proxy), 3, Jitter::CJitter::RETURN_VALUE_NONE);
 }
 
 //2F

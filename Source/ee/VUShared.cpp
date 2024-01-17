@@ -670,7 +670,7 @@ void VUShared::ADDi(CMipsJitter* codeGen, uint8 nDest, uint8 nFd, uint8 nFs, uin
 
 		codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2[nFs].nV[i]));
 		codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2I));
-		codeGen->Call(reinterpret_cast<void*>(&FpAddTruncate), 2, true);
+		codeGen->Call(reinterpret_cast<void*>(&FpAddTruncate), 2, Jitter::CJitter::RETURN_VALUE_32);
 		codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2[nFd].nV[i]));
 	}
 #else

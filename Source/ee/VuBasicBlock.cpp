@@ -415,7 +415,7 @@ void CVuBasicBlock::EmitXgKick(CMipsJitter* jitter)
 	//Compute Address
 	jitter->PushCst(CVpu::VU_ADDR_XGKICK);
 
-	jitter->Call(reinterpret_cast<void*>(&MemoryUtils_SetWordProxy), 3, false);
+	jitter->Call(reinterpret_cast<void*>(&MemoryUtils_SetWordProxy), 3, Jitter::CJitter::RETURN_VALUE_NONE);
 }
 
 void CVuBasicBlock::ComputeSkipFlagsHints(const std::vector<uint32>& fmacStallDelays, std::vector<uint32>& hints) const

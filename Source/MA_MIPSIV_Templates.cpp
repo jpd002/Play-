@@ -116,7 +116,7 @@ void CMA_MIPSIV::Template_Load32Idx(const MemoryAccessIdxTraits& traits)
 
 		m_codeGen->PushCtx();
 		m_codeGen->PushIdx(1);
-		m_codeGen->Call(traits.getProxyFunction, 2, true);
+		m_codeGen->Call(traits.getProxyFunction, 2, Jitter::CJitter::RETURN_VALUE_32);
 
 		finishLoad();
 
@@ -157,7 +157,7 @@ void CMA_MIPSIV::Template_Store32Idx(const MemoryAccessIdxTraits& traits)
 		m_codeGen->PushCtx();
 		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
 		m_codeGen->PushIdx(2);
-		m_codeGen->Call(traits.setProxyFunction, 3, false);
+		m_codeGen->Call(traits.setProxyFunction, 3, Jitter::CJitter::RETURN_VALUE_NONE);
 
 		m_codeGen->PullTop();
 	}

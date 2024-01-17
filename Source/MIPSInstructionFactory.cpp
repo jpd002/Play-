@@ -55,7 +55,7 @@ void CMIPSInstructionFactory::CheckTLBExceptions(bool isWrite)
 	m_codeGen->PushCst(isWrite ? 1 : 0);
 
 	//Call
-	m_codeGen->Call(reinterpret_cast<void*>(m_pCtx->m_TLBExceptionChecker), 3, true);
+	m_codeGen->Call(reinterpret_cast<void*>(m_pCtx->m_TLBExceptionChecker), 3, Jitter::CJitter::RETURN_VALUE_32);
 
 	m_codeGen->PushCst(MIPS_EXCEPTION_NONE);
 	m_codeGen->BeginIf(Jitter::CONDITION_NE);
@@ -114,7 +114,7 @@ void CMIPSInstructionFactory::ComputeMemAccessAddr()
 		}
 
 		//Call
-		m_codeGen->Call(reinterpret_cast<void*>(m_pCtx->m_pAddrTranslator), 2, true);
+		m_codeGen->Call(reinterpret_cast<void*>(m_pCtx->m_pAddrTranslator), 2, Jitter::CJitter::RETURN_VALUE_32);
 	}
 }
 

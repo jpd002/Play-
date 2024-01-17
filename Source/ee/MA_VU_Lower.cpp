@@ -637,7 +637,7 @@ void CMA_VU::CLower::XTOP()
 	//Compute Address
 	m_codeGen->PushCst(CVpu::VU_ADDR_TOP);
 
-	m_codeGen->Call(reinterpret_cast<void*>(&MemoryUtils_GetWordProxy), 2, true);
+	m_codeGen->Call(reinterpret_cast<void*>(&MemoryUtils_GetWordProxy), 2, Jitter::CJitter::RETURN_VALUE_32);
 	m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
 }
 
@@ -781,7 +781,7 @@ void CMA_VU::CLower::XITOP()
 	//Compute Address
 	m_codeGen->PushCst(CVpu::VU_ADDR_ITOP);
 
-	m_codeGen->Call(reinterpret_cast<void*>(&MemoryUtils_GetWordProxy), 2, true);
+	m_codeGen->Call(reinterpret_cast<void*>(&MemoryUtils_GetWordProxy), 2, Jitter::CJitter::RETURN_VALUE_32);
 	VUShared::PullIntegerRegister(m_codeGen, m_nIT);
 }
 
