@@ -8,12 +8,16 @@
 #include "../GSHandler.h"
 #include "../GsPixelFormats.h"
 
-#define DESCRIPTOR_LOCATION_BUFFER_MEMORY 0
-#define DESCRIPTOR_LOCATION_IMAGE_CLUT 1
-#define DESCRIPTOR_LOCATION_IMAGE_SWIZZLETABLE_TEX 2
-#define DESCRIPTOR_LOCATION_IMAGE_SWIZZLETABLE_FB 3
-#define DESCRIPTOR_LOCATION_IMAGE_SWIZZLETABLE_DEPTH 4
-#define DESCRIPTOR_LOCATION_BUFFER_MEMORY_COPY 5
+enum DESCRIPTORS
+{
+	DESCRIPTOR_LOCATION_BUFFER_MEMORY,
+	DESCRIPTOR_LOCATION_BUFFER_MEMORY_COPY,
+	DESCRIPTOR_LOCATION_IMAGE_CLUT,
+	DESCRIPTOR_LOCATION_IMAGE_SWIZZLETABLE_TEX,
+	DESCRIPTOR_LOCATION_IMAGE_SWIZZLETABLE_FB,
+	DESCRIPTOR_LOCATION_IMAGE_SWIZZLETABLE_DEPTH,
+	DESCRIPTOR_LOCATION_UNIFORM_MIPPARAMS,
+};
 
 using namespace GSH_Vulkan;
 
@@ -175,6 +179,16 @@ PIPELINE CDrawDesktop::CreateDrawPipeline(const PIPELINE_CAPS& caps)
 				setLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 				setLayoutBindings.push_back(setLayoutBinding);
 			}
+
+			if(caps.textureUseDynamicMipLOD)
+			{
+				VkDescriptorSetLayoutBinding setLayoutBinding = {};
+				setLayoutBinding.binding = DESCRIPTOR_LOCATION_UNIFORM_MIPPARAMS;
+				setLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
+				setLayoutBinding.descriptorCount = 1;
+				setLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+				setLayoutBindings.push_back(setLayoutBinding);
+			}
 		}
 
 		auto setLayoutCreateInfo = Framework::Vulkan::DescriptorSetLayoutCreateInfo();
@@ -315,6 +329,8 @@ VkDescriptorSet CDrawDesktop::PrepareDescriptorSet(VkDescriptorSetLayout descrip
 		CHECKVULKANERROR(result);
 	}
 
+	auto& frame = m_frames[caps.frameNumber];
+
 	//Update descriptor set
 	{
 		VkDescriptorBufferInfo descriptorMemoryBufferInfo = {};
@@ -328,6 +344,10 @@ VkDescriptorSet CDrawDesktop::PrepareDescriptorSet(VkDescriptorSetLayout descrip
 		VkDescriptorBufferInfo descriptorClutBufferInfo = {};
 		descriptorClutBufferInfo.buffer = m_context->clutBuffer;
 		descriptorClutBufferInfo.range = sizeof(uint32) * CGSHandler::CLUTENTRYCOUNT;
+
+		VkDescriptorBufferInfo descriptorMipParamsUniformInfo = {};
+		descriptorMipParamsUniformInfo.buffer = frame.mipParamsBuffer;
+		descriptorMipParamsUniformInfo.range = sizeof(DRAW_PIPELINE_MIPPARAMS_UNIFORMS);
 
 		VkDescriptorImageInfo descriptorTexSwizzleTableImageInfo = {};
 		descriptorTexSwizzleTableImageInfo.imageView = m_context->GetSwizzleTable(caps.textureFormat);
@@ -405,6 +425,17 @@ VkDescriptorSet CDrawDesktop::PrepareDescriptorSet(VkDescriptorSetLayout descrip
 				writeSet.pBufferInfo = &descriptorClutBufferInfo;
 				writes.push_back(writeSet);
 			}
+
+			if(caps.textureUseDynamicMipLOD)
+			{
+				auto writeSet = Framework::Vulkan::WriteDescriptorSet();
+				writeSet.dstSet = descriptorSet;
+				writeSet.dstBinding = DESCRIPTOR_LOCATION_UNIFORM_MIPPARAMS;
+				writeSet.descriptorCount = 1;
+				writeSet.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
+				writeSet.pBufferInfo = &descriptorMipParamsUniformInfo;
+				writes.push_back(writeSet);
+			}
 		}
 
 		m_context->device.vkUpdateDescriptorSets(m_context->device, static_cast<uint32_t>(writes.size()), writes.data(), 0, nullptr);
@@ -447,16 +478,27 @@ Framework::Vulkan::CShaderModule CDrawDesktop::CreateFragmentShader(const PIPELI
 		auto alphaFbParams = CInt4Lvalue(b.CreateUniformInt4("alphaFbParams", Nuanceur::UNIFORM_UNIT_PUSHCONSTANT));
 		auto fogColor = CFloat4Lvalue(b.CreateUniformFloat4("fogColor", Nuanceur::UNIFORM_UNIT_PUSHCONSTANT));
 
+		//Uniforms
+		auto mipParams0 = CInt4Lvalue(b.CreateUniformInt4("mipParams0", DESCRIPTOR_LOCATION_UNIFORM_MIPPARAMS));
+		auto mipParams1 = CInt4Lvalue(b.CreateUniformInt4("mipParams1", DESCRIPTOR_LOCATION_UNIFORM_MIPPARAMS));
+		auto mipParams2 = CInt4Lvalue(b.CreateUniformInt4("mipParams2", DESCRIPTOR_LOCATION_UNIFORM_MIPPARAMS));
+		auto mipParams3 = CInt4Lvalue(b.CreateUniformInt4("mipParams3", DESCRIPTOR_LOCATION_UNIFORM_MIPPARAMS));
+		auto mipParams4 = CFloat4Lvalue(b.CreateUniformFloat4("mipParams4", DESCRIPTOR_LOCATION_UNIFORM_MIPPARAMS));
+
+		auto texBufAddress = CIntLvalue(b.CreateVariableInt("texBufAddress"));
+		auto texBufWidth = CIntLvalue(b.CreateVariableInt("texBufWidth"));
+		auto texMipLevel = CIntLvalue(b.CreateVariableInt("texMipLevel"));
+
 		auto fbBufAddress = fbDepthParams->x();
 		auto fbBufWidth = fbDepthParams->y();
 		auto depthBufAddress = fbDepthParams->z();
 		auto depthBufWidth = fbDepthParams->w();
 
-		auto texBufAddress = texParams0->x();
-		auto texBufWidth = texParams0->y();
+		texBufAddress = texParams0->x();
+		texBufWidth = texParams0->y();
 		auto texSize = texParams0->zw();
 
-		auto texMipLevel = texParams1->x();
+		texMipLevel = texParams1->x();
 		auto texCsa = texParams1->y();
 		auto texA0 = ToFloat(texParams1->z()) / NewFloat(b, 255.f);
 		auto texA1 = ToFloat(texParams1->w()) / NewFloat(b, 255.f);
@@ -499,6 +541,39 @@ Framework::Vulkan::CShaderModule CDrawDesktop::CreateFragmentShader(const PIPELI
 
 			auto textureSt = CFloat2Lvalue(b.CreateVariableFloat("textureSt"));
 			textureSt = inputTexCoord->xy() / inputTexCoord->zz();
+
+			if(caps.textureUseDynamicMipLOD)
+			{
+				auto mipBuf1 = mipParams0->xy();
+				auto mipBuf2 = mipParams0->zw();
+				auto mipBuf3 = mipParams1->xy();
+				auto mipBuf4 = mipParams1->zw();
+				auto mipBuf5 = mipParams2->xy();
+				auto mipBuf6 = mipParams2->zw();
+				auto maxMip = mipParams3->x();
+				auto mipL = mipParams3->y();
+				auto mipK = mipParams4->x();
+
+				auto mipLevelP = Trunc(Log2(Abs(NewFloat(b, 1.0f) / inputTexCoord->z())));
+				auto mipLevelR = Trunc((ToFloat(ToInt(mipLevelP) << mipL)) + mipK);
+				auto mipLevel = Min(ToInt(mipLevelR + NewFloat(b, 1.0f)), maxMip);
+
+#define ASSIGN_MIP(a)                     \
+	BeginIf(b, mipLevel == NewInt(b, a)); \
+	{                                     \
+		texMipLevel = NewInt(b, a);       \
+		texBufAddress = mipBuf##a->x();   \
+		texBufWidth = mipBuf##a->y();     \
+	}                                     \
+	EndIf(b);
+				ASSIGN_MIP(1);
+				ASSIGN_MIP(2);
+				ASSIGN_MIP(3);
+				ASSIGN_MIP(4);
+				ASSIGN_MIP(5);
+				ASSIGN_MIP(6);
+#undef ASSIGN_MIP
+			}
 
 			if(caps.textureUseLinearFiltering)
 			{
@@ -939,14 +1014,23 @@ void CDrawDesktop::FlushVertices()
 	descriptorSetCaps.framebufferFormat = m_pipelineCaps.framebufferFormat;
 	descriptorSetCaps.depthbufferFormat = m_pipelineCaps.depthbufferFormat;
 	descriptorSetCaps.textureFormat = m_pipelineCaps.textureFormat;
+	descriptorSetCaps.textureUseDynamicMipLOD = m_pipelineCaps.textureUseDynamicMipLOD;
+	descriptorSetCaps.frameNumber = m_frameCommandBuffer->GetCurrentFrame();
 
 	auto descriptorSet = PrepareDescriptorSet(drawPipeline->descriptorSetLayout, descriptorSetCaps);
 
 	std::vector<uint32> descriptorDynamicOffsets;
 
+	//Ordering for dynamic offsets
+	static_assert(DESCRIPTOR_LOCATION_IMAGE_CLUT < DESCRIPTOR_LOCATION_UNIFORM_MIPPARAMS);
+
 	if(m_pipelineCaps.hasTexture && CGsPixelFormats::IsPsmIDTEX(m_pipelineCaps.textureFormat))
 	{
 		descriptorDynamicOffsets.push_back(m_clutBufferOffset);
+	}
+	if(m_pipelineCaps.hasTexture && m_pipelineCaps.textureUseDynamicMipLOD)
+	{
+		descriptorDynamicOffsets.push_back(m_mipParamsIndex * sizeof(DRAW_PIPELINE_MIPPARAMS_UNIFORMS));
 	}
 
 	m_context->device.vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, drawPipeline->pipelineLayout,

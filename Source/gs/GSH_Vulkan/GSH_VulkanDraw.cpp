@@ -33,6 +33,15 @@ CDraw::CDraw(const ContextPtr& context, const FrameCommandBufferPtr& frameComman
 		auto result = m_context->device.vkMapMemory(m_context->device, frame.vertexBuffer.GetMemory(),
 		                                            0, VK_WHOLE_SIZE, 0, reinterpret_cast<void**>(&frame.vertexBufferPtr));
 		CHECKVULKANERROR(result);
+
+		frame.mipParamsBuffer = Framework::Vulkan::CBuffer(
+		    m_context->device, m_context->physicalDeviceMemoryProperties,
+		    VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+		    sizeof(DRAW_PIPELINE_MIPPARAMS_UNIFORMS) * MAX_MIPPARAMS_COUNT);
+
+		result = m_context->device.vkMapMemory(m_context->device, frame.mipParamsBuffer.GetMemory(),
+		                                       0, VK_WHOLE_SIZE, 0, reinterpret_cast<void**>(&frame.mipParamsBufferPtr));
+		CHECKVULKANERROR(result);
 	}
 
 	m_pipelineCaps <<= 0;
@@ -99,6 +108,27 @@ void CDraw::SetTextureParams(uint32 bufAddr, uint32 bufWidth, uint32 width, uint
 	m_pushConstants.texHeight = height;
 	m_pushConstants.texMipLevel = mipLevel;
 	m_pushConstants.texCsa = csa;
+}
+
+void CDraw::SetMipParams(const MipBufs& mipBufs, uint32 maxMip, float lodK, uint32 lodL)
+{
+	assert(m_pipelineCaps.textureUseDynamicMipLOD);
+	bool changed = false;
+	auto& frame = m_frames[m_frameCommandBuffer->GetCurrentFrame()];
+	auto mipParamsUniforms = frame.mipParamsBufferPtr + m_mipParamsIndex;
+	changed |= (mipBufs != mipParamsUniforms->mipBufs);
+	changed |= (maxMip != mipParamsUniforms->maxMip);
+	changed |= (lodK != mipParamsUniforms->lodK);
+	changed |= (lodL != mipParamsUniforms->lodL);
+	if(!changed) return;
+	FlushVertices();
+	m_mipParamsIndex++;
+	mipParamsUniforms++;
+	assert(m_mipParamsIndex < MAX_MIPPARAMS_COUNT);
+	mipParamsUniforms->mipBufs = mipBufs;
+	mipParamsUniforms->maxMip = maxMip;
+	mipParamsUniforms->lodK = lodK;
+	mipParamsUniforms->lodL = lodL;
 }
 
 void CDraw::SetClutBufferOffset(uint32 clutBufferOffset)
@@ -236,6 +266,7 @@ void CDraw::PreFlushFrameCommandBuffer()
 void CDraw::PostFlushFrameCommandBuffer()
 {
 	m_passVertexStart = m_passVertexEnd = 0;
+	m_mipParamsIndex = 0;
 }
 
 std::vector<VkVertexInputAttributeDescription> CDraw::GetVertexAttributes()

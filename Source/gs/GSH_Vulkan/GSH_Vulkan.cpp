@@ -706,6 +706,28 @@ void CGSH_Vulkan::VertexKick(uint8 registerId, uint64 data)
 	}
 }
 
+static std::pair<uint32, uint32> GetMipLevelInfo(uint32 level, const CGSHandler::MIPTBP1& miptbp1, const CGSHandler::MIPTBP2& miptbp2)
+{
+	switch(level)
+	{
+	default:
+		assert(false);
+		return std::pair<uint32, uint32>(0, 0);
+	case 1:
+		return std::pair<uint32, uint32>(miptbp1.GetTbp1(), miptbp1.GetTbw1());
+	case 2:
+		return std::pair<uint32, uint32>(miptbp1.GetTbp2(), miptbp1.GetTbw2());
+	case 3:
+		return std::pair<uint32, uint32>(miptbp1.GetTbp3(), miptbp1.GetTbw3());
+	case 4:
+		return std::pair<uint32, uint32>(miptbp2.GetTbp4(), miptbp2.GetTbw4());
+	case 5:
+		return std::pair<uint32, uint32>(miptbp2.GetTbp5(), miptbp2.GetTbw5());
+	case 6:
+		return std::pair<uint32, uint32>(miptbp2.GetTbp6(), miptbp2.GetTbw6());
+	}
+}
+
 void CGSH_Vulkan::SetRenderingContext(uint64 primReg)
 {
 	auto prim = make_convertible<PRMODE>(primReg);
@@ -776,6 +798,8 @@ void CGSH_Vulkan::SetRenderingContext(uint64 primReg)
 	uint32 texBufWidth = tex0.GetBufWidth();
 	uint32 texMipLevel = 0;
 
+	CDraw::MipBufs mipBufs;
+
 	if(prim.nTexture)
 	{
 		bool minLinear = false;
@@ -812,50 +836,38 @@ void CGSH_Vulkan::SetRenderingContext(uint64 primReg)
 		}
 		else
 		{
-			//Check if the game uses mipmaps as a kind of texture array
-			//In this case, we can use the proper mip level instead of mip level 0.
+			//Check if game uses nearest mip
 			bool mipNearest =
 			    (tex1.nMinFilter == MIN_FILTER_NEAREST_MIP_NEAREST) ||
 			    (tex1.nMinFilter == MIN_FILTER_LINEAR_MIP_NEAREST);
-			if(mipNearest && tex1.nLODMethod == LOD_CALC_STATIC)
+			if(mipNearest)
 			{
 				auto miptbp1 = make_convertible<MIPTBP1>(m_nReg[GS_REG_MIPTBP1_1 + context]);
 				auto miptbp2 = make_convertible<MIPTBP2>(m_nReg[GS_REG_MIPTBP2_1 + context]);
 
-				int k = trunc(tex1.GetK());
-				texMipLevel = std::clamp<int>(k, 0, tex1.nMaxMip);
-				switch(texMipLevel)
+				if(tex1.nLODMethod == LOD_CALC_STATIC)
 				{
-				default:
-					assert(false);
-					[[fallthrough]];
-				case 0:
-					//We already have proper texture settings
-					break;
-				case 1:
-					texBufPtr = miptbp1.GetTbp1();
-					texBufWidth = miptbp1.GetTbw1();
-					break;
-				case 2:
-					texBufPtr = miptbp1.GetTbp2();
-					texBufWidth = miptbp1.GetTbw2();
-					break;
-				case 3:
-					texBufPtr = miptbp1.GetTbp3();
-					texBufWidth = miptbp1.GetTbw3();
-					break;
-				case 4:
-					texBufPtr = miptbp2.GetTbp4();
-					texBufWidth = miptbp2.GetTbw4();
-					break;
-				case 5:
-					texBufPtr = miptbp2.GetTbp5();
-					texBufWidth = miptbp2.GetTbw5();
-					break;
-				case 6:
-					texBufPtr = miptbp2.GetTbp6();
-					texBufWidth = miptbp2.GetTbw6();
-					break;
+					int k = trunc(tex1.GetK());
+					texMipLevel = std::clamp<int>(k, 0, tex1.nMaxMip);
+					if(texMipLevel != 0)
+					{
+						auto mipLevelInfo = GetMipLevelInfo(texMipLevel, miptbp1, miptbp2);
+						texBufPtr = mipLevelInfo.first;
+						texBufWidth = mipLevelInfo.second;
+					}
+				}
+				else
+				{
+					for(int i = 1; i <= tex1.nMaxMip; i++)
+					{
+						mipBufs[i - 1] = GetMipLevelInfo(i, miptbp1, miptbp2);
+					}
+					for(int i = tex1.nMaxMip + 1; i <= 6; i++)
+					{
+						mipBufs[i - 1] = std::pair<uint32, uint32>(0, 0);
+					}
+
+					pipelineCaps.textureUseDynamicMipLOD = true;
 				}
 			}
 		}
@@ -964,6 +976,10 @@ void CGSH_Vulkan::SetRenderingContext(uint64 primReg)
 	m_draw->SetFramebufferParams(frame.GetBasePtr(), frame.GetWidth(), fbWriteMask);
 	m_draw->SetDepthbufferParams(zbuf.GetBasePtr(), frame.GetWidth());
 	m_draw->SetTextureParams(texBufPtr, texBufWidth, tex0.GetWidth(), tex0.GetHeight(), texMipLevel, tex0.nCSA * 0x10);
+	if(pipelineCaps.textureUseDynamicMipLOD)
+	{
+		m_draw->SetMipParams(mipBufs, tex1.nMaxMip, tex1.GetK(), tex1.nLODL);
+	}
 	m_draw->SetTextureAlphaParams(texA.nTA0, texA.nTA1);
 	m_draw->SetTextureClampParams(
 	    clamp.GetMinU(), clamp.GetMinV(),
@@ -1751,21 +1767,18 @@ Framework::CBitmap CGSH_Vulkan::GetTextureImpl(uint64 tex0Reg, uint32 maxMip, ui
 			    assert(false);
 			    [[fallthrough]];
 		    case 0:
-			    return std::make_pair(tex0.GetBufPtr(), static_cast<uint32>(tex0.nBufWidth));
+			    return std::make_pair(tex0.GetBufPtr(), tex0.GetBufWidth());
 		    case 1:
-			    return std::make_pair(miptbp1.GetTbp1(), static_cast<uint32>(miptbp1.tbw1));
 		    case 2:
-			    return std::make_pair(miptbp1.GetTbp2(), static_cast<uint32>(miptbp1.tbw2));
 		    case 3:
-			    return std::make_pair(miptbp1.GetTbp3(), static_cast<uint32>(miptbp1.tbw3));
 		    case 4:
-			    return std::make_pair(miptbp2.GetTbp4(), static_cast<uint32>(miptbp2.tbw4));
 		    case 5:
-			    return std::make_pair(miptbp2.GetTbp5(), static_cast<uint32>(miptbp2.tbw5));
 		    case 6:
-			    return std::make_pair(miptbp2.GetTbp6(), static_cast<uint32>(miptbp2.tbw6));
+			    return GetMipLevelInfo(mipLevel, miptbp1, miptbp2);
 		    }
 	    }();
+	assert((tbw & 0x3F) == 0);
+	tbw /= 64;
 
 	SyncMemoryCache();
 

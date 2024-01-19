@@ -156,6 +156,7 @@ unsigned int CGsPixelFormats::GetPsmPixelSize(unsigned int psm)
 	case CGSHandler::PSMT4HH:
 	case CGSHandler::PSMT4HL:
 	case CGSHandler::PSMT8H:
+	case CGSHandler::PSMZ32:
 		return 32;
 		break;
 	case CGSHandler::PSMCT24:

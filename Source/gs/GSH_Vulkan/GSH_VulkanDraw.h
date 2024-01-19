@@ -39,6 +39,7 @@ namespace GSH_Vulkan
 			uint32 textureBlackIsTransparent : 1;
 			uint32 textureFunction : 2;
 			uint32 textureUseLinearFiltering : 1;
+			uint32 textureUseDynamicMipLOD : 1;
 			uint32 texClampU : 2;
 			uint32 texClampV : 2;
 
@@ -80,6 +81,8 @@ namespace GSH_Vulkan
 			float f;
 		};
 
+		using MipBufs = std::array<std::pair<uint32, uint32>, 6>;
+
 		CDraw(const ContextPtr&, const FrameCommandBufferPtr&);
 		virtual ~CDraw();
 
@@ -87,6 +90,7 @@ namespace GSH_Vulkan
 		virtual void SetFramebufferParams(uint32, uint32, uint32);
 		virtual void SetDepthbufferParams(uint32, uint32);
 		void SetTextureParams(uint32, uint32, uint32, uint32, uint32, uint32);
+		void SetMipParams(const MipBufs&, uint32, float, uint32);
 		void SetClutBufferOffset(uint32);
 		void SetTextureAlphaParams(uint32, uint32);
 		void SetTextureClampParams(uint32, uint32, uint32, uint32);
@@ -109,11 +113,7 @@ namespace GSH_Vulkan
 			DRAW_AREA_SIZE = 2048
 		};
 
-		struct FRAMECONTEXT
-		{
-			Framework::Vulkan::CBuffer vertexBuffer;
-			PRIM_VERTEX* vertexBufferPtr = nullptr;
-		};
+		static constexpr uint32 MAX_MIPPARAMS_COUNT = 512;
 
 		typedef uint32 DescriptorSetCapsInt;
 
@@ -121,8 +121,10 @@ namespace GSH_Vulkan
 		{
 			uint32 hasTexture : 1;
 			uint32 textureFormat : 6;
+			uint32 textureUseDynamicMipLOD : 1;
 			uint32 framebufferFormat : 6;
 			uint32 depthbufferFormat : 6;
+			uint32 frameNumber : 2;
 		};
 		static_assert(sizeof(DESCRIPTORSET_CAPS) == sizeof(DescriptorSetCapsInt));
 		typedef std::unordered_map<DescriptorSetCapsInt, VkDescriptorSet> DescriptorSetCache;
@@ -164,6 +166,34 @@ namespace GSH_Vulkan
 		};
 		static_assert(sizeof(DRAW_PIPELINE_PUSHCONSTANTS) <= 128, "Push constants size can't exceed 128 bytes.");
 
+		struct DRAW_PIPELINE_MIPPARAMS_UNIFORMS
+		{
+			//mipParams0-mipParams2
+			MipBufs mipBufs;
+
+			//mipParams3
+			uint32 maxMip;
+			uint32 lodL;
+			uint32 unused1[2];
+
+			//mipParams4
+			float lodK;
+			uint32 unused2[3];
+
+			//padding
+			uint32 unused3[12];
+		};
+		static_assert((sizeof(DRAW_PIPELINE_MIPPARAMS_UNIFORMS) & 0x3F) == 0);
+
+		struct FRAMECONTEXT
+		{
+			Framework::Vulkan::CBuffer vertexBuffer;
+			PRIM_VERTEX* vertexBufferPtr = nullptr;
+
+			Framework::Vulkan::CBuffer mipParamsBuffer;
+			DRAW_PIPELINE_MIPPARAMS_UNIFORMS* mipParamsBufferPtr = nullptr;
+		};
+
 		static std::vector<VkVertexInputAttributeDescription> GetVertexAttributes();
 		Framework::Vulkan::CShaderModule CreateVertexShader(const PIPELINE_CAPS&);
 
@@ -179,6 +209,8 @@ namespace GSH_Vulkan
 		uint32 m_passVertexStart = 0;
 		uint32 m_passVertexEnd = 0;
 		bool m_renderPassBegun = false;
+
+		uint32 m_mipParamsIndex = 0;
 
 		PIPELINE_CAPS m_pipelineCaps;
 		DRAW_PIPELINE_PUSHCONSTANTS m_pushConstants;
