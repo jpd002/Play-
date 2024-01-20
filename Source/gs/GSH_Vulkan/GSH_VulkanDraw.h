@@ -181,9 +181,10 @@ namespace GSH_Vulkan
 			uint32 unused2[3];
 
 			//padding
-			uint32 unused3[12];
+			uint32 unused3[44];
 		};
-		static_assert((sizeof(DRAW_PIPELINE_MIPPARAMS_UNIFORMS) & 0x3F) == 0);
+		//Needs to accomodate minUniformBufferOffsetAlignment, which seems to be at most 0x100 in the wild
+		static_assert((sizeof(DRAW_PIPELINE_MIPPARAMS_UNIFORMS) & 0xFF) == 0);
 
 		struct FRAMECONTEXT
 		{

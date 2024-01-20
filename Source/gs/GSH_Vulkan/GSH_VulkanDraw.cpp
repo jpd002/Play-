@@ -52,6 +52,7 @@ CDraw::~CDraw()
 	for(auto& frame : m_frames)
 	{
 		m_context->device.vkUnmapMemory(m_context->device, frame.vertexBuffer.GetMemory());
+		m_context->device.vkUnmapMemory(m_context->device, frame.mipParamsBuffer.GetMemory());
 	}
 }
 
