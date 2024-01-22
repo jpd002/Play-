@@ -554,9 +554,12 @@ Framework::Vulkan::CShaderModule CDrawDesktop::CreateFragmentShader(const PIPELI
 				auto mipL = mipParams3->y();
 				auto mipK = mipParams4->x();
 
-				auto mipLevelP = Trunc(Log2(Abs(NewFloat(b, 1.0f) / inputTexCoord->z())));
-				auto mipLevelR = Trunc((ToFloat(ToInt(mipLevelP) << mipL)) + mipK);
-				auto mipLevel = Min(ToInt(mipLevelR + NewFloat(b, 1.0f)), maxMip);
+				auto lodBias = NewFloat(b, -0.03125f);
+
+				auto expandedMipL = ToFloat(NewInt(b, 1) << mipL);
+				auto mipLevelP = Log2(Abs(NewFloat(b, 1.0f) / inputTexCoord->z()));
+				auto mipLevelR = Trunc((mipLevelP * expandedMipL) + mipK + lodBias);
+				auto mipLevel = Min(ToInt(mipLevelR), maxMip);
 
 #define ASSIGN_MIP(a)                     \
 	BeginIf(b, mipLevel == NewInt(b, a)); \
