@@ -116,6 +116,14 @@ struct MIPSSTATE
 
 	uint32 savedIntReg;
 	uint32 savedIntRegTemp;
+
+	// In the case that the final delay slot includes an integer altering instruction
+	// save the register number here along with the value it has assuming the first
+	// instruction of the next block is a conditional branch on the same register.
+	uint32 savedNextBlockIntRegIdx;
+	uint32 savedNextBlockIntRegVal;
+	uint32 savedNextBlockIntRegValTemp;
+
 	uint32 xgkickAddress;
 
 	enum
