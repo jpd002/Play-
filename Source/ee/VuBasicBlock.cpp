@@ -35,6 +35,8 @@ void CVuBasicBlock::CompileRange(CMipsJitter* jitter)
 
 	auto integerBranchDelayInfo = ComputeIntegerBranchDelayInfo(fmacPipelineInfo.stallDelays);
 
+	auto integerTrailingDelayInfo = ComputeTrailingIntegerBranchDelayInfo(fmacPipelineInfo.stallDelays);
+
 	uint32 maxInstructions = ((m_end - m_begin) / 8) + 1;
 	std::vector<uint32> hints;
 	hints.resize(maxInstructions);
@@ -159,6 +161,12 @@ void CVuBasicBlock::CompileRange(CMipsJitter* jitter)
 			jitter->PushRel(offsetof(CMIPS, m_State.nCOP2VI[integerBranchDelayInfo.regIndex]));
 			jitter->PullRel(offsetof(CMIPS, m_State.savedIntReg));
 		}
+		if(address == integerTrailingDelayInfo.saveRegAddress)
+		{
+			// grab the value of the delayed reg to possibly use in the next block
+			jitter->PushRel(offsetof(CMIPS, m_State.nCOP2VI[integerTrailingDelayInfo.regIndex]));
+			jitter->PullRel(offsetof(CMIPS, m_State.savedNextBlockIntRegVal));
+		}
 
 		uint32 compileHints = hints[instructionIndex];
 		arch->SetRelativePipeTime(relativePipeTime, compileHints);
@@ -183,6 +191,58 @@ void CVuBasicBlock::CompileRange(CMipsJitter* jitter)
 			jitter->PullRel(offsetof(CMIPS, m_State.nCOP2VI[integerBranchDelayInfo.regIndex]));
 		}
 
+		if(address == m_begin)
+		{
+			if(IsConditionalBranch(opcodeLo))
+			{
+				auto branchLoOps = arch->GetAffectedOperands(&m_context, address, opcodeLo);
+				// Block starts with a conditional branch.
+				// Need to look in state to see if there was an integer altering operation as the last thing in the prior block.
+				// If there was, then check if the integer register matches.
+				// If it matches then use the reg value stored in the state.
+
+				// This needs to be done at runtime (i.e. we generate some jit code now to do that logic)
+				// set the target from the saved value
+
+				/*
+				    jit code needs to do something like follows:
+
+				    if(branchLoOps.readI0 == m_State.savedNextBlockIntRegIdx || branchLoOps.readI1 == m_State.savedNextBlockIntRegIdx)
+				    {
+				        m_State.savedNextBlockIntRegValTemp = m_State.nCOP2VI[m_State.savedNextBlockIntRegIdx];
+				        m_State.nCOP2VI[m_State.savedNextBlockIntRegIdx] = m_State.savedNextBlockIntRegVal;
+				    }
+				 */
+				//m_State.savedNextBlockIntRegIdx == branchLoOps.readI0
+				jitter->PushRel(offsetof(CMIPS, m_State.savedNextBlockIntRegIdx));
+				jitter->PushCst(branchLoOps.readI0);
+				jitter->Cmp(Jitter::CONDITION_EQ);
+
+				//m_State.savedNextBlockIntRegIdx == branchLoOps.readI1
+				jitter->PushRel(offsetof(CMIPS, m_State.savedNextBlockIntRegIdx));
+				jitter->PushCst(branchLoOps.readI1);
+				jitter->Cmp(Jitter::CONDITION_EQ);
+
+				jitter->Or();
+				jitter->PushCst(0);
+				jitter->BeginIf(Jitter::CONDITION_NE);
+				{
+					// m_State.savedNextBlockIntRegValTemp = m_State.nCOP2VI[m_State.savedNextBlockIntRegIdx];
+					jitter->PushRelAddrRef(offsetof(CMIPS, m_State.nCOP2VI));
+					jitter->PushRel(offsetof(CMIPS, m_State.savedNextBlockIntRegIdx));
+					jitter->LoadFromRefIdx();
+					jitter->PullRel(offsetof(CMIPS, m_State.savedNextBlockIntRegValTemp));
+
+					// m_State.nCOP2VI[m_State.savedNextBlockIntRegIdx] = m_State.savedNextBlockIntRegVal;
+					jitter->PushRelAddrRef(offsetof(CMIPS, m_State.nCOP2VI));
+					jitter->PushRel(offsetof(CMIPS, m_State.savedNextBlockIntRegIdx));
+					jitter->PushRel(offsetof(CMIPS, m_State.savedNextBlockIntRegVal));
+					jitter->StoreAtRefIdx();
+				}
+				jitter->EndIf();
+			}
+		}
+
 		//If there's a pending XGKICK and the current lower instruction is
 		//an XGKICK, make sure we flush the pending one first
 		if(loIsXgKick && hasPendingXgKick)
@@ -197,6 +257,44 @@ void CVuBasicBlock::CompileRange(CMipsJitter* jitter)
 			// put the target value back
 			jitter->PushRel(offsetof(CMIPS, m_State.savedIntRegTemp));
 			jitter->PullRel(offsetof(CMIPS, m_State.nCOP2VI[integerBranchDelayInfo.regIndex]));
+		}
+
+		if(address == m_begin)
+		{
+			if(IsConditionalBranch(opcodeLo))
+			{
+				/*
+				    jit code needs to do something like follows:
+
+				    if(branchLoOps.readI0 == m_State.savedNextBlockIntRegIdx || branchLoOps.readI1 == m_State.savedNextBlockIntRegIdx)
+				    {
+				        m_State.nCOP2VI[m_State.savedNextBlockIntRegIdx] = m_State.savedNextBlockIntRegValTemp;
+				    }
+				 */
+				auto branchLoOps = arch->GetAffectedOperands(&m_context, address, opcodeLo);
+
+				//m_State.savedNextBlockIntRegIdx == branchLoOps.readI0
+				jitter->PushRel(offsetof(CMIPS, m_State.savedNextBlockIntRegIdx));
+				jitter->PushCst(branchLoOps.readI0);
+				jitter->Cmp(Jitter::CONDITION_EQ);
+
+				//m_State.savedNextBlockIntRegIdx == branchLoOps.readI1
+				jitter->PushRel(offsetof(CMIPS, m_State.savedNextBlockIntRegIdx));
+				jitter->PushCst(branchLoOps.readI1);
+				jitter->Cmp(Jitter::CONDITION_EQ);
+
+				jitter->Or();
+				jitter->PushCst(0);
+				jitter->BeginIf(Jitter::CONDITION_NE);
+				{
+					// m_State.nCOP2VI[m_State.savedNextBlockIntRegIdx] = m_State.savedNextBlockIntRegValTemp;
+					jitter->PushRelAddrRef(offsetof(CMIPS, m_State.nCOP2VI));
+					jitter->PushRel(offsetof(CMIPS, m_State.savedNextBlockIntRegIdx));
+					jitter->PushRel(offsetof(CMIPS, m_State.savedNextBlockIntRegValTemp));
+					jitter->StoreAtRefIdx();
+				}
+				jitter->EndIf();
+			}
 		}
 
 		if(savedReg != 0)
@@ -309,6 +407,9 @@ void CVuBasicBlock::CompileRange(CMipsJitter* jitter)
 		return target == m_begin;
 	}();
 
+	jitter->PushCst(integerTrailingDelayInfo.regIndex);
+	jitter->PullRel(offsetof(CMIPS, m_State.savedNextBlockIntRegIdx));
+
 	CompileEpilog(jitter, loopsOnItself && m_isLinkable);
 }
 
@@ -323,6 +424,29 @@ bool CVuBasicBlock::IsNonConditionalBranch(uint32 opcodeLo)
 {
 	uint32 id = (opcodeLo >> 25) & 0x7F;
 	return (id == 0x20);
+}
+
+CVuBasicBlock::INTEGER_BRANCH_DELAY_INFO CVuBasicBlock::ComputeTrailingIntegerBranchDelayInfo(const std::vector<uint32>& fmacStallDelays) const
+{
+	// Test if a block ends with an integer altering instruction.
+	// This is important if the following block starts with a conditional branch
+	// using that same integer register.
+	INTEGER_BRANCH_DELAY_INFO result;
+	auto arch = static_cast<CMA_VU*>(m_context.m_pArch);
+	uint32 adjustedEnd = m_end - 4;
+	uint32 endOpcodeLoAddr = adjustedEnd;
+	uint32 endOpcodeLo = m_context.m_pMemoryMap->GetInstruction(endOpcodeLoAddr);
+	auto endLoOps = arch->GetAffectedOperands(&m_context, endOpcodeLoAddr, endOpcodeLo);
+
+	// assume this is same as for the case if there was a conditional branch at the end.
+	uint32 fmacDelayOnBranch = fmacStallDelays[fmacStallDelays.size() - 2];
+	if((endLoOps.writeI != 0) && !endLoOps.branchValue && (fmacDelayOnBranch == 0))
+	{
+		// we need to use the value of intReg 3 steps prior or use initial value.
+		result.regIndex = endLoOps.writeI;
+		result.saveRegAddress = std::max<int32>(adjustedEnd - 5 * 8, m_begin);
+	}
+	return result;
 }
 
 CVuBasicBlock::INTEGER_BRANCH_DELAY_INFO CVuBasicBlock::ComputeIntegerBranchDelayInfo(const std::vector<uint32>& fmacStallDelays) const
