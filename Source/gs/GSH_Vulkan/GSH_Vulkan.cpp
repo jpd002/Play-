@@ -258,6 +258,7 @@ void CGSH_Vulkan::ResetImpl()
 	m_primitiveType = PRIM_INVALID;
 	m_pendingPrim = false;
 	m_pendingPrimValue = 0;
+	m_regState.isValid = false;
 	memset(&m_clutStates, 0, sizeof(m_clutStates));
 	memset(m_memoryCache, 0, RAMSIZE);
 	WriteBackMemoryCache();
@@ -739,6 +740,8 @@ void CGSH_Vulkan::SetRenderingContext(uint64 primReg)
 	auto zbuf = make_convertible<ZBUF>(m_nReg[GS_REG_ZBUF_1 + context]);
 	auto tex0 = make_convertible<TEX0>(m_nReg[GS_REG_TEX0_1 + context]);
 	auto tex1 = make_convertible<TEX1>(m_nReg[GS_REG_TEX1_1 + context]);
+	auto miptbp1 = make_convertible<MIPTBP1>(m_nReg[GS_REG_MIPTBP1_1 + context]);
+	auto miptbp2 = make_convertible<MIPTBP2>(m_nReg[GS_REG_MIPTBP2_1 + context]);
 	auto clamp = make_convertible<CLAMP>(m_nReg[GS_REG_CLAMP_1 + context]);
 	auto alpha = make_convertible<ALPHA>(m_nReg[GS_REG_ALPHA_1 + context]);
 	auto scissor = make_convertible<SCISSOR>(m_nReg[GS_REG_SCISSOR_1 + context]);
@@ -798,8 +801,6 @@ void CGSH_Vulkan::SetRenderingContext(uint64 primReg)
 	uint32 texBufWidth = tex0.GetBufWidth();
 	uint32 texMipLevel = 0;
 
-	CDraw::MipBufs mipBufs;
-
 	if(prim.nTexture)
 	{
 		bool minLinear = false;
@@ -836,15 +837,9 @@ void CGSH_Vulkan::SetRenderingContext(uint64 primReg)
 		}
 		else
 		{
-			//Check if game uses nearest mip
-			bool mipNearest =
-			    (tex1.nMinFilter == MIN_FILTER_NEAREST_MIP_NEAREST) ||
-			    (tex1.nMinFilter == MIN_FILTER_LINEAR_MIP_NEAREST);
-			if(mipNearest)
+			bool hasMip = (tex1.nMinFilter >= MIN_FILTER_NEAREST_MIP_NEAREST);
+			if(hasMip)
 			{
-				auto miptbp1 = make_convertible<MIPTBP1>(m_nReg[GS_REG_MIPTBP1_1 + context]);
-				auto miptbp2 = make_convertible<MIPTBP2>(m_nReg[GS_REG_MIPTBP2_1 + context]);
-
 				if(tex1.nLODMethod == LOD_CALC_STATIC)
 				{
 					int k = trunc(tex1.GetK());
@@ -858,15 +853,6 @@ void CGSH_Vulkan::SetRenderingContext(uint64 primReg)
 				}
 				else
 				{
-					for(int i = 1; i <= tex1.nMaxMip; i++)
-					{
-						mipBufs[i - 1] = GetMipLevelInfo(i, miptbp1, miptbp2);
-					}
-					for(int i = tex1.nMaxMip + 1; i <= 6; i++)
-					{
-						mipBufs[i - 1] = std::pair<uint32, uint32>(0, 0);
-					}
-
 					pipelineCaps.textureUseDynamicMipLOD = true;
 				}
 			}
@@ -976,8 +962,22 @@ void CGSH_Vulkan::SetRenderingContext(uint64 primReg)
 	m_draw->SetFramebufferParams(frame.GetBasePtr(), frame.GetWidth(), fbWriteMask);
 	m_draw->SetDepthbufferParams(zbuf.GetBasePtr(), frame.GetWidth());
 	m_draw->SetTextureParams(texBufPtr, texBufWidth, tex0.GetWidth(), tex0.GetHeight(), texMipLevel, tex0.nCSA * 0x10);
-	if(pipelineCaps.textureUseDynamicMipLOD)
+	if(
+	    pipelineCaps.textureUseDynamicMipLOD &&
+	    (!m_regState.isValid ||
+	     (m_regState.tex1 != tex1) ||
+	     (m_regState.miptbp1 != miptbp1) ||
+	     (m_regState.miptbp2 != miptbp2)))
 	{
+		CDraw::MipBufs mipBufs;
+		for(int i = 1; i <= tex1.nMaxMip; i++)
+		{
+			mipBufs[i - 1] = GetMipLevelInfo(i, miptbp1, miptbp2);
+		}
+		for(int i = tex1.nMaxMip + 1; i <= 6; i++)
+		{
+			mipBufs[i - 1] = std::pair<uint32, uint32>(0, 0);
+		}
 		m_draw->SetMipParams(mipBufs, tex1.nMaxMip, tex1.GetK(), tex1.nLODL);
 	}
 	m_draw->SetTextureAlphaParams(texA.nTA0, texA.nTA1);
@@ -1001,6 +1001,11 @@ void CGSH_Vulkan::SetRenderingContext(uint64 primReg)
 
 	m_texWidth = tex0.GetWidth();
 	m_texHeight = tex0.GetHeight();
+
+	m_regState.isValid = true;
+	m_regState.tex1 = tex1;
+	m_regState.miptbp1 = miptbp1;
+	m_regState.miptbp2 = miptbp2;
 }
 
 void CGSH_Vulkan::Prim_Point()

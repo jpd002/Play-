@@ -114,22 +114,19 @@ void CDraw::SetTextureParams(uint32 bufAddr, uint32 bufWidth, uint32 width, uint
 void CDraw::SetMipParams(const MipBufs& mipBufs, uint32 maxMip, float lodK, uint32 lodL)
 {
 	assert(m_pipelineCaps.textureUseDynamicMipLOD);
-	bool changed = false;
-	auto& frame = m_frames[m_frameCommandBuffer->GetCurrentFrame()];
-	auto mipParamsUniforms = frame.mipParamsBufferPtr + m_mipParamsIndex;
-	changed |= (mipBufs != mipParamsUniforms->mipBufs);
-	changed |= (maxMip != mipParamsUniforms->maxMip);
-	changed |= (lodK != mipParamsUniforms->lodK);
-	changed |= (lodL != mipParamsUniforms->lodL);
-	if(!changed) return;
+	//Assume it's always dirty, check for changes should be done by caller
 	FlushVertices();
+	auto& frame = m_frames[m_frameCommandBuffer->GetCurrentFrame()];
 	m_mipParamsIndex++;
-	mipParamsUniforms++;
 	assert(m_mipParamsIndex < MAX_MIPPARAMS_COUNT);
-	mipParamsUniforms->mipBufs = mipBufs;
-	mipParamsUniforms->maxMip = maxMip;
-	mipParamsUniforms->lodK = lodK;
-	mipParamsUniforms->lodL = lodL;
+	if(m_mipParamsIndex < MAX_MIPPARAMS_COUNT)
+	{
+		auto mipParamsUniforms = frame.mipParamsBufferPtr + m_mipParamsIndex;
+		mipParamsUniforms->mipBufs = mipBufs;
+		mipParamsUniforms->maxMip = maxMip;
+		mipParamsUniforms->lodK = lodK;
+		mipParamsUniforms->lodL = lodL;
+	}
 }
 
 void CDraw::SetClutBufferOffset(uint32 clutBufferOffset)

@@ -90,6 +90,14 @@ private:
 		CLUT_CACHE_SIZE = 32,
 	};
 
+	struct REG_STATE
+	{
+		bool isValid = false;
+		uint64 tex1 = 0;
+		uint64 miptbp1 = 0;
+		uint64 miptbp2 = 0;
+	};
+
 	struct LOCAL_TO_HOST_XFER_HISTORY
 	{
 		static constexpr int MAX_FRAME_COUNT = 16;
@@ -236,6 +244,7 @@ private:
 	uint64 m_pendingPrimValue = 0;
 	uint32 m_primitiveType = 0;
 	PRMODE m_primitiveMode;
+	REG_STATE m_regState;
 	uint32 m_fbBasePtr = 0;
 	float m_primOfsX = 0;
 	float m_primOfsY = 0;
