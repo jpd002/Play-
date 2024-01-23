@@ -113,7 +113,7 @@ namespace GSH_Vulkan
 			DRAW_AREA_SIZE = 2048
 		};
 
-		static constexpr uint32 MAX_MIPPARAMS_COUNT = 512;
+		static constexpr uint32 MAX_MIPPARAMS_COUNT = 2048;
 
 		typedef uint32 DescriptorSetCapsInt;
 
