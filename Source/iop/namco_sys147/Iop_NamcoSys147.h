@@ -4,6 +4,7 @@
 #include "../Iop_SifMan.h"
 #include "../../SifModuleAdapter.h"
 #include "../../PadInterface.h"
+#include "http/HttpServer.h"
 
 namespace Iop
 {
@@ -62,6 +63,8 @@ namespace Iop
 			void ReadBackupRam(uint32, uint8*, uint32);
 			void WriteBackupRam(uint32, const uint8*, uint32);
 
+			void HandleIoServerRequest(const Framework::CHttpServer::Request&);
+
 			CSifModuleAdapter m_module000;
 			CSifModuleAdapter m_module001;
 			CSifModuleAdapter m_module002;
@@ -74,6 +77,10 @@ namespace Iop
 
 			std::vector<MODULE_99_PACKET> m_pendingReplies;
 			std::map<uint8, uint8> m_switchStates;
+
+			std::unique_ptr<Framework::CHttpServer> m_ioServer;
+			std::mutex m_barcodeMutex;
+			std::string m_currentBarcode;
 		};
 	}
 }

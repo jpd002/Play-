@@ -58,6 +58,8 @@ CSys147::CSys147(CSifMan& sifMan, const std::string& gameId)
 	m_switchStates[SWITCH_1P_RIGHT] = 0;
 	m_switchStates[SWITCH_2P_LEFT] = 0;
 	m_switchStates[SWITCH_2P_RIGHT] = 0;
+
+	m_ioServer = std::make_unique<Framework::CHttpServer>(9876, std::bind(&CSys147::HandleIoServerRequest, this, std::placeholders::_1));
 }
 
 std::string CSys147::GetId() const
@@ -356,14 +358,14 @@ bool CSys147::Invoke99(uint32 method, uint32* args, uint32 argsSize, uint32* ret
 					reply.checksum = ComputePacketChecksum(reply);
 					m_pendingReplies.emplace_back(reply);
 				}
-				
+
 				{
 					MODULE_99_PACKET reply = {};
 					reply.type = 2;
 					reply.command = 0x31;
 					//Barcode Reader
 					reply.data[0] = 0;
-					reply.data[1] = 6 + 10; //Data Size
+					reply.data[1] = 6; //Data Size
 
 					reply.data[4 + 0] = 0x02;
 					reply.data[4 + 1] = 0x02;
@@ -373,21 +375,26 @@ bool CSys147::Invoke99(uint32 method, uint32* args, uint32 argsSize, uint32* ret
 					reply.data[4 + 5] = 0x03;
 
 					//Barcode Payload
+					{
+						std::unique_lock barcodeMutexLock(m_barcodeMutex);
+						if(m_currentBarcode.size() == 8)
+						{
+							reply.data[1] += 10; //Add more data to payload
 
-					//0x02 = Header
-					//8 bytes of data (0x62,0x6E,0x30,0x63,0x30,0x7D,0x58,0x31)
-					//0x03 = Footer
+							//0x02 = Header
+							//8 bytes of data (0x62,0x6E,0x30,0x63,0x30,0x7D,0x58,0x31)
+							//0x03 = Footer
 
-					reply.data[4 + 6] = 0x02;
-					reply.data[4 + 7] = 0x62;
-					reply.data[4 + 8] = 0x6E;
-					reply.data[4 + 9] = 0x30;
-					reply.data[4 + 10] = 0x63;
-					reply.data[4 + 11] = 0x30;
-					reply.data[4 + 12] = 0x7D;
-					reply.data[4 + 13] = 0x58;
-					reply.data[4 + 14] = 0x31;
-					reply.data[4 + 15] = 0x03;
+							reply.data[4 + 6] = 0x02;
+							for(int i = 0; i < 8; i++)
+							{
+								reply.data[4 + 7 + i] = m_currentBarcode[i];
+							}
+							reply.data[4 + 15] = 0x03;
+						}
+						m_currentBarcode.clear();
+					}
+
 					m_pendingReplies.emplace_back(reply);
 				}
 			}
@@ -585,4 +592,10 @@ void CSys147::WriteBackupRam(uint32 backupRamAddr, const uint8* buffer, uint32 s
 	auto stream = fs::exists(backupRamPath) ? Framework::CreateUpdateExistingStdStream(backupRamPath.native()) : Framework::CreateOutputStdStream(backupRamPath.native());
 	stream.Seek(backupRamAddr, Framework::STREAM_SEEK_SET);
 	stream.Write(buffer, size);
+}
+
+void CSys147::HandleIoServerRequest(const Framework::CHttpServer::Request& request)
+{
+	std::unique_lock barcodeMutexLock(m_barcodeMutex);
+	m_currentBarcode = std::string(reinterpret_cast<const char*>(request.body.data()), request.body.size());
 }
