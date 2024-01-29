@@ -19,6 +19,9 @@
 		<Test Query="icon.sys" CurrentDirectory="../../../BASLUS-20770LOTRROTK" EnvironmentId="1" MaxEntries="1" Result="1">
 			<Entry Name="icon.sys" />
 		</Test>
+		<Test Query="icon.sys" CurrentDirectory="../BASLUS-20770LOTRROTK/././" EnvironmentId="1" MaxEntries="1" Result="1">
+			<Entry Name="icon.sys" />
+		</Test>
 		<Test Query="icon.sys" CurrentDirectory="dummy1/dummy2/../../BASLUS-20770LOTRROTK/" EnvironmentId="1" MaxEntries="1" Result="1">
 			<Entry Name="icon.sys" />
 		</Test>

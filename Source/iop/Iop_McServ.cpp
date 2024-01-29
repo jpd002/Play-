@@ -134,6 +134,10 @@ std::string CMcServ::MakeAbsolutePath(const std::string& inputPath)
 	for(const auto& frag : frags)
 	{
 		if(frag.empty()) continue;
+		if(frag == ".")
+		{
+			continue;
+		}
 		if(frag == "..")
 		{
 			if(newFrags.empty())
