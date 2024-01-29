@@ -2436,6 +2436,28 @@ uint32 CIopBios::SendMessageBox(uint32 boxId, uint32 messagePtr, bool inInterrup
 		}
 	}
 
+	//Check if message already exists in the linked list
+	{
+		auto msgPtr = &box->nextMsgPtr;
+		while(1)
+		{
+			if((*msgPtr) == 0)
+			{
+				break;
+			}
+			msgPtr = reinterpret_cast<uint32*>(m_ram + *msgPtr);
+			if((*msgPtr) == messagePtr)
+			{
+				//Message already queued in the message box.
+				//Space Invaders: Invasion Day will trigger this and will end up corrupting the linked list.
+				//We return an error here, but this is not confirmed if this is the proper behavior.
+				CLog::GetInstance().Warn(LOGNAME, "Failed to send message: message already queued (boxId = %d, messagePtr = 0x%08X).\r\n",
+				                         boxId, messagePtr);
+				return -1;
+			}
+		}
+	}
+
 	auto header = reinterpret_cast<MESSAGE_HEADER*>(m_ram + messagePtr);
 	header->nextMsgPtr = 0;
 
