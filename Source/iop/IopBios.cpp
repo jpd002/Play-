@@ -2437,6 +2437,7 @@ uint32 CIopBios::SendMessageBox(uint32 boxId, uint32 messagePtr, bool inInterrup
 	}
 
 	//Check if message already exists in the linked list
+	if(box->numMessage != 0)
 	{
 		auto msgPtr = &box->nextMsgPtr;
 		while(1)
