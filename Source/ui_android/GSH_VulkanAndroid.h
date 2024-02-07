@@ -14,6 +14,7 @@ public:
 	static FactoryFunction GetFactoryFunction(ANativeWindow*);
 
 	void InitializeImpl() override;
+	void ReleaseImpl() override;
 	void PresentBackbuffer() override;
 
 private:

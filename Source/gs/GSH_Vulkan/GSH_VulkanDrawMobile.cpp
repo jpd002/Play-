@@ -45,6 +45,7 @@ CDrawMobile::~CDrawMobile()
 	m_context->device.vkDestroyFramebuffer(m_context->device, m_framebuffer, nullptr);
 	m_context->device.vkDestroyRenderPass(m_context->device, m_renderPass, nullptr);
 	m_context->device.vkDestroyImageView(m_context->device, m_drawColorImageView, nullptr);
+	m_context->device.vkDestroyImageView(m_context->device, m_drawDepthImageView, nullptr);
 }
 
 void CDrawMobile::SetPipelineCaps(const PIPELINE_CAPS& caps)

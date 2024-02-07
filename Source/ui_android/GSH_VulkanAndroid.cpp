@@ -22,6 +22,12 @@ void CGSH_VulkanAndroid::InitializeImpl()
 	UpdateViewport();
 }
 
+void CGSH_VulkanAndroid::ReleaseImpl()
+{
+	CGSH_Vulkan::ReleaseImpl();
+	m_instance.vkDestroySurfaceKHR(m_instance, m_context->surface, nullptr);
+}
+
 void CGSH_VulkanAndroid::PresentBackbuffer()
 {
 }
