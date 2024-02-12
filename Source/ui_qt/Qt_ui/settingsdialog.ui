@@ -113,7 +113,7 @@
       <enum>QFrame::StyledPanel</enum>
      </property>
      <property name="currentIndex">
-      <number>1</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="General">
       <layout class="QVBoxLayout" name="verticalLayout1">
@@ -189,6 +189,20 @@
         </widget>
        </item>
        <item>
+        <widget class="QCheckBox" name="checkBox_limitFrameRate">
+         <property name="text">
+          <string>Cap Frame Rate to Video Refresh Rate</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="checkBox_showEECPUUsage">
+         <property name="text">
+          <string>Show EE CPU Usage</string>
+         </property>
+        </widget>
+       </item>
+       <item>
         <widget class="QLabel" name="label_8">
          <property name="text">
           <string>Arcade ROMs directory:</string>
@@ -214,18 +228,21 @@
         </layout>
        </item>
        <item>
-        <widget class="QCheckBox" name="checkBox_limitFrameRate">
+        <widget class="QCheckBox" name="checkBox_enableArcadeIOServer">
          <property name="text">
-          <string>Cap Frame Rate to Video Refresh Rate</string>
+          <string>Enable Arcade I/O HTTP Server</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QCheckBox" name="checkBox_showEECPUUsage">
+        <widget class="QLabel" name="label_9">
          <property name="text">
-          <string>Show EE CPU Usage</string>
+          <string>Arcade I/O HTTP Server Port:</string>
          </property>
         </widget>
+       </item>
+       <item>
+        <widget class="QLineEdit" name="lineEdit_arcadeIOServerPort"/>
        </item>
        <item>
         <spacer name="verticalSpacer_2">

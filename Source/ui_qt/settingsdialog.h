@@ -33,9 +33,11 @@ private slots:
 
 	//General Page
 	void on_comboBox_system_language_currentIndexChanged(int index);
-	void on_button_browseArcadeRomsDir_clicked();
 	void on_checkBox_limitFrameRate_clicked(bool checked);
 	void on_checkBox_showEECPUUsage_clicked(bool checked);
+	void on_button_browseArcadeRomsDir_clicked();
+	void on_checkBox_enableArcadeIOServer_clicked(bool checked);
+	void on_lineEdit_arcadeIOServerPort_textChanged(const QString& value);
 
 	//Video Page
 	void on_checkBox_widescreenOutput_clicked(bool checked);

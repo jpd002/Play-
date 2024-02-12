@@ -23,6 +23,8 @@ SettingsDialog::SettingsDialog(QWidget* parent)
 	//Not needed, as it can be set in the ui editor, but left for ease of ui edit.
 	ui->stackedWidget->setCurrentIndex(0);
 
+	ui->lineEdit_arcadeIOServerPort->setValidator(new QIntValidator(0, 65535, this));
+
 	// this assert is to ensure no one adds an item to the combobox through qt creator by accident
 	assert(ui->comboBox_gs_selection->count() == 0);
 	assert(ui->comboBox_vulkan_device->count() == 0);
@@ -81,9 +83,11 @@ void SettingsDialog::changePage(QListWidgetItem* current, QListWidgetItem* previ
 void SettingsDialog::LoadPreferences()
 {
 	ui->comboBox_system_language->setCurrentIndex(CAppConfig::GetInstance().GetPreferenceInteger(PREF_SYSTEM_LANGUAGE));
-	ui->edit_arcadeRoms_dir->setText(PathToQString(CAppConfig::GetInstance().GetPreferencePath(PREF_PS2_ARCADEROMS_DIRECTORY)));
 	ui->checkBox_limitFrameRate->setChecked(CAppConfig::GetInstance().GetPreferenceBoolean(PREF_PS2_LIMIT_FRAMERATE));
 	ui->checkBox_showEECPUUsage->setChecked(CAppConfig::GetInstance().GetPreferenceBoolean(PREF_UI_SHOWEECPUUSAGE));
+	ui->edit_arcadeRoms_dir->setText(PathToQString(CAppConfig::GetInstance().GetPreferencePath(PREF_PS2_ARCADEROMS_DIRECTORY)));
+	ui->checkBox_enableArcadeIOServer->setChecked(CAppConfig::GetInstance().GetPreferenceBoolean(PREF_PS2_ARCADE_IO_SERVER_ENABLED));
+	ui->lineEdit_arcadeIOServerPort->setText(QString::number(CAppConfig::GetInstance().GetPreferenceInteger(PREF_PS2_ARCADE_IO_SERVER_PORT)));
 
 	int factor = CAppConfig::GetInstance().GetPreferenceInteger(PREF_CGSH_OPENGL_RESOLUTION_FACTOR);
 	int factor_index = std::log2(factor);
@@ -105,6 +109,16 @@ void SettingsDialog::on_comboBox_system_language_currentIndexChanged(int index)
 	CAppConfig::GetInstance().SetPreferenceInteger(PREF_SYSTEM_LANGUAGE, index);
 }
 
+void SettingsDialog::on_checkBox_limitFrameRate_clicked(bool checked)
+{
+	CAppConfig::GetInstance().SetPreferenceBoolean(PREF_PS2_LIMIT_FRAMERATE, checked);
+}
+
+void SettingsDialog::on_checkBox_showEECPUUsage_clicked(bool checked)
+{
+	CAppConfig::GetInstance().SetPreferenceBoolean(PREF_UI_SHOWEECPUUSAGE, checked);
+}
+
 void SettingsDialog::on_button_browseArcadeRomsDir_clicked()
 {
 	auto prevDir = PathToQString(CAppConfig::GetInstance().GetPreferencePath(PREF_PS2_ARCADEROMS_DIRECTORY));
@@ -118,14 +132,14 @@ void SettingsDialog::on_button_browseArcadeRomsDir_clicked()
 	ui->edit_arcadeRoms_dir->setText(newDir);
 }
 
-void SettingsDialog::on_checkBox_limitFrameRate_clicked(bool checked)
+void SettingsDialog::on_checkBox_enableArcadeIOServer_clicked(bool checked)
 {
-	CAppConfig::GetInstance().SetPreferenceBoolean(PREF_PS2_LIMIT_FRAMERATE, checked);
+	CAppConfig::GetInstance().SetPreferenceBoolean(PREF_PS2_ARCADE_IO_SERVER_ENABLED, checked);
 }
 
-void SettingsDialog::on_checkBox_showEECPUUsage_clicked(bool checked)
+void SettingsDialog::on_lineEdit_arcadeIOServerPort_textChanged(const QString& value)
 {
-	CAppConfig::GetInstance().SetPreferenceBoolean(PREF_UI_SHOWEECPUUSAGE, checked);
+	CAppConfig::GetInstance().SetPreferenceInteger(PREF_PS2_ARCADE_IO_SERVER_PORT, value.toInt());
 }
 
 //Video Page ---------------------------------

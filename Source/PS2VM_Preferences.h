@@ -9,6 +9,9 @@
 #define PREF_PS2_HDD_DIRECTORY ("ps2.hdd.directory")
 #define PREF_PS2_ARCADEROMS_DIRECTORY ("ps2.arcaderoms.directory")
 
+#define PREF_PS2_ARCADE_IO_SERVER_ENABLED ("ps2.arcade.ioserver.enabled")
+#define PREF_PS2_ARCADE_IO_SERVER_PORT ("ps2.arcade.ioserver.port")
+
 #define PREF_PS2_LIMIT_FRAMERATE ("ps2.limitframerate")
 
 #define PREF_AUDIO_SPUBLOCKCOUNT ("audio.spublockcount")

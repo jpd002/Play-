@@ -95,6 +95,9 @@ CPS2VM::CPS2VM()
 
 	CAppConfig::GetInstance().RegisterPreferenceInteger(PREF_AUDIO_SPUBLOCKCOUNT, 100);
 	ReloadSpuBlockCountImpl();
+
+	CAppConfig::GetInstance().RegisterPreferenceBoolean(PREF_PS2_ARCADE_IO_SERVER_ENABLED, false);
+	CAppConfig::GetInstance().RegisterPreferenceInteger(PREF_PS2_ARCADE_IO_SERVER_PORT, 9876);
 }
 
 //////////////////////////////////////////////////

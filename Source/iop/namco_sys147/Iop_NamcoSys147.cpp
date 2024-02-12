@@ -4,6 +4,7 @@
 #include "StdStreamUtils.h"
 #include "PathUtils.h"
 #include "AppConfig.h"
+#include "PS2VM_Preferences.h"
 
 using namespace Iop;
 using namespace Iop::Namco;
@@ -59,7 +60,11 @@ CSys147::CSys147(CSifMan& sifMan, const std::string& gameId)
 	m_switchStates[SWITCH_2P_LEFT] = 0;
 	m_switchStates[SWITCH_2P_RIGHT] = 0;
 
-	m_ioServer = std::make_unique<Framework::CHttpServer>(9876, std::bind(&CSys147::HandleIoServerRequest, this, std::placeholders::_1));
+	if(CAppConfig::GetInstance().GetPreferenceBoolean(PREF_PS2_ARCADE_IO_SERVER_ENABLED))
+	{
+		uint16 port = CAppConfig::GetInstance().GetPreferenceInteger(PREF_PS2_ARCADE_IO_SERVER_PORT);
+		m_ioServer = std::make_unique<Framework::CHttpServer>(port, std::bind(&CSys147::HandleIoServerRequest, this, std::placeholders::_1));
+	}
 }
 
 std::string CSys147::GetId() const
