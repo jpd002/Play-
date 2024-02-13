@@ -1,6 +1,7 @@
 {
-	"id": "akaiser",
-	"name": "Animal Kaiser Evolution",
+	"id": "akaiser3",
+	"parent": "akaiser",
+	"name": "Animal Kaiser Evolution 3",
 	"driver": "sys147",
 	"nand":
 	{
@@ -46,8 +47,8 @@
 		},
 		{
 			"address": "0x001051b4",
-			"value": "0x240F02BC",
-			"description": "Evo 1"
+			"value": "0x240F0384",
+			"description": "Evo 3"
 		}
 	]
 }
