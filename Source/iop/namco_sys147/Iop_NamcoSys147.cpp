@@ -601,6 +601,9 @@ void CSys147::WriteBackupRam(uint32 backupRamAddr, const uint8* buffer, uint32 s
 
 void CSys147::HandleIoServerRequest(const Framework::CHttpServer::Request& request)
 {
-	std::unique_lock barcodeMutexLock(m_barcodeMutex);
-	m_currentBarcode = std::string(reinterpret_cast<const char*>(request.body.data()), request.body.size());
+	if(request.url.find("/sys147/barcode") == 0)
+	{
+		std::unique_lock barcodeMutexLock(m_barcodeMutex);
+		m_currentBarcode = std::string(reinterpret_cast<const char*>(request.body.data()), request.body.size());
+	}
 }
