@@ -48,6 +48,14 @@ if(NOT TARGET Framework)
 endif()
 list(APPEND PROJECT_LIBS Framework)
 
+if(NOT TARGET Framework_Http)
+	add_subdirectory(
+		${CMAKE_CURRENT_SOURCE_DIR}/../deps/Framework/build_cmake/FrameworkHttp
+		${CMAKE_CURRENT_BINARY_DIR}/FrameworkHttp
+	)
+endif()
+list(APPEND PROJECT_LIBS Framework_Http)
+
 if(ENABLE_AMAZON_S3)
 	if(NOT TARGET Framework_Amazon)
 		add_subdirectory(
