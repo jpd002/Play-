@@ -131,6 +131,11 @@ void CNamcoSys246Driver::PrepareEnvironment(CPS2VM* virtualMachine, const ARCADE
 			case ARCADE_MACHINE_DEF::INPUT_MODE::DRIVE:
 				namcoArcadeModule->SetJvsMode(Iop::Namco::CSys246::JVS_MODE::DRIVE);
 				break;
+			case ARCADE_MACHINE_DEF::INPUT_MODE::TOUCH:
+				virtualMachine->SetTouchListener(namcoArcadeModule.get());
+				namcoArcadeModule->SetJvsMode(Iop::Namco::CSys246::JVS_MODE::TOUCH);
+				namcoArcadeModule->SetLightGunXform(def.lightGunXform);
+				break;
 			default:
 				break;
 			}

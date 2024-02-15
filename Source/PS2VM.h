@@ -89,6 +89,11 @@ public:
 	bool HasGunListener() const;
 	void SetGunListener(CGunListener*);
 
+	void ReportTouchPosition(float, float);
+	bool HasTouchListener() const;
+	void SetTouchListener(CGunListener*); 
+	void ReleaseTouchPosition();
+
 	OpticalMediaPtr m_cdrom0;
 	CPadHandler* m_pad = nullptr;
 
@@ -189,6 +194,7 @@ private:
 	CSoundHandler* m_soundHandler = nullptr;
 
 	CGunListener* m_gunListener = nullptr;
+	CGunListener* m_touchListener = nullptr;
 
 	CProfiler::ZoneHandle m_eeProfilerZone = 0;
 	CProfiler::ZoneHandle m_iopProfilerZone = 0;

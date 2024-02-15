@@ -149,6 +149,32 @@ void CPS2VM::ReportGunPosition(float x, float y)
 	}
 }
 
+bool CPS2VM::HasTouchListener() const
+{
+	return m_touchListener != nullptr;
+}
+
+void CPS2VM::SetTouchListener(CGunListener* listener)
+{
+	m_touchListener = listener;
+}
+
+void CPS2VM::ReportTouchPosition(float x, float y)
+{
+	if(m_touchListener)
+	{
+		m_touchListener->SetGunPosition(x, y);
+	}
+}
+
+void CPS2VM::ReleaseTouchPosition()
+{
+	if(m_touchListener)
+	{
+		m_touchListener->ReleaseTouchPosition();
+	}
+}
+
 void CPS2VM::DestroyPadHandler()
 {
 	if(m_pad == nullptr) return;
@@ -490,6 +516,7 @@ void CPS2VM::ResetVM()
 
 	RegisterModulesInPadHandler();
 	m_gunListener = nullptr;
+	m_touchListener = nullptr;
 }
 
 void CPS2VM::DestroyVM()

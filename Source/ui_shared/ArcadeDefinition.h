@@ -14,6 +14,7 @@ struct ARCADE_MACHINE_DEF
 		LIGHTGUN,
 		DRUM,
 		DRIVE,
+		TOUCH,
 	};
 
 	enum DRIVER

@@ -46,6 +46,7 @@ static const std::pair<const char*, ARCADE_MACHINE_DEF::INPUT_MODE> g_inputModeV
 	{ "lightgun", ARCADE_MACHINE_DEF::INPUT_MODE::LIGHTGUN },
 	{ "drum", ARCADE_MACHINE_DEF::INPUT_MODE::DRUM },
 	{ "drive", ARCADE_MACHINE_DEF::INPUT_MODE::DRIVE },
+	{ "touch", ARCADE_MACHINE_DEF::INPUT_MODE::TOUCH },
 };
 // clang-format on
 

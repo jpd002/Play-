@@ -25,6 +25,7 @@ namespace Iop
 				LIGHTGUN,
 				DRUM,
 				DRIVE,
+				TOUCH,
 			};
 
 			CSys246(CSifMan&, CSifCmd&, Namco::CAcRam&, const std::string&);
@@ -48,6 +49,7 @@ namespace Iop
 
 			//CGunListener
 			void SetGunPosition(float, float) override;
+			void ReleaseTouchPosition() override;
 
 		private:
 			enum MODULE_ID

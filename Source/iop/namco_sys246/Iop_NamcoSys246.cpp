@@ -51,13 +51,13 @@ static const std::array<uint16, PS2::CControllerInfo::MAX_BUTTONS> g_defaultJvsB
 	0x0000,
 	0x0020, //DPAD_UP,
 	0x0010, //DPAD_DOWN,
-	0x0008, //DPAD_LEFT,
-	0x0004, //DPAD_RIGHT,
+	0x0008, //DPAD_LEFT (Shutter Sensor Top),
+	0x0004, //DPAD_RIGHT (Shutter Sensor Down),
 	0x0040, //SELECT,
 	0x0080, //START,
 	0x4000, //SQUARE,
 	0x8000, //TRIANGLE,
-	0x0001, //CIRCLE,
+	0x0001, //CIRCLE (Motor Sensor),
 	0x0002, //CROSS,
 	0x0100, //L1,
 	0x0200, //L2,
@@ -216,10 +216,24 @@ void CSys246::ProcessJvsPacket(const uint8* input, uint8* output)
 			(*output++) = 0x00;
 			(*output++) = 0x00;
 
-			(*output++) = 0x01;             //Switch input
-			(*output++) = JVS_PLAYER_COUNT; //2 players
-			(*output++) = 0x10;             //16 switches
-			(*output++) = 0x00;
+			if (m_jvsMode != JVS_MODE::TOUCH){
+				(*output++) = 0x01;             //Switch input
+				(*output++) = JVS_PLAYER_COUNT; //2 players
+				(*output++) = 0x10;             //16 switches
+				(*output++) = 0x00;				
+			}else{
+				(*output++) = 0x01;
+				(*output++) = 0x01; //One player
+				(*output++) = 0x10; //16 switches
+				(*output++) = 0x00;
+
+				(*output++) = 0x06; //Screen Pos Input
+				(*output++) = 0x10; //X pos bits
+				(*output++) = 0x10; //Y pos bits
+				(*output++) = 0x01; //channels
+
+				(*dstSize) += 4;
+			}
 
 			if(m_jvsMode == JVS_MODE::DRIVE)
 			{
@@ -603,9 +617,16 @@ void CSys246::SetGunPosition(float x, float y)
 	m_jvsGunPosY = static_cast<int16>((y * m_lightGunXform[2]) + m_lightGunXform[3]);
 }
 
+void CSys246::ReleaseTouchPosition()
+{
+	m_jvsGunPosX = 0xFFFF;
+	m_jvsGunPosY = 0xFFFF;	//Y position is negligible
+}
+
 bool CSys246::Invoke001(uint32 method, uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
 {
 	//JVIO stuff?
+	//method 0x01 -> ??? called once upon idolm@ster's startup. args[2] == 0x001, args[3] == 0x2000.
 	switch(method)
 	{
 	case 0x02:
@@ -629,7 +650,7 @@ bool CSys246::Invoke001(uint32 method, uint32* args, uint32 argsSize, uint32* re
 			ret[0] = 0;
 			ret[1] = size;
 		}
-		//Sengoku Basara & Time Crisis have argsSize == 0x10
+		//Sengoku Basara, Time Crisis & Idolm@ster have argsSize == 0x10
 		else if(argsSize == 0x10)
 		{
 			assert(argsSize >= 0x10);
