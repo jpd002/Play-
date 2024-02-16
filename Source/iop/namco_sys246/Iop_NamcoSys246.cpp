@@ -216,24 +216,10 @@ void CSys246::ProcessJvsPacket(const uint8* input, uint8* output)
 			(*output++) = 0x00;
 			(*output++) = 0x00;
 
-			if (m_jvsMode != JVS_MODE::TOUCH){
-				(*output++) = 0x01;             //Switch input
-				(*output++) = JVS_PLAYER_COUNT; //2 players
-				(*output++) = 0x10;             //16 switches
-				(*output++) = 0x00;				
-			}else{
-				(*output++) = 0x01;
-				(*output++) = 0x01; //One player
-				(*output++) = 0x10; //16 switches
-				(*output++) = 0x00;
-
-				(*output++) = 0x06; //Screen Pos Input
-				(*output++) = 0x10; //X pos bits
-				(*output++) = 0x10; //Y pos bits
-				(*output++) = 0x01; //channels
-
-				(*dstSize) += 4;
-			}
+			(*output++) = 0x01;             //Switch input
+			(*output++) = JVS_PLAYER_COUNT; //2 players
+			(*output++) = 0x10;             //16 switches
+			(*output++) = 0x00;
 
 			if(m_jvsMode == JVS_MODE::DRIVE)
 			{
@@ -264,6 +250,15 @@ void CSys246::ProcessJvsPacket(const uint8* input, uint8* output)
 				(*output++) = JVS_DRUM_CHANNEL_MAX; //Channel Count (8 channels)
 				(*output++) = 0x0A;                 //Bits (10 bits)
 				(*output++) = 0x00;
+
+				(*dstSize) += 4;
+			}
+			else if(m_jvsMode == JVS_MODE::TOUCH)
+			{
+				(*output++) = 0x06; //Screen Pos Input
+				(*output++) = 0x10; //X pos bits
+				(*output++) = 0x10; //Y pos bits
+				(*output++) = 0x01; //channels
 
 				(*dstSize) += 4;
 			}
@@ -620,7 +615,7 @@ void CSys246::SetGunPosition(float x, float y)
 void CSys246::ReleaseTouchPosition()
 {
 	m_jvsGunPosX = 0xFFFF;
-	m_jvsGunPosY = 0xFFFF;	//Y position is negligible
+	m_jvsGunPosY = 0xFFFF; //Y position is negligible
 }
 
 bool CSys246::Invoke001(uint32 method, uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)

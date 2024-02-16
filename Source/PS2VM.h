@@ -91,7 +91,7 @@ public:
 
 	void ReportTouchPosition(float, float);
 	bool HasTouchListener() const;
-	void SetTouchListener(CGunListener*); 
+	void SetTouchListener(CGunListener*);
 	void ReleaseTouchPosition();
 
 	OpticalMediaPtr m_cdrom0;

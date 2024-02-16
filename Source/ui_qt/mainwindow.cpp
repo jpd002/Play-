@@ -862,7 +862,7 @@ void MainWindow::outputWindow_mouseMoveEvent(QMouseEvent* ev)
 void MainWindow::outputWindow_mousePressEvent(QMouseEvent* ev)
 {
 	m_qtMouseInputProvider->OnMousePress(ev->button());
-	if (m_virtualMachine->HasTouchListener() && (ev->button() == Qt::LeftButton))
+	if(m_virtualMachine->HasTouchListener() && (ev->button() == Qt::LeftButton))
 	{
 		auto gsHandler = m_virtualMachine->GetGSHandler();
 		if(!gsHandler) return;
@@ -883,14 +883,14 @@ void MainWindow::outputWindow_mousePressEvent(QMouseEvent* ev)
 		mouseY = std::clamp<float>(mouseY, 0, vpHeight);
 		m_virtualMachine->ReportTouchPosition(
 		    static_cast<float>(mouseX) / static_cast<float>(vpWidth),
-			static_cast<float>(mouseY) / static_cast<float>(vpHeight));
+		    static_cast<float>(mouseY) / static_cast<float>(vpHeight));
 	}
 }
 
 void MainWindow::outputWindow_mouseReleaseEvent(QMouseEvent* ev)
 {
 	m_qtMouseInputProvider->OnMouseRelease(ev->button());
-	if (m_virtualMachine->HasTouchListener())
+	if(m_virtualMachine->HasTouchListener())
 	{
 		m_virtualMachine->ReleaseTouchPosition();
 	}
