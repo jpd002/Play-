@@ -32,7 +32,7 @@ https://spidy123222.github.io/iOS-Debugging-JIT-Guides/
 
 Play! implements automatic JIT activation through AltServer, which requires AltServer to be running on the same network as your iOS device. This can be enabled in the Settings menu of the emulator.
 
-You can also build the emulator yourself and launch it through Xcode's debugger, but you will need to be tethered to your Mac while playing. You will also need a paid developer license to do that.
+You can also build the emulator yourself and launch it through Xcode's debugger.
 
 **If you try to play a game without JIT enabled, you will experience a crash when you launch the game.**
 
