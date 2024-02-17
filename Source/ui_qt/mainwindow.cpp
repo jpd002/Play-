@@ -892,7 +892,7 @@ void MainWindow::outputWindow_mouseReleaseEvent(QMouseEvent* ev)
 	m_qtMouseInputProvider->OnMouseRelease(ev->button());
 	if(m_virtualMachine->HasTouchListener())
 	{
-		m_virtualMachine->ReleaseTouchPosition();
+		m_virtualMachine->ReleaseScreenPosition();
 	}
 }
 

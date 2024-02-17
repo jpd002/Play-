@@ -40,7 +40,7 @@ struct ARCADE_MACHINE_DEF
 	std::string nandFileName;
 	std::map<unsigned int, PS2::CControllerInfo::BUTTON> buttons;
 	INPUT_MODE inputMode = INPUT_MODE::DEFAULT;
-	std::array<float, 4> lightGunXform = {65535, 0, 65535, 0};
+	std::array<float, 4> screenPosXform = {65535, 0, 65535, 0};
 	uint32 eeFreqScaleNumerator = 1;
 	uint32 eeFreqScaleDenominator = 1;
 	std::string boot;

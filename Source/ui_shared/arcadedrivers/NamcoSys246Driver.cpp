@@ -123,7 +123,7 @@ void CNamcoSys246Driver::PrepareEnvironment(CPS2VM* virtualMachine, const ARCADE
 			case ARCADE_MACHINE_DEF::INPUT_MODE::LIGHTGUN:
 				virtualMachine->SetGunListener(namcoArcadeModule.get());
 				namcoArcadeModule->SetJvsMode(Iop::Namco::CSys246::JVS_MODE::LIGHTGUN);
-				namcoArcadeModule->SetLightGunXform(def.lightGunXform);
+				namcoArcadeModule->SetScreenPosXform(def.screenPosXform);
 				break;
 			case ARCADE_MACHINE_DEF::INPUT_MODE::DRUM:
 				namcoArcadeModule->SetJvsMode(Iop::Namco::CSys246::JVS_MODE::DRUM);
@@ -134,7 +134,7 @@ void CNamcoSys246Driver::PrepareEnvironment(CPS2VM* virtualMachine, const ARCADE
 			case ARCADE_MACHINE_DEF::INPUT_MODE::TOUCH:
 				virtualMachine->SetTouchListener(namcoArcadeModule.get());
 				namcoArcadeModule->SetJvsMode(Iop::Namco::CSys246::JVS_MODE::TOUCH);
-				namcoArcadeModule->SetLightGunXform(def.lightGunXform);
+				namcoArcadeModule->SetScreenPosXform(def.screenPosXform);
 				break;
 			default:
 				break;

@@ -136,7 +136,7 @@ bool CPS2VM::HasGunListener() const
 	return m_gunListener != nullptr;
 }
 
-void CPS2VM::SetGunListener(CGunListener* listener)
+void CPS2VM::SetGunListener(CScreenPositionListener* listener)
 {
 	m_gunListener = listener;
 }
@@ -145,7 +145,7 @@ void CPS2VM::ReportGunPosition(float x, float y)
 {
 	if(m_gunListener)
 	{
-		m_gunListener->SetGunPosition(x, y);
+		m_gunListener->SetScreenPosition(x, y);
 	}
 }
 
@@ -154,7 +154,7 @@ bool CPS2VM::HasTouchListener() const
 	return m_touchListener != nullptr;
 }
 
-void CPS2VM::SetTouchListener(CGunListener* listener)
+void CPS2VM::SetTouchListener(CScreenPositionListener* listener)
 {
 	m_touchListener = listener;
 }
@@ -163,15 +163,15 @@ void CPS2VM::ReportTouchPosition(float x, float y)
 {
 	if(m_touchListener)
 	{
-		m_touchListener->SetGunPosition(x, y);
+		m_touchListener->SetScreenPosition(x, y);
 	}
 }
 
-void CPS2VM::ReleaseTouchPosition()
+void CPS2VM::ReleaseScreenPosition()
 {
 	if(m_touchListener)
 	{
-		m_touchListener->ReleaseTouchPosition();
+		m_touchListener->ReleaseScreenPosition();
 	}
 }
 

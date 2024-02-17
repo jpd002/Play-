@@ -249,7 +249,7 @@ set(COMMON_SRC_FILES
 	FrameDump.h
 	FrameLimiter.cpp
 	FrameLimiter.h
-	GunListener.h
+	ScreenPositionListener.h
 	InputConfig.cpp
 	InputConfig.h
 	GenericMipsExecutor.h

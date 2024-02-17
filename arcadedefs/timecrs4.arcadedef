@@ -15,7 +15,7 @@
 		"3": "circle"
 	},
 	"inputMode": "lightgun",
-	"lightGunXform": [ -65535, 0, 65535, 0 ],
+	"screenPosXform": [ -65535, 0, 65535, 0 ],
 	"eeFrequencyScale": [3, 2],
 	"boot": "ac0:TC4LOAD",
 	"patches":

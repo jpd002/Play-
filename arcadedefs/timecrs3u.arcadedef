@@ -12,7 +12,7 @@
 		"name": "tst1dvd0.chd"
 	},
 	"inputMode": "lightgun",
-	"lightGunXform": [ 660, 16053, 220, 16273 ],
+	"screenPosXform": [ 660, 16053, 220, 16273 ],
 	"boot": "ac0:TC3LOAD",
 	"patches":
 	[

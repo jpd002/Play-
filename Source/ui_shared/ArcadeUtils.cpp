@@ -166,14 +166,14 @@ ARCADE_MACHINE_DEF ReadArcadeMachineDefinition(const fs::path& arcadeDefPath)
 		std::string inputModeString = defJson["inputMode"];
 		def.inputMode = ParseEnumValue(inputModeString.c_str(), std::begin(g_inputModeValues), std::end(g_inputModeValues));
 	}
-	if(defJson.contains("lightGunXform"))
+	if(defJson.contains("screenPosXform"))
 	{
-		auto lightGunXformArray = defJson["lightGunXform"];
-		if(lightGunXformArray.is_array() && (lightGunXformArray.size() >= 4))
+		auto screenPosXformArray = defJson["screenPosXform"];
+		if(screenPosXformArray.is_array() && (screenPosXformArray.size() >= 4))
 		{
 			for(int i = 0; i < 4; i++)
 			{
-				def.lightGunXform[i] = lightGunXformArray[i];
+				def.screenPosXform[i] = screenPosXformArray[i];
 			}
 		}
 	}

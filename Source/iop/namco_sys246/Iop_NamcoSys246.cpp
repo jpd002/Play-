@@ -403,10 +403,10 @@ void CSys246::ProcessJvsPacket(const uint8* input, uint8* output)
 			if(m_jvsMode == JVS_MODE::LIGHTGUN)
 			{
 				assert(channel == 2);
-				(*output++) = static_cast<uint8>(m_jvsGunPosX >> 8); //Pos X MSB
-				(*output++) = static_cast<uint8>(m_jvsGunPosX);      //Pos X LSB
-				(*output++) = static_cast<uint8>(m_jvsGunPosY >> 8); //Pos Y MSB
-				(*output++) = static_cast<uint8>(m_jvsGunPosY);      //Pos Y LSB
+				(*output++) = static_cast<uint8>(m_jvsScreenPosX >> 8); //Pos X MSB
+				(*output++) = static_cast<uint8>(m_jvsScreenPosX);      //Pos X LSB
+				(*output++) = static_cast<uint8>(m_jvsScreenPosY >> 8); //Pos Y MSB
+				(*output++) = static_cast<uint8>(m_jvsScreenPosY);      //Pos Y LSB
 			}
 			else if(m_jvsMode == JVS_MODE::DRUM)
 			{
@@ -443,10 +443,10 @@ void CSys246::ProcessJvsPacket(const uint8* input, uint8* output)
 
 			(*output++) = 0x01; //Command success
 
-			(*output++) = static_cast<uint8>(m_jvsGunPosX >> 8); //Pos X MSB
-			(*output++) = static_cast<uint8>(m_jvsGunPosX);      //Pos X LSB
-			(*output++) = static_cast<uint8>(m_jvsGunPosY >> 8); //Pos Y MSB
-			(*output++) = static_cast<uint8>(m_jvsGunPosY);      //Pos Y LSB
+			(*output++) = static_cast<uint8>(m_jvsScreenPosX >> 8); //Pos X MSB
+			(*output++) = static_cast<uint8>(m_jvsScreenPosX);      //Pos X LSB
+			(*output++) = static_cast<uint8>(m_jvsScreenPosY >> 8); //Pos Y MSB
+			(*output++) = static_cast<uint8>(m_jvsScreenPosY);      //Pos Y LSB
 
 			(*dstSize) += 5;
 		}
@@ -486,9 +486,9 @@ void CSys246::SetButton(unsigned int buttonIndex, PS2::CControllerInfo::BUTTON b
 	m_jvsButtonBits[buttonValue] = (1 << buttonIndex);
 }
 
-void CSys246::SetLightGunXform(const std::array<float, 4>& lightGunXform)
+void CSys246::SetScreenPosXform(const std::array<float, 4>& screenPosXform)
 {
-	m_lightGunXform = lightGunXform;
+	m_screenPosXform = screenPosXform;
 }
 
 void CSys246::SetButtonState(unsigned int padNumber, PS2::CControllerInfo::BUTTON button, bool pressed, uint8* ram)
@@ -606,16 +606,16 @@ void CSys246::SetAxisState(unsigned int padNumber, PS2::CControllerInfo::BUTTON 
 	}
 }
 
-void CSys246::SetGunPosition(float x, float y)
+void CSys246::SetScreenPosition(float x, float y)
 {
-	m_jvsGunPosX = static_cast<int16>((x * m_lightGunXform[0]) + m_lightGunXform[1]);
-	m_jvsGunPosY = static_cast<int16>((y * m_lightGunXform[2]) + m_lightGunXform[3]);
+	m_jvsScreenPosX = static_cast<int16>((x * m_screenPosXform[0]) + m_screenPosXform[1]);
+	m_jvsScreenPosY = static_cast<int16>((y * m_screenPosXform[2]) + m_screenPosXform[3]);
 }
 
-void CSys246::ReleaseTouchPosition()
+void CSys246::ReleaseScreenPosition()
 {
-	m_jvsGunPosX = 0xFFFF;
-	m_jvsGunPosY = 0xFFFF; //Y position is negligible
+	m_jvsScreenPosX = 0xFFFF;
+	m_jvsScreenPosY = 0xFFFF; //Y position is negligible
 }
 
 bool CSys246::Invoke001(uint32 method, uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
