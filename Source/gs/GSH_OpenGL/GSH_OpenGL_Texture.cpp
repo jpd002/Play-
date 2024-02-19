@@ -6,6 +6,7 @@
 #ifdef _WIN32
 #include <intrin.h>
 #endif
+#include "SimdDefs.h"
 #include "GSH_OpenGL.h"
 #include "StdStream.h"
 #include "bitmap/BMP.h"
@@ -348,28 +349,7 @@ void CGSH_OpenGL::TexUpdater_Psm16(uint32 bufPtr, uint32 bufWidth, unsigned int 
 	CHECKGLERROR();
 }
 
-// clang-format off
-#ifdef _WIN32
-	#define USE_SSE
-#elif defined(__APPLE__)
-	#include <TargetConditionals.h>
-	#if TARGET_CPU_X86_64
-		#define USE_SSE
-	#elif TARGET_CPU_ARM64
-		#define USE_NEON
-	#endif
-#elif defined(__ANDROID__) || defined(__linux__) || defined(__FreeBSD__)
-	#if defined(__x86_64__) || defined(__i386__)
-		#define USE_SSE
-	#elif defined(__aarch64__) || defined(__arm__)
-		#define USE_NEON
-	#endif
-#elif defined(__EMSCRIPTEN__)
-	#define USE_NEON
-#endif
-// clang-format on
-
-#if defined(USE_SSE)
+#if defined(FRAMEWORK_SIMD_USE_SSE)
 #include <xmmintrin.h>
 #include <emmintrin.h>
 #include <tmmintrin.h>
@@ -491,7 +471,7 @@ inline void convertColumn4(uint8* dest, const int destStride, uint8* src, int co
 	}
 }
 
-#elif defined(USE_NEON)
+#elif defined(FRAMEWORK_SIMD_USE_NEON)
 #include <arm_neon.h>
 
 inline void convertColumn8(uint8x16x4_t data, uint8* dest, const int destStride, int colNum)

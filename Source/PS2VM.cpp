@@ -446,8 +446,8 @@ void CPS2VM::SaveDebugTags(const char* packageName)
 
 void CPS2VM::ValidateThreadContext()
 {
-	auto currThreadId = std::this_thread::get_id();
-	auto vmThreadId = m_thread.get_id();
+	FRAMEWORK_MAYBE_UNUSED auto currThreadId = std::this_thread::get_id();
+	FRAMEWORK_MAYBE_UNUSED auto vmThreadId = m_thread.get_id();
 	assert(vmThreadId == std::thread::id() || currThreadId == vmThreadId);
 }
 
