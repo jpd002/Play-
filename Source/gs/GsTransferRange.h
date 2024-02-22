@@ -1,5 +1,6 @@
 #pragma once
 
+#include "maybe_unused.h"
 #include "GSHandler.h"
 
 namespace GsTransfer
@@ -100,11 +101,13 @@ namespace GsTransfer
 		return std::make_pair(transferAddress + transferOffset, transferSize);
 	}
 
+	FRAMEWORK_MAYBE_UNUSED
 	static auto GetSrcRange(const CGSHandler::BITBLTBUF& bltBuf, const CGSHandler::TRXREG& trxReg, const CGSHandler::TRXPOS& trxPos)
 	{
 		return GetRange<TransferRangeSrc>(bltBuf, trxReg, trxPos);
 	}
 
+	FRAMEWORK_MAYBE_UNUSED
 	static auto GetDstRange(const CGSHandler::BITBLTBUF& bltBuf, const CGSHandler::TRXREG& trxReg, const CGSHandler::TRXPOS& trxPos)
 	{
 		return GetRange<TransferRangeDst>(bltBuf, trxReg, trxPos);

@@ -2473,7 +2473,6 @@ void CGSH_OpenGL::CommitFramebufferDirtyPages(const FramebufferPtr& framebuffer,
 
 	auto& cachedArea = framebuffer->m_cachedArea;
 
-	auto areaRect = cachedArea.GetAreaPageRect();
 	auto texturePageSize = CGsPixelFormats::GetPsmPageSize(framebuffer->m_psm);
 
 	CCopyToFbEnabler copyToFbEnabler;
