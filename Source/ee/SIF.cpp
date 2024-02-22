@@ -610,8 +610,12 @@ void CSIF::Cmd_Call(const SIFCMDHEADER* hdr)
 		else
 		{
 			//Hold the packet
-			//We assume that there's only one call that
-			assert(m_callReplies.find(serverId) == m_callReplies.end());
+			//We assume that there's only one RPC call waiting for a reply at any time
+			if(m_callReplies.find(serverId) != m_callReplies.end())
+			{
+				CLog::GetInstance().Warn(LOG_NAME, "RPC server 0x%08X got a call (0x%08X) while a previous call reply is pending.\r\n",
+				                         serverId, call->rpcNumber);
+			}
 			CALLREQUESTINFO requestInfo;
 			requestInfo.reply = rend;
 			requestInfo.call = *call;
