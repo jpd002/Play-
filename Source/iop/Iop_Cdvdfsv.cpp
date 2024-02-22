@@ -325,6 +325,15 @@ bool CCdvdfsv::Invoke596(uint32 method, uint32* args, uint32 argsSize, uint32* r
 {
 	switch(method)
 	{
+	case 0x01:
+		//SetPowerOffCallback
+		//Some versions of the EE CDVD library will invoke this in CdInit. It seems to be called in a no-wait mode,
+		//and it's possible that the reply to this call is only sent once. Sending it always seems to cause
+		//problems in some games (Hunter x Hunter: Ryuumyaku no Saidan) that use CD callbacks and call CdInit
+		//many times.
+		CLog::GetInstance().Print(LOG_NAME, "SetPowerOffCallback();\r\n");
+		return false;
+		break;
 	default:
 		CLog::GetInstance().Warn(LOG_NAME, "Unknown method invoked (0x%08X, 0x%08X).\r\n", 0x596, method);
 		break;
