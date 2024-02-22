@@ -811,7 +811,7 @@ public:
 
 	typedef std::pair<uint8, uint64> RegisterWrite;
 	typedef std::vector<RegisterWrite> RegisterWriteList;
-	typedef std::function<CGSHandler*(void)> FactoryFunction;
+	typedef std::function<CGSHandler*()> FactoryFunction;
 
 	typedef std::function<void(const CFrameDump&)> FrameDumpCallback;
 

@@ -9,8 +9,8 @@ class CGsSpriteRect
 public:
 	CGsSpriteRect(float x1 = 0, float y1 = 0, float x2 = 0, float y2 = 0)
 	    : left(std::min<float>(x1, x2))
-	    , right(std::max<float>(x1, x2))
 	    , top(std::min<float>(y1, y2))
+	    , right(std::max<float>(x1, x2))
 	    , bottom(std::max<float>(y1, y2))
 	{
 		assert(left <= right);
