@@ -524,6 +524,7 @@ void VUShared::MUL_base(CMipsJitter* codeGen, uint8 dest, size_t fd, size_t fs, 
 void VUShared::MULA_base(CMipsJitter* codeGen, uint8 dest, size_t fs, size_t ft, bool expand, uint32 relativePipeTime, uint32 compileHints)
 {
 	codeGen->MD_PushRel(fs);
+	codeGen->MD_ClampS();
 	if(expand)
 	{
 		codeGen->MD_PushRelExpand(ft);
