@@ -629,17 +629,20 @@ void CGSHandler::FeedImageData(const void* data, uint32 length)
 	//Allocate 0x10 more bytes to allow transfer handlers
 	//to read beyond the actual length of the buffer (ie.: PSMCT24)
 
-	std::vector<uint8> imageData(length + 0x10);
-	memcpy(imageData.data(), data, length);
+	uint8* imageData = new uint8[length + 0x10];
+	memcpy(imageData, data, length);
+	memset(imageData + length, 0, 0x10);
+
 	SendGSCall(
-	    [this, imageData = std::move(imageData), length]() {
+	    [this, imageData, length]() {
 #ifdef DEBUGGER_INCLUDED
 		    if(m_frameDump)
 		    {
-			    m_frameDump->AddImagePacket(imageData.data(), length);
+			    m_frameDump->AddImagePacket(imageData, length);
 		    }
 #endif
-		    FeedImageDataImpl(imageData.data(), length);
+		    FeedImageDataImpl(imageData, length);
+		    delete[] imageData;
 	    });
 }
 
