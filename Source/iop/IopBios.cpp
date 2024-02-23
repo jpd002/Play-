@@ -3215,7 +3215,7 @@ void CIopBios::HandleException()
 		}
 		uint32 functionId = callInstruction & 0xFFFF;
 		FRAMEWORK_MAYBE_UNUSED uint32 version = m_cpu.m_pMemoryMap->GetWord(searchAddress + 8);
-		std::string moduleName = ReadModuleName(searchAddress + 0x0C);
+		auto moduleName = ReadModuleName(searchAddress + 0x0C);
 
 #ifdef _DEBUG
 		if(moduleName == "libsd")
@@ -3233,7 +3233,7 @@ void CIopBios::HandleException()
 		{
 #ifdef _DEBUG
 			CLog::GetInstance().Warn(LOGNAME, "%08X: Trying to call a function from non-existing module (%s, %d).\r\n",
-			                         m_cpu.m_State.nPC, moduleName.c_str(), functionId);
+			                         m_cpu.m_State.nPC, std::string(moduleName).c_str(), functionId);
 #endif
 		}
 	}
@@ -3415,21 +3415,21 @@ CIopBios::ModuleSet CIopBios::GetBuiltInModules() const
 	return modules;
 }
 
-std::string CIopBios::ReadModuleName(uint32 address)
+std::string_view CIopBios::ReadModuleName(uint32 address)
 {
-	std::string moduleName;
-	const CMemoryMap::MEMORYMAPELEMENT* memoryMapElem = m_cpu.m_pMemoryMap->GetReadMap(address);
-	assert(memoryMapElem != NULL);
+	const auto* memoryMapElem = m_cpu.m_pMemoryMap->GetReadMap(address);
+	assert(memoryMapElem != nullptr);
 	assert(memoryMapElem->nType == CMemoryMap::MEMORYMAP_TYPE_MEMORY);
-	uint8* memory = reinterpret_cast<uint8*>(memoryMapElem->pPointer) + (address - memoryMapElem->nStart);
-	while(1)
+	auto memory = reinterpret_cast<uint8*>(memoryMapElem->pPointer) + (address - memoryMapElem->nStart);
+	auto currChar = memory;
+	uint32 size = 0;
+	while(size < 8)
 	{
-		uint8 character = *(memory++);
-		if(character == 0) break;
-		if(character < 0x10) continue;
-		moduleName += character;
+		uint8 character = *(currChar++);
+		if(character < 0x10) break;
+		size++;
 	}
-	return moduleName;
+	return std::string_view(reinterpret_cast<char*>(memory), size);
 }
 
 bool CIopBios::RegisterModule(const Iop::ModulePtr& module)
@@ -3921,8 +3921,8 @@ void CIopBios::PrepareModuleDebugInfo(CELF32& elf, const ExecutableRange& module
 			if(m_cpu.m_pMemoryMap->GetWord(address + 4) != 0) continue;
 
 			uint32 version = m_cpu.m_pMemoryMap->GetWord(address + 8);
-			std::string moduleName = ReadModuleName(address + 0xC);
-			IopModuleMapType::iterator module(m_modules.find(moduleName));
+			auto moduleName = ReadModuleName(address + 0xC);
+			auto module(m_modules.find(moduleName));
 
 			size_t moduleNameLength = moduleName.length();
 			uint32 entryAddress = address + 0x0C + ((moduleNameLength + 3) & ~0x03);

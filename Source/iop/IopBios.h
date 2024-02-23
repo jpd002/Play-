@@ -598,7 +598,7 @@ private:
 	typedef COsStructManager<FPL> FplList;
 	typedef COsStructManager<VPL> VplList;
 	typedef COsStructManager<LOADEDMODULE> LoadedModuleList;
-	typedef std::map<std::string, Iop::ModulePtr> IopModuleMapType;
+	typedef std::map<std::string, Iop::ModulePtr, std::less<>> IopModuleMapType;
 	typedef std::set<Iop::CModule*> ModuleSet;
 	typedef std::pair<uint32, uint32> ExecutableRange;
 
@@ -619,7 +619,7 @@ private:
 	uint32 LoadExecutable(CELF32&, ExecutableRange&, uint32);
 	unsigned int GetElfProgramToLoad(CELF32&);
 	void RelocateElf(CELF32&, uint32, uint32);
-	std::string ReadModuleName(uint32);
+	std::string_view ReadModuleName(uint32);
 	void DeleteModules();
 
 	void UnloadUserComponents();
