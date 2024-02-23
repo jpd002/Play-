@@ -11,7 +11,7 @@
 		"name": "vpn1cd0.chd"
 	},
 	"inputMode": "lightgun",
-	"lightGunXform": [ 53000, 7000, -48146, 50321 ],
+	"screenPosXform": [ 53000, 7000, -48146, 50321 ],
 	"boot": "ac0:VPNGAME",
 	"patches":
 	[

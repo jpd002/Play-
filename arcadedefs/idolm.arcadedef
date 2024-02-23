@@ -10,6 +10,8 @@
 	{
 		"name": "NM00022 IDM1-HA (HDD).chd"
 	},
+	"inputMode": "touch",
+	"screenPosXform": [ 65535, 0, -65535, 0 ],
 	"eeFrequencyScale": [4, 3],
 	"boot": "ac0:IDLLOAD",
 	"patches":

@@ -5,7 +5,7 @@
 #include "../Iop_SifMan.h"
 #include "../../SifModuleAdapter.h"
 #include "../../PadInterface.h"
-#include "../../GunListener.h"
+#include "../../ScreenPositionListener.h"
 #include "filesystem_def.h"
 
 namespace Iop
@@ -16,7 +16,7 @@ namespace Iop
 	{
 		class CAcRam;
 
-		class CSys246 : public CModule, public CPadInterface, public CGunListener
+		class CSys246 : public CModule, public CPadInterface, public CScreenPositionListener
 		{
 		public:
 			enum class JVS_MODE
@@ -25,6 +25,7 @@ namespace Iop
 				LIGHTGUN,
 				DRUM,
 				DRIVE,
+				TOUCH,
 			};
 
 			CSys246(CSifMan&, CSifCmd&, Namco::CAcRam&, const std::string&);
@@ -39,15 +40,16 @@ namespace Iop
 
 			void SetJvsMode(JVS_MODE);
 			void SetButton(unsigned int, PS2::CControllerInfo::BUTTON);
-			void SetLightGunXform(const std::array<float, 4>&);
+			void SetScreenPosXform(const std::array<float, 4>&);
 
 			//CPadInterface
 			void SetButtonState(unsigned int, PS2::CControllerInfo::BUTTON, bool, uint8*) override;
 			void SetAxisState(unsigned int, PS2::CControllerInfo::BUTTON, uint8, uint8*) override;
 			void GetVibration(unsigned int, uint8& largeMotor, uint8& smallMotor) override{};
 
-			//CGunListener
-			void SetGunPosition(float, float) override;
+			//CScreenPositionListener
+			void SetScreenPosition(float, float) override;
+			void ReleaseScreenPosition() override;
 
 		private:
 			enum MODULE_ID
@@ -117,13 +119,13 @@ namespace Iop
 			uint32 m_sendAddr = 0;
 
 			JVS_MODE m_jvsMode = JVS_MODE::DEFAULT;
-			std::array<float, 4> m_lightGunXform = {65535, 0, 65535, 0};
+			std::array<float, 4> m_screenPosXform = {65535, 0, 65535, 0};
 
 			std::array<uint16, PS2::CControllerInfo::MAX_BUTTONS> m_jvsButtonBits = {};
 			uint16 m_jvsButtonState[JVS_PLAYER_COUNT] = {};
 			uint16 m_jvsSystemButtonState = 0;
-			uint16 m_jvsGunPosX = 0x7FFF;
-			uint16 m_jvsGunPosY = 0x7FFF;
+			uint16 m_jvsScreenPosX = 0x7FFF;
+			uint16 m_jvsScreenPosY = 0x7FFF;
 			uint16 m_jvsDrumChannels[JVS_DRUM_CHANNEL_MAX] = {};
 			uint16 m_jvsWheelChannels[JVS_WHEEL_CHANNEL_MAX] = {};
 			uint16 m_jvsWheel = 0x0;

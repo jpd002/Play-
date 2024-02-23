@@ -7,7 +7,7 @@
 #include "MIPS.h"
 #include "MailBox.h"
 #include "PadHandler.h"
-#include "GunListener.h"
+#include "ScreenPositionListener.h"
 #include "OpticalMedia.h"
 #include "VirtualMachine.h"
 #include "ee/Ee_SubSystem.h"
@@ -87,7 +87,12 @@ public:
 
 	void ReportGunPosition(float, float);
 	bool HasGunListener() const;
-	void SetGunListener(CGunListener*);
+	void SetGunListener(CScreenPositionListener*);
+
+	void ReportTouchPosition(float, float);
+	bool HasTouchListener() const;
+	void SetTouchListener(CScreenPositionListener*);
+	void ReleaseScreenPosition();
 
 	OpticalMediaPtr m_cdrom0;
 	CPadHandler* m_pad = nullptr;
@@ -188,7 +193,8 @@ private:
 	int m_spuBlockCount = 0;
 	CSoundHandler* m_soundHandler = nullptr;
 
-	CGunListener* m_gunListener = nullptr;
+	CScreenPositionListener* m_gunListener = nullptr;
+	CScreenPositionListener* m_touchListener = nullptr;
 
 	CProfiler::ZoneHandle m_eeProfilerZone = 0;
 	CProfiler::ZoneHandle m_iopProfilerZone = 0;

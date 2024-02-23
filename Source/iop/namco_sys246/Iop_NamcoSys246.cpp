@@ -51,13 +51,13 @@ static const std::array<uint16, PS2::CControllerInfo::MAX_BUTTONS> g_defaultJvsB
 	0x0000,
 	0x0020, //DPAD_UP,
 	0x0010, //DPAD_DOWN,
-	0x0008, //DPAD_LEFT,
-	0x0004, //DPAD_RIGHT,
+	0x0008, //DPAD_LEFT (Shutter Sensor Top),
+	0x0004, //DPAD_RIGHT (Shutter Sensor Down),
 	0x0040, //SELECT,
 	0x0080, //START,
 	0x4000, //SQUARE,
 	0x8000, //TRIANGLE,
-	0x0001, //CIRCLE,
+	0x0001, //CIRCLE (Motor Sensor),
 	0x0002, //CROSS,
 	0x0100, //L1,
 	0x0200, //L2,
@@ -253,6 +253,15 @@ void CSys246::ProcessJvsPacket(const uint8* input, uint8* output)
 
 				(*dstSize) += 4;
 			}
+			else if(m_jvsMode == JVS_MODE::TOUCH)
+			{
+				(*output++) = 0x06; //Screen Pos Input
+				(*output++) = 0x10; //X pos bits
+				(*output++) = 0x10; //Y pos bits
+				(*output++) = 0x01; //channels
+
+				(*dstSize) += 4;
+			}
 
 			(*output++) = 0x00; //End of features
 
@@ -394,10 +403,10 @@ void CSys246::ProcessJvsPacket(const uint8* input, uint8* output)
 			if(m_jvsMode == JVS_MODE::LIGHTGUN)
 			{
 				assert(channel == 2);
-				(*output++) = static_cast<uint8>(m_jvsGunPosX >> 8); //Pos X MSB
-				(*output++) = static_cast<uint8>(m_jvsGunPosX);      //Pos X LSB
-				(*output++) = static_cast<uint8>(m_jvsGunPosY >> 8); //Pos Y MSB
-				(*output++) = static_cast<uint8>(m_jvsGunPosY);      //Pos Y LSB
+				(*output++) = static_cast<uint8>(m_jvsScreenPosX >> 8); //Pos X MSB
+				(*output++) = static_cast<uint8>(m_jvsScreenPosX);      //Pos X LSB
+				(*output++) = static_cast<uint8>(m_jvsScreenPosY >> 8); //Pos Y MSB
+				(*output++) = static_cast<uint8>(m_jvsScreenPosY);      //Pos Y LSB
 			}
 			else if(m_jvsMode == JVS_MODE::DRUM)
 			{
@@ -434,10 +443,10 @@ void CSys246::ProcessJvsPacket(const uint8* input, uint8* output)
 
 			(*output++) = 0x01; //Command success
 
-			(*output++) = static_cast<uint8>(m_jvsGunPosX >> 8); //Pos X MSB
-			(*output++) = static_cast<uint8>(m_jvsGunPosX);      //Pos X LSB
-			(*output++) = static_cast<uint8>(m_jvsGunPosY >> 8); //Pos Y MSB
-			(*output++) = static_cast<uint8>(m_jvsGunPosY);      //Pos Y LSB
+			(*output++) = static_cast<uint8>(m_jvsScreenPosX >> 8); //Pos X MSB
+			(*output++) = static_cast<uint8>(m_jvsScreenPosX);      //Pos X LSB
+			(*output++) = static_cast<uint8>(m_jvsScreenPosY >> 8); //Pos Y MSB
+			(*output++) = static_cast<uint8>(m_jvsScreenPosY);      //Pos Y LSB
 
 			(*dstSize) += 5;
 		}
@@ -477,9 +486,9 @@ void CSys246::SetButton(unsigned int buttonIndex, PS2::CControllerInfo::BUTTON b
 	m_jvsButtonBits[buttonValue] = (1 << buttonIndex);
 }
 
-void CSys246::SetLightGunXform(const std::array<float, 4>& lightGunXform)
+void CSys246::SetScreenPosXform(const std::array<float, 4>& screenPosXform)
 {
-	m_lightGunXform = lightGunXform;
+	m_screenPosXform = screenPosXform;
 }
 
 void CSys246::SetButtonState(unsigned int padNumber, PS2::CControllerInfo::BUTTON button, bool pressed, uint8* ram)
@@ -597,15 +606,22 @@ void CSys246::SetAxisState(unsigned int padNumber, PS2::CControllerInfo::BUTTON 
 	}
 }
 
-void CSys246::SetGunPosition(float x, float y)
+void CSys246::SetScreenPosition(float x, float y)
 {
-	m_jvsGunPosX = static_cast<int16>((x * m_lightGunXform[0]) + m_lightGunXform[1]);
-	m_jvsGunPosY = static_cast<int16>((y * m_lightGunXform[2]) + m_lightGunXform[3]);
+	m_jvsScreenPosX = static_cast<int16>((x * m_screenPosXform[0]) + m_screenPosXform[1]);
+	m_jvsScreenPosY = static_cast<int16>((y * m_screenPosXform[2]) + m_screenPosXform[3]);
+}
+
+void CSys246::ReleaseScreenPosition()
+{
+	m_jvsScreenPosX = 0xFFFF;
+	m_jvsScreenPosY = 0xFFFF; //Y position is negligible
 }
 
 bool CSys246::Invoke001(uint32 method, uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
 {
 	//JVIO stuff?
+	//method 0x01 -> ??? called once upon idolm@ster's startup. args[2] == 0x001, args[3] == 0x2000.
 	switch(method)
 	{
 	case 0x02:
@@ -629,7 +645,7 @@ bool CSys246::Invoke001(uint32 method, uint32* args, uint32 argsSize, uint32* re
 			ret[0] = 0;
 			ret[1] = size;
 		}
-		//Sengoku Basara & Time Crisis have argsSize == 0x10
+		//Sengoku Basara, Time Crisis & Idolm@ster have argsSize == 0x10
 		else if(argsSize == 0x10)
 		{
 			assert(argsSize >= 0x10);
