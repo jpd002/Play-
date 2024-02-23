@@ -826,7 +826,7 @@ void MainWindow::focusInEvent(QFocusEvent* event)
 
 void MainWindow::outputWindow_doubleClickEvent(QMouseEvent* ev)
 {
-	if((!m_virtualMachine->HasGunListener() || !m_virtualMachine->HasTouchListener()) && (ev->button() == Qt::LeftButton))
+	if((!m_virtualMachine->HasGunListener() && !m_virtualMachine->HasTouchListener()) && (ev->button() == Qt::LeftButton))
 	{
 		on_actionToggleFullscreen_triggered();
 	}
