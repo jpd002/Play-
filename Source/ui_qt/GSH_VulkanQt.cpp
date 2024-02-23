@@ -2,13 +2,16 @@
 #include "vulkan/StructDefs.h"
 #include "vulkan/Loader.h"
 #include <QWindow>
+#include <QGuiApplication>
 
 #ifdef __APPLE__
 #include <MoltenVK/vk_mvk_moltenvk.h>
 #endif
 
 #ifdef __linux__
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 #include <QX11Info>
+#endif
 #endif
 
 CGSH_VulkanQt::CGSH_VulkanQt(QWindow* renderWindow)
@@ -42,7 +45,11 @@ void CGSH_VulkanQt::InitializeImpl()
 #ifdef __linux__
 	auto surfaceCreateInfo = Framework::Vulkan::XcbSurfaceCreateInfoKHR();
 	surfaceCreateInfo.window = static_cast<xcb_window_t>(m_renderWindow->winId());
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+	surfaceCreateInfo.connection = qGuiApp->nativeInterface<QNativeInterface::QX11Application>()->connection();
+#else
 	surfaceCreateInfo.connection = QX11Info::connection();
+#endif
 	auto result = m_instance.vkCreateXcbSurfaceKHR(m_instance, &surfaceCreateInfo, nullptr, &m_context->surface);
 	CHECKVULKANERROR(result);
 #endif

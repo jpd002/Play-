@@ -62,8 +62,9 @@ CSys147::CSys147(CSifMan& sifMan, const std::string& gameId)
 
 	if(CAppConfig::GetInstance().GetPreferenceBoolean(PREF_PS2_ARCADE_IO_SERVER_ENABLED))
 	{
+		fs::path logPath = CAppConfig::GetInstance().GetBasePath() / "arcade_io_server.log";
 		uint16 port = CAppConfig::GetInstance().GetPreferenceInteger(PREF_PS2_ARCADE_IO_SERVER_PORT);
-		m_ioServer = std::make_unique<Framework::CHttpServer>(port, std::bind(&CSys147::HandleIoServerRequest, this, std::placeholders::_1));
+		m_ioServer = std::make_unique<Framework::CHttpServer>(port, std::bind(&CSys147::HandleIoServerRequest, this, std::placeholders::_1), logPath);
 	}
 }
 
