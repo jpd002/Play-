@@ -211,6 +211,14 @@ uint32 CFileIoHandler2200::InvokeRead(uint32* args, uint32 argsSize, uint32* ret
 	reply.unknown3 = 0;
 	reply.unknown4 = 0;
 
+	//If we have a pending reply for another file operation, just send that one right away.
+	//This can happen in Star Wars: Clone Wars when loading a specific level.
+	if(m_pendingReply.valid && (m_pendingReply.fileId != command->fd))
+	{
+		SendPendingReply(ram);
+		assert(!m_pendingReply.valid);
+	}
+
 	//Delay read reply to next frame.
 	//Some games, like Shadow of the Colossus, seem to rely on the delay to
 	//work properly (probably because it causes EE threads to be rescheduled).
