@@ -886,25 +886,25 @@ void CVif::DisassembleCommand(CODE code)
 	{
 		switch(code.nCMD)
 		{
-		case 0x00:
+		case CODE_CMD_NOP:
 			CLog::GetInstance().Print(LOG_NAME, "NOP\r\n");
 			break;
-		case 0x01:
+		case CODE_CMD_STCYCL:
 			CLog::GetInstance().Print(LOG_NAME, "STCYCL(imm = 0x%x);\r\n", code.nIMM);
 			break;
-		case 0x02:
+		case CODE_CMD_OFFSET:
 			CLog::GetInstance().Print(LOG_NAME, "OFFSET(imm = 0x%x);\r\n", code.nIMM);
 			break;
-		case 0x03:
+		case CODE_CMD_BASE:
 			CLog::GetInstance().Print(LOG_NAME, "BASE(imm = 0x%x);\r\n", code.nIMM);
 			break;
-		case 0x04:
+		case CODE_CMD_ITOP:
 			CLog::GetInstance().Print(LOG_NAME, "ITOP(imm = 0x%x);\r\n", code.nIMM);
 			break;
-		case 0x05:
+		case CODE_CMD_STMOD:
 			CLog::GetInstance().Print(LOG_NAME, "STMOD(imm = 0x%x);\r\n", code.nIMM);
 			break;
-		case 0x06:
+		case CODE_CMD_MSKPATH3:
 			CLog::GetInstance().Print(LOG_NAME, "MSKPATH3(mask = %d);\r\n", (code.nIMM & 0x8000) ? 1 : 0);
 			break;
 		case CODE_CMD_MARK:
@@ -913,19 +913,19 @@ void CVif::DisassembleCommand(CODE code)
 		case CODE_CMD_FLUSHE:
 			CLog::GetInstance().Print(LOG_NAME, "FLUSHE();\r\n");
 			break;
-		case 0x11:
+		case CODE_CMD_FLUSH:
 			CLog::GetInstance().Print(LOG_NAME, "FLUSH();\r\n");
 			break;
-		case 0x13:
+		case CODE_CMD_FLUSHA:
 			CLog::GetInstance().Print(LOG_NAME, "FLUSHA();\r\n");
 			break;
-		case 0x14:
+		case CODE_CMD_MSCAL:
 			CLog::GetInstance().Print(LOG_NAME, "MSCAL(imm = 0x%x);\r\n", code.nIMM);
 			break;
-		case 0x15:
+		case CODE_CMD_MSCALF:
 			CLog::GetInstance().Print(LOG_NAME, "MSCALF(imm = 0x%x);\r\n", code.nIMM);
 			break;
-		case 0x17:
+		case CODE_CMD_MSCNT:
 			CLog::GetInstance().Print(LOG_NAME, "MSCNT();\r\n");
 			break;
 		case CODE_CMD_STMASK:
@@ -937,13 +937,13 @@ void CVif::DisassembleCommand(CODE code)
 		case CODE_CMD_STCOL:
 			CLog::GetInstance().Print(LOG_NAME, "STCOL();\r\n");
 			break;
-		case 0x4A:
+		case CODE_CMD_MPG:
 			CLog::GetInstance().Print(LOG_NAME, "MPG(imm = 0x%x, num = 0x%x);\r\n", code.nIMM, code.nNUM);
 			break;
-		case 0x50:
+		case CODE_CMD_DIRECT:
 			CLog::GetInstance().Print(LOG_NAME, "DIRECT(imm = 0x%x);\r\n", code.nIMM);
 			break;
-		case 0x51:
+		case CODE_CMD_DIRECTHL:
 			CLog::GetInstance().Print(LOG_NAME, "DIRECTHL(imm = 0x%x);\r\n", code.nIMM);
 			break;
 		default:
