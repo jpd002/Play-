@@ -350,7 +350,7 @@ void CPS2OS::BootFromCDROM()
 		ioman->Close(handle);
 	}
 
-	if(executablePath.length() == 0)
+	if(executablePath.empty())
 	{
 		throw std::runtime_error("Error parsing 'SYSTEM.CNF' for a BOOT2 value.");
 	}
