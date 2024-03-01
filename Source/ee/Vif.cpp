@@ -358,6 +358,11 @@ uint32 CVif::ReceiveDMA(uint32 address, uint32 qwc, uint32 unused, bool tagInclu
 		//Is waiting for program end, don't bother
 		return 0;
 	}
+	if(m_stallDma)
+	{
+		m_stallDma = false;
+		return m_stallDmaCount;
+	}
 
 #ifdef PROFILE
 	CProfilerZone profilerZone(m_vifProfilerZone);
@@ -376,7 +381,21 @@ uint32 CVif::ReceiveDMA(uint32 address, uint32 qwc, uint32 unused, bool tagInclu
 	assert((remainingSize & 0x0F) == 0);
 	remainingSize /= 0x10;
 
-	return qwc - remainingSize;
+	uint32 result = qwc - remainingSize;
+	if(result == 0)
+	{
+		m_stallDma = false;
+	}
+
+	if(m_stallDma)
+	{
+		m_stallDmaCount = result;
+		return 0;
+	}
+	else
+	{
+		return result;
+	}
 }
 
 bool CVif::IsWaitingForProgramEnd() const

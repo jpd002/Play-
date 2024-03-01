@@ -155,6 +155,9 @@ void CVif1::ExecuteCommand(StreamType& stream, CODE nCommand)
 
 void CVif1::Cmd_DIRECT(StreamType& stream, CODE nCommand)
 {
+	m_stallDma = true;
+	m_stallDmaCount = 0;
+
 	uint32 nSize = stream.GetAvailableReadBytes();
 	assert((nSize & 0x03) == 0);
 

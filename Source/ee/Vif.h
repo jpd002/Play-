@@ -668,6 +668,9 @@ protected:
 	uint8 m_fifoBuffer[FIFO_SIZE];
 	uint32 m_fifoIndex = 0;
 
+	bool m_stallDma = false;
+	uint32 m_stallDmaCount = 0;
+
 	STAT m_STAT;
 	ERR m_ERR;
 	CYCLE m_CYCLE;
