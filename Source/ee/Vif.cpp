@@ -86,6 +86,8 @@ void CVif::Reset()
 	m_pendingMicroProgram = -1;
 	m_incomingFifoDelay = 0;
 	m_interruptDelayTicks = 0;
+	m_stallDma = false;
+	m_stallDmaCount = 0;
 }
 
 uint32 CVif::GetRegister(uint32 address)
