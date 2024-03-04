@@ -56,14 +56,14 @@ static NSString* const reuseIdentifier = @"coverCell";
 	dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
 	dispatch_async(queue, ^{
 	  auto activeDirs = GetActiveBootableDirectories();
-	  if(forceFullDeviceScan || activeDirs.empty())
+	  if(forceFullDeviceScan)
 	  {
 		  dispatch_async(dispatch_get_main_queue(), ^{
 			alert.message = @"Scanning games on filesystem...";
 		  });
 		  ScanBootables("/private/var/mobile");
 	  }
-	  else
+	  else if(!activeDirs.empty())
 	  {
 		  dispatch_async(dispatch_get_main_queue(), ^{
 			alert.message = @"Scanning games in active directories...";
