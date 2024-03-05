@@ -232,7 +232,8 @@ protected:
 	{
 		unsigned int nVPS : 2;
 		unsigned int nVEW : 1;
-		unsigned int nReserved0 : 3;
+		unsigned int nVGW : 1; //VIF1 only
+		unsigned int nReserved0 : 2;
 		unsigned int nMRK : 1;
 		unsigned int nDBF : 1;
 		unsigned int nVSS : 1;
