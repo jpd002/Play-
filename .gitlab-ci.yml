@@ -44,6 +44,10 @@ include:
   - project: 'libretro-infrastructure/ci-templates'
     file: '/android-cmake.yml'
 
+  # iOS
+  - project: 'libretro-infrastructure/ci-templates'
+    file: '/ios-cmake.yml'
+
 # Stages for building
 stages:
   - build-prepare
@@ -115,5 +119,14 @@ android-x86:
   extends:
     - .libretro-android-cmake-x86
     - .core-defs
+
+# iOS
+libretro-build-ios-arm64:
+  extends:
+    - .libretro-ios-cmake-arm64
+    - .core-defs
+  variables:
+    CORE_ARGS: -DBUILD_LIBRETRO_CORE=ON -DBUILD_PLAY=OFF -DENABLE_AMAZON_S3=off -DBUILD_TESTS=OFF -DCMAKE_TOOLCHAIN_FILE=deps/Dependencies/cmake-ios/ios.cmake -DTARGET_IOS=ON
+    LIBNAME: ${CORENAME}_libretro_ios.dylib
 
 ################################### CONSOLES #################################

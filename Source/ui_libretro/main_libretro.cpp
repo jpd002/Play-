@@ -493,6 +493,19 @@ bool retro_load_game(const retro_game_info* info)
 {
 	CLog::GetInstance().Print(LOG_NAME, "%s\n", __FUNCTION__);
 
+#if defined(IOS)
+	bool can_jit = false;
+	if(g_environ_cb(RETRO_ENVIRONMENT_GET_JIT_CAPABLE, &can_jit) && !can_jit)
+	{
+		// trying to run without the jit will cause a crash.
+		retro_message retromsg;
+		retromsg.msg = "Cannot run without JIT";
+		retromsg.frames = 5000 / 17;
+		g_environ_cb(RETRO_ENVIRONMENT_SET_MESSAGE, &retromsg);
+		return false;
+	}
+#endif
+
 	fs::path filePath = info->path;
 	if(IsBootableExecutablePath(filePath))
 	{
