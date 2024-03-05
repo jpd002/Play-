@@ -86,8 +86,7 @@ void CVif::Reset()
 	m_pendingMicroProgram = -1;
 	m_incomingFifoDelay = 0;
 	m_interruptDelayTicks = 0;
-	m_stallDma = false;
-	m_stallDmaCount = 0;
+	m_mpgExecuting = false;
 }
 
 uint32 CVif::GetRegister(uint32 address)
@@ -254,6 +253,7 @@ void CVif::SetRegister(uint32 address, uint32 value)
 
 void CVif::CountTicks(uint32 ticks)
 {
+	m_mpgExecuting = false;
 	if(m_interruptDelayTicks != 0)
 	{
 		m_interruptDelayTicks -= ticks;
@@ -355,15 +355,11 @@ uint32 CVif::GetITOP() const
 
 uint32 CVif::ReceiveDMA(uint32 address, uint32 qwc, uint32 unused, bool tagIncluded)
 {
-	if(m_STAT.nVEW && m_vpu.IsVuRunning())
+	if(m_STAT.nVEW && (m_vpu.IsVuRunning() || m_mpgExecuting))
 	{
 		//Is waiting for program end, don't bother
+		m_mpgExecuting = false;
 		return 0;
-	}
-	if(m_stallDma)
-	{
-		m_stallDma = false;
-		return m_stallDmaCount;
 	}
 
 #ifdef PROFILE
@@ -383,21 +379,7 @@ uint32 CVif::ReceiveDMA(uint32 address, uint32 qwc, uint32 unused, bool tagInclu
 	assert((remainingSize & 0x0F) == 0);
 	remainingSize /= 0x10;
 
-	uint32 result = qwc - remainingSize;
-	if(result == 0)
-	{
-		m_stallDma = false;
-	}
-
-	if(m_stallDma)
-	{
-		m_stallDmaCount = result;
-		return 0;
-	}
-	else
-	{
-		return result;
-	}
+	return qwc - remainingSize;
 }
 
 bool CVif::IsWaitingForProgramEnd() const
@@ -447,7 +429,7 @@ void CVif::ProcessPacket(StreamType& stream)
 		}
 		if(m_STAT.nVEW == 1)
 		{
-			if(m_vpu.IsVuRunning()) break;
+			if(m_vpu.IsVuRunning() || m_mpgExecuting) break;
 			m_STAT.nVEW = 0;
 			//Command is waiting for micro-program to end.
 			ExecuteCommand(stream, m_CODE);
@@ -531,7 +513,7 @@ void CVif::ExecuteCommand(StreamType& stream, CODE nCommand)
 		m_STAT.nMRK = 1;
 		break;
 	case CODE_CMD_FLUSHE:
-		if(m_vpu.IsVuRunning())
+		if(m_vpu.IsVuRunning() || m_mpgExecuting)
 		{
 			m_STAT.nVEW = 1;
 		}
@@ -591,6 +573,8 @@ void CVif::ExecuteCommand(StreamType& stream, CODE nCommand)
 
 void CVif::Cmd_MPG(StreamType& stream, CODE nCommand)
 {
+	m_mpgExecuting = false;
+
 	uint32 nSize = stream.GetAvailableReadBytes();
 
 	uint32 nNum = (m_NUM == 0) ? (256) : (m_NUM);
@@ -717,6 +701,8 @@ void CVif::Cmd_STMASK(StreamType& stream, CODE command)
 
 void CVif::Cmd_UNPACK(StreamType& stream, CODE nCommand, uint32 nDstAddr)
 {
+	m_mpgExecuting = false;
+
 	uint32 cl = m_CYCLE.nCL;
 	uint32 wl = m_CYCLE.nWL;
 	if(wl == 0)
@@ -756,6 +742,7 @@ void CVif::StartMicroProgram(uint32 address)
 	assert(!m_STAT.nVEW);
 	PrepareMicroProgram();
 	m_vpu.ExecuteMicroProgram(address);
+	m_mpgExecuting = true;
 }
 
 void CVif::StartDelayedMicroProgram(uint32 address)
@@ -782,6 +769,7 @@ bool CVif::ResumeDelayedMicroProgram()
 		assert(!m_vpu.IsVuRunning());
 		m_vpu.ExecuteMicroProgram(m_pendingMicroProgram);
 		m_pendingMicroProgram = -1;
+		m_mpgExecuting = true;
 		return true;
 	}
 	else

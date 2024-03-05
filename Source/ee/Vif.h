@@ -669,9 +669,6 @@ protected:
 	uint8 m_fifoBuffer[FIFO_SIZE];
 	uint32 m_fifoIndex = 0;
 
-	bool m_stallDma = false;
-	uint32 m_stallDmaCount = 0;
-
 	STAT m_STAT;
 	ERR m_ERR;
 	CYCLE m_CYCLE;
@@ -689,6 +686,7 @@ protected:
 	uint32 m_pendingMicroProgram;
 	uint32 m_incomingFifoDelay;
 	int32 m_interruptDelayTicks;
+	bool m_mpgExecuting = false;
 
 	CProfiler::ZoneHandle m_vifProfilerZone = 0;
 };
