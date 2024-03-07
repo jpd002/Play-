@@ -10,7 +10,8 @@
     GIT_SUBMODULE_STRATEGY: recursive
     CORENAME: play
     API_LEVEL: 19
-    CORE_ARGS: -DBUILD_LIBRETRO_CORE=ON -DBUILD_PLAY=OFF -DENABLE_AMAZON_S3=off -DBUILD_TESTS=OFF
+    BASE_CORE_ARGS: -DBUILD_LIBRETRO_CORE=ON -DBUILD_PLAY=OFF -DENABLE_AMAZON_S3=off -DBUILD_TESTS=OFF
+    CORE_ARGS: $BASE_CORE_ARGS
     EXTRA_PATH: Source/ui_libretro
 
 .core-defs-win:
@@ -47,6 +48,10 @@ include:
   # iOS
   - project: 'libretro-infrastructure/ci-templates'
     file: '/ios-cmake.yml'
+
+  # tvOS
+  - project: 'libretro-infrastructure/ci-templates'
+    file: '/tvos-cmake.yml'
 
 # Stages for building
 stages:
@@ -126,7 +131,16 @@ libretro-build-ios-arm64:
     - .libretro-ios-cmake-arm64
     - .core-defs
   variables:
-    CORE_ARGS: -DBUILD_LIBRETRO_CORE=ON -DBUILD_PLAY=OFF -DENABLE_AMAZON_S3=off -DBUILD_TESTS=OFF -DCMAKE_TOOLCHAIN_FILE=deps/Dependencies/cmake-ios/ios.cmake -DTARGET_IOS=ON
+    CORE_ARGS: $BASE_CORE_ARGS -DCMAKE_TOOLCHAIN_FILE=deps/Dependencies/cmake-ios/ios.cmake -DTARGET_IOS=ON
     LIBNAME: ${CORENAME}_libretro_ios.dylib
+
+# tvOS
+libretro-build-tvos-arm64:
+  extends:
+    - .libretro-tvos-cmake-arm64
+    - .core-defs
+  variables:
+    CORE_ARGS: $BASE_CORE_ARGS -DIOS_PLATFORM=TVOS -DCMAKE_TOOLCHAIN_FILE=deps/Dependencies/cmake-ios/ios.cmake -DTARGET_IOS=ON
+    LIBNAME: ${CORENAME}_libretro_tvos.dylib
 
 ################################### CONSOLES #################################
