@@ -4,6 +4,7 @@
 #define NOMINMAX
 #include <Windows.h>
 #elif defined(__APPLE__)
+#include <TargetConditionals.h>
 #include <mach/mach.h>
 #include <thread>
 #elif defined(__unix__)
@@ -56,7 +57,7 @@ private:
 #elif defined(__unix__) || defined(__ANDROID__)
 	static void HandleException(int, siginfo_t*, void*);
 	void HandleExceptionInternal(int, siginfo_t*, void*);
-#elif defined(__APPLE__)
+#elif defined(__APPLE__) && !TARGET_OS_TV
 	void HandlerThreadProc();
 
 	mach_port_t m_port = MACH_PORT_NULL;
