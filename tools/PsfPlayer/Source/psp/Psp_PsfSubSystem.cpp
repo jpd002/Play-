@@ -14,8 +14,8 @@ CPsfSubSystem::CPsfSubSystem(uint32 ramSize)
     , m_cpu(MEMORYMAP_ENDIAN_LSBF)
     , m_copScu(MIPS_REGSIZE_32)
     , m_copFpu(MIPS_REGSIZE_32)
-    , m_spuCore0(m_spuRam, SPURAMSIZE, &m_spuSampleCache, 0)
-    , m_spuCore1(m_spuRam, SPURAMSIZE, &m_spuSampleCache, 1)
+    , m_spuCore0(m_spuRam, SPURAMSIZE, &m_spuSampleCache, &m_irqChecker, 0)
+    , m_spuCore1(m_spuRam, SPURAMSIZE, &m_spuSampleCache, &m_irqChecker, 1)
     , m_bios(m_cpu, m_ram, ramSize)
 {
 	m_cpu.m_executor = std::make_unique<CGenericMipsExecutor<BlockLookupTwoWay>>(m_cpu, ramSize, BLOCK_CATEGORY_PSP);
@@ -49,6 +49,7 @@ void CPsfSubSystem::Reset()
 	memset(m_spuRam, 0, SPURAMSIZE);
 	m_cpu.m_executor->Reset();
 	m_spuSampleCache.Clear();
+	m_irqChecker.Reset();
 	m_spuCore0.Reset();
 	m_spuCore1.Reset();
 	m_spuCore0.SetDestinationSamplingRate(SAMPLING_RATE);

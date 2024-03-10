@@ -42,6 +42,7 @@ protected:
 
 	uint8* m_ram = nullptr;
 	Iop::CSpuSampleCache m_spuSampleCache;
+	Iop::CSampleAccessIrqChecker m_irqChecker;
 	Iop::CSpuBase m_spuCore0;
 	Iop::CSpuBase m_spuCore1;
 	Iop::CSpu2 m_spu;
