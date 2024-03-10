@@ -505,7 +505,7 @@ void CIopBios::ProcessModuleStart()
 	assert(requestPtr != MODULESTARTREQUEST::INVALID_PTR);
 	if(requestPtr == MODULESTARTREQUEST::INVALID_PTR)
 	{
-		CLog::GetInstance().Print(LOGNAME, "Asked to load module when none was requested.");
+		CLog::GetInstance().Warn(LOGNAME, "Asked to load module when none was requested.");
 		return;
 	}
 
@@ -641,7 +641,7 @@ int32 CIopBios::LoadModuleFromPath(const char* path, uint32 loadAddress, bool ow
 	uint32 handle = m_ioman->Open(Iop::Ioman::CDevice::OPEN_FLAG_RDONLY, path);
 	if(handle & 0x80000000)
 	{
-		CLog::GetInstance().Print(LOGNAME, "Tried to load '%s' which couldn't be found.\r\n", path);
+		CLog::GetInstance().Warn(LOGNAME, "Tried to load '%s' which couldn't be found.\r\n", path);
 		return -1;
 	}
 	Iop::Ioman::CScopedFile file(handle, *m_ioman);
@@ -761,14 +761,14 @@ int32 CIopBios::UnloadModule(uint32 loadedModuleId)
 	auto loadedModule = m_loadedModules[loadedModuleId];
 	if(loadedModule == nullptr)
 	{
-		CLog::GetInstance().Print(LOGNAME, "UnloadModule failed because specified module (%d) doesn't exist.\r\n",
-		                          loadedModuleId);
+		CLog::GetInstance().Warn(LOGNAME, "UnloadModule failed because specified module (%d) doesn't exist.\r\n",
+		                         loadedModuleId);
 		return -1;
 	}
 	if(loadedModule->state != MODULE_STATE::STOPPED)
 	{
-		CLog::GetInstance().Print(LOGNAME, "UnloadModule failed because specified module (%d) wasn't stopped.\r\n",
-		                          loadedModuleId);
+		CLog::GetInstance().Warn(LOGNAME, "UnloadModule failed because specified module (%d) wasn't stopped.\r\n",
+		                         loadedModuleId);
 		return -1;
 	}
 
@@ -1155,8 +1155,8 @@ int32 CIopBios::StartThread(uint32 threadId, uint32 param)
 
 	if(thread->status != THREAD_STATUS_DORMANT)
 	{
-		CLog::GetInstance().Print(LOGNAME, "%d: Failed to start thread %d, thread not dormant.\r\n",
-		                          m_currentThreadId.Get(), threadId);
+		CLog::GetInstance().Warn(LOGNAME, "%d: Failed to start thread %d, thread not dormant.\r\n",
+		                         m_currentThreadId.Get(), threadId);
 		assert(false);
 		return -1;
 	}
@@ -1199,8 +1199,8 @@ int32 CIopBios::StartThreadArgs(uint32 threadId, uint32 args, uint32 argpPtr)
 
 	if(thread->status != THREAD_STATUS_DORMANT)
 	{
-		CLog::GetInstance().Print(LOGNAME, "%d: Failed to start thread %d, thread not dormant.\r\n",
-		                          m_currentThreadId.Get(), threadId);
+		CLog::GetInstance().Warn(LOGNAME, "%d: Failed to start thread %d, thread not dormant.\r\n",
+		                         m_currentThreadId.Get(), threadId);
 		assert(false);
 		return -1;
 	}
@@ -1976,8 +1976,8 @@ uint32 CIopBios::DeleteSemaphore(uint32 semaphoreId)
 	auto semaphore = m_semaphores[semaphoreId];
 	if(!semaphore)
 	{
-		CLog::GetInstance().Print(LOGNAME, "%i: Warning, trying to access invalid semaphore with id %i.\r\n",
-		                          m_currentThreadId.Get(), semaphoreId);
+		CLog::GetInstance().Warn(LOGNAME, "%i: Warning, trying to access invalid semaphore with id %i.\r\n",
+		                         m_currentThreadId.Get(), semaphoreId);
 		return KERNEL_RESULT_ERROR_UNKNOWN_SEMAID;
 	}
 
@@ -2006,8 +2006,8 @@ uint32 CIopBios::SignalSemaphore(uint32 semaphoreId, bool inInterrupt)
 	auto semaphore = m_semaphores[semaphoreId];
 	if(!semaphore)
 	{
-		CLog::GetInstance().Print(LOGNAME, "%d: Warning, trying to access invalid semaphore with id %d.\r\n",
-		                          m_currentThreadId.Get(), semaphoreId);
+		CLog::GetInstance().Warn(LOGNAME, "%d: Warning, trying to access invalid semaphore with id %d.\r\n",
+		                         m_currentThreadId.Get(), semaphoreId);
 		return KERNEL_RESULT_ERROR_UNKNOWN_SEMAID;
 	}
 
@@ -2043,8 +2043,8 @@ uint32 CIopBios::WaitSemaphore(uint32 semaphoreId)
 	auto semaphore = m_semaphores[semaphoreId];
 	if(!semaphore)
 	{
-		CLog::GetInstance().Print(LOGNAME, "%d: Warning, trying to access invalid semaphore with id %d.\r\n",
-		                          m_currentThreadId.Get(), semaphoreId);
+		CLog::GetInstance().Warn(LOGNAME, "%d: Warning, trying to access invalid semaphore with id %d.\r\n",
+		                         m_currentThreadId.Get(), semaphoreId);
 		return KERNEL_RESULT_ERROR_UNKNOWN_SEMAID;
 	}
 
@@ -2170,8 +2170,8 @@ uint32 CIopBios::DeleteEventFlag(uint32 eventId)
 	auto eventFlag = m_eventFlags[eventId];
 	if(!eventFlag)
 	{
-		CLog::GetInstance().Print(LOGNAME, "%d: Warning, trying to access invalid event flag with id %d.\r\n",
-		                          m_currentThreadId.Get(), eventId);
+		CLog::GetInstance().Warn(LOGNAME, "%d: Warning, trying to access invalid event flag with id %d.\r\n",
+		                         m_currentThreadId.Get(), eventId);
 		return KERNEL_RESULT_ERROR_UNKNOWN_EVFID;
 	}
 
@@ -3625,8 +3625,8 @@ void CIopBios::RelocateElf(CELF32& elf, uint32 programBaseAddress, uint32 progra
 					default:
 						//Some games use relocation types that might not be supported by the IOP's ELF loader
 						//- R_MIPS_GPREL16: Used by Sega Ages 2500 Volume 8: Virtua Racing
-						CLog::GetInstance().Print(LOGNAME, "Unsupported ELF relocation type encountered (%d).\r\n",
-						                          relocationType);
+						CLog::GetInstance().Warn(LOGNAME, "Unsupported ELF relocation type encountered (%d).\r\n",
+						                         relocationType);
 						assert(false);
 						break;
 					}
