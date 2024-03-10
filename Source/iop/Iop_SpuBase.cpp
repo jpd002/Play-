@@ -139,11 +139,12 @@ const uint32 CSpuBase::g_linearDecreaseSweepDeltas[0x80] =
 };
 // clang-format on
 
-CSpuBase::CSpuBase(uint8* ram, uint32 ramSize, CSpuSampleCache* sampleCache, unsigned int spuNumber)
+CSpuBase::CSpuBase(uint8* ram, uint32 ramSize, CSpuSampleCache* sampleCache, CSampleAccessIrqChecker* irqChecker, unsigned int spuNumber)
     : m_ram(ram)
     , m_ramSize(ramSize)
     , m_spuNumber(spuNumber)
     , m_sampleCache(sampleCache)
+    , m_irqChecker(irqChecker)
     , m_reverbEnabled(true)
 {
 	Reset();
@@ -205,6 +206,7 @@ void CSpuBase::Reset()
 		reader.Reset();
 		reader.SetMemory(m_ram, m_ramSize);
 		reader.SetSampleCache(m_sampleCache);
+		reader.SetIrqChecker(m_irqChecker);
 	}
 
 	m_blockReader.Reset();
@@ -367,10 +369,7 @@ uint32 CSpuBase::GetIrqAddress() const
 void CSpuBase::SetIrqAddress(uint32 value)
 {
 	m_irqAddr = value & (m_ramSize - 1);
-	for(auto& reader : m_reader)
-	{
-		reader.SetIrqAddress(m_irqAddr);
-	}
+	m_irqChecker->SetIrqAddress(m_spuNumber, value);
 }
 
 uint16 CSpuBase::GetTransferMode() const
@@ -722,12 +721,12 @@ void CSpuBase::Render(int16* samples, unsigned int sampleCount)
 			int32 readSample = reader.GetSample();
 			channel.current = reader.GetCurrent();
 
-			if(irqEnabled && reader.GetIrqPending())
-			{
-				m_irqPending = true;
-			}
+			//if(irqEnabled && reader.GetIrqPending())
+			//{
+			//	m_irqPending = true;
+			//}
 
-			reader.ClearIrqPending();
+			//reader.ClearIrqPending();
 
 			UpdateAdsr(channel);
 			channel.volumeLeftAbs = ComputeChannelVolume(channel.volumeLeft, channel.volumeLeftAbs);
@@ -801,6 +800,12 @@ void CSpuBase::Render(int16* samples, unsigned int sampleCount)
 
 		samples += 2;
 	}
+
+	if(irqEnabled && m_irqChecker->HasPendingIrq(m_spuNumber))
+	{
+		m_irqPending = true;
+	}
+	m_irqChecker->ClearIrqPending(m_spuNumber);
 
 	if(m_volumeAdjust != 1.0f)
 	{
@@ -1138,7 +1143,6 @@ void CSpuBase::CSampleReader::Reset()
 {
 	m_nextSampleAddr = 0;
 	m_repeatAddr = 0;
-	m_irqAddr = 0;
 	memset(m_buffer, 0, sizeof(m_buffer));
 	m_pitch = 0;
 	m_srcSampleIdx = 0;
@@ -1166,6 +1170,11 @@ void CSpuBase::CSampleReader::SetSampleCache(CSpuSampleCache* sampleCache)
 	m_sampleCache = sampleCache;
 }
 
+void CSpuBase::CSampleReader::SetIrqChecker(CSampleAccessIrqChecker* irqChecker)
+{
+	m_irqChecker = irqChecker;
+}
+
 void CSpuBase::CSampleReader::SetDestinationSamplingRate(uint32 samplingRate)
 {
 	m_dstSamplingRate = samplingRate;
@@ -1178,7 +1187,7 @@ void CSpuBase::CSampleReader::LoadState(const CRegisterState& channelState)
 	m_srcSamplingRate = channelState.GetRegister32(STATE_SAMPLEREADER_REGS_SRCSAMPLINGRATE);
 	m_nextSampleAddr = channelState.GetRegister32(STATE_SAMPLEREADER_REGS_NEXTSAMPLEADDR);
 	m_repeatAddr = channelState.GetRegister32(STATE_SAMPLEREADER_REGS_REPEATADDR);
-	m_irqAddr = channelState.GetRegister32(STATE_SAMPLEREADER_REGS_IRQADDR);
+	//m_irqAddr = channelState.GetRegister32(STATE_SAMPLEREADER_REGS_IRQADDR);
 	m_pitch = channelState.GetRegister32(STATE_SAMPLEREADER_REGS_PITCH);
 	m_s1 = channelState.GetRegister32(STATE_SAMPLEREADER_REGS_S1);
 	m_s2 = channelState.GetRegister32(STATE_SAMPLEREADER_REGS_S2);
@@ -1198,7 +1207,7 @@ void CSpuBase::CSampleReader::SaveState(CRegisterState& channelState) const
 	channelState.SetRegister32(STATE_SAMPLEREADER_REGS_SRCSAMPLINGRATE, m_srcSamplingRate);
 	channelState.SetRegister32(STATE_SAMPLEREADER_REGS_NEXTSAMPLEADDR, m_nextSampleAddr);
 	channelState.SetRegister32(STATE_SAMPLEREADER_REGS_REPEATADDR, m_repeatAddr);
-	channelState.SetRegister32(STATE_SAMPLEREADER_REGS_IRQADDR, m_irqAddr);
+	//channelState.SetRegister32(STATE_SAMPLEREADER_REGS_IRQADDR, m_irqAddr);
 	channelState.SetRegister32(STATE_SAMPLEREADER_REGS_PITCH, m_pitch);
 	channelState.SetRegister32(STATE_SAMPLEREADER_REGS_S1, m_s1);
 	channelState.SetRegister32(STATE_SAMPLEREADER_REGS_S2, m_s2);
@@ -1283,10 +1292,7 @@ void CSpuBase::CSampleReader::UnpackSamples(int16* dst)
 
 	const uint8* nextSample = m_ram + m_nextSampleAddr;
 
-	if(m_nextSampleAddr == m_irqAddr)
-	{
-		m_irqPending = true;
-	}
+	m_irqChecker->CheckIrq(m_nextSampleAddr);
 
 	//Read header
 	uint8 shiftFactor = nextSample[0] & 0xF;
@@ -1399,11 +1405,6 @@ uint32 CSpuBase::CSampleReader::GetCurrent() const
 	//Doesn't need to be accurate, but it needs to change. Needed by Romancing Saga.
 	uint32 intraSampleIdx = std::min<uint32>((m_srcSampleIdx / PITCH_BASE) / 2, 0x0E);
 	return m_nextSampleAddr + intraSampleIdx;
-}
-
-void CSpuBase::CSampleReader::SetIrqAddress(uint32 irqAddr)
-{
-	m_irqAddr = irqAddr;
 }
 
 bool CSpuBase::CSampleReader::IsDone() const

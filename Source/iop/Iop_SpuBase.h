@@ -11,6 +11,51 @@ class CRegisterState;
 
 namespace Iop
 {
+	class CSampleAccessIrqChecker
+	{
+	public:
+		void SetIrqAddress(int core, uint32 address)
+		{
+			irqAddr[core] = address;
+		}
+
+		void CheckIrq(uint32 address)
+		{
+			for(int i = 0; i < MAX_CORES; i++)
+			{
+				if(address == irqAddr[i])
+				{
+					irqPending[i] = true;
+				}
+			}
+		}
+
+		void ClearIrqPending(int core)
+		{
+			irqPending[core] = false;
+		}
+
+		bool HasPendingIrq(int core) const
+		{
+			return irqPending[core];
+		}
+
+		void Reset()
+		{
+			for(int i = 0; i < MAX_CORES; i++)
+			{
+				irqPending[i] = false;
+				irqAddr[i] = -1;
+			}
+		}
+
+	private:
+		static constexpr int MAX_CORES = 2;
+
+		uint32 irqAddr[MAX_CORES] = {};
+		bool irqPending[MAX_CORES] = {};
+	};
+
 	class CSpuSampleCache
 	{
 	public:
@@ -186,7 +231,7 @@ namespace Iop
 			uint32 current;
 		};
 
-		CSpuBase(uint8*, uint32, CSpuSampleCache*, unsigned int);
+		CSpuBase(uint8*, uint32, CSpuSampleCache*, CSampleAccessIrqChecker*, unsigned int);
 		virtual ~CSpuBase() = default;
 
 		void Reset();
@@ -277,6 +322,7 @@ namespace Iop
 			void Reset();
 			void SetMemory(uint8*, uint32);
 			void SetSampleCache(CSpuSampleCache*);
+			void SetIrqChecker(CSampleAccessIrqChecker*);
 			void SetDestinationSamplingRate(uint32);
 
 			void LoadState(const CRegisterState&);
@@ -289,7 +335,6 @@ namespace Iop
 			uint32 GetRepeat() const;
 			void SetRepeat(uint32);
 			uint32 GetCurrent() const;
-			void SetIrqAddress(uint32);
 			bool IsDone() const;
 			void ClearIsDone();
 			bool GetEndFlag() const;
@@ -311,6 +356,7 @@ namespace Iop
 			uint8* m_ram = nullptr;
 			uint32 m_ramSize = 0;
 			CSpuSampleCache* m_sampleCache = nullptr;
+			CSampleAccessIrqChecker* m_irqChecker = nullptr;
 
 			uint32 m_srcSampleIdx = 0;
 			uint32 m_sampleStep = 0;
@@ -318,7 +364,6 @@ namespace Iop
 			uint32 m_dstSamplingRate = 0;
 			uint32 m_nextSampleAddr = 0;
 			uint32 m_repeatAddr = 0;
-			uint32 m_irqAddr = 0;
 			int16 m_buffer[BUFFER_SAMPLES * 2];
 			uint16 m_pitch;
 			int32 m_s1;
@@ -393,6 +438,7 @@ namespace Iop
 		int m_reverbTicks;
 		uint32 m_reverb[REVERB_REG_COUNT];
 		CSpuSampleCache* m_sampleCache = nullptr;
+		CSampleAccessIrqChecker* m_irqChecker = nullptr;
 		CHANNEL m_channel[MAX_CHANNEL];
 		CSampleReader m_reader[MAX_CHANNEL];
 		uint32 m_adsrLogTable[160];

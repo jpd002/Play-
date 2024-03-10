@@ -31,8 +31,8 @@ CSubSystem::CSubSystem(bool ps2Mode)
     , m_spuRam(new uint8[SPU_RAM_SIZE])
     , m_dmac(m_ram, m_intc)
     , m_counters(ps2Mode ? IOP_CLOCK_OVER_FREQ : IOP_CLOCK_BASE_FREQ, m_intc)
-    , m_spuCore0(m_spuRam, SPU_RAM_SIZE, &m_spuSampleCache, 0)
-    , m_spuCore1(m_spuRam, SPU_RAM_SIZE, &m_spuSampleCache, 1)
+    , m_spuCore0(m_spuRam, SPU_RAM_SIZE, &m_spuSampleCache, &m_spuIrqChecker, 0)
+    , m_spuCore1(m_spuRam, SPU_RAM_SIZE, &m_spuSampleCache, &m_spuIrqChecker, 1)
     , m_spu(m_spuCore0)
     , m_spu2(m_spuCore0, m_spuCore1)
 #ifdef _IOP_EMULATE_MODULES
@@ -185,6 +185,7 @@ void CSubSystem::Reset()
 	m_cpu.m_executor->Reset();
 	m_cpu.m_analysis->Clear();
 	m_spuSampleCache.Clear();
+	m_spuIrqChecker.Reset();
 	m_spuCore0.Reset();
 	m_spuCore1.Reset();
 	m_spu.Reset();
