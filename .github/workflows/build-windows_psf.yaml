@@ -37,7 +37,7 @@ jobs:
       run: cmd.exe /c start /wait .\DXSDK_Jun10.exe /U /O /F /S /P "${{ github.workspace }}\DX_SDK"
     - name: Install OpenAL
       if: ${{ matrix.aot-build == 'off' }}
-      uses: crazy-max/ghaction-chocolatey@v2
+      uses: crazy-max/ghaction-chocolatey@v3
       with:
         args: install -y openalsdk
     - name: Set SHORT_HASH
