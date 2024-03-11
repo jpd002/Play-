@@ -19,6 +19,12 @@ The following command line options are available:
 - `--state "slot number"` : Loads a state from slot number.
 - `--fullscreen` : Starts the emulator in fullscreen mode.
 
+## Running on Windows ##
+
+Please make sure you have the latest VC++ redistributable package installed on your machine. Here are the links if you need to install them:
+- x86-64: https://aka.ms/vs/17/release/vc_redist.x64.exe
+- x86-32: https://aka.ms/vs/17/release/vc_redist.x86.exe
+
 ## Running on iOS ##
 
 This emulator uses JIT code generation to speed things up. This is not supported by default by iOS, thus, there are some extra requirements:
