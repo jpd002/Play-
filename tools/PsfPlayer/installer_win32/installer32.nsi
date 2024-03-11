@@ -82,8 +82,6 @@ Section "PsfPlayer (required)"
   
 SectionEnd
 
-!include "..\..\..\installer_win32\vcredist2015_x86.nsh"
-
 ; Optional section (can be disabled by the user)
 Section "Start Menu Shortcuts"
 
