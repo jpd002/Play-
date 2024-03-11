@@ -102,8 +102,6 @@ Section "Play! (required)"
   
 SectionEnd
 
-!include "vcredist2015_x64.nsh"
-
 ; Optional section (can be disabled by the user)
 Section "Start Menu Shortcuts"
 
