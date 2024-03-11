@@ -1,5 +1,6 @@
 #include <functional>
 #include "KeyOnOffTest.h"
+#include "MultiCoreIrqTest.h"
 #include "SetRepeatTest.h"
 #include "SetRepeatTest2.h"
 #include "SimpleIrqTest.h"
@@ -11,6 +12,7 @@ typedef std::function<CTest*()> TestFactoryFunction;
 static const TestFactoryFunction s_factories[] =
 {
 	[]() { return new CKeyOnOffTest(); },
+	[]() { return new CMultiCoreIrqTest(); },
 	[]() { return new CSetRepeatTest(); },
 	[]() { return new CSetRepeatTest2(); },
 	[]() { return new CSimpleIrqTest(); },

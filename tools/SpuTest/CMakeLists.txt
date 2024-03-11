@@ -18,12 +18,14 @@ endif()
 add_executable(SpuTest
 	KeyOnOffTest.cpp
 	Main.cpp
+	MultiCoreIrqTest.cpp
 	SetRepeatTest.cpp
 	SetRepeatTest2.cpp
 	SimpleIrqTest.cpp
 	SweepTest.cpp
 	Test.cpp
 
+	MultiCoreIrqTest.h
 	KeyOnOffTest.h
 	SetRepeatTest.h
 	SetRepeatTest2.h

@@ -31,15 +31,34 @@ void CTest::RunSpu(unsigned int ticks)
 	m_spuCore1.Render(samples.data(), blockSize);
 }
 
+uint32 CTest::GetCoreRegisterAddress(unsigned int coreIndex, uint32 address)
+{
+	if(coreIndex == 0) return address;
+	uint32 tmpAddress = address - Iop::CSpu2::REGS_BEGIN;
+	if(tmpAddress < 0x760)
+	{
+		return address | 0x400;
+	}
+	else if(tmpAddress > 0x7B0)
+	{
+		return address + 40;
+	}
+	else
+	{
+		assert(false);
+		return address;
+	}
+}
+
 uint32 CTest::GetCoreRegister(unsigned int coreIndex, uint32 address)
 {
-	assert(coreIndex == 0);
+	address = GetCoreRegisterAddress(coreIndex, address);
 	return m_spu.ReadRegister(address);
 }
 
 void CTest::SetCoreRegister(unsigned int coreIndex, uint32 address, uint32 value)
 {
-	assert(coreIndex == 0);
+	address = GetCoreRegisterAddress(coreIndex, address);
 	m_spu.WriteRegister(address, value);
 }
 

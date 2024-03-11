@@ -20,6 +20,7 @@ public:
 protected:
 	enum
 	{
+		CORE_COUNT = 2,
 		VOICE_COUNT = 24,
 	};
 
@@ -36,6 +37,8 @@ protected:
 
 	uint32 GetVoiceAddress(unsigned int, unsigned int, uint32);
 	void SetVoiceAddress(unsigned int, unsigned int, uint32, uint32);
+
+	uint32 GetCoreRegisterAddress(unsigned int, uint32);
 
 	uint8* m_ram = nullptr;
 	Iop::CSpuSampleCache m_spuSampleCache;
