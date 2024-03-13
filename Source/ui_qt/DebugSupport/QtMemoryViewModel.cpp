@@ -3,7 +3,7 @@
 #include "string_format.h"
 
 // clang-format off
-std::vector<CQtMemoryViewModel::UNITINFO> CQtMemoryViewModel::g_units =
+const std::vector<CQtMemoryViewModel::UNITINFO> CQtMemoryViewModel::g_units =
 {
 	{1, 2, &CQtMemoryViewModel::RenderByteUnit, "8-bit Integers"},
 	{4, 8, &CQtMemoryViewModel::RenderWordUnit, "32-bit Integers"},

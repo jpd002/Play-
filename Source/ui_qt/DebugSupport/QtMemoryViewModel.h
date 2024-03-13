@@ -42,7 +42,7 @@ public:
 	uint32 TranslateModelIndexToAddress(const QModelIndex&) const;
 	QModelIndex TranslateAddressToModelIndex(uint32) const;
 
-	static std::vector<UNITINFO> g_units;
+	static const std::vector<UNITINFO> g_units;
 
 protected:
 	QVariant headerData(int section, Qt::Orientation orientation, int role) const Q_DECL_OVERRIDE;
