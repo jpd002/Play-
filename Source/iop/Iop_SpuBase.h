@@ -11,51 +11,6 @@ class CRegisterState;
 
 namespace Iop
 {
-	class CSampleAccessIrqChecker
-	{
-	public:
-		void SetIrqAddress(int core, uint32 address)
-		{
-			irqAddr[core] = address;
-		}
-
-		void CheckIrq(uint32 address)
-		{
-			for(int i = 0; i < MAX_CORES; i++)
-			{
-				if(address == irqAddr[i])
-				{
-					irqPending[i] = true;
-				}
-			}
-		}
-
-		void ClearIrqPending(int core)
-		{
-			irqPending[core] = false;
-		}
-
-		bool HasPendingIrq(int core) const
-		{
-			return irqPending[core];
-		}
-
-		void Reset()
-		{
-			for(int i = 0; i < MAX_CORES; i++)
-			{
-				irqPending[i] = false;
-				irqAddr[i] = -1;
-			}
-		}
-
-	private:
-		static constexpr int MAX_CORES = 2;
-
-		uint32 irqAddr[MAX_CORES] = {};
-		bool irqPending[MAX_CORES] = {};
-	};
-
 	class CSpuSampleCache
 	{
 	public:
@@ -84,6 +39,26 @@ namespace Iop
 
 	private:
 		std::multimap<uint32, ITEM> m_cache;
+	};
+
+	class CSpuIrqWatcher
+	{
+	public:
+		void Reset();
+
+		void LoadState(Framework::CZipArchiveReader&);
+		void SaveState(Framework::CZipArchiveWriter&);
+
+		void SetIrqAddress(int core, uint32 address);
+		void CheckIrq(uint32 address);
+		void ClearIrqPending(int);
+		bool HasPendingIrq(int) const;
+
+	private:
+		static constexpr int MAX_CORES = 2;
+
+		uint32 m_irqAddr[MAX_CORES] = {};
+		bool m_irqPending[MAX_CORES] = {};
 	};
 
 	class CSpuBase
@@ -231,7 +206,7 @@ namespace Iop
 			uint32 current;
 		};
 
-		CSpuBase(uint8*, uint32, CSpuSampleCache*, CSampleAccessIrqChecker*, unsigned int);
+		CSpuBase(uint8*, uint32, CSpuSampleCache*, CSpuIrqWatcher*, unsigned int);
 		virtual ~CSpuBase() = default;
 
 		void Reset();
@@ -322,7 +297,7 @@ namespace Iop
 			void Reset();
 			void SetMemory(uint8*, uint32);
 			void SetSampleCache(CSpuSampleCache*);
-			void SetIrqChecker(CSampleAccessIrqChecker*);
+			void SetIrqWatcher(CSpuIrqWatcher*);
 			void SetDestinationSamplingRate(uint32);
 
 			void LoadState(const CRegisterState&);
@@ -339,8 +314,6 @@ namespace Iop
 			void ClearIsDone();
 			bool GetEndFlag() const;
 			void ClearEndFlag();
-			bool GetIrqPending() const;
-			void ClearIrqPending();
 
 			bool DidChangeRepeat() const;
 			void ClearDidChangeRepeat();
@@ -356,7 +329,7 @@ namespace Iop
 			uint8* m_ram = nullptr;
 			uint32 m_ramSize = 0;
 			CSpuSampleCache* m_sampleCache = nullptr;
-			CSampleAccessIrqChecker* m_irqChecker = nullptr;
+			CSpuIrqWatcher* m_irqWatcher = nullptr;
 
 			uint32 m_srcSampleIdx = 0;
 			uint32 m_sampleStep = 0;
@@ -371,7 +344,6 @@ namespace Iop
 			bool m_done;
 			bool m_nextValid;
 			bool m_endFlag;
-			bool m_irqPending = false;
 			bool m_didChangeRepeat;
 
 			static_assert((sizeof(decltype(m_buffer)) % 16) == 0, "sizeof(m_buffer) must be a multiple of 16 (needed for saved state).");
@@ -438,7 +410,7 @@ namespace Iop
 		int m_reverbTicks;
 		uint32 m_reverb[REVERB_REG_COUNT];
 		CSpuSampleCache* m_sampleCache = nullptr;
-		CSampleAccessIrqChecker* m_irqChecker = nullptr;
+		CSpuIrqWatcher* m_irqWatcher = nullptr;
 		CHANNEL m_channel[MAX_CHANNEL];
 		CSampleReader m_reader[MAX_CHANNEL];
 		uint32 m_adsrLogTable[160];

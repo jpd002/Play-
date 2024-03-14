@@ -46,7 +46,7 @@ namespace Iop
 		CDmac m_dmac;
 		CRootCounters m_counters;
 		CSpuSampleCache m_spuSampleCache;
-		CSampleAccessIrqChecker m_spuIrqChecker;
+		CSpuIrqWatcher m_spuIrqWatcher;
 		CSpuBase m_spuCore0;
 		CSpuBase m_spuCore1;
 		CSpu m_spu;

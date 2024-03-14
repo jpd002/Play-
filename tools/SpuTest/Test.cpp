@@ -8,8 +8,8 @@
 
 CTest::CTest()
     : m_ram(new uint8[PS2::SPU_RAM_SIZE])
-    , m_spuCore0(m_ram, PS2::SPU_RAM_SIZE, &m_spuSampleCache, &m_irqChecker, 0)
-    , m_spuCore1(m_ram, PS2::SPU_RAM_SIZE, &m_spuSampleCache, &m_irqChecker, 1)
+    , m_spuCore0(m_ram, PS2::SPU_RAM_SIZE, &m_spuSampleCache, &m_irqWatcher, 0)
+    , m_spuCore1(m_ram, PS2::SPU_RAM_SIZE, &m_spuSampleCache, &m_irqWatcher, 1)
     , m_spu(m_spuCore0, m_spuCore1)
 {
 	memset(m_ram, 0, PS2::SPU_RAM_SIZE);

@@ -7,6 +7,7 @@
 #include "../Log.h"
 #include "../states/RegisterStateCollectionFile.h"
 #include "../states/RegisterStateUtils.h"
+#include "../states/RegisterStateFile.h"
 #include "Iop_SpuBase.h"
 
 using namespace Iop;
@@ -14,13 +15,15 @@ using namespace Iop;
 #define INIT_SAMPLE_RATE (44100)
 #define PITCH_BASE (0x1000)
 #define TIME_SCALE (0x1000)
+#define RESET_IRQ_ADDR (~0U)
 #define LOG_NAME ("iop_spubase")
 
-#define STATE_PATH_FORMAT ("iop_spu/spu_%d.xml")
+#define STATE_REGS_PATH_FORMAT ("iop_spu/spu_%d.xml")
 
 #define STATE_REGS ("GlobalRegs")
 #define STATE_REGS_CTRL ("CTRL")
 #define STATE_REGS_IRQADDR ("IRQADDR")
+#define STATE_REGS_IRQPENDING ("IRQPENDING")
 #define STATE_REGS_TRANSFERADDR ("TRANSFERADDR")
 #define STATE_REGS_TRANSFERMODE ("TRANSFERMODE")
 #define STATE_REGS_CORE0OUTPUTOFFSET ("CORE0OUTPUTOFFSET")
@@ -46,20 +49,25 @@ using namespace Iop;
 #define STATE_CHANNEL_REGS_REPEATSET ("REPEATSET")
 #define STATE_CHANNEL_REGS_CURRENT ("CURRENT")
 
-#define STATE_SAMPLEREADER_REGS_SRCSAMPLEIDX ("SrcSampleIdx")
-#define STATE_SAMPLEREADER_REGS_SRCSAMPLINGRATE ("SrcSamplingRate")
-#define STATE_SAMPLEREADER_REGS_NEXTSAMPLEADDR ("NextSampleAddr")
-#define STATE_SAMPLEREADER_REGS_REPEATADDR ("RepeatAddr")
-#define STATE_SAMPLEREADER_REGS_IRQADDR ("IrqAddr")
-#define STATE_SAMPLEREADER_REGS_PITCH ("Pitch")
-#define STATE_SAMPLEREADER_REGS_S1 ("S1")
-#define STATE_SAMPLEREADER_REGS_S2 ("S2")
-#define STATE_SAMPLEREADER_REGS_DONE ("Done")
-#define STATE_SAMPLEREADER_REGS_NEXTVALID ("NextValid")
-#define STATE_SAMPLEREADER_REGS_ENDFLAG ("EndFlag")
-#define STATE_SAMPLEREADER_REGS_IRQPENDING ("IrqPending")
-#define STATE_SAMPLEREADER_REGS_DIDCHANGEREPEAT ("DidChangeRepeat")
-#define STATE_SAMPLEREADER_REGS_BUFFER_FORMAT ("Buffer%d")
+#define STATE_SAMPLEREADER_REGS_SRCSAMPLEIDX ("SR_SrcSampleIdx")
+#define STATE_SAMPLEREADER_REGS_SRCSAMPLINGRATE ("SR_SrcSamplingRate")
+#define STATE_SAMPLEREADER_REGS_NEXTSAMPLEADDR ("SR_NextSampleAddr")
+#define STATE_SAMPLEREADER_REGS_REPEATADDR ("SR_RepeatAddr")
+#define STATE_SAMPLEREADER_REGS_PITCH ("SR_Pitch")
+#define STATE_SAMPLEREADER_REGS_S1 ("SR_S1")
+#define STATE_SAMPLEREADER_REGS_S2 ("SR_S2")
+#define STATE_SAMPLEREADER_REGS_DONE ("SR_Done")
+#define STATE_SAMPLEREADER_REGS_NEXTVALID ("SR_NextValid")
+#define STATE_SAMPLEREADER_REGS_ENDFLAG ("SR_EndFlag")
+#define STATE_SAMPLEREADER_REGS_DIDCHANGEREPEAT ("SR_DidChangeRepeat")
+#define STATE_SAMPLEREADER_REGS_BUFFER_FORMAT ("SR_Buffer%d")
+
+#define STATE_IRQWATCHER_REGS_PATH ("iop_spu/spu_irqwatcher.xml")
+
+#define STATE_IRQWATCHER_REGS_IRQADDR0 ("irqAddr0")
+#define STATE_IRQWATCHER_REGS_IRQADDR1 ("irqAddr1")
+#define STATE_IRQWATCHER_REGS_IRQPENDING0 ("irqPending0")
+#define STATE_IRQWATCHER_REGS_IRQPENDING1 ("irqPending1")
 
 // clang-format off
 bool CSpuBase::g_reverbParamIsAddress[REVERB_PARAM_COUNT] =
@@ -139,12 +147,12 @@ const uint32 CSpuBase::g_linearDecreaseSweepDeltas[0x80] =
 };
 // clang-format on
 
-CSpuBase::CSpuBase(uint8* ram, uint32 ramSize, CSpuSampleCache* sampleCache, CSampleAccessIrqChecker* irqChecker, unsigned int spuNumber)
+CSpuBase::CSpuBase(uint8* ram, uint32 ramSize, CSpuSampleCache* sampleCache, CSpuIrqWatcher* irqWatcher, unsigned int spuNumber)
     : m_ram(ram)
     , m_ramSize(ramSize)
     , m_spuNumber(spuNumber)
     , m_sampleCache(sampleCache)
-    , m_irqChecker(irqChecker)
+    , m_irqWatcher(irqWatcher)
     , m_reverbEnabled(true)
 {
 	Reset();
@@ -185,7 +193,7 @@ void CSpuBase::Reset()
 	m_channelOn.f = 0;
 	m_channelReverb.f = 0;
 	m_reverbTicks = 0;
-	m_irqAddr = 0;
+	m_irqAddr = RESET_IRQ_ADDR;
 	m_irqPending = false;
 	m_transferMode = 0;
 	m_transferAddr = 0;
@@ -206,7 +214,7 @@ void CSpuBase::Reset()
 		reader.Reset();
 		reader.SetMemory(m_ram, m_ramSize);
 		reader.SetSampleCache(m_sampleCache);
-		reader.SetIrqChecker(m_irqChecker);
+		reader.SetIrqWatcher(m_irqWatcher);
 	}
 
 	m_blockReader.Reset();
@@ -216,13 +224,14 @@ void CSpuBase::Reset()
 
 void CSpuBase::LoadState(Framework::CZipArchiveReader& archive)
 {
-	auto path = string_format(STATE_PATH_FORMAT, m_spuNumber);
+	auto path = string_format(STATE_REGS_PATH_FORMAT, m_spuNumber);
 	auto stateCollectionFile = CRegisterStateCollectionFile(*archive.BeginReadFile(path.c_str()));
 
 	{
 		const auto& state = stateCollectionFile.GetRegisterState(STATE_REGS);
 		m_ctrl = state.GetRegister32(STATE_REGS_CTRL);
 		m_irqAddr = state.GetRegister32(STATE_REGS_IRQADDR);
+		m_irqPending = state.GetRegister32(STATE_REGS_IRQPENDING) != 0;
 		m_transferMode = state.GetRegister32(STATE_REGS_TRANSFERMODE);
 		m_transferAddr = state.GetRegister32(STATE_REGS_TRANSFERADDR);
 		m_core0OutputOffset = state.GetRegister32(STATE_REGS_CORE0OUTPUTOFFSET);
@@ -261,13 +270,14 @@ void CSpuBase::LoadState(Framework::CZipArchiveReader& archive)
 
 void CSpuBase::SaveState(Framework::CZipArchiveWriter& archive)
 {
-	auto path = string_format(STATE_PATH_FORMAT, m_spuNumber);
+	auto path = string_format(STATE_REGS_PATH_FORMAT, m_spuNumber);
 	auto stateCollectionFile = std::make_unique<CRegisterStateCollectionFile>(path.c_str());
 
 	{
 		CRegisterState state;
 		state.SetRegister32(STATE_REGS_CTRL, m_ctrl);
 		state.SetRegister32(STATE_REGS_IRQADDR, m_irqAddr);
+		state.SetRegister32(STATE_REGS_IRQPENDING, m_irqPending);
 		state.SetRegister32(STATE_REGS_TRANSFERMODE, m_transferMode);
 		state.SetRegister32(STATE_REGS_TRANSFERADDR, m_transferAddr);
 		state.SetRegister32(STATE_REGS_CORE0OUTPUTOFFSET, m_core0OutputOffset);
@@ -333,6 +343,7 @@ void CSpuBase::SetControl(uint16 value)
 	if((m_ctrl & CONTROL_IRQ) == 0)
 	{
 		ClearIrqPending();
+		m_irqWatcher->ClearIrqPending(m_spuNumber);
 	}
 }
 
@@ -369,7 +380,7 @@ uint32 CSpuBase::GetIrqAddress() const
 void CSpuBase::SetIrqAddress(uint32 value)
 {
 	m_irqAddr = value & (m_ramSize - 1);
-	m_irqChecker->SetIrqAddress(m_spuNumber, value);
+	m_irqWatcher->SetIrqAddress(m_spuNumber, value);
 }
 
 uint16 CSpuBase::GetTransferMode() const
@@ -721,13 +732,6 @@ void CSpuBase::Render(int16* samples, unsigned int sampleCount)
 			int32 readSample = reader.GetSample();
 			channel.current = reader.GetCurrent();
 
-			//if(irqEnabled && reader.GetIrqPending())
-			//{
-			//	m_irqPending = true;
-			//}
-
-			//reader.ClearIrqPending();
-
 			UpdateAdsr(channel);
 			channel.volumeLeftAbs = ComputeChannelVolume(channel.volumeLeft, channel.volumeLeftAbs);
 			channel.volumeRightAbs = ComputeChannelVolume(channel.volumeRight, channel.volumeRightAbs);
@@ -801,11 +805,11 @@ void CSpuBase::Render(int16* samples, unsigned int sampleCount)
 		samples += 2;
 	}
 
-	if(irqEnabled && m_irqChecker->HasPendingIrq(m_spuNumber))
+	if(irqEnabled && m_irqWatcher->HasPendingIrq(m_spuNumber))
 	{
 		m_irqPending = true;
 	}
-	m_irqChecker->ClearIrqPending(m_spuNumber);
+	m_irqWatcher->ClearIrqPending(m_spuNumber);
 
 	if(m_volumeAdjust != 1.0f)
 	{
@@ -1131,6 +1135,64 @@ void CSpuSampleCache::ClearRange(uint32 address, uint32 size)
 }
 
 ///////////////////////////////////////////////////////
+// CSpuIrqWatcher
+///////////////////////////////////////////////////////
+
+void CSpuIrqWatcher::Reset()
+{
+	for(int i = 0; i < MAX_CORES; i++)
+	{
+		m_irqPending[i] = false;
+		m_irqAddr[i] = RESET_IRQ_ADDR;
+	}
+}
+
+void CSpuIrqWatcher::LoadState(Framework::CZipArchiveReader& archive)
+{
+	auto registerFile = CRegisterStateFile(*archive.BeginReadFile(STATE_IRQWATCHER_REGS_PATH));
+	m_irqAddr[0] = registerFile.GetRegister32(STATE_IRQWATCHER_REGS_IRQADDR0);
+	m_irqAddr[1] = registerFile.GetRegister32(STATE_IRQWATCHER_REGS_IRQADDR1);
+	m_irqPending[0] = registerFile.GetRegister32(STATE_IRQWATCHER_REGS_IRQPENDING0) != 0;
+	m_irqPending[1] = registerFile.GetRegister32(STATE_IRQWATCHER_REGS_IRQPENDING1) != 0;
+}
+
+void CSpuIrqWatcher::SaveState(Framework::CZipArchiveWriter& archive)
+{
+	auto registerFile = std::make_unique<CRegisterStateFile>(STATE_IRQWATCHER_REGS_PATH);
+	registerFile->SetRegister32(STATE_IRQWATCHER_REGS_IRQADDR0, m_irqAddr[0]);
+	registerFile->SetRegister32(STATE_IRQWATCHER_REGS_IRQADDR1, m_irqAddr[1]);
+	registerFile->SetRegister32(STATE_IRQWATCHER_REGS_IRQPENDING0, m_irqPending[0]);
+	registerFile->SetRegister32(STATE_IRQWATCHER_REGS_IRQPENDING1, m_irqPending[1]);
+	archive.InsertFile(std::move(registerFile));
+}
+
+void CSpuIrqWatcher::SetIrqAddress(int core, uint32 address)
+{
+	m_irqAddr[core] = address;
+}
+
+void CSpuIrqWatcher::CheckIrq(uint32 address)
+{
+	for(int i = 0; i < MAX_CORES; i++)
+	{
+		if(address == m_irqAddr[i])
+		{
+			m_irqPending[i] = true;
+		}
+	}
+}
+
+void CSpuIrqWatcher::ClearIrqPending(int core)
+{
+	m_irqPending[core] = false;
+}
+
+bool CSpuIrqWatcher::HasPendingIrq(int core) const
+{
+	return m_irqPending[core];
+}
+
+///////////////////////////////////////////////////////
 // CSampleReader
 ///////////////////////////////////////////////////////
 
@@ -1155,7 +1217,6 @@ void CSpuBase::CSampleReader::Reset()
 	m_didChangeRepeat = false;
 	m_nextValid = false;
 	m_endFlag = false;
-	m_irqPending = false;
 }
 
 void CSpuBase::CSampleReader::SetMemory(uint8* ram, uint32 ramSize)
@@ -1170,9 +1231,9 @@ void CSpuBase::CSampleReader::SetSampleCache(CSpuSampleCache* sampleCache)
 	m_sampleCache = sampleCache;
 }
 
-void CSpuBase::CSampleReader::SetIrqChecker(CSampleAccessIrqChecker* irqChecker)
+void CSpuBase::CSampleReader::SetIrqWatcher(CSpuIrqWatcher* irqWatcher)
 {
-	m_irqChecker = irqChecker;
+	m_irqWatcher = irqWatcher;
 }
 
 void CSpuBase::CSampleReader::SetDestinationSamplingRate(uint32 samplingRate)
@@ -1187,14 +1248,12 @@ void CSpuBase::CSampleReader::LoadState(const CRegisterState& channelState)
 	m_srcSamplingRate = channelState.GetRegister32(STATE_SAMPLEREADER_REGS_SRCSAMPLINGRATE);
 	m_nextSampleAddr = channelState.GetRegister32(STATE_SAMPLEREADER_REGS_NEXTSAMPLEADDR);
 	m_repeatAddr = channelState.GetRegister32(STATE_SAMPLEREADER_REGS_REPEATADDR);
-	//m_irqAddr = channelState.GetRegister32(STATE_SAMPLEREADER_REGS_IRQADDR);
 	m_pitch = channelState.GetRegister32(STATE_SAMPLEREADER_REGS_PITCH);
 	m_s1 = channelState.GetRegister32(STATE_SAMPLEREADER_REGS_S1);
 	m_s2 = channelState.GetRegister32(STATE_SAMPLEREADER_REGS_S2);
 	m_done = channelState.GetRegister32(STATE_SAMPLEREADER_REGS_DONE) != 0;
 	m_nextValid = channelState.GetRegister32(STATE_SAMPLEREADER_REGS_NEXTVALID) != 0;
 	m_endFlag = channelState.GetRegister32(STATE_SAMPLEREADER_REGS_ENDFLAG) != 0;
-	m_irqPending = channelState.GetRegister32(STATE_SAMPLEREADER_REGS_IRQPENDING) != 0;
 	m_didChangeRepeat = channelState.GetRegister32(STATE_SAMPLEREADER_REGS_DIDCHANGEREPEAT) != 0;
 	RegisterStateUtils::ReadArray(channelState, m_buffer, STATE_SAMPLEREADER_REGS_BUFFER_FORMAT);
 
@@ -1207,14 +1266,12 @@ void CSpuBase::CSampleReader::SaveState(CRegisterState& channelState) const
 	channelState.SetRegister32(STATE_SAMPLEREADER_REGS_SRCSAMPLINGRATE, m_srcSamplingRate);
 	channelState.SetRegister32(STATE_SAMPLEREADER_REGS_NEXTSAMPLEADDR, m_nextSampleAddr);
 	channelState.SetRegister32(STATE_SAMPLEREADER_REGS_REPEATADDR, m_repeatAddr);
-	//channelState.SetRegister32(STATE_SAMPLEREADER_REGS_IRQADDR, m_irqAddr);
 	channelState.SetRegister32(STATE_SAMPLEREADER_REGS_PITCH, m_pitch);
 	channelState.SetRegister32(STATE_SAMPLEREADER_REGS_S1, m_s1);
 	channelState.SetRegister32(STATE_SAMPLEREADER_REGS_S2, m_s2);
 	channelState.SetRegister32(STATE_SAMPLEREADER_REGS_DONE, m_done);
 	channelState.SetRegister32(STATE_SAMPLEREADER_REGS_NEXTVALID, m_nextValid);
 	channelState.SetRegister32(STATE_SAMPLEREADER_REGS_ENDFLAG, m_endFlag);
-	channelState.SetRegister32(STATE_SAMPLEREADER_REGS_IRQPENDING, m_irqPending);
 	channelState.SetRegister32(STATE_SAMPLEREADER_REGS_DIDCHANGEREPEAT, m_didChangeRepeat);
 	RegisterStateUtils::WriteArray(channelState, m_buffer, STATE_SAMPLEREADER_REGS_BUFFER_FORMAT);
 }
@@ -1292,7 +1349,7 @@ void CSpuBase::CSampleReader::UnpackSamples(int16* dst)
 
 	const uint8* nextSample = m_ram + m_nextSampleAddr;
 
-	m_irqChecker->CheckIrq(m_nextSampleAddr);
+	m_irqWatcher->CheckIrq(m_nextSampleAddr);
 
 	//Read header
 	uint8 shiftFactor = nextSample[0] & 0xF;
@@ -1425,16 +1482,6 @@ bool CSpuBase::CSampleReader::GetEndFlag() const
 void CSpuBase::CSampleReader::ClearEndFlag()
 {
 	m_endFlag = false;
-}
-
-bool CSpuBase::CSampleReader::GetIrqPending() const
-{
-	return m_irqPending;
-}
-
-void CSpuBase::CSampleReader::ClearIrqPending()
-{
-	m_irqPending = false;
 }
 
 bool CSpuBase::CSampleReader::DidChangeRepeat() const
