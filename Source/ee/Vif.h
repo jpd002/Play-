@@ -160,10 +160,10 @@ protected:
 		{
 			assert(m_source != nullptr);
 			assert(buffer != nullptr);
-			uint8* readBuffer = reinterpret_cast<uint8*>(buffer);
 			uint32 availableBufferSize = BUFFERSIZE - m_bufferPosition;
 			if(ValueSize <= availableBufferSize)
 			{
+				uint8* readBuffer = reinterpret_cast<uint8*>(buffer);
 				memcpy(readBuffer, reinterpret_cast<uint8*>(&m_buffer) + m_bufferPosition, ValueSize);
 				m_bufferPosition += ValueSize;
 			}
@@ -193,10 +193,7 @@ protected:
 			assert(m_bufferPosition <= BUFFERSIZE);
 			if(m_bufferPosition >= BUFFERSIZE)
 			{
-				if(m_nextAddress >= m_endAddress)
-				{
-					throw std::exception();
-				}
+				assert(m_nextAddress < m_endAddress);
 				m_buffer = *reinterpret_cast<uint128*>(&m_source[m_nextAddress]);
 				m_nextAddress += 0x10;
 				m_bufferPosition = 0;
