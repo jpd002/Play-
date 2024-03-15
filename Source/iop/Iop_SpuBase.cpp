@@ -380,7 +380,7 @@ uint32 CSpuBase::GetIrqAddress() const
 void CSpuBase::SetIrqAddress(uint32 value)
 {
 	m_irqAddr = value & (m_ramSize - 1);
-	m_irqWatcher->SetIrqAddress(m_spuNumber, value);
+	m_irqWatcher->SetIrqAddress(m_spuNumber, m_irqAddr);
 }
 
 uint16 CSpuBase::GetTransferMode() const
