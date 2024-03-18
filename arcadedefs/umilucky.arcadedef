@@ -1,0 +1,19 @@
+{
+	"id": "umilucky",
+	"name": "Umimonogatari Lucky Marine Theater",
+	"driver": "sys147",
+	"nand":
+	{
+		"name": "uls100-1-na-mpro-b01_kp008a.ic31",
+		"mounts":
+		{
+			"atfile0": 24576,
+			"atfile1": 131072,
+			"atfile2": 262144
+		}
+	},
+	"boot": "atfile0:prog.elf",
+	"patches":
+	[
+	]
+}
