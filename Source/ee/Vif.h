@@ -158,18 +158,28 @@ protected:
 		template <size_t ValueSize>
 		inline void ReadValue(void* buffer)
 		{
+			//Hyper-specialized version of Read that allows the compiler to better
+			//optimize the code. Will only work with reads of at most 16 bytes.
+			static_assert(ValueSize <= 0x10);
 			assert(m_source != nullptr);
 			assert(buffer != nullptr);
 			uint32 availableBufferSize = BUFFERSIZE - m_bufferPosition;
+			uint8* readBuffer = reinterpret_cast<uint8*>(buffer);
 			if(ValueSize <= availableBufferSize)
 			{
-				uint8* readBuffer = reinterpret_cast<uint8*>(buffer);
 				memcpy(readBuffer, reinterpret_cast<uint8*>(&m_buffer) + m_bufferPosition, ValueSize);
 				m_bufferPosition += ValueSize;
 			}
 			else
 			{
-				Read(buffer, ValueSize);
+				uint128 qw[2];
+				qw[0] = m_buffer;
+				uint32 startPosition = m_bufferPosition;
+				m_bufferPosition = BUFFERSIZE;
+				SyncBuffer();
+				qw[1] = m_buffer;
+				m_bufferPosition += (ValueSize - availableBufferSize);
+				memcpy(readBuffer, reinterpret_cast<uint8*>(&qw) + startPosition, ValueSize);
 			}
 		}
 
@@ -214,7 +224,7 @@ protected:
 		uint8* m_ram = nullptr;
 		uint8* m_spr = nullptr;
 
-		uint128 m_buffer = {};
+		alignas(16) uint128 m_buffer = {};
 		uint32 m_bufferPosition = BUFFERSIZE;
 		uint32 m_startAddress = 0;
 		uint32 m_nextAddress = 0;
