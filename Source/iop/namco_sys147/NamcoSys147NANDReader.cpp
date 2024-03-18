@@ -15,19 +15,30 @@ CSys147NANDReader::CSys147NANDReader(Framework::CStream& stream, uint32 baseSect
 CSys147NANDReader::Directory CSys147NANDReader::ReadDirectory(uint32 dirSector)
 {
 	uint8 sectorData[m_dataSize];
-	ReadSector(dirSector, sectorData);
 	Framework::CPtrStream dirStream(sectorData, m_dataSize);
+
+	auto fillSectorData = [&]() {
+		ReadSector(dirSector, sectorData);
+		dirSector++;
+		dirStream.Seek(0, Framework::STREAM_SEEK_SET);
+	};
+
+	fillSectorData();
+
 	DIRHEADER header;
 	dirStream.Read(&header, sizeof(DIRHEADER));
 	assert(!strcmp(header.signature, "S147ROM"));
-	//Make sure our dir doesn't span multiple sectors
-	assert(((header.entryCount + 1) * 0x20) <= m_dataSize);
 
 	Directory result;
 	for(int i = 0; i < header.entryCount; i++)
 	{
 		DIRENTRY entry;
 		dirStream.Read(&entry, sizeof(DIRENTRY));
+		if(dirStream.IsEOF())
+		{
+			fillSectorData();
+			dirStream.Read(&entry, sizeof(DIRENTRY));
+		}
 		result.push_back(entry);
 	}
 	return result;
