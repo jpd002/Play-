@@ -19,23 +19,10 @@ void CNamcoSys147Driver::PrepareEnvironment(CPS2VM* virtualMachine, const ARCADE
 		throw std::runtime_error(string_format("Failed to find '%s' in game's directory.", def.nandFileName.c_str()));
 	}
 
-	// clang-format off
-	static std::pair<const char*, uint32> mounts[] =
-	{
-		std::make_pair("atfile0", 0x6000),
-		std::make_pair("atfile1", 0x10000),
-		std::make_pair("atfile2", 0x20000),
-		std::make_pair("atfile3", 0x30000),
-		std::make_pair("atfile4", 0x40000),
-		std::make_pair("atfile5", 0x50000),
-		std::make_pair("atfile6", 0x60000)
-	};
-	// clang-format on
-
 	auto iopBios = dynamic_cast<CIopBios*>(virtualMachine->m_iop->m_bios.get());
-	for(const auto& mount : mounts)
+	for(const auto& mount : def.nandMounts)
 	{
-		iopBios->GetIoman()->RegisterDevice(mount.first, std::make_shared<Iop::Namco::CNamcoNANDDevice>(std::make_unique<Framework::CStdStream>(nandPath.string().c_str(), "rb"), mount.second));
+		iopBios->GetIoman()->RegisterDevice(mount.first.c_str(), std::make_shared<Iop::Namco::CNamcoNANDDevice>(std::make_unique<Framework::CStdStream>(nandPath.string().c_str(), "rb"), mount.second));
 	}
 
 	{

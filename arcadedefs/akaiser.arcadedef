@@ -4,7 +4,17 @@
 	"driver": "sys147",
 	"nand":
 	{
-		"name": "kp012b_k9k8g08u0b.ic31"
+		"name": "kp012b_k9k8g08u0b.ic31",
+		"mounts":
+		{
+			"atfile0": 24576,
+			"atfile1": 65536,
+			"atfile2": 131072,
+			"atfile3": 196608,
+			"atfile4": 262144,
+			"atfile5": 327680,
+			"atfile6": 393216
+		}
 	},
 	"boot": "atfile0:main.elf",
 	"patches":

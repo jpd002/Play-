@@ -3,10 +3,6 @@
 	"parent": "akaiser",
 	"name": "Animal Kaiser Evolution 4",
 	"driver": "sys147",
-	"nand":
-	{
-		"name": "kp012b_k9k8g08u0b.ic31"
-	},
 	"boot": "atfile0:main.elf",
 	"patches":
 	[

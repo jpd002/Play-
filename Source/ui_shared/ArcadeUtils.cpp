@@ -156,6 +156,10 @@ ARCADE_MACHINE_DEF ReadArcadeMachineDefinition(const fs::path& arcadeDefPath)
 	if(defJson.contains("nand"))
 	{
 		def.nandFileName = defJson["nand"]["name"];
+		if(defJson["nand"].contains("mounts"))
+		{
+			def.nandMounts = defJson["nand"]["mounts"].get<std::map<std::string, uint32>>();
+		}
 	}
 	if(defJson.contains("buttons"))
 	{
@@ -192,6 +196,18 @@ ARCADE_MACHINE_DEF ReadArcadeMachineDefinition(const fs::path& arcadeDefPath)
 		def.patches = parsePatches(defJson["patches"]);
 	}
 	return def;
+}
+
+void ApplyParentDefValues(ARCADE_MACHINE_DEF& def, const ARCADE_MACHINE_DEF& parentDef)
+{
+	if(def.nandFileName.empty())
+	{
+		def.nandFileName = parentDef.nandFileName;
+	}
+	if(def.nandMounts.empty())
+	{
+		def.nandMounts = parentDef.nandMounts;
+	}
 }
 
 void ArcadeUtils::RegisterArcadeMachines()
@@ -248,6 +264,12 @@ void ArcadeUtils::BootArcadeMachine(CPS2VM* virtualMachine, const fs::path& arca
 {
 	auto arcadeDefsPath = Framework::PathUtils::GetAppResourcesPath() / "arcadedefs";
 	auto def = ReadArcadeMachineDefinition(arcadeDefsPath / arcadeDefFilename);
+	if(!def.parent.empty())
+	{
+		auto parentDefPath = arcadeDefsPath / (def.parent + ".arcadedef");
+		auto parentDef = ReadArcadeMachineDefinition(parentDefPath);
+		ApplyParentDefValues(def, parentDef);
+	}
 
 	//Reset PS2VM
 	virtualMachine->Pause();
