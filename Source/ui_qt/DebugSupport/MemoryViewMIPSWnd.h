@@ -1,13 +1,8 @@
 #pragma once
 
 #include <QWidget>
-#include <QMdiSubWindow>
-#include <QLineEdit>
-
-#include "MemoryViewTable.h"
 #include "MIPS.h"
 #include "VirtualMachineStateView.h"
-#include "QtMemoryViewModel.h"
 
 class QResizeEvent;
 namespace Ui

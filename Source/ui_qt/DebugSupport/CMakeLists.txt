@@ -98,6 +98,8 @@ set(SRC_FILES
 	${SRC_ROOT}/FrameDebugger/Vu1Vm.h
 	${SRC_ROOT}/KernelObjectListView.cpp
 	${SRC_ROOT}/KernelObjectListView.h
+	${SRC_ROOT}/MemoryViewMIPS.cpp
+	${SRC_ROOT}/MemoryViewMIPS.h
 	${SRC_ROOT}/MemoryViewMIPSWnd.cpp
 	${SRC_ROOT}/MemoryViewMIPSWnd.h
 	${SRC_ROOT}/MemoryViewTable.cpp

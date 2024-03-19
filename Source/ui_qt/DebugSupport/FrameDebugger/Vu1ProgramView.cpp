@@ -24,7 +24,7 @@ CVu1ProgramView::CVu1ProgramView(QWidget* parent, CVu1Vm& virtualMachine)
 	h->addWidget(m_regView.get());
 	v->addLayout(h);
 
-	m_memoryView = std::make_unique<CMemoryViewTable>(this);
+	m_memoryView = std::make_unique<CMemoryViewMIPS>(this);
 	auto getByte = [ctx = m_virtualMachine.GetVu1Context()](uint32 address) {
 		return ctx->m_pMemoryMap->GetByte(address);
 	};

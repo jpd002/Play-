@@ -22,7 +22,7 @@
        </widget>
       </item>
       <item>
-       <widget class="CMemoryViewTable" name="tableView">
+       <widget class="CMemoryViewMIPS" name="tableView">
         <property name="enabled">
          <bool>true</bool>
         </property>
@@ -38,9 +38,9 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>CMemoryViewTable</class>
+   <class>CMemoryViewMIPS</class>
    <extends>QTableView</extends>
-   <header>MemoryViewTable.h</header>
+   <header>MemoryViewMIPS.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

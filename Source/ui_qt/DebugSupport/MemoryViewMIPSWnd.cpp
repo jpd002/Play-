@@ -1,17 +1,6 @@
-#include <QAction>
-#include <QApplication>
-#include <QInputDialog>
-#include <QMenu>
-#include <QMessageBox>
-#include <QHeaderView>
-#include <QFontDatabase>
-#include <QFontMetrics>
-#include <QVBoxLayout>
-
-#include "string_format.h"
 #include "MemoryViewMIPSWnd.h"
+#include "string_format.h"
 #include "ui_MemoryViewMIPSWnd.h"
-#include "DebugExpressionEvaluator.h"
 
 CMemoryViewMIPSWnd::CMemoryViewMIPSWnd(QWidget* parent, CVirtualMachine& virtualMachine, CMIPS* ctx, int size)
     : QWidget(parent)

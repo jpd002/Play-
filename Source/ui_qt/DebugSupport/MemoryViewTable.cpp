@@ -1,18 +1,10 @@
-#include <QAction>
-#include <QActionGroup>
-#include <QApplication>
-#include <QInputDialog>
-#include <QMenu>
-#include <QMessageBox>
+#include "MemoryViewTable.h"
 #include <QHeaderView>
-#include <QFont>
-#include <QVBoxLayout>
 #include <QTextLayout>
-#include <cmath>
+#include <QMenu>
+#include <QActionGroup>
 
 #include "string_format.h"
-#include "MemoryViewTable.h"
-#include "DebugExpressionEvaluator.h"
 #include "DebugUtils.h"
 
 CMemoryViewTable::CMemoryViewTable(QWidget* parent)
@@ -66,18 +58,6 @@ int CMemoryViewTable::ComputeItemCellWidth() const
 	return result;
 }
 
-void CMemoryViewTable::Setup(CVirtualMachine* virtualMachine, CMIPS* ctx, bool memoryJumps)
-{
-	m_virtualMachine = virtualMachine;
-	m_context = ctx;
-	m_enableMemoryJumps = memoryJumps;
-	if(m_enableMemoryJumps)
-	{
-		assert(m_virtualMachine);
-		assert(m_context);
-	}
-}
-
 void CMemoryViewTable::SetData(CQtMemoryViewModel::getByteProto getByte, int size)
 {
 	m_model->SetData(getByte, size);
@@ -94,11 +74,6 @@ void CMemoryViewTable::ResizeEvent()
 		return;
 
 	AutoColumn();
-}
-
-void CMemoryViewTable::HandleMachineStateChange()
-{
-	m_model->Redraw();
 }
 
 int CMemoryViewTable::GetBytesPerLine()
@@ -165,26 +140,7 @@ void CMemoryViewTable::ShowContextMenu(const QPoint& pos)
 		}
 	}
 
-	if(m_enableMemoryJumps)
-	{
-		rightClickMenu->addSeparator();
-		{
-			auto itemAction = rightClickMenu->addAction("Goto Address...");
-			connect(itemAction, &QAction::triggered, std::bind(&CMemoryViewTable::GotoAddress, this));
-		}
-
-		{
-			uint32 selection = m_selected;
-			if((selection & 0x03) == 0)
-			{
-				uint32 valueAtSelection = m_context->m_pMemoryMap->GetWord(selection);
-				auto followPointerText = string_format("Follow Pointer (0x%08X)", valueAtSelection);
-				auto itemAction = rightClickMenu->addAction(followPointerText.c_str());
-				connect(itemAction, &QAction::triggered, std::bind(&CMemoryViewTable::FollowPointer, this));
-			}
-		}
-	}
-
+	PopulateContextMenu(rightClickMenu);
 	rightClickMenu->popup(viewport()->mapToGlobal(pos));
 }
 
@@ -216,50 +172,6 @@ void CMemoryViewTable::AutoColumn()
 	}
 	m_model->SetColumnCount(i * bytesPerUnit);
 	m_model->Redraw();
-}
-
-void CMemoryViewTable::GotoAddress()
-{
-	if(m_virtualMachine->GetStatus() == CVirtualMachine::RUNNING)
-	{
-		QApplication::beep();
-		return;
-	}
-
-	std::string sValue;
-	{
-		bool ok;
-		QString res = QInputDialog::getText(this, tr("Goto Address"),
-		                                    tr("Enter new address:"), QLineEdit::Normal,
-		                                    tr("00000000"), &ok);
-		if(!ok || res.isEmpty())
-			return;
-
-		sValue = res.toStdString();
-	}
-
-	try
-	{
-		uint32 nAddress = CDebugExpressionEvaluator::Evaluate(sValue.c_str(), m_context);
-		SetSelectionStart(nAddress);
-	}
-	catch(const std::exception& exception)
-	{
-		std::string message = std::string("Error evaluating expression: ") + exception.what();
-		QMessageBox::critical(this, tr("Error"), tr(message.c_str()), QMessageBox::Ok, QMessageBox::Ok);
-	}
-}
-
-void CMemoryViewTable::FollowPointer()
-{
-	if(m_virtualMachine->GetStatus() == CVirtualMachine::RUNNING)
-	{
-		QApplication::beep();
-		return;
-	}
-
-	uint32 valueAtSelection = m_context->m_pMemoryMap->GetWord(m_selected);
-	SetSelectionStart(valueAtSelection);
 }
 
 void CMemoryViewTable::SetActiveUnit(int index)

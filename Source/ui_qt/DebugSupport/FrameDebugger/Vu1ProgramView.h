@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../DisAsmWnd.h"
-#include "../MemoryViewTable.h"
+#include "../MemoryViewMIPS.h"
 #include "../RegViewVU.h"
 #include "Vu1Vm.h"
 #include "gs/GSHandler.h"
@@ -36,7 +36,7 @@ private:
 	CVu1Vm& m_virtualMachine;
 
 	std::unique_ptr<CDisAsmWnd> m_disAsm;
-	std::unique_ptr<CMemoryViewTable> m_memoryView;
+	std::unique_ptr<CMemoryViewMIPS> m_memoryView;
 	std::unique_ptr<CGifPacketView> m_packetView;
 	std::unique_ptr<CRegViewVU> m_regView;
 
