@@ -1,4 +1,5 @@
 #include "MemoryViewTable.h"
+#include <cmath>
 #include <QHeaderView>
 #include <QTextLayout>
 #include <QMenu>
@@ -86,7 +87,7 @@ void CMemoryViewTable::SetBytesPerLine(int bytesForLine)
 	m_bytesPerLine = bytesForLine;
 	if(bytesForLine)
 	{
-		m_model->SetColumnCount(bytesForLine);
+		m_model->SetBytesPerRow(bytesForLine);
 		m_model->Redraw();
 	}
 	else
@@ -170,7 +171,7 @@ void CMemoryViewTable::AutoColumn()
 		}
 		++i;
 	}
-	m_model->SetColumnCount(i * bytesPerUnit);
+	m_model->SetBytesPerRow(i * bytesPerUnit);
 	m_model->Redraw();
 }
 
@@ -183,10 +184,7 @@ void CMemoryViewTable::SetActiveUnit(int index)
 
 void CMemoryViewTable::SetSelectionStart(uint32 address)
 {
-	auto column = (address % m_model->BytesForCurrentLine()) / m_model->GetBytesPerUnit();
-	auto row = (address - column) / m_model->BytesForCurrentLine();
-
-	auto index = m_model->index(row, column);
+	auto index = m_model->TranslateAddressToModelIndex(address);
 	selectionModel()->setCurrentIndex(index, QItemSelectionModel::ClearAndSelect);
 	scrollTo(index, QAbstractItemView::PositionAtCenter);
 }
@@ -197,12 +195,7 @@ void CMemoryViewTable::SelectionChanged()
 	if(!indexes.empty())
 	{
 		auto index = indexes.first();
-		int address = index.row() * (m_model->BytesForCurrentLine());
-		if(m_model->columnCount() - 1 != index.column())
-		{
-			address += index.column() * m_model->GetBytesPerUnit();
-		}
-		m_selected = address;
+		m_selected = m_model->TranslateModelIndexToAddress(index);
 		OnSelectionChange(m_selected);
 	}
 }

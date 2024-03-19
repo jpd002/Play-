@@ -134,6 +134,12 @@ set(SRC_FILES
 	${SRC_ROOT}/VariablesView.h
 )
 
+set(TEST_SRC_FILES
+	${SRC_ROOT}/tests/main.cpp
+	${SRC_ROOT}/tests/QtMemoryViewModelTests.cpp
+	${SRC_ROOT}/tests/QtMemoryViewModelTests.h
+)
+
 set(QT_DEBUGGER_MOC_HEADERS
 	${SRC_ROOT}/AddressListViewWnd.h
 	${SRC_ROOT}/CommentsView.h
@@ -174,3 +180,17 @@ add_library(PlayDebugSupport STATIC ${SRC_FILES} ${QT_DEBUGGER_UI_HEADERS} ${QT_
 target_link_libraries(PlayDebugSupport PlayCore ${PLAYDEBUGSUPPORT_LIBS})
 target_compile_definitions(PlayDebugSupport PRIVATE NOMINMAX ${PLAYDEBUGSUPPORT_DEFS})
 target_include_directories(PlayDebugSupport PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} ../../${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR})
+
+add_executable(PlayDebugSupportTests ${TEST_SRC_FILES})
+target_link_libraries(PlayDebugSupportTests PlayDebugSupport)
+add_test(PlayDebugSupportTests PlayDebugSupportTests)
+
+if(TARGET_PLATFORM_WIN32)
+	find_program(WINDEPLOYQT_EXE windeployqt HINTS "${QT_BINARY_DIRECTORY}")
+	add_custom_command(TARGET PlayDebugSupportTests POST_BUILD
+		COMMAND "${WINDEPLOYQT_EXE}" $<IF:$<CONFIG:Debug>,--debug,--release>
+									 --no-translations
+									 --no-compiler-runtime
+									 "$<TARGET_FILE:PlayDebugSupportTests>"
+	)
+endif()

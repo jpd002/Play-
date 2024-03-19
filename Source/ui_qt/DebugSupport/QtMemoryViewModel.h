@@ -20,25 +20,27 @@ public:
 		const char* description = nullptr;
 	};
 
-	CQtMemoryViewModel(QObject*, getByteProto = nullptr, int = 0);
+	CQtMemoryViewModel(QObject*);
 	~CQtMemoryViewModel() = default;
 
 	int rowCount(const QModelIndex& parent = QModelIndex()) const Q_DECL_OVERRIDE;
 	int columnCount(const QModelIndex& parent = QModelIndex()) const Q_DECL_OVERRIDE;
 	QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const Q_DECL_OVERRIDE;
-	void DoubleClicked(const QModelIndex& index, QWidget* parent = nullptr);
 
 	void Redraw();
 
-	unsigned int BytesForCurrentLine() const;
-	void SetColumnCount(unsigned int);
-	unsigned int CharsPerUnit() const;
+	unsigned int GetBytesPerRow() const;
+	void SetBytesPerRow(unsigned int);
 
 	void SetActiveUnit(int);
-	int GetActiveUnit();
+	int GetActiveUnit() const;
 	unsigned int GetBytesPerUnit() const;
+	unsigned int CharsPerUnit() const;
 
 	void SetData(getByteProto, int);
+
+	uint32 TranslateModelIndexToAddress(const QModelIndex&) const;
+	QModelIndex TranslateAddressToModelIndex(uint32) const;
 
 	static std::vector<UNITINFO> g_units;
 
@@ -51,8 +53,8 @@ private:
 	std::string RenderWordUnit(uint32) const;
 	std::string RenderSingleUnit(uint32) const;
 
-	getByteProto m_getByte = nullptr;
-	int m_activeUnit;
-	unsigned int m_size;
-	std::atomic<unsigned int> m_columnCount = 0x2;
+	getByteProto m_getByte;
+	int m_activeUnit = 0;
+	unsigned int m_size = 0;
+	unsigned int m_bytesPerRow = 0x2;
 };
