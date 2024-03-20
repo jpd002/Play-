@@ -10,7 +10,7 @@ public:
 	CMemoryViewMIPS(QWidget*);
 	~CMemoryViewMIPS() = default;
 
-	void Setup(CVirtualMachine* = nullptr, CMIPS* = nullptr, bool = false);
+	void SetContext(CVirtualMachine*, CMIPS*);
 
 	void HandleMachineStateChange() override;
 	void SetAddress(uint32);

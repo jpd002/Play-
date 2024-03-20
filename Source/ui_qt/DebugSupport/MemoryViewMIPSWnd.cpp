@@ -12,7 +12,7 @@ CMemoryViewMIPSWnd::CMemoryViewMIPSWnd(QWidget* parent, CVirtualMachine& virtual
 		return ctx->m_pMemoryMap->GetByte(address);
 	};
 
-	ui->tableView->Setup(&virtualMachine, ctx, true);
+	ui->tableView->SetContext(&virtualMachine, ctx);
 	ui->tableView->SetData(getByte, size);
 
 	UpdateStatusBar(0);

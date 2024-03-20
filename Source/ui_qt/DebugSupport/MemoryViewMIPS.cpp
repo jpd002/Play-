@@ -11,7 +11,7 @@ CMemoryViewMIPS::CMemoryViewMIPS(QWidget* parent)
 {
 }
 
-void CMemoryViewMIPS::Setup(CVirtualMachine* virtualMachine, CMIPS* ctx, bool memoryJumps)
+void CMemoryViewMIPS::SetContext(CVirtualMachine* virtualMachine, CMIPS* ctx)
 {
 	m_virtualMachine = virtualMachine;
 	m_context = ctx;

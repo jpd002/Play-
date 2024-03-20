@@ -29,7 +29,7 @@ CVu1ProgramView::CVu1ProgramView(QWidget* parent, CVu1Vm& virtualMachine)
 		return ctx->m_pMemoryMap->GetByte(address);
 	};
 
-	m_memoryView->Setup(&m_virtualMachine, m_virtualMachine.GetVu1Context(), true);
+	m_memoryView->SetContext(&m_virtualMachine, m_virtualMachine.GetVu1Context());
 	m_memoryView->SetData(getByte, PS2::VUMEM1SIZE);
 
 	auto tab = new QTabWidget(this);
