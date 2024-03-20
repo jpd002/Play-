@@ -23,7 +23,7 @@
 #include "DebugExpressionEvaluator.h"
 #include "DebugUtils.h"
 
-CDisAsmWnd::CDisAsmWnd(QWidget* parent, CVirtualMachine& virtualMachine, CMIPS* ctx, const char* name, CQtDisAsmTableModel::DISASM_TYPE disAsmType)
+CDisAsmWnd::CDisAsmWnd(QWidget* parent, CVirtualMachine& virtualMachine, CMIPS* ctx, const char* name, uint64 size, CQtDisAsmTableModel::DISASM_TYPE disAsmType)
     : QTableView(parent)
     , m_virtualMachine(virtualMachine)
     , m_ctx(ctx)
@@ -40,11 +40,11 @@ CDisAsmWnd::CDisAsmWnd(QWidget* parent, CVirtualMachine& virtualMachine, CMIPS* 
 	switch(disAsmType)
 	{
 	case CQtDisAsmTableModel::DISASM_STANDARD:
-		m_model = new CQtDisAsmTableModel(this, virtualMachine, ctx);
+		m_model = new CQtDisAsmTableModel(this, virtualMachine, ctx, size, 0x100000);
 		m_instructionSize = 4;
 		break;
 	case CQtDisAsmTableModel::DISASM_VU:
-		m_model = new CQtDisAsmVuTableModel(this, virtualMachine, ctx);
+		m_model = new CQtDisAsmVuTableModel(this, virtualMachine, ctx, size, 0);
 		m_instructionSize = 8;
 		break;
 	default:
@@ -262,28 +262,39 @@ void CDisAsmWnd::verticalScrollbarValueChanged(int value)
 
 void CDisAsmWnd::SetAddress(uint32 address)
 {
+	m_model->SetWindowCenter(address);
+	m_model->Redraw();
 	auto addressRow = m_model->TranslateAddressToModelIndex(address);
 	if(!isAddressInView(addressRow))
+	{
 		scrollTo(addressRow, QAbstractItemView::PositionAtTop);
+	}
 	m_address = address;
 }
 
 void CDisAsmWnd::SetCenterAtAddress(uint32 address)
 {
+	m_model->SetWindowCenter(address);
+	m_model->Redraw();
 	auto addressRow = m_model->TranslateAddressToModelIndex(address);
 	if(!isAddressInView(addressRow))
+	{
 		scrollTo(addressRow, QAbstractItemView::PositionAtCenter);
-
+	}
 	m_address = address;
 }
 
 void CDisAsmWnd::SetSelectedAddress(uint32 address)
 {
+	m_model->SetWindowCenter(address);
+	m_model->Redraw();
 	m_selectionEnd = -1;
 	m_selected = address;
 	auto index = m_model->TranslateAddressToModelIndex(address);
 	if(!isAddressInView(index))
+	{
 		scrollTo(index, QAbstractItemView::PositionAtTop);
+	}
 	setCurrentIndex(index);
 }
 
@@ -516,8 +527,8 @@ bool CDisAsmWnd::HistoryHasNext()
 
 uint32 CDisAsmWnd::GetInstruction(uint32 address)
 {
-	//Address translation perhaps?
-	return m_ctx->m_pMemoryMap->GetInstruction(address);
+	uint32 physAddr = m_ctx->m_pAddrTranslator(m_ctx, address);
+	return m_ctx->m_pMemoryMap->GetInstruction(physAddr);
 }
 
 void CDisAsmWnd::ToggleBreakpoint(uint32 address)

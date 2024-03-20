@@ -8,23 +8,31 @@
 #include "string_format.h"
 #include "lexical_cast_ex.h"
 
-CQtDisAsmTableModel::CQtDisAsmTableModel(QTableView* parent, CVirtualMachine& virtualMachine, CMIPS* context, DISASM_TYPE disAsmType)
+CQtDisAsmTableModel::CQtDisAsmTableModel(QTableView* parent, CVirtualMachine& virtualMachine, CMIPS* context, uint64 size, uint32 windowSize, DISASM_TYPE disAsmType)
     : QAbstractTableModel(parent)
     , m_virtualMachine(virtualMachine)
     , m_ctx(context)
     , m_instructionSize(4)
+    , m_size(size)
+    , m_windowSize(windowSize)
     , m_disAsmType(disAsmType)
-    , m_maps(m_ctx->m_pMemoryMap->GetInstructionMaps())
 {
+	if(windowSize == 0)
+	{
+		assert(size <= UINT32_MAX);
+		m_windowSize = static_cast<uint32>(size);
+	}
+
 	m_headers = {"S", "Address", "R", "Instr", "I-Mn", "I-Op", "Target/Comments"};
 
 	auto target_comment_column_index = ((m_disAsmType == CQtDisAsmTableModel::DISASM_STANDARD) ? 3 : 5) + 3;
 	parent->setItemDelegateForColumn(target_comment_column_index, new TableColumnDelegateTargetComment(parent));
 
-	for(const auto& map : m_maps)
-	{
-		m_memSize += (map.nEnd + 1) - map.nStart;
-	}
+	BuildIcons();
+}
+
+void CQtDisAsmTableModel::BuildIcons()
+{
 	auto size = m_start_line.size();
 	auto start = 2;
 	auto middle = size.width() / 2;
@@ -119,12 +127,30 @@ CQtDisAsmTableModel::CQtDisAsmTableModel(QTableView* parent, CVirtualMachine& vi
 
 int CQtDisAsmTableModel::rowCount(const QModelIndex& /*parent*/) const
 {
-	return m_memSize / m_instructionSize;
+	return m_windowSize / m_instructionSize;
 }
 
 int CQtDisAsmTableModel::columnCount(const QModelIndex& /*parent*/) const
 {
 	return m_headers.size();
+}
+
+void CQtDisAsmTableModel::SetWindowCenter(uint32 windowCenter)
+{
+	int64 lowerBound = static_cast<int64>(windowCenter) - static_cast<int64>(m_windowSize / 2);
+	int64 upperBound = static_cast<int64>(windowCenter) + static_cast<int64>(m_windowSize / 2);
+	if(lowerBound < 0)
+	{
+		m_windowStart = 0;
+	}
+	else if(upperBound >= m_size)
+	{
+		m_windowStart = static_cast<uint32>(m_size - static_cast<uint64>(m_windowSize));
+	}
+	else
+	{
+		m_windowStart = static_cast<uint32>(lowerBound);
+	}
 }
 
 QVariant CQtDisAsmTableModel::data(const QModelIndex& index, int role) const
@@ -208,23 +234,7 @@ QVariant CQtDisAsmTableModel::data(const QModelIndex& index, int role) const
 	}
 	if(role == Qt::BackgroundRole)
 	{
-		auto map_index = 0;
-		for(const auto& map : m_maps)
-		{
-			if(address <= map.nEnd)
-				break;
-			++map_index;
-		}
-		QColor background;
-		if(map_index % 2 == 0)
-		{
-			background = QColor(QPalette().base().color());
-		}
-		else
-		{
-			background = QColor(QPalette().alternateBase().color());
-		}
-
+		QColor background = QColor(QPalette().base().color());
 		QBrush brush(background);
 		return brush;
 	}
@@ -260,7 +270,7 @@ void CQtDisAsmTableModel::Redraw(uint32 address)
 
 uint32 CQtDisAsmTableModel::GetInstruction(uint32 address) const
 {
-	//Address translation perhaps?
+	address = m_ctx->m_pAddrTranslator(m_ctx, address);
 	return m_ctx->m_pMemoryMap->GetInstruction(address);
 }
 
@@ -327,28 +337,10 @@ std::string CQtDisAsmTableModel::GetInstructionMetadata(uint32 address) const
 	return disAsm.c_str();
 }
 
-uint32 CQtDisAsmTableModel::TranslateAddress(uint32 address) const
+uint32 CQtDisAsmTableModel::TranslateAddress(uint32 windowAddress) const
 {
-	uint32 tAddress = address;
-	for(auto itr = m_maps.rbegin(); itr != m_maps.rend(); ++itr)
-	{
-		auto map = *itr;
-		if(tAddress >= map.nStart && tAddress < map.nEnd)
-			break;
-
-		if(map.nStart > tAddress)
-			continue;
-
-		assert(itr != m_maps.rbegin());
-		--itr;
-		auto map2 = *itr;
-
-		tAddress += map2.nStart;
-		tAddress -= map.nEnd + 1;
-		break;
-	}
-
-	return tAddress;
+	uint32 address = windowAddress + m_windowStart;
+	return address;
 }
 
 uint32 CQtDisAsmTableModel::TranslateModelIndexToAddress(const QModelIndex& index) const
@@ -356,28 +348,18 @@ uint32 CQtDisAsmTableModel::TranslateModelIndexToAddress(const QModelIndex& inde
 	return TranslateAddress(index.row() * m_instructionSize);
 }
 
-const QModelIndex CQtDisAsmTableModel::TranslateAddressToModelIndex(uint32 address) const
+QModelIndex CQtDisAsmTableModel::TranslateAddressToModelIndex(uint32 address) const
 {
-	uint32 tAddress = address;
-	auto itr = m_maps.rbegin();
-	for(; itr != m_maps.rend(); ++itr)
+	if(address <= m_windowStart)
 	{
-		auto map = *itr;
-		if(tAddress >= map.nStart && tAddress < map.nEnd)
-		{
-			tAddress -= map.nStart;
-			++itr;
-			break;
-		}
+		return index(0, 0);
 	}
-
-	for(; itr != m_maps.rend(); ++itr)
+	address -= m_windowStart;
+	if(address >= m_windowSize)
 	{
-		auto map = *itr;
-		tAddress += (map.nEnd + 1) - map.nStart;
+		address = (m_windowSize - m_instructionSize);
 	}
-
-	return index(tAddress / m_instructionSize, 0);
+	return index(address / m_instructionSize, 0);
 }
 
 int CQtDisAsmTableModel::GetLinePixMapWidth() const

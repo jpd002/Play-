@@ -22,35 +22,41 @@ public:
 		DISASM_STANDARD,
 		DISASM_VU
 	};
-	CQtDisAsmTableModel(QTableView* parent, CVirtualMachine&, CMIPS*, DISASM_TYPE = DISASM_TYPE::DISASM_STANDARD);
-	~CQtDisAsmTableModel() = default;
 
+	CQtDisAsmTableModel(QTableView* parent, CVirtualMachine&, CMIPS*, uint64, uint32, DISASM_TYPE = DISASM_TYPE::DISASM_STANDARD);
+	~CQtDisAsmTableModel() = default;
+	
 	int rowCount(const QModelIndex& parent = QModelIndex()) const Q_DECL_OVERRIDE;
 	int columnCount(const QModelIndex& parent = QModelIndex()) const Q_DECL_OVERRIDE;
 	QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const Q_DECL_OVERRIDE;
 
+	void SetWindowCenter(uint32);
+	
 	void Redraw();
 	void Redraw(uint32);
 
-	virtual std::string GetInstructionDetails(int, uint32) const;
-	std::string GetInstructionMetadata(uint32) const;
-
 	uint32 TranslateAddress(uint32) const;
 	uint32 TranslateModelIndexToAddress(const QModelIndex&) const;
-	const QModelIndex TranslateAddressToModelIndex(uint32) const;
+	QModelIndex TranslateAddressToModelIndex(uint32) const;
 
 	int GetLinePixMapWidth() const;
 
 protected:
 	QVariant headerData(int section, Qt::Orientation orientation, int role) const Q_DECL_OVERRIDE;
 
+	void BuildIcons();
+	
 	uint32 GetInstruction(uint32) const;
+	virtual std::string GetInstructionDetails(int, uint32) const;
+	std::string GetInstructionMetadata(uint32) const;
+
 	CMIPS* m_ctx;
 	CVirtualMachine& m_virtualMachine;
 	uint32 m_instructionSize;
+	uint64 m_size = 0;
+	uint32 m_windowStart = 0;
+	uint32 m_windowSize = 0;
 	DISASM_TYPE m_disAsmType;
-	int m_memSize = 0;
-	const CMemoryMap::MemoryMapListType& m_maps;
 
 	QVariantList m_headers;
 	QPixmap m_start_line = QPixmap(22, 22);

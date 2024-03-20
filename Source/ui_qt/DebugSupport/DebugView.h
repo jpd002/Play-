@@ -3,7 +3,6 @@
 #include <string>
 #include <functional>
 #include <QWidget>
-#include <QTabWidget>
 #include <QMdiArea>
 #include <QMdiSubWindow>
 #include "DisAsmWnd.h"
@@ -52,5 +51,4 @@ private:
 	CBiosDebugInfoProvider* m_biosDebugInfoProvider;
 
 	CCallStackWnd::OnFunctionDblClickSignal::Connection m_OnFunctionDblClickConnection;
-	QTabWidget* m_viewTabs;
 };
