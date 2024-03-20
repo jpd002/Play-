@@ -7,8 +7,10 @@ void CQtMemoryViewModelTests::RunTests()
 	m_getByteFunction = [this](uint32 address) { return GetByte(address); };
 	TestSimpleBytes();
 	TestOutOfBounds();
+	TestWindowOutOfBounds();
 	TestAddressToModelIndex();
 	TestAddressToModelIndexWord();
+	TestAddressToModelIndexWindowed();
 	TestModelIndexToAddress();
 	TestModelIndexToAddressWord();
 }
@@ -54,6 +56,28 @@ void CQtMemoryViewModelTests::TestOutOfBounds()
 	TEST_VERIFY(model->data(model->index(1, 0x10)) == "........        ");
 }
 
+void CQtMemoryViewModelTests::TestWindowOutOfBounds()
+{
+	uint32 memorySize = 256;
+	uint32 windowSize = 32;
+	m_memory.clear();
+	m_memory.resize(memorySize);
+
+	uint32 bytesPerRow = 16;
+
+	auto model = std::make_unique<CQtMemoryViewModel>(nullptr);
+	model->SetData(m_getByteFunction, memorySize, windowSize);
+	model->SetBytesPerRow(bytesPerRow);
+
+	model->SetWindowCenter(245);
+	TEST_VERIFY(model->TranslateModelIndexToAddress(model->index(0, 0)) == (memorySize - windowSize));
+	TEST_VERIFY(model->TranslateModelIndexToAddress(model->index(1, 15)) == (memorySize - 1));
+
+	model->SetWindowCenter(13);
+	TEST_VERIFY(model->TranslateModelIndexToAddress(model->index(0, 0)) == 0);
+	TEST_VERIFY(model->TranslateModelIndexToAddress(model->index(1, 15)) == (windowSize - 1));
+}
+
 void CQtMemoryViewModelTests::TestAddressToModelIndex()
 {
 	uint32 memorySize = 256;
@@ -81,13 +105,6 @@ void CQtMemoryViewModelTests::TestAddressToModelIndex()
 		auto modelIndex = model->TranslateAddressToModelIndex(memorySize - 1);
 		TEST_VERIFY(modelIndex.row() == 12);
 		TEST_VERIFY(modelIndex.column() == 3);
-	}
-
-	//An item below
-	{
-		auto modelIndex = model->TranslateAddressToModelIndex(-1);
-		TEST_VERIFY(modelIndex.row() == 0);
-		TEST_VERIFY(modelIndex.column() == 0);
 	}
 
 	//An item beyond
@@ -136,17 +153,56 @@ void CQtMemoryViewModelTests::TestAddressToModelIndexWord()
 		TEST_VERIFY(modelIndex.column() == 1);
 	}
 
-	//An item below
-	{
-		auto modelIndex = model->TranslateAddressToModelIndex(-1);
-		TEST_VERIFY(modelIndex.row() == 0);
-		TEST_VERIFY(modelIndex.column() == 0);
-	}
-
 	//An item beyond
 	{
 		auto modelIndex = model->TranslateAddressToModelIndex(memorySize * 2);
 		TEST_VERIFY(modelIndex == model->TranslateAddressToModelIndex(memorySize - 1));
+	}
+}
+
+void CQtMemoryViewModelTests::TestAddressToModelIndexWindowed()
+{
+	uint32 memorySize = 0x100;
+	m_memory.clear();
+	m_memory.resize(memorySize);
+
+	uint32 bytesPerRow = 13;
+
+	auto model = std::make_unique<CQtMemoryViewModel>(nullptr);
+	model->SetData(m_getByteFunction, memorySize, 64);
+	model->SetWindowCenter(128);
+	model->SetBytesPerRow(bytesPerRow);
+
+	//Window spans from addresses 96 to 159
+
+	//ceil(64 / 13) = 3
+	TEST_VERIFY(model->rowCount() == 5);
+
+	//Start of window
+	{
+		auto modelIndex = model->TranslateAddressToModelIndex(96);
+		TEST_VERIFY(modelIndex.row() == 0);
+		TEST_VERIFY(modelIndex.column() == 0);
+	}
+
+	//End of window
+	{
+		auto modelIndex = model->TranslateAddressToModelIndex(159);
+		TEST_VERIFY(modelIndex.row() == 4);
+		TEST_VERIFY(modelIndex.column() == 11);
+	}
+
+	//Before window
+	{
+		auto modelIndex = model->TranslateAddressToModelIndex(4);
+		TEST_VERIFY(modelIndex.row() == 0);
+		TEST_VERIFY(modelIndex.column() == 0);
+	}
+
+	//After window
+	{
+		auto modelIndex = model->TranslateAddressToModelIndex(200);
+		TEST_VERIFY(modelIndex == model->TranslateAddressToModelIndex(159));
 	}
 }
 

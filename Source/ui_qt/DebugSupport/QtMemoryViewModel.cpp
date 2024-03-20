@@ -18,7 +18,7 @@ CQtMemoryViewModel::CQtMemoryViewModel(QObject* parent)
 
 int CQtMemoryViewModel::rowCount(const QModelIndex& /*parent*/) const
 {
-	return std::ceil((m_size * 1.f) / m_bytesPerRow);
+	return std::ceil((m_windowSize * 1.f) / m_bytesPerRow);
 }
 
 int CQtMemoryViewModel::columnCount(const QModelIndex& /*parent*/) const
@@ -76,7 +76,7 @@ QVariant CQtMemoryViewModel::headerData(int section, Qt::Orientation orientation
 		}
 		else
 		{
-			auto address = section * m_bytesPerRow;
+			auto address = (section * m_bytesPerRow) + m_windowStart;
 			return QString::fromStdString(string_format("0x%08X", address));
 		}
 	}
@@ -155,6 +155,24 @@ void CQtMemoryViewModel::SetBytesPerRow(unsigned int bytesPerRow)
 	m_bytesPerRow = bytesPerRow;
 }
 
+void CQtMemoryViewModel::SetWindowCenter(uint32 windowCenter)
+{
+	int64 lowerBound = static_cast<int64>(windowCenter) - static_cast<int64>(m_windowSize / 2);
+	int64 upperBound = static_cast<int64>(windowCenter) + static_cast<int64>(m_windowSize / 2);
+	if(lowerBound < 0)
+	{
+		m_windowStart = 0;
+	}
+	else if(upperBound >= m_size)
+	{
+		m_windowStart = static_cast<uint32>(m_size - static_cast<uint64>(m_windowSize));
+	}
+	else
+	{
+		m_windowStart = static_cast<uint32>(lowerBound);
+	}
+}
+
 uint32 CQtMemoryViewModel::TranslateModelIndexToAddress(const QModelIndex& index) const
 {
 	uint32 address = index.row() * m_bytesPerRow;
@@ -162,18 +180,19 @@ uint32 CQtMemoryViewModel::TranslateModelIndexToAddress(const QModelIndex& index
 	{
 		address += index.column() * GetBytesPerUnit();
 	}
-	return address;
+	return address + m_windowStart;
 }
 
 QModelIndex CQtMemoryViewModel::TranslateAddressToModelIndex(uint32 address) const
 {
-	if(static_cast<int32>(address) < 0)
+	if(address <= m_windowStart)
 	{
 		return index(0, 0);
 	}
-	if(static_cast<int32>(address) >= m_size)
+	address -= m_windowStart;
+	if(address >= m_windowSize)
 	{
-		address = (m_size - 1);
+		address = (m_windowSize - 1);
 	}
 	uint32 row = address / m_bytesPerRow;
 	uint32 col = address - (row * m_bytesPerRow);
@@ -201,9 +220,16 @@ unsigned int CQtMemoryViewModel::CharsPerUnit() const
 	return g_units[m_activeUnit].charsPerUnit;
 }
 
-void CQtMemoryViewModel::SetData(getByteProto getByte, int size)
+void CQtMemoryViewModel::SetData(getByteProto getByte, uint64 size, uint32 windowSize)
 {
+	if(windowSize == 0)
+	{
+		assert(size <= UINT32_MAX);
+		windowSize = static_cast<uint32>(size);
+	}
 	m_getByte = getByte;
 	m_size = size;
+	m_windowStart = 0;
+	m_windowSize = windowSize;
 	Redraw();
 }

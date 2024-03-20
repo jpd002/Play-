@@ -37,10 +37,10 @@ void CMemoryViewMIPS::PopulateContextMenu(QMenu* rightClickMenu)
 	}
 
 	{
-		uint32 selection = m_selected;
-		if((selection & 0x03) == 0)
+		if((m_selected & 0x03) == 0)
 		{
-			uint32 valueAtSelection = m_context->m_pMemoryMap->GetWord(selection);
+			uint32 physAddr = m_context->m_pAddrTranslator(m_context, m_selected);
+			uint32 valueAtSelection = m_context->m_pMemoryMap->GetWord(physAddr);
 			auto followPointerText = string_format("Follow Pointer (0x%08X)", valueAtSelection);
 			auto itemAction = rightClickMenu->addAction(followPointerText.c_str());
 			connect(itemAction, &QAction::triggered, std::bind(&CMemoryViewMIPS::FollowPointer, this));
@@ -88,6 +88,7 @@ void CMemoryViewMIPS::FollowPointer()
 		return;
 	}
 
-	uint32 valueAtSelection = m_context->m_pMemoryMap->GetWord(m_selected);
+	uint32 physAddr = m_context->m_pAddrTranslator(m_context, m_selected);
+	uint32 valueAtSelection = m_context->m_pMemoryMap->GetWord(physAddr);
 	SetSelectionStart(valueAtSelection);
 }

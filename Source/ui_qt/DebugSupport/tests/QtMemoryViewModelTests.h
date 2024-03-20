@@ -21,8 +21,10 @@ private:
 
 	void TestSimpleBytes();
 	void TestOutOfBounds();
+	void TestWindowOutOfBounds();
 	void TestAddressToModelIndex();
 	void TestAddressToModelIndexWord();
+	void TestAddressToModelIndexWindowed();
 	void TestModelIndexToAddress();
 	void TestModelIndexToAddressWord();
 

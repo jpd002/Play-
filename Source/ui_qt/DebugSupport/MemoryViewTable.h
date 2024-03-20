@@ -15,7 +15,7 @@ public:
 	int GetBytesPerLine();
 	void SetBytesPerLine(int);
 
-	void SetData(CQtMemoryViewModel::getByteProto, int);
+	void SetData(CQtMemoryViewModel::getByteProto, uint64, uint32 = 0);
 	void SetSelectionStart(uint32);
 
 	void ShowEvent();

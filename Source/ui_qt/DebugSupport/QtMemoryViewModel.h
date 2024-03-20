@@ -37,7 +37,8 @@ public:
 	unsigned int GetBytesPerUnit() const;
 	unsigned int CharsPerUnit() const;
 
-	void SetData(getByteProto, int);
+	void SetData(getByteProto, uint64, uint32 = 0);
+	void SetWindowCenter(uint32);
 
 	uint32 TranslateModelIndexToAddress(const QModelIndex&) const;
 	QModelIndex TranslateAddressToModelIndex(uint32) const;
@@ -55,6 +56,8 @@ private:
 
 	getByteProto m_getByte;
 	int m_activeUnit = 0;
-	unsigned int m_size = 0;
+	uint32 m_windowStart = 0;
+	uint32 m_windowSize = 0;
+	uint64 m_size = 0;
 	unsigned int m_bytesPerRow = 0x2;
 };

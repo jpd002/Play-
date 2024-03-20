@@ -59,9 +59,9 @@ int CMemoryViewTable::ComputeItemCellWidth() const
 	return result;
 }
 
-void CMemoryViewTable::SetData(CQtMemoryViewModel::getByteProto getByte, int size)
+void CMemoryViewTable::SetData(CQtMemoryViewModel::getByteProto getByte, uint64 size, uint32 windowSize)
 {
-	m_model->SetData(getByte, size);
+	m_model->SetData(getByte, size, windowSize);
 }
 
 void CMemoryViewTable::ShowEvent()
@@ -184,6 +184,8 @@ void CMemoryViewTable::SetActiveUnit(int index)
 
 void CMemoryViewTable::SetSelectionStart(uint32 address)
 {
+	m_model->SetWindowCenter(address);
+	m_model->Redraw();
 	auto index = m_model->TranslateAddressToModelIndex(address);
 	selectionModel()->setCurrentIndex(index, QItemSelectionModel::ClearAndSelect);
 	scrollTo(index, QAbstractItemView::PositionAtCenter);

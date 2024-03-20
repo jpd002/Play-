@@ -3,7 +3,7 @@
 #include <QVBoxLayout>
 
 CDebugView::CDebugView(QWidget* parent, QMdiArea* mdiArea, CVirtualMachine& virtualMachine, CMIPS* ctx,
-                       const StepFunction& stepFunction, CBiosDebugInfoProvider* biosDebugInfoProvider, const char* name, int size, CQtDisAsmTableModel::DISASM_TYPE disAsmType)
+                       const StepFunction& stepFunction, CBiosDebugInfoProvider* biosDebugInfoProvider, const char* name, uint64 memorySize, CQtDisAsmTableModel::DISASM_TYPE disAsmType)
     : m_virtualMachine(virtualMachine)
     , m_ctx(ctx)
     , m_name(name)
@@ -21,7 +21,7 @@ CDebugView::CDebugView(QWidget* parent, QMdiArea* mdiArea, CVirtualMachine& virt
 	m_regViewWnd->setWidget(regViewWnd);
 	m_regViewWnd->setWindowTitle("Registers");
 
-	auto memoryViewWnd = new CMemoryViewMIPSWnd(parent, virtualMachine, m_ctx, size);
+	auto memoryViewWnd = new CMemoryViewMIPSWnd(parent, virtualMachine, m_ctx, memorySize);
 	m_memoryViewWnd = new QMdiSubWindow(mdiArea);
 	m_memoryViewWnd->setWidget(memoryViewWnd);
 	m_memoryViewWnd->setWindowTitle("Memory View");

@@ -13,7 +13,7 @@ namespace Ui
 class CMemoryViewMIPSWnd : public QWidget, public CVirtualMachineStateView
 {
 public:
-	CMemoryViewMIPSWnd(QWidget*, CVirtualMachine&, CMIPS*, int);
+	CMemoryViewMIPSWnd(QWidget*, CVirtualMachine&, CMIPS*, uint64);
 	~CMemoryViewMIPSWnd();
 
 	void HandleMachineStateChange() override;
