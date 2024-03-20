@@ -73,6 +73,12 @@ void CMIPSAnalysis::ChangeSubroutineEnd(uint32 start, uint32 newEnd)
 	subroutine.end = newEnd;
 }
 
+uint32 CMIPSAnalysis::GetInstruction(uint32 address) const
+{
+	uint32 physAddr = m_ctx->m_pAddrTranslator(m_ctx, address);
+	return m_ctx->m_pMemoryMap->GetInstruction(physAddr);
+}
+
 void CMIPSAnalysis::AnalyseSubroutines(uint32 start, uint32 end, uint32 entryPoint)
 {
 	start &= ~0x3;
@@ -99,7 +105,7 @@ void CMIPSAnalysis::FindSubroutinesByStackAllocation(uint32 start, uint32 end)
 	while(candidate != end)
 	{
 		uint32 returnAddr = 0;
-		uint32 opcode = m_ctx->m_pMemoryMap->GetInstruction(candidate);
+		uint32 opcode = GetInstruction(candidate);
 		if((opcode & 0xFFFF0000) == 0x27BD0000)
 		{
 			//Found the head of a routine (stack allocation)
@@ -108,7 +114,7 @@ void CMIPSAnalysis::FindSubroutinesByStackAllocation(uint32 start, uint32 end)
 			uint32 tempAddr = candidate;
 			while(tempAddr != end)
 			{
-				opcode = m_ctx->m_pMemoryMap->GetInstruction(tempAddr);
+				opcode = GetInstruction(tempAddr);
 
 				//Check SW/SD/SQ RA, 0x????(SP)
 				if(
@@ -128,7 +134,7 @@ void CMIPSAnalysis::FindSubroutinesByStackAllocation(uint32 start, uint32 end)
 					//ADDIU SP, SP, 0x????
 					//JR RA
 
-					opcode = m_ctx->m_pMemoryMap->GetInstruction(tempAddr - 4);
+					opcode = GetInstruction(tempAddr - 4);
 					if(IsStackFreeingInstruction(opcode))
 					{
 						if(stackAmount == (int16)(opcode & 0xFFFF))
@@ -144,7 +150,7 @@ void CMIPSAnalysis::FindSubroutinesByStackAllocation(uint32 start, uint32 end)
 					//JR RA
 					//ADDIU SP, SP, 0x????
 
-					opcode = m_ctx->m_pMemoryMap->GetInstruction(tempAddr + 4);
+					opcode = GetInstruction(tempAddr + 4);
 					if(IsStackFreeingInstruction(opcode))
 					{
 						if(stackAmount == (int16)(opcode & 0xFFFF))
@@ -171,12 +177,13 @@ void CMIPSAnalysis::FindSubroutinesByJumpTargets(uint32 start, uint32 end, uint3
 	std::set<uint32> subroutineAddresses;
 	for(uint32 address = start; address <= end; address += 4)
 	{
-		uint32 opcode = m_ctx->m_pMemoryMap->GetInstruction(address);
+		uint32 opcode = GetInstruction(address);
 		if(
 		    (opcode & 0xFC000000) == 0x0C000000 ||
 		    (opcode & 0xFC000000) == 0x08000000)
 		{
-			uint32 jumpTarget = (opcode & 0x03FFFFFF) * 4;
+			uint32 addrTopBits = address & 0xF0000000;
+			uint32 jumpTarget = addrTopBits | ((opcode & 0x03FFFFFF) * 4);
 			if(jumpTarget < start) continue;
 			if(jumpTarget >= end) continue;
 			subroutineAddresses.insert(jumpTarget);
@@ -202,7 +209,7 @@ void CMIPSAnalysis::FindSubroutinesByJumpTargets(uint32 start, uint32 end, uint3
 		{
 			if(address >= (subroutineAddress + searchLimit)) break;
 
-			uint32 opcode = m_ctx->m_pMemoryMap->GetInstruction(address);
+			uint32 opcode = GetInstruction(address);
 
 			//Check for JR RA or J
 			if((opcode == 0x03E00008) || ((opcode & 0xFC000000) == 0x08000000))
@@ -232,7 +239,7 @@ void CMIPSAnalysis::ExpandSubroutines(uint32 executableStart, uint32 executableE
 		{
 			if(FindSubroutine(address) != nullptr) return MIPS_INVALID_PC;
 
-			uint32 opcode = m_ctx->m_pMemoryMap->GetInstruction(address);
+			uint32 opcode = GetInstruction(address);
 
 			//Check for JR RA or J
 			if((opcode == 0x03E00008) || ((opcode & 0xFC000000) == 0x08000000))
@@ -263,7 +270,7 @@ void CMIPSAnalysis::ExpandSubroutines(uint32 executableStart, uint32 executableE
 		//Search for branch targets that fall in space not allocated for a subroutine
 		for(uint32 address = subroutine.start; address <= subroutine.end; address += 4)
 		{
-			uint32 opcode = m_ctx->m_pMemoryMap->GetInstruction(address);
+			uint32 opcode = GetInstruction(address);
 
 			auto branchType = m_ctx->m_pArch->IsInstructionBranch(m_ctx, address, opcode);
 			if(branchType != MIPS_BRANCH_NORMAL) continue;
@@ -296,7 +303,7 @@ void CMIPSAnalysis::ExpandSubroutines(uint32 executableStart, uint32 executableE
 			assert(FindSubroutine(routineEnd) == nullptr);
 
 			//Check if we need to update stackAllocEnd
-			uint32 endOpcode = m_ctx->m_pMemoryMap->GetInstruction(routineEnd);
+			uint32 endOpcode = GetInstruction(routineEnd);
 
 			if(IsStackFreeingInstruction(endOpcode))
 			{
@@ -444,7 +451,7 @@ void CMIPSAnalysis::AnalyseStringReferences()
 		bool registerWritten[0x20] = {false};
 		for(uint32 address = subroutine.start; address <= subroutine.end; address += 4)
 		{
-			uint32 op = m_ctx->m_pMemoryMap->GetInstruction(address);
+			uint32 op = GetInstruction(address);
 
 			//LUI
 			if((op & 0xFC000000) == 0x3C000000)

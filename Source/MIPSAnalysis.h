@@ -39,6 +39,8 @@ public:
 private:
 	typedef std::map<uint32, SUBROUTINE, std::greater<uint32>> SubroutineList;
 
+	uint32 GetInstruction(uint32) const;
+	
 	void AnalyseSubroutines(uint32, uint32, uint32);
 	void AnalyseStringReferences();
 
@@ -46,6 +48,6 @@ private:
 	void FindSubroutinesByJumpTargets(uint32, uint32, uint32);
 	void ExpandSubroutines(uint32, uint32);
 
-	CMIPS* m_ctx;
+	CMIPS* m_ctx = nullptr;
 	SubroutineList m_subroutines;
 };
