@@ -44,10 +44,10 @@ private:
 
 	CVirtualMachine& m_virtualMachine;
 	CMIPS* m_ctx;
-	QMdiSubWindow* m_disAsmWnd;
-	QMdiSubWindow* m_memoryViewWnd;
-	QMdiSubWindow* m_regViewWnd;
-	QMdiSubWindow* m_callStackWnd;
+	QMdiSubWindow* m_disAsmWnd = nullptr;
+	QMdiSubWindow* m_memoryViewWnd = nullptr;
+	QMdiSubWindow* m_regViewWnd = nullptr;
+	QMdiSubWindow* m_callStackWnd = nullptr;
 	StepFunction m_stepFunction;
 	CBiosDebugInfoProvider* m_biosDebugInfoProvider;
 

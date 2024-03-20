@@ -8,10 +8,6 @@ CDebugView::CDebugView(QWidget* parent, QMdiArea* mdiArea, CVirtualMachine& virt
     , m_ctx(ctx)
     , m_name(name)
     , m_stepFunction(stepFunction)
-    , m_disAsmWnd(nullptr)
-    , m_regViewWnd(nullptr)
-    , m_memoryViewWnd(nullptr)
-    , m_callStackWnd(nullptr)
     , m_biosDebugInfoProvider(biosDebugInfoProvider)
 {
 
