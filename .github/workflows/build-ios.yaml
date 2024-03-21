@@ -16,7 +16,7 @@ jobs:
         sudo /Volumes/vulkansdk-macos-${VULKAN_SDK_VERSION}/InstallVulkan.app/Contents/MacOS/InstallVulkan in --al --c
         echo "VULKAN_SDK=~/VulkanSDK/${VULKAN_SDK_VERSION}/macOS" >> $GITHUB_ENV
       env:
-        VULKAN_SDK_VERSION: '1.3.204.1'
+        VULKAN_SDK_VERSION: '1.3.268.1'
     - name: Checkout
       uses: actions/checkout@v3
       with:
