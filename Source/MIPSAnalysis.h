@@ -40,7 +40,7 @@ private:
 	typedef std::map<uint32, SUBROUTINE, std::greater<uint32>> SubroutineList;
 
 	uint32 GetInstruction(uint32) const;
-	
+
 	void AnalyseSubroutines(uint32, uint32, uint32);
 	void AnalyseStringReferences();
 

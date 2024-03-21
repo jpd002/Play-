@@ -1,6 +1,5 @@
 #pragma once
 
-// #include <QMdiArea>
 #include <QWidget>
 #include <QTableView>
 #include "QtDisAsmTableModel.h"
