@@ -1,8 +1,8 @@
-#include "QtMemoryViewModelTests.h"
+#include "MemoryViewModelTests.h"
 #include <memory>
-#include "../QtMemoryViewModel.h"
+#include "../MemoryViewModel.h"
 
-void CQtMemoryViewModelTests::RunTests()
+void CMemoryViewModelTests::RunTests()
 {
 	m_getByteFunction = [this](uint32 address) { return GetByte(address); };
 	TestSimpleBytes();
@@ -15,12 +15,12 @@ void CQtMemoryViewModelTests::RunTests()
 	TestModelIndexToAddressWord();
 }
 
-uint8 CQtMemoryViewModelTests::GetByte(uint32 address)
+uint8 CMemoryViewModelTests::GetByte(uint32 address)
 {
 	return m_memory[address];
 }
 
-void CQtMemoryViewModelTests::TestSimpleBytes()
+void CMemoryViewModelTests::TestSimpleBytes()
 {
 	uint32 memorySize = 0x100000;
 	m_memory.clear();
@@ -30,7 +30,7 @@ void CQtMemoryViewModelTests::TestSimpleBytes()
 		m_memory[i] = static_cast<uint8>(i);
 	}
 
-	auto model = std::make_unique<CQtMemoryViewModel>(nullptr);
+	auto model = std::make_unique<CMemoryViewModel>(nullptr);
 	model->SetData(m_getByteFunction, memorySize);
 	model->SetBytesPerRow(0x10);
 
@@ -38,13 +38,13 @@ void CQtMemoryViewModelTests::TestSimpleBytes()
 	TEST_VERIFY(model->data(model->index(2, 0)) == "20");
 }
 
-void CQtMemoryViewModelTests::TestOutOfBounds()
+void CMemoryViewModelTests::TestOutOfBounds()
 {
 	uint32 memorySize = 0x18;
 	m_memory.clear();
 	m_memory.resize(memorySize);
 
-	auto model = std::make_unique<CQtMemoryViewModel>(nullptr);
+	auto model = std::make_unique<CMemoryViewModel>(nullptr);
 	model->SetData(m_getByteFunction, memorySize);
 	model->SetBytesPerRow(0x10);
 
@@ -56,7 +56,7 @@ void CQtMemoryViewModelTests::TestOutOfBounds()
 	TEST_VERIFY(model->data(model->index(1, 0x10)) == "........        ");
 }
 
-void CQtMemoryViewModelTests::TestWindowOutOfBounds()
+void CMemoryViewModelTests::TestWindowOutOfBounds()
 {
 	uint32 memorySize = 256;
 	uint32 windowSize = 32;
@@ -65,7 +65,7 @@ void CQtMemoryViewModelTests::TestWindowOutOfBounds()
 
 	uint32 bytesPerRow = 16;
 
-	auto model = std::make_unique<CQtMemoryViewModel>(nullptr);
+	auto model = std::make_unique<CMemoryViewModel>(nullptr);
 	model->SetData(m_getByteFunction, memorySize, windowSize);
 	model->SetBytesPerRow(bytesPerRow);
 
@@ -78,7 +78,7 @@ void CQtMemoryViewModelTests::TestWindowOutOfBounds()
 	TEST_VERIFY(model->TranslateModelIndexToAddress(model->index(1, 15)) == (windowSize - 1));
 }
 
-void CQtMemoryViewModelTests::TestAddressToModelIndex()
+void CMemoryViewModelTests::TestAddressToModelIndex()
 {
 	uint32 memorySize = 256;
 	m_memory.clear();
@@ -86,7 +86,7 @@ void CQtMemoryViewModelTests::TestAddressToModelIndex()
 
 	uint32 bytesPerRow = 21;
 
-	auto model = std::make_unique<CQtMemoryViewModel>(nullptr);
+	auto model = std::make_unique<CMemoryViewModel>(nullptr);
 	model->SetData(m_getByteFunction, memorySize);
 	model->SetBytesPerRow(bytesPerRow);
 
@@ -114,7 +114,7 @@ void CQtMemoryViewModelTests::TestAddressToModelIndex()
 	}
 }
 
-void CQtMemoryViewModelTests::TestAddressToModelIndexWord()
+void CMemoryViewModelTests::TestAddressToModelIndexWord()
 {
 	uint32 memorySize = 512;
 	m_memory.clear();
@@ -122,7 +122,7 @@ void CQtMemoryViewModelTests::TestAddressToModelIndexWord()
 
 	uint32 bytesPerRow = 12;
 
-	auto model = std::make_unique<CQtMemoryViewModel>(nullptr);
+	auto model = std::make_unique<CMemoryViewModel>(nullptr);
 	model->SetData(m_getByteFunction, memorySize);
 	model->SetBytesPerRow(bytesPerRow);
 	model->SetActiveUnit(1);
@@ -160,7 +160,7 @@ void CQtMemoryViewModelTests::TestAddressToModelIndexWord()
 	}
 }
 
-void CQtMemoryViewModelTests::TestAddressToModelIndexWindowed()
+void CMemoryViewModelTests::TestAddressToModelIndexWindowed()
 {
 	uint32 memorySize = 0x100;
 	m_memory.clear();
@@ -168,7 +168,7 @@ void CQtMemoryViewModelTests::TestAddressToModelIndexWindowed()
 
 	uint32 bytesPerRow = 13;
 
-	auto model = std::make_unique<CQtMemoryViewModel>(nullptr);
+	auto model = std::make_unique<CMemoryViewModel>(nullptr);
 	model->SetData(m_getByteFunction, memorySize, 64);
 	model->SetWindowCenter(128);
 	model->SetBytesPerRow(bytesPerRow);
@@ -206,7 +206,7 @@ void CQtMemoryViewModelTests::TestAddressToModelIndexWindowed()
 	}
 }
 
-void CQtMemoryViewModelTests::TestModelIndexToAddress()
+void CMemoryViewModelTests::TestModelIndexToAddress()
 {
 	uint32 memorySize = 1024;
 	m_memory.clear();
@@ -214,7 +214,7 @@ void CQtMemoryViewModelTests::TestModelIndexToAddress()
 
 	uint32 bytesPerRow = 32;
 
-	auto model = std::make_unique<CQtMemoryViewModel>(nullptr);
+	auto model = std::make_unique<CMemoryViewModel>(nullptr);
 	model->SetData(m_getByteFunction, memorySize);
 	model->SetBytesPerRow(bytesPerRow);
 
@@ -222,7 +222,7 @@ void CQtMemoryViewModelTests::TestModelIndexToAddress()
 	TEST_VERIFY(model->TranslateModelIndexToAddress(model->index(16, 16)) == 528);
 }
 
-void CQtMemoryViewModelTests::TestModelIndexToAddressWord()
+void CMemoryViewModelTests::TestModelIndexToAddressWord()
 {
 	uint32 memorySize = 512;
 	m_memory.clear();
@@ -230,7 +230,7 @@ void CQtMemoryViewModelTests::TestModelIndexToAddressWord()
 
 	uint32 bytesPerRow = 16;
 
-	auto model = std::make_unique<CQtMemoryViewModel>(nullptr);
+	auto model = std::make_unique<CMemoryViewModel>(nullptr);
 	model->SetData(m_getByteFunction, memorySize);
 	model->SetBytesPerRow(bytesPerRow);
 	model->SetActiveUnit(1);

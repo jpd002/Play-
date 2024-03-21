@@ -11,7 +11,7 @@
 		std::abort();                                         \
 	}
 
-class CQtMemoryViewModelTests
+class CMemoryViewModelTests
 {
 public:
 	void RunTests();

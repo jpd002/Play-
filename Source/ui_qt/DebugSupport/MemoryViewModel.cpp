@@ -1,33 +1,33 @@
-#include "QtMemoryViewModel.h"
+#include "MemoryViewModel.h"
 #include <cmath>
 #include "string_format.h"
 
 // clang-format off
-const std::vector<CQtMemoryViewModel::UNITINFO> CQtMemoryViewModel::g_units =
+const std::vector<CMemoryViewModel::UNITINFO> CMemoryViewModel::g_units =
 {
-	{1, 2, &CQtMemoryViewModel::RenderByteUnit, "8-bit Integers"},
-	{4, 8, &CQtMemoryViewModel::RenderWordUnit, "32-bit Integers"},
-	{4, 11, &CQtMemoryViewModel::RenderSingleUnit, "Single Precision Floating Point Numbers"}
+	{1, 2, &CMemoryViewModel::RenderByteUnit, "8-bit Integers"},
+	{4, 8, &CMemoryViewModel::RenderWordUnit, "32-bit Integers"},
+	{4, 11, &CMemoryViewModel::RenderSingleUnit, "Single Precision Floating Point Numbers"}
 };
 // clang-format on
 
-CQtMemoryViewModel::CQtMemoryViewModel(QObject* parent)
+CMemoryViewModel::CMemoryViewModel(QObject* parent)
     : QAbstractTableModel(parent)
 {
 }
 
-int CQtMemoryViewModel::rowCount(const QModelIndex& /*parent*/) const
+int CMemoryViewModel::rowCount(const QModelIndex& /*parent*/) const
 {
 	return std::ceil((m_windowSize * 1.f) / m_bytesPerRow);
 }
 
-int CQtMemoryViewModel::columnCount(const QModelIndex& /*parent*/) const
+int CMemoryViewModel::columnCount(const QModelIndex& /*parent*/) const
 {
 	assert(m_bytesPerRow % GetBytesPerUnit() == 0);
 	return (m_bytesPerRow / GetBytesPerUnit()) + 1;
 }
 
-QVariant CQtMemoryViewModel::data(const QModelIndex& index, int role) const
+QVariant CMemoryViewModel::data(const QModelIndex& index, int role) const
 {
 	if(role == Qt::DisplayRole)
 	{
@@ -66,7 +66,7 @@ QVariant CQtMemoryViewModel::data(const QModelIndex& index, int role) const
 	return QVariant();
 }
 
-QVariant CQtMemoryViewModel::headerData(int section, Qt::Orientation orientation, int role) const
+QVariant CMemoryViewModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
 	if(role == Qt::DisplayRole)
 	{
@@ -84,13 +84,13 @@ QVariant CQtMemoryViewModel::headerData(int section, Qt::Orientation orientation
 	return QAbstractTableModel::headerData(section, orientation, role);
 }
 
-void CQtMemoryViewModel::Redraw()
+void CMemoryViewModel::Redraw()
 {
 	emit QAbstractTableModel::beginResetModel();
 	emit QAbstractTableModel::endResetModel();
 }
 
-uint8 CQtMemoryViewModel::GetByte(uint32 nAddress) const
+uint8 CMemoryViewModel::GetByte(uint32 nAddress) const
 {
 	if(!m_getByte)
 		return 0;
@@ -98,7 +98,7 @@ uint8 CQtMemoryViewModel::GetByte(uint32 nAddress) const
 	return m_getByte(nAddress);
 }
 
-std::string CQtMemoryViewModel::RenderByteUnit(uint32 address) const
+std::string CMemoryViewModel::RenderByteUnit(uint32 address) const
 {
 	if(address >= m_size)
 	{
@@ -111,7 +111,7 @@ std::string CQtMemoryViewModel::RenderByteUnit(uint32 address) const
 	}
 }
 
-std::string CQtMemoryViewModel::RenderWordUnit(uint32 address) const
+std::string CMemoryViewModel::RenderWordUnit(uint32 address) const
 {
 	if(address >= m_size)
 	{
@@ -128,7 +128,7 @@ std::string CQtMemoryViewModel::RenderWordUnit(uint32 address) const
 	}
 }
 
-std::string CQtMemoryViewModel::RenderSingleUnit(uint32 address) const
+std::string CMemoryViewModel::RenderSingleUnit(uint32 address) const
 {
 	if(address >= m_size)
 	{
@@ -145,17 +145,17 @@ std::string CQtMemoryViewModel::RenderSingleUnit(uint32 address) const
 	}
 }
 
-unsigned int CQtMemoryViewModel::GetBytesPerRow() const
+unsigned int CMemoryViewModel::GetBytesPerRow() const
 {
 	return m_bytesPerRow;
 }
 
-void CQtMemoryViewModel::SetBytesPerRow(unsigned int bytesPerRow)
+void CMemoryViewModel::SetBytesPerRow(unsigned int bytesPerRow)
 {
 	m_bytesPerRow = bytesPerRow;
 }
 
-void CQtMemoryViewModel::SetWindowCenter(uint32 windowCenter)
+void CMemoryViewModel::SetWindowCenter(uint32 windowCenter)
 {
 	int64 lowerBound = static_cast<int64>(windowCenter) - static_cast<int64>(m_windowSize / 2);
 	int64 upperBound = static_cast<int64>(windowCenter) + static_cast<int64>(m_windowSize / 2);
@@ -173,7 +173,7 @@ void CQtMemoryViewModel::SetWindowCenter(uint32 windowCenter)
 	}
 }
 
-uint32 CQtMemoryViewModel::TranslateModelIndexToAddress(const QModelIndex& index) const
+uint32 CMemoryViewModel::TranslateModelIndexToAddress(const QModelIndex& index) const
 {
 	uint32 address = index.row() * m_bytesPerRow;
 	if((columnCount() - 1) != index.column())
@@ -183,7 +183,7 @@ uint32 CQtMemoryViewModel::TranslateModelIndexToAddress(const QModelIndex& index
 	return address + m_windowStart;
 }
 
-QModelIndex CQtMemoryViewModel::TranslateAddressToModelIndex(uint32 address) const
+QModelIndex CMemoryViewModel::TranslateAddressToModelIndex(uint32 address) const
 {
 	if(address <= m_windowStart)
 	{
@@ -200,27 +200,27 @@ QModelIndex CQtMemoryViewModel::TranslateAddressToModelIndex(uint32 address) con
 	return index(row, col);
 }
 
-void CQtMemoryViewModel::SetActiveUnit(int index)
+void CMemoryViewModel::SetActiveUnit(int index)
 {
 	m_activeUnit = index;
 }
 
-int CQtMemoryViewModel::GetActiveUnit() const
+int CMemoryViewModel::GetActiveUnit() const
 {
 	return m_activeUnit;
 }
 
-unsigned int CQtMemoryViewModel::GetBytesPerUnit() const
+unsigned int CMemoryViewModel::GetBytesPerUnit() const
 {
 	return g_units[m_activeUnit].bytesPerUnit;
 }
 
-unsigned int CQtMemoryViewModel::CharsPerUnit() const
+unsigned int CMemoryViewModel::CharsPerUnit() const
 {
 	return g_units[m_activeUnit].charsPerUnit;
 }
 
-void CQtMemoryViewModel::SetData(getByteProto getByte, uint64 size, uint32 windowSize)
+void CMemoryViewModel::SetData(getByteProto getByte, uint64 size, uint32 windowSize)
 {
 	if(windowSize == 0)
 	{

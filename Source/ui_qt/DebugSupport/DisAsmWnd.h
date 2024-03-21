@@ -2,7 +2,7 @@
 
 #include <QWidget>
 #include <QTableView>
-#include "QtDisAsmTableModel.h"
+#include "DisAsmTableModel.h"
 
 #include "signal/Signal.h"
 #include "MIPS.h"
@@ -13,7 +13,7 @@ class CDisAsmWnd : public QTableView, public CVirtualMachineStateView
 public:
 	typedef Framework::CSignal<void(uint32)> FindCallersRequestedEvent;
 
-	CDisAsmWnd(QWidget*, CVirtualMachine&, CMIPS*, const char*, uint64, CQtDisAsmTableModel::DISASM_TYPE);
+	CDisAsmWnd(QWidget*, CVirtualMachine&, CMIPS*, const char*, uint64, CDisAsmTableModel::DISASM_TYPE);
 	virtual ~CDisAsmWnd() = default;
 
 	void HandleMachineStateChange() override;
@@ -69,7 +69,7 @@ private:
 	CVirtualMachine& m_virtualMachine;
 	CMIPS* m_ctx;
 	int32 m_instructionSize = 0;
-	CQtDisAsmTableModel::DISASM_TYPE m_disAsmType;
+	CDisAsmTableModel::DISASM_TYPE m_disAsmType;
 
 	int m_numericalCellWidth = 0;
 	uint32 m_address = 0;
@@ -80,5 +80,5 @@ private:
 	unsigned int m_historyPosition;
 	unsigned int m_historySize;
 
-	CQtDisAsmTableModel* m_model = nullptr;
+	CDisAsmTableModel* m_model = nullptr;
 };

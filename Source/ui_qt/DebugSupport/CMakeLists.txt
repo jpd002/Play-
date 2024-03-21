@@ -62,6 +62,10 @@ set(SRC_FILES
 	${SRC_ROOT}/DebugSupportSettings.h
 	${SRC_ROOT}/DebugView.cpp
 	${SRC_ROOT}/DebugView.h
+	${SRC_ROOT}/DisAsmTableModel.cpp
+	${SRC_ROOT}/DisAsmTableModel.h
+	${SRC_ROOT}/DisAsmVuTableModel.cpp
+	${SRC_ROOT}/DisAsmVuTableModel.h
 	${SRC_ROOT}/DisAsmWnd.cpp
 	${SRC_ROOT}/DisAsmWnd.h
 	${SRC_ROOT}/FunctionsView.cpp
@@ -102,10 +106,10 @@ set(SRC_FILES
 	${SRC_ROOT}/MemoryViewMIPS.h
 	${SRC_ROOT}/MemoryViewMIPSWnd.cpp
 	${SRC_ROOT}/MemoryViewMIPSWnd.h
+	${SRC_ROOT}/MemoryViewModel.cpp
+	${SRC_ROOT}/MemoryViewModel.h
 	${SRC_ROOT}/MemoryViewTable.cpp
 	${SRC_ROOT}/MemoryViewTable.h
-	${SRC_ROOT}/QtMemoryViewModel.cpp
-	${SRC_ROOT}/QtMemoryViewModel.h
 	${SRC_ROOT}/RegViewFPU.cpp
 	${SRC_ROOT}/RegViewFPU.h
 	${SRC_ROOT}/RegViewGeneral.cpp
@@ -118,10 +122,6 @@ set(SRC_FILES
 	${SRC_ROOT}/RegViewVU.h
 	${SRC_ROOT}/RegViewWnd.cpp
 	${SRC_ROOT}/RegViewWnd.h
-	${SRC_ROOT}/QtDisAsmTableModel.cpp
-	${SRC_ROOT}/QtDisAsmTableModel.h
-	${SRC_ROOT}/QtDisAsmVuTableModel.cpp
-	${SRC_ROOT}/QtDisAsmVuTableModel.h
 	${SRC_ROOT}/QtGenericTableModel.cpp
 	${SRC_ROOT}/QtGenericTableModel.h
 	${SRC_ROOT}/QtDebugger.cpp
@@ -136,25 +136,25 @@ set(SRC_FILES
 
 set(TEST_SRC_FILES
 	${SRC_ROOT}/tests/main.cpp
-	${SRC_ROOT}/tests/QtMemoryViewModelTests.cpp
-	${SRC_ROOT}/tests/QtMemoryViewModelTests.h
+	${SRC_ROOT}/tests/MemoryViewModelTests.cpp
+	${SRC_ROOT}/tests/MemoryViewModelTests.h
 )
 
 set(QT_DEBUGGER_MOC_HEADERS
 	${SRC_ROOT}/AddressListViewWnd.h
 	${SRC_ROOT}/CommentsView.h
-	${SRC_ROOT}/FunctionsView.h
-	${SRC_ROOT}/QtDisAsmTableModel.h
-	${SRC_ROOT}/QtDisAsmVuTableModel.h
-	${SRC_ROOT}/QtGenericTableModel.h
-	${SRC_ROOT}/QtDebugger.h
-	${SRC_ROOT}/QtDialogListWidget.h
-	${SRC_ROOT}/QtMemoryViewModel.h
-	${SRC_ROOT}/TagsView.h
+	${SRC_ROOT}/DisAsmTableModel.h
+	${SRC_ROOT}/DisAsmVuTableModel.h
+	${SRC_ROOT}/MemoryViewModel.h
 	${SRC_ROOT}/FrameDebugger/GsPacketListModel.h
 	${SRC_ROOT}/FrameDebugger/PixelBufferView.h
 	${SRC_ROOT}/FrameDebugger/QtFramedebugger.h
 	${SRC_ROOT}/FrameDebugger/Vu1ProgramView.h
+	${SRC_ROOT}/FunctionsView.h
+	${SRC_ROOT}/QtGenericTableModel.h
+	${SRC_ROOT}/QtDebugger.h
+	${SRC_ROOT}/QtDialogListWidget.h
+	${SRC_ROOT}/TagsView.h
 	${SRC_ROOT}/VariablesView.h
 )
 

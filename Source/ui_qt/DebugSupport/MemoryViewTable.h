@@ -1,7 +1,7 @@
 #pragma once
 
 #include <QTableView>
-#include "QtMemoryViewModel.h"
+#include "MemoryViewModel.h"
 #include "signal/Signal.h"
 
 class QResizeEvent;
@@ -15,7 +15,7 @@ public:
 	int GetBytesPerLine();
 	void SetBytesPerLine(int);
 
-	void SetData(CQtMemoryViewModel::getByteProto, uint64, uint32 = 0);
+	void SetData(CMemoryViewModel::getByteProto, uint64, uint32 = 0);
 	void SetSelectionStart(uint32);
 
 	void ShowEvent();
@@ -26,7 +26,7 @@ public:
 protected:
 	int sizeHintForColumn(int) const override;
 
-	CQtMemoryViewModel* m_model = nullptr;
+	CMemoryViewModel* m_model = nullptr;
 	uint32 m_selected = 0;
 
 private:

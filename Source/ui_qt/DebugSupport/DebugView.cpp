@@ -3,7 +3,7 @@
 #include <QVBoxLayout>
 
 CDebugView::CDebugView(QWidget* parent, QMdiArea* mdiArea, CVirtualMachine& virtualMachine, CMIPS* ctx,
-                       const StepFunction& stepFunction, CBiosDebugInfoProvider* biosDebugInfoProvider, const char* name, uint64 memorySize, CQtDisAsmTableModel::DISASM_TYPE disAsmType)
+                       const StepFunction& stepFunction, CBiosDebugInfoProvider* biosDebugInfoProvider, const char* name, uint64 memorySize, CDisAsmTableModel::DISASM_TYPE disAsmType)
     : m_virtualMachine(virtualMachine)
     , m_ctx(ctx)
     , m_name(name)

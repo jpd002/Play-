@@ -11,7 +11,7 @@
 CMemoryViewTable::CMemoryViewTable(QWidget* parent)
     : QTableView(parent)
 {
-	m_model = new CQtMemoryViewModel(this);
+	m_model = new CMemoryViewModel(this);
 
 	setModel(m_model);
 	SetBytesPerLine(32);
@@ -59,7 +59,7 @@ int CMemoryViewTable::ComputeItemCellWidth() const
 	return result;
 }
 
-void CMemoryViewTable::SetData(CQtMemoryViewModel::getByteProto getByte, uint64 size, uint32 windowSize)
+void CMemoryViewTable::SetData(CMemoryViewModel::getByteProto getByte, uint64 size, uint32 windowSize)
 {
 	m_model->SetData(getByte, size, windowSize);
 }
@@ -130,9 +130,9 @@ void CMemoryViewTable::ShowContextMenu(const QPoint& pos)
 		unitActionGroup->setExclusive(true);
 
 		auto activeUnit = m_model->GetActiveUnit();
-		for(uint32 i = 0; i < CQtMemoryViewModel::g_units.size(); i++)
+		for(uint32 i = 0; i < CMemoryViewModel::g_units.size(); i++)
 		{
-			const auto& unit = CQtMemoryViewModel::g_units[i];
+			const auto& unit = CMemoryViewModel::g_units[i];
 			auto itemAction = unitMenu->addAction(unit.description);
 			itemAction->setChecked(i == activeUnit);
 			itemAction->setCheckable(true);

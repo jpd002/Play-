@@ -13,7 +13,7 @@
 #include "MIPS.h"
 #include "VirtualMachineStateView.h"
 
-class CQtDisAsmTableModel : public QAbstractTableModel
+class CDisAsmTableModel : public QAbstractTableModel
 {
 	Q_OBJECT
 public:
@@ -23,8 +23,8 @@ public:
 		DISASM_VU
 	};
 
-	CQtDisAsmTableModel(QTableView* parent, CVirtualMachine&, CMIPS*, uint64, uint32, DISASM_TYPE = DISASM_TYPE::DISASM_STANDARD);
-	~CQtDisAsmTableModel() = default;
+	CDisAsmTableModel(QTableView* parent, CVirtualMachine&, CMIPS*, uint64, uint32, DISASM_TYPE = DISASM_TYPE::DISASM_STANDARD);
+	~CDisAsmTableModel() = default;
 
 	int rowCount(const QModelIndex& parent = QModelIndex()) const Q_DECL_OVERRIDE;
 	int columnCount(const QModelIndex& parent = QModelIndex()) const Q_DECL_OVERRIDE;

@@ -4,16 +4,16 @@
 #include <QPixmap>
 #include <QTableView>
 
-#include "QtDisAsmTableModel.h"
+#include "DisAsmTableModel.h"
 #include "MIPS.h"
 #include "VirtualMachineStateView.h"
 
-class CQtDisAsmVuTableModel : public CQtDisAsmTableModel
+class CDisAsmVuTableModel : public CDisAsmTableModel
 {
 	Q_OBJECT
 public:
-	CQtDisAsmVuTableModel(QTableView* parent, CVirtualMachine&, CMIPS*, uint64, uint32);
-	~CQtDisAsmVuTableModel() = default;
+	CDisAsmVuTableModel(QTableView* parent, CVirtualMachine&, CMIPS*, uint64, uint32);
+	~CDisAsmVuTableModel() = default;
 
 	virtual std::string GetInstructionDetails(int, uint32) const override;
 };

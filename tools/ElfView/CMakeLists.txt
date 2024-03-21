@@ -42,10 +42,10 @@ set(ELFVIEW_SRC
 	${DEBUG_SUPPORT_ROOT}/ELFSymbolView.h
 	${DEBUG_SUPPORT_ROOT}/ELFView.cpp
 	${DEBUG_SUPPORT_ROOT}/ELFView.h
+	${DEBUG_SUPPORT_ROOT}/MemoryViewModel.cpp
+	${DEBUG_SUPPORT_ROOT}/MemoryViewModel.h
 	${DEBUG_SUPPORT_ROOT}/MemoryViewTable.cpp
 	${DEBUG_SUPPORT_ROOT}/MemoryViewTable.h
-	${DEBUG_SUPPORT_ROOT}/QtMemoryViewModel.cpp
-	${DEBUG_SUPPORT_ROOT}/QtMemoryViewModel.h
 	ElfViewEx.cpp
 	ElfViewEx.h
 	main.cpp
@@ -54,7 +54,7 @@ set(ELFVIEW_SRC
 )
 
 set(ELFVIEW_MOC_HEADERS
-	${DEBUG_SUPPORT_ROOT}/QtMemoryViewModel.h
+	${DEBUG_SUPPORT_ROOT}/MemoryViewModel.h
 	mainwindow.h
 )
 

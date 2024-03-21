@@ -5,13 +5,13 @@
 
 #include "Types.h"
 
-class CQtMemoryViewModel : public QAbstractTableModel
+class CMemoryViewModel : public QAbstractTableModel
 {
 	Q_OBJECT
 public:
 	typedef std::function<uint8(uint32)> getByteProto;
 
-	typedef std::string (CQtMemoryViewModel::*UnitRenderer)(uint32) const;
+	typedef std::string (CMemoryViewModel::*UnitRenderer)(uint32) const;
 	struct UNITINFO
 	{
 		unsigned int bytesPerUnit = 0;
@@ -20,8 +20,8 @@ public:
 		const char* description = nullptr;
 	};
 
-	CQtMemoryViewModel(QObject*);
-	~CQtMemoryViewModel() = default;
+	CMemoryViewModel(QObject*);
+	~CMemoryViewModel() = default;
 
 	int rowCount(const QModelIndex& parent = QModelIndex()) const Q_DECL_OVERRIDE;
 	int columnCount(const QModelIndex& parent = QModelIndex()) const Q_DECL_OVERRIDE;

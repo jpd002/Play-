@@ -3,12 +3,12 @@
 #include <QPainter>
 #include <QPainterPath>
 
-#include "QtDisAsmTableModel.h"
+#include "DisAsmTableModel.h"
 #include "string_cast.h"
 #include "string_format.h"
 #include "lexical_cast_ex.h"
 
-CQtDisAsmTableModel::CQtDisAsmTableModel(QTableView* parent, CVirtualMachine& virtualMachine, CMIPS* context, uint64 size, uint32 windowSize, DISASM_TYPE disAsmType)
+CDisAsmTableModel::CDisAsmTableModel(QTableView* parent, CVirtualMachine& virtualMachine, CMIPS* context, uint64 size, uint32 windowSize, DISASM_TYPE disAsmType)
     : QAbstractTableModel(parent)
     , m_virtualMachine(virtualMachine)
     , m_ctx(context)
@@ -25,13 +25,13 @@ CQtDisAsmTableModel::CQtDisAsmTableModel(QTableView* parent, CVirtualMachine& vi
 
 	m_headers = {"S", "Address", "R", "Instr", "I-Mn", "I-Op", "Target/Comments"};
 
-	auto target_comment_column_index = ((m_disAsmType == CQtDisAsmTableModel::DISASM_STANDARD) ? 3 : 5) + 3;
+	auto target_comment_column_index = ((m_disAsmType == CDisAsmTableModel::DISASM_STANDARD) ? 3 : 5) + 3;
 	parent->setItemDelegateForColumn(target_comment_column_index, new TableColumnDelegateTargetComment(parent));
 
 	BuildIcons();
 }
 
-void CQtDisAsmTableModel::BuildIcons()
+void CDisAsmTableModel::BuildIcons()
 {
 	auto size = m_start_line.size();
 	auto start = 2;
@@ -125,17 +125,17 @@ void CQtDisAsmTableModel::BuildIcons()
 	}
 }
 
-int CQtDisAsmTableModel::rowCount(const QModelIndex& /*parent*/) const
+int CDisAsmTableModel::rowCount(const QModelIndex& /*parent*/) const
 {
 	return m_windowSize / m_instructionSize;
 }
 
-int CQtDisAsmTableModel::columnCount(const QModelIndex& /*parent*/) const
+int CDisAsmTableModel::columnCount(const QModelIndex& /*parent*/) const
 {
 	return m_headers.size();
 }
 
-void CQtDisAsmTableModel::SetWindowCenter(uint32 windowCenter)
+void CDisAsmTableModel::SetWindowCenter(uint32 windowCenter)
 {
 	int64 lowerBound = static_cast<int64>(windowCenter) - static_cast<int64>(m_windowSize / 2);
 	int64 upperBound = static_cast<int64>(windowCenter) + static_cast<int64>(m_windowSize / 2);
@@ -153,7 +153,7 @@ void CQtDisAsmTableModel::SetWindowCenter(uint32 windowCenter)
 	}
 }
 
-QVariant CQtDisAsmTableModel::data(const QModelIndex& index, int role) const
+QVariant CDisAsmTableModel::data(const QModelIndex& index, int role) const
 {
 	// "S", "Address", "R", "I-Mn", "I-Op", "Name",
 	uint32 address = TranslateModelIndexToAddress(index);
@@ -241,7 +241,7 @@ QVariant CQtDisAsmTableModel::data(const QModelIndex& index, int role) const
 	return QVariant();
 }
 
-QVariant CQtDisAsmTableModel::headerData(int section, Qt::Orientation orientation, int role) const
+QVariant CDisAsmTableModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
 	if(orientation == Qt::Horizontal)
 	{
@@ -257,24 +257,24 @@ QVariant CQtDisAsmTableModel::headerData(int section, Qt::Orientation orientatio
 	return QAbstractTableModel::headerData(section, orientation, role);
 }
 
-void CQtDisAsmTableModel::Redraw()
+void CDisAsmTableModel::Redraw()
 {
 	emit QAbstractTableModel::beginResetModel();
 	emit QAbstractTableModel::endResetModel();
 }
 
-void CQtDisAsmTableModel::Redraw(uint32 address)
+void CDisAsmTableModel::Redraw(uint32 address)
 {
 	emit QAbstractTableModel::dataChanged(index(address / m_instructionSize, 0), index(address / m_instructionSize, columnCount()));
 }
 
-uint32 CQtDisAsmTableModel::GetInstruction(uint32 address) const
+uint32 CDisAsmTableModel::GetInstruction(uint32 address) const
 {
 	address = m_ctx->m_pAddrTranslator(m_ctx, address);
 	return m_ctx->m_pMemoryMap->GetInstruction(address);
 }
 
-std::string CQtDisAsmTableModel::GetInstructionDetails(int index, uint32 address) const
+std::string CDisAsmTableModel::GetInstructionDetails(int index, uint32 address) const
 {
 	uint32 instruction = GetInstruction(address);
 	switch(index)
@@ -300,7 +300,7 @@ std::string CQtDisAsmTableModel::GetInstructionDetails(int index, uint32 address
 	return "";
 }
 
-std::string CQtDisAsmTableModel::GetInstructionMetadata(uint32 address) const
+std::string CDisAsmTableModel::GetInstructionMetadata(uint32 address) const
 {
 	bool commentDrawn = false;
 	std::string disAsm;
@@ -337,18 +337,18 @@ std::string CQtDisAsmTableModel::GetInstructionMetadata(uint32 address) const
 	return disAsm.c_str();
 }
 
-uint32 CQtDisAsmTableModel::TranslateAddress(uint32 windowAddress) const
+uint32 CDisAsmTableModel::TranslateAddress(uint32 windowAddress) const
 {
 	uint32 address = windowAddress + m_windowStart;
 	return address;
 }
 
-uint32 CQtDisAsmTableModel::TranslateModelIndexToAddress(const QModelIndex& index) const
+uint32 CDisAsmTableModel::TranslateModelIndexToAddress(const QModelIndex& index) const
 {
 	return TranslateAddress(index.row() * m_instructionSize);
 }
 
-QModelIndex CQtDisAsmTableModel::TranslateAddressToModelIndex(uint32 address) const
+QModelIndex CDisAsmTableModel::TranslateAddressToModelIndex(uint32 address) const
 {
 	if(address <= m_windowStart)
 	{
@@ -362,7 +362,7 @@ QModelIndex CQtDisAsmTableModel::TranslateAddressToModelIndex(uint32 address) co
 	return index(address / m_instructionSize, 0);
 }
 
-int CQtDisAsmTableModel::GetLinePixMapWidth() const
+int CDisAsmTableModel::GetLinePixMapWidth() const
 {
 	return m_line.width();
 }

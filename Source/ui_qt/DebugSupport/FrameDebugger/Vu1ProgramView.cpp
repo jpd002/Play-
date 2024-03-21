@@ -17,7 +17,7 @@ CVu1ProgramView::CVu1ProgramView(QWidget* parent, CVu1Vm& virtualMachine)
 	auto v = new QVBoxLayout(this);
 	auto h = new QHBoxLayout();
 
-	m_disAsm = std::make_unique<CDisAsmWnd>(this, m_virtualMachine, m_virtualMachine.GetVu1Context(), "Vector Unit 1", PS2::MICROMEM1SIZE, CQtDisAsmTableModel::DISASM_VU);
+	m_disAsm = std::make_unique<CDisAsmWnd>(this, m_virtualMachine, m_virtualMachine.GetVu1Context(), "Vector Unit 1", PS2::MICROMEM1SIZE, CDisAsmTableModel::DISASM_VU);
 	h->addWidget(m_disAsm.get());
 
 	m_regView = std::make_unique<CRegViewVU>(this, m_virtualMachine.GetVu1Context());

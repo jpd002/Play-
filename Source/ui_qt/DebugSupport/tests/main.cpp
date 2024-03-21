@@ -1,8 +1,7 @@
-#include "QtMemoryViewModelTests.h"
+#include "MemoryViewModelTests.h"
 
 int main(int argc, char** argv)
 {
-	CQtMemoryViewModelTests tests;
-	tests.RunTests();
+	CMemoryViewModelTests().RunTests();
 	return 0;
 }

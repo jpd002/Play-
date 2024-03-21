@@ -12,8 +12,8 @@
 
 #include "DisAsmWnd.h"
 #include "ee/VuAnalysis.h"
-#include "QtDisAsmTableModel.h"
-#include "QtDisAsmVuTableModel.h"
+#include "DisAsmTableModel.h"
+#include "DisAsmVuTableModel.h"
 
 #include "countof.h"
 #include "string_cast.h"
@@ -23,7 +23,7 @@
 #include "DebugExpressionEvaluator.h"
 #include "DebugUtils.h"
 
-CDisAsmWnd::CDisAsmWnd(QWidget* parent, CVirtualMachine& virtualMachine, CMIPS* ctx, const char* name, uint64 size, CQtDisAsmTableModel::DISASM_TYPE disAsmType)
+CDisAsmWnd::CDisAsmWnd(QWidget* parent, CVirtualMachine& virtualMachine, CMIPS* ctx, const char* name, uint64 size, CDisAsmTableModel::DISASM_TYPE disAsmType)
     : QTableView(parent)
     , m_virtualMachine(virtualMachine)
     , m_ctx(ctx)
@@ -39,12 +39,12 @@ CDisAsmWnd::CDisAsmWnd(QWidget* parent, CVirtualMachine& virtualMachine, CMIPS* 
 
 	switch(disAsmType)
 	{
-	case CQtDisAsmTableModel::DISASM_STANDARD:
-		m_model = new CQtDisAsmTableModel(this, virtualMachine, ctx, size, 0x100000);
+	case CDisAsmTableModel::DISASM_STANDARD:
+		m_model = new CDisAsmTableModel(this, virtualMachine, ctx, size, 0x100000);
 		m_instructionSize = 4;
 		break;
-	case CQtDisAsmTableModel::DISASM_VU:
-		m_model = new CQtDisAsmVuTableModel(this, virtualMachine, ctx, size, 0);
+	case CDisAsmTableModel::DISASM_VU:
+		m_model = new CDisAsmVuTableModel(this, virtualMachine, ctx, size, 0);
 		m_instructionSize = 8;
 		break;
 	default:
@@ -62,7 +62,7 @@ CDisAsmWnd::CDisAsmWnd(QWidget* parent, CVirtualMachine& virtualMachine, CMIPS* 
 	header->setSectionResizeMode(3, QHeaderView::ResizeToContents);
 	header->setSectionResizeMode(4, QHeaderView::Interactive);
 	header->setSectionResizeMode(5, QHeaderView::Interactive);
-	if(disAsmType == CQtDisAsmTableModel::DISASM_STANDARD)
+	if(disAsmType == CDisAsmTableModel::DISASM_STANDARD)
 	{
 		header->setSectionResizeMode(6, QHeaderView::Stretch);
 	}
@@ -78,7 +78,7 @@ CDisAsmWnd::CDisAsmWnd(QWidget* parent, CVirtualMachine& virtualMachine, CMIPS* 
 
 	header->resizeSection(4, 80);
 	header->resizeSection(5, 160);
-	if(disAsmType == CQtDisAsmTableModel::DISASM_VU)
+	if(disAsmType == CDisAsmTableModel::DISASM_VU)
 	{
 		header->resizeSection(6, 80);
 		header->resizeSection(7, 160);
@@ -218,7 +218,7 @@ void CDisAsmWnd::ShowContextMenu(const QPoint& pos)
 		rightClickMenu->addAction(goToEaAction);
 	}
 
-	if(m_disAsmType == CQtDisAsmTableModel::DISASM_VU)
+	if(m_disAsmType == CDisAsmTableModel::DISASM_VU)
 	{
 		QAction* analyseVuction = new QAction(this);
 		analyseVuction->setText("Analyse Microprogram");
@@ -564,7 +564,7 @@ void CDisAsmWnd::OnCopy()
 		{
 			text += ("\r\n");
 		}
-		if(m_disAsmType == CQtDisAsmTableModel::DISASM_STANDARD)
+		if(m_disAsmType == CDisAsmTableModel::DISASM_STANDARD)
 		{
 			text += GetInstructionDetailsText(address);
 		}
