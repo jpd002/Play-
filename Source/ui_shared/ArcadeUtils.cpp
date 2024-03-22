@@ -212,29 +212,30 @@ void ApplyParentDefValues(ARCADE_MACHINE_DEF& def, const ARCADE_MACHINE_DEF& par
 
 void ArcadeUtils::RegisterArcadeMachines()
 {
-	//Remove any arcade bootable registered the old way
-	//TEMP: Remove this when merging back to main
-	{
-		auto arcadeBootables = BootablesDb::CClient::GetInstance().GetBootables(BootablesDb::CClient::SORT_METHOD_ARCADE);
-		for(const auto& bootable : arcadeBootables)
-		{
-			if(bootable.path.has_parent_path())
-			{
-				BootablesDb::CClient::GetInstance().UnregisterBootable(bootable.path);
-			}
-		}
-	}
-
 	auto arcadeDefsPath = Framework::PathUtils::GetAppResourcesPath() / "arcadedefs";
 	if(!fs::exists(arcadeDefsPath))
 	{
 		return;
 	}
 
+	//This set is used to track inactive arcadedefs we might have in the database
+	std::set<fs::path> inactiveArcadeDefs;
+
+	//Collect all arcadedef files we have registered in the database
+	{
+		auto arcadeBootables = BootablesDb::CClient::GetInstance().GetBootables(BootablesDb::CClient::SORT_METHOD_ARCADE);
+		for(const auto& bootable : arcadeBootables)
+		{
+			inactiveArcadeDefs.insert(bootable.path.filename());
+		}
+	}
+
 	for(const auto& entry : fs::directory_iterator(arcadeDefsPath))
 	{
 		auto arcadeDefPath = entry.path();
 		auto arcadeDefFilename = arcadeDefPath.filename();
+		//Remove this arcadedef from the inactive set
+		inactiveArcadeDefs.erase(arcadeDefFilename);
 		try
 		{
 			auto def = ReadArcadeMachineDefinition(arcadeDefsPath / arcadeDefFilename);
@@ -246,6 +247,12 @@ void ArcadeUtils::RegisterArcadeMachines()
 			printf("Warning: Failed to register arcade machine '%s': %s\r\n",
 			       arcadeDefFilename.string().c_str(), exception.what());
 		}
+	}
+
+	//Prune any remaining arcadedef
+	for(const auto& inactiveArcadeDef : inactiveArcadeDefs)
+	{
+		BootablesDb::CClient::GetInstance().UnregisterBootable(inactiveArcadeDef);
 	}
 }
 
