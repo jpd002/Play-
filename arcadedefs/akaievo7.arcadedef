@@ -1,7 +1,7 @@
 {
-	"id": "akaiser6",
-	"parent": "akaiser",
-	"name": "Animal Kaiser Evolution 6",
+	"id": "akaievo7",
+	"parent": "akaievo",
+	"name": "Animal Kaiser Evolution 7",
 	"driver": "sys147",
 	"boot": "atfile0:main.elf",
 	"patches":
@@ -43,8 +43,8 @@
 		},
 		{
 			"address": "0x001051b4",
-			"value": "0x240F04B0",
-			"description": "Evo 6"
+			"value": "0x240F0514",
+			"description": "Evo 7"
 		}
 	]
 }
