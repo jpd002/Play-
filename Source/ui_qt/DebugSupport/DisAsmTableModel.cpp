@@ -339,15 +339,9 @@ std::string CDisAsmTableModel::GetInstructionMetadata(uint32 address) const
 	return disAsm.c_str();
 }
 
-uint32 CDisAsmTableModel::TranslateAddress(uint32 windowAddress) const
-{
-	uint32 address = windowAddress + m_windowStart;
-	return address;
-}
-
 uint32 CDisAsmTableModel::TranslateModelIndexToAddress(const QModelIndex& index) const
 {
-	return TranslateAddress(index.row() * m_instructionSize);
+	return m_windowStart + (index.row() * m_instructionSize);
 }
 
 QModelIndex CDisAsmTableModel::TranslateAddressToModelIndex(uint32 address) const

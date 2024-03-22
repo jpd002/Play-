@@ -35,7 +35,6 @@ public:
 	void Redraw();
 	void Redraw(uint32);
 
-	uint32 TranslateAddress(uint32) const;
 	uint32 TranslateModelIndexToAddress(const QModelIndex&) const;
 	QModelIndex TranslateAddressToModelIndex(uint32) const;
 

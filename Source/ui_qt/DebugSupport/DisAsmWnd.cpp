@@ -559,7 +559,7 @@ void CDisAsmWnd::OnCopy()
 {
 	std::string text;
 	auto selectionRange = GetSelectionRange();
-	for(uint32 address = selectionRange.first; address <= selectionRange.second; address = m_model->TranslateAddress(address + m_instructionSize))
+	for(uint32 address = selectionRange.first; address <= selectionRange.second; address += m_instructionSize)
 	{
 		if(address != selectionRange.first)
 		{
