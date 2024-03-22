@@ -538,7 +538,8 @@ void CDisAsmWnd::ToggleBreakpoint(uint32 address)
 		QApplication::beep();
 		return;
 	}
-	m_ctx->ToggleBreakpoint(address);
+	uint32 physAddress = m_ctx->m_pAddrTranslator(m_ctx, address);
+	m_ctx->ToggleBreakpoint(physAddress);
 	m_model->Redraw(address);
 }
 

@@ -191,7 +191,8 @@ QVariant CDisAsmTableModel::data(const QModelIndex& index, int role) const
 		{
 		case 0:
 		{
-			bool isBreakpoint = (m_ctx->m_breakpoints.find(address) != std::end(m_ctx->m_breakpoints));
+			uint32 physAddress = m_ctx->m_pAddrTranslator(m_ctx, address);
+			bool isBreakpoint = (m_ctx->m_breakpoints.find(physAddress) != std::end(m_ctx->m_breakpoints));
 			bool isPC = (m_virtualMachine.GetStatus() != CVirtualMachine::RUNNING && address == m_ctx->m_State.nPC);
 
 			//Draw current instruction m_arrow and m_breakpoint icon
@@ -265,7 +266,8 @@ void CDisAsmTableModel::Redraw()
 
 void CDisAsmTableModel::Redraw(uint32 address)
 {
-	emit QAbstractTableModel::dataChanged(index(address / m_instructionSize, 0), index(address / m_instructionSize, columnCount()));
+	auto modelIndex = TranslateAddressToModelIndex(address);
+	emit QAbstractTableModel::dataChanged(index(modelIndex.row(), 0), index(modelIndex.row(), columnCount()));
 }
 
 uint32 CDisAsmTableModel::GetInstruction(uint32 address) const
