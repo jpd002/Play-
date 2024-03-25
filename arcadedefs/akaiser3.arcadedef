@@ -1,0 +1,40 @@
+{
+	"id": "akaiser3",
+	"parent": "akaiser",
+	"name": "Animal Kaiser - The King of Animals 3",
+	"driver": "sys147",
+	"boot": "atfile0:main.elf",
+	"patches":
+	[
+		{
+			"address": "0x001BEA5C",
+			"value": "0x0",
+			"description": "Fix I/O PCB config /REQUIRED & OK"
+		},
+		{
+			"address": "0x00102110",
+			"value": "0x0",
+			"description": "Prevent storing dispenser jammed & no cards /OK (Card is stuck)"
+		},
+		{
+			"address": "0x00102130",
+			"value": "0x0",
+			"description": "Prevent storing dispenser jammed & no cards /OK (No more cards)"
+		},
+		{
+			"address": "0x0013e388",
+			"value": "0x0",
+			"description": "Fake IC card key parity & checksum success /REQUIRED & OK"
+		},
+		{
+			"address": "0x001c2b0c",
+			"value": "0x24027FFF",
+			"description": "Set audio level to 7 /OK"
+		},
+		{
+			"address": "0x00104d7c",
+			"value": "0x240f012C",
+			"description": "Ver 3 /Has issue"
+		}
+	]
+}
