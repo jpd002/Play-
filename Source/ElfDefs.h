@@ -168,6 +168,7 @@ namespace ELF
 		EM_PPC64 = 21,
 		EM_SPU = 23,
 		EM_ARM = 40,
+		EM_X86_64 = 62,
 	};
 
 	enum EXECUTABLE_VERSION

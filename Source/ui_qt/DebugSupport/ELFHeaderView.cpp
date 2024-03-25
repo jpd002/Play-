@@ -94,6 +94,7 @@ void CELFHeaderView<ElfType>::FillInformation()
 		CASE_ELF_ENUM(EM_PPC64)
 		CASE_ELF_ENUM(EM_SPU)
 		CASE_ELF_ENUM(EM_ARM)
+		CASE_ELF_ENUM(EM_X86_64)
 	default:
 		sTemp = string_format(("Unknown (%i)"), pH->nCPU);
 		break;
