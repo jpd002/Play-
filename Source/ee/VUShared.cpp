@@ -438,6 +438,7 @@ void VUShared::MADDA_base(CMipsJitter* codeGen, uint8 dest, size_t fs, size_t ft
 void VUShared::SUB_base(CMipsJitter* codeGen, uint8 dest, size_t fd, size_t fs, size_t ft, bool expand, uint32 relativePipeTime, uint32 compileHints)
 {
 	codeGen->MD_PushRel(fs);
+	codeGen->MD_ClampS();
 	if(expand)
 	{
 		codeGen->MD_PushRelExpand(ft);
@@ -446,6 +447,7 @@ void VUShared::SUB_base(CMipsJitter* codeGen, uint8 dest, size_t fd, size_t fs, 
 	{
 		codeGen->MD_PushRel(ft);
 	}
+	codeGen->MD_ClampS();
 	codeGen->MD_SubS();
 	PullVector(codeGen, dest, fd);
 	TestSZFlags(codeGen, dest, fd, relativePipeTime, compileHints);
