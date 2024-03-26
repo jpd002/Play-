@@ -18,4 +18,4 @@ endif()
 add_executable(NamcoSys147NANDTools
 	Main.cpp
 )
-target_link_libraries(NamcoSys147NANDTools PlayCore)
+target_link_libraries(NamcoSys147NANDTools PUBLIC PlayCore)
