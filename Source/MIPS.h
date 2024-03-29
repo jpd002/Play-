@@ -137,7 +137,7 @@ public:
 
 	typedef std::set<uint32> BreakpointSet;
 
-	CMIPS(MEMORYMAP_ENDIANESS, bool usePageTable = false);
+	CMIPS(MEMORYMAP_ENDIANNESS, bool usePageTable = false);
 	~CMIPS();
 	void ToggleBreakpoint(uint32);
 	bool HasBreakpointInRange(uint32, uint32) const;

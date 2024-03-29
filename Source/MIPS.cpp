@@ -13,10 +13,10 @@ const char* CMIPS::m_sGPRName[] =
 };
 // clang-format on
 
-CMIPS::CMIPS(MEMORYMAP_ENDIANESS endianess, bool usePageTable)
+CMIPS::CMIPS(MEMORYMAP_ENDIANNESS endianness, bool usePageTable)
 {
 	m_analysis = new CMIPSAnalysis(this);
-	switch(endianess)
+	switch(endianness)
 	{
 	case MEMORYMAP_ENDIAN_LSBF:
 		m_pMemoryMap = new CMemoryMap_LSBF;
