@@ -4,7 +4,7 @@
 #include <functional>
 #include <vector>
 
-enum MEMORYMAP_ENDIANESS
+enum MEMORYMAP_ENDIANNESS
 {
 	MEMORYMAP_ENDIAN_LSBF,
 	MEMORYMAP_ENDIAN_MSBF,
