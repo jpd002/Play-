@@ -370,7 +370,11 @@ bool CMIPSAnalysis::TryGetSJISLatinStringAtAddress(CMIPS* context, uint32 addres
 			{
 				state = DECODE_STATE_82;
 			}
-			else if(byte < 0x80)
+			else if(
+			    ((byte >= 0x20) && (byte < 0x80)) ||
+			    (byte == '\t') ||
+			    (byte == '\n') ||
+			    (byte == '\r'))
 			{
 				result += byte;
 				state = DECODE_STATE_NORMAL;
