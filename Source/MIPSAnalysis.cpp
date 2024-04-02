@@ -445,10 +445,11 @@ bool CMIPSAnalysis::TryGetSJISLatinStringAtAddress(CMIPS* context, uint32 addres
 	}
 	return (result.length() > 1);
 }
+
 void CMIPSAnalysis::AnalyseStringReferences()
 {
 	bool commentInserted = false;
-	for(auto subroutinePair : m_subroutines)
+	for(const auto& subroutinePair : m_subroutines)
 	{
 		const auto& subroutine = subroutinePair.second;
 		uint32 registerValue[0x20] = {0};
