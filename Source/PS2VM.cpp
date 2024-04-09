@@ -183,8 +183,23 @@ void CPS2VM::DestroyPadHandler()
 
 void CPS2VM::CreateSoundHandler(const CSoundHandler::FactoryFunction& factoryFunction)
 {
-	if(m_soundHandler != nullptr) return;
-	m_mailBox.SendCall([this, factoryFunction]() { CreateSoundHandlerImpl(factoryFunction); }, true);
+	if(m_soundHandler) return;
+	std::exception_ptr exception;
+	m_mailBox.SendCall([this, factoryFunction, &exception]() {
+		try
+		{
+			CreateSoundHandlerImpl(factoryFunction);
+		}
+		catch(...)
+		{
+			exception = std::current_exception();
+		}
+	},
+	                   true);
+	if(exception)
+	{
+		std::rethrow_exception(exception);
+	}
 }
 
 CSoundHandler* CPS2VM::GetSoundHandler()

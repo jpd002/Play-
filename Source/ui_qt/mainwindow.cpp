@@ -264,11 +264,18 @@ void MainWindow::SetupSoundHandler()
 	bool audioEnabled = CAppConfig::GetInstance().GetPreferenceBoolean(PREFERENCE_AUDIO_ENABLEOUTPUT);
 	if(audioEnabled)
 	{
+		try
+		{
 #ifdef _WIN32
-		m_virtualMachine->CreateSoundHandler(&CSH_WaveOut::HandlerFactory);
+			m_virtualMachine->CreateSoundHandler(&CSH_WaveOut::HandlerFactory);
 #else
-		m_virtualMachine->CreateSoundHandler(&CSH_OpenAL::HandlerFactory);
+			m_virtualMachine->CreateSoundHandler(&CSH_OpenAL::HandlerFactory);
 #endif
+		}
+		catch(const std::exception& ex)
+		{
+			m_msgLabel->setText(QString("Failed to create sound handler: %0").arg(QString::fromUtf8(ex.what())));
+		}
 	}
 	else
 	{
