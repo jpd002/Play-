@@ -2,6 +2,7 @@
 #include <cassert>
 #include <cstring>
 #include <stdio.h>
+#include <algorithm>
 #include <exception>
 #include <functional>
 #include "maybe_unused.h"
