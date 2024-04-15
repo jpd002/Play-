@@ -13,11 +13,11 @@ For general discussion, you're welcome to join our Discord: https://discord.gg/H
 ## Command Line Options (Windows/macOS/Linux) ##
 
 The following command line options are available:
-- `-disc "disc image path"` : Boots a disc image.
-- `-elf "elf file path"` : Boots a ELF file.
-- `-arcade "arcade id"` : Boots an arcade game.
-- `-state "slot number"` : Loads a state from slot number.
-- `-fullscreen` : Starts the emulator in fullscreen mode.
+- `--disc "disc image path"` : Boots a disc image.
+- `--elf "elf file path"` : Boots a ELF file.
+- `--arcade "arcade id"` : Boots an arcade game.
+- `--state "slot number"` : Loads a state from slot number.
+- `--fullscreen` : Starts the emulator in fullscreen mode.
 
 ## Running on iOS ##
 
