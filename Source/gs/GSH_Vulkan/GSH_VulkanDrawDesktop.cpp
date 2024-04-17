@@ -593,7 +593,9 @@ Framework::Vulkan::CShaderModule CDrawDesktop::CreateFragmentShader(const PIPELI
 				auto textureColorD = CFloat4Lvalue(b.CreateVariableFloat("textureColorD"));
 
 				textureLinearPos = (textureSt * ToFloat(texSize)) + NewFloat2(b, -0.5f, -0.5f);
-				textureLinearAb = Fract(textureLinearPos);
+				//Check if ST is infinite due to being divided by a Q equal to zero.
+				//Happens in map rendering for Simple 2000 Series Vol. 90 - The OneeChambara 2.
+				textureLinearAb = Mix(Fract(textureLinearPos), NewFloat2(b, 0, 0), IsInf(textureSt));
 
 				textureIuv0 = ToInt(textureLinearPos);
 				textureIuv1 = textureIuv0 + NewInt2(b, 1, 1);
