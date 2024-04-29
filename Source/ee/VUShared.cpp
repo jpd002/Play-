@@ -222,9 +222,7 @@ void VUShared::TestSZFlags(CMipsJitter* codeGen, uint8 dest, size_t regOffset, u
 			codeGen->PushCst(FLAG_PIPELINE_SLOTS - 1);
 			codeGen->And();
 
-			codeGen->Shl(2);
-			codeGen->AddRef();
-			codeGen->LoadFromRef();
+			codeGen->LoadFromRefIdx();
 		}
 
 		codeGen->Or();
@@ -741,9 +739,7 @@ void VUShared::CLIP(CMipsJitter* codeGen, uint8 nFs, uint8 nFt, uint32 relativeP
 		codeGen->PushCst(FLAG_PIPELINE_SLOTS - 1);
 		codeGen->And();
 
-		codeGen->Shl(2);
-		codeGen->AddRef();
-		codeGen->LoadFromRef();
+		codeGen->LoadFromRefIdx();
 		codeGen->PullRel(tempOffset);
 	}
 
@@ -1821,9 +1817,7 @@ void VUShared::CheckFlagPipeline(const FLAG_PIPEINFO& pipeInfo, CMipsJitter* cod
 		codeGen->PushCst(FLAG_PIPELINE_SLOTS - 1);
 		codeGen->And();
 
-		codeGen->Shl(2);
-		codeGen->AddRef();
-		codeGen->LoadFromRef();
+		codeGen->LoadFromRefIdx();
 
 		codeGen->PushRel(offsetof(CMIPS, m_State.pipeTime));
 		codeGen->PushCst(relativePipeTime);
@@ -1840,9 +1834,7 @@ void VUShared::CheckFlagPipeline(const FLAG_PIPEINFO& pipeInfo, CMipsJitter* cod
 			codeGen->PushCst(FLAG_PIPELINE_SLOTS - 1);
 			codeGen->And();
 
-			codeGen->Shl(2);
-			codeGen->AddRef();
-			codeGen->LoadFromRef();
+			codeGen->LoadFromRefIdx();
 
 			codeGen->PullRel(pipeInfo.value);
 		}
