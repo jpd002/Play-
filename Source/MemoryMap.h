@@ -47,6 +47,7 @@ public:
 	const MemoryMapListType& GetInstructionMaps();
 	const MEMORYMAPELEMENT* GetReadMap(uint32) const;
 	const MEMORYMAPELEMENT* GetWriteMap(uint32) const;
+	const MEMORYMAPELEMENT* GetInstructionMap(uint32) const;
 
 protected:
 	static const MEMORYMAPELEMENT* GetMap(const MemoryMapListType&, uint32);

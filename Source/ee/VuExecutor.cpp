@@ -18,22 +18,11 @@ BasicBlockPtr CVuExecutor::BlockFactory(CMIPS& context, uint32 begin, uint32 end
 {
 	uint32 blockSize = ((end - begin) + 4) / 4;
 	uint32 blockSizeByte = blockSize * 4;
-	uint32* blockMemory = reinterpret_cast<uint32*>(alloca(blockSizeByte));
-	for(uint32 address = begin; address <= end; address += 8)
-	{
-		uint32 index = (address - begin) / 4;
 
-		uint32 addressLo = address + 0;
-		uint32 addressHi = address + 4;
-
-		uint32 opcodeLo = m_context.m_pMemoryMap->GetInstruction(addressLo);
-		uint32 opcodeHi = m_context.m_pMemoryMap->GetInstruction(addressHi);
-
-		assert((index + 0) < blockSize);
-		blockMemory[index + 0] = opcodeLo;
-		assert((index + 1) < blockSize);
-		blockMemory[index + 1] = opcodeHi;
-	}
+	auto map = m_context.m_pMemoryMap->GetInstructionMap(begin);
+	assert(m_context.m_pMemoryMap->GetInstructionMap(end) == map);
+	uint32 localBegin = begin - map->nStart;
+	auto blockMemory = reinterpret_cast<const uint32*>(reinterpret_cast<uint8*>(map->pPointer) + localBegin);
 
 	auto xxHash = XXH3_128bits(blockMemory, blockSizeByte);
 	uint128 hash;

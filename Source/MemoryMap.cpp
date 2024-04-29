@@ -49,6 +49,11 @@ const CMemoryMap::MEMORYMAPELEMENT* CMemoryMap::GetWriteMap(uint32 address) cons
 	return GetMap(m_writeMap, address);
 }
 
+const CMemoryMap::MEMORYMAPELEMENT* CMemoryMap::GetInstructionMap(uint32 address) const
+{
+	return GetMap(m_instructionMap, address);
+}
+
 void CMemoryMap::InsertMap(MemoryMapListType& memoryMap, uint32 start, uint32 end, void* pointer, unsigned char key)
 {
 	MEMORYMAPELEMENT element;
