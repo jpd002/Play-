@@ -24,6 +24,7 @@ bool CEeBasicBlock::IsIdleLoopBlock() const
 		OP_LUI = 0x0F,
 		OP_LQ = 0x1E,
 		OP_LW = 0x23,
+		OP_LBU = 0x24,
 	};
 
 	enum
@@ -100,6 +101,7 @@ bool CEeBasicBlock::IsIdleLoopBlock() const
 			break;
 		case OP_LW:
 		case OP_LQ:
+		case OP_LBU:
 		case OP_SLTIU:
 		case OP_XORI:
 			newUse = (1 << rs);
