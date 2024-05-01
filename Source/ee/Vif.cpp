@@ -438,7 +438,7 @@ void CVif::ProcessPacket(StreamType& stream)
 			break;
 		}
 
-		stream.Read(&m_CODE, sizeof(CODE));
+		stream.ReadValue<4>(&m_CODE);
 
 		if(m_CODE.nI != 0)
 		{
@@ -643,7 +643,7 @@ void CVif::Cmd_STROW(StreamType& stream, CODE nCommand)
 	while(m_NUM != 0 && stream.GetAvailableReadBytes())
 	{
 		assert(m_NUM <= 4);
-		stream.Read(&m_R[4 - m_NUM], 4);
+		stream.ReadValue<4>(&m_R[4 - m_NUM]);
 		m_NUM--;
 	}
 
@@ -662,7 +662,7 @@ void CVif::Cmd_STCOL(StreamType& stream, CODE nCommand)
 	while(m_NUM != 0 && stream.GetAvailableReadBytes())
 	{
 		assert(m_NUM <= 4);
-		stream.Read(&m_C[4 - m_NUM], 4);
+		stream.ReadValue<4>(&m_C[4 - m_NUM]);
 		m_NUM--;
 	}
 
@@ -680,7 +680,7 @@ void CVif::Cmd_STMASK(StreamType& stream, CODE command)
 {
 	while(m_NUM != 0 && stream.GetAvailableReadBytes())
 	{
-		stream.Read(&m_MASK, 4);
+		stream.ReadValue<4>(&m_MASK);
 		m_NUM--;
 	}
 

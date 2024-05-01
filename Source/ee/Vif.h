@@ -170,16 +170,25 @@ protected:
 				memcpy(readBuffer, reinterpret_cast<uint8*>(&m_buffer) + m_bufferPosition, ValueSize);
 				m_bufferPosition += ValueSize;
 			}
-			else
+			else if(!m_tagIncluded || (ValueSize <= 8))
 			{
 				uint128 qw[2];
 				qw[0] = m_buffer;
 				uint32 startPosition = m_bufferPosition;
+				bool hasTag = m_tagIncluded;
 				m_bufferPosition = BUFFERSIZE;
 				SyncBuffer();
 				qw[1] = m_buffer;
+				if(hasTag)
+				{
+					qw[1].nD0 = qw[1].nD1;
+				}
 				m_bufferPosition += (ValueSize - availableBufferSize);
 				memcpy(readBuffer, reinterpret_cast<uint8*>(&qw) + startPosition, ValueSize);
+			}
+			else
+			{
+				Read(buffer, ValueSize);
 			}
 		}
 
