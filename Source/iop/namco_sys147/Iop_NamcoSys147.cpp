@@ -275,13 +275,7 @@ bool CSys147::Invoke99(uint32 method, uint32* args, uint32 argsSize, uint32* ret
 				reply.command = 0x0F;
 				reply.data[2] = 0x01;
 				reply.data[3] = 0x04;
-				uint8 checksum = 0;
-				for(const auto& value : reply.data)
-				{
-					checksum += value;
-				}
-				reply.checksum = checksum;
-
+				reply.checksum = ComputePacketChecksum(reply);
 				m_pendingReplies.emplace_back(reply);
 			}
 			if(packet->command == 0x48)
