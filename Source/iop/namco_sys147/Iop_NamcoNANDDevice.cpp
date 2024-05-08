@@ -15,6 +15,7 @@ CNamcoNANDDevice::CNamcoNANDDevice(std::unique_ptr<Framework::CStream> nandDumpS
 
 Framework::CStream* CNamcoNANDDevice::GetFile(uint32 flags, const char* path)
 {
+	flags &= ~OPEN_FLAG_NOWAIT;
 	assert(flags == OPEN_FLAG_RDONLY);
 
 	if(path[0] == '/')
