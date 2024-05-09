@@ -22,6 +22,7 @@
 #ifdef _IOP_EMULATE_MODULES
 #include "Iop_IomanX.h"
 #include "Iop_Naplink.h"
+#include "Iop_Usbd.h"
 #endif
 
 #include "Iop_SifManNull.h"
@@ -262,6 +263,9 @@ void CIopBios::Reset(uint32 ramSize, const Iop::SifManPtr& sifMan)
 	{
 		m_powerOff = std::make_shared<Iop::CPowerOff>(*m_sifMan);
 		RegisterModule(m_powerOff);
+	}
+	{
+		RegisterModule(std::make_shared<Iop::CUsbd>(*this, m_ram));
 	}
 	RegisterModule(std::make_shared<Iop::CIomanX>(*m_ioman));
 	//RegisterModule(std::make_shared<Iop::CNaplink>(*m_sifMan, *m_ioman));

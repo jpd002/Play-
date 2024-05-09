@@ -414,6 +414,8 @@ set(COMMON_SRC_FILES
 	iop/Iop_Thvpool.h
 	iop/Iop_Timrman.cpp
 	iop/Iop_Timrman.h
+	iop/Iop_Usbd.cpp
+	iop/Iop_Usbd.h
 	iop/Iop_Vblank.cpp
 	iop/Iop_Vblank.h
 	iop/IopBios.cpp
