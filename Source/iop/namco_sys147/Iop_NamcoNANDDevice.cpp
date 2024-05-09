@@ -29,13 +29,15 @@ Framework::CStream* CNamcoNANDDevice::GetFile(uint32 flags, const char* path)
 	for(unsigned int i = 0; i < sections.size(); i++)
 	{
 		auto dir = m_nandReader.ReadDirectory(currEntry.sector);
-		const auto& section = sections[i];
+		//Strangely, filesystem only saves 16 characters for entry name but some games
+		//will request files with more characters (ex.: Umimonogatari)... Cut the excess.
+		auto section = sections[i].substr(0, 16);
 
 		bool found = false;
 		for(unsigned int j = 0; j < dir.size(); j++)
 		{
 			const auto& dirEntry = dir[j];
-			if(!strcmp(dirEntry.name, section.c_str()))
+			if(!strncmp(dirEntry.name, section.c_str(), 16))
 			{
 				uint32 baseSector = currEntry.sector;
 				currEntry = dirEntry;

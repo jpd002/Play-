@@ -22,7 +22,8 @@ namespace Namco
 
 		struct DIRENTRY
 		{
-			char name[0x14];
+			char name[0x10];
+			uint32 unknown;
 			uint32 type;
 			uint32 size;
 			uint32 sector;
