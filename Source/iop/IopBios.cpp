@@ -3924,8 +3924,7 @@ void CIopBios::PrepareModuleDebugInfo(CELF32& elf, const ExecutableRange& module
 			auto moduleName = ReadModuleName(address + 0xC);
 			auto module(m_modules.find(moduleName));
 
-			size_t moduleNameLength = moduleName.length();
-			uint32 entryAddress = address + 0x0C + ((moduleNameLength + 3) & ~0x03);
+			uint32 entryAddress = address + 0x14;
 			while(m_cpu.m_pMemoryMap->GetWord(entryAddress) == 0x03E00008)
 			{
 				uint32 target = m_cpu.m_pMemoryMap->GetWord(entryAddress + 4);
