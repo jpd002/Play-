@@ -15,5 +15,20 @@
 	"boot": "atfile0:prog.elf",
 	"patches":
 	[
+		{
+			"--address": "0x001A2834",
+			"value": "0x0",
+			"description": "Show Debug Info"
+		},
+		{
+			"address": "0x001AAC9C",
+			"value": "0x24040002",
+			"description": "Jump to state 2"
+		},
+		{
+			"address": "0x001AAE08",
+			"value": "0x0",
+			"description": "Skip some init"
+		}
 	]
 }
