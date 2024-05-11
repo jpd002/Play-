@@ -408,6 +408,16 @@ bool CSys147::Invoke99(uint32 method, uint32* args, uint32 argsSize, uint32* ret
 				reply.checksum = ComputePacketChecksum(reply);
 				m_pendingReplies.emplace_back(reply);
 			}
+			else if(packet->command == 0x38)
+			{
+				//SCI
+				MODULE_99_PACKET reply = {};
+				reply.type = 2;
+				reply.command = 0x38;
+				reply.data[0] = packet->data[0];
+				reply.checksum = ComputePacketChecksum(reply);
+				m_pendingReplies.emplace_back(reply);
+			}
 			else if(packet->command == 0x10)
 			{
 				MODULE_99_PACKET reply = {};
