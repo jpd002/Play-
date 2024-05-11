@@ -20,11 +20,6 @@
 	"patches":
 	[
 		{
-			"address": "0x001BEA5C",
-			"value": "0x0",
-			"description": "Fix I/O PCB config /REQUIRED & OK"
-		},
-		{
 			"address": "0x00102110",
 			"value": "0x0",
 			"description": "Prevent storing dispenser jammed & no cards /OK (Card is stuck)"

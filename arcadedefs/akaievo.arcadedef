@@ -20,16 +20,6 @@
 	"patches":
 	[
 		{
-			"address": "0x001D495C",
-			"value": "0x0",
-			"description": "Fix I/O PCB config"
-		},
-		{
-			"address": "0x001D497C",
-			"value": "0x0",
-			"description": "Fix I/O PCB config"
-		},
-		{
 			"address": "0x001021E8",
 			"value": "0x0",
 			"description": "Prevent storing dispenser jammed & no cards"
