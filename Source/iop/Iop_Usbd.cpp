@@ -109,23 +109,25 @@ void CUsbd::SetButtonState(unsigned int padNumber, PS2::CControllerInfo::BUTTON 
 {
 	if(padNumber == 0)
 	{
+		//Reference for data transfer:
+		//https://gist.github.com/Lewiscowles1986/eef220dac6f0549e4702393a7b9351f6
 		uint8 mask = 0;
 		switch(button)
 		{
 		case PS2::CControllerInfo::CROSS:
-			mask = 1;
+			mask = 1; //Red
 			break;
 		case PS2::CControllerInfo::CIRCLE:
-			mask = 2;
+			mask = 2; //Yellow
 			break;
 		case PS2::CControllerInfo::SQUARE:
-			mask = 4;
+			mask = 4; //Green
 			break;
 		case PS2::CControllerInfo::TRIANGLE:
-			mask = 8;
+			mask = 8; //Orange
 			break;
 		case PS2::CControllerInfo::DPAD_UP:
-			mask = 0x10;
+			mask = 0x10; //Blue
 			break;
 		}
 		if(mask != 0)
