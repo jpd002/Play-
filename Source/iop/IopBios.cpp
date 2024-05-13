@@ -22,7 +22,6 @@
 #ifdef _IOP_EMULATE_MODULES
 #include "Iop_IomanX.h"
 #include "Iop_Naplink.h"
-#include "Iop_Usbd.h"
 #endif
 
 #include "Iop_SifManNull.h"
@@ -265,7 +264,8 @@ void CIopBios::Reset(uint32 ramSize, const Iop::SifManPtr& sifMan)
 		RegisterModule(m_powerOff);
 	}
 	{
-		RegisterModule(std::make_shared<Iop::CUsbd>(*this, m_ram));
+		m_usbd = std::make_shared<Iop::CUsbd>(*this, m_ram);
+		RegisterModule(m_usbd);
 	}
 	RegisterModule(std::make_shared<Iop::CIomanX>(*m_ioman));
 	//RegisterModule(std::make_shared<Iop::CNaplink>(*m_sifMan, *m_ioman));
@@ -1912,6 +1912,7 @@ void CIopBios::CountTicks(uint32 ticks)
 #ifdef _IOP_EMULATE_MODULES
 	m_cdvdman->CountTicks(ticks);
 	m_mcserv->CountTicks(ticks, m_sifMan.get());
+	m_usbd->CountTicks(ticks);
 #endif
 }
 
@@ -2962,6 +2963,11 @@ Iop::CCdvdfsv* CIopBios::GetCdvdfsv()
 Iop::CMcServ* CIopBios::GetMcServ()
 {
 	return static_cast<Iop::CMcServ*>(m_mcserv.get());
+}
+
+Iop::CUsbd* CIopBios::GetUsbd()
+{
+	return static_cast<Iop::CUsbd*>(m_usbd.get());
 }
 
 #endif

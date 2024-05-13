@@ -26,6 +26,7 @@
 #include "Iop_MtapMan.h"
 #include "Iop_Cdvdfsv.h"
 #include "Iop_McServ.h"
+#include "Iop_Usbd.h"
 #include "Iop_PowerOff.h"
 #endif
 
@@ -214,6 +215,7 @@ public:
 	Iop::CPadMan* GetPadman();
 	Iop::CCdvdfsv* GetCdvdfsv();
 	Iop::CMcServ* GetMcServ();
+	Iop::CUsbd* GetUsbd();
 #endif
 	bool RegisterModule(const Iop::ModulePtr&);
 	bool ReleaseModule(const std::string&);
@@ -699,6 +701,7 @@ private:
 	Iop::McServPtr m_mcserv;
 	Iop::CdvdfsvPtr m_cdvdfsv;
 	Iop::PowerOffPtr m_powerOff;
+	Iop::UsbdPtr m_usbd;
 
 	std::map<std::string, Iop::ModulePtr> m_hleModules;
 #endif

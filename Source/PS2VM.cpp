@@ -851,6 +851,7 @@ void CPS2VM::RegisterModulesInPadHandler()
 
 	m_pad->RemoveAllListeners();
 	m_pad->InsertListener(iopOs->GetPadman());
+	m_pad->InsertListener(iopOs->GetUsbd());
 	m_pad->InsertListener(&m_iop->m_sio2);
 }
 
