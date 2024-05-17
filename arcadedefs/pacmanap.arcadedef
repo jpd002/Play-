@@ -11,6 +11,13 @@
 			"atfile1": 131072
 		}
 	},
+	"buttons":
+	{
+		"84": "0:l1",
+		"86": "0:dpad_up",
+		"87": "0:dpad_down",
+		"88": "0:cross"
+	},
 	"boot": "atfile0:PMAAC.elf",
 	"patches":
 	[

@@ -30,6 +30,8 @@ struct ARCADE_MACHINE_DEF
 		uint32 value = 0;
 	};
 
+	using ButtonSelector = std::pair<int, PS2::CControllerInfo::BUTTON>;
+
 	std::string id;
 	std::string parent;
 	DRIVER driver = DRIVER::UNKNOWN;
@@ -39,7 +41,7 @@ struct ARCADE_MACHINE_DEF
 	std::string hddFileName;
 	std::string nandFileName;
 	std::map<std::string, uint32> nandMounts;
-	std::map<unsigned int, PS2::CControllerInfo::BUTTON> buttons;
+	std::map<unsigned int, ButtonSelector> buttons;
 	INPUT_MODE inputMode = INPUT_MODE::DEFAULT;
 	std::array<float, 4> screenPosXform = {65535, 0, 65535, 0};
 	uint32 eeFreqScaleNumerator = 1;

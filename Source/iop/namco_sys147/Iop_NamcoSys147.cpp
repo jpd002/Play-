@@ -11,19 +11,28 @@ using namespace Iop::Namco;
 
 #define LOG_NAME ("iop_namco_sys147")
 
-enum
-{
-	SWITCH_TEST = 0x6C,
-	SWITCH_ENTER = 0x6D,
-	SWITCH_UP = 0x6E,
-	SWITCH_DOWN = 0x6F,
-	SWITCH_SERVICE = 0x72,
-	SWITCH_1P_LEFT = 0x74,
-	SWITCH_1P_RIGHT = 0x75,
-	SWITCH_2P_LEFT = 0x77,
-	SWITCH_2P_RIGHT = 0x76
+//Switch IDs for games
+//--------------------
 
-};
+//Animal Kaiser
+//-------------
+// 108 - Test
+// 109 - Enter
+// 110 - Up
+// 111 - Down
+// 114 - Service
+// 116 - 1P Left
+// 117 - 1P Right
+// 118 - 2P Right
+// 119 - 2P Left
+
+//Pac-Man Arcade Party
+//--------------------
+// Note: Game seems to be reading from SIO2
+// 84 - Test
+// 86 - Up
+// 87 - Down
+// 88 - Enter
 
 CSys147::CSys147(CSifMan& sifMan, const std::string& gameId)
     : m_gameId(gameId)
@@ -51,15 +60,6 @@ CSys147::CSys147(CSifMan& sifMan, const std::string& gameId)
 	sifMan.RegisterModule(MODULE_ID_201, &m_module201);
 	sifMan.RegisterModule(MODULE_ID_99, &m_module99);
 
-	m_switchStates[SWITCH_TEST] = 0;
-	m_switchStates[SWITCH_ENTER] = 0;
-	m_switchStates[SWITCH_UP] = 0;
-	m_switchStates[SWITCH_DOWN] = 0;
-	m_switchStates[SWITCH_1P_LEFT] = 0;
-	m_switchStates[SWITCH_1P_RIGHT] = 0;
-	m_switchStates[SWITCH_2P_LEFT] = 0;
-	m_switchStates[SWITCH_2P_RIGHT] = 0;
-
 	if(CAppConfig::GetInstance().GetPreferenceBoolean(PREF_PS2_ARCADE_IO_SERVER_ENABLED))
 	{
 		fs::path logPath = CAppConfig::GetInstance().GetBasePath() / "arcade_io_server.log";
@@ -78,47 +78,17 @@ std::string CSys147::GetFunctionName(unsigned int functionId) const
 	return "unknown";
 }
 
+void CSys147::SetButton(unsigned int switchIndex, unsigned int padNumber, PS2::CControllerInfo::BUTTON button)
+{
+	m_switchBindings[{padNumber, button}] = switchIndex;
+}
+
 void CSys147::SetButtonState(unsigned int padNumber, PS2::CControllerInfo::BUTTON button, bool pressed, uint8* ram)
 {
-	if(padNumber == 0)
+	const auto& binding = m_switchBindings.find({padNumber, button});
+	if(binding != std::end(m_switchBindings))
 	{
-		switch(button)
-		{
-		case PS2::CControllerInfo::DPAD_UP:
-			m_switchStates[SWITCH_UP] = pressed ? 0xFF : 0x00;
-			break;
-		case PS2::CControllerInfo::DPAD_DOWN:
-			m_switchStates[SWITCH_DOWN] = pressed ? 0xFF : 0x00;
-			break;
-		case PS2::CControllerInfo::DPAD_LEFT:
-			m_switchStates[SWITCH_1P_LEFT] = pressed ? 0xFF : 0x00;
-			break;
-		case PS2::CControllerInfo::DPAD_RIGHT:
-			m_switchStates[SWITCH_1P_RIGHT] = pressed ? 0xFF : 0x00;
-			break;
-		case PS2::CControllerInfo::CROSS:
-			m_switchStates[SWITCH_ENTER] = pressed ? 0xFF : 0x00;
-			break;
-		case PS2::CControllerInfo::L1:
-			m_switchStates[SWITCH_TEST] = pressed ? 0xFF : 0x00;
-			break;
-		default:
-			break;
-		}
-	}
-	else if(padNumber == 1)
-	{
-		switch(button)
-		{
-		case PS2::CControllerInfo::DPAD_LEFT:
-			m_switchStates[SWITCH_2P_LEFT] = pressed ? 0xFF : 0x00;
-			break;
-		case PS2::CControllerInfo::DPAD_RIGHT:
-			m_switchStates[SWITCH_2P_RIGHT] = pressed ? 0xFF : 0x00;
-			break;
-		default:
-			break;
-		}
+		m_switchStates[binding->second] = pressed ? 0xFF : 0x00;
 	}
 }
 

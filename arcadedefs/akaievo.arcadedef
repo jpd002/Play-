@@ -16,6 +16,17 @@
 			"atfile6": 393216
 		}
 	},
+	"buttons":
+	{
+		"108": "0:l1",
+		"109": "0:cross",
+		"110": "0:dpad_up",
+		"111": "0:dpad_down",
+		"116": "0:dpad_left",
+		"117": "0:dpad_right",
+		"118": "1:dpad_right",
+		"119": "1:dpad_left"
+	},
 	"boot": "atfile0:main.elf",
 	"patches":
 	[

@@ -114,9 +114,11 @@ void CNamcoSys246Driver::PrepareEnvironment(CPS2VM* virtualMachine, const ARCADE
 			iopBios->RegisterModule(namcoArcadeModule);
 			iopBios->RegisterHleModuleReplacement("rom0:DAEMON", namcoArcadeModule);
 			virtualMachine->m_pad->InsertListener(namcoArcadeModule.get());
-			for(const auto& buttonPair : def.buttons)
+			for(const auto& buttonDefPair : def.buttons)
 			{
-				namcoArcadeModule->SetButton(buttonPair.first, buttonPair.second);
+				const auto& buttonPair = buttonDefPair.second;
+				assert(buttonDefPair.first == -1);
+				namcoArcadeModule->SetButton(buttonDefPair.first, buttonPair.second);
 			}
 			switch(def.inputMode)
 			{

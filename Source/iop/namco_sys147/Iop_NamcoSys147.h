@@ -20,12 +20,16 @@ namespace Iop
 			std::string GetFunctionName(unsigned int) const override;
 			void Invoke(CMIPS&, unsigned int) override;
 
+			void SetButton(unsigned int, unsigned int, PS2::CControllerInfo::BUTTON);
+
 			//CPadInterface
 			void SetButtonState(unsigned int, PS2::CControllerInfo::BUTTON, bool, uint8*) override;
 			void SetAxisState(unsigned int, PS2::CControllerInfo::BUTTON, uint8, uint8*) override;
 			void GetVibration(unsigned int, uint8&, uint8&) override{};
 
 		private:
+			using ButtonSelector = std::pair<int, PS2::CControllerInfo::BUTTON>;
+
 			enum MODULE_ID
 			{
 				MODULE_ID_000 = 0x01470000,
@@ -74,6 +78,7 @@ namespace Iop
 			CSifModuleAdapter m_module99;
 
 			std::string m_gameId;
+			std::map<ButtonSelector, uint8> m_switchBindings;
 
 			std::vector<MODULE_99_PACKET> m_pendingReplies;
 			std::map<uint8, uint8> m_switchStates;

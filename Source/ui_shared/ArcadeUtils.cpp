@@ -89,13 +89,26 @@ ARCADE_MACHINE_DEF ReadArcadeMachineDefinition(const fs::path& arcadeDefPath)
 		    {
 			    char* endPtr = nullptr;
 			    const char* buttonNumber = buttonPair.first.c_str();
-			    const char* buttonName = buttonPair.second.c_str();
+			    const char* buttonSelector = buttonPair.second.c_str();
 			    int number = strtol(buttonPair.first.c_str(), &endPtr, 10);
 			    if(endPtr == buttonPair.first.c_str())
 			    {
 				    throw std::runtime_error(string_format("Failed to parse button number '%s'.", buttonNumber));
 			    }
-			    buttons[number] = ParseEnumValue(buttonName, std::begin(g_buttonValues), std::end(g_buttonValues));
+			    //Accepted formats for buttonSelector
+			    //- ${buttonName}
+			    //- ${padIdx}:${buttonName}
+			    std::string buttonName = buttonSelector;
+			    int padIdx = -1;
+			    if(auto colonPos = buttonName.find(':'); colonPos != std::string::npos)
+			    {
+				    padIdx = strtol(buttonName.c_str(), &endPtr, 10);
+				    assert(endPtr == (buttonName.c_str() + colonPos));
+				    buttonName = buttonName.substr(colonPos + 1);
+			    }
+			    auto buttonId = ParseEnumValue(buttonName.c_str(), std::begin(g_buttonValues), std::end(g_buttonValues));
+			    auto selector = ARCADE_MACHINE_DEF::ButtonSelector{padIdx, buttonId};
+			    buttons[number] = selector;
 		    }
 		    return buttons;
 	    };
@@ -207,6 +220,10 @@ void ApplyParentDefValues(ARCADE_MACHINE_DEF& def, const ARCADE_MACHINE_DEF& par
 	if(def.nandMounts.empty())
 	{
 		def.nandMounts = parentDef.nandMounts;
+	}
+	if(def.buttons.empty())
+	{
+		def.buttons = parentDef.buttons;
 	}
 }
 

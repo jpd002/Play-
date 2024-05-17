@@ -30,6 +30,10 @@ void CNamcoSys147Driver::PrepareEnvironment(CPS2VM* virtualMachine, const ARCADE
 		iopBios->RegisterModule(sys147Module);
 		iopBios->RegisterHleModuleReplacement("S147LINK", sys147Module);
 		virtualMachine->m_pad->InsertListener(sys147Module.get());
+		for(const auto& button : def.buttons)
+		{
+			sys147Module->SetButton(button.first, button.second.first, button.second.second);
+		}
 	}
 }
 
