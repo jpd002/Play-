@@ -36,7 +36,8 @@ void CMailBox::SendCall(const FunctionType& function, bool waitForCompletion)
 
 		if(waitForCompletion)
 		{
-			future = message.promise.get_future();
+			message.promise = std::make_unique<std::promise<void>>();
+			future = message.promise->get_future();
 		}
 
 		m_calls.push_back(std::move(message));
@@ -73,5 +74,8 @@ void CMailBox::ReceiveCall()
 		m_calls.pop_front();
 	}
 	message.function();
-	message.promise.set_value();
+	if(message.promise)
+	{
+		message.promise->set_value();
+	}
 }

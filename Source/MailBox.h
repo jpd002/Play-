@@ -34,7 +34,7 @@ private:
 		MESSAGE& operator=(const MESSAGE&) = delete;
 
 		FunctionType function;
-		std::promise<void> promise;
+		std::unique_ptr<std::promise<void>> promise;
 	};
 
 	typedef std::deque<MESSAGE> FunctionCallQueue;
