@@ -442,9 +442,9 @@ CVuBasicBlock::INTEGER_BRANCH_DELAY_INFO CVuBasicBlock::ComputeTrailingIntegerBr
 	uint32 fmacDelayOnBranch = fmacStallDelays[fmacStallDelays.size() - 2];
 	if((endLoOps.writeI != 0) && !endLoOps.branchValue && (fmacDelayOnBranch == 0))
 	{
-		// we need to use the value of intReg 3 steps prior or use initial value.
+		// we need to save the value of the integer register before the instruction is executed
 		result.regIndex = endLoOps.writeI;
-		result.saveRegAddress = std::max<int32>(adjustedEnd - 5 * 8, m_begin);
+		result.saveRegAddress = adjustedEnd;
 	}
 	return result;
 }
