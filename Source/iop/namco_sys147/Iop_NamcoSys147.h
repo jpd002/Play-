@@ -86,6 +86,7 @@ namespace Iop
 			std::unique_ptr<Framework::CHttpServer> m_ioServer;
 			std::mutex m_barcodeMutex;
 			std::string m_currentBarcode;
+			uint32 m_systemSwitchState = ~0U;
 		};
 	}
 }

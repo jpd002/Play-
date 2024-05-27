@@ -90,6 +90,30 @@ void CSys147::SetButtonState(unsigned int padNumber, PS2::CControllerInfo::BUTTO
 	{
 		m_switchStates[binding->second] = pressed ? 0xFF : 0x00;
 	}
+	uint16 mask = 0;
+	switch(button)
+	{
+	case PS2::CControllerInfo::L1:
+		mask = 0x0008; //Test Button
+		break;
+	case PS2::CControllerInfo::DPAD_UP:
+		mask = 0x0002; //Select Up
+		break;
+	case PS2::CControllerInfo::DPAD_DOWN:
+		mask = 0x0001; //Select Down
+		break;
+	case PS2::CControllerInfo::CROSS:
+		mask = 0x0004; //Enter
+		break;
+	default:
+		mask = 0;
+		break;
+	}
+	m_systemSwitchState &= ~mask;
+	if(!pressed)
+	{
+		m_systemSwitchState |= mask;
+	}
 }
 
 void CSys147::SetAxisState(unsigned int padNumber, PS2::CControllerInfo::BUTTON button, uint8 axisValue, uint8* ram)
@@ -224,7 +248,7 @@ bool CSys147::Invoke99(uint32 method, uint32* args, uint32 argsSize, uint32* ret
 
 			//0x0D -> ???
 			//0x0F -> Get PCB info
-			//0x10 -> ???
+			//0x10 -> System Switches (?)
 			//0x18 -> Switch
 			//0x38 -> SCI
 			//0x39 -> ???
@@ -403,7 +427,10 @@ bool CSys147::Invoke99(uint32 method, uint32* args, uint32 argsSize, uint32* ret
 				MODULE_99_PACKET reply = {};
 				reply.type = 2;
 				reply.command = 0x10;
-				reply.data[0] = packet->data[0];
+				reply.data[0] = static_cast<uint8>(m_systemSwitchState);
+				reply.data[1] = static_cast<uint8>(m_systemSwitchState >> 8);
+				reply.data[2] = static_cast<uint8>(m_systemSwitchState >> 16);
+				reply.data[3] = static_cast<uint8>(m_systemSwitchState >> 24);
 				reply.checksum = ComputePacketChecksum(reply);
 				m_pendingReplies.emplace_back(reply);
 			}
