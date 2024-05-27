@@ -1,0 +1,28 @@
+{
+	"id": "pacmanbr",
+	"name": "Pac-Man Battle Royale",
+	"driver": "sys147",
+	"nand":
+	{
+		"name": "pbr102-2-na-mpro-a13_kp006b.ic26",
+		"mounts":
+		{
+			"atfile0": 24576,
+			"atfile1": 131072
+		}
+	},
+	"boot": "atfile0:pacmanBR.elf",
+	"patches":
+	[
+		{
+			"address": "0x00100BD0",
+			"value": "0x2402000A",
+			"description": "Make file read thread more important (higher prio)"
+		},
+		{
+			"address": "0x00189A40",
+			"value": "0x34630009",
+			"description": "Report AI board connected"
+		}
+	]
+}
