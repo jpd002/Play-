@@ -171,6 +171,7 @@ void CVpu::ExecuteMicroProgram(uint32 nAddress)
 	m_ctx->m_State.pipeFmacWrite[0] = {};
 	m_ctx->m_State.pipeFmacWrite[1] = {};
 	m_ctx->m_State.pipeFmacWrite[2] = {};
+	m_ctx->m_State.savedNextBlockIntRegIdx = 0;
 	m_ctx->m_State.nHasException = 0;
 
 #ifdef DEBUGGER_INCLUDED
