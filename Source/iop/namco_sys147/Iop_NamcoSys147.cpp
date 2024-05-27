@@ -278,6 +278,16 @@ bool CSys147::Invoke99(uint32 method, uint32* args, uint32 argsSize, uint32* ret
 				reply.checksum = ComputePacketChecksum(reply);
 				m_pendingReplies.emplace_back(reply);
 			}
+			else if(packet->command == 0xD8)
+			{
+				//???
+				MODULE_99_PACKET reply = {};
+				reply.type = 2;
+				reply.command = 0xD8;
+				reply.data[0] = packet->data[0];
+				reply.checksum = ComputePacketChecksum(reply);
+				m_pendingReplies.emplace_back(reply);
+			}
 			else if(packet->command == 0x31)
 			{
 				//Barcode Reader & IC Card
@@ -408,8 +418,24 @@ bool CSys147::Invoke99(uint32 method, uint32* args, uint32 argsSize, uint32* ret
 		CLog::GetInstance().Warn(LOG_NAME, "LINK_09000002();\r\n");
 		reinterpret_cast<uint16*>(ret)[0] = 0;
 		break;
+	case 0x09000003:
+		CLog::GetInstance().Warn(LOG_NAME, "LINK_09000003();\r\n");
+		reinterpret_cast<uint16*>(ret)[0] = 0;
+		break;
 	case 0x0C000002:
 		CLog::GetInstance().Warn(LOG_NAME, "LINK_0C000002();\r\n");
+		reinterpret_cast<uint16*>(ret)[0] = 0;
+		break;
+	case 0x0C000003:
+		CLog::GetInstance().Warn(LOG_NAME, "LINK_0C000003();\r\n");
+		reinterpret_cast<uint16*>(ret)[0] = 0;
+		break;
+	case 0x0D003803:
+		CLog::GetInstance().Warn(LOG_NAME, "LINK_0D003803();\r\n");
+		reinterpret_cast<uint16*>(ret)[0] = 0;
+		break;
+	case 0x11000000:
+		CLog::GetInstance().Warn(LOG_NAME, "LINK_11000000();\r\n");
 		reinterpret_cast<uint16*>(ret)[0] = 0;
 		break;
 	default:
