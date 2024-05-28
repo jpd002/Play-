@@ -88,19 +88,19 @@ void CMA_VU::CLower::ApplySumSeries(size_t target, const uint32* seriesConstants
 		unsigned int exponent = seriesExponents[i];
 		float constant = *reinterpret_cast<const float*>(&seriesConstants[i]);
 
-		m_codeGen->FP_PushSingle(target);
+		m_codeGen->FP_PushRel32(target);
 		for(unsigned int j = 0; j < exponent - 1; j++)
 		{
-			m_codeGen->FP_PushSingle(target);
-			m_codeGen->FP_Mul();
+			m_codeGen->FP_PushRel32(target);
+			m_codeGen->FP_MulS();
 		}
 
-		m_codeGen->FP_PushCst(constant);
-		m_codeGen->FP_Mul();
+		m_codeGen->FP_PushCst32(constant);
+		m_codeGen->FP_MulS();
 
 		if(i != 0)
 		{
-			m_codeGen->FP_Add();
+			m_codeGen->FP_AddS();
 		}
 	}
 }
@@ -139,11 +139,11 @@ void CMA_VU::CLower::GenerateEATAN()
 
 	{
 		float constant = *reinterpret_cast<const float*>(&pi4);
-		m_codeGen->FP_PushCst(constant);
-		m_codeGen->FP_Add();
+		m_codeGen->FP_PushCst32(constant);
+		m_codeGen->FP_AddS();
 	}
 
-	m_codeGen->FP_PullSingle(destination);
+	m_codeGen->FP_PullRel32(destination);
 }
 
 //////////////////////////////////////////////////
@@ -658,41 +658,41 @@ void CMA_VU::CLower::ESADD()
 	///////////////////////////////////////////////////
 	//Raise all components to the power of 2
 
-	m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP2[m_nIS].nV[0]));
+	m_codeGen->FP_PushRel32(offsetof(CMIPS, m_State.nCOP2[m_nIS].nV[0]));
 	m_codeGen->PushTop();
-	m_codeGen->FP_Mul();
+	m_codeGen->FP_MulS();
 
-	m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP2[m_nIS].nV[1]));
+	m_codeGen->FP_PushRel32(offsetof(CMIPS, m_State.nCOP2[m_nIS].nV[1]));
 	m_codeGen->PushTop();
-	m_codeGen->FP_Mul();
+	m_codeGen->FP_MulS();
 
-	m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP2[m_nIS].nV[2]));
+	m_codeGen->FP_PushRel32(offsetof(CMIPS, m_State.nCOP2[m_nIS].nV[2]));
 	m_codeGen->PushTop();
-	m_codeGen->FP_Mul();
+	m_codeGen->FP_MulS();
 
 	///////////////////////////////////////////////////
 	//Sum all components
 
-	m_codeGen->FP_Add();
-	m_codeGen->FP_Add();
+	m_codeGen->FP_AddS();
+	m_codeGen->FP_AddS();
 
-	m_codeGen->FP_PullSingle(destination);
+	m_codeGen->FP_PullRel32(destination);
 }
 
 //1D
 void CMA_VU::CLower::EATANxy()
 {
 	//Compute t = (y - x) / (y + x)
-	m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP2[m_nIS].nV[1]));
-	m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP2[m_nIS].nV[0]));
-	m_codeGen->FP_Sub();
+	m_codeGen->FP_PushRel32(offsetof(CMIPS, m_State.nCOP2[m_nIS].nV[1]));
+	m_codeGen->FP_PushRel32(offsetof(CMIPS, m_State.nCOP2[m_nIS].nV[0]));
+	m_codeGen->FP_SubS();
 
-	m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP2[m_nIS].nV[1]));
-	m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP2[m_nIS].nV[0]));
-	m_codeGen->FP_Add();
+	m_codeGen->FP_PushRel32(offsetof(CMIPS, m_State.nCOP2[m_nIS].nV[1]));
+	m_codeGen->FP_PushRel32(offsetof(CMIPS, m_State.nCOP2[m_nIS].nV[0]));
+	m_codeGen->FP_AddS();
 
-	m_codeGen->FP_Div();
-	m_codeGen->FP_PullSingle(offsetof(CMIPS, m_State.nCOP2T));
+	m_codeGen->FP_DivS();
+	m_codeGen->FP_PullRel32(offsetof(CMIPS, m_State.nCOP2T));
 
 	GenerateEATAN();
 }
@@ -703,9 +703,9 @@ void CMA_VU::CLower::ESQRT()
 	auto destination = VUShared::g_pipeInfoP.heldValue;
 	VUShared::QueueInPipeline(VUShared::g_pipeInfoP, m_codeGen, LATENCY_ESQRT, m_relativePipeTime);
 
-	m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP2[m_nIS].nV[m_nFSF]));
-	m_codeGen->FP_Sqrt();
-	m_codeGen->FP_PullSingle(destination);
+	m_codeGen->FP_PushRel32(offsetof(CMIPS, m_State.nCOP2[m_nIS].nV[m_nFSF]));
+	m_codeGen->FP_SqrtS();
+	m_codeGen->FP_PullRel32(destination);
 }
 
 //1F
@@ -733,7 +733,7 @@ void CMA_VU::CLower::ESIN()
 	ApplySumSeries(offsetof(CMIPS, m_State.nCOP2[m_nIS].nV[m_nFSF]),
 	               seriesConstants, seriesExponents, seriesLength);
 
-	m_codeGen->FP_PullSingle(destination);
+	m_codeGen->FP_PullRel32(destination);
 }
 
 //////////////////////////////////////////////////
@@ -794,46 +794,46 @@ void CMA_VU::CLower::ERSADD()
 	///////////////////////////////////////////////////
 	//Raise all components to the power of 2
 
-	m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP2[m_nIS].nV[0]));
+	m_codeGen->FP_PushRel32(offsetof(CMIPS, m_State.nCOP2[m_nIS].nV[0]));
 	m_codeGen->PushTop();
-	m_codeGen->FP_Mul();
+	m_codeGen->FP_MulS();
 
-	m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP2[m_nIS].nV[1]));
+	m_codeGen->FP_PushRel32(offsetof(CMIPS, m_State.nCOP2[m_nIS].nV[1]));
 	m_codeGen->PushTop();
-	m_codeGen->FP_Mul();
+	m_codeGen->FP_MulS();
 
-	m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP2[m_nIS].nV[2]));
+	m_codeGen->FP_PushRel32(offsetof(CMIPS, m_State.nCOP2[m_nIS].nV[2]));
 	m_codeGen->PushTop();
-	m_codeGen->FP_Mul();
+	m_codeGen->FP_MulS();
 
 	///////////////////////////////////////////////////
 	//Sum all components
 
-	m_codeGen->FP_Add();
-	m_codeGen->FP_Add();
+	m_codeGen->FP_AddS();
+	m_codeGen->FP_AddS();
 
 	///////////////////////////////////////////////////
 	//Inverse
 
-	m_codeGen->FP_Rcpl();
+	m_codeGen->FP_RcplS();
 
-	m_codeGen->FP_PullSingle(destination);
+	m_codeGen->FP_PullRel32(destination);
 }
 
 //1D
 void CMA_VU::CLower::EATANxz()
 {
 	//Compute t = (z - x) / (z + x)
-	m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP2[m_nIS].nV[2]));
-	m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP2[m_nIS].nV[0]));
-	m_codeGen->FP_Sub();
+	m_codeGen->FP_PushRel32(offsetof(CMIPS, m_State.nCOP2[m_nIS].nV[2]));
+	m_codeGen->FP_PushRel32(offsetof(CMIPS, m_State.nCOP2[m_nIS].nV[0]));
+	m_codeGen->FP_SubS();
 
-	m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP2[m_nIS].nV[2]));
-	m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP2[m_nIS].nV[0]));
-	m_codeGen->FP_Add();
+	m_codeGen->FP_PushRel32(offsetof(CMIPS, m_State.nCOP2[m_nIS].nV[2]));
+	m_codeGen->FP_PushRel32(offsetof(CMIPS, m_State.nCOP2[m_nIS].nV[0]));
+	m_codeGen->FP_AddS();
 
-	m_codeGen->FP_Div();
-	m_codeGen->FP_PullSingle(offsetof(CMIPS, m_State.nCOP2T));
+	m_codeGen->FP_DivS();
+	m_codeGen->FP_PullRel32(offsetof(CMIPS, m_State.nCOP2T));
 
 	GenerateEATAN();
 }
@@ -844,9 +844,9 @@ void CMA_VU::CLower::ERSQRT()
 	auto destination = VUShared::g_pipeInfoP.heldValue;
 	VUShared::QueueInPipeline(VUShared::g_pipeInfoP, m_codeGen, LATENCY_ERSQRT, m_relativePipeTime);
 
-	m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP2[m_nIS].nV[m_nFSF]));
-	m_codeGen->FP_Rsqrt();
-	m_codeGen->FP_PullSingle(destination);
+	m_codeGen->FP_PushRel32(offsetof(CMIPS, m_State.nCOP2[m_nIS].nV[m_nFSF]));
+	m_codeGen->FP_RsqrtS();
+	m_codeGen->FP_PullRel32(destination);
 }
 
 //////////////////////////////////////////////////
@@ -886,30 +886,30 @@ void CMA_VU::CLower::ELENG()
 	///////////////////////////////////////////////////
 	//Raise all components to the power of 2
 
-	m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP2[m_nIS].nV[0]));
+	m_codeGen->FP_PushRel32(offsetof(CMIPS, m_State.nCOP2[m_nIS].nV[0]));
 	m_codeGen->PushTop();
-	m_codeGen->FP_Mul();
+	m_codeGen->FP_MulS();
 
-	m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP2[m_nIS].nV[1]));
+	m_codeGen->FP_PushRel32(offsetof(CMIPS, m_State.nCOP2[m_nIS].nV[1]));
 	m_codeGen->PushTop();
-	m_codeGen->FP_Mul();
+	m_codeGen->FP_MulS();
 
-	m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP2[m_nIS].nV[2]));
+	m_codeGen->FP_PushRel32(offsetof(CMIPS, m_State.nCOP2[m_nIS].nV[2]));
 	m_codeGen->PushTop();
-	m_codeGen->FP_Mul();
+	m_codeGen->FP_MulS();
 
 	///////////////////////////////////////////////////
 	//Sum all components
 
-	m_codeGen->FP_Add();
-	m_codeGen->FP_Add();
+	m_codeGen->FP_AddS();
+	m_codeGen->FP_AddS();
 
 	///////////////////////////////////////////////////
 	//Extract root
 
-	m_codeGen->FP_Sqrt();
+	m_codeGen->FP_SqrtS();
 
-	m_codeGen->FP_PullSingle(destination);
+	m_codeGen->FP_PullRel32(destination);
 }
 
 //1D
@@ -918,16 +918,16 @@ void CMA_VU::CLower::ESUM()
 	auto destination = VUShared::g_pipeInfoP.heldValue;
 	VUShared::QueueInPipeline(VUShared::g_pipeInfoP, m_codeGen, LATENCY_ESUM, m_relativePipeTime);
 
-	m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP2[m_nIS].nV[0]));
-	m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP2[m_nIS].nV[1]));
-	m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP2[m_nIS].nV[2]));
-	m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP2[m_nIS].nV[3]));
+	m_codeGen->FP_PushRel32(offsetof(CMIPS, m_State.nCOP2[m_nIS].nV[0]));
+	m_codeGen->FP_PushRel32(offsetof(CMIPS, m_State.nCOP2[m_nIS].nV[1]));
+	m_codeGen->FP_PushRel32(offsetof(CMIPS, m_State.nCOP2[m_nIS].nV[2]));
+	m_codeGen->FP_PushRel32(offsetof(CMIPS, m_State.nCOP2[m_nIS].nV[3]));
 
-	m_codeGen->FP_Add();
-	m_codeGen->FP_Add();
-	m_codeGen->FP_Add();
+	m_codeGen->FP_AddS();
+	m_codeGen->FP_AddS();
+	m_codeGen->FP_AddS();
 
-	m_codeGen->FP_PullSingle(destination);
+	m_codeGen->FP_PullRel32(destination);
 }
 
 //1E
@@ -936,9 +936,9 @@ void CMA_VU::CLower::ERCPR()
 	auto destination = VUShared::g_pipeInfoP.heldValue;
 	VUShared::QueueInPipeline(VUShared::g_pipeInfoP, m_codeGen, LATENCY_ERCPR, m_relativePipeTime);
 
-	m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP2[m_nIS].nV[m_nFSF]));
-	m_codeGen->FP_Rcpl();
-	m_codeGen->FP_PullSingle(destination);
+	m_codeGen->FP_PushRel32(offsetof(CMIPS, m_State.nCOP2[m_nIS].nV[m_nFSF]));
+	m_codeGen->FP_RcplS();
+	m_codeGen->FP_PullRel32(destination);
 }
 
 //1F
@@ -968,20 +968,20 @@ void CMA_VU::CLower::EEXP()
 	ApplySumSeries(offsetof(CMIPS, m_State.nCOP2[m_nIS].nV[m_nFSF]),
 	               seriesConstants, seriesExponents, seriesLength);
 
-	m_codeGen->FP_PushCst(1.0f);
-	m_codeGen->FP_Add();
+	m_codeGen->FP_PushCst32(1.0f);
+	m_codeGen->FP_AddS();
 
 	//Up to the fourth power
 	m_codeGen->PushTop();
 	m_codeGen->PushTop();
 	m_codeGen->PushTop();
-	m_codeGen->FP_Mul();
-	m_codeGen->FP_Mul();
-	m_codeGen->FP_Mul();
+	m_codeGen->FP_MulS();
+	m_codeGen->FP_MulS();
+	m_codeGen->FP_MulS();
 
-	m_codeGen->FP_Rcpl();
+	m_codeGen->FP_RcplS();
 
-	m_codeGen->FP_PullSingle(destination);
+	m_codeGen->FP_PullRel32(destination);
 }
 
 //////////////////////////////////////////////////
@@ -1021,30 +1021,30 @@ void CMA_VU::CLower::ERLENG()
 	///////////////////////////////////////////////////
 	//Raise all components to the power of 2
 
-	m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP2[m_nIS].nV[0]));
+	m_codeGen->FP_PushRel32(offsetof(CMIPS, m_State.nCOP2[m_nIS].nV[0]));
 	m_codeGen->PushTop();
-	m_codeGen->FP_Mul();
+	m_codeGen->FP_MulS();
 
-	m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP2[m_nIS].nV[1]));
+	m_codeGen->FP_PushRel32(offsetof(CMIPS, m_State.nCOP2[m_nIS].nV[1]));
 	m_codeGen->PushTop();
-	m_codeGen->FP_Mul();
+	m_codeGen->FP_MulS();
 
-	m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP2[m_nIS].nV[2]));
+	m_codeGen->FP_PushRel32(offsetof(CMIPS, m_State.nCOP2[m_nIS].nV[2]));
 	m_codeGen->PushTop();
-	m_codeGen->FP_Mul();
+	m_codeGen->FP_MulS();
 
 	///////////////////////////////////////////////////
 	//Sum all components
 
-	m_codeGen->FP_Add();
-	m_codeGen->FP_Add();
+	m_codeGen->FP_AddS();
+	m_codeGen->FP_AddS();
 
 	///////////////////////////////////////////////////
 	//Extract root, inverse
 
-	m_codeGen->FP_Rsqrt();
+	m_codeGen->FP_RsqrtS();
 
-	m_codeGen->FP_PullSingle(destination);
+	m_codeGen->FP_PullRel32(destination);
 }
 
 //1E

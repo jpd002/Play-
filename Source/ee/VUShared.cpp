@@ -751,11 +751,11 @@ void VUShared::CLIP(CMipsJitter* codeGen, uint8 nFs, uint8 nFt, uint32 relativeP
 	for(unsigned int i = 0; i < 3; i++)
 	{
 		//c > +|w|
-		codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP2[nFs].nV[i]));
-		codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP2[nFt].nV[3]));
-		codeGen->FP_Abs();
+		codeGen->FP_PushRel32(offsetof(CMIPS, m_State.nCOP2[nFs].nV[i]));
+		codeGen->FP_PushRel32(offsetof(CMIPS, m_State.nCOP2[nFt].nV[3]));
+		codeGen->FP_AbsS();
 
-		codeGen->FP_Cmp(Jitter::CONDITION_AB);
+		codeGen->FP_CmpS(Jitter::CONDITION_AB);
 		codeGen->PushCst(0);
 		codeGen->BeginIf(Jitter::CONDITION_NE);
 		{
@@ -767,12 +767,12 @@ void VUShared::CLIP(CMipsJitter* codeGen, uint8 nFs, uint8 nFt, uint32 relativeP
 		codeGen->EndIf();
 
 		//c < -|w|
-		codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP2[nFs].nV[i]));
-		codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP2[nFt].nV[3]));
-		codeGen->FP_Abs();
-		codeGen->FP_Neg();
+		codeGen->FP_PushRel32(offsetof(CMIPS, m_State.nCOP2[nFs].nV[i]));
+		codeGen->FP_PushRel32(offsetof(CMIPS, m_State.nCOP2[nFt].nV[3]));
+		codeGen->FP_AbsS();
+		codeGen->FP_NegS();
 
-		codeGen->FP_Cmp(Jitter::CONDITION_BL);
+		codeGen->FP_CmpS(Jitter::CONDITION_BL);
 		codeGen->PushCst(0);
 		codeGen->BeginIf(Jitter::CONDITION_NE);
 		{
@@ -807,10 +807,10 @@ void VUShared::DIV(CMipsJitter* codeGen, uint8 nFs, uint8 nFsf, uint8 nFt, uint8
 	}
 	codeGen->Else();
 	{
-		codeGen->FP_PushSingle(GetVectorElement(nFs, nFsf));
-		codeGen->FP_PushSingle(GetVectorElement(nFt, nFtf));
-		codeGen->FP_Div();
-		codeGen->FP_PullSingle(destination);
+		codeGen->FP_PushRel32(GetVectorElement(nFs, nFsf));
+		codeGen->FP_PushRel32(GetVectorElement(nFt, nFtf));
+		codeGen->FP_DivS();
+		codeGen->FP_PullRel32(destination);
 
 		codeGen->PushCst(0);
 		codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2DF));
@@ -1411,22 +1411,22 @@ void VUShared::MULAq(CMipsJitter* codeGen, uint8 dest, uint8 fs, uint32 relative
 void VUShared::OPMULA(CMipsJitter* codeGen, uint8 nFs, uint8 nFt)
 {
 	//ACCx
-	codeGen->FP_PushSingle(GetVectorElement(nFs, VECTOR_COMPY));
-	codeGen->FP_PushSingle(GetVectorElement(nFt, VECTOR_COMPZ));
-	codeGen->FP_Mul();
-	codeGen->FP_PullSingle(GetAccumulatorElement(VECTOR_COMPX));
+	codeGen->FP_PushRel32(GetVectorElement(nFs, VECTOR_COMPY));
+	codeGen->FP_PushRel32(GetVectorElement(nFt, VECTOR_COMPZ));
+	codeGen->FP_MulS();
+	codeGen->FP_PullRel32(GetAccumulatorElement(VECTOR_COMPX));
 
 	//ACCy
-	codeGen->FP_PushSingle(GetVectorElement(nFs, VECTOR_COMPZ));
-	codeGen->FP_PushSingle(GetVectorElement(nFt, VECTOR_COMPX));
-	codeGen->FP_Mul();
-	codeGen->FP_PullSingle(GetAccumulatorElement(VECTOR_COMPY));
+	codeGen->FP_PushRel32(GetVectorElement(nFs, VECTOR_COMPZ));
+	codeGen->FP_PushRel32(GetVectorElement(nFt, VECTOR_COMPX));
+	codeGen->FP_MulS();
+	codeGen->FP_PullRel32(GetAccumulatorElement(VECTOR_COMPY));
 
 	//ACCz
-	codeGen->FP_PushSingle(GetVectorElement(nFs, VECTOR_COMPX));
-	codeGen->FP_PushSingle(GetVectorElement(nFt, VECTOR_COMPY));
-	codeGen->FP_Mul();
-	codeGen->FP_PullSingle(GetAccumulatorElement(VECTOR_COMPZ));
+	codeGen->FP_PushRel32(GetVectorElement(nFs, VECTOR_COMPX));
+	codeGen->FP_PushRel32(GetVectorElement(nFt, VECTOR_COMPY));
+	codeGen->FP_MulS();
+	codeGen->FP_PullRel32(GetAccumulatorElement(VECTOR_COMPZ));
 }
 
 void VUShared::OPMSUB(CMipsJitter* codeGen, uint8 fd, uint8 fs, uint8 ft, uint32 relativePipeTime, uint32 compileHints)
@@ -1436,28 +1436,28 @@ void VUShared::OPMSUB(CMipsJitter* codeGen, uint8 fd, uint8 fs, uint8 ft, uint32
 	uint32 dest = 0x0E;
 
 	//X
-	codeGen->FP_PushSingle(GetAccumulatorElement(VECTOR_COMPX));
-	codeGen->FP_PushSingle(GetVectorElement(fs, VECTOR_COMPY));
-	codeGen->FP_PushSingle(GetVectorElement(ft, VECTOR_COMPZ));
-	codeGen->FP_Mul();
-	codeGen->FP_Sub();
-	codeGen->FP_PullSingle(GetVectorElement(tempRegIndex, VECTOR_COMPX));
+	codeGen->FP_PushRel32(GetAccumulatorElement(VECTOR_COMPX));
+	codeGen->FP_PushRel32(GetVectorElement(fs, VECTOR_COMPY));
+	codeGen->FP_PushRel32(GetVectorElement(ft, VECTOR_COMPZ));
+	codeGen->FP_MulS();
+	codeGen->FP_SubS();
+	codeGen->FP_PullRel32(GetVectorElement(tempRegIndex, VECTOR_COMPX));
 
 	//Y
-	codeGen->FP_PushSingle(GetAccumulatorElement(VECTOR_COMPY));
-	codeGen->FP_PushSingle(GetVectorElement(fs, VECTOR_COMPZ));
-	codeGen->FP_PushSingle(GetVectorElement(ft, VECTOR_COMPX));
-	codeGen->FP_Mul();
-	codeGen->FP_Sub();
-	codeGen->FP_PullSingle(GetVectorElement(tempRegIndex, VECTOR_COMPY));
+	codeGen->FP_PushRel32(GetAccumulatorElement(VECTOR_COMPY));
+	codeGen->FP_PushRel32(GetVectorElement(fs, VECTOR_COMPZ));
+	codeGen->FP_PushRel32(GetVectorElement(ft, VECTOR_COMPX));
+	codeGen->FP_MulS();
+	codeGen->FP_SubS();
+	codeGen->FP_PullRel32(GetVectorElement(tempRegIndex, VECTOR_COMPY));
 
 	//Z
-	codeGen->FP_PushSingle(GetAccumulatorElement(VECTOR_COMPZ));
-	codeGen->FP_PushSingle(GetVectorElement(fs, VECTOR_COMPX));
-	codeGen->FP_PushSingle(GetVectorElement(ft, VECTOR_COMPY));
-	codeGen->FP_Mul();
-	codeGen->FP_Sub();
-	codeGen->FP_PullSingle(GetVectorElement(tempRegIndex, VECTOR_COMPZ));
+	codeGen->FP_PushRel32(GetAccumulatorElement(VECTOR_COMPZ));
+	codeGen->FP_PushRel32(GetVectorElement(fs, VECTOR_COMPX));
+	codeGen->FP_PushRel32(GetVectorElement(ft, VECTOR_COMPY));
+	codeGen->FP_MulS();
+	codeGen->FP_SubS();
+	codeGen->FP_PullRel32(GetVectorElement(tempRegIndex, VECTOR_COMPZ));
 
 	TestSZFlags(codeGen, dest, offsetof(CMIPS, m_State.nCOP2[tempRegIndex]), relativePipeTime, compileHints);
 
@@ -1536,11 +1536,11 @@ void VUShared::RSQRT(CMipsJitter* codeGen, uint8 nFs, uint8 nFsf, uint8 nFt, uin
 	}
 	codeGen->Else();
 	{
-		codeGen->FP_PushSingle(GetVectorElement(nFs, nFsf));
-		codeGen->FP_PushSingle(GetVectorElement(nFt, nFtf));
-		codeGen->FP_Rsqrt();
-		codeGen->FP_Mul();
-		codeGen->FP_PullSingle(destination);
+		codeGen->FP_PushRel32(GetVectorElement(nFs, nFsf));
+		codeGen->FP_PushRel32(GetVectorElement(nFt, nFtf));
+		codeGen->FP_RsqrtS();
+		codeGen->FP_MulS();
+		codeGen->FP_PullRel32(destination);
 
 		codeGen->PushCst(0);
 		codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2DF));
@@ -1656,10 +1656,10 @@ void VUShared::SQRT(CMipsJitter* codeGen, uint8 nFt, uint8 nFtf, uint32 relative
 	size_t destination = g_pipeInfoQ.heldValue;
 	QueueInPipeline(g_pipeInfoQ, codeGen, LATENCY_SQRT, relativePipeTime);
 
-	codeGen->FP_PushSingle(GetVectorElement(nFt, nFtf));
-	codeGen->FP_Abs();
-	codeGen->FP_Sqrt();
-	codeGen->FP_PullSingle(destination);
+	codeGen->FP_PushRel32(GetVectorElement(nFt, nFtf));
+	codeGen->FP_AbsS();
+	codeGen->FP_SqrtS();
+	codeGen->FP_PullRel32(destination);
 
 	codeGen->PushCst(0);
 	codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2DF));

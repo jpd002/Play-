@@ -246,34 +246,34 @@ void CCOP_FPU::BC1TL()
 //00
 void CCOP_FPU::ADD_S()
 {
-	m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP1[m_fs]));
-	m_codeGen->FP_Clamp();
-	m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP1[m_ft]));
-	m_codeGen->FP_Clamp();
-	m_codeGen->FP_Add();
-	m_codeGen->FP_PullSingle(offsetof(CMIPS, m_State.nCOP1[m_fd]));
+	m_codeGen->FP_PushRel32(offsetof(CMIPS, m_State.nCOP1[m_fs]));
+	m_codeGen->FP_ClampS();
+	m_codeGen->FP_PushRel32(offsetof(CMIPS, m_State.nCOP1[m_ft]));
+	m_codeGen->FP_ClampS();
+	m_codeGen->FP_AddS();
+	m_codeGen->FP_PullRel32(offsetof(CMIPS, m_State.nCOP1[m_fd]));
 }
 
 //01
 void CCOP_FPU::SUB_S()
 {
-	m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP1[m_fs]));
-	m_codeGen->FP_Clamp();
-	m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP1[m_ft]));
-	m_codeGen->FP_Clamp();
-	m_codeGen->FP_Sub();
-	m_codeGen->FP_PullSingle(offsetof(CMIPS, m_State.nCOP1[m_fd]));
+	m_codeGen->FP_PushRel32(offsetof(CMIPS, m_State.nCOP1[m_fs]));
+	m_codeGen->FP_ClampS();
+	m_codeGen->FP_PushRel32(offsetof(CMIPS, m_State.nCOP1[m_ft]));
+	m_codeGen->FP_ClampS();
+	m_codeGen->FP_SubS();
+	m_codeGen->FP_PullRel32(offsetof(CMIPS, m_State.nCOP1[m_fd]));
 }
 
 //02
 void CCOP_FPU::MUL_S()
 {
-	m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP1[m_fs]));
-	m_codeGen->FP_Clamp();
-	m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP1[m_ft]));
-	m_codeGen->FP_Clamp();
-	m_codeGen->FP_Mul();
-	m_codeGen->FP_PullSingle(offsetof(CMIPS, m_State.nCOP1[m_fd]));
+	m_codeGen->FP_PushRel32(offsetof(CMIPS, m_State.nCOP1[m_fs]));
+	m_codeGen->FP_ClampS();
+	m_codeGen->FP_PushRel32(offsetof(CMIPS, m_State.nCOP1[m_ft]));
+	m_codeGen->FP_ClampS();
+	m_codeGen->FP_MulS();
+	m_codeGen->FP_PullRel32(offsetof(CMIPS, m_State.nCOP1[m_fd]));
 }
 
 //03
@@ -289,12 +289,12 @@ void CCOP_FPU::DIV_S()
 	}
 	m_codeGen->Else();
 	{
-		m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP1[m_fs]));
-		m_codeGen->FP_Clamp();
-		m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP1[m_ft]));
-		m_codeGen->FP_Clamp();
-		m_codeGen->FP_Div();
-		m_codeGen->FP_PullSingle(offsetof(CMIPS, m_State.nCOP1[m_fd]));
+		m_codeGen->FP_PushRel32(offsetof(CMIPS, m_State.nCOP1[m_fs]));
+		m_codeGen->FP_ClampS();
+		m_codeGen->FP_PushRel32(offsetof(CMIPS, m_State.nCOP1[m_ft]));
+		m_codeGen->FP_ClampS();
+		m_codeGen->FP_DivS();
+		m_codeGen->FP_PullRel32(offsetof(CMIPS, m_State.nCOP1[m_fd]));
 	}
 	m_codeGen->EndIf();
 }
@@ -302,19 +302,19 @@ void CCOP_FPU::DIV_S()
 //04
 void CCOP_FPU::SQRT_S()
 {
-	m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP1[m_ft]));
-	m_codeGen->FP_Clamp();
-	m_codeGen->FP_Abs();
-	m_codeGen->FP_Sqrt();
-	m_codeGen->FP_PullSingle(offsetof(CMIPS, m_State.nCOP1[m_fd]));
+	m_codeGen->FP_PushRel32(offsetof(CMIPS, m_State.nCOP1[m_ft]));
+	m_codeGen->FP_ClampS();
+	m_codeGen->FP_AbsS();
+	m_codeGen->FP_SqrtS();
+	m_codeGen->FP_PullRel32(offsetof(CMIPS, m_State.nCOP1[m_fd]));
 }
 
 //05
 void CCOP_FPU::ABS_S()
 {
-	m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP1[m_fs]));
-	m_codeGen->FP_Abs();
-	m_codeGen->FP_PullSingle(offsetof(CMIPS, m_State.nCOP1[m_fd]));
+	m_codeGen->FP_PushRel32(offsetof(CMIPS, m_State.nCOP1[m_fs]));
+	m_codeGen->FP_AbsS();
+	m_codeGen->FP_PullRel32(offsetof(CMIPS, m_State.nCOP1[m_fd]));
 }
 
 //06
@@ -327,16 +327,17 @@ void CCOP_FPU::MOV_S()
 //07
 void CCOP_FPU::NEG_S()
 {
-	m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP1[m_fs]));
-	m_codeGen->FP_Neg();
-	m_codeGen->FP_PullSingle(offsetof(CMIPS, m_State.nCOP1[m_fd]));
+	m_codeGen->FP_PushRel32(offsetof(CMIPS, m_State.nCOP1[m_fs]));
+	m_codeGen->FP_NegS();
+	m_codeGen->FP_PullRel32(offsetof(CMIPS, m_State.nCOP1[m_fd]));
 }
 
 //0D
 void CCOP_FPU::TRUNC_W_S()
 {
-	m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP1[m_fs]));
-	m_codeGen->FP_PullWordTruncate(offsetof(CMIPS, m_State.nCOP1[m_fd]));
+	m_codeGen->FP_PushRel32(offsetof(CMIPS, m_State.nCOP1[m_fs]));
+	m_codeGen->FP_ToInt32TruncateS();
+	m_codeGen->FP_PullRel32(offsetof(CMIPS, m_State.nCOP1[m_fd]));
 }
 
 //16
@@ -352,13 +353,13 @@ void CCOP_FPU::RSQRT_S()
 	}
 	m_codeGen->Else();
 	{
-		m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP1[m_fs]));
-		m_codeGen->FP_Clamp();
-		m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP1[m_ft]));
-		m_codeGen->FP_Clamp();
-		m_codeGen->FP_Rsqrt();
-		m_codeGen->FP_Mul();
-		m_codeGen->FP_PullSingle(offsetof(CMIPS, m_State.nCOP1[m_fd]));
+		m_codeGen->FP_PushRel32(offsetof(CMIPS, m_State.nCOP1[m_fs]));
+		m_codeGen->FP_ClampS();
+		m_codeGen->FP_PushRel32(offsetof(CMIPS, m_State.nCOP1[m_ft]));
+		m_codeGen->FP_ClampS();
+		m_codeGen->FP_RsqrtS();
+		m_codeGen->FP_MulS();
+		m_codeGen->FP_PullRel32(offsetof(CMIPS, m_State.nCOP1[m_fd]));
 	}
 	m_codeGen->EndIf();
 }
@@ -366,90 +367,90 @@ void CCOP_FPU::RSQRT_S()
 //18
 void CCOP_FPU::ADDA_S()
 {
-	m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP1[m_fs]));
-	m_codeGen->FP_Clamp();
-	m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP1[m_ft]));
-	m_codeGen->FP_Clamp();
-	m_codeGen->FP_Add();
-	m_codeGen->FP_PullSingle(offsetof(CMIPS, m_State.nCOP1A));
+	m_codeGen->FP_PushRel32(offsetof(CMIPS, m_State.nCOP1[m_fs]));
+	m_codeGen->FP_ClampS();
+	m_codeGen->FP_PushRel32(offsetof(CMIPS, m_State.nCOP1[m_ft]));
+	m_codeGen->FP_ClampS();
+	m_codeGen->FP_AddS();
+	m_codeGen->FP_PullRel32(offsetof(CMIPS, m_State.nCOP1A));
 }
 
 //19
 void CCOP_FPU::SUBA_S()
 {
-	m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP1[m_fs]));
-	m_codeGen->FP_Clamp();
-	m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP1[m_ft]));
-	m_codeGen->FP_Clamp();
-	m_codeGen->FP_Sub();
-	m_codeGen->FP_PullSingle(offsetof(CMIPS, m_State.nCOP1A));
+	m_codeGen->FP_PushRel32(offsetof(CMIPS, m_State.nCOP1[m_fs]));
+	m_codeGen->FP_ClampS();
+	m_codeGen->FP_PushRel32(offsetof(CMIPS, m_State.nCOP1[m_ft]));
+	m_codeGen->FP_ClampS();
+	m_codeGen->FP_SubS();
+	m_codeGen->FP_PullRel32(offsetof(CMIPS, m_State.nCOP1A));
 }
 
 //1A
 void CCOP_FPU::MULA_S()
 {
-	m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP1[m_fs]));
-	m_codeGen->FP_Clamp();
-	m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP1[m_ft]));
-	m_codeGen->FP_Clamp();
-	m_codeGen->FP_Mul();
-	m_codeGen->FP_PullSingle(offsetof(CMIPS, m_State.nCOP1A));
+	m_codeGen->FP_PushRel32(offsetof(CMIPS, m_State.nCOP1[m_fs]));
+	m_codeGen->FP_ClampS();
+	m_codeGen->FP_PushRel32(offsetof(CMIPS, m_State.nCOP1[m_ft]));
+	m_codeGen->FP_ClampS();
+	m_codeGen->FP_MulS();
+	m_codeGen->FP_PullRel32(offsetof(CMIPS, m_State.nCOP1A));
 }
 
 //1C
 void CCOP_FPU::MADD_S()
 {
-	m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP1A));
-	m_codeGen->FP_Clamp();
-	m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP1[m_fs]));
-	m_codeGen->FP_Clamp();
-	m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP1[m_ft]));
-	m_codeGen->FP_Clamp();
-	m_codeGen->FP_Mul();
-	m_codeGen->FP_Add();
-	m_codeGen->FP_PullSingle(offsetof(CMIPS, m_State.nCOP1[m_fd]));
+	m_codeGen->FP_PushRel32(offsetof(CMIPS, m_State.nCOP1A));
+	m_codeGen->FP_ClampS();
+	m_codeGen->FP_PushRel32(offsetof(CMIPS, m_State.nCOP1[m_fs]));
+	m_codeGen->FP_ClampS();
+	m_codeGen->FP_PushRel32(offsetof(CMIPS, m_State.nCOP1[m_ft]));
+	m_codeGen->FP_ClampS();
+	m_codeGen->FP_MulS();
+	m_codeGen->FP_AddS();
+	m_codeGen->FP_PullRel32(offsetof(CMIPS, m_State.nCOP1[m_fd]));
 }
 
 //1D
 void CCOP_FPU::MSUB_S()
 {
-	m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP1A));
-	m_codeGen->FP_Clamp();
-	m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP1[m_fs]));
-	m_codeGen->FP_Clamp();
-	m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP1[m_ft]));
-	m_codeGen->FP_Clamp();
-	m_codeGen->FP_Mul();
-	m_codeGen->FP_Sub();
-	m_codeGen->FP_PullSingle(offsetof(CMIPS, m_State.nCOP1[m_fd]));
+	m_codeGen->FP_PushRel32(offsetof(CMIPS, m_State.nCOP1A));
+	m_codeGen->FP_ClampS();
+	m_codeGen->FP_PushRel32(offsetof(CMIPS, m_State.nCOP1[m_fs]));
+	m_codeGen->FP_ClampS();
+	m_codeGen->FP_PushRel32(offsetof(CMIPS, m_State.nCOP1[m_ft]));
+	m_codeGen->FP_ClampS();
+	m_codeGen->FP_MulS();
+	m_codeGen->FP_SubS();
+	m_codeGen->FP_PullRel32(offsetof(CMIPS, m_State.nCOP1[m_fd]));
 }
 
 //1E
 void CCOP_FPU::MADDA_S()
 {
-	m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP1A));
-	m_codeGen->FP_Clamp();
-	m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP1[m_fs]));
-	m_codeGen->FP_Clamp();
-	m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP1[m_ft]));
-	m_codeGen->FP_Clamp();
-	m_codeGen->FP_Mul();
-	m_codeGen->FP_Add();
-	m_codeGen->FP_PullSingle(offsetof(CMIPS, m_State.nCOP1A));
+	m_codeGen->FP_PushRel32(offsetof(CMIPS, m_State.nCOP1A));
+	m_codeGen->FP_ClampS();
+	m_codeGen->FP_PushRel32(offsetof(CMIPS, m_State.nCOP1[m_fs]));
+	m_codeGen->FP_ClampS();
+	m_codeGen->FP_PushRel32(offsetof(CMIPS, m_State.nCOP1[m_ft]));
+	m_codeGen->FP_ClampS();
+	m_codeGen->FP_MulS();
+	m_codeGen->FP_AddS();
+	m_codeGen->FP_PullRel32(offsetof(CMIPS, m_State.nCOP1A));
 }
 
 //1F
 void CCOP_FPU::MSUBA_S()
 {
-	m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP1A));
-	m_codeGen->FP_Clamp();
-	m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP1[m_fs]));
-	m_codeGen->FP_Clamp();
-	m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP1[m_ft]));
-	m_codeGen->FP_Clamp();
-	m_codeGen->FP_Mul();
-	m_codeGen->FP_Sub();
-	m_codeGen->FP_PullSingle(offsetof(CMIPS, m_State.nCOP1A));
+	m_codeGen->FP_PushRel32(offsetof(CMIPS, m_State.nCOP1A));
+	m_codeGen->FP_ClampS();
+	m_codeGen->FP_PushRel32(offsetof(CMIPS, m_State.nCOP1[m_fs]));
+	m_codeGen->FP_ClampS();
+	m_codeGen->FP_PushRel32(offsetof(CMIPS, m_State.nCOP1[m_ft]));
+	m_codeGen->FP_ClampS();
+	m_codeGen->FP_MulS();
+	m_codeGen->FP_SubS();
+	m_codeGen->FP_PullRel32(offsetof(CMIPS, m_State.nCOP1A));
 }
 
 //24
@@ -457,30 +458,31 @@ void CCOP_FPU::CVT_W_S()
 {
 	//Load the rounding mode from FCSR?
 	//PS2 only supports truncate rounding mode
-	m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP1[m_fs]));
-	m_codeGen->FP_PullWordTruncate(offsetof(CMIPS, m_State.nCOP1[m_fd]));
+	m_codeGen->FP_PushRel32(offsetof(CMIPS, m_State.nCOP1[m_fs]));
+	m_codeGen->FP_ToInt32TruncateS();
+	m_codeGen->FP_PullRel32(offsetof(CMIPS, m_State.nCOP1[m_fd]));
 }
 
 //28
 void CCOP_FPU::MAX_S()
 {
-	m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP1[m_fs]));
-	m_codeGen->FP_Clamp();
-	m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP1[m_ft]));
-	m_codeGen->FP_Clamp();
-	m_codeGen->FP_Max();
-	m_codeGen->FP_PullSingle(offsetof(CMIPS, m_State.nCOP1[m_fd]));
+	m_codeGen->FP_PushRel32(offsetof(CMIPS, m_State.nCOP1[m_fs]));
+	m_codeGen->FP_ClampS();
+	m_codeGen->FP_PushRel32(offsetof(CMIPS, m_State.nCOP1[m_ft]));
+	m_codeGen->FP_ClampS();
+	m_codeGen->FP_MaxS();
+	m_codeGen->FP_PullRel32(offsetof(CMIPS, m_State.nCOP1[m_fd]));
 }
 
 //29
 void CCOP_FPU::MIN_S()
 {
-	m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP1[m_fs]));
-	m_codeGen->FP_Clamp();
-	m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP1[m_ft]));
-	m_codeGen->FP_Clamp();
-	m_codeGen->FP_Min();
-	m_codeGen->FP_PullSingle(offsetof(CMIPS, m_State.nCOP1[m_fd]));
+	m_codeGen->FP_PushRel32(offsetof(CMIPS, m_State.nCOP1[m_fs]));
+	m_codeGen->FP_ClampS();
+	m_codeGen->FP_PushRel32(offsetof(CMIPS, m_State.nCOP1[m_ft]));
+	m_codeGen->FP_ClampS();
+	m_codeGen->FP_MinS();
+	m_codeGen->FP_PullRel32(offsetof(CMIPS, m_State.nCOP1[m_fd]));
 }
 
 //30
@@ -493,13 +495,13 @@ void CCOP_FPU::C_F_S()
 //32
 void CCOP_FPU::C_EQ_S()
 {
-	m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP1[m_fs]));
-	m_codeGen->FP_Clamp();
+	m_codeGen->FP_PushRel32(offsetof(CMIPS, m_State.nCOP1[m_fs]));
+	m_codeGen->FP_ClampS();
 
-	m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP1[m_ft]));
-	m_codeGen->FP_Clamp();
+	m_codeGen->FP_PushRel32(offsetof(CMIPS, m_State.nCOP1[m_ft]));
+	m_codeGen->FP_ClampS();
 
-	m_codeGen->FP_Cmp(Jitter::CONDITION_EQ);
+	m_codeGen->FP_CmpS(Jitter::CONDITION_EQ);
 
 	SetCCBit(true, m_ccMask[((m_nOpcode >> 8) & 0x07)]);
 }
@@ -507,13 +509,13 @@ void CCOP_FPU::C_EQ_S()
 //34
 void CCOP_FPU::C_LT_S()
 {
-	m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP1[m_fs]));
-	m_codeGen->FP_Clamp();
+	m_codeGen->FP_PushRel32(offsetof(CMIPS, m_State.nCOP1[m_fs]));
+	m_codeGen->FP_ClampS();
 
-	m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP1[m_ft]));
-	m_codeGen->FP_Clamp();
+	m_codeGen->FP_PushRel32(offsetof(CMIPS, m_State.nCOP1[m_ft]));
+	m_codeGen->FP_ClampS();
 
-	m_codeGen->FP_Cmp(Jitter::CONDITION_BL);
+	m_codeGen->FP_CmpS(Jitter::CONDITION_BL);
 
 	SetCCBit(true, m_ccMask[((m_nOpcode >> 8) & 0x07)]);
 }
@@ -521,13 +523,13 @@ void CCOP_FPU::C_LT_S()
 //36
 void CCOP_FPU::C_LE_S()
 {
-	m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP1[m_fs]));
-	m_codeGen->FP_Clamp();
+	m_codeGen->FP_PushRel32(offsetof(CMIPS, m_State.nCOP1[m_fs]));
+	m_codeGen->FP_ClampS();
 
-	m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP1[m_ft]));
-	m_codeGen->FP_Clamp();
+	m_codeGen->FP_PushRel32(offsetof(CMIPS, m_State.nCOP1[m_ft]));
+	m_codeGen->FP_ClampS();
 
-	m_codeGen->FP_Cmp(Jitter::CONDITION_BE);
+	m_codeGen->FP_CmpS(Jitter::CONDITION_BE);
 
 	SetCCBit(true, m_ccMask[((m_nOpcode >> 8) & 0x07)]);
 }
@@ -539,8 +541,9 @@ void CCOP_FPU::C_LE_S()
 //20
 void CCOP_FPU::CVT_S_W()
 {
-	m_codeGen->FP_PushWord(offsetof(CMIPS, m_State.nCOP1[m_fs]));
-	m_codeGen->FP_PullSingle(offsetof(CMIPS, m_State.nCOP1[m_fd]));
+	m_codeGen->FP_PushRel32(offsetof(CMIPS, m_State.nCOP1[m_fs]));
+	m_codeGen->FP_ToSingleI32();
+	m_codeGen->FP_PullRel32(offsetof(CMIPS, m_State.nCOP1[m_fd]));
 }
 
 //////////////////////////////////////////////////
