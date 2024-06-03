@@ -2757,8 +2757,9 @@ void CPS2OS::sc_CreateSema()
 	auto semaParam = reinterpret_cast<SEMAPHOREPARAM*>(GetStructPtr(m_ee.m_State.nGPR[SC_PARAM0].nV0));
 
 	uint32 id = m_semaphores.Allocate();
-	if(id == 0xFFFFFFFF)
+	if(id == SemaphoreList::INVALID_ID)
 	{
+		CLog::GetInstance().Warn(LOG_NAME, "Failed to allocate semaphore.\r\n");
 		m_ee.m_State.nGPR[SC_RETURN].nD0 = -1;
 		return;
 	}
