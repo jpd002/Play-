@@ -199,7 +199,7 @@ private:
 
 	struct DECI2HANDLER
 	{
-		uint32 valid;
+		uint32 isValid;
 		uint32 device;
 		uint32 bufferAddr;
 	};
@@ -324,6 +324,7 @@ private:
 		THS_DORMANT = 0x10,
 	};
 
+	typedef COsStructManager<DECI2HANDLER> Deci2HandlerList;
 	typedef COsStructManager<THREAD> ThreadList;
 	typedef COsStructManager<SEMAPHORE> SemaphoreList;
 	typedef COsStructManager<INTCHANDLER> IntcHandlerList;
@@ -376,9 +377,6 @@ private:
 
 	std::pair<uint32, uint32> GetVsyncFlagPtrs() const;
 	void SetVsyncFlagPtrs(uint32, uint32);
-
-	uint32 GetNextAvailableDeci2HandlerId();
-	DECI2HANDLER* GetDeci2Handler(uint32);
 
 	//Various system calls
 	void sc_GsSetCrt();
@@ -452,6 +450,7 @@ private:
 	CIopBios& m_iopBios;
 
 	std::unique_ptr<CELF32> m_elf;
+	Deci2HandlerList m_deci2Handlers;
 	ThreadList m_threads;
 	SemaphoreList m_semaphores;
 	IntcHandlerList m_intcHandlers;

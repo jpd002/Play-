@@ -34,6 +34,7 @@
 #define BIOS_ADDRESS_STATE_ITEM(a) (BIOS_ADDRESS_STATE_BASE + offsetof(BIOS_STATE, a))
 
 #define BIOS_ADDRESS_INTERRUPT_THREAD_CONTEXT (BIOS_ADDRESS_STATE_BASE + sizeof(BIOS_STATE))
+#define BIOS_ADDRESS_DECI2HANDLER_BASE 0x00008000
 #define BIOS_ADDRESS_INTCHANDLER_BASE 0x0000A000
 #define BIOS_ADDRESS_DMACHANDLER_BASE 0x0000C000
 #define BIOS_ADDRESS_SEMAPHORE_BASE 0x0000E000
@@ -218,6 +219,7 @@ CPS2OS::CPS2OS(CMIPS& ee, uint8* ram, uint8* bios, uint8* spr, CGSHandler*& gs, 
     , m_sif(sif)
     , m_libMc2(ram, *this, iopBios)
     , m_iopBios(iopBios)
+    , m_deci2Handlers(reinterpret_cast<DECI2HANDLER*>(m_ram + BIOS_ADDRESS_DECI2HANDLER_BASE), BIOS_ID_BASE, MAX_DECI2HANDLER)
     , m_threads(reinterpret_cast<THREAD*>(m_ram + BIOS_ADDRESS_THREAD_BASE), BIOS_ID_BASE, MAX_THREAD)
     , m_semaphores(reinterpret_cast<SEMAPHORE*>(m_ram + BIOS_ADDRESS_SEMAPHORE_BASE), SEMA_ID_BASE, MAX_SEMAPHORE)
     , m_intcHandlers(reinterpret_cast<INTCHANDLER*>(m_ram + BIOS_ADDRESS_INTCHANDLER_BASE), BIOS_ID_BASE, MAX_INTCHANDLER)
@@ -1406,26 +1408,6 @@ uint8* CPS2OS::GetStructPtr(uint32 address) const
 		memory = m_ram;
 	}
 	return memory + address;
-}
-
-uint32 CPS2OS::GetNextAvailableDeci2HandlerId()
-{
-	for(uint32 i = 1; i < MAX_DECI2HANDLER; i++)
-	{
-		DECI2HANDLER* handler = GetDeci2Handler(i);
-		if(handler->valid != 1)
-		{
-			return i;
-		}
-	}
-
-	return 0xFFFFFFFF;
-}
-
-CPS2OS::DECI2HANDLER* CPS2OS::GetDeci2Handler(uint32 id)
-{
-	id--;
-	return &((DECI2HANDLER*)&m_ram[0x00008000])[id];
 }
 
 Ee::CLibMc2& CPS2OS::GetLibMc2()
@@ -3144,13 +3126,20 @@ void CPS2OS::sc_Deci2Call()
 	case 0x01:
 		//Deci2Open
 		{
-			uint32 id = GetNextAvailableDeci2HandlerId();
-
-			auto handler = GetDeci2Handler(id);
-			handler->valid = 1;
-			handler->device = *reinterpret_cast<uint32*>(GetStructPtr(param + 0x00));
-			handler->bufferAddr = *reinterpret_cast<uint32*>(GetStructPtr(param + 0x04));
-
+			uint32 id = m_deci2Handlers.Allocate();
+			if(id == Deci2HandlerList::INVALID_ID)
+			{
+				//This happens in 007: Nightfire. The game has a custom ELF loader and newly loaded
+				//ELF attempts to clean everything, but they forgot about DECI2 handlers.
+				CLog::GetInstance().Warn(LOG_NAME, "Failed to allocate DECI2 handler.\r\n");
+			}
+			else
+			{
+				auto handler = m_deci2Handlers[id];
+				handler->isValid = 1;
+				handler->device = *reinterpret_cast<uint32*>(GetStructPtr(param + 0x00));
+				handler->bufferAddr = *reinterpret_cast<uint32*>(GetStructPtr(param + 0x04));
+			}
 			m_ee.m_State.nGPR[SC_RETURN].nD0 = static_cast<int32>(id);
 		}
 		break;
@@ -3158,10 +3147,10 @@ void CPS2OS::sc_Deci2Call()
 		//Deci2Send
 		{
 			uint32 id = *reinterpret_cast<uint32*>(GetStructPtr(param + 0x00));
-			auto handler = GetDeci2Handler(id);
 
-			assert(handler->valid);
-			if(handler->valid)
+			auto handler = m_deci2Handlers[id];
+			assert(handler);
+			if(handler)
 			{
 				auto buffer = reinterpret_cast<DECI2BUFFER*>(GetStructPtr(handler->bufferAddr));
 				if(buffer->dataAddr != 0)
@@ -3189,9 +3178,9 @@ void CPS2OS::sc_Deci2Call()
 		{
 			uint32 id = *reinterpret_cast<uint32*>(GetStructPtr(param + 0x00));
 
-			auto handler = GetDeci2Handler(id);
-			assert(handler->valid);
-			if(handler->valid)
+			auto handler = m_deci2Handlers[id];
+			assert(handler);
+			if(handler)
 			{
 				auto buffer = reinterpret_cast<DECI2BUFFER*>(GetStructPtr(handler->bufferAddr));
 				buffer->status1 = 0;
