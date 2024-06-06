@@ -1,6 +1,7 @@
 #include "Iop_Usbd.h"
 #include "IopBios.h"
 #include "../Log.h"
+#include "UsbDefs.h"
 
 using namespace Iop;
 
@@ -160,47 +161,40 @@ int32 CUsbd::ScanStaticDescriptor(uint32 deviceId, uint32 descriptorPtr, uint32 
 
 	assert(deviceId == g_deviceId);
 
-	//Details about descriptors here:
-	//https://www.beyondlogic.org/usbnutshell/usb5.shtml
-
 	uint32 result = 0;
 	switch(descriptorType)
 	{
-	case 1:
+	case Usb::DESCRIPTOR_TYPE_DEVICE:
 	{
-		//Device descriptor
-		uint8* descriptorMem = reinterpret_cast<uint8*>(m_ram + m_descriptorMemPtr);
-		descriptorMem[1] = descriptorType;
+		auto descriptor = reinterpret_cast<Usb::DEVICE_DESCRIPTOR*>(m_ram + m_descriptorMemPtr);
+		descriptor->base.descriptorType = Usb::DESCRIPTOR_TYPE_DEVICE;
 		result = m_descriptorMemPtr;
 	}
 	break;
-	case 2:
+	case Usb::DESCRIPTOR_TYPE_CONFIGURATION:
 	{
-		//Configuration descriptor
-		uint8* descriptorMem = reinterpret_cast<uint8*>(m_ram + m_descriptorMemPtr);
-		descriptorMem[1] = descriptorType;
-		descriptorMem[4] = 1;
+		auto descriptor = reinterpret_cast<Usb::CONFIGURATION_DESCRIPTOR*>(m_ram + m_descriptorMemPtr);
+		descriptor->base.descriptorType = Usb::DESCRIPTOR_TYPE_CONFIGURATION;
+		descriptor->numInterfaces = 1;
 		result = m_descriptorMemPtr;
 	}
 	break;
-	case 4:
+	case Usb::DESCRIPTOR_TYPE_INTERFACE:
 	{
-		//Interface descriptor
-		uint8* descriptorMem = reinterpret_cast<uint8*>(m_ram + m_descriptorMemPtr);
-		descriptorMem[1] = descriptorType;
-		descriptorMem[4] = 1;
+		auto descriptor = reinterpret_cast<Usb::INTERFACE_DESCRIPTOR*>(m_ram + m_descriptorMemPtr);
+		descriptor->base.descriptorType = Usb::DESCRIPTOR_TYPE_INTERFACE;
+		descriptor->numEndpoints = 1;
 		result = m_descriptorMemPtr;
 	}
 	break;
-	case 5:
+	case Usb::DESCRIPTOR_TYPE_ENDPOINT:
 	{
-		//Endpoint descriptor
-		uint8* descriptorMem = reinterpret_cast<uint8*>(m_ram + m_descriptorMemPtr);
-		if(descriptorMem[1] != descriptorType)
+		auto descriptor = reinterpret_cast<Usb::ENDPOINT_DESCRIPTOR*>(m_ram + m_descriptorMemPtr);
+		if(descriptor->base.descriptorType != Usb::DESCRIPTOR_TYPE_ENDPOINT)
 		{
-			descriptorMem[1] = descriptorType;
-			descriptorMem[2] = 0x80;
-			descriptorMem[3] = 0x3;
+			descriptor->base.descriptorType = Usb::DESCRIPTOR_TYPE_ENDPOINT;
+			descriptor->endpointAddress = 0x80;
+			descriptor->attributes = 3; //Interrupt transfer type
 			result = m_descriptorMemPtr;
 		}
 	}

@@ -420,6 +420,7 @@ set(COMMON_SRC_FILES
 	iop/Iop_Vblank.h
 	iop/IopBios.cpp
 	iop/IopBios.h
+	iop/UsbDefs.h
 	ISO9660/BlockProvider.h
 	ISO9660/DirectoryRecord.cpp
 	ISO9660/DirectoryRecord.h
