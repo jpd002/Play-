@@ -90,29 +90,58 @@ void CSys147::SetButtonState(unsigned int padNumber, PS2::CControllerInfo::BUTTO
 	{
 		m_switchStates[binding->second] = pressed ? 0xFF : 0x00;
 	}
-	uint16 mask = 0;
+	if(padNumber != 0) return;
+
+	//Player Switches
+	//4 nibbles, one for each player
+	//In one nibble:
+	//Bit 0 - Up
+	//Bit 1 - Down
+	//Bit 2 - Right
+	//Bit 3 - Left
+
+	//System Switches
+	//Bit 0  - Select Down
+	//Bit 1  - Select Up
+	//Bit 2  - Enter
+	//Bit 3  - Test
+	//Bit 8  - P1 Enter
+	//Bit 9  - P3 Enter
+	//Bit 10 - P2 Enter
+	//Bit 11 - P4 Enter
+	uint16 systemSwitchMask = 0;
+	uint16 playerSwitchMask = 0;
 	switch(button)
 	{
 	case PS2::CControllerInfo::L1:
-		mask = 0x0008; //Test Button
+		systemSwitchMask = 0x0008; //Test Button
 		break;
 	case PS2::CControllerInfo::DPAD_UP:
-		mask = 0x0002; //Select Up
+		systemSwitchMask = 0x0002; //Select Up
+		playerSwitchMask = 0x0010;
 		break;
 	case PS2::CControllerInfo::DPAD_DOWN:
-		mask = 0x0001; //Select Down
+		systemSwitchMask = 0x0001; //Select Down
+		playerSwitchMask = 0x0020;
+		break;
+	case PS2::CControllerInfo::DPAD_LEFT:
+		playerSwitchMask = 0x0080;
+		break;
+	case PS2::CControllerInfo::DPAD_RIGHT:
+		playerSwitchMask = 0x0040;
 		break;
 	case PS2::CControllerInfo::CROSS:
-		mask = 0x0004; //Enter
+		systemSwitchMask = 0x0404; //Enter
 		break;
 	default:
-		mask = 0;
 		break;
 	}
-	m_systemSwitchState &= ~mask;
+	m_systemSwitchState &= ~systemSwitchMask;
+	m_playerSwitchState &= ~playerSwitchMask;
 	if(!pressed)
 	{
-		m_systemSwitchState |= mask;
+		m_systemSwitchState |= systemSwitchMask;
+		m_playerSwitchState |= playerSwitchMask;
 	}
 }
 
@@ -438,15 +467,28 @@ bool CSys147::Invoke99(uint32 method, uint32* args, uint32 argsSize, uint32* ret
 			}
 			else if(packet->command == 0x10)
 			{
-				MODULE_99_PACKET reply = {};
-				reply.type = 2;
-				reply.command = 0x10;
-				reply.data[0] = static_cast<uint8>(m_systemSwitchState);
-				reply.data[1] = static_cast<uint8>(m_systemSwitchState >> 8);
-				reply.data[2] = static_cast<uint8>(m_systemSwitchState >> 16);
-				reply.data[3] = static_cast<uint8>(m_systemSwitchState >> 24);
-				reply.checksum = ComputePacketChecksum(reply);
-				m_pendingReplies.emplace_back(reply);
+				{
+					MODULE_99_PACKET reply = {};
+					reply.type = 2;
+					reply.command = 0x10;
+					reply.data[0] = static_cast<uint8>(m_systemSwitchState);
+					reply.data[1] = static_cast<uint8>(m_systemSwitchState >> 8);
+					reply.data[2] = static_cast<uint8>(m_systemSwitchState >> 16);
+					reply.data[3] = static_cast<uint8>(m_systemSwitchState >> 24);
+					reply.checksum = ComputePacketChecksum(reply);
+					m_pendingReplies.emplace_back(reply);
+				}
+				
+				{
+					MODULE_99_PACKET reply = {};
+					reply.type = 3;
+					reply.command = 0x10;
+					reply.data[0x32] = 0x20;
+					reply.data[0x36] = static_cast<uint8>(m_playerSwitchState);
+					reply.data[0x37] = static_cast<uint8>(m_playerSwitchState >> 8);
+					reply.checksum = ComputePacketChecksum(reply);
+					m_pendingReplies.emplace_back(reply);
+				}
 			}
 			reinterpret_cast<uint16*>(ret)[0] = 1;
 		}

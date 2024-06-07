@@ -87,6 +87,7 @@ namespace Iop
 			std::mutex m_barcodeMutex;
 			std::string m_currentBarcode;
 			uint32 m_systemSwitchState = ~0U;
+			uint16 m_playerSwitchState = ~0U;
 		};
 	}
 }
