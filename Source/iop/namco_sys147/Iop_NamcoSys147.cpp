@@ -162,6 +162,20 @@ bool CSys147::Invoke003(uint32 method, uint32* args, uint32 argsSize, uint32* re
 {
 	switch(method)
 	{
+	case 4:
+	{
+		//Read RTC
+		assert(argsSize == 0x10);
+		assert(retSize == 0x20);
+		ret[0] = 0x24; //Year
+		ret[1] = 0x02; //Month
+		ret[2] = 0x07; //Day
+		ret[3] = 0x01; //Day of Week (?)
+		ret[4] = 0x04; //Hours
+		ret[5] = 0x04; //Minutes
+		ret[6] = 0x05; //Seconds;
+	}
+	break;
 	default:
 		CLog::GetInstance().Warn(LOG_NAME, "Unknown method invoked (0x%08X, 0x%08X).\r\n", 0x003, method);
 		break;
