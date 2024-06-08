@@ -491,7 +491,7 @@ bool CSys147::Invoke99(uint32 method, uint32* args, uint32 argsSize, uint32* ret
 						reply.checksum = ComputePacketChecksum(reply);
 						m_pendingReplies.emplace_back(reply);
 					}
-					
+
 					{
 						MODULE_99_PACKET reply = {};
 						reply.type = 3;

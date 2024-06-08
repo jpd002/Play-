@@ -18,7 +18,7 @@ namespace Iop
 				DEFAULT,
 				AI,
 			};
-			
+
 			CSys147(CSifMan&, const std::string&);
 			virtual ~CSys147() = default;
 

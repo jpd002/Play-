@@ -29,7 +29,7 @@ struct ARCADE_MACHINE_DEF
 		DEFAULT,
 		SYS147_AI,
 	};
-	
+
 	struct PATCH
 	{
 		uint32 address = 0;
