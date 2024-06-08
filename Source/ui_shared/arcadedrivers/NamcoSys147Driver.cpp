@@ -27,6 +27,15 @@ void CNamcoSys147Driver::PrepareEnvironment(CPS2VM* virtualMachine, const ARCADE
 
 	{
 		auto sys147Module = std::make_shared<Iop::Namco::CSys147>(*iopBios->GetSifman(), def.id);
+		switch(def.ioMode)
+		{
+		case ARCADE_MACHINE_DEF::IO_MODE::SYS147_AI:
+			sys147Module->SetIoMode(Iop::Namco::CSys147::IO_MODE::AI);
+			break;
+		default:
+			assert(false);
+			break;
+		}
 		iopBios->RegisterModule(sys147Module);
 		iopBios->RegisterHleModuleReplacement("S147LINK", sys147Module);
 		virtualMachine->m_pad->InsertListener(sys147Module.get());

@@ -48,6 +48,12 @@ static const std::pair<const char*, ARCADE_MACHINE_DEF::INPUT_MODE> g_inputModeV
 	{ "drive", ARCADE_MACHINE_DEF::INPUT_MODE::DRIVE },
 	{ "touch", ARCADE_MACHINE_DEF::INPUT_MODE::TOUCH },
 };
+
+static const std::pair<const char*, ARCADE_MACHINE_DEF::IO_MODE> g_ioModeValues[] =
+{
+	{ "default", ARCADE_MACHINE_DEF::IO_MODE::DEFAULT },
+	{ "sys147_ai", ARCADE_MACHINE_DEF::IO_MODE::SYS147_AI },
+};
 // clang-format on
 
 template <typename ValueType>
@@ -182,6 +188,11 @@ ARCADE_MACHINE_DEF ReadArcadeMachineDefinition(const fs::path& arcadeDefPath)
 	{
 		std::string inputModeString = defJson["inputMode"];
 		def.inputMode = ParseEnumValue(inputModeString.c_str(), std::begin(g_inputModeValues), std::end(g_inputModeValues));
+	}
+	if(defJson.contains("ioMode"))
+	{
+		std::string ioModeString = defJson["ioMode"];
+		def.ioMode = ParseEnumValue(ioModeString.c_str(), std::begin(g_ioModeValues), std::end(g_ioModeValues));
 	}
 	if(defJson.contains("screenPosXform"))
 	{

@@ -8,6 +8,13 @@
 
 struct ARCADE_MACHINE_DEF
 {
+	enum DRIVER
+	{
+		UNKNOWN,
+		NAMCO_SYSTEM_246,
+		NAMCO_SYSTEM_147,
+	};
+
 	enum class INPUT_MODE
 	{
 		DEFAULT,
@@ -17,13 +24,12 @@ struct ARCADE_MACHINE_DEF
 		TOUCH,
 	};
 
-	enum DRIVER
+	enum class IO_MODE
 	{
-		UNKNOWN,
-		NAMCO_SYSTEM_246,
-		NAMCO_SYSTEM_147,
+		DEFAULT,
+		SYS147_AI,
 	};
-
+	
 	struct PATCH
 	{
 		uint32 address = 0;
@@ -43,6 +49,7 @@ struct ARCADE_MACHINE_DEF
 	std::map<std::string, uint32> nandMounts;
 	std::map<unsigned int, ButtonSelector> buttons;
 	INPUT_MODE inputMode = INPUT_MODE::DEFAULT;
+	IO_MODE ioMode = IO_MODE::DEFAULT;
 	std::array<float, 4> screenPosXform = {65535, 0, 65535, 0};
 	uint32 eeFreqScaleNumerator = 1;
 	uint32 eeFreqScaleDenominator = 1;

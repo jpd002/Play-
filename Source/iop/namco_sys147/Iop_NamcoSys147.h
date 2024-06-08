@@ -13,6 +13,12 @@ namespace Iop
 		class CSys147 : public CModule, public CPadInterface
 		{
 		public:
+			enum class IO_MODE
+			{
+				DEFAULT,
+				AI,
+			};
+			
 			CSys147(CSifMan&, const std::string&);
 			virtual ~CSys147() = default;
 
@@ -20,6 +26,7 @@ namespace Iop
 			std::string GetFunctionName(unsigned int) const override;
 			void Invoke(CMIPS&, unsigned int) override;
 
+			void SetIoMode(IO_MODE);
 			void SetButton(unsigned int, unsigned int, PS2::CControllerInfo::BUTTON);
 
 			//CPadInterface
@@ -79,15 +86,18 @@ namespace Iop
 
 			std::string m_gameId;
 			std::map<ButtonSelector, uint8> m_switchBindings;
+			IO_MODE m_ioMode = IO_MODE::DEFAULT;
 
 			std::vector<MODULE_99_PACKET> m_pendingReplies;
 			std::map<uint8, uint8> m_switchStates;
 
+			//AI board state
+			uint16 m_systemSwitchState = ~0U;
+			uint16 m_playerSwitchState = ~0U;
+
 			std::unique_ptr<Framework::CHttpServer> m_ioServer;
 			std::mutex m_barcodeMutex;
 			std::string m_currentBarcode;
-			uint16 m_systemSwitchState = ~0U;
-			uint16 m_playerSwitchState = ~0U;
 		};
 	}
 }

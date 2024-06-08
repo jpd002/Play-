@@ -11,6 +11,7 @@
 			"atfile1": 131072
 		}
 	},
+	"ioMode": "sys147_ai",
 	"boot": "atfile0:pacmanBR.elf",
 	"patches":
 	[
