@@ -105,6 +105,7 @@ void CSys147::SetButtonState(unsigned int padNumber, PS2::CControllerInfo::BUTTO
 	//Bit 1  - Select Up
 	//Bit 2  - Enter
 	//Bit 3  - Test
+	//Bit 5  - Service
 	//Bit 8  - P1 Enter
 	//Bit 9  - P3 Enter
 	//Bit 10 - P2 Enter
@@ -473,8 +474,6 @@ bool CSys147::Invoke99(uint32 method, uint32* args, uint32 argsSize, uint32* ret
 					reply.command = 0x10;
 					reply.data[0] = static_cast<uint8>(m_systemSwitchState);
 					reply.data[1] = static_cast<uint8>(m_systemSwitchState >> 8);
-					reply.data[2] = static_cast<uint8>(m_systemSwitchState >> 16);
-					reply.data[3] = static_cast<uint8>(m_systemSwitchState >> 24);
 					reply.checksum = ComputePacketChecksum(reply);
 					m_pendingReplies.emplace_back(reply);
 				}
