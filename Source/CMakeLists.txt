@@ -421,6 +421,9 @@ set(COMMON_SRC_FILES
 	iop/IopBios.cpp
 	iop/IopBios.h
 	iop/UsbDefs.h
+	iop/UsbDevice.h
+	iop/UsbBuzzerDevice.cpp
+	iop/UsbBuzzerDevice.h
 	ISO9660/BlockProvider.h
 	ISO9660/DirectoryRecord.cpp
 	ISO9660/DirectoryRecord.h

@@ -1,13 +1,13 @@
 #pragma once
 
 #include "Iop_Module.h"
-#include "PadInterface.h"
+#include "UsbDevice.h"
 
 class CIopBios;
 
 namespace Iop
 {
-	class CUsbd : public CModule, public CPadInterface
+	class CUsbd : public CModule
 	{
 	public:
 		CUsbd(CIopBios&, uint8*);
@@ -19,10 +19,19 @@ namespace Iop
 
 		void CountTicks(uint32);
 
-		//CPadInterface
-		void SetButtonState(unsigned int, PS2::CControllerInfo::BUTTON, bool, uint8*);
-		void SetAxisState(unsigned int, PS2::CControllerInfo::BUTTON, uint8, uint8*) override{};
-		void GetVibration(unsigned int, uint8& largeMotor, uint8& smallMotor) override{};
+		template <typename DeviceType>
+		DeviceType* GetDevice()
+		{
+			auto& devicePairIterator = m_devices.find(DeviceType::DEVICE_ID);
+			if(devicePairIterator == std::end(m_devices))
+			{
+				return nullptr;
+			}
+			else
+			{
+				return static_cast<DeviceType*>(devicePairIterator->second.get());
+			}
+		}
 
 	private:
 		struct LLDOPS
@@ -37,6 +46,8 @@ namespace Iop
 			uint32 gp;
 		};
 
+		void RegisterDevice(UsbDevicePtr);
+
 		int32 RegisterLld(uint32);
 		int32 ScanStaticDescriptor(uint32, uint32, uint32);
 		int32 OpenPipe(uint32, uint32);
@@ -45,13 +56,8 @@ namespace Iop
 
 		CIopBios& m_bios;
 		uint8* m_ram = nullptr;
-		uint32 m_descriptorMemPtr = 0;
-		int32 m_nextTransferTicks = 0;
-		uint32 m_transferBufferPtr = 0;
-		uint32 m_transferSize = 0;
-		uint32 m_transferCb = 0;
-		uint32 m_transferCbArg = 0;
-		uint8 m_buttonState = 0;
+		std::unordered_map<uint16, UsbDevicePtr> m_devices;
+		std::vector<uint16> m_activeDeviceIds;
 	};
 
 	typedef std::shared_ptr<CUsbd> UsbdPtr;

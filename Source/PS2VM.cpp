@@ -12,6 +12,7 @@
 #include "ee/EeExecutor.h"
 #include "Ps2Const.h"
 #include "iop/Iop_SifManPs2.h"
+#include "iop/UsbBuzzerDevice.h"
 #include "StdStream.h"
 #include "StdStreamUtils.h"
 #include "states/MemoryStateFile.h"
@@ -851,8 +852,12 @@ void CPS2VM::RegisterModulesInPadHandler()
 
 	m_pad->RemoveAllListeners();
 	m_pad->InsertListener(iopOs->GetPadman());
-	m_pad->InsertListener(iopOs->GetUsbd());
 	m_pad->InsertListener(&m_iop->m_sio2);
+
+	{
+		auto device = iopOs->GetUsbd()->GetDevice<Iop::CBuzzerUsbDevice>();
+		device->SetPadHandler(m_pad);
+	}
 }
 
 void CPS2VM::ReloadExecutable(const char* executablePath, const CPS2OS::ArgumentList& arguments)

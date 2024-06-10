@@ -1,7 +1,7 @@
 #include "Iop_Usbd.h"
 #include "IopBios.h"
 #include "../Log.h"
-#include "UsbDefs.h"
+#include "UsbBuzzerDevice.h"
 
 using namespace Iop;
 
@@ -13,14 +13,11 @@ using namespace Iop;
 #define FUNCTION_TRANSFERPIPE "TransferPipe"
 #define FUNCTION_GETDEVICELOCATION "GetDeviceLocation"
 
-static constexpr uint32 g_deviceId = 0xBEEF;
-static constexpr uint32 g_controlPipeId = 0xCAFE;
-static constexpr uint32 g_pipeId = 0xDEAD;
-
 CUsbd::CUsbd(CIopBios& bios, uint8* ram)
     : m_bios(bios)
     , m_ram(ram)
 {
+	RegisterDevice(std::make_unique<CBuzzerUsbDevice>(bios, ram));
 }
 
 std::string CUsbd::GetId() const
@@ -88,55 +85,18 @@ void CUsbd::Invoke(CMIPS& context, unsigned int functionId)
 
 void CUsbd::CountTicks(uint32 ticks)
 {
-	if(m_nextTransferTicks != 0)
+	for(auto activeDeviceId : m_activeDeviceIds)
 	{
-		m_nextTransferTicks -= ticks;
-		if(m_nextTransferTicks <= 0)
-		{
-			uint8* buffer = m_ram + m_transferBufferPtr;
-			buffer[0] = 0x7F;
-			buffer[1] = 0x7F;
-			buffer[2] = m_buttonState;
-			buffer[3] = 0x00;
-			buffer[4] = 0xF0;
-			m_bios.TriggerCallback(m_transferCb, 0, m_transferSize, m_transferCbArg);
-			m_nextTransferTicks = 0;
-			m_transferCb = 0;
-		}
+		assert(m_devices.find(activeDeviceId) != std::end(m_devices));
+		auto& device = m_devices[activeDeviceId];
+		device->CountTicks(ticks);
 	}
 }
 
-void CUsbd::SetButtonState(unsigned int padNumber, PS2::CControllerInfo::BUTTON button, bool pressed, uint8* ram)
+void CUsbd::RegisterDevice(UsbDevicePtr device)
 {
-	if(padNumber == 0)
-	{
-		//Reference for data transfer:
-		//https://gist.github.com/Lewiscowles1986/eef220dac6f0549e4702393a7b9351f6
-		uint8 mask = 0;
-		switch(button)
-		{
-		case PS2::CControllerInfo::CROSS:
-			mask = 1; //Red
-			break;
-		case PS2::CControllerInfo::CIRCLE:
-			mask = 2; //Yellow
-			break;
-		case PS2::CControllerInfo::SQUARE:
-			mask = 4; //Green
-			break;
-		case PS2::CControllerInfo::TRIANGLE:
-			mask = 8; //Orange
-			break;
-		case PS2::CControllerInfo::DPAD_UP:
-			mask = 0x10; //Blue
-			break;
-		}
-		if(mask != 0)
-		{
-			m_buttonState &= ~mask;
-			if(pressed) m_buttonState |= mask;
-		}
-	}
+	auto result = m_devices.insert(std::make_pair(device->GetId(), std::move(device)));
+	assert(result.second);
 }
 
 int32 CUsbd::RegisterLld(uint32 lldOpsPtr)
@@ -146,10 +106,15 @@ int32 CUsbd::RegisterLld(uint32 lldOpsPtr)
 
 	auto lldOps = reinterpret_cast<const LLDOPS*>(m_ram + lldOpsPtr);
 	const char* name = reinterpret_cast<const char*>(m_ram + lldOps->namePtr);
-	if(!strcmp(name, "buzzer"))
+	for(const auto& devicePair : m_devices)
 	{
-		m_descriptorMemPtr = m_bios.GetSysmem()->AllocateMemory(0x80, 0, 0);
-		m_bios.TriggerCallback(lldOps->connectFctPtr, g_deviceId);
+		auto& device = devicePair.second;
+		if(!strcmp(name, device->GetLldName()))
+		{
+			device->OnLldRegistered();
+			m_activeDeviceIds.push_back(device->GetId());
+			m_bios.TriggerCallback(lldOps->connectFctPtr, device->GetId());
+		}
 	}
 	return 0;
 }
@@ -159,82 +124,56 @@ int32 CUsbd::ScanStaticDescriptor(uint32 deviceId, uint32 descriptorPtr, uint32 
 	CLog::GetInstance().Print(LOG_NAME, FUNCTION_SCANSTATICDESCRIPTOR "(deviceId = 0x%08X, descriptorPtr = 0x%08X, descriptorType = %d);\r\n",
 	                          deviceId, descriptorPtr, descriptorType);
 
-	assert(deviceId == g_deviceId);
-
-	uint32 result = 0;
-	switch(descriptorType)
+	auto deviceIteratorPair = m_devices.find(deviceId);
+	if(deviceIteratorPair != std::end(m_devices))
 	{
-	case Usb::DESCRIPTOR_TYPE_DEVICE:
+		auto& device = deviceIteratorPair->second;
+		return device->ScanStaticDescriptor(deviceId, descriptorPtr, descriptorType);
+	}
+	else
 	{
-		auto descriptor = reinterpret_cast<Usb::DEVICE_DESCRIPTOR*>(m_ram + m_descriptorMemPtr);
-		descriptor->base.descriptorType = Usb::DESCRIPTOR_TYPE_DEVICE;
-		result = m_descriptorMemPtr;
+		CLog::GetInstance().Warn(LOG_NAME, FUNCTION_SCANSTATICDESCRIPTOR " called on unknown device id 0x%08X.\r\n", deviceId);
+		return 0;
 	}
-	break;
-	case Usb::DESCRIPTOR_TYPE_CONFIGURATION:
-	{
-		auto descriptor = reinterpret_cast<Usb::CONFIGURATION_DESCRIPTOR*>(m_ram + m_descriptorMemPtr);
-		descriptor->base.descriptorType = Usb::DESCRIPTOR_TYPE_CONFIGURATION;
-		descriptor->numInterfaces = 1;
-		result = m_descriptorMemPtr;
-	}
-	break;
-	case Usb::DESCRIPTOR_TYPE_INTERFACE:
-	{
-		auto descriptor = reinterpret_cast<Usb::INTERFACE_DESCRIPTOR*>(m_ram + m_descriptorMemPtr);
-		descriptor->base.descriptorType = Usb::DESCRIPTOR_TYPE_INTERFACE;
-		descriptor->numEndpoints = 1;
-		result = m_descriptorMemPtr;
-	}
-	break;
-	case Usb::DESCRIPTOR_TYPE_ENDPOINT:
-	{
-		auto descriptor = reinterpret_cast<Usb::ENDPOINT_DESCRIPTOR*>(m_ram + m_descriptorMemPtr);
-		if(descriptor->base.descriptorType != Usb::DESCRIPTOR_TYPE_ENDPOINT)
-		{
-			descriptor->base.descriptorType = Usb::DESCRIPTOR_TYPE_ENDPOINT;
-			descriptor->endpointAddress = 0x80;
-			descriptor->attributes = 3; //Interrupt transfer type
-			result = m_descriptorMemPtr;
-		}
-	}
-	break;
-	}
-
-	return result;
 }
 
 int32 CUsbd::OpenPipe(uint32 deviceId, uint32 descriptorPtr)
 {
-	CLog::GetInstance().Warn(LOG_NAME, FUNCTION_OPENPIPE "(deviceId = 0x%08X, descriptorPtr = 0x%08X);\r\n",
-	                         deviceId, descriptorPtr);
-	if(descriptorPtr != 0)
+	CLog::GetInstance().Print(LOG_NAME, FUNCTION_OPENPIPE "(deviceId = 0x%08X, descriptorPtr = 0x%08X);\r\n",
+	                          deviceId, descriptorPtr);
+
+	auto deviceIteratorPair = m_devices.find(deviceId);
+	if(deviceIteratorPair != std::end(m_devices))
 	{
-		return g_pipeId;
+		auto& device = deviceIteratorPair->second;
+		uint16 pipeId = device->OpenPipe(deviceId, descriptorPtr);
+		assert(pipeId < 0x8000);
+		return (static_cast<uint32>(pipeId) << 16) | deviceId;
 	}
 	else
 	{
-		return g_controlPipeId;
+		CLog::GetInstance().Warn(LOG_NAME, FUNCTION_OPENPIPE " called on unknown device id 0x%08X.\r\n", deviceId);
+		return -1;
 	}
 }
 
 int32 CUsbd::TransferPipe(uint32 pipeId, uint32 bufferPtr, uint32 size, uint32 optionPtr, uint32 doneCb, uint32 arg)
 {
-	CLog::GetInstance().Warn(LOG_NAME, FUNCTION_TRANSFERPIPE "(pipeId = 0x%08X, bufferPtr = 0x%08X, length = %d, optionPtr = 0x%08X, doneCb = 0x%08X, arg = 0x%08X);\r\n",
-	                         pipeId, bufferPtr, size, optionPtr, doneCb, arg);
-	if(pipeId == g_controlPipeId)
+	CLog::GetInstance().Print(LOG_NAME, FUNCTION_TRANSFERPIPE "(pipeId = 0x%08X, bufferPtr = 0x%08X, length = %d, optionPtr = 0x%08X, doneCb = 0x%08X, arg = 0x%08X);\r\n",
+	                          pipeId, bufferPtr, size, optionPtr, doneCb, arg);
+
+	uint16 deviceId = (pipeId & 0xFFFF);
+	auto deviceIteratorPair = m_devices.find(deviceId);
+	if(deviceIteratorPair != std::end(m_devices))
 	{
-		m_bios.TriggerCallback(doneCb, 0, size, arg);
+		auto& device = deviceIteratorPair->second;
+		return device->TransferPipe(pipeId, bufferPtr, size, optionPtr, doneCb, arg);
 	}
 	else
 	{
-		m_transferBufferPtr = bufferPtr;
-		m_transferSize = size;
-		m_transferCb = doneCb;
-		m_transferCbArg = arg;
-		m_nextTransferTicks = 33000000;
+		CLog::GetInstance().Warn(LOG_NAME, FUNCTION_TRANSFERPIPE " called on unknown device id 0x%08X.\r\n", deviceId);
+		return -1;
 	}
-	return 0;
 }
 
 int32 CUsbd::GetDeviceLocation(uint32 deviceId, uint32 locationPtr)
@@ -242,8 +181,7 @@ int32 CUsbd::GetDeviceLocation(uint32 deviceId, uint32 locationPtr)
 	CLog::GetInstance().Print(LOG_NAME, FUNCTION_GETDEVICELOCATION "(deviceId = 0x%08X, locationPtr = 0x%08X);\r\n",
 	                          deviceId, locationPtr);
 
-	assert(deviceId == g_deviceId);
-	uint8* location = reinterpret_cast<uint8*>(m_ram + locationPtr);
+	auto location = reinterpret_cast<uint8*>(m_ram + locationPtr);
 	memset(location, 0, 7);
 	location[0] = 1;
 
