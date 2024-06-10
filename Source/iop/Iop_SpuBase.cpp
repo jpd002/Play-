@@ -987,10 +987,10 @@ void CSpuBase::UpdateReverb(int16 reverbSample[2], int16* samples)
 		float in_coef_l = GetReverbCoef(IN_COEF_L);
 		float in_coef_r = GetReverbCoef(IN_COEF_R);
 
-		float iir_input_a0 = GetReverbSample(GetReverbOffset(ACC_SRC_A0)) * irr_coef + input_sample_l * in_coef_l;
-		float iir_input_a1 = GetReverbSample(GetReverbOffset(ACC_SRC_A1)) * irr_coef + input_sample_r * in_coef_r;
-		float iir_input_b0 = GetReverbSample(GetReverbOffset(ACC_SRC_B0)) * irr_coef + input_sample_l * in_coef_l;
-		float iir_input_b1 = GetReverbSample(GetReverbOffset(ACC_SRC_B1)) * irr_coef + input_sample_r * in_coef_r;
+		float iir_input_a0 = GetReverbSample(GetReverbOffset(IIR_SRC_A0)) * irr_coef + input_sample_l * in_coef_l;
+		float iir_input_a1 = GetReverbSample(GetReverbOffset(IIR_SRC_A1)) * irr_coef + input_sample_r * in_coef_r;
+		float iir_input_b0 = GetReverbSample(GetReverbOffset(IIR_SRC_B0)) * irr_coef + input_sample_l * in_coef_l;
+		float iir_input_b1 = GetReverbSample(GetReverbOffset(IIR_SRC_B1)) * irr_coef + input_sample_r * in_coef_r;
 
 		//IIR_A0 = IIR_INPUT_A0 * IIR_ALPHA + buffer[IIR_DEST_A0] * (1.0 - IIR_ALPHA);
 		//IIR_A1 = IIR_INPUT_A1 * IIR_ALPHA + buffer[IIR_DEST_A1] * (1.0 - IIR_ALPHA);
