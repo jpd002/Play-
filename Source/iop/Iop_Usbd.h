@@ -22,7 +22,7 @@ namespace Iop
 		template <typename DeviceType>
 		DeviceType* GetDevice()
 		{
-			auto& devicePairIterator = m_devices.find(DeviceType::DEVICE_ID);
+			auto devicePairIterator = m_devices.find(DeviceType::DEVICE_ID);
 			if(devicePairIterator == std::end(m_devices))
 			{
 				return nullptr;
