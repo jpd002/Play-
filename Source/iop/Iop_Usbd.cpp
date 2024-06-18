@@ -1,11 +1,16 @@
 #include "Iop_Usbd.h"
 #include "IopBios.h"
 #include "../Log.h"
+#include "string_format.h"
+#include "lexical_cast_ex.h"
 #include "UsbBuzzerDevice.h"
+#include "states/RegisterStateCollectionFile.h"
 
 using namespace Iop;
 
 #define LOG_NAME "iop_usbd"
+
+#define STATE_XML ("iop_usbd/state.xml")
 
 #define FUNCTION_REGISTERLLD "RegisterLld"
 #define FUNCTION_SCANSTATICDESCRIPTOR "ScanStaticDescriptor"
@@ -80,6 +85,38 @@ void CUsbd::Invoke(CMIPS& context, unsigned int functionId)
 	default:
 		CLog::GetInstance().Warn(LOG_NAME, "Unknown function called (%d).\r\n", functionId);
 		break;
+	}
+}
+
+void CUsbd::SaveState(Framework::CZipArchiveWriter& writer) const
+{
+	auto devicesStateFile = std::make_unique<CRegisterStateCollectionFile>(STATE_XML);
+	for(auto activeDeviceId : m_activeDeviceIds)
+	{
+		auto devicePairIterator = m_devices.find(activeDeviceId);
+		assert(devicePairIterator != m_devices.end());
+		auto& device = devicePairIterator->second;
+		auto deviceStateId = string_format("%08x", device->GetId());
+		CRegisterState deviceState;
+		device->SaveState(deviceState);
+		devicesStateFile->InsertRegisterState(deviceStateId.c_str(), std::move(deviceState));
+	}
+	writer.InsertFile(std::move(devicesStateFile));
+}
+
+void CUsbd::LoadState(Framework::CZipArchiveReader& reader)
+{
+	m_activeDeviceIds.clear();
+	auto deviceStateFile = CRegisterStateCollectionFile(*reader.BeginReadFile(STATE_XML));
+	for(const auto& deviceStatePair : deviceStateFile)
+	{
+		uint32 deviceId = lexical_cast_hex<std::string>(deviceStatePair.first);
+		auto devicePairIterator = m_devices.find(deviceId);
+		if(devicePairIterator == std::end(m_devices)) continue;
+		const auto& deviceState = deviceStatePair.second;
+		auto& device = devicePairIterator->second;
+		device->LoadState(deviceState);
+		m_activeDeviceIds.push_back(deviceId);
 	}
 }
 

@@ -3,6 +3,8 @@
 #include "Types.h"
 #include <memory>
 
+class CRegisterState;
+
 namespace Iop
 {
 	class CUsbDevice
@@ -12,6 +14,9 @@ namespace Iop
 
 		virtual uint16 GetId() const = 0;
 		virtual const char* GetLldName() const = 0;
+
+		virtual void SaveState(CRegisterState&) const {};
+		virtual void LoadState(const CRegisterState&){};
 
 		virtual void CountTicks(uint32) = 0;
 

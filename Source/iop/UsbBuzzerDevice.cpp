@@ -3,13 +3,46 @@
 #include "IopBios.h"
 #include "PadHandler.h"
 #include "Ps2Const.h"
+#include "states/RegisterState.h"
 
 using namespace Iop;
+
+#define STATE_REG_DESCRIPTORMEMPTR ("descriptorMemPtr")
+#define STATE_REG_NEXTTRANSFERTICKS ("nextTransferTicks")
+#define STATE_REG_TRANSFERBUFFERPTR ("transferBufferPtr")
+#define STATE_REG_TRANSFERSIZE ("transferSize")
+#define STATE_REG_TRANSFERCB ("transferCb")
+#define STATE_REG_TRANSFERCBARG ("transferCbArg")
 
 CBuzzerUsbDevice::CBuzzerUsbDevice(CIopBios& bios, uint8* ram)
     : m_bios(bios)
     , m_ram(ram)
 {
+}
+
+void CBuzzerUsbDevice::SaveState(CRegisterState& state) const
+{
+	state.SetRegister32(STATE_REG_DESCRIPTORMEMPTR, m_descriptorMemPtr);
+	state.SetRegister32(STATE_REG_NEXTTRANSFERTICKS, m_nextTransferTicks);
+	state.SetRegister32(STATE_REG_TRANSFERBUFFERPTR, m_transferBufferPtr);
+	state.SetRegister32(STATE_REG_TRANSFERSIZE, m_transferSize);
+	state.SetRegister32(STATE_REG_TRANSFERCB, m_transferCb);
+	state.SetRegister32(STATE_REG_TRANSFERCBARG, m_transferCbArg);
+}
+
+void CBuzzerUsbDevice::LoadState(const CRegisterState& state)
+{
+	m_descriptorMemPtr = state.GetRegister32(STATE_REG_DESCRIPTORMEMPTR);
+	m_nextTransferTicks = state.GetRegister32(STATE_REG_NEXTTRANSFERTICKS);
+	m_transferBufferPtr = state.GetRegister32(STATE_REG_TRANSFERBUFFERPTR);
+	m_transferSize = state.GetRegister32(STATE_REG_TRANSFERSIZE);
+	m_transferCb = state.GetRegister32(STATE_REG_TRANSFERCB);
+	m_transferCbArg = state.GetRegister32(STATE_REG_TRANSFERCBARG);
+
+	if(!m_padHandler->HasListener(this))
+	{
+		m_padHandler->InsertListener(this);
+	}
 }
 
 void CBuzzerUsbDevice::SetPadHandler(CPadHandler* padHandler)

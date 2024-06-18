@@ -25,6 +25,9 @@ namespace Iop
 		uint16 GetId() const override;
 		const char* GetLldName() const override;
 
+		void SaveState(CRegisterState&) const override;
+		void LoadState(const CRegisterState&);
+
 		void CountTicks(uint32) override;
 
 		void OnLldRegistered() override;

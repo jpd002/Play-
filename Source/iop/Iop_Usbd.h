@@ -17,6 +17,9 @@ namespace Iop
 		std::string GetFunctionName(unsigned int) const override;
 		void Invoke(CMIPS&, unsigned int) override;
 
+		void SaveState(Framework::CZipArchiveWriter&) const override;
+		void LoadState(Framework::CZipArchiveReader&) override;
+
 		void CountTicks(uint32);
 
 		template <typename DeviceType>
