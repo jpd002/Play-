@@ -116,6 +116,15 @@ void CCOP_SCU::MFC0()
 			break;
 		}
 		break;
+	case CCOP_SCU::COUNT:
+		//Some games will have issues if subsequent reads of this register
+		//give the same result. Increment its value by one to make sure
+		//we don't trip some logic that would give a bad result.
+		m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP0[CCOP_SCU::COUNT]));
+		m_codeGen->PushCst(1);
+		m_codeGen->Add();
+		m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP0[CCOP_SCU::COUNT]));
+		[[fallthrough]];
 	default:
 		m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP0[m_nRD]));
 		break;
