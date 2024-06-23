@@ -129,7 +129,7 @@ CPS2VM::NewFrameEvent::Connection g_newFrameConnection;
 	auto bootablePath = fs::path([self.bootablePath fileSystemRepresentation]);
 	if(IsBootableExecutablePath(bootablePath))
 	{
-		g_virtualMachine->m_ee->m_os->BootFromFile(bootablePath);
+		g_virtualMachine->BootFromFile(bootablePath);
 	}
 	else
 	{
