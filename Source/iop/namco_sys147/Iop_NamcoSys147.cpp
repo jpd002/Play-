@@ -98,8 +98,6 @@ void CSys147::SetButtonState(unsigned int padNumber, PS2::CControllerInfo::BUTTO
 
 	if(m_ioMode == IO_MODE::AI)
 	{
-		if(padNumber != 0) return;
-
 		//Player Switches
 		//4 nibbles, one for each player
 		//In one nibble:
@@ -114,36 +112,62 @@ void CSys147::SetButtonState(unsigned int padNumber, PS2::CControllerInfo::BUTTO
 		//Bit 2  - Enter
 		//Bit 3  - Test
 		//Bit 5  - Service
-		//Bit 8  - P1 Enter
+		//Bit 8  - P4 Enter
 		//Bit 9  - P3 Enter
 		//Bit 10 - P2 Enter
-		//Bit 11 - P4 Enter
+		//Bit 11 - P1 Enter
 		uint16 systemSwitchMask = 0;
 		uint16 playerSwitchMask = 0;
-		switch(button)
+		if(padNumber == 0)
 		{
-		case PS2::CControllerInfo::L1:
-			systemSwitchMask = 0x0008; //Test Button
-			break;
-		case PS2::CControllerInfo::DPAD_UP:
-			systemSwitchMask = 0x0002; //Select Up
-			playerSwitchMask = 0x0010;
-			break;
-		case PS2::CControllerInfo::DPAD_DOWN:
-			systemSwitchMask = 0x0001; //Select Down
-			playerSwitchMask = 0x0020;
-			break;
-		case PS2::CControllerInfo::DPAD_LEFT:
-			playerSwitchMask = 0x0080;
-			break;
-		case PS2::CControllerInfo::DPAD_RIGHT:
-			playerSwitchMask = 0x0040;
-			break;
-		case PS2::CControllerInfo::CROSS:
-			systemSwitchMask = 0x0404; //Enter
-			break;
-		default:
-			break;
+			switch(button)
+			{
+			case PS2::CControllerInfo::L1:
+				systemSwitchMask = 0x0008; //Test Button
+				break;
+			case PS2::CControllerInfo::DPAD_UP:
+				systemSwitchMask = 0x0002; //Select Up
+				playerSwitchMask = 0x1000; //P1 Up
+				break;
+			case PS2::CControllerInfo::DPAD_DOWN:
+				systemSwitchMask = 0x0001; //Select Down
+				playerSwitchMask = 0x2000; //P1 Down
+				break;
+			case PS2::CControllerInfo::DPAD_LEFT:
+				playerSwitchMask = 0x8000; //P1 Left
+				break;
+			case PS2::CControllerInfo::DPAD_RIGHT:
+				playerSwitchMask = 0x4000; //P1 Right
+				break;
+			case PS2::CControllerInfo::CROSS:
+				systemSwitchMask = 0x0804; //P1 Start + Enter
+				break;
+			default:
+				break;
+			}
+		}
+		else if(padNumber == 1)
+		{
+			switch(button)
+			{
+			case PS2::CControllerInfo::DPAD_UP:
+				playerSwitchMask = 0x0010; //P2 Up
+				break;
+			case PS2::CControllerInfo::DPAD_DOWN:
+				playerSwitchMask = 0x0020; //P2 Down
+				break;
+			case PS2::CControllerInfo::DPAD_LEFT:
+				playerSwitchMask = 0x0080; //P2 Left
+				break;
+			case PS2::CControllerInfo::DPAD_RIGHT:
+				playerSwitchMask = 0x0040; //P2 Right
+				break;
+			case PS2::CControllerInfo::CROSS:
+				systemSwitchMask = 0x0400; //P2 Start
+				break;
+			default:
+				break;
+			}
 		}
 		m_systemSwitchState &= ~systemSwitchMask;
 		m_playerSwitchState &= ~playerSwitchMask;
