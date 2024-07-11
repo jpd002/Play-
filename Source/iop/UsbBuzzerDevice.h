@@ -26,7 +26,7 @@ namespace Iop
 		const char* GetLldName() const override;
 
 		void SaveState(CRegisterState&) const override;
-		void LoadState(const CRegisterState&);
+		void LoadState(const CRegisterState&) override;
 
 		void CountTicks(uint32) override;
 
@@ -36,7 +36,7 @@ namespace Iop
 		int32 TransferPipe(uint32, uint32, uint32, uint32, uint32, uint32) override;
 
 		//CPadInterface
-		void SetButtonState(unsigned int, PS2::CControllerInfo::BUTTON, bool, uint8*);
+		void SetButtonState(unsigned int, PS2::CControllerInfo::BUTTON, bool, uint8*) override;
 		void SetAxisState(unsigned int, PS2::CControllerInfo::BUTTON, uint8, uint8*) override{};
 		void GetVibration(unsigned int, uint8& largeMotor, uint8& smallMotor) override{};
 
