@@ -711,12 +711,10 @@ void CVif::Cmd_UNPACK(StreamType& stream, CODE nCommand, uint32 nDstAddr)
 	((*this).*(unpackFct))(stream, nCommand, nDstAddr);
 }
 
-uint32 CVif::GetMaskOp(unsigned int row, unsigned int col) const
+uint32 CVif::GetColMaskOp(unsigned int col) const
 {
-	if(col > 3) col = 3;
-	assert(row < 4);
-	unsigned int index = (col * 4) + row;
-	return (m_MASK >> (index * 2)) & 0x03;
+	assert(col < 4);
+	return (m_MASK >> (col * 8)) & 0xFF;
 }
 
 void CVif::PrepareMicroProgram()
