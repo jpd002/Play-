@@ -923,10 +923,10 @@ void CPS2VM::EmuThread()
 			{
 				if(m_hblankTicks <= 0)
 				{
+					m_hblankTicks += m_hblankTicksTotal;
 					if(m_ee->m_gs)
 					{
 						m_ee->m_gs->SetHBlank();
-						m_hblankTicks += m_hblankTicksTotal;
 					}
 				}
 
