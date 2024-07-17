@@ -9,6 +9,11 @@
 #include "../Profiler.h"
 #include "zip/ZipArchiveWriter.h"
 #include "zip/ZipArchiveReader.h"
+#include "SimdDefs.h"
+
+#ifdef FRAMEWORK_SIMD_USE_SSE
+#include <emmintrin.h>
+#endif
 
 class CINTC;
 
@@ -584,6 +589,12 @@ protected:
 				{
 					(*dst) = writeValue;
 				}
+#ifdef FRAMEWORK_SIMD_USE_SSE
+				else if((colMask == 0) && (mode == MODE_OFFSET))
+				{
+					*reinterpret_cast<__m128i*>(dst) = _mm_add_epi32(*reinterpret_cast<__m128i*>(&writeValue), *reinterpret_cast<__m128i*>(&m_R));
+				}
+#endif
 				else
 				{
 					for(unsigned int i = 0; i < 4; i++)
@@ -699,7 +710,7 @@ protected:
 	CODE m_CODE;
 	uint8 m_NUM;
 	uint32 m_MODE;
-	uint32 m_R[4];
+	alignas(16) uint32 m_R[4];
 	uint32 m_C[4];
 	uint32 m_MASK;
 	uint32 m_MARK;
