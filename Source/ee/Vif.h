@@ -15,6 +15,12 @@
 #include <emmintrin.h>
 #endif
 
+#ifdef _MSC_VER
+#define FRAMEWORK_SAFE_BUFFERS __declspec(safebuffers)
+#else
+#define FRAMEWORK_SAFE_BUFFERS
+#endif
+
 class CINTC;
 
 class CVif
@@ -161,7 +167,7 @@ protected:
 		}
 
 		template <size_t ValueSize>
-		inline void ReadValue(void* buffer)
+		inline FRAMEWORK_SAFE_BUFFERS void ReadValue(void* buffer)
 		{
 			//Hyper-specialized version of Read that allows the compiler to better
 			//optimize the code. Will only work with reads of at most 16 bytes.
