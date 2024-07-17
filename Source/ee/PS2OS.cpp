@@ -1518,6 +1518,7 @@ void CPS2OS::ResumeThread(uint32 threadId)
 
 void CPS2OS::UpdateTLBEnabledState()
 {
+	return;
 	bool TLBenabled = (m_tlblExceptionHandler != 0) || (m_tlbsExceptionHandler != 0);
 	if(TLBenabled)
 	{

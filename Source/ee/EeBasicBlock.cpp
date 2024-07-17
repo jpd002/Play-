@@ -3,7 +3,7 @@
 
 void CEeBasicBlock::CompileEpilog(CMipsJitter* jitter, bool loopsOnItself)
 {
-	if(IsIdleLoopBlock())
+	if(IsIdleLoopBlock() || (m_begin == 0x0053D318))
 	{
 		jitter->PushCst(MIPS_EXCEPTION_IDLE);
 		jitter->PullRel(offsetof(CMIPS, m_State.nHasException));
