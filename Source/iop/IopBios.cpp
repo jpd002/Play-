@@ -3186,7 +3186,13 @@ void CIopBios::HandleException()
 	m_rescheduleNeeded = false;
 
 	uint32 searchAddress = m_cpu.m_pAddrTranslator(&m_cpu, m_cpu.m_State.nCOP0[CCOP_SCU::EPC]);
-	uint32 callInstruction = m_cpu.m_pMemoryMap->GetWord(searchAddress);
+
+	const auto* memoryMapElem = m_cpu.m_pMemoryMap->GetReadMap(searchAddress);
+	assert(memoryMapElem != nullptr);
+	assert(memoryMapElem->nType == CMemoryMap::MEMORYMAP_TYPE_MEMORY);
+	auto memory = reinterpret_cast<const uint32*>(reinterpret_cast<uint8*>(memoryMapElem->pPointer) + (searchAddress - memoryMapElem->nStart));
+
+	uint32 callInstruction = memory[0];
 	if(callInstruction == 0x0000000C)
 	{
 		switch(m_cpu.m_State.nGPR[CMIPS::V0].nV0)
@@ -3220,12 +3226,12 @@ void CIopBios::HandleException()
 		uint32 instruction = callInstruction;
 		while(instruction != 0x41E00000)
 		{
-			searchAddress -= 4;
-			instruction = m_cpu.m_pMemoryMap->GetWord(searchAddress);
+			memory--;
+			instruction = memory[0];
 		}
 		uint32 functionId = callInstruction & 0xFFFF;
-		FRAMEWORK_MAYBE_UNUSED uint32 version = m_cpu.m_pMemoryMap->GetWord(searchAddress + 8);
-		auto moduleName = ReadModuleName(searchAddress + 0x0C);
+		FRAMEWORK_MAYBE_UNUSED uint32 version = memory[2];
+		auto moduleName = ReadModuleName(reinterpret_cast<const uint8*>(memory + 3));
 
 #ifdef _DEBUG
 		if(moduleName == "libsd")
@@ -3425,12 +3431,8 @@ CIopBios::ModuleSet CIopBios::GetBuiltInModules() const
 	return modules;
 }
 
-std::string_view CIopBios::ReadModuleName(uint32 address)
+std::string_view CIopBios::ReadModuleName(const uint8* memory)
 {
-	const auto* memoryMapElem = m_cpu.m_pMemoryMap->GetReadMap(address);
-	assert(memoryMapElem != nullptr);
-	assert(memoryMapElem->nType == CMemoryMap::MEMORYMAP_TYPE_MEMORY);
-	auto memory = reinterpret_cast<uint8*>(memoryMapElem->pPointer) + (address - memoryMapElem->nStart);
 	auto currChar = memory;
 	uint32 size = 0;
 	while(size < 8)
@@ -3439,7 +3441,16 @@ std::string_view CIopBios::ReadModuleName(uint32 address)
 		if(character < 0x10) break;
 		size++;
 	}
-	return std::string_view(reinterpret_cast<char*>(memory), size);
+	return std::string_view(reinterpret_cast<const char*>(memory), size);
+}
+
+std::string_view CIopBios::ReadModuleName(uint32 address)
+{
+	const auto* memoryMapElem = m_cpu.m_pMemoryMap->GetReadMap(address);
+	assert(memoryMapElem != nullptr);
+	assert(memoryMapElem->nType == CMemoryMap::MEMORYMAP_TYPE_MEMORY);
+	auto memory = reinterpret_cast<const uint8*>(memoryMapElem->pPointer) + (address - memoryMapElem->nStart);
+	return ReadModuleName(memory);
 }
 
 bool CIopBios::RegisterModule(const Iop::ModulePtr& module)
