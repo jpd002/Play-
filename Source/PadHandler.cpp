@@ -1,4 +1,5 @@
 #include "PadHandler.h"
+#include <algorithm>
 
 void CPadHandler::InsertListener(CPadInterface* listener)
 {

@@ -1,4 +1,5 @@
 #include "Iop_Usbd.h"
+#include <cstring>
 #include "IopBios.h"
 #include "../Log.h"
 #include "string_format.h"
