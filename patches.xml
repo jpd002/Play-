@@ -11,4 +11,8 @@
 	<Executable Name="SLPS_250.02;1" Title="Dead or Alive 2">
 		<Patch Address="0x00290408" Value="0x24060000" Description="Make the file reading RPC call synchronous. Requires proper data cache handling to avoid issue." />
 	</Executable>
+	<Executable Name="SLUS_200.24;1" Title="Blood Omen 2">
+		<Patch Address="0x00463018" Value="0x03E00008" Description="Nullify custom exception handler." />
+		<Patch Address="0x0046301C" Value="0x24020001" Description="Nullify custom exception handler." />
+	</Executable>
 </Patches>
