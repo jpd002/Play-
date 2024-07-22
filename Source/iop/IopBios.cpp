@@ -338,7 +338,7 @@ void CIopBios::SaveState(Framework::CZipArchiveWriter& archive)
 			{
 				CRegisterState moduleState;
 				{
-					uint32 importTableAddress = reinterpret_cast<uint8*>(dynamicModule->GetExportTable()) - m_ram;
+					uint32 importTableAddress = reinterpret_cast<const uint8*>(dynamicModule->GetExportTable()) - m_ram;
 					moduleState.SetRegister32(STATE_MODULE_IMPORT_TABLE_ADDRESS, importTableAddress);
 				}
 				modulesFile->InsertRegisterState(dynamicModule->GetId().c_str(), std::move(moduleState));
