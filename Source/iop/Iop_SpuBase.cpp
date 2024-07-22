@@ -489,6 +489,10 @@ void CSpuBase::SendKeyOn(uint32 channels)
 		{
 			channel.status = KEY_ON;
 			channel.repeatSet = false;
+			channel.current = channel.address;
+			//Simulate one tick of ADSR in case game tries to read envelope value quickly
+			//(ie.: Before 'Render' is called and while the voice is still in KEY_ON state)
+			channel.adsrVolume = GetAdsrDelta((channel.adsrLevel.attackRate ^ 0x7F) - 0x10);
 		}
 	}
 }
