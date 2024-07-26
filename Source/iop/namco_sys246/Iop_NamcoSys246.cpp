@@ -791,7 +791,8 @@ void CSys246::ProcessMemRequest(uint8* ram, uint32 infoPtr)
 		//CLog::GetInstance().Warn(LOG_NAME, "recving (dataPtr = 0x%08X);\r\n", dataPtr);
 		recvData[0] = sendData[0];
 		uint16 rootPktId = sendData[8];
-		if((sendData[0] == 0x3E6F) && (rootPktId != 0))
+		//Not sure if we need to check rootPktId, it seems to never be set by Taito games.
+		if((sendData[0] == 0x3E6F) /* && (rootPktId != 0)*/)
 		{
 			recvData[1] = 0x208;        //firmware version?
 			recvData[0x14] = rootPktId; //Xored with value at 0x10 in send packet, needs to be the same
