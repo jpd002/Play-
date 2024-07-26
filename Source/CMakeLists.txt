@@ -355,6 +355,8 @@ set(COMMON_SRC_FILES
 	iop/namco_sys147/Iop_NamcoNANDDevice.h
 	iop/namco_sys147/Iop_NamcoSys147.cpp
 	iop/namco_sys147/Iop_NamcoSys147.h
+	iop/namco_sys246/Iop_NamcoAcAta.cpp
+	iop/namco_sys246/Iop_NamcoAcAta.h
 	iop/namco_sys246/Iop_NamcoAcCdvd.cpp
 	iop/namco_sys246/Iop_NamcoAcCdvd.h
 	iop/namco_sys246/Iop_NamcoAcRam.cpp

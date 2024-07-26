@@ -13,6 +13,7 @@
 #include "iop/ioman/HardDiskDumpDevice.h"
 #include "iop/namco_sys246/Iop_NamcoSys246.h"
 #include "iop/namco_sys246/Iop_NamcoAcCdvd.h"
+#include "iop/namco_sys246/Iop_NamcoAcAta.h"
 #include "iop/namco_sys246/Iop_NamcoAcRam.h"
 #include "iop/namco_sys246/Iop_NamcoPadMan.h"
 
@@ -72,6 +73,9 @@ void CNamcoSys246Driver::PrepareEnvironment(CPS2VM* virtualMachine, const ARCADE
 		iopBios->RegisterModule(acCdvdModule);
 		iopBios->RegisterHleModuleReplacement("ATA/ATAPI_driver", acCdvdModule);
 		iopBios->RegisterHleModuleReplacement("CD/DVD_Compatible", acCdvdModule);
+
+		auto acAtaModule = std::make_shared<Iop::Namco::CAcAta>(*iopBios, virtualMachine->m_iop->m_ram);
+		iopBios->RegisterModule(acAtaModule);
 
 		//Taiko no Tatsujin loads and use these, but we don't have a proper HLE
 		//for PADMAN at the version that's provided by the SYS2x6 BIOS.
