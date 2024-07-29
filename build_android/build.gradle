@@ -1,3 +1,5 @@
+import org.ajoberstar.grgit.Grgit
+
 apply plugin: 'com.android.application'
 
 buildscript {
@@ -7,14 +9,14 @@ buildscript {
 	}
 
 	dependencies {
-		classpath 'com.android.tools.build:gradle:8.4.1'
+		classpath 'com.android.tools.build:gradle:8.4.2'
 		classpath 'org.ajoberstar.grgit:grgit-gradle:4.1.1'
 	}
 }
 
 project.ext {
 	signingEnabled = project.hasProperty("PLAY_RELEASE_STORE_FILE");
-	git = org.ajoberstar.grgit.Grgit.open(currentDir: project.rootDir)
+	git = Grgit.open(currentDir: project.rootDir)
 	gitVersionCode = git.tag.list().size()
 	gitVersionName = "${git.describe()}"
 }
@@ -30,7 +32,7 @@ android {
 	}
 
 	namespace 'com.virtualapplications.play'
-	compileSdk 33
+	compileSdk 34
 
 	buildFeatures {
 		buildConfig true
@@ -40,7 +42,7 @@ android {
 		versionCode (100 + gitVersionCode)
 		versionName gitVersionName
 		minSdkVersion 19
-		targetSdkVersion 33
+		targetSdkVersion 34
 		externalNativeBuild {
 			cmake {
 				arguments "-DANDROID_ARM_NEON=TRUE", "-DANDROID_TOOLCHAIN=clang",
@@ -60,7 +62,7 @@ android {
 		api 'androidx.preference:preference:1.2.1'
 		implementation 'androidx.documentfile:documentfile:1.0.1'
 		api 'org.apache.commons:commons-lang3:3.4'
-		api 'commons-io:commons-io:2.5'
+		api 'commons-io:commons-io:2.13.0'
 	}
 
 	signingConfigs {
