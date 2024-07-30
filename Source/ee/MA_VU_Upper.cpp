@@ -31,19 +31,19 @@ void CMA_VU::CUpper::CompileInstruction(uint32 nAddress, CMipsJitter* codeGen, C
 
 	((this)->*(m_pOpVector[m_nOpcode & 0x3F]))();
 
-	if((m_nOpcode & 0x18000000) != 0)
+	if((m_nOpcode & (VUShared::VU_UPPEROP_BIT_D | VUShared::VU_UPPEROP_BIT_T)) != 0)
 	{
 		CLog::GetInstance().Warn(LOG_NAME, "0x%08X: m_nOpcode : 0x%08X - Either the D and/or T bits are set!\r\n", nAddress, m_nOpcode);
 	}
 
 	//Check I bit
-	if(m_nOpcode & 0x80000000)
+	if(m_nOpcode & VUShared::VU_UPPEROP_BIT_I)
 	{
 		LOI(pCtx->m_pMemoryMap->GetInstruction(nAddress - 4));
 	}
 
 	//Check E bit
-	if(m_nOpcode & 0x40000000)
+	if(m_nOpcode & VUShared::VU_UPPEROP_BIT_E)
 	{
 		//Force exception checking if microprogram is done
 		m_codeGen->PushCst(1);
