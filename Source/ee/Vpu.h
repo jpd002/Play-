@@ -48,6 +48,7 @@ public:
 	};
 
 	typedef Framework::CSignal<void(VU_STATE)> VuStateChangedEvent;
+	typedef Framework::CSignal<void()> VuInterruptTriggeredEvent;
 
 	CVpu(unsigned int, const VPUINIT&, CGIF&, CINTC&, uint8*, uint8*);
 	virtual ~CVpu();
@@ -96,6 +97,7 @@ public:
 #endif
 
 	VuStateChangedEvent VuStateChanged;
+	VuInterruptTriggeredEvent VuInterruptTriggered;
 
 protected:
 	typedef std::unique_ptr<CVif> VifPtr;

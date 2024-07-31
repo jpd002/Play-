@@ -64,6 +64,13 @@ CSubSystem::CSubSystem(uint8* iopRam, CIopBios& iopBios)
 	//Setup link between EE's VU context and VU0's VU context
 	m_vu0StateChangedConnection = m_vpu0->VuStateChanged.Connect([this](CVpu::VU_STATE newState) { Vu0StateChanged(newState); });
 
+	m_vu1InterruptTriggeredConnection = m_vpu1->VuInterruptTriggered.Connect(
+	    [this]() {
+		    uint32 currentState = m_intc.GetRegister(CINTC::INTC_STAT);
+		    assert((currentState & (1 << CINTC::INTC_LINE_VU1)) == 0);
+		    m_intc.AssertLine(CINTC::INTC_LINE_VU1);
+	    });
+
 	//EmotionEngine context setup
 	{
 		m_EE.m_executor = std::make_unique<CEeExecutor>(m_EE, m_ram);

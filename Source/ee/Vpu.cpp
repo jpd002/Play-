@@ -51,11 +51,21 @@ void CVpu::Execute(int32 quota)
 #endif
 
 	m_ctx->m_executor->Execute(quota);
-	if(m_ctx->m_State.nHasException)
+	switch(m_ctx->m_State.nHasException)
 	{
+	case 1:
 		//E bit encountered
 		m_vuState = VU_STATE_READY;
 		VuStateChanged(m_vuState);
+		break;
+	case 2:
+		//T bit encountered
+		m_vuState = VU_STATE_STOPPED;
+		VuStateChanged(m_vuState);
+		VuInterruptTriggered();
+		break;
+	default:
+		break;
 	}
 }
 

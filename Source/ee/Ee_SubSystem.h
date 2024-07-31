@@ -122,5 +122,6 @@ namespace Ee
 
 		Framework::CSignal<void()>::Connection m_OnRequestInstructionCacheFlushConnection;
 		CVpu::VuStateChangedEvent::Connection m_vu0StateChangedConnection;
+		CVpu::VuInterruptTriggeredEvent::Connection m_vu1InterruptTriggeredConnection;
 	};
 };

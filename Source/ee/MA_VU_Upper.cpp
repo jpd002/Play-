@@ -6,7 +6,6 @@
 #include "offsetof_def.h"
 
 #undef MAX
-#define LOG_NAME ("ma_vu")
 
 CMA_VU::CUpper::CUpper()
     : CMIPSInstructionFactory(MIPS_REGSIZE_32)
@@ -33,7 +32,8 @@ void CMA_VU::CUpper::CompileInstruction(uint32 nAddress, CMipsJitter* codeGen, C
 
 	if((m_nOpcode & (VUShared::VU_UPPEROP_BIT_D | VUShared::VU_UPPEROP_BIT_T)) != 0)
 	{
-		CLog::GetInstance().Warn(LOG_NAME, "0x%08X: m_nOpcode : 0x%08X - Either the D and/or T bits are set!\r\n", nAddress, m_nOpcode);
+		m_codeGen->PushCst(2);
+		m_codeGen->PullRel(offsetof(CMIPS, m_State.nHasException));
 	}
 
 	//Check I bit
