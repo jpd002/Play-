@@ -81,6 +81,11 @@ void CVuExecutor::PartitionFunction(uint32 startAddress)
 			endAddress = address + 0xC;
 			break;
 		}
+		else if(upperOp & (VUShared::VU_UPPEROP_BIT_D | VUShared::VU_UPPEROP_BIT_T))
+		{
+			endAddress = address + 0x04;
+			break;
+		}
 		else if(branchType == MIPS_BRANCH_NORMAL)
 		{
 			branchAddress = m_context.m_pArch->GetInstructionEffectiveAddress(&m_context, addrLo, lowerOp);
