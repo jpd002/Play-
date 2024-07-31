@@ -54,8 +54,8 @@ void CVpu::Execute(int32 quota)
 	if(m_ctx->m_State.nHasException)
 	{
 		//E bit encountered
-		m_running = false;
-		VuStateChanged(m_running);
+		m_vuState = VU_STATE_READY;
+		VuStateChanged(m_vuState);
 	}
 }
 
