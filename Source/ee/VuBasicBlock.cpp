@@ -439,12 +439,15 @@ CVuBasicBlock::INTEGER_BRANCH_DELAY_INFO CVuBasicBlock::ComputeTrailingIntegerBr
 	auto endLoOps = arch->GetAffectedOperands(&m_context, endOpcodeLoAddr, endOpcodeLo);
 
 	// assume this is same as for the case if there was a conditional branch at the end.
-	uint32 fmacDelayOnBranch = fmacStallDelays[fmacStallDelays.size() - 2];
-	if((endLoOps.writeI != 0) && !endLoOps.branchValue && (fmacDelayOnBranch == 0))
+	if(fmacStallDelays.size() > 1)
 	{
-		// we need to save the value of the integer register before the instruction is executed
-		result.regIndex = endLoOps.writeI;
-		result.saveRegAddress = adjustedEnd;
+		uint32 fmacDelayOnBranch = fmacStallDelays[fmacStallDelays.size() - 2];
+		if((endLoOps.writeI != 0) && !endLoOps.branchValue && (fmacDelayOnBranch == 0))
+		{
+			// we need to save the value of the integer register before the instruction is executed
+			result.regIndex = endLoOps.writeI;
+			result.saveRegAddress = adjustedEnd;
+		}
 	}
 	return result;
 }
