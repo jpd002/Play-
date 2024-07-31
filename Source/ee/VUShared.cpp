@@ -1069,12 +1069,28 @@ void VUShared::LQD(CMipsJitter* codeGen, uint8 dest, uint8 it, uint8 is, uint32 
 	VUShared::LQbase(codeGen, dest, it);
 }
 
-void VUShared::LQI(CMipsJitter* codeGen, uint8 dest, uint8 it, uint8 is, uint32 addressMask)
+void VUShared::LQI(CMipsJitter* codeGen, uint8 dest, uint8 it, uint8 is, uint32 addressMask, const Vu1AreaAccessEmitter& vu1AreaAccessEmitter)
 {
+	if(vu1AreaAccessEmitter)
+	{
+		codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[is]));
+		codeGen->PushCst(CVpu::VU_ADDR_VU1AREA_START >> 4);
+		codeGen->BeginIf(Jitter::CONDITION_AE);
+		{
+			vu1AreaAccessEmitter(codeGen, is, it);
+		}
+		codeGen->Else();
+	}
+
 	codeGen->PushRelRef(offsetof(CMIPS, m_vuMem));
 	VUShared::ComputeMemAccessAddr(codeGen, is, 0, 0, addressMask);
 
 	VUShared::LQbase(codeGen, dest, it);
+
+	if(vu1AreaAccessEmitter)
+	{
+		codeGen->EndIf();
+	}
 
 	if((is & 0xF) != 0)
 	{

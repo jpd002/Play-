@@ -453,6 +453,11 @@ uint32 CSubSystem::IOPortReadHandler(uint32 nAddress)
 	{
 		nReturn = m_dmac.GetRegister(nAddress);
 	}
+	else if(nAddress >= CVpu::EE_ADDR_VU1AREA_START && nAddress <= CVpu::EE_ADDR_VU1AREA_END)
+	{
+		uint32 offset = nAddress - CVpu::EE_ADDR_VU1AREA_START;
+		nReturn = HandleVu1AreaRead(offset);
+	}
 	else if(nAddress >= 0x12000000 && nAddress <= 0x1200108C)
 	{
 		if(m_gs != NULL)
@@ -710,6 +715,27 @@ void CSubSystem::CopyVuState(CMIPS& dst, const CMIPS& src)
 	dst.m_State.pipeMac.index = src.m_State.pipeMac.index;
 	dst.m_State.pipeSticky.index = src.m_State.pipeSticky.index;
 	dst.m_State.pipeClip.index = src.m_State.pipeClip.index;
+}
+
+uint32 CSubSystem::HandleVu1AreaRead(uint32 offset)
+{
+	assert(!m_vpu1->IsVuRunning());
+	assert(offset < 0x400);
+	uint32 result = 0;
+	switch(offset)
+	{
+	case 0x3A0:
+		result = m_vpu1->GetContext().m_State.nPC;
+		break;
+	case 0x3A4:
+	case 0x3A8:
+	case 0x3AC:
+		break;
+	default:
+		assert(false);
+		break;
+	}
+	return result;
 }
 
 void CSubSystem::HandleVu1AreaWrite(uint32 offset, uint32 value)
