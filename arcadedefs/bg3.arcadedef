@@ -1,0 +1,18 @@
+{
+	"id": "bg3",
+	"name": "Battle Gear 3",
+	"driver": "sys246",
+	"dongle":
+	{
+		"name": "bg3-dongle.bin"
+	},
+	"hdd":
+	{
+		"name": "bg3.chd"
+	},
+	"inputMode": "drive",
+	"boot": "ac0:BGRLOAD",
+	"patches":
+	[
+	]
+}
