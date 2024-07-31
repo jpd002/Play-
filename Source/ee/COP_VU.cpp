@@ -698,7 +698,7 @@ void CCOP_VU::VMOVE()
 //0D
 void CCOP_VU::VLQI()
 {
-	VUShared::LQI(m_codeGen, m_nDest, m_nIT, m_nIS, m_vuMemAddressMask);
+	VUShared::LQI(m_codeGen, m_nDest, m_nIT, m_nIS, m_vuMemAddressMask, &CCOP_VU::EmitVu1AreaReadHandler);
 }
 
 //0E
@@ -935,6 +935,29 @@ void CCOP_VU::VRXOR()
 //////////////////////////////////////////////////
 //Helpers
 //////////////////////////////////////////////////
+
+void CCOP_VU::EmitVu1AreaReadHandler(CMipsJitter* codeGen, uint8 is, uint8 it)
+{
+	codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[is]));
+	codeGen->Shl(4);
+	codeGen->PushCst(CVpu::VU_ADDR_VU1AREA_START);
+	codeGen->Sub();
+	codeGen->PushCst(CVpu::EE_ADDR_VU1AREA_START);
+	codeGen->Add();
+
+	for(unsigned int i = 0; i < 4; i++)
+	{
+		codeGen->PushCtx();
+		codeGen->PushIdx(1);
+		codeGen->Call(reinterpret_cast<void*>(&MemoryUtils_GetWordProxy), 2, Jitter::CJitter::RETURN_VALUE_32);
+		codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2[it].nV[i]));
+
+		codeGen->PushCst(4);
+		codeGen->Add();
+	}
+
+	codeGen->PullTop();
+}
 
 void CCOP_VU::EmitVu1AreaWriteHandler(CMipsJitter* codeGen, uint8 is, uint8 it)
 {

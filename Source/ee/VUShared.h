@@ -166,7 +166,7 @@ namespace VUShared
 	void ISWR(CMipsJitter*, uint8, uint8, uint8, uint32);
 	void LQbase(CMipsJitter*, uint8, uint8);
 	void LQD(CMipsJitter*, uint8, uint8, uint8, uint32);
-	void LQI(CMipsJitter*, uint8, uint8, uint8, uint32);
+	void LQI(CMipsJitter*, uint8, uint8, uint8, uint32, const Vu1AreaAccessEmitter& = Vu1AreaAccessEmitter());
 	void MADD(CMipsJitter*, uint8, uint8, uint8, uint8, uint32, uint32);
 	void MADDbc(CMipsJitter*, uint8, uint8, uint8, uint8, uint8, uint32, uint32);
 	void MADDi(CMipsJitter*, uint8, uint8, uint8, uint32, uint32);

@@ -98,6 +98,7 @@ namespace Ee
 		uint32 Vu1IoPortWriteHandler(uint32, uint32);
 
 		void CopyVuState(CMIPS&, const CMIPS&);
+		uint32 HandleVu1AreaRead(uint32);
 		void HandleVu1AreaWrite(uint32, uint32);
 
 		void ExecuteIpu();
