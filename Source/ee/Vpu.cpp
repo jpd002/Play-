@@ -13,7 +13,7 @@
 
 #define STATE_PATH_REGS_FORMAT ("vpu/vpu_%d.xml")
 
-#define STATE_REGS_RUNNING ("running")
+#define STATE_REGS_VUSTATE ("vuState")
 
 CVpu::CVpu(unsigned int number, const VPUINIT& vpuInit, CGIF& gif, CINTC& intc, uint8* ram, uint8* spr)
     : m_number(number)
@@ -44,7 +44,7 @@ CVpu::~CVpu()
 
 void CVpu::Execute(int32 quota)
 {
-	if(!m_running) return;
+	if(m_vuState != VU_STATE_RUNNING) return;
 
 #ifdef PROFILE
 	CProfilerZone profilerZone(m_vuProfilerZone);
@@ -99,7 +99,7 @@ uint32 CVpu::GetVuItopMiniState() const
 
 void CVpu::Reset()
 {
-	m_running = false;
+	m_vuState = VU_STATE_READY;
 	m_ctx->m_executor->Reset();
 	m_vif->Reset();
 }
@@ -109,7 +109,7 @@ void CVpu::SaveState(Framework::CZipArchiveWriter& archive)
 	{
 		auto path = string_format(STATE_PATH_REGS_FORMAT, m_number);
 		auto registerFile = std::make_unique<CRegisterStateFile>(path.c_str());
-		registerFile->SetRegister32(STATE_REGS_RUNNING, m_running);
+		registerFile->SetRegister32(STATE_REGS_VUSTATE, m_vuState);
 		archive.InsertFile(std::move(registerFile));
 	}
 
@@ -121,7 +121,7 @@ void CVpu::LoadState(Framework::CZipArchiveReader& archive)
 	{
 		auto path = string_format(STATE_PATH_REGS_FORMAT, m_number);
 		CRegisterStateFile registerFile(*archive.BeginReadFile(path.c_str()));
-		m_running = registerFile.GetRegister32(STATE_REGS_RUNNING) != 0;
+		m_vuState = static_cast<VU_STATE>(registerFile.GetRegister32(STATE_REGS_VUSTATE));
 	}
 
 	m_vif->LoadState(archive);
@@ -152,11 +152,6 @@ uint32 CVpu::GetVuMemorySize() const
 	return m_vuMemSize;
 }
 
-bool CVpu::IsVuRunning() const
-{
-	return m_running;
-}
-
 CVif& CVpu::GetVif()
 {
 	return *m_vif.get();
@@ -178,13 +173,13 @@ void CVpu::ExecuteMicroProgram(uint32 nAddress)
 	SaveMiniState();
 #endif
 
-	assert(!m_running);
-	m_running = true;
-	VuStateChanged(m_running);
+	assert(m_vuState != VU_STATE_RUNNING);
+	m_vuState = VU_STATE_RUNNING;
+	VuStateChanged(m_vuState);
 	for(unsigned int i = 0; i < 100; i++)
 	{
 		Execute(5000);
-		if(!m_running) break;
+		if(m_vuState != VU_STATE_RUNNING) break;
 	}
 }
 
