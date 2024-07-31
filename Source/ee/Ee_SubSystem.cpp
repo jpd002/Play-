@@ -234,7 +234,7 @@ int CSubSystem::ExecuteCpu(int quota)
 	int executed = 0;
 	if(m_EE.m_State.callMsEnabled)
 	{
-		if(!m_vpu0->IsVuRunning())
+		if(m_vpu0->IsVuReady())
 		{
 			//callMs mode over
 			m_EE.m_State.callMsAddr = m_VU0.m_State.nPC;
@@ -260,7 +260,6 @@ int CSubSystem::ExecuteCpu(int quota)
 			if(m_EE.m_State.callMsEnabled)
 			{
 				//We are in callMs mode
-				assert(!m_vpu0->IsVuRunning());
 				m_vpu0->ExecuteMicroProgram(m_EE.m_State.callMsAddr);
 				m_EE.m_State.nHasException = MIPS_EXCEPTION_NONE;
 			}
@@ -300,11 +299,11 @@ bool CSubSystem::IsCpuIdle() const
 
 void CSubSystem::CountTicks(int ticks)
 {
-	if(!m_vpu0->IsVuRunning() || (m_vpu0->IsVuRunning() && !m_vpu0->GetVif().IsWaitingForProgramEnd()))
+	if(m_vpu0->IsVuReady() || (m_vpu0->IsVuRunning() && !m_vpu0->GetVif().IsWaitingForProgramEnd()))
 	{
 		m_dmac.ResumeDMA0();
 	}
-	if(!m_vpu1->IsVuRunning() || (m_vpu1->IsVuRunning() && !m_vpu1->GetVif().IsWaitingForProgramEnd()))
+	if(m_vpu1->IsVuReady() || (m_vpu1->IsVuRunning() && !m_vpu1->GetVif().IsWaitingForProgramEnd()))
 	{
 		m_dmac.ResumeDMA1();
 	}
@@ -561,7 +560,7 @@ uint32 CSubSystem::IOPortWriteHandler(uint32 nAddress, uint32 nData)
 	else if(nAddress == CVpu::EE_ADDR_VU_CMSAR1)
 	{
 		bool validAddress = (nData & 0x7) == 0;
-		if(!m_vpu1->IsVuRunning() && validAddress)
+		if(validAddress)
 		{
 			m_vpu1->ExecuteMicroProgram(nData);
 		}
@@ -626,7 +625,7 @@ uint32 CSubSystem::Vu0IoPortWriteHandler(uint32 address, uint32 value)
 	return 0;
 }
 
-void CSubSystem::Vu0StateChanged(bool running)
+void CSubSystem::Vu0StateChanged(CVpu::VU_STATE newState)
 {
 	auto flushPipelines =
 	    [](CMIPS& ctx) {
@@ -638,7 +637,8 @@ void CSubSystem::Vu0StateChanged(bool running)
 		    VUShared::CheckFlagPipelineImmediate(VUShared::g_pipeInfoClip, &ctx, VUShared::LATENCY_MAC);
 	    };
 
-	if(running)
+	assert(newState != CVpu::VU_STATE_STOPPED);
+	if(newState == CVpu::VU_STATE_RUNNING)
 	{
 		flushPipelines(m_EE);
 		CopyVuState(m_VU0, m_EE);

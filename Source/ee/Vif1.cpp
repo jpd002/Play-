@@ -114,7 +114,7 @@ void CVif1::ExecuteCommand(StreamType& stream, CODE nCommand)
 		m_gif.SetPath3Masked((nCommand.nIMM & 0x8000) != 0);
 		break;
 	case CODE_CMD_FLUSH:
-		if(m_vpu.IsVuRunning())
+		if(!m_vpu.IsVuReady())
 		{
 			m_STAT.nVEW = 1;
 		}
@@ -129,7 +129,7 @@ void CVif1::ExecuteCommand(StreamType& stream, CODE nCommand)
 		}
 		break;
 	case CODE_CMD_FLUSHA:
-		if(m_vpu.IsVuRunning())
+		if(!m_vpu.IsVuReady())
 		{
 			m_STAT.nVEW = 1;
 		}

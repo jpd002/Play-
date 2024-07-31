@@ -26,6 +26,13 @@ public:
 		EE_ADDR_VU_CMSAR1 = 0x1000FFC0, //This is meant to be used by the EE through CTC2
 	};
 
+	enum VU_STATE
+	{
+		VU_STATE_READY,
+		VU_STATE_RUNNING,
+		VU_STATE_STOPPED,
+	};
+
 	struct VPUINIT
 	{
 		VPUINIT(uint8* microMem, uint8* vuMem, CMIPS* context)
@@ -40,7 +47,7 @@ public:
 		CMIPS* context;
 	};
 
-	typedef Framework::CSignal<void(bool)> VuStateChangedEvent;
+	typedef Framework::CSignal<void(VU_STATE)> VuStateChangedEvent;
 
 	CVpu(unsigned int, const VPUINIT&, CGIF&, CINTC&, uint8*, uint8*);
 	virtual ~CVpu();
@@ -55,7 +62,21 @@ public:
 	uint32 GetMicroMemorySize() const;
 	uint8* GetVuMemory() const;
 	uint32 GetVuMemorySize() const;
-	bool IsVuRunning() const;
+	
+	inline VU_STATE GetVuState() const
+	{
+		return m_vuState;
+	}
+
+	inline bool IsVuReady() const
+	{
+		return m_vuState == VU_STATE_READY;
+	}
+
+	inline bool IsVuRunning() const
+	{
+		return m_vuState == VU_STATE_RUNNING;
+	}
 
 	CVif& GetVif();
 
@@ -96,7 +117,7 @@ protected:
 	uint32 m_itopMiniState;
 #endif
 
-	bool m_running = false;
+	VU_STATE m_vuState = VU_STATE_READY;
 
 	CProfiler::ZoneHandle m_vuProfilerZone = 0;
 };

@@ -102,7 +102,7 @@ uint32 CVif::GetRegister(uint32 address)
 			//Some games will keep reading this register in a loop to verify the state of the VEW bit.
 			//- Red Faction
 			//- RPG Maker 3
-			if(!m_vpu.IsVuRunning())
+			if(m_vpu.IsVuReady())
 			{
 				m_STAT.nVEW = 0;
 			}
@@ -353,7 +353,7 @@ uint32 CVif::GetITOP() const
 
 uint32 CVif::ReceiveDMA(uint32 address, uint32 qwc, uint32 unused, bool tagIncluded)
 {
-	if(m_STAT.nVEW && m_vpu.IsVuRunning())
+	if(m_STAT.nVEW && !m_vpu.IsVuReady())
 	{
 		//Is waiting for program end, don't bother
 		return 0;
@@ -426,7 +426,7 @@ void CVif::ProcessPacket(StreamType& stream)
 		}
 		if(m_STAT.nVEW == 1)
 		{
-			if(m_vpu.IsVuRunning()) break;
+			if(!m_vpu.IsVuReady()) break;
 			m_STAT.nVEW = 0;
 			//Command is waiting for micro-program to end.
 			ExecuteCommand(stream, m_CODE);
@@ -510,7 +510,7 @@ void CVif::ExecuteCommand(StreamType& stream, CODE nCommand)
 		m_STAT.nMRK = 1;
 		break;
 	case CODE_CMD_FLUSHE:
-		if(m_vpu.IsVuRunning())
+		if(!m_vpu.IsVuReady())
 		{
 			m_STAT.nVEW = 1;
 		}
@@ -585,7 +585,7 @@ void CVif::Cmd_MPG(StreamType& stream, CODE nCommand)
 	nDstAddr &= (m_vpu.GetMicroMemorySize() - 1);
 
 	//Check if microprogram is running
-	if(m_vpu.IsVuRunning())
+	if(!m_vpu.IsVuReady())
 	{
 		m_STAT.nVEW = 1;
 		return;
@@ -724,7 +724,7 @@ void CVif::PrepareMicroProgram()
 
 void CVif::StartMicroProgram(uint32 address)
 {
-	if(m_vpu.IsVuRunning())
+	if(!m_vpu.IsVuReady())
 	{
 		m_STAT.nVEW = 1;
 		return;
@@ -740,7 +740,7 @@ void CVif::StartDelayedMicroProgram(uint32 address)
 	//Snowblind Studio games start a VU microprogram and issues an UNPACK command
 	//which has data needed by the microprogram. We simulate the microprogram
 	//starting a bit later to let the UNPACK command execute
-	if(m_vpu.IsVuRunning())
+	if(!m_vpu.IsVuReady())
 	{
 		m_STAT.nVEW = 1;
 		return;
@@ -756,7 +756,7 @@ bool CVif::ResumeDelayedMicroProgram()
 	if(m_pendingMicroProgram != -1)
 	{
 		assert(!IsWaitingForProgramEnd());
-		assert(!m_vpu.IsVuRunning());
+		assert(m_vpu.IsVuReady());
 		m_vpu.ExecuteMicroProgram(m_pendingMicroProgram);
 		m_pendingMicroProgram = -1;
 		return true;
