@@ -133,7 +133,7 @@ void CNamcoSys246Driver::PrepareEnvironment(CPS2VM* virtualMachine, const ARCADE
 			for(const auto& buttonDefPair : def.buttons)
 			{
 				const auto& buttonPair = buttonDefPair.second;
-				assert(buttonDefPair.first == -1);
+				assert(buttonPair.first == -1);
 				namcoArcadeModule->SetButton(buttonDefPair.first, buttonPair.second);
 			}
 			switch(def.inputMode)
