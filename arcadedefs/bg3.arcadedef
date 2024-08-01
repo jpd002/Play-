@@ -14,5 +14,15 @@
 	"boot": "ac0:BGRLOAD",
 	"patches":
 	[
+		{
+			"address": "0x001008FC",
+			"value": "0x0",
+			"description": "Fixes hang on white screen."
+		},
+		{
+			"address": "0x001347C8",
+			"value": "0x10000017",
+			"description": "Disables handle error screen."
+		}
 	]
 }
