@@ -325,6 +325,7 @@ void CVuBasicBlock::CompileRange(CMipsJitter* jitter)
 			//Disable block linking because targets will be wrong
 			m_isLinkable = false;
 
+			assert(address >= 8);
 			uint32 branchOpcodeAddr = address - 8;
 			assert(branchOpcodeAddr >= m_begin);
 			uint32 branchOpcodeLo = m_context.m_pMemoryMap->GetInstruction(branchOpcodeAddr);
@@ -334,6 +335,30 @@ void CVuBasicBlock::CompileRange(CMipsJitter* jitter)
 				//before the branch is taken
 				uint32 branchTgtAddress = branchOpcodeAddr + VUShared::GetBranch(branchOpcodeLo & 0x7FF) + 8;
 				arch->CompileInstruction(branchTgtAddress, jitter, &m_context, address - m_begin);
+			}
+		}
+		//Handle some E bit in delay slot situation (Edge of Reality games)
+		else if((address == (m_end - 4)) && (opcodeHi & VUShared::VU_UPPEROP_BIT_E))
+		{
+			//Check if we actually had a conditional branch before
+			assert(address >= 8);
+			uint32 branchOpcodeAddr = address - 8;
+			assert(branchOpcodeAddr >= m_begin);
+			uint32 branchOpcodeLo = m_context.m_pMemoryMap->GetInstruction(branchOpcodeAddr);
+			if(IsConditionalBranch(branchOpcodeLo))
+			{
+				//So, this is a E bit in a delay slot. If branch is not taken
+				//we want to execute the instruction in the E bit delay slot.
+				jitter->PushRel(offsetof(CMIPS, m_State.nDelayedJumpAddr));
+				jitter->PushCst(MIPS_INVALID_PC);
+				jitter->BeginIf(Jitter::CONDITION_EQ);
+				{
+					//If we haven't taken the jump, execute the instruction after the delay slot
+					uint32 nextOpcodeAddr = address + 8;
+					uint32 nextOpcodeLo = m_context.m_pMemoryMap->GetInstruction(nextOpcodeAddr);
+					arch->CompileInstruction(nextOpcodeAddr, jitter, &m_context, nextOpcodeAddr - m_begin);
+				}
+				jitter->EndIf();
 			}
 		}
 
