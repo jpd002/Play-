@@ -420,10 +420,16 @@ void CPS2OS::LoadELF(Framework::CStream* stream, const char* executablePath, con
 
 	m_executableName =
 	    [&]() {
-		    auto executableName = reinterpret_cast<const char*>(strchr(executablePath, ':'));
-		    if(!executableName) return executablePath;
-		    executableName++;
-		    if(executableName[0] == '/' || executableName[0] == '\\') executableName++;
+		    const char* lastSlashPos = nullptr;
+		    static const char separators[] = {'/', '\\', ':'};
+		    auto executableName = executablePath;
+		    for(const auto separator : separators)
+		    {
+			    if(auto sepPos = strrchr(executablePath, separator))
+			    {
+				    executableName = std::max(executableName, sepPos + 1);
+			    }
+		    }
 		    return executableName;
 	    }();
 
