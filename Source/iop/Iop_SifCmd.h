@@ -46,7 +46,8 @@ namespace Iop
 			uint32 queueNext;
 		};
 
-		typedef std::list<CSifDynamic*> DynamicModuleList;
+		using DynamicModulePtr = std::unique_ptr<CSifDynamic>;
+		typedef std::list<DynamicModulePtr> DynamicModuleList;
 		typedef std::function<void(const SIFCMDHEADER*, CSifMan&)> CmdHandler;
 
 		CSifCmd(CIopBios&, CSifMan&, CSysmem&, uint8*);
