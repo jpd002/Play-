@@ -87,9 +87,9 @@ void CSifCmd::LoadState(Framework::CZipArchiveReader& archive)
 			const auto& moduleState(moduleStatePair.second);
 			uint32 serverDataAddress = moduleState.GetRegister32(STATE_MODULE_SERVER_DATA_ADDRESS);
 			auto serverData = reinterpret_cast<SIFRPCSERVERDATA*>(m_ram + serverDataAddress);
-			auto module = new CSifDynamic(*this, serverDataAddress);
-			m_servers.push_back(module);
-			m_sifMan.RegisterModule(serverData->serverId, module);
+			auto module = std::make_unique<CSifDynamic>(*this, serverDataAddress);
+			m_sifMan.RegisterModule(serverData->serverId, module.get());
+			m_servers.push_back(std::move(module));
 		}
 	}
 }
@@ -339,7 +339,6 @@ void CSifCmd::ClearServers()
 	{
 		auto serverData = reinterpret_cast<SIFRPCSERVERDATA*>(m_ram + server->GetServerDataAddress());
 		m_sifMan.UnregisterModule(serverData->serverId);
-		delete server;
 	}
 	m_servers.clear();
 }
@@ -940,9 +939,9 @@ void CSifCmd::SifRegisterRpc(CMIPS& context)
 	bool moduleRegistered = m_sifMan.IsModuleRegistered(serverId);
 	if(!moduleRegistered)
 	{
-		auto module = new CSifDynamic(*this, serverDataAddr);
-		m_servers.push_back(module);
-		m_sifMan.RegisterModule(serverId, module);
+		auto module = std::make_unique<CSifDynamic>(*this, serverDataAddr);
+		m_sifMan.RegisterModule(serverId, module.get());
+		m_servers.push_back(std::move(module));
 	}
 
 	if(serverDataAddr != 0)
@@ -1056,7 +1055,14 @@ uint32 CSifCmd::SifRemoveRpc(uint32 serverDataAddr, uint32 queueDataAddr)
 		return 0;
 	}
 
+	auto matchPredicate =
+	    [serverDataAddr](const DynamicModulePtr& module) {
+		    return module->GetServerDataAddress() == serverDataAddr;
+	    };
+
 	m_sifMan.UnregisterModule(serverData->serverId);
+	assert(std::count_if(std::begin(m_servers), std::end(m_servers), matchPredicate) == 1);
+	m_servers.erase(std::remove_if(std::begin(m_servers), std::end(m_servers), matchPredicate), std::end(m_servers));
 
 	return 1;
 }
