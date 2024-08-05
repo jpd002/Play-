@@ -1,3 +1,4 @@
+#include <time.h>
 #include "Ee_SubSystem.h"
 #include "EeExecutor.h"
 #include "VuExecutor.h"
@@ -425,6 +426,14 @@ uint32 CSubSystem::IOPortReadHandler(uint32 nAddress)
 	if(nAddress >= 0x10000000 && nAddress <= 0x1000183F)
 	{
 		nReturn = m_timer.GetRegister(nAddress);
+	}
+	else if(nAddress >= 0x10001900 && nAddress < 0x10001904)
+	{
+		nReturn = (uint32)clock();
+	}
+	else if(nAddress >= 0x10001904 && nAddress < 0x10001908)
+	{
+		nReturn = CLOCKS_PER_SEC;
 	}
 	else if(nAddress >= 0x10002000 && nAddress <= 0x1000203F)
 	{
