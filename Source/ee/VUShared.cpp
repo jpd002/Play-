@@ -427,6 +427,7 @@ void VUShared::MADDA_base(CMipsJitter* codeGen, uint8 dest, size_t fs, size_t ft
 	{
 		codeGen->MD_PushRel(ft);
 	}
+	codeGen->MD_ClampS();
 	codeGen->MD_MulS();
 	codeGen->MD_AddS();
 	PullVector(codeGen, dest, offsetof(CMIPS, m_State.nCOP2A));
