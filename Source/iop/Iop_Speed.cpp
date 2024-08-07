@@ -26,9 +26,21 @@ CSpeed::CSpeed(CIntc& intc)
 
 void CSpeed::Reset()
 {
-	m_smapEmac3StaCtrl.f = 0;
+	m_pendingRx = false;
+	m_rxDelay = 0;
+	m_rxIndex = 0;
 	m_intrStat = 0;
 	m_intrMask = 0;
+	m_eepRomReadIndex = 0;
+	m_txBuffer.clear();
+	m_rxBuffer.clear();
+	m_rxFifoPtr = 0;
+	m_rxFrameCount = 0;
+	m_smapEmac3AddressHi = 0;
+	m_smapEmac3AddressLo = 0;
+	m_smapEmac3StaCtrl.f = 0;
+	memset(m_smapBdTx, 0, sizeof(m_smapBdTx));
+	memset(m_smapBdRx, 0, sizeof(m_smapBdRx));
 }
 
 void CSpeed::SetEthernetFrameTxHandler(const EthernetFrameTxHandler& ethernetFrameTxHandler)
