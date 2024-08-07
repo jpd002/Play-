@@ -78,7 +78,10 @@ CSifCmd::~CSifCmd()
 
 void CSifCmd::LoadState(Framework::CZipArchiveReader& archive)
 {
-	ClearServers();
+	//We must not have any servers here. Otherwise, make sure we've cleared them up
+	//in CIopBios::PreLoadState since the info pointed in by the server data relies
+	//on RAM before state load.
+	assert(m_servers.empty());
 
 	auto modulesFile = CRegisterStateCollectionFile(*archive.BeginReadFile(STATE_MODULES));
 	{

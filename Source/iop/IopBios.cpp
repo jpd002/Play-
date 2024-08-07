@@ -328,6 +328,24 @@ uint32& CIopBios::ModuleStartRequestFree() const
 	return *reinterpret_cast<uint32*>(m_ram + BIOS_MODULESTARTREQUEST_FREE_BASE);
 }
 
+void CIopBios::PreLoadState()
+{
+	//Remove all dynamic modules
+	for(auto modulePairIterator = m_modules.begin();
+	    modulePairIterator != m_modules.end();)
+	{
+		if(dynamic_cast<Iop::CDynamic*>(modulePairIterator->second.get()) != nullptr)
+		{
+			modulePairIterator = m_modules.erase(modulePairIterator);
+		}
+		else
+		{
+			modulePairIterator++;
+		}
+	}
+	m_sifCmd->ClearServers();
+}
+
 void CIopBios::SaveState(Framework::CZipArchiveWriter& archive)
 {
 	auto modulesFile = std::make_unique<CRegisterStateCollectionFile>(STATE_MODULES);
@@ -358,20 +376,6 @@ void CIopBios::SaveState(Framework::CZipArchiveWriter& archive)
 
 void CIopBios::LoadState(Framework::CZipArchiveReader& archive)
 {
-	//Remove all dynamic modules
-	for(auto modulePairIterator = m_modules.begin();
-	    modulePairIterator != m_modules.end();)
-	{
-		if(dynamic_cast<Iop::CDynamic*>(modulePairIterator->second.get()) != nullptr)
-		{
-			modulePairIterator = m_modules.erase(modulePairIterator);
-		}
-		else
-		{
-			modulePairIterator++;
-		}
-	}
-
 	auto builtInModules = GetBuiltInModules();
 	for(const auto& module : builtInModules)
 	{

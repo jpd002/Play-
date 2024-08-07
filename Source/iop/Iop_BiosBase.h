@@ -24,6 +24,7 @@ namespace Iop
 
 		virtual bool IsIdle() = 0;
 
+		virtual void PreLoadState(){};
 		virtual void SaveState(Framework::CZipArchiveWriter&) = 0;
 		virtual void LoadState(Framework::CZipArchiveReader&) = 0;
 
