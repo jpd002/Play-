@@ -200,6 +200,7 @@ public:
 
 	void Reset(uint32, const Iop::SifManPtr&);
 
+	void PreLoadState() override;
 	void SaveState(Framework::CZipArchiveWriter&) override;
 	void LoadState(Framework::CZipArchiveReader&) override;
 

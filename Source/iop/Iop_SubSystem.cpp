@@ -138,6 +138,8 @@ void CSubSystem::SaveState(Framework::CZipArchiveWriter& archive)
 
 void CSubSystem::LoadState(Framework::CZipArchiveReader& archive)
 {
+	m_bios->PreLoadState();
+
 	//Read and check differences in memory to invalidate executor blocks only if necessary
 	{
 		auto stream = archive.BeginReadFile(STATE_RAM);
