@@ -41,6 +41,7 @@ using namespace Iop;
 #define PREF_IOP_FILEIO_STDLOGGING ("iop.fileio.stdlogging")
 
 #define FUNCTION_WRITE "Write"
+#define FUNCTION_CHSTAT "ChStat"
 #define FUNCTION_ADDDRV "AddDrv"
 #define FUNCTION_DELDRV "DelDrv"
 #define FUNCTION_MOUNT "Mount"
@@ -203,6 +204,9 @@ std::string CIoman::GetFunctionName(unsigned int functionId) const
 		break;
 	case 16:
 		return "getstat";
+		break;
+	case 17:
+		return FUNCTION_CHSTAT;
 		break;
 	case 20:
 		return FUNCTION_ADDDRV;
@@ -489,6 +493,13 @@ uint32 CIoman::GetStat(const char* path, Ioman::STAT* stat)
 	}
 
 	return -1;
+}
+
+int32 CIoman::ChStat(const char* path, Ioman::STAT* stat, uint32 statMask)
+{
+	CLog::GetInstance().Print(LOG_NAME, FUNCTION_CHSTAT "(path = '%s', stat = ptr, statMask = 0x%08X);\r\n",
+	                          path, statMask);
+	return GetStat(path, stat);
 }
 
 int32 CIoman::AddDrv(CMIPS& context)
@@ -1018,6 +1029,12 @@ void CIoman::Invoke(CMIPS& context, unsigned int functionId)
 		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(GetStat(
 		    reinterpret_cast<char*>(&m_ram[context.m_State.nGPR[CMIPS::A0].nV[0]]),
 		    reinterpret_cast<Ioman::STAT*>(&m_ram[context.m_State.nGPR[CMIPS::A1].nV[0]])));
+		break;
+	case 17:
+		context.m_State.nGPR[CMIPS::V0].nD0 = ChStat(
+		    reinterpret_cast<const char*>(&m_ram[context.m_State.nGPR[CMIPS::A0].nV[0]]),
+		    reinterpret_cast<Ioman::STAT*>(&m_ram[context.m_State.nGPR[CMIPS::A1].nV[0]]),
+		    context.m_State.nGPR[CMIPS::A2].nV[0]);
 		break;
 	case 20:
 		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(AddDrv(context));

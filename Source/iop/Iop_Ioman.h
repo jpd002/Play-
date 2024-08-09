@@ -55,6 +55,7 @@ namespace Iop
 		int32 Dread(uint32, Ioman::DIRENTRY*);
 		int32 Dclose(uint32);
 		uint32 GetStat(const char*, Ioman::STAT*);
+		int32 ChStat(const char*, Ioman::STAT*, uint32);
 		uint32 DelDrv(uint32);
 		int32 Mount(const char*, const char*);
 		int32 Umount(const char*);
