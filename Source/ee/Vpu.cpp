@@ -14,6 +14,7 @@
 #define STATE_PATH_REGS_FORMAT ("vpu/vpu_%d.xml")
 
 #define STATE_REGS_VUSTATE ("vuState")
+#define STATE_REGS_FBRST ("fbrst")
 
 CVpu::CVpu(unsigned int number, const VPUINIT& vpuInit, CGIF& gif, CINTC& intc, uint8* ram, uint8* spr)
     : m_number(number)
@@ -53,16 +54,29 @@ void CVpu::Execute(int32 quota)
 	m_ctx->m_executor->Execute(quota);
 	switch(m_ctx->m_State.nHasException)
 	{
-	case 1:
+	case MIPS_EXCEPTION_VU_EBIT:
 		//E bit encountered
 		m_vuState = VU_STATE_READY;
 		VuStateChanged(m_vuState);
 		break;
-	case 2:
-		//T bit encountered
-		m_vuState = VU_STATE_STOPPED;
-		VuStateChanged(m_vuState);
-		VuInterruptTriggered();
+	case MIPS_EXCEPTION_VU_TBIT:
+	case MIPS_EXCEPTION_VU_DBIT:
+		//T/D bit encountered
+		{
+			bool mustBreak = false;
+			mustBreak |= (m_ctx->m_State.nHasException == MIPS_EXCEPTION_VU_TBIT) && (m_fbrst & FBRST_TE);
+			mustBreak |= (m_ctx->m_State.nHasException == MIPS_EXCEPTION_VU_DBIT) && (m_fbrst & FBRST_DE);
+			if(mustBreak)
+			{
+				m_vuState = VU_STATE_STOPPED;
+				VuStateChanged(m_vuState);
+				VuInterruptTriggered();
+			}
+			else
+			{
+				m_ctx->m_State.nHasException = 0;
+			}
+		}
 		break;
 	default:
 		break;
@@ -120,6 +134,7 @@ void CVpu::SaveState(Framework::CZipArchiveWriter& archive)
 		auto path = string_format(STATE_PATH_REGS_FORMAT, m_number);
 		auto registerFile = std::make_unique<CRegisterStateFile>(path.c_str());
 		registerFile->SetRegister32(STATE_REGS_VUSTATE, m_vuState);
+		registerFile->SetRegister32(STATE_REGS_FBRST, m_fbrst);
 		archive.InsertFile(std::move(registerFile));
 	}
 
@@ -132,6 +147,7 @@ void CVpu::LoadState(Framework::CZipArchiveReader& archive)
 		auto path = string_format(STATE_PATH_REGS_FORMAT, m_number);
 		CRegisterStateFile registerFile(*archive.BeginReadFile(path.c_str()));
 		m_vuState = static_cast<VU_STATE>(registerFile.GetRegister32(STATE_REGS_VUSTATE));
+		m_fbrst = registerFile.GetRegister32(STATE_REGS_FBRST);
 	}
 
 	m_vif->LoadState(archive);
@@ -165,6 +181,12 @@ uint32 CVpu::GetVuMemorySize() const
 CVif& CVpu::GetVif()
 {
 	return *m_vif.get();
+}
+
+void CVpu::SetFbrst(uint32 fbrst)
+{
+	//Only keep DE and TE bits
+	m_fbrst = (fbrst & (FBRST_DE | FBRST_TE));
 }
 
 void CVpu::ExecuteMicroProgram(uint32 nAddress)

@@ -23,7 +23,8 @@ public:
 
 		EE_ADDR_VU1AREA_START = 0x1000FB00,
 		EE_ADDR_VU1AREA_END = 0x1000FEFF,
-		EE_ADDR_VU_CMSAR1 = 0x1000FFC0, //This is meant to be used by the EE through CTC2
+		EE_ADDR_VU_FBRST = 0x1000FFC0,  //This is meant to be used by the EE through CTC2
+		EE_ADDR_VU_CMSAR1 = 0x1000FFC4, //This is meant to be used by the EE through CTC2
 	};
 
 	enum VU_STATE
@@ -63,7 +64,7 @@ public:
 	uint32 GetMicroMemorySize() const;
 	uint8* GetVuMemory() const;
 	uint32 GetVuMemorySize() const;
-	
+
 	inline VU_STATE GetVuState() const
 	{
 		return m_vuState;
@@ -80,6 +81,8 @@ public:
 	}
 
 	CVif& GetVif();
+
+	void SetFbrst(uint32);
 
 	void ExecuteMicroProgram(uint32);
 	void InvalidateMicroProgram();
@@ -100,6 +103,14 @@ public:
 	VuInterruptTriggeredEvent VuInterruptTriggered;
 
 protected:
+	enum
+	{
+		FBRST_FB = (1 << 0),
+		FBRST_RS = (1 << 1),
+		FBRST_DE = (1 << 2),
+		FBRST_TE = (1 << 3),
+	};
+
 	typedef std::unique_ptr<CVif> VifPtr;
 
 	unsigned int m_number = 0;
@@ -120,6 +131,7 @@ protected:
 #endif
 
 	VU_STATE m_vuState = VU_STATE_READY;
+	uint32 m_fbrst = 0;
 
 	CProfiler::ZoneHandle m_vuProfilerZone = 0;
 };

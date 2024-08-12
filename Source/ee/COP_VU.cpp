@@ -283,24 +283,28 @@ void CCOP_VU::CTC2()
 			m_codeGen->PullRel(offsetof(CMIPS, m_State.cmsar0));
 			break;
 		case CTRL_REG_FBRST:
-			//Don't care
+		{
+			uint32 valueCursor = m_codeGen->GetTopCursor();
+
+			m_codeGen->PushCtx();
+			m_codeGen->PushCursor(valueCursor);
+			m_codeGen->PushCst(CVpu::EE_ADDR_VU_FBRST);
+			m_codeGen->Call(reinterpret_cast<void*>(&MemoryUtils_SetWordProxy), 3, Jitter::CJitter::RETURN_VALUE_NONE);
+
 			m_codeGen->PullTop();
-			break;
+		}
+		break;
 		case CTRL_REG_CMSAR1:
 		{
 			m_codeGen->PushCst(0xFFFF);
 			m_codeGen->And();
 			uint32 valueCursor = m_codeGen->GetTopCursor();
 
-			//Push context
 			m_codeGen->PushCtx();
-			//Push value
 			m_codeGen->PushCursor(valueCursor);
-			//Compute Address
 			m_codeGen->PushCst(CVpu::EE_ADDR_VU_CMSAR1);
 			m_codeGen->Call(reinterpret_cast<void*>(&MemoryUtils_SetWordProxy), 3, Jitter::CJitter::RETURN_VALUE_NONE);
-			//Clear stack
-			assert(m_codeGen->GetTopCursor() == valueCursor);
+
 			m_codeGen->PullTop();
 		}
 		break;
@@ -573,7 +577,7 @@ void CCOP_VU::VCALLMS()
 	m_codeGen->PushCst(static_cast<uint32>(m_nImm15) * 8);
 	m_codeGen->PullRel(offsetof(CMIPS, m_State.callMsAddr));
 
-	m_codeGen->PushCst(MIPS_EXCEPTION_CALLMS);
+	m_codeGen->PushCst(MIPS_EXCEPTION_VU_CALLMS);
 	m_codeGen->PullRel(offsetof(CMIPS, m_State.nHasException));
 }
 
@@ -587,7 +591,7 @@ void CCOP_VU::VCALLMSR()
 	m_codeGen->Shl(3);
 	m_codeGen->PullRel(offsetof(CMIPS, m_State.callMsAddr));
 
-	m_codeGen->PushCst(MIPS_EXCEPTION_CALLMS);
+	m_codeGen->PushCst(MIPS_EXCEPTION_VU_CALLMS);
 	m_codeGen->PullRel(offsetof(CMIPS, m_State.nHasException));
 }
 

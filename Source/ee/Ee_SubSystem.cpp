@@ -262,7 +262,7 @@ int CSubSystem::ExecuteCpu(int quota)
 		case MIPS_EXCEPTION_TLB:
 			m_os->HandleTLBException();
 			break;
-		case MIPS_EXCEPTION_CALLMS:
+		case MIPS_EXCEPTION_VU_CALLMS:
 			assert(m_EE.m_State.callMsEnabled);
 			if(m_EE.m_State.callMsEnabled)
 			{
@@ -568,6 +568,10 @@ uint32 CSubSystem::IOPortWriteHandler(uint32 nAddress, uint32 nData)
 	{
 		uint32 offset = nAddress - CVpu::EE_ADDR_VU1AREA_START;
 		HandleVu1AreaWrite(offset, nData);
+	}
+	else if(nAddress == CVpu::EE_ADDR_VU_FBRST)
+	{
+		m_vpu1->SetFbrst((nData >> 8) & 0xF);
 	}
 	else if(nAddress == CVpu::EE_ADDR_VU_CMSAR1)
 	{
