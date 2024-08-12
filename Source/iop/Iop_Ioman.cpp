@@ -44,6 +44,7 @@ using namespace Iop;
 #define FUNCTION_CHSTAT "ChStat"
 #define FUNCTION_ADDDRV "AddDrv"
 #define FUNCTION_DELDRV "DelDrv"
+#define FUNCTION_RENAME "Rename"
 #define FUNCTION_MOUNT "Mount"
 #define FUNCTION_UMOUNT "Umount"
 #define FUNCTION_SEEK64 "Seek64"
@@ -213,6 +214,9 @@ std::string CIoman::GetFunctionName(unsigned int functionId) const
 		break;
 	case 21:
 		return FUNCTION_DELDRV;
+		break;
+	case 25:
+		return FUNCTION_RENAME;
 		break;
 	case 31:
 		return FUNCTION_DEVCTL;
@@ -528,6 +532,34 @@ uint32 CIoman::DelDrv(uint32 drvNamePtr)
 	CLog::GetInstance().Print(LOG_NAME, FUNCTION_DELDRV "(drvNamePtr = %s);\r\n",
 	                          PrintStringParameter(m_ram, drvNamePtr).c_str());
 	return -1;
+}
+
+int32 CIoman::Rename(const char* srcPath, const char* dstPath)
+{
+	CLog::GetInstance().Print(LOG_NAME, FUNCTION_RENAME "(srcPath = '%s', dstPath = '%s');\r\n",
+	                          srcPath, dstPath);
+	int32 result = -1;
+	try
+	{
+		auto srcPathInfo = SplitPath(srcPath);
+		auto dstPathInfo = SplitPath(dstPath);
+		if(srcPathInfo.deviceName != dstPathInfo.deviceName)
+		{
+			throw std::runtime_error("Renaming files across devices not supported.");
+		}
+		auto deviceIterator = m_devices.find(srcPathInfo.deviceName);
+		if(deviceIterator == m_devices.end())
+		{
+			throw std::runtime_error("Device not found.");
+		}
+		deviceIterator->second->Rename(srcPathInfo.devicePath.c_str(), dstPathInfo.devicePath.c_str());
+	}
+	catch(const std::exception& except)
+	{
+		CLog::GetInstance().Warn(LOG_NAME, "%s: Error occured while trying to rename file '%s' to '%s'\r\n",
+		                         __FUNCTION__, srcPath, dstPath, except.what());
+	}
+	return result;
 }
 
 int32 CIoman::DevCtlVirtual(CMIPS& context)
@@ -1042,6 +1074,11 @@ void CIoman::Invoke(CMIPS& context, unsigned int functionId)
 	case 21:
 		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(DelDrv(
 		    context.m_State.nGPR[CMIPS::A0].nV0));
+		break;
+	case 25:
+		context.m_State.nGPR[CMIPS::V0].nD0 = Rename(
+		    reinterpret_cast<const char*>(&m_ram[context.m_State.nGPR[CMIPS::A0].nV[0]]),
+		    reinterpret_cast<const char*>(&m_ram[context.m_State.nGPR[CMIPS::A1].nV[0]]));
 		break;
 	case 31:
 		context.m_State.nGPR[CMIPS::V0].nD0 = DevCtlVirtual(context);

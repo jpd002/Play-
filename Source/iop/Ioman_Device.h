@@ -39,6 +39,10 @@ namespace Iop
 				//Return false to indicate that device doesn't support GetStat.
 				return false;
 			}
+			virtual void Rename(const char*, const char*)
+			{
+				throw std::runtime_error("Renaming not supported.");
+			}
 		};
 
 		typedef std::shared_ptr<CDevice> DevicePtr;

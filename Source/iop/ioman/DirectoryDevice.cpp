@@ -86,3 +86,11 @@ void CDirectoryDevice::MakeDirectory(const char* devicePath)
 		throw std::runtime_error("Failed to create directory.");
 	}
 }
+
+void CDirectoryDevice::Rename(const char* srcDevicePath, const char* dstDevicePath)
+{
+	auto basePath = GetBasePath();
+	auto srcPath = Iop::PathUtils::MakeHostPath(basePath, srcDevicePath);
+	auto dstPath = Iop::PathUtils::MakeHostPath(basePath, dstDevicePath);
+	fs::rename(srcPath, dstPath);
+}
