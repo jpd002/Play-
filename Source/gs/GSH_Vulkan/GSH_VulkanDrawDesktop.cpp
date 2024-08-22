@@ -639,7 +639,10 @@ Framework::Vulkan::CShaderModule CDrawDesktop::CreateFragmentShader(const PIPELI
 				}
 				break;
 			case CGSHandler::TEX0_FUNCTION_DECAL:
-				//Nothing to do
+				if(!caps.textureHasAlpha)
+				{
+					textureColor = NewFloat4(textureColor->xyz(), inputColor->w());
+				}
 				break;
 			case CGSHandler::TEX0_FUNCTION_HIGHLIGHT:
 			{

@@ -140,6 +140,7 @@ Nuanceur::CShaderBuilder CGSH_Direct3D9::GeneratePixelShader(SHADERCAPS caps)
 				                     NewFloat4(b, 0, 0, 0, 0), NewFloat4(b, 1, 1, 1, 1));
 				break;
 			case TEX0_FUNCTION_DECAL:
+				//TODO: Replace A with fragment's A if tex has no alpha channel.
 				break;
 			default:
 				assert(0);

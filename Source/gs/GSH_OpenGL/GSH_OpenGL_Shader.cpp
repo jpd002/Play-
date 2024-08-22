@@ -316,6 +316,10 @@ Framework::OpenGl::CShader CGSH_OpenGL::GenerateFragmentShader(const SHADERCAPS&
 			}
 			break;
 		case TEX0_FUNCTION_DECAL:
+			if(!caps.texHasAlpha)
+			{
+				shaderBuilder << "	textureColor.a = v_color.a;" << std::endl;
+			}
 			break;
 		case TEX0_FUNCTION_HIGHLIGHT:
 			shaderBuilder << "	textureColor.rgb = clamp(textureColor.rgb * v_color.rgb * 2.0, 0.0, 1.0) + v_color.aaa;" << std::endl;
