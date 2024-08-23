@@ -17,6 +17,8 @@ jobs:
       with:
         distribution: 'adopt'
         java-version: '17'
+    - name: Install NDK
+      run: $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "ndk;${{ env.ANDROID_NDK_VERSION }}"
     - name: Checkout
       uses: actions/checkout@v3
       with:
