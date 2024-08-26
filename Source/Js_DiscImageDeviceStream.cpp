@@ -15,8 +15,12 @@ void CJsDiscImageDeviceStream::Seek(int64 position, Framework::STREAM_SEEK_DIREC
 		m_position += position;
 		break;
 	case Framework::STREAM_SEEK_END:
-		m_position = MAIN_THREAD_EM_ASM_INT({return Module.discImageDevice.getFileSize()});
-		break;
+	{
+		uint32 positionLo = MAIN_THREAD_EM_ASM_INT({return Module.discImageDevice.getFileSize()});
+		uint32 positionHi = MAIN_THREAD_EM_ASM_INT({return Module.discImageDevice.getFileSize() / 4294967296});
+		m_position = static_cast<uint64>(positionLo) | (static_cast<uint64>(positionHi) << 32);
+	}
+	break;
 	}
 }
 
