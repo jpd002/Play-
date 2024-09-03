@@ -185,6 +185,12 @@ static std::string DecodeParam(uint16 paramId)
 	case 0x0E:
 		result = "AVOLR";
 		break;
+	case 0x0F:
+		result = "BVOLL";
+		break;
+	case 0x10:
+		result = "BVOLR";
+		break;
 	default:
 		result = string_format("unknown (0x%02X)", paramIdx);
 		break;
