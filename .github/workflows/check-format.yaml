@@ -6,7 +6,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
-    - uses: DoozyX/clang-format-lint-action@v0.16.2
+    - uses: DoozyX/clang-format-lint-action@v0.18.2
       with:
         source: './Source ./tools'
         exclude: './Source/ui_qt/win32/Resources ./Source/ui_libretro/ext'
