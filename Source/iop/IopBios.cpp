@@ -301,7 +301,7 @@ void CIopBios::Reset(uint32 ramSize, const Iop::SifManPtr& sifMan)
 		m_sifMan->SetCmdBuffer(sifCmdBufferPtr, sifCmdBufferSize);
 	}
 
-	m_sifMan->GenerateHandlers(m_ram, *m_sysmem);
+	m_sifMan->PrepareModuleData(m_ram, *m_sysmem);
 
 	InitializeModuleStarter();
 
@@ -1913,6 +1913,7 @@ uint64 CIopBios::ClockToMicroSec(uint64 clock)
 void CIopBios::CountTicks(uint32 ticks)
 {
 	CurrentTime() += ticks;
+	m_sifMan->CountTicks(ticks);
 #ifdef _IOP_EMULATE_MODULES
 	m_cdvdman->CountTicks(ticks);
 	m_mcserv->CountTicks(ticks, m_sifMan.get());

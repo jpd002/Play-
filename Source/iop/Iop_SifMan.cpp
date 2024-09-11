@@ -13,11 +13,6 @@
 
 using namespace Iop;
 
-CSifMan::CSifMan()
-    : m_sifSetDmaCallbackHandlerPtr(0)
-{
-}
-
 std::string CSifMan::GetId() const
 {
 	return "sifman";
@@ -75,38 +70,57 @@ void CSifMan::Invoke(CMIPS& context, unsigned int functionId)
 	}
 }
 
-void CSifMan::GenerateHandlers(uint8* ram, CSysmem& sysMem)
+void CSifMan::PrepareModuleData(uint8* ram, CSysmem& sysMem)
 {
-	const uint32 handlerAllocSize = 64;
+	assert(m_moduleData == nullptr);
+	assert(m_sifSetDmaCallbackHandlerAddr == 0);
 
-	assert(m_sifSetDmaCallbackHandlerPtr == 0);
-	m_sifSetDmaCallbackHandlerPtr = sysMem.AllocateMemory(handlerAllocSize, 0, 0);
+	uint32 moduleDataAddr = sysMem.AllocateMemory(sizeof(MODULEDATA), 0, 0);
 
-	CMIPSAssembler assembler(reinterpret_cast<uint32*>(ram + m_sifSetDmaCallbackHandlerPtr));
+	m_moduleData = reinterpret_cast<MODULEDATA*>(ram + moduleDataAddr);
+	m_sifSetDmaCallbackHandlerAddr = moduleDataAddr + offsetof(MODULEDATA, sifSetDmaCallbackHandler);
 
-	assembler.ADDIU(CMIPS::SP, CMIPS::SP, 0xFFF0);
-	//SP + 0x00 is the space to store A0 by handler
-	assembler.SW(CMIPS::RA, 0x04, CMIPS::SP);
-	assembler.SW(CMIPS::S0, 0x08, CMIPS::SP);
+	//Assemble handler
+	{
+		CMIPSAssembler assembler(reinterpret_cast<uint32*>(ram + m_sifSetDmaCallbackHandlerAddr));
 
-	assembler.ADDU(CMIPS::S0, CMIPS::V0, CMIPS::R0);
-	assembler.JALR(CMIPS::A1);
-	assembler.NOP();
+		assembler.ADDIU(CMIPS::SP, CMIPS::SP, 0xFFF0);
+		//SP + 0x00 is the space to store A0 by handler
+		assembler.SW(CMIPS::RA, 0x04, CMIPS::SP);
+		assembler.SW(CMIPS::S0, 0x08, CMIPS::SP);
 
-	assembler.ADDU(CMIPS::V0, CMIPS::S0, CMIPS::R0);
+		assembler.ADDU(CMIPS::S0, CMIPS::V0, CMIPS::R0);
+		assembler.JALR(CMIPS::A1);
+		assembler.NOP();
 
-	assembler.LW(CMIPS::S0, 0x08, CMIPS::SP);
-	assembler.LW(CMIPS::RA, 0x04, CMIPS::SP);
-	assembler.JR(CMIPS::RA);
-	assembler.ADDIU(CMIPS::SP, CMIPS::SP, 0x0010);
+		assembler.ADDU(CMIPS::V0, CMIPS::S0, CMIPS::R0);
 
-	assert((assembler.GetProgramSize() * 4) <= handlerAllocSize);
+		assembler.LW(CMIPS::S0, 0x08, CMIPS::SP);
+		assembler.LW(CMIPS::RA, 0x04, CMIPS::SP);
+		assembler.JR(CMIPS::RA);
+		assembler.ADDIU(CMIPS::SP, CMIPS::SP, 0x0010);
+
+		assert((assembler.GetProgramSize() * 4) <= SIFSETDMACALLBACK_HANDLER_SIZE);
+	}
+
+	m_moduleData->dmaTransferTime = 0;
+}
+
+void CSifMan::CountTicks(int32 ticks)
+{
+	m_moduleData->dmaTransferTime = std::max(0, m_moduleData->dmaTransferTime - ticks);
 }
 
 uint32 CSifMan::SifSetDma(uint32 structAddr, uint32 count)
 {
 	CLog::GetInstance().Print(LOG_NAME, FUNCTION_SIFSETDMA "(structAddr = 0x%08X, count = %d);\r\n",
 	                          structAddr, count);
+	//Reset delay regardless of what we're sending
+	//This doesn't seem to cause harm, but if it does, we could associate a transfer id
+	//with a time and have SifDmaStat check for a specific transfer id
+	//This is needed because RenderWare FS code doesn't expect SIF CMD callbacks to
+	//arrive so quickly
+	m_moduleData->dmaTransferTime = 0x800;
 	return count;
 }
 
@@ -114,7 +128,14 @@ uint32 CSifMan::SifDmaStat(uint32 transferId)
 {
 	CLog::GetInstance().Print(LOG_NAME, FUNCTION_SIFDMASTAT "(transferId = %X);\r\n",
 	                          transferId);
-	return -1;
+	if(m_moduleData->dmaTransferTime != 0)
+	{
+		return 0;
+	}
+	else
+	{
+		return -1;
+	}
 }
 
 uint32 CSifMan::SifCheckInit()
@@ -130,7 +151,7 @@ uint32 CSifMan::SifSetDmaCallback(CMIPS& context, uint32 structAddr, uint32 coun
 	                          structAddr, count, callbackPtr, callbackParam);
 
 	//Modify context so we can execute the callback function
-	context.m_State.nPC = m_sifSetDmaCallbackHandlerPtr;
+	context.m_State.nPC = m_sifSetDmaCallbackHandlerAddr;
 	context.m_State.nGPR[CMIPS::A0].nV0 = callbackParam;
 	context.m_State.nGPR[CMIPS::A1].nV0 = callbackPtr;
 

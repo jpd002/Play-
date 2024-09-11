@@ -14,10 +14,11 @@ namespace Iop
 		typedef std::function<void(const std::string&)> ModuleResetHandler;
 		typedef std::function<void(uint32)> CustomCommandHandler;
 
-		CSifMan();
+		CSifMan() = default;
 		virtual ~CSifMan() = default;
 
-		void GenerateHandlers(uint8*, CSysmem&);
+		void PrepareModuleData(uint8*, CSysmem&);
+		void CountTicks(int32);
 
 		std::string GetId() const override;
 		std::string GetFunctionName(unsigned int) const override;
@@ -36,12 +37,26 @@ namespace Iop
 
 		virtual uint32 SifSetDma(uint32, uint32);
 
-	protected:
-		virtual uint32 SifDmaStat(uint32);
+	private:
+		uint32 SifDmaStat(uint32);
 		uint32 SifCheckInit();
-		virtual uint32 SifSetDmaCallback(CMIPS&, uint32, uint32, uint32, uint32);
+		uint32 SifSetDmaCallback(CMIPS&, uint32, uint32, uint32, uint32);
 
-		uint32 m_sifSetDmaCallbackHandlerPtr;
+		enum
+		{
+			SIFSETDMACALLBACK_HANDLER_SIZE = 0x30,
+		};
+
+		struct MODULEDATA
+		{
+			uint8 sifSetDmaCallbackHandler[SIFSETDMACALLBACK_HANDLER_SIZE];
+			int32 dmaTransferTime;
+			int32 padding[3];
+		};
+		static_assert(sizeof(MODULEDATA) == 0x40);
+
+		MODULEDATA* m_moduleData = nullptr;
+		uint32 m_sifSetDmaCallbackHandlerAddr = 0;
 	};
 
 	typedef std::shared_ptr<CSifMan> SifManPtr;
