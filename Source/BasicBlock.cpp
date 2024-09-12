@@ -261,7 +261,7 @@ void CBasicBlock::CompileEpilog(CMipsJitter* jitter, bool loopsOnItself)
 	jitter->BeginIf(Jitter::CONDITION_LE);
 	{
 		jitter->PushRel(offsetof(CMIPS, m_State.nHasException));
-		jitter->PushCst(MIPS_EXECUTION_STATUS_QUOTADONE);
+		jitter->PushCst(MIPS_EXCEPTION_STATUS_QUOTADONE);
 		jitter->Or();
 		jitter->PullRel(offsetof(CMIPS, m_State.nHasException));
 	}

@@ -45,7 +45,11 @@ enum
 	MIPS_EXCEPTION_VU_DBIT,
 	MIPS_EXCEPTION_VU_TBIT,
 	MIPS_EXCEPTION_VU_EBIT,
+	MIPS_EXCEPTION_MAX, //Used to make sure we don't conflict with the QUOTADONE status
 };
+static_assert(MIPS_EXCEPTION_MAX <= 0x80);
+
+static constexpr uint32 MIPS_EXCEPTION_STATUS_QUOTADONE = 0x80;
 
 struct TLBENTRY
 {
@@ -54,8 +58,6 @@ struct TLBENTRY
 	uint32 entryHi;
 	uint32 pageMask;
 };
-
-#define MIPS_EXECUTION_STATUS_QUOTADONE 0x80
 
 struct MIPSSTATE
 {

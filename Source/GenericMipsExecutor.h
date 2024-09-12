@@ -69,7 +69,7 @@ public:
 			auto block = m_blockLookup.FindBlockAt(address);
 			block->Execute();
 		}
-		m_context.m_State.nHasException &= ~MIPS_EXECUTION_STATUS_QUOTADONE;
+		m_context.m_State.nHasException &= ~MIPS_EXCEPTION_STATUS_QUOTADONE;
 #ifdef DEBUGGER_INCLUDED
 		if(m_context.m_State.nHasException == MIPS_EXCEPTION_BREAKPOINT)
 		{

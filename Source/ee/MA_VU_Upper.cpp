@@ -30,16 +30,30 @@ void CMA_VU::CUpper::CompileInstruction(uint32 nAddress, CMipsJitter* codeGen, C
 
 	((this)->*(m_pOpVector[m_nOpcode & 0x3F]))();
 
+	auto setTDBitException = [&](uint32 exceptionValue) {
+		//Only set TD bit exception if there's no other outstanding
+		//exceptions (ie.: E bit). We could set a bit for every stop bit
+		//we encounter, but we assume that no game relies on multiple bits
+		//being set.
+		//This assumes that QUOTADONE is only set at the end
+		m_codeGen->PushRel(offsetof(CMIPS, m_State.nHasException));
+		m_codeGen->PushCst(0);
+		m_codeGen->BeginIf(Jitter::CONDITION_EQ);
+		{
+			m_codeGen->PushCst(exceptionValue);
+			m_codeGen->PullRel(offsetof(CMIPS, m_State.nHasException));
+		}
+		m_codeGen->EndIf();
+	};
+
 	if(m_nOpcode & VUShared::VU_UPPEROP_BIT_D)
 	{
-		m_codeGen->PushCst(MIPS_EXCEPTION_VU_DBIT);
-		m_codeGen->PullRel(offsetof(CMIPS, m_State.nHasException));
+		setTDBitException(MIPS_EXCEPTION_VU_DBIT);
 	}
 
 	if(m_nOpcode & VUShared::VU_UPPEROP_BIT_T)
 	{
-		m_codeGen->PushCst(MIPS_EXCEPTION_VU_TBIT);
-		m_codeGen->PullRel(offsetof(CMIPS, m_State.nHasException));
+		setTDBitException(MIPS_EXCEPTION_VU_TBIT);
 	}
 
 	if(m_nOpcode & VUShared::VU_UPPEROP_BIT_I)
