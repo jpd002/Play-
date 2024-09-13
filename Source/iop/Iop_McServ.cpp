@@ -1276,12 +1276,9 @@ unsigned int CMcServ::CPathFinder::Read(ENTRY* entry, unsigned int size)
 void CMcServ::CPathFinder::SearchRecurse(const fs::path& path)
 {
 	bool found = false;
-	fs::directory_iterator endIterator;
-
-	for(fs::directory_iterator elementIterator(path);
-	    elementIterator != endIterator; elementIterator++)
+	for(const auto& element : fs::directory_iterator(path))
 	{
-		fs::path relativePath(*elementIterator);
+		const auto& relativePath(element.path());
 		std::string relativePathString(relativePath.generic_string());
 
 		//"Extract" a more appropriate relative path from the memory card point of view
@@ -1298,20 +1295,20 @@ void CMcServ::CPathFinder::SearchRecurse(const fs::path& path)
 			strncpy(reinterpret_cast<char*>(entry.name), entryName.c_str(), 0x1F);
 			entry.name[0x1F] = 0;
 
-			if(fs::is_directory(*elementIterator))
+			if(element.is_directory())
 			{
-				entry.size = CountEntries(*elementIterator);
+				entry.size = CountEntries(element);
 				entry.attributes = MC_FILE_ATTR_FOLDER;
 			}
 			else
 			{
-				entry.size = static_cast<uint32>(fs::file_size(*elementIterator));
+				entry.size = static_cast<uint32>(element.file_size());
 				entry.attributes = MC_FILE_0400 | MC_FILE_ATTR_EXISTS | MC_FILE_ATTR_CLOSED | MC_FILE_ATTR_FILE | MC_FILE_ATTR_READABLE | MC_FILE_ATTR_WRITEABLE | MC_FILE_ATTR_EXECUTABLE;
 			}
 
 			//Fill in modification date info
 			{
-				auto changeSystemTime = Framework::ConvertFsTimeToSystemTime(fs::last_write_time(*elementIterator));
+				auto changeSystemTime = Framework::ConvertFsTimeToSystemTime(element.last_write_time());
 				auto localChangeDate = std::localtime(&changeSystemTime);
 
 				entry.modificationTime.second = localChangeDate->tm_sec;
@@ -1329,9 +1326,9 @@ void CMcServ::CPathFinder::SearchRecurse(const fs::path& path)
 			found = true;
 		}
 
-		if(fs::is_directory(*elementIterator) && !found)
+		if(element.is_directory() && !found)
 		{
-			SearchRecurse(*elementIterator);
+			SearchRecurse(element);
 		}
 	}
 }
@@ -1340,7 +1337,7 @@ uint32 CMcServ::CPathFinder::CountEntries(const fs::path& path)
 {
 	uint32 entryCount = 0;
 	assert(fs::is_directory(path));
-	for(FRAMEWORK_MAYBE_UNUSED auto& entry : fs::directory_iterator(path))
+	for(FRAMEWORK_MAYBE_UNUSED const auto& entry : fs::directory_iterator(path))
 	{
 		entryCount++;
 	}
