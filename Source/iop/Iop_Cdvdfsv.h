@@ -21,7 +21,7 @@ namespace Iop
 		std::string GetFunctionName(unsigned int) const override;
 		void Invoke(CMIPS&, unsigned int) override;
 
-		void ProcessCommands(CSifMan*);
+		void CountTicks(uint32, CSifMan*);
 		void SetOpticalMedia(COpticalMedia*);
 
 		void LoadState(Framework::CZipArchiveReader&) override;
@@ -71,6 +71,7 @@ namespace Iop
 		COpticalMedia* m_opticalMedia = nullptr;
 
 		COMMAND m_pendingCommand = COMMAND_NONE;
+		int32 m_pendingCommandDelay = 0;
 		uint32 m_pendingReadSector = 0;
 		uint32 m_pendingReadCount = 0;
 		uint32 m_pendingReadAddr = 0;

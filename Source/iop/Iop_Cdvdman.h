@@ -67,6 +67,10 @@ namespace Iop
 		uint32 CdGetDiskTypeDirect(COpticalMedia*);
 		uint32 CdLayerSearchFileDirect(COpticalMedia*, FILEINFO*, const char*, uint32);
 
+		static const uint64 COMMAND_READ_BASE_DELAY;
+		static const uint64 COMMAND_READ_SECTOR_DELAY;
+		static const uint64 COMMAND_SEEK_DELAY;
+
 	private:
 		enum COMMAND : uint32
 		{

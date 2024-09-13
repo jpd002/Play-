@@ -42,11 +42,11 @@
 #define FUNCTION_CDREADDVDDUALINFO "CdReadDvdDualInfo"
 #define FUNCTION_CDLAYERSEARCHFILE "CdLayerSearchFile"
 
-constexpr uint64 COMMAND_READ_BASE_DELAY = TimeUtils::UsecsToCycles(PS2::IOP_CLOCK_OVER_FREQ, 100);
-constexpr uint64 COMMAND_READ_SECTOR_DELAY = TimeUtils::UsecsToCycles(PS2::IOP_CLOCK_OVER_FREQ, 500);
-constexpr uint64 COMMAND_SEEK_DELAY = TimeUtils::UsecsToCycles(PS2::IOP_CLOCK_OVER_FREQ, 100);
-
 using namespace Iop;
+
+const uint64 CCdvdman::COMMAND_READ_BASE_DELAY = TimeUtils::UsecsToCycles(PS2::IOP_CLOCK_OVER_FREQ, 100);
+const uint64 CCdvdman::COMMAND_READ_SECTOR_DELAY = TimeUtils::UsecsToCycles(PS2::IOP_CLOCK_OVER_FREQ, 500);
+const uint64 CCdvdman::COMMAND_SEEK_DELAY = TimeUtils::UsecsToCycles(PS2::IOP_CLOCK_OVER_FREQ, 100);
 
 CCdvdman::CCdvdman(CIopBios& bios, uint8* ram)
     : m_bios(bios)

@@ -4,6 +4,7 @@
 #include "Iop_Cdvdfsv.h"
 #include "Iop_Cdvdman.h"
 #include "Iop_SifManPs2.h"
+#include "TimeUtils.h"
 
 using namespace Iop;
 
@@ -19,6 +20,8 @@ using namespace Iop;
 #define STATE_STREAMING ("Streaming")
 #define STATE_STREAMPOS ("StreamPos")
 #define STATE_STREAMBUFFERSIZE ("StreamBufferSize")
+
+constexpr uint64 COMMAND_DEFAULT_DELAY = TimeUtils::UsecsToCycles(PS2::IOP_CLOCK_OVER_FREQ, 16666);
 
 CCdvdfsv::CCdvdfsv(CSifMan& sif, CCdvdman& cdvdman, uint8* iopRam)
     : m_cdvdman(cdvdman)
@@ -58,10 +61,16 @@ std::string CCdvdfsv::GetFunctionName(unsigned int) const
 	return "unknown";
 }
 
-void CCdvdfsv::ProcessCommands(CSifMan* sifMan)
+void CCdvdfsv::CountTicks(uint32 ticks, CSifMan* sifMan)
 {
 	if(m_pendingCommand != COMMAND_NONE)
 	{
+		m_pendingCommandDelay -= std::min<uint32>(m_pendingCommandDelay, ticks);
+		if(m_pendingCommandDelay != 0)
+		{
+			return;
+		}
+
 		static const uint32 sectorSize = 0x800;
 
 		uint8* eeRam = nullptr;
@@ -400,6 +409,7 @@ void CCdvdfsv::Read(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, 
 
 	assert(m_pendingCommand == COMMAND_NONE);
 	m_pendingCommand = COMMAND_READ;
+	m_pendingCommandDelay = CCdvdman::COMMAND_READ_BASE_DELAY + (count * CCdvdman::COMMAND_READ_SECTOR_DELAY);
 	m_pendingReadSector = sector;
 	m_pendingReadCount = count;
 	m_pendingReadAddr = dstAddr & 0x1FFFFFFF;
@@ -422,6 +432,7 @@ void CCdvdfsv::ReadIopMem(uint32* args, uint32 argsSize, uint32* ret, uint32 ret
 
 	assert(m_pendingCommand == COMMAND_NONE);
 	m_pendingCommand = COMMAND_READIOP;
+	m_pendingCommandDelay = COMMAND_DEFAULT_DELAY;
 	m_pendingReadSector = sector;
 	m_pendingReadCount = count;
 	m_pendingReadAddr = dstAddr & 0x1FFFFFFF;
@@ -454,6 +465,7 @@ bool CCdvdfsv::StreamCmd(uint32* args, uint32 argsSize, uint32* ret, uint32 retS
 	case 2:
 		//Read
 		m_pendingCommand = COMMAND_STREAM_READ;
+		m_pendingCommandDelay = COMMAND_DEFAULT_DELAY;
 		m_pendingReadSector = 0;
 		m_pendingReadCount = count;
 		m_pendingReadAddr = dstAddr & (PS2::EE_RAM_SIZE - 1);
@@ -509,6 +521,7 @@ bool CCdvdfsv::NDiskReady(uint32* args, uint32 argsSize, uint32* ret, uint32 ret
 	{
 		//Delay command (required by Downhill Domination)
 		m_pendingCommand = COMMAND_NDISKREADY;
+		m_pendingCommandDelay = COMMAND_DEFAULT_DELAY;
 		ret[0x00] = 2;
 		return false;
 	}
@@ -544,6 +557,7 @@ void CCdvdfsv::ReadChain(uint32* args, uint32 argsSize, uint32* ret, uint32 retS
 
 	//DBZ: Budokai Tenkaichi hangs in its loading screen if this command's result is not delayed.
 	m_pendingCommand = COMMAND_READCHAIN;
+	m_pendingCommandDelay = COMMAND_DEFAULT_DELAY;
 }
 
 void CCdvdfsv::SearchFile(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
