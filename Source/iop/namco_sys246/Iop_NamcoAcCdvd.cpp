@@ -10,11 +10,14 @@ using namespace Iop::Namco;
 
 #define FUNCTION_CDSEARCHFILE "IopCdSearchFile"
 #define FUNCTION_CDREAD "IopCdRead"
+#define FUNCTION_CDCALLBACK "IopCdCallback"
 #define FUNCTION_CDSYNC "IopCdSync"
 #define FUNCTION_CDUNKNOWN_17 "IopCdUnknown_17"
 #define FUNCTION_CDUNKNOWN_19 "IopCdUnknown_19"
 #define FUNCTION_CDGETERROR "IopCdGetError"
 #define FUNCTION_CDGETDISKTYPE "IopCdGetDiskType"
+#define FUNCTION_CDSTATUS "IopCdStatus"
+#define FUNCTION_CDSTANDBY "IopCdStandby"
 #define FUNCTION_CDUNKNOWN_37 "IopCdUnknown_37"
 
 CAcCdvd::CAcCdvd(CSifMan& sif, CCdvdman& cdvdman, uint8* iopRam, CAcRam& acRam)
@@ -43,6 +46,8 @@ std::string CAcCdvd::GetFunctionName(unsigned int functionId) const
 		return FUNCTION_CDSEARCHFILE;
 	case 11:
 		return FUNCTION_CDREAD;
+	case 13:
+		return FUNCTION_CDCALLBACK;
 	case 16:
 		return FUNCTION_CDSYNC;
 	case 17:
@@ -53,6 +58,10 @@ std::string CAcCdvd::GetFunctionName(unsigned int functionId) const
 		return FUNCTION_CDGETERROR;
 	case 21:
 		return FUNCTION_CDGETDISKTYPE;
+	case 22:
+		return FUNCTION_CDSTATUS;
+	case 26:
+		return FUNCTION_CDSTANDBY;
 	case 37:
 		return FUNCTION_CDUNKNOWN_37;
 	default:
@@ -88,6 +97,15 @@ void CAcCdvd::Invoke(CMIPS& context, unsigned int functionId)
 		context.m_State.nGPR[CMIPS::V0].nV0 = m_cdvdman.CdRead(startSector, sectorCount, bufferPtr, modePtr);
 	}
 	break;
+	case 13:
+		//CdCallback
+		{
+			uint32 callbackAddr = context.m_State.nGPR[CMIPS::A0].nV0;
+			CLog::GetInstance().Warn(LOG_NAME, FUNCTION_CDCALLBACK "(callbackAddr = 0x%08X);\r\n",
+			                         callbackAddr);
+			context.m_State.nGPR[CMIPS::V0].nV0 = m_cdvdman.CdCallback(callbackAddr);
+		}
+		break;
 	case 16:
 		//CdSync
 		{
@@ -115,6 +133,14 @@ void CAcCdvd::Invoke(CMIPS& context, unsigned int functionId)
 	case 21:
 		CLog::GetInstance().Warn(LOG_NAME, FUNCTION_CDGETDISKTYPE "();\r\n");
 		context.m_State.nGPR[CMIPS::V0].nV0 = m_cdvdman.CdGetDiskTypeDirect(m_opticalMedia);
+		break;
+	case 22:
+		CLog::GetInstance().Warn(LOG_NAME, FUNCTION_CDSTATUS "();\r\n");
+		context.m_State.nGPR[CMIPS::V0].nV0 = m_cdvdman.CdStatus();
+		break;
+	case 26:
+		CLog::GetInstance().Warn(LOG_NAME, FUNCTION_CDSTANDBY "();\r\n");
+		context.m_State.nGPR[CMIPS::V0].nV0 = m_cdvdman.CdStandby();
 		break;
 	case 37:
 		CLog::GetInstance().Warn(LOG_NAME, FUNCTION_CDUNKNOWN_37 "(param0 = %d);\r\n",

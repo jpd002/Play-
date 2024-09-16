@@ -55,8 +55,11 @@ namespace Iop
 		void LoadState(Framework::CZipArchiveReader&) override;
 		void SaveState(Framework::CZipArchiveWriter&) const override;
 
+		uint32 CdStandby();
 		uint32 CdRead(uint32, uint32, uint32, uint32);
+		uint32 CdCallback(uint32);
 		uint32 CdSync(uint32);
+		uint32 CdStatus();
 
 		//These won't modify this module's state
 		uint32 CdReadClockDirect(uint8*);
@@ -79,7 +82,6 @@ namespace Iop
 		};
 
 		uint32 CdInit(uint32);
-		uint32 CdStandby();
 		uint32 CdSeek(uint32);
 		uint32 CdGetError();
 		uint32 CdSearchFile(uint32, uint32);
@@ -88,8 +90,6 @@ namespace Iop
 		uint32 CdTrayReq(uint32, uint32);
 		uint32 CdReadILinkId(uint32, uint32);
 		uint32 CdReadClock(uint32);
-		uint32 CdStatus();
-		uint32 CdCallback(uint32);
 		uint32 CdGetReadPos();
 		uint32 CdStInit(uint32, uint32, uint32);
 		uint32 CdStRead(uint32, uint32, uint32, uint32);
