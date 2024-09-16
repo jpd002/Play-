@@ -74,29 +74,31 @@ void CAcCdvd::Invoke(CMIPS& context, unsigned int functionId)
 	switch(functionId)
 	{
 	case 10:
-	{
-		uint32 fileInfoPtr = context.m_State.nGPR[CMIPS::A0].nV0;
-		uint32 pathPtr = context.m_State.nGPR[CMIPS::A1].nV0;
-		CLog::GetInstance().Warn(LOG_NAME, FUNCTION_CDSEARCHFILE "(fileInfoPtr = 0x%08X, pathPtr = %s);\r\n",
-		                         fileInfoPtr,
-		                         PrintStringParameter(m_iopRam, pathPtr).c_str());
-		auto path = reinterpret_cast<const char*>(m_iopRam + pathPtr);
-		auto fileInfo = reinterpret_cast<CCdvdman::FILEINFO*>(m_iopRam + fileInfoPtr);
-		uint32 result = m_cdvdman.CdLayerSearchFileDirect(m_opticalMedia, fileInfo, path, 0);
-		context.m_State.nGPR[CMIPS::V0].nV0 = result;
-	}
-	break;
+		//CdSearchFile
+		{
+			uint32 fileInfoPtr = context.m_State.nGPR[CMIPS::A0].nV0;
+			uint32 pathPtr = context.m_State.nGPR[CMIPS::A1].nV0;
+			CLog::GetInstance().Warn(LOG_NAME, FUNCTION_CDSEARCHFILE "(fileInfoPtr = 0x%08X, pathPtr = %s);\r\n",
+			                         fileInfoPtr,
+			                         PrintStringParameter(m_iopRam, pathPtr).c_str());
+			auto path = reinterpret_cast<const char*>(m_iopRam + pathPtr);
+			auto fileInfo = reinterpret_cast<CCdvdman::FILEINFO*>(m_iopRam + fileInfoPtr);
+			uint32 result = m_cdvdman.CdLayerSearchFileDirect(m_opticalMedia, fileInfo, path, 0);
+			context.m_State.nGPR[CMIPS::V0].nV0 = result;
+		}
+		break;
 	case 11:
-	{
-		uint32 startSector = context.m_State.nGPR[CMIPS::A0].nV0;
-		uint32 sectorCount = context.m_State.nGPR[CMIPS::A1].nV0;
-		uint32 bufferPtr = context.m_State.nGPR[CMIPS::A2].nV0;
-		uint32 modePtr = context.m_State.nGPR[CMIPS::A3].nV0;
-		CLog::GetInstance().Warn(LOG_NAME, FUNCTION_CDREAD "(startSector = 0x%X, sectorCount = 0x%X, bufferPtr = 0x%08X, modePtr = 0x%08X);\r\n",
-		                         startSector, sectorCount, bufferPtr, modePtr);
-		context.m_State.nGPR[CMIPS::V0].nV0 = m_cdvdman.CdRead(startSector, sectorCount, bufferPtr, modePtr);
-	}
-	break;
+		//CdRead
+		{
+			uint32 startSector = context.m_State.nGPR[CMIPS::A0].nV0;
+			uint32 sectorCount = context.m_State.nGPR[CMIPS::A1].nV0;
+			uint32 bufferPtr = context.m_State.nGPR[CMIPS::A2].nV0;
+			uint32 modePtr = context.m_State.nGPR[CMIPS::A3].nV0;
+			CLog::GetInstance().Warn(LOG_NAME, FUNCTION_CDREAD "(startSector = 0x%X, sectorCount = 0x%X, bufferPtr = 0x%08X, modePtr = 0x%08X);\r\n",
+			                         startSector, sectorCount, bufferPtr, modePtr);
+			context.m_State.nGPR[CMIPS::V0].nV0 = m_cdvdman.CdRead(startSector, sectorCount, bufferPtr, modePtr);
+		}
+		break;
 	case 13:
 		//CdCallback
 		{
