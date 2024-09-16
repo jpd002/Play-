@@ -78,9 +78,9 @@ void CAcCdvd::Invoke(CMIPS& context, unsigned int functionId)
 		{
 			uint32 fileInfoPtr = context.m_State.nGPR[CMIPS::A0].nV0;
 			uint32 pathPtr = context.m_State.nGPR[CMIPS::A1].nV0;
-			CLog::GetInstance().Warn(LOG_NAME, FUNCTION_CDSEARCHFILE "(fileInfoPtr = 0x%08X, pathPtr = %s);\r\n",
-			                         fileInfoPtr,
-			                         PrintStringParameter(m_iopRam, pathPtr).c_str());
+			CLog::GetInstance().Print(LOG_NAME, FUNCTION_CDSEARCHFILE "(fileInfoPtr = 0x%08X, pathPtr = %s);\r\n",
+			                          fileInfoPtr,
+			                          PrintStringParameter(m_iopRam, pathPtr).c_str());
 			auto path = reinterpret_cast<const char*>(m_iopRam + pathPtr);
 			auto fileInfo = reinterpret_cast<CCdvdman::FILEINFO*>(m_iopRam + fileInfoPtr);
 			uint32 result = m_cdvdman.CdLayerSearchFileDirect(m_opticalMedia, fileInfo, path, 0);
@@ -94,8 +94,8 @@ void CAcCdvd::Invoke(CMIPS& context, unsigned int functionId)
 			uint32 sectorCount = context.m_State.nGPR[CMIPS::A1].nV0;
 			uint32 bufferPtr = context.m_State.nGPR[CMIPS::A2].nV0;
 			uint32 modePtr = context.m_State.nGPR[CMIPS::A3].nV0;
-			CLog::GetInstance().Warn(LOG_NAME, FUNCTION_CDREAD "(startSector = 0x%X, sectorCount = 0x%X, bufferPtr = 0x%08X, modePtr = 0x%08X);\r\n",
-			                         startSector, sectorCount, bufferPtr, modePtr);
+			CLog::GetInstance().Print(LOG_NAME, FUNCTION_CDREAD "(startSector = 0x%X, sectorCount = 0x%X, bufferPtr = 0x%08X, modePtr = 0x%08X);\r\n",
+			                          startSector, sectorCount, bufferPtr, modePtr);
 			context.m_State.nGPR[CMIPS::V0].nV0 = m_cdvdman.CdRead(startSector, sectorCount, bufferPtr, modePtr);
 		}
 		break;
@@ -103,8 +103,8 @@ void CAcCdvd::Invoke(CMIPS& context, unsigned int functionId)
 		//CdCallback
 		{
 			uint32 callbackAddr = context.m_State.nGPR[CMIPS::A0].nV0;
-			CLog::GetInstance().Warn(LOG_NAME, FUNCTION_CDCALLBACK "(callbackAddr = 0x%08X);\r\n",
-			                         callbackAddr);
+			CLog::GetInstance().Print(LOG_NAME, FUNCTION_CDCALLBACK "(callbackAddr = 0x%08X);\r\n",
+			                          callbackAddr);
 			context.m_State.nGPR[CMIPS::V0].nV0 = m_cdvdman.CdCallback(callbackAddr);
 		}
 		break;
@@ -112,41 +112,41 @@ void CAcCdvd::Invoke(CMIPS& context, unsigned int functionId)
 		//CdSync
 		{
 			uint32 mode = context.m_State.nGPR[CMIPS::A0].nV0;
-			CLog::GetInstance().Warn(LOG_NAME, FUNCTION_CDSYNC "(mode = %d);\r\n",
-			                         mode);
+			CLog::GetInstance().Print(LOG_NAME, FUNCTION_CDSYNC "(mode = %d);\r\n",
+			                          mode);
 			context.m_State.nGPR[CMIPS::V0].nV0 = m_cdvdman.CdSync(mode);
 		}
 		break;
 	case 17:
-		CLog::GetInstance().Warn(LOG_NAME, FUNCTION_CDINIT "(mode = %d);\r\n",
-		                         context.m_State.nGPR[CMIPS::A0].nV0);
+		CLog::GetInstance().Print(LOG_NAME, FUNCTION_CDINIT "(mode = %d);\r\n",
+		                          context.m_State.nGPR[CMIPS::A0].nV0);
 		context.m_State.nGPR[CMIPS::V0].nV0 = 1;
 		break;
 	case 19:
 		//CdDiskReady
-		CLog::GetInstance().Warn(LOG_NAME, FUNCTION_CDDISKREADY "(mode = %d);\r\n",
-		                         context.m_State.nGPR[CMIPS::A0].nV0);
+		CLog::GetInstance().Print(LOG_NAME, FUNCTION_CDDISKREADY "(mode = %d);\r\n",
+		                          context.m_State.nGPR[CMIPS::A0].nV0);
 		context.m_State.nGPR[CMIPS::V0].nV0 = 2;
 		break;
 	case 20:
-		CLog::GetInstance().Warn(LOG_NAME, FUNCTION_CDGETERROR "();\r\n");
+		CLog::GetInstance().Print(LOG_NAME, FUNCTION_CDGETERROR "();\r\n");
 		context.m_State.nGPR[CMIPS::V0].nV0 = 0;
 		break;
 	case 21:
-		CLog::GetInstance().Warn(LOG_NAME, FUNCTION_CDGETDISKTYPE "();\r\n");
+		CLog::GetInstance().Print(LOG_NAME, FUNCTION_CDGETDISKTYPE "();\r\n");
 		context.m_State.nGPR[CMIPS::V0].nV0 = m_cdvdman.CdGetDiskTypeDirect(m_opticalMedia);
 		break;
 	case 22:
-		CLog::GetInstance().Warn(LOG_NAME, FUNCTION_CDSTATUS "();\r\n");
+		CLog::GetInstance().Print(LOG_NAME, FUNCTION_CDSTATUS "();\r\n");
 		context.m_State.nGPR[CMIPS::V0].nV0 = m_cdvdman.CdStatus();
 		break;
 	case 26:
-		CLog::GetInstance().Warn(LOG_NAME, FUNCTION_CDSTANDBY "();\r\n");
+		CLog::GetInstance().Print(LOG_NAME, FUNCTION_CDSTANDBY "();\r\n");
 		context.m_State.nGPR[CMIPS::V0].nV0 = m_cdvdman.CdStandby();
 		break;
 	case 37:
-		CLog::GetInstance().Warn(LOG_NAME, FUNCTION_CDSETMMODE "(mode = %d);\r\n",
-		                         context.m_State.nGPR[CMIPS::A0].nV0);
+		CLog::GetInstance().Print(LOG_NAME, FUNCTION_CDSETMMODE "(mode = %d);\r\n",
+		                          context.m_State.nGPR[CMIPS::A0].nV0);
 		context.m_State.nGPR[CMIPS::V0].nV0 = 1;
 		break;
 	default:
@@ -171,12 +171,12 @@ bool CAcCdvd::Invoke(uint32 method, uint32* args, uint32 argsSize, uint32* ret, 
 		break;
 	case 0x05:
 		//Unknown, used by Ridge Racer
-		CLog::GetInstance().Warn(LOG_NAME, "Cmd5();\r\n");
+		CLog::GetInstance().Print(LOG_NAME, "Cmd5();\r\n");
 		ret[0x01] = 1; //Result?
 		break;
 	case 0x07:
 		//Init?
-		CLog::GetInstance().Warn(LOG_NAME, "Cmd7();\r\n");
+		CLog::GetInstance().Print(LOG_NAME, "Cmd7();\r\n");
 		ret[0x01] = 1; //Result?
 		break;
 	case 0x09:
@@ -188,8 +188,8 @@ bool CAcCdvd::Invoke(uint32 method, uint32* args, uint32 argsSize, uint32* ret, 
 			uint32 sectorCount = args[1];
 			uint32 dstAddr = args[2];
 			static const size_t sectorSize = 0x800;
-			CLog::GetInstance().Warn(LOG_NAME, "Read%d(start = 0x%08X, count = %d, dstAddr = 0x%08X);\r\n",
-			                         method, startSector, sectorCount, dstAddr);
+			CLog::GetInstance().Print(LOG_NAME, "Read%d(start = 0x%08X, count = %d, dstAddr = 0x%08X);\r\n",
+			                          method, startSector, sectorCount, dstAddr);
 			auto fileSystem = m_opticalMedia->GetFileSystem();
 			auto dst = (method == 0x0A) ? m_iopRam : ram;
 			for(unsigned int i = 0; i < sectorCount; i++)
@@ -213,7 +213,7 @@ bool CAcCdvd::Invoke(uint32 method, uint32* args, uint32 argsSize, uint32* ret, 
 		//Ridge Racer V uses this
 		//Time Crisis 3 uses this, fails to proceed if this doesn't return 0
 		ret[0x01] = 0;
-		CLog::GetInstance().Warn(LOG_NAME, "CdSync();\r\n");
+		CLog::GetInstance().Print(LOG_NAME, "CdSync();\r\n");
 		break;
 	case 0x0C:
 		//SearchFile?
@@ -221,7 +221,7 @@ bool CAcCdvd::Invoke(uint32 method, uint32* args, uint32 argsSize, uint32* ret, 
 			const char* path = reinterpret_cast<const char*>(ram) + args[0];
 			CCdvdman::FILEINFO fileInfo = {};
 			uint32 result = m_cdvdman.CdLayerSearchFileDirect(m_opticalMedia, &fileInfo, path, 0);
-			CLog::GetInstance().Warn(LOG_NAME, "SearchFile(path = '%s');\r\n", path);
+			CLog::GetInstance().Print(LOG_NAME, "SearchFile(path = '%s');\r\n", path);
 			ret[0x00] = 0;      //Soul Calibur 2 requires this to be 0
 			ret[0x01] = result; //Result?
 			ret[0x04] = fileInfo.sector;
@@ -233,13 +233,13 @@ bool CAcCdvd::Invoke(uint32 method, uint32* args, uint32 argsSize, uint32* ret, 
 	case 0x0D:
 		//Seek?
 		ret[0x01] = 1; //Result?
-		CLog::GetInstance().Warn(LOG_NAME, "Seek(sector = 0x%08X);\r\n", args[0]);
+		CLog::GetInstance().Print(LOG_NAME, "Seek(sector = 0x%08X);\r\n", args[0]);
 		//args[0] = Sector Index?
 		//args[1] = ? 0xF
 		break;
 	case 0x0F:
 		ret[0x01] = 2; //Result? (needs to be not 1 or 0x20)
-		CLog::GetInstance().Warn(LOG_NAME, "Cmd15();\r\n");
+		CLog::GetInstance().Print(LOG_NAME, "Cmd15();\r\n");
 		break;
 	case 0x13:
 	{
@@ -247,8 +247,8 @@ bool CAcCdvd::Invoke(uint32 method, uint32* args, uint32 argsSize, uint32* ret, 
 		uint32 mode = args[1];
 		uint32 dstAddr = args[2] & (PS2::EE_RAM_SIZE - 1);
 		uint32 errAddr = args[3];
-		CLog::GetInstance().Warn(LOG_NAME, "StRead(count = %d, mode = %d, dstAddr = 0x%08X, errAddr = 0x%08X);\r\n",
-		                         sectorCount, mode, dstAddr, errAddr);
+		CLog::GetInstance().Print(LOG_NAME, "StRead(count = %d, mode = %d, dstAddr = 0x%08X, errAddr = 0x%08X);\r\n",
+		                          sectorCount, mode, dstAddr, errAddr);
 		auto fileSystem = m_opticalMedia->GetFileSystem();
 		for(unsigned int i = 0; i < sectorCount; i++)
 		{
@@ -265,7 +265,7 @@ bool CAcCdvd::Invoke(uint32 method, uint32* args, uint32 argsSize, uint32* ret, 
 	case 0x15:
 	{
 		//Stream Seek?
-		CLog::GetInstance().Warn(LOG_NAME, "StSeek(sector = 0x%08X);\r\n", args[0]);
+		CLog::GetInstance().Print(LOG_NAME, "StSeek(sector = 0x%08X);\r\n", args[0]);
 		m_streamPos = args[0];
 		ret[0x01] = 1;
 	}
