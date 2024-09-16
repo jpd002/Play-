@@ -1,0 +1,18 @@
+{
+	"id": "superdbz",
+	"name": "Super Dragon Ball Z",
+	"driver": "sys246",
+	"dongle":
+	{
+		"name": "db1verb.ic002"
+	},
+	"cdvd":
+	{
+		"name": "db1.chd"
+	},
+	"eeFrequencyScale": [4, 3],
+	"boot": "ac0:DBALOAD",
+	"patches":
+	[
+	]
+}
