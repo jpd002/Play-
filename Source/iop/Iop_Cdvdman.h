@@ -57,6 +57,7 @@ namespace Iop
 
 		uint32 CdStandby();
 		uint32 CdRead(uint32, uint32, uint32, uint32);
+		uint32 CdSeek(uint32);
 		uint32 CdCallback(uint32);
 		uint32 CdSync(uint32);
 		uint32 CdStatus();
@@ -82,7 +83,6 @@ namespace Iop
 		};
 
 		uint32 CdInit(uint32);
-		uint32 CdSeek(uint32);
 		uint32 CdGetError();
 		uint32 CdSearchFile(uint32, uint32);
 		uint32 CdGetDiskType();

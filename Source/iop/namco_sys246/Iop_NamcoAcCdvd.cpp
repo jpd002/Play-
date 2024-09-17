@@ -17,6 +17,7 @@ using namespace Iop::Namco;
 #define FUNCTION_CDGETERROR "IopCdGetError"
 #define FUNCTION_CDGETDISKTYPE "IopCdGetDiskType"
 #define FUNCTION_CDSTATUS "IopCdStatus"
+#define FUNCTION_CDSEEK "IopCdSeek"
 #define FUNCTION_CDSTANDBY "IopCdStandby"
 #define FUNCTION_CDSETMMODE "IopCdSetMmode"
 
@@ -60,6 +61,8 @@ std::string CAcCdvd::GetFunctionName(unsigned int functionId) const
 		return FUNCTION_CDGETDISKTYPE;
 	case 22:
 		return FUNCTION_CDSTATUS;
+	case 25:
+		return FUNCTION_CDSEEK;
 	case 26:
 		return FUNCTION_CDSTANDBY;
 	case 37:
@@ -139,6 +142,14 @@ void CAcCdvd::Invoke(CMIPS& context, unsigned int functionId)
 	case 22:
 		CLog::GetInstance().Print(LOG_NAME, FUNCTION_CDSTATUS "();\r\n");
 		context.m_State.nGPR[CMIPS::V0].nV0 = m_cdvdman.CdStatus();
+		break;
+	case 25:
+		//CdSeek
+		{
+			uint32 sector = context.m_State.nGPR[CMIPS::A0].nV0;
+			CLog::GetInstance().Print(LOG_NAME, FUNCTION_CDSEEK "(sector = 0x%08X);\r\n", sector);
+			context.m_State.nGPR[CMIPS::V0].nV0 = m_cdvdman.CdSeek(sector);
+		}
 		break;
 	case 26:
 		CLog::GetInstance().Print(LOG_NAME, FUNCTION_CDSTANDBY "();\r\n");
