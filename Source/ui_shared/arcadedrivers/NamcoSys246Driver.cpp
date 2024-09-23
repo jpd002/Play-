@@ -56,7 +56,11 @@ void CNamcoSys246Driver::PrepareEnvironment(CPS2VM* virtualMachine, const ARCADE
 		}
 
 		auto imageStream = std::make_unique<CChdImageStream>(std::make_unique<Framework::CStdStream>(hddPath.string().c_str(), "rb"));
-		assert(imageStream->GetUnitSize() == Hdd::g_sectorSize);
+		if(imageStream->GetUnitSize() != Hdd::g_sectorSize)
+		{
+			throw std::runtime_error(string_format("Sector size mismatch in HDD image file ('%s'). Make sure the CHD file was created with the 'createhd' option.", def.hddFileName.c_str()));
+		}
+
 		auto device = std::make_shared<Iop::Ioman::CHardDiskDumpDevice>(std::move(imageStream));
 
 		auto iopBios = dynamic_cast<CIopBios*>(virtualMachine->m_iop->m_bios.get());
