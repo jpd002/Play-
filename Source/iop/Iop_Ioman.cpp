@@ -517,14 +517,30 @@ int32 CIoman::AddDrv(CMIPS& context)
 	auto deviceName = device->namePtr ? reinterpret_cast<const char*>(m_ram + device->namePtr) : nullptr;
 	FRAMEWORK_MAYBE_UNUSED auto deviceDesc = device->descPtr ? reinterpret_cast<const char*>(m_ram + device->descPtr) : nullptr;
 	CLog::GetInstance().Print(LOG_NAME, "Requested registration of device '%s'.\r\n", deviceName);
-	//We only support "cdfs" & "dev9x" for now
-	if(!deviceName || (strcmp(deviceName, "cdfs") && strcmp(deviceName, "dev9x")))
+	if(!deviceName)
 	{
 		return -1;
 	}
-	m_userDevices.insert(std::make_pair(deviceName, devicePtr));
-	InvokeUserDeviceMethod(context, devicePtr, offsetof(Ioman::DEVICEOPS, initPtr), devicePtr);
-	return 0;
+
+	//We only allow "cdfs" & "dev9x" for now
+	static std::set<std::string> allowedDevices = {"cdfs", "dev9x"};
+	if(allowedDevices.count(deviceName))
+	{
+		m_userDevices.insert(std::make_pair(deviceName, devicePtr));
+		InvokeUserDeviceMethod(context, devicePtr, offsetof(Ioman::DEVICEOPS, initPtr), devicePtr);
+		return 0;
+	}
+
+	//We will report to "cdrom_stm" that registration succeeded, but we don't actually
+	//add it to our device list.
+	static std::set<std::string> silentDevices = {"cdrom_stm"};
+	if(silentDevices.count(deviceName))
+	{
+		return 0;
+	}
+
+	//If we get here, we failed.
+	return -1;
 }
 
 uint32 CIoman::DelDrv(uint32 drvNamePtr)
