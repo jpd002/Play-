@@ -78,6 +78,7 @@ bool TryRegisterBootable(const fs::path& path)
 	try
 	{
 		std::string serial;
+		BootablesDb::BOOTABLE_TYPE bootableType = BootablesDb::BOOTABLE_TYPE::UNKNOWN;
 		if(
 		    !BootablesDb::CClient::GetInstance().BootableExists(path) &&
 		    !IsBootableExecutablePath(path) &&
@@ -86,7 +87,23 @@ bool TryRegisterBootable(const fs::path& path)
 		{
 			return false;
 		}
-		BootablesDb::CClient::GetInstance().RegisterBootable(path, path.filename().string().c_str(), serial.c_str());
+		if(DiskUtils::IsBootableDiscImagePath(path))
+		{
+			bootableType = BootablesDb::BOOTABLE_TYPE::PS2_DISC;
+
+		}
+		else if(DiskUtils::IsBootableExecutablePath(path))
+		{
+			bootableType = BootablesDb::BOOTABLE_TYPE::PS2_ELF;
+		}
+		else if(DiskUtils::IsBootableArcadeDefPath(path))
+		{
+			bootableType = BootablesDb::BOOTABLE_TYPE::PS2_ARCADE;
+		}
+
+		assert(bootableType != BootablesDb::BOOTABLE_TYPE::UNKNOWN);
+
+		BootablesDb::CClient::GetInstance().RegisterBootable(path, path.filename().string().c_str(), serial.c_str(), bootableType);
 		return true;
 	}
 	catch(...)

@@ -35,6 +35,33 @@ QBootablesView::QBootablesView(QWidget* parent)
 	m_sortingMethod = CAppConfig::GetInstance().GetPreferenceInteger("ui.sortmethod");
 	ui->comboBox->setCurrentIndex(m_sortingMethod);
 
+	CAppConfig::GetInstance().RegisterPreferenceInteger("ui.filterbootabletype", BootablesDb::BOOTABLE_TYPE::PS2_DISC | BootablesDb::BOOTABLE_TYPE::PS2_ARCADE | BootablesDb::BOOTABLE_TYPE::PS2_ELF);
+	auto filter = CAppConfig::GetInstance().GetPreferenceInteger("ui.filterbootabletype");
+	ui->checkBox_ps2->setChecked(filter & BootablesDb::BOOTABLE_TYPE::PS2_DISC);
+	ui->checkBox_ps2_arcade->setChecked(filter & BootablesDb::BOOTABLE_TYPE::PS2_ARCADE);
+	ui->checkBox_ps2_elf->setChecked(filter & BootablesDb::BOOTABLE_TYPE::PS2_ELF);
+
+	m_proxyModel->setBootableTypeFilterState(filter, 1);
+
+	auto updateFilterPref = [](auto proxyModel) {
+		CAppConfig::GetInstance().SetPreferenceInteger("ui.filterbootabletype", proxyModel->getBootableTypeFilterState());
+	};
+
+	connect(ui->checkBox_ps2, &QCheckBox::stateChanged, [this, updateFilterPref](int state) {
+		m_proxyModel->setBootableTypeFilterState(BootablesDb::BOOTABLE_TYPE::PS2_DISC, state);
+		updateFilterPref(m_proxyModel);
+	});
+
+	connect(ui->checkBox_ps2_arcade, &QCheckBox::stateChanged, [this, updateFilterPref](int state) {
+		m_proxyModel->setBootableTypeFilterState(BootablesDb::BOOTABLE_TYPE::PS2_ARCADE, state);
+		updateFilterPref(m_proxyModel);
+	});
+
+	connect(ui->checkBox_ps2_elf, &QCheckBox::stateChanged, [this, updateFilterPref](int state) {
+		m_proxyModel->setBootableTypeFilterState(BootablesDb::BOOTABLE_TYPE::PS2_ELF, state);
+		updateFilterPref(m_proxyModel);
+	});
+
 	connect(ui->filterLineEdit, &QLineEdit::textChanged, m_proxyModel, &QSortFilterProxyModel::setFilterFixedString);
 	connect(ui->stateFilterComboBox, &QComboBox::currentTextChanged, m_proxyModel, &BootableModelProxy::setFilterState);
 	connect(ui->listView->selectionModel(), &QItemSelectionModel::currentChanged, this, &QBootablesView::SelectionChange);
@@ -315,6 +342,10 @@ void QBootablesView::on_reset_filter_button_clicked()
 {
 	ui->filterLineEdit->clear();
 	ui->stateFilterComboBox->setCurrentIndex(0);
+
+	ui->checkBox_ps2->setChecked(true);
+	ui->checkBox_ps2_arcade->setChecked(true);
+	ui->checkBox_ps2_elf->setChecked(true);
 }
 
 bool QBootablesView::IsProcessing()

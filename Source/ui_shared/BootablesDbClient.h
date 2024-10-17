@@ -17,6 +17,14 @@ namespace BootablesDb
 	};
 	using BootableStateList = std::vector<BootableState>;
 
+	enum BOOTABLE_TYPE
+	{
+		UNKNOWN = 0,
+		PS2_DISC = 1 << 0,
+		PS2_ARCADE = 1 << 1,
+		PS2_ELF = 1 << 2,
+	};
+
 	struct Bootable
 	{
 		fs::path path;
@@ -26,6 +34,7 @@ namespace BootablesDb
 		std::string overview;
 		time_t lastBootedTime = 0;
 		BootableStateList states;
+		BOOTABLE_TYPE bootableType = BOOTABLE_TYPE::UNKNOWN;
 	};
 
 	class CClient : public CSingleton<CClient>
@@ -48,7 +57,7 @@ namespace BootablesDb
 		std::vector<Bootable> GetBootables(int32_t = SORT_METHOD_NONE);
 		BootableStateList GetStates();
 
-		void RegisterBootable(const fs::path&, const char*, const char*);
+		void RegisterBootable(const fs::path&, const char*, const char*, BootablesDb::BOOTABLE_TYPE);
 		void UnregisterBootable(const fs::path&);
 
 		void SetDiscId(const fs::path&, const char*);
@@ -61,7 +70,7 @@ namespace BootablesDb
 		Bootable ReadBootable(Framework::CSqliteStatement&);
 		BootableStateList GetGameStates(std::string);
 
-		void CheckDbVersion();
+		void UpgradeDb();
 
 		fs::path m_dbPath;
 		Framework::CSqliteDb m_db;
