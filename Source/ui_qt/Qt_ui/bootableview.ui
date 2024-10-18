@@ -261,17 +261,7 @@
        </item>
        <item>
         <property name="text">
-         <string>Homebrew</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
          <string>Unsorted</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Arcade Machines</string>
         </property>
        </item>
       </widget>

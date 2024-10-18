@@ -31,8 +31,8 @@ QBootablesView::QBootablesView(QWidget* parent)
 	m_proxyModel = new BootableModelProxy(this);
 	ui->listView->setModel(m_proxyModel);
 
-	CAppConfig::GetInstance().RegisterPreferenceInteger("ui.sortmethod", BootablesDb::CClient::SORT_METHOD_NONE);
-	m_sortingMethod = CAppConfig::GetInstance().GetPreferenceInteger("ui.sortmethod");
+	CAppConfig::GetInstance().RegisterPreferenceInteger("ui.sortmethod.v2", BootablesDb::CClient::SORT_METHOD_NONE);
+	m_sortingMethod = CAppConfig::GetInstance().GetPreferenceInteger("ui.sortmethod.v2") & BootablesDb::CClient::SORT_METHOD_NONE;
 	ui->comboBox->setCurrentIndex(m_sortingMethod);
 
 	CAppConfig::GetInstance().RegisterPreferenceInteger("ui.filterbootabletype", BootablesDb::BOOTABLE_TYPE::PS2_DISC | BootablesDb::BOOTABLE_TYPE::PS2_ARCADE | BootablesDb::BOOTABLE_TYPE::PS2_ELF);
@@ -249,7 +249,7 @@ void QBootablesView::on_refresh_button_clicked()
 
 void QBootablesView::on_comboBox_currentIndexChanged(int index)
 {
-	CAppConfig::GetInstance().SetPreferenceInteger("ui.sortmethod", index);
+	CAppConfig::GetInstance().SetPreferenceInteger("ui.sortmethod.v2", index);
 	m_sortingMethod = index;
 	resetModel();
 }
