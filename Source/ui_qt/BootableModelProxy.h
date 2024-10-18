@@ -15,7 +15,6 @@ protected:
 	bool filterAcceptsRow(int, const QModelIndex&) const override;
 
 private:
-	std::string m_state;
-	int m_bootableType;
-
+	std::string m_state = "";
+	int m_bootableType = 0;
 };
