@@ -494,6 +494,16 @@ void MainWindow::CreateStatusBar()
 	m_fpsLabel = new QLabel("");
 	m_fpsLabel->setAlignment(Qt::AlignHCenter);
 	m_fpsLabel->setMinimumSize(m_fpsLabel->sizeHint());
+	m_fpsLabel->setContextMenuPolicy(Qt::CustomContextMenu);
+
+	connect(m_fpsLabel, &QLabel::customContextMenuRequested, [&]() {
+		auto value = CAppConfig::GetInstance().GetPreferenceBoolean(PREF_PS2_LIMIT_FRAMERATE);
+		CAppConfig::GetInstance().SetPreferenceBoolean(PREF_PS2_LIMIT_FRAMERATE, !value);
+		if(m_virtualMachine)
+		{
+			m_virtualMachine->ReloadFrameRateLimit();
+		}
+	});
 
 	m_cpuUsageLabel = new QLabel("");
 	m_cpuUsageLabel->setAlignment(Qt::AlignHCenter);
@@ -540,6 +550,7 @@ void MainWindow::CreateStatusBar()
 
 void MainWindow::updateStats()
 {
+	auto unlockedFps = !CAppConfig::GetInstance().GetPreferenceBoolean(PREF_PS2_LIMIT_FRAMERATE);
 	uint32 frames = CStatsManager::GetInstance().GetFrames();
 	uint32 drawCalls = CStatsManager::GetInstance().GetDrawCalls();
 	auto cpuUtilisation = CStatsManager::GetInstance().GetCpuUtilisationInfo();
@@ -547,7 +558,7 @@ void MainWindow::updateStats()
 #ifdef PROFILE
 	m_profileStatsLabel->setText(QString::fromStdString(CStatsManager::GetInstance().GetProfilingInfo()));
 #endif
-	m_fpsLabel->setText(QString("%1 f/s, %2 dc/f").arg(frames).arg(dcpf));
+	m_fpsLabel->setText(QString("%1%2 f/s, %3 dc/f").arg(frames).arg(unlockedFps ? " (U)" : "").arg(dcpf));
 
 	auto eeUsageRatio = CStatsManager::ComputeCpuUsageRatio(cpuUtilisation.eeIdleTicks, cpuUtilisation.eeTotalTicks);
 	m_cpuUsageLabel->setText(QString("EE CPU: %1%").arg(static_cast<int>(eeUsageRatio)));
