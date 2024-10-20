@@ -56,9 +56,11 @@ if(USE_GSH_VULKAN)
 endif()
 
 if(TARGET_PLATFORM_UNIX)
-	find_package(LIBEVDEV REQUIRED)
-	list(APPEND PROJECT_LIBS ${LIBEVDEV_LIBRARY})
-	list(APPEND DEFINITIONS_LIST HAS_LIBEVDEV=1)
+	find_package(LIBEVDEV)
+	if(LIBEVDEV_FOUND)
+		list(APPEND PROJECT_LIBS ${LIBEVDEV_LIBRARY})
+		list(APPEND DEFINITIONS_LIST HAS_LIBEVDEV=1)
+	endif()
 
 	list(APPEND PROJECT_LIBS "-static-libgcc")
 	list(APPEND PROJECT_LIBS "-static-libstdc++")
@@ -358,9 +360,12 @@ target_compile_definitions(Play PRIVATE ${DEFINITIONS_LIST})
 target_include_directories(Play PRIVATE
 	./
 	../../
-	${LIBEVDEV_INCLUDE_DIR}
 	${CMAKE_CURRENT_BINARY_DIR}
 )
+
+if(LIBEVDEV_FOUND)
+	target_include_directories(Play PRIVATE ${LIBEVDEV_INCLUDE_DIR})
+endif()
 
 if(TARGET_PLATFORM_WIN32)
 	find_program(WINDEPLOYQT_EXE windeployqt HINTS "${QT_BINARY_DIRECTORY}")
