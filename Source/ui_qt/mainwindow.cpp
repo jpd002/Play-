@@ -505,6 +505,44 @@ void MainWindow::CreateStatusBar()
 		}
 	});
 
+	int factor = CAppConfig::GetInstance().GetPreferenceInteger(PREF_CGSH_OPENGL_RESOLUTION_FACTOR);
+	m_scaleFactorLabel = new QLabel();
+	m_scaleFactorLabel->setAlignment(Qt::AlignHCenter);
+	m_scaleFactorLabel->setMinimumSize(m_scaleFactorLabel->sizeHint());
+	m_scaleFactorLabel->setText(QString("%1x").arg(factor));
+	m_scaleFactorLabel->setContextMenuPolicy(Qt::CustomContextMenu);
+
+	connect(m_scaleFactorLabel, &QLabel::customContextMenuRequested, [&](const QPoint& pos) {
+		QMenu contextMenu(this);
+
+		int factor = CAppConfig::GetInstance().GetPreferenceInteger(PREF_CGSH_OPENGL_RESOLUTION_FACTOR);
+		for(int index = 0; index < 5; ++index)
+		{
+			int value = 1 << index;
+			QAction* action = contextMenu.addAction(QString("%1x").arg(value));
+			action->setCheckable(true);
+			action->setChecked(factor == value);
+
+			connect(action, &QAction::triggered, [this, index, value, factor]() mutable {
+				CAppConfig::GetInstance().SetPreferenceInteger(PREF_CGSH_OPENGL_RESOLUTION_FACTOR, value);
+				m_scaleFactorLabel->setText(QString("%1x").arg(value));
+
+				if(m_virtualMachine && factor != value)
+				{
+					outputWindow_resized();
+					auto gsHandler = m_virtualMachine->GetGSHandler();
+					if(gsHandler)
+					{
+						gsHandler->NotifyPreferencesChanged();
+					}
+				}
+				factor = value;
+			});
+		}
+
+		contextMenu.exec(m_scaleFactorLabel->mapToGlobal(pos));
+	});
+
 	m_cpuUsageLabel = new QLabel("");
 	m_cpuUsageLabel->setAlignment(Qt::AlignHCenter);
 	m_cpuUsageLabel->setMinimumSize(m_cpuUsageLabel->sizeHint());
@@ -518,6 +556,7 @@ void MainWindow::CreateStatusBar()
 	statusBar()->addWidget(m_msgLabel, 1);
 	statusBar()->addWidget(m_fpsLabel);
 	statusBar()->addWidget(m_cpuUsageLabel);
+	statusBar()->addWidget(m_scaleFactorLabel);
 #ifdef HAS_GSH_VULKAN
 	if(GSH_Vulkan::CDeviceInfo::GetInstance().HasAvailableDevices())
 	{
@@ -1133,6 +1172,9 @@ void MainWindow::UpdateGSHandlerLabel()
 		break;
 	}
 #endif
+
+	int factor = CAppConfig::GetInstance().GetPreferenceInteger(PREF_CGSH_OPENGL_RESOLUTION_FACTOR);
+	m_scaleFactorLabel->setText(QString("%1x").arg(factor));
 }
 
 void MainWindow::SetupBootableView()
