@@ -530,10 +530,10 @@ void MainWindow::CreateStatusBar()
 		m_gsLabel->setContextMenuPolicy(Qt::CustomContextMenu);
 		connect(m_gsLabel, &QLabel::customContextMenuRequested, [&]() {
 			auto gs_index = CAppConfig::GetInstance().GetPreferenceInteger(PREF_VIDEO_GS_HANDLER);
+			gs_index = (gs_index + 1) % SettingsDialog::GS_HANDLERS::MAX_HANDLER;
+			CAppConfig::GetInstance().SetPreferenceInteger(PREF_VIDEO_GS_HANDLER, gs_index);
 			if(m_virtualMachine)
 			{
-				gs_index = (gs_index + 1) % SettingsDialog::GS_HANDLERS::MAX_HANDLER;
-				CAppConfig::GetInstance().SetPreferenceInteger(PREF_VIDEO_GS_HANDLER, gs_index);
 				SetupGsHandler();
 			}
 			UpdateGSHandlerLabel();
@@ -582,7 +582,6 @@ void MainWindow::on_actionSettings_triggered()
 		auto new_gs_index = CAppConfig::GetInstance().GetPreferenceInteger(PREF_VIDEO_GS_HANDLER);
 		if(gs_index != new_gs_index)
 		{
-			UpdateGSHandlerLabel();
 			SetupGsHandler();
 		}
 		else
@@ -594,6 +593,10 @@ void MainWindow::on_actionSettings_triggered()
 				gsHandler->NotifyPreferencesChanged();
 			}
 		}
+	}
+	else
+	{
+		UpdateGSHandlerLabel();
 	}
 }
 
