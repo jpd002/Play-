@@ -91,7 +91,7 @@ private:
 	void saveState(int);
 	void buildResizeWindowMenu();
 	void resizeWindow(unsigned int, unsigned int);
-	void UpdateGSHandlerLabel(int);
+	void UpdateGSHandlerLabel();
 	void SetupBootableView();
 	void SetupDebugger();
 
