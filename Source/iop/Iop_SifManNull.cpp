@@ -42,3 +42,7 @@ void CSifManNull::SetModuleResetHandler(const ModuleResetHandler&)
 void CSifManNull::SetCustomCommandHandler(const CustomCommandHandler&)
 {
 }
+
+void CSifManNull::ExecuteSifDma(uint32, uint32)
+{
+}
