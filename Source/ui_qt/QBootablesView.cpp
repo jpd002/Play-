@@ -246,7 +246,7 @@ void QBootablesView::on_awsS3Button_clicked()
 
 	ToggleInterface(false);
 	auto getListFuture = std::async(std::launch::async, [this, bucketName]() {
-		auto credentials = CS3ObjectStream::CConfig::GetInstance().GetCredentials();
+		auto credentials = CS3ObjectStream::CConfig::GetInstance().GetConfigs();
 		AsyncUpdateStatus("Requesting S3 Bucket Content.");
 		auto result = AmazonS3Utils::GetListObjects(credentials, bucketName);
 		auto size = result.objects.size();
