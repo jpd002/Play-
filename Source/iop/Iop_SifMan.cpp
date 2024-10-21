@@ -13,6 +13,8 @@
 
 using namespace Iop;
 
+constexpr uint32 SIFDMA_XFER_ID = 0x2222;
+
 std::string CSifMan::GetId() const
 {
 	return "sifman";
@@ -121,13 +123,16 @@ uint32 CSifMan::SifSetDma(uint32 structAddr, uint32 count)
 	//This is needed because RenderWare FS code doesn't expect SIF CMD callbacks to
 	//arrive so quickly
 	m_moduleData->dmaTransferTime = 0x800;
-	return count;
+
+	ExecuteSifDma(structAddr, count);
+	return SIFDMA_XFER_ID;
 }
 
 uint32 CSifMan::SifDmaStat(uint32 transferId)
 {
 	CLog::GetInstance().Print(LOG_NAME, FUNCTION_SIFDMASTAT "(transferId = %X);\r\n",
 	                          transferId);
+	assert(transferId == SIFDMA_XFER_ID);
 	if(m_moduleData->dmaTransferTime != 0)
 	{
 		return 0;
@@ -155,5 +160,6 @@ uint32 CSifMan::SifSetDmaCallback(CMIPS& context, uint32 structAddr, uint32 coun
 	context.m_State.nGPR[CMIPS::A0].nV0 = callbackParam;
 	context.m_State.nGPR[CMIPS::A1].nV0 = callbackPtr;
 
-	return SifSetDma(structAddr, count);
+	ExecuteSifDma(structAddr, count);
+	return SIFDMA_XFER_ID;
 }

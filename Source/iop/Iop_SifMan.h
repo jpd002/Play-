@@ -34,10 +34,10 @@ namespace Iop
 		virtual void GetOtherData(uint32, uint32, uint32) = 0;
 		virtual void SetModuleResetHandler(const ModuleResetHandler&) = 0;
 		virtual void SetCustomCommandHandler(const CustomCommandHandler&) = 0;
-
-		virtual uint32 SifSetDma(uint32, uint32);
+		virtual void ExecuteSifDma(uint32, uint32) = 0;
 
 	private:
+		uint32 SifSetDma(uint32, uint32);
 		uint32 SifDmaStat(uint32);
 		uint32 SifCheckInit();
 		uint32 SifSetDmaCallback(CMIPS&, uint32, uint32, uint32, uint32);

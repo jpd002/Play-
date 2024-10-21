@@ -835,7 +835,7 @@ uint32 CSifCmd::SifSendCmd(uint32 commandId, uint32 packetPtr, uint32 packetSize
 		dmaReg->size = sizeExtra;
 		dmaReg->flags = 0;
 
-		m_sifMan.SifSetDma(m_sendCmdExtraStructAddr, 1);
+		m_sifMan.ExecuteSifDma(m_sendCmdExtraStructAddr, 1);
 	}
 
 	m_sifMan.SendPacket(packetData, packetSize);
@@ -904,7 +904,7 @@ void CSifCmd::SifCallRpc(CMIPS& context)
 		dmaReg->size = sendSize;
 		dmaReg->flags = 0;
 
-		m_sifMan.SifSetDma(m_sendCmdExtraStructAddr, 1);
+		m_sifMan.ExecuteSifDma(m_sendCmdExtraStructAddr, 1);
 	}
 
 	SIFRPCCALL callPacket;

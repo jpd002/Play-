@@ -63,13 +63,12 @@ void CSifManPs2::SetCustomCommandHandler(const CustomCommandHandler& customComma
 	m_sif.SetCustomCommandHandler(customCommandHandler);
 }
 
-uint32 CSifManPs2::SifSetDma(uint32 structAddr, uint32 count)
+void CSifManPs2::ExecuteSifDma(uint32 structAddr, uint32 count)
 {
-	CSifMan::SifSetDma(structAddr, count);
-
 	if(structAddr == 0)
 	{
-		return 0;
+		//Nothing to transfer
+		return;
 	}
 
 	auto dmaRegs = reinterpret_cast<const SIFDMAREG*>(m_iopRam + structAddr);
@@ -89,8 +88,6 @@ uint32 CSifManPs2::SifSetDma(uint32 structAddr, uint32 count)
 			memcpy(dst, src, dmaReg.size);
 		}
 	}
-
-	return count;
 }
 
 uint8* CSifManPs2::GetEeRam() const

@@ -21,8 +21,7 @@ namespace Iop
 		void GetOtherData(uint32, uint32, uint32) override;
 		void SetModuleResetHandler(const ModuleResetHandler&) override;
 		void SetCustomCommandHandler(const CustomCommandHandler&) override;
-
-		uint32 SifSetDma(uint32, uint32) override;
+		void ExecuteSifDma(uint32, uint32) override;
 
 		uint8* GetEeRam() const;
 
