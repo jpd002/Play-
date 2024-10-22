@@ -425,7 +425,7 @@ void CPS2OS::LoadELF(Framework::CStream* stream, const char* executablePath, con
 		    auto executableName = executablePath;
 		    for(const auto separator : separators)
 		    {
-			    if(auto sepPos = strrchr(executablePath, separator))
+			    if(const char* sepPos = strrchr(executablePath, separator))
 			    {
 				    executableName = std::max(executableName, sepPos + 1);
 			    }
