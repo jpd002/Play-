@@ -1184,28 +1184,27 @@ void MainWindow::SetupBootableView()
 
 	bootablesView->AddMsgLabel(m_msgLabel);
 
-	QBootablesView::BootCallback bootGameCallback = [&, showEmu](fs::path filePath) {
+	QBootablesView::BootCallback bootGameCallback = [&, showEmu](const BootablesDb::Bootable& bootable) {
 		try
 		{
-			if(BootableUtils::IsBootableDiscImagePath(filePath))
+			switch(bootable.bootableType)
 			{
-				LoadCDROM(filePath);
+			case BootableUtils::PS2_DISC:
+				LoadCDROM(bootable.path);
 				BootCDROM();
-			}
-			else if(BootableUtils::IsBootableExecutablePath(filePath))
-			{
-				BootElf(filePath);
-			}
-			else if(BootableUtils::IsBootableArcadeDefPath(filePath))
-			{
-				BootArcadeMachine(filePath);
-			}
-			else
-			{
+				break;
+			case BootableUtils::PS2_ELF:
+				BootElf(bootable.path);
+				break;
+			case BootableUtils::PS2_ARCADE:
+				BootArcadeMachine(bootable.path);
+				break;
+			default:
 				QMessageBox messageBox;
 				QString invalid("Invalid File Format.");
 				messageBox.critical(this, this->windowTitle(), invalid);
 				messageBox.show();
+				break;
 			}
 			showEmu();
 		}
