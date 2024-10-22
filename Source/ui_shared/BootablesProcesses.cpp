@@ -3,6 +3,7 @@
 #include "BootablesProcesses.h"
 #include "BootablesDbClient.h"
 #include "TheGamesDbClient.h"
+#include "BootableUtils.h"
 #include "DiskUtils.h"
 #include "PathUtils.h"
 #include "StringUtils.h"
@@ -57,31 +58,19 @@ bool TryRegisterBootable(const fs::path& path)
 {
 	try
 	{
-		std::string serial;
-		BootablesDb::BOOTABLE_TYPE bootableType = BootablesDb::BOOTABLE_TYPE::UNKNOWN;
-		if(
-		    !BootablesDb::CClient::GetInstance().BootableExists(path) &&
-		    !DiskUtils::IsBootableExecutablePath(path) &&
-		    !(DiskUtils::IsBootableDiscImagePath(path) && DiskUtils::TryGetDiskId(path, &serial)) &&
-		    !DiskUtils::IsBootableArcadeDefPath(path))
+		if(BootablesDb::CClient::GetInstance().BootableExists(path))
 		{
 			return false;
 		}
-		if(DiskUtils::IsBootableDiscImagePath(path))
-		{
-			bootableType = BootablesDb::BOOTABLE_TYPE::PS2_DISC;
 
-		}
-		else if(DiskUtils::IsBootableExecutablePath(path))
-		{
-			bootableType = BootablesDb::BOOTABLE_TYPE::PS2_ELF;
-		}
-		else if(DiskUtils::IsBootableArcadeDefPath(path))
-		{
-			bootableType = BootablesDb::BOOTABLE_TYPE::PS2_ARCADE;
-		}
+		BootableUtils::BOOTABLE_TYPE bootableType = BootableUtils::GetBootableType(path);
+		if(bootableType == BootableUtils::UNKNOWN)
+			return false;
 
-		assert(bootableType != BootablesDb::BOOTABLE_TYPE::UNKNOWN);
+		std::string serial;
+		if(bootableType == BootableUtils::PS2_DISC)
+			if(!DiskUtils::TryGetDiskId(path, &serial))
+				return false;
 
 		BootablesDb::CClient::GetInstance().RegisterBootable(path, path.filename().string().c_str(), serial.c_str(), bootableType);
 		return true;

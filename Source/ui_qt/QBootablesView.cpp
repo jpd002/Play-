@@ -35,11 +35,11 @@ QBootablesView::QBootablesView(QWidget* parent)
 	m_sortingMethod = CAppConfig::GetInstance().GetPreferenceInteger("ui.sortmethod.v2") & BootablesDb::CClient::SORT_METHOD_NONE;
 	ui->comboBox->setCurrentIndex(m_sortingMethod);
 
-	CAppConfig::GetInstance().RegisterPreferenceInteger("ui.filterbootabletype", BootablesDb::BOOTABLE_TYPE::PS2_DISC | BootablesDb::BOOTABLE_TYPE::PS2_ARCADE | BootablesDb::BOOTABLE_TYPE::PS2_ELF);
+	CAppConfig::GetInstance().RegisterPreferenceInteger("ui.filterbootabletype", BootableUtils::PS2_DISC | BootableUtils::PS2_ARCADE | BootableUtils::PS2_ELF);
 	auto filter = CAppConfig::GetInstance().GetPreferenceInteger("ui.filterbootabletype");
-	ui->checkBox_ps2->setChecked(filter & BootablesDb::BOOTABLE_TYPE::PS2_DISC);
-	ui->checkBox_ps2_arcade->setChecked(filter & BootablesDb::BOOTABLE_TYPE::PS2_ARCADE);
-	ui->checkBox_ps2_elf->setChecked(filter & BootablesDb::BOOTABLE_TYPE::PS2_ELF);
+	ui->checkBox_ps2->setChecked(filter & BootableUtils::PS2_DISC);
+	ui->checkBox_ps2_arcade->setChecked(filter & BootableUtils::PS2_ARCADE);
+	ui->checkBox_ps2_elf->setChecked(filter & BootableUtils::PS2_ELF);
 
 	m_proxyModel->setBootableTypeFilterState(filter, 1);
 
@@ -48,17 +48,17 @@ QBootablesView::QBootablesView(QWidget* parent)
 	};
 
 	connect(ui->checkBox_ps2, &QCheckBox::stateChanged, [this, updateFilterPref](int state) {
-		m_proxyModel->setBootableTypeFilterState(BootablesDb::BOOTABLE_TYPE::PS2_DISC, state);
+		m_proxyModel->setBootableTypeFilterState(BootableUtils::PS2_DISC, state);
 		updateFilterPref(m_proxyModel);
 	});
 
 	connect(ui->checkBox_ps2_arcade, &QCheckBox::stateChanged, [this, updateFilterPref](int state) {
-		m_proxyModel->setBootableTypeFilterState(BootablesDb::BOOTABLE_TYPE::PS2_ARCADE, state);
+		m_proxyModel->setBootableTypeFilterState(BootableUtils::PS2_ARCADE, state);
 		updateFilterPref(m_proxyModel);
 	});
 
 	connect(ui->checkBox_ps2_elf, &QCheckBox::stateChanged, [this, updateFilterPref](int state) {
-		m_proxyModel->setBootableTypeFilterState(BootablesDb::BOOTABLE_TYPE::PS2_ELF, state);
+		m_proxyModel->setBootableTypeFilterState(BootableUtils::PS2_ELF, state);
 		updateFilterPref(m_proxyModel);
 	});
 

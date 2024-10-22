@@ -3,7 +3,7 @@
 #include "Log.h"
 #include "AppConfig.h"
 #include "PS2VM.h"
-#include "DiskUtils.h"
+#include "ui_shared/BootableUtils.h"
 
 #include "PS2VM_Preferences.h"
 #include "GSH_OpenGL_Libretro.h"
@@ -491,11 +491,11 @@ bool retro_load_game(const retro_game_info* info)
 #endif
 
 	fs::path filePath = info->path;
-	if(DiskUtils::IsBootableExecutablePath(filePath))
+	if(BootableUtils::IsBootableExecutablePath(filePath))
 	{
 		m_bootCommand = LastOpenCommand(BootType::ELF, filePath);
 	}
-	else if(DiskUtils::IsBootableDiscImagePath(filePath))
+	else if(BootableUtils::IsBootableDiscImagePath(filePath))
 	{
 		m_bootCommand = LastOpenCommand(BootType::CD, filePath);
 		CAppConfig::GetInstance().SetPreferencePath(PREF_PS2_CDROM0_PATH, filePath);

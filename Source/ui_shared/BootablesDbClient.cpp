@@ -101,7 +101,7 @@ std::vector<Bootable> CClient::GetBootables(int32_t sortMethod)
 	return bootables;
 }
 
-void CClient::RegisterBootable(const fs::path& path, const char* title, const char* discId, BootablesDb::BOOTABLE_TYPE bootableType)
+void CClient::RegisterBootable(const fs::path& path, const char* title, const char* discId, BootableUtils::BOOTABLE_TYPE bootableType)
 {
 	Framework::CSqliteStatement statement(m_db, "INSERT OR IGNORE INTO bootables (path, title, discId, bootableType) VALUES (?,?,?,?)");
 	statement.BindText(1, Framework::PathUtils::GetNativeStringFromPath(path).c_str());
@@ -209,7 +209,7 @@ Bootable CClient::ReadBootable(Framework::CSqliteStatement& statement)
 	bootable.overview = reinterpret_cast<const char*>(sqlite3_column_text(statement, 5));
 	bootable.lastBootedTime = sqlite3_column_int(statement, 4);
 	bootable.states = GetGameStates(bootable.discId);
-	bootable.bootableType = static_cast<BootablesDb::BOOTABLE_TYPE>(sqlite3_column_int(statement, 6));
+	bootable.bootableType = static_cast<BootableUtils::BOOTABLE_TYPE>(sqlite3_column_int(statement, 6));
 	return bootable;
 }
 
@@ -234,17 +234,17 @@ void CClient::UpgradeDb()
 
 				{
 					Framework::CSqliteStatement statement(db, "UPDATE bootables SET bootableType = ? WHERE path LIKE '%.arcade%';");
-					statement.BindInteger(1, BootablesDb::BOOTABLE_TYPE::PS2_ARCADE);
+					statement.BindInteger(1, BootableUtils::PS2_ARCADE);
 					statement.StepNoResult();
 				}
 				{
 					Framework::CSqliteStatement statement(db, "UPDATE bootables SET bootableType = ? WHERE path LIKE '%.elf%';");
-					statement.BindInteger(1, BootablesDb::BOOTABLE_TYPE::PS2_ELF);
+					statement.BindInteger(1, BootableUtils::PS2_ELF);
 					statement.StepNoResult();
 				}
 				{
 					Framework::CSqliteStatement statement(db, "UPDATE bootables SET bootableType = ? WHERE bootableType = 0;");
-					statement.BindInteger(1, BootablesDb::BOOTABLE_TYPE::PS2_DISC);
+					statement.BindInteger(1, BootableUtils::PS2_DISC);
 					statement.StepNoResult();
 				}
 

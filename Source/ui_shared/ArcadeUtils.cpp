@@ -267,7 +267,7 @@ void ArcadeUtils::RegisterArcadeMachines()
 		try
 		{
 			auto def = ReadArcadeMachineDefinition(arcadeDefsPath / arcadeDefFilename);
-			BootablesDb::CClient::GetInstance().RegisterBootable(arcadeDefFilename, "", "", BootablesDb::BOOTABLE_TYPE::PS2_ARCADE);
+			BootablesDb::CClient::GetInstance().RegisterBootable(arcadeDefFilename, "", "", BootableUtils::PS2_ARCADE);
 			BootablesDb::CClient::GetInstance().SetTitle(arcadeDefFilename, def.name.c_str());
 		}
 		catch(const std::exception& exception)

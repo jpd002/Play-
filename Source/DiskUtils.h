@@ -18,9 +18,4 @@ namespace DiskUtils
 	SystemConfigMap ParseSystemConfigFile(Framework::CStream*);
 
 	bool TryGetDiskId(const fs::path&, std::string*);
-
-	bool IsBootableExecutablePath(const fs::path&);
-	bool IsBootableDiscImagePath(const fs::path&);
-	bool IsBootableArcadeDefPath(const fs::path&);
-
 }

@@ -60,6 +60,8 @@ set(SHARED_UI_SRC_FILES
 	BootablesDbClient.h
 	BootablesProcesses.cpp
 	BootablesProcesses.h
+	BootableUtils.cpp
+	BootableUtils.h
 	TheGamesDbClient.cpp
 	TheGamesDbClient.h
 	StatsManager.cpp

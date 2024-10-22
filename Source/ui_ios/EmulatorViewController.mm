@@ -11,7 +11,7 @@
 #ifdef HAS_GSH_VULKAN
 #include "GSH_VulkaniOS.h"
 #endif
-#include "DiskUtils.h"
+#include "../ui_shared/BootableUtils.h"
 #include "PH_Generic.h"
 #include "../../tools/PsfPlayer/Source/SH_OpenAL.h"
 #include "../ui_shared/StatsManager.h"
@@ -127,7 +127,7 @@ CPS2VM::NewFrameEvent::Connection g_newFrameConnection;
 	g_virtualMachine->Reset();
 
 	auto bootablePath = fs::path([self.bootablePath fileSystemRepresentation]);
-	if(DiskUtils::IsBootableExecutablePath(bootablePath))
+	if(BootableUtils::IsBootableExecutablePath(bootablePath))
 	{
 		g_virtualMachine->m_ee->m_os->BootFromFile(bootablePath);
 	}

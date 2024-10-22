@@ -46,7 +46,7 @@
 #include "ui_debugmenu.h"
 #endif
 #include "input/PH_GenericInput.h"
-#include "DiskUtils.h"
+#include "ui_shared/BootableUtils.h"
 #include "PathUtils.h"
 #include <zstd_zlibwrapper.h>
 
@@ -1187,16 +1187,16 @@ void MainWindow::SetupBootableView()
 	QBootablesView::BootCallback bootGameCallback = [&, showEmu](fs::path filePath) {
 		try
 		{
-			if(DiskUtils::IsBootableDiscImagePath(filePath))
+			if(BootableUtils::IsBootableDiscImagePath(filePath))
 			{
 				LoadCDROM(filePath);
 				BootCDROM();
 			}
-			else if(DiskUtils::IsBootableExecutablePath(filePath))
+			else if(BootableUtils::IsBootableExecutablePath(filePath))
 			{
 				BootElf(filePath);
 			}
-			else if(DiskUtils::IsBootableArcadeDefPath(filePath))
+			else if(BootableUtils::IsBootableArcadeDefPath(filePath))
 			{
 				BootArcadeMachine(filePath);
 			}

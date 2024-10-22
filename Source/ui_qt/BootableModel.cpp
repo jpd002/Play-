@@ -69,7 +69,7 @@ void BootableModel::SetWidth(int width)
 }
 
 /* start of BootImageItemDelegate */
-BootableCoverQVariant::BootableCoverQVariant(std::string key, std::string title, fs::path path, BootablesDb::BootableStateList states, BootablesDb::BOOTABLE_TYPE bootableType)
+BootableCoverQVariant::BootableCoverQVariant(std::string key, std::string title, fs::path path, BootablesDb::BootableStateList states, BootableUtils::BOOTABLE_TYPE bootableType)
     : m_key(key)
     , m_title(title)
     , m_path(path)
