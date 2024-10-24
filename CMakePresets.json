@@ -1,0 +1,76 @@
+{
+    "version": 4,
+    "configurePresets": [
+        {
+            "name": "VS",
+            "displayName": "Visual Studio 17 2022",
+            "generator": "Visual Studio 17 2022",
+            "binaryDir": "${sourceDir}/build_cmake/build/${presetName}",
+            "hidden": true
+        },
+        {
+            "name": "NINJA",
+            "displayName": "Ninja",
+            "generator": "Ninja Multi-Config",
+            "binaryDir": "${sourceDir}/build_cmake/build/${presetName}",
+            "hidden": true
+        },
+        {
+            "name": "DEBUGGER",
+            "cacheVariables": {
+                "DEBUGGER_INCLUDED": {
+                    "type": "BOOL",
+                    "value": "ON"
+                }
+            },
+            "hidden": true
+        },
+        {
+            "name": "WIN32",
+            "architecture": {
+                "value": "x64",
+                "strategy": "set"
+            },
+            "cacheVariables": {
+                "USE_QT": {
+                    "type": "BOOL",
+                    "value": "ON"
+                }
+            },
+            "hidden": true
+        },
+        {
+            "name": "win32-vs",
+            "inherits": [
+                "WIN32",
+                "VS"
+            ]
+        },
+        {
+            "name": "win32-vs-debugger",
+            "inherits": [
+                "WIN32",
+                "VS",
+                "DEBUGGER"
+            ]
+        }
+    ],
+    "buildPresets": [
+        {
+            "name": "win32-vs",
+            "configurePreset": "win32-vs",
+            "configuration": "RelWithDebInfo",
+            "targets": [
+                "Play",
+                "CodeGenTestSuite"
+            ]
+        },
+        {
+            "name": "win32-vs-debugger",
+            "configurePreset": "win32-vs-debugger",
+            "targets": [
+                "Play"
+            ]
+        }
+    ]
+}

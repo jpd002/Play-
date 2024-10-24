@@ -3,6 +3,7 @@
 #include "BootablesProcesses.h"
 #include "BootablesDbClient.h"
 #include "TheGamesDbClient.h"
+#include "BootableUtils.h"
 #include "DiskUtils.h"
 #include "PathUtils.h"
 #include "StringUtils.h"
@@ -38,26 +39,6 @@ static void BootableLog(const char* format, ...)
 #endif
 }
 
-bool IsBootableExecutablePath(const fs::path& filePath)
-{
-	auto extension = StringUtils::ToLower(filePath.extension().string());
-	return (extension == ".elf");
-}
-
-bool IsBootableDiscImagePath(const fs::path& filePath)
-{
-	const auto& supportedExtensions = DiskUtils::GetSupportedExtensions();
-	auto extension = StringUtils::ToLower(filePath.extension().string());
-	auto extensionIterator = supportedExtensions.find(extension);
-	return extensionIterator != std::end(supportedExtensions);
-}
-
-bool IsBootableArcadeDefPath(const fs::path& filePath)
-{
-	auto extension = filePath.extension().string();
-	return (extension == ".arcadedef");
-}
-
 bool DoesBootableExist(const fs::path& filePath)
 {
 	//TODO: Properly support S3 paths. Also, beware when implementing this because Android
@@ -77,16 +58,21 @@ bool TryRegisterBootable(const fs::path& path)
 {
 	try
 	{
-		std::string serial;
-		if(
-		    !BootablesDb::CClient::GetInstance().BootableExists(path) &&
-		    !IsBootableExecutablePath(path) &&
-		    !(IsBootableDiscImagePath(path) && DiskUtils::TryGetDiskId(path, &serial)) &&
-		    !IsBootableArcadeDefPath(path))
+		if(BootablesDb::CClient::GetInstance().BootableExists(path))
 		{
 			return false;
 		}
-		BootablesDb::CClient::GetInstance().RegisterBootable(path, path.filename().string().c_str(), serial.c_str());
+
+		BootableUtils::BOOTABLE_TYPE bootableType = BootableUtils::GetBootableType(path);
+		if(bootableType == BootableUtils::UNKNOWN)
+			return false;
+
+		std::string serial;
+		if(bootableType == BootableUtils::PS2_DISC)
+			if(!DiskUtils::TryGetDiskId(path, &serial))
+				return false;
+
+		BootablesDb::CClient::GetInstance().RegisterBootable(path, path.filename().string().c_str(), serial.c_str(), bootableType);
 		return true;
 	}
 	catch(...)

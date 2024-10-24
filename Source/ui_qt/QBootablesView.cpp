@@ -31,9 +31,36 @@ QBootablesView::QBootablesView(QWidget* parent)
 	m_proxyModel = new BootableModelProxy(this);
 	ui->listView->setModel(m_proxyModel);
 
-	CAppConfig::GetInstance().RegisterPreferenceInteger("ui.sortmethod", BootablesDb::CClient::SORT_METHOD_NONE);
-	m_sortingMethod = CAppConfig::GetInstance().GetPreferenceInteger("ui.sortmethod");
+	CAppConfig::GetInstance().RegisterPreferenceInteger("ui.sortmethod.v2", BootablesDb::CClient::SORT_METHOD_NONE);
+	m_sortingMethod = CAppConfig::GetInstance().GetPreferenceInteger("ui.sortmethod.v2") & BootablesDb::CClient::SORT_METHOD_NONE;
 	ui->comboBox->setCurrentIndex(m_sortingMethod);
+
+	CAppConfig::GetInstance().RegisterPreferenceInteger("ui.filterbootabletype", BootableUtils::PS2_DISC | BootableUtils::PS2_ARCADE | BootableUtils::PS2_ELF);
+	auto filter = CAppConfig::GetInstance().GetPreferenceInteger("ui.filterbootabletype");
+	ui->checkBox_ps2->setChecked(filter & BootableUtils::PS2_DISC);
+	ui->checkBox_ps2_arcade->setChecked(filter & BootableUtils::PS2_ARCADE);
+	ui->checkBox_ps2_elf->setChecked(filter & BootableUtils::PS2_ELF);
+
+	m_proxyModel->setBootableTypeFilterState(filter, 1);
+
+	auto updateFilterPref = [](auto proxyModel) {
+		CAppConfig::GetInstance().SetPreferenceInteger("ui.filterbootabletype", proxyModel->getBootableTypeFilterState());
+	};
+
+	connect(ui->checkBox_ps2, &QCheckBox::stateChanged, [this, updateFilterPref](int state) {
+		m_proxyModel->setBootableTypeFilterState(BootableUtils::PS2_DISC, state);
+		updateFilterPref(m_proxyModel);
+	});
+
+	connect(ui->checkBox_ps2_arcade, &QCheckBox::stateChanged, [this, updateFilterPref](int state) {
+		m_proxyModel->setBootableTypeFilterState(BootableUtils::PS2_ARCADE, state);
+		updateFilterPref(m_proxyModel);
+	});
+
+	connect(ui->checkBox_ps2_elf, &QCheckBox::stateChanged, [this, updateFilterPref](int state) {
+		m_proxyModel->setBootableTypeFilterState(BootableUtils::PS2_ELF, state);
+		updateFilterPref(m_proxyModel);
+	});
 
 	connect(ui->filterLineEdit, &QLineEdit::textChanged, m_proxyModel, &QSortFilterProxyModel::setFilterFixedString);
 	connect(ui->stateFilterComboBox, &QComboBox::currentTextChanged, m_proxyModel, &BootableModelProxy::setFilterState);
@@ -178,7 +205,7 @@ void QBootablesView::BootBootables(const QModelIndex& index)
 	auto src_index = m_proxyModel->mapToSource(index);
 	assert(src_index.isValid());
 	auto bootable = static_cast<BootableModel*>(m_proxyModel->sourceModel())->GetBootable(src_index);
-	m_bootCallback(bootable.path);
+	m_bootCallback(bootable);
 }
 
 void QBootablesView::on_listView_doubleClicked(const QModelIndex& index)
@@ -222,7 +249,7 @@ void QBootablesView::on_refresh_button_clicked()
 
 void QBootablesView::on_comboBox_currentIndexChanged(int index)
 {
-	CAppConfig::GetInstance().SetPreferenceInteger("ui.sortmethod", index);
+	CAppConfig::GetInstance().SetPreferenceInteger("ui.sortmethod.v2", index);
 	m_sortingMethod = index;
 	resetModel();
 }
@@ -315,6 +342,10 @@ void QBootablesView::on_reset_filter_button_clicked()
 {
 	ui->filterLineEdit->clear();
 	ui->stateFilterComboBox->setCurrentIndex(0);
+
+	ui->checkBox_ps2->setChecked(true);
+	ui->checkBox_ps2_arcade->setChecked(true);
+	ui->checkBox_ps2_elf->setChecked(true);
 }
 
 bool QBootablesView::IsProcessing()

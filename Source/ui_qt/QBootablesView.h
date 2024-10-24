@@ -22,7 +22,7 @@ class QBootablesView : public QWidget
 public:
 	explicit QBootablesView(QWidget* parent = 0);
 
-	using BootCallback = std::function<void(fs::path)>;
+	using BootCallback = std::function<void(const BootablesDb::Bootable&)>;
 
 	void SetupActions(BootCallback);
 	void AddMsgLabel(ElidedLabel*);

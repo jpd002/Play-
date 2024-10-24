@@ -10,6 +10,14 @@ project(Play_Libretro_Core)
 
 add_definitions(-DPLAY_VERSION="${PROJECT_Version}")
 
+if(NOT TARGET ui_shared)
+	add_subdirectory(
+		${CMAKE_CURRENT_SOURCE_DIR}/../ui_shared
+		${CMAKE_CURRENT_BINARY_DIR}/ui_shared
+	)
+endif()
+list(APPEND PROJECT_LIBS ui_shared)
+
 if(NOT TARGET PlayCore)
 	add_subdirectory(
 		${CMAKE_CURRENT_SOURCE_DIR}/../

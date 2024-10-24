@@ -6,6 +6,7 @@
 #include <QAbstractTableModel>
 #include <QStyledItemDelegate>
 #include "ui_shared/BootablesDbClient.h"
+#include "ui_shared/BootableUtils.h"
 
 class BootableModel : public QAbstractTableModel
 {
@@ -31,7 +32,7 @@ class BootableCoverQVariant
 {
 
 public:
-	explicit BootableCoverQVariant(std::string = "PH", std::string = "", fs::path = "", BootablesDb::BootableStateList = {});
+	explicit BootableCoverQVariant(std::string = "PH", std::string = "", fs::path = "", BootablesDb::BootableStateList = {}, BootableUtils::BOOTABLE_TYPE = BootableUtils::UNKNOWN);
 	~BootableCoverQVariant() = default;
 
 	void paint(QPainter* painter, const QRect& rect, const QPalette& palette, int mode) const;
@@ -41,6 +42,7 @@ public:
 	std::string GetTitle() const;
 	fs::path GetPath() const;
 	bool HasState(std::string);
+	int GetBootableType() const;
 
 private:
 	int GetPadding() const;
@@ -49,6 +51,7 @@ private:
 	fs::path m_path;
 	std::string m_statusColor;
 	BootablesDb::BootableStateList m_states;
+	BootableUtils::BOOTABLE_TYPE m_bootableType;
 };
 
 Q_DECLARE_METATYPE(BootableCoverQVariant)

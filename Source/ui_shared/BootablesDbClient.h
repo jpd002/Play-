@@ -7,6 +7,7 @@
 #include "Singleton.h"
 #include "sqlite/SqliteDb.h"
 #include "sqlite/SqliteStatement.h"
+#include "BootableUtils.h"
 
 namespace BootablesDb
 {
@@ -26,6 +27,7 @@ namespace BootablesDb
 		std::string overview;
 		time_t lastBootedTime = 0;
 		BootableStateList states;
+		BootableUtils::BOOTABLE_TYPE bootableType = BootableUtils::UNKNOWN;
 	};
 
 	class CClient : public CSingleton<CClient>
@@ -35,8 +37,8 @@ namespace BootablesDb
 		enum SORT_METHOD
 		{
 			SORT_METHOD_RECENT,
-			SORT_METHOD_HOMEBREW,
 			SORT_METHOD_NONE,
+			SORT_METHOD_HOMEBREW,
 			SORT_METHOD_ARCADE,
 		};
 
@@ -48,7 +50,7 @@ namespace BootablesDb
 		std::vector<Bootable> GetBootables(int32_t = SORT_METHOD_NONE);
 		BootableStateList GetStates();
 
-		void RegisterBootable(const fs::path&, const char*, const char*);
+		void RegisterBootable(const fs::path&, const char*, const char*, BootableUtils::BOOTABLE_TYPE);
 		void UnregisterBootable(const fs::path&);
 
 		void SetDiscId(const fs::path&, const char*);
@@ -61,7 +63,7 @@ namespace BootablesDb
 		Bootable ReadBootable(Framework::CSqliteStatement&);
 		BootableStateList GetGameStates(std::string);
 
-		void CheckDbVersion();
+		void UpgradeDb();
 
 		fs::path m_dbPath;
 		Framework::CSqliteDb m_db;

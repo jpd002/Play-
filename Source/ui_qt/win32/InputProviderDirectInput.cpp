@@ -46,13 +46,13 @@ std::string CInputProviderDirectInput::GetTargetDescription(const BINDINGTARGET&
 	DIDEVICEINSTANCE deviceInstance = {};
 	if(m_diManager->GetDeviceInfo(deviceId, &deviceInstance))
 	{
-		deviceName = string_cast<std::string>(deviceInstance.tszInstanceName);
+		deviceName = string_cast<std::string, wchar_t>(deviceInstance.tszInstanceName);
 	}
 
 	DIDEVICEOBJECTINSTANCE objectInstance = {};
 	if(m_diManager->GetDeviceObjectInfo(deviceId, target.keyId, &objectInstance))
 	{
-		deviceKeyName = string_cast<std::string>(objectInstance.tszName);
+		deviceKeyName = string_cast<std::string, wchar_t>(objectInstance.tszName);
 	}
 
 	return string_format("%s: %s", deviceName.c_str(), deviceKeyName.c_str());
@@ -67,7 +67,7 @@ std::vector<DEVICEINFO> CInputProviderDirectInput::GetDevices() const
 		DIDEVICEINSTANCE deviceInstance = {};
 		if(m_diManager->GetDeviceInfo(deviceGuid, &deviceInstance))
 		{
-			deviceName = string_cast<std::string>(deviceInstance.tszInstanceName);
+			deviceName = string_cast<std::string, wchar_t>(deviceInstance.tszInstanceName);
 		}
 		auto deviceId = GuidToDeviceId(deviceGuid);
 		devices.push_back({GetId(), deviceId, string_format("%s : 0x%X", deviceName.c_str(), deviceId)});
