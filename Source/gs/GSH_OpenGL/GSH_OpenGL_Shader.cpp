@@ -642,9 +642,15 @@ Framework::OpenGl::ProgramPtr CGSH_OpenGL::GeneratePresentProgram()
 		shaderBuilder << "in vec2 v_texCoord;" << std::endl;
 		shaderBuilder << "out vec4 fragColor;" << std::endl;
 		shaderBuilder << "uniform sampler2D g_texture;" << std::endl;
+		shaderBuilder << "uniform sampler2D g_texture2;" << std::endl;
+		shaderBuilder << "uniform float g_field;" << std::endl;
 		shaderBuilder << "void main()" << std::endl;
 		shaderBuilder << "{" << std::endl;
-		shaderBuilder << "	fragColor = texture(g_texture, v_texCoord);" << std::endl;
+		shaderBuilder << "	vec2 p = vec2(floor(gl_FragCoord.x), floor(gl_FragCoord.y));" << std::endl;
+		shaderBuilder << "	if (mod(p.y, 2.0) == g_field)" << std::endl;
+		shaderBuilder << "		fragColor = texture(g_texture, v_texCoord);" << std::endl;
+		shaderBuilder << "	else" << std::endl;
+		shaderBuilder << "		fragColor = texture(g_texture2, v_texCoord);" << std::endl;
 		shaderBuilder << "}" << std::endl;
 
 		pixelShader.SetSource(shaderBuilder.str().c_str());
