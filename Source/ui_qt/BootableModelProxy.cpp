@@ -21,6 +21,21 @@ void BootableModelProxy::setFilterState(const QString& state)
 	invalidateFilter();
 }
 
+void BootableModelProxy::setBootableTypeFilterState(int bitIndex, bool value)
+{
+	if(value)
+		m_bootableType |= bitIndex;
+	else
+		m_bootableType &= ~bitIndex;
+
+	invalidateFilter();
+}
+
+int BootableModelProxy::getBootableTypeFilterState()
+{
+	return m_bootableType;
+}
+
 bool BootableModelProxy::filterAcceptsRow(int sourceRow, const QModelIndex& sourceParent) const
 {
 	QModelIndex index = sourceModel()->index(sourceRow, 0, sourceParent);
@@ -32,6 +47,7 @@ bool BootableModelProxy::filterAcceptsRow(int sourceRow, const QModelIndex& sour
 		QString key = QString::fromStdString(bootablecover.GetKey());
 		QString title = QString::fromStdString(bootablecover.GetTitle());
 		QString path = PathToQString(bootablecover.GetPath());
+		auto bootableType = bootablecover.GetBootableType();
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
 		QRegularExpression regex = filterRegularExpression();
 		regex.setPatternOptions(QRegularExpression::CaseInsensitiveOption);
@@ -46,6 +62,11 @@ bool BootableModelProxy::filterAcceptsRow(int sourceRow, const QModelIndex& sour
 		if(!m_state.empty())
 		{
 			res &= bootablecover.HasState(m_state);
+		}
+
+		if(m_bootableType != 0)
+		{
+			res &= (bootableType & m_bootableType) != 0;
 		}
 		return res;
 	}

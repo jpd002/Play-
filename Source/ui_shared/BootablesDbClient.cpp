@@ -7,7 +7,7 @@
 
 using namespace BootablesDb;
 
-#define DATABASE_VERSION 2
+#define DATABASE_VERSION 3
 
 static const char* g_dbFileName = "bootables.db";
 
@@ -19,14 +19,15 @@ static const char* g_bootablesTableCreateStatement =
     "    title TEXT DEFAULT '',"
     "    coverUrl TEXT DEFAULT '',"
     "    lastBootedTime INTEGER DEFAULT 0,"
-    "    overview TEXT DEFAULT ''"
+    "    overview TEXT DEFAULT '',"
+    "    bootableType INTEGER DEFAULT 0"
     ")";
 
 CClient::CClient()
 {
 	m_dbPath = CAppConfig::GetInstance().GetBasePath() / g_dbFileName;
 
-	CheckDbVersion();
+	UpgradeDb();
 
 	m_db = Framework::CSqliteDb(Framework::PathUtils::GetNativeStringFromPath(m_dbPath).c_str(),
 	                            SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE);
@@ -100,12 +101,13 @@ std::vector<Bootable> CClient::GetBootables(int32_t sortMethod)
 	return bootables;
 }
 
-void CClient::RegisterBootable(const fs::path& path, const char* title, const char* discId)
+void CClient::RegisterBootable(const fs::path& path, const char* title, const char* discId, BootableUtils::BOOTABLE_TYPE bootableType)
 {
-	Framework::CSqliteStatement statement(m_db, "INSERT OR IGNORE INTO bootables (path, title, discId) VALUES (?,?,?)");
+	Framework::CSqliteStatement statement(m_db, "INSERT OR IGNORE INTO bootables (path, title, discId, bootableType) VALUES (?,?,?,?)");
 	statement.BindText(1, Framework::PathUtils::GetNativeStringFromPath(path).c_str());
 	statement.BindText(2, title, true);
 	statement.BindText(3, discId, true);
+	statement.BindInteger(4, bootableType);
 	statement.StepNoResult();
 }
 
@@ -207,30 +209,58 @@ Bootable CClient::ReadBootable(Framework::CSqliteStatement& statement)
 	bootable.overview = reinterpret_cast<const char*>(sqlite3_column_text(statement, 5));
 	bootable.lastBootedTime = sqlite3_column_int(statement, 4);
 	bootable.states = GetGameStates(bootable.discId);
+	bootable.bootableType = static_cast<BootableUtils::BOOTABLE_TYPE>(sqlite3_column_int(statement, 6));
 	return bootable;
 }
 
-void CClient::CheckDbVersion()
+void CClient::UpgradeDb()
 {
-	bool dbExistsAndMatchesVersion =
-	    [&]() {
-		    try
-		    {
-			    auto db = Framework::CSqliteDb(Framework::PathUtils::GetNativeStringFromPath(m_dbPath).c_str(),
-			                                   SQLITE_OPEN_READONLY);
+	try
+	{
+		auto db = Framework::CSqliteDb(Framework::PathUtils::GetNativeStringFromPath(m_dbPath).c_str(), SQLITE_OPEN_READWRITE);
 
-			    Framework::CSqliteStatement statement(db, "PRAGMA user_version");
-			    statement.StepWithResult();
-			    int version = sqlite3_column_int(statement, 0);
-			    return (version == DATABASE_VERSION);
-		    }
-		    catch(...)
-		    {
-			    return false;
-		    }
-	    }();
+		Framework::CSqliteStatement statement(db, "PRAGMA user_version");
+		statement.StepWithResult();
 
-	if(!dbExistsAndMatchesVersion)
+		auto currentVersion = sqlite3_column_int(statement, 0);
+		while(currentVersion < DATABASE_VERSION)
+		{
+			switch(currentVersion)
+			{
+			case 2:
+			{
+				Framework::CSqliteStatement statement(db, "ALTER TABLE bootables ADD COLUMN bootableType INTEGER DEFAULT 0");
+				statement.StepNoResult();
+
+				{
+					Framework::CSqliteStatement statement(db, "UPDATE bootables SET bootableType = ? WHERE path LIKE '%.arcade%';");
+					statement.BindInteger(1, BootableUtils::PS2_ARCADE);
+					statement.StepNoResult();
+				}
+				{
+					Framework::CSqliteStatement statement(db, "UPDATE bootables SET bootableType = ? WHERE path LIKE '%.elf%';");
+					statement.BindInteger(1, BootableUtils::PS2_ELF);
+					statement.StepNoResult();
+				}
+				{
+					Framework::CSqliteStatement statement(db, "UPDATE bootables SET bootableType = ? WHERE bootableType = 0;");
+					statement.BindInteger(1, BootableUtils::PS2_DISC);
+					statement.StepNoResult();
+				}
+
+				currentVersion = 3;
+			}
+			break;
+			default:
+				fs::remove(m_dbPath);
+				return;
+			}
+		}
+		auto query = string_format("PRAGMA user_version = %d", currentVersion);
+		Framework::CSqliteStatement versionStatement(db, query.c_str());
+		versionStatement.StepNoResult();
+	}
+	catch(...)
 	{
 		fs::remove(m_dbPath);
 	}

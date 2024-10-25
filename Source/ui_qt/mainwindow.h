@@ -91,7 +91,7 @@ private:
 	void saveState(int);
 	void buildResizeWindowMenu();
 	void resizeWindow(unsigned int, unsigned int);
-	void UpdateGSHandlerLabel(int);
+	void UpdateGSHandlerLabel();
 	void SetupBootableView();
 	void SetupDebugger();
 
@@ -99,6 +99,7 @@ private:
 
 	OutputWindow* m_outputwindow = nullptr;
 	QLabel* m_fpsLabel = nullptr;
+	QLabel* m_scaleFactorLabel = nullptr;
 	QLabel* m_cpuUsageLabel = nullptr;
 	QLabel* m_gsLabel = nullptr;
 #ifdef PROFILE

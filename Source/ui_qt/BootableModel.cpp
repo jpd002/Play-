@@ -31,7 +31,7 @@ QVariant BootableModel::data(const QModelIndex& index, int role) const
 	{
 		int pos = index.row() + index.column();
 		auto bootable = m_bootables.at(static_cast<unsigned int>(pos));
-		return QVariant::fromValue(BootableCoverQVariant(bootable.discId, bootable.title, bootable.path, bootable.states));
+		return QVariant::fromValue(BootableCoverQVariant(bootable.discId, bootable.title, bootable.path, bootable.states, bootable.bootableType));
 	}
 	return QVariant();
 }
@@ -69,11 +69,12 @@ void BootableModel::SetWidth(int width)
 }
 
 /* start of BootImageItemDelegate */
-BootableCoverQVariant::BootableCoverQVariant(std::string key, std::string title, fs::path path, BootablesDb::BootableStateList states)
+BootableCoverQVariant::BootableCoverQVariant(std::string key, std::string title, fs::path path, BootablesDb::BootableStateList states, BootableUtils::BOOTABLE_TYPE bootableType)
     : m_key(key)
     , m_title(title)
     , m_path(path)
     , m_states(states)
+    , m_bootableType(bootableType)
 {
 	for(auto state : states)
 	{
@@ -169,6 +170,11 @@ std::string BootableCoverQVariant::GetTitle() const
 fs::path BootableCoverQVariant::GetPath() const
 {
 	return m_path;
+}
+
+int BootableCoverQVariant::GetBootableType() const
+{
+	return m_bootableType;
 }
 
 bool BootableCoverQVariant::HasState(std::string state)

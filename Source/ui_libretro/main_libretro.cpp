@@ -3,7 +3,7 @@
 #include "Log.h"
 #include "AppConfig.h"
 #include "PS2VM.h"
-#include "DiskUtils.h"
+#include "ui_shared/BootableUtils.h"
 
 #include "PS2VM_Preferences.h"
 #include "GSH_OpenGL_Libretro.h"
@@ -473,22 +473,6 @@ void retro_reset(void)
 	first_run = false;
 }
 
-bool IsBootableExecutablePath(const fs::path& filePath)
-{
-	auto extension = filePath.extension().string();
-	std::transform(extension.begin(), extension.end(), extension.begin(), ::tolower);
-	return (extension == ".elf");
-}
-
-bool IsBootableDiscImagePath(const fs::path& filePath)
-{
-	const auto& supportedExtensions = DiskUtils::GetSupportedExtensions();
-	auto extension = filePath.extension().string();
-	std::transform(extension.begin(), extension.end(), extension.begin(), ::tolower);
-	auto extensionIterator = supportedExtensions.find(extension);
-	return extensionIterator != std::end(supportedExtensions);
-}
-
 bool retro_load_game(const retro_game_info* info)
 {
 	CLog::GetInstance().Print(LOG_NAME, "%s\n", __FUNCTION__);
@@ -507,11 +491,11 @@ bool retro_load_game(const retro_game_info* info)
 #endif
 
 	fs::path filePath = info->path;
-	if(IsBootableExecutablePath(filePath))
+	if(BootableUtils::IsBootableExecutablePath(filePath))
 	{
 		m_bootCommand = LastOpenCommand(BootType::ELF, filePath);
 	}
-	else if(IsBootableDiscImagePath(filePath))
+	else if(BootableUtils::IsBootableDiscImagePath(filePath))
 	{
 		m_bootCommand = LastOpenCommand(BootType::CD, filePath);
 		CAppConfig::GetInstance().SetPreferencePath(PREF_PS2_CDROM0_PATH, filePath);

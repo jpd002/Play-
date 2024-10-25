@@ -46,7 +46,7 @@
 #include "ui_debugmenu.h"
 #endif
 #include "input/PH_GenericInput.h"
-#include "DiskUtils.h"
+#include "ui_shared/BootableUtils.h"
 #include "PathUtils.h"
 #include <zstd_zlibwrapper.h>
 
@@ -494,6 +494,54 @@ void MainWindow::CreateStatusBar()
 	m_fpsLabel = new QLabel("");
 	m_fpsLabel->setAlignment(Qt::AlignHCenter);
 	m_fpsLabel->setMinimumSize(m_fpsLabel->sizeHint());
+	m_fpsLabel->setContextMenuPolicy(Qt::CustomContextMenu);
+
+	connect(m_fpsLabel, &QLabel::customContextMenuRequested, [&]() {
+		auto value = CAppConfig::GetInstance().GetPreferenceBoolean(PREF_PS2_LIMIT_FRAMERATE);
+		CAppConfig::GetInstance().SetPreferenceBoolean(PREF_PS2_LIMIT_FRAMERATE, !value);
+		if(m_virtualMachine)
+		{
+			m_virtualMachine->ReloadFrameRateLimit();
+		}
+	});
+
+	int factor = CAppConfig::GetInstance().GetPreferenceInteger(PREF_CGSH_OPENGL_RESOLUTION_FACTOR);
+	m_scaleFactorLabel = new QLabel();
+	m_scaleFactorLabel->setAlignment(Qt::AlignHCenter);
+	m_scaleFactorLabel->setMinimumSize(m_scaleFactorLabel->sizeHint());
+	m_scaleFactorLabel->setText(QString("%1x").arg(factor));
+	m_scaleFactorLabel->setContextMenuPolicy(Qt::CustomContextMenu);
+
+	connect(m_scaleFactorLabel, &QLabel::customContextMenuRequested, [&](const QPoint& pos) {
+		QMenu contextMenu(this);
+
+		int factor = CAppConfig::GetInstance().GetPreferenceInteger(PREF_CGSH_OPENGL_RESOLUTION_FACTOR);
+		for(int index = 0; index < 5; ++index)
+		{
+			int value = 1 << index;
+			QAction* action = contextMenu.addAction(QString("%1x").arg(value));
+			action->setCheckable(true);
+			action->setChecked(factor == value);
+
+			connect(action, &QAction::triggered, [this, index, value, factor]() mutable {
+				CAppConfig::GetInstance().SetPreferenceInteger(PREF_CGSH_OPENGL_RESOLUTION_FACTOR, value);
+				m_scaleFactorLabel->setText(QString("%1x").arg(value));
+
+				if(m_virtualMachine && factor != value)
+				{
+					outputWindow_resized();
+					auto gsHandler = m_virtualMachine->GetGSHandler();
+					if(gsHandler)
+					{
+						gsHandler->NotifyPreferencesChanged();
+					}
+				}
+				factor = value;
+			});
+		}
+
+		contextMenu.exec(m_scaleFactorLabel->mapToGlobal(pos));
+	});
 
 	m_cpuUsageLabel = new QLabel("");
 	m_cpuUsageLabel->setAlignment(Qt::AlignHCenter);
@@ -508,12 +556,12 @@ void MainWindow::CreateStatusBar()
 	statusBar()->addWidget(m_msgLabel, 1);
 	statusBar()->addWidget(m_fpsLabel);
 	statusBar()->addWidget(m_cpuUsageLabel);
+	statusBar()->addWidget(m_scaleFactorLabel);
 #ifdef HAS_GSH_VULKAN
 	if(GSH_Vulkan::CDeviceInfo::GetInstance().HasAvailableDevices())
 	{
 		m_gsLabel = new QLabel("");
-		auto gs_index = CAppConfig::GetInstance().GetPreferenceInteger(PREF_VIDEO_GS_HANDLER);
-		UpdateGSHandlerLabel(gs_index);
+		UpdateGSHandlerLabel();
 
 		m_gsLabel->setAlignment(Qt::AlignHCenter);
 		m_gsLabel->setMinimumSize(m_gsLabel->sizeHint());
@@ -523,8 +571,11 @@ void MainWindow::CreateStatusBar()
 			auto gs_index = CAppConfig::GetInstance().GetPreferenceInteger(PREF_VIDEO_GS_HANDLER);
 			gs_index = (gs_index + 1) % SettingsDialog::GS_HANDLERS::MAX_HANDLER;
 			CAppConfig::GetInstance().SetPreferenceInteger(PREF_VIDEO_GS_HANDLER, gs_index);
-			SetupGsHandler();
-			UpdateGSHandlerLabel(gs_index);
+			if(m_virtualMachine)
+			{
+				SetupGsHandler();
+			}
+			UpdateGSHandlerLabel();
 		});
 		statusBar()->addWidget(m_gsLabel);
 	}
@@ -540,6 +591,7 @@ void MainWindow::CreateStatusBar()
 
 void MainWindow::updateStats()
 {
+	auto unlockedFps = !CAppConfig::GetInstance().GetPreferenceBoolean(PREF_PS2_LIMIT_FRAMERATE);
 	uint32 frames = CStatsManager::GetInstance().GetFrames();
 	uint32 drawCalls = CStatsManager::GetInstance().GetDrawCalls();
 	auto cpuUtilisation = CStatsManager::GetInstance().GetCpuUtilisationInfo();
@@ -547,7 +599,7 @@ void MainWindow::updateStats()
 #ifdef PROFILE
 	m_profileStatsLabel->setText(QString::fromStdString(CStatsManager::GetInstance().GetProfilingInfo()));
 #endif
-	m_fpsLabel->setText(QString("%1 f/s, %2 dc/f").arg(frames).arg(dcpf));
+	m_fpsLabel->setText(QString("%1%2 f/s, %3 dc/f").arg(frames).arg(unlockedFps ? " (U)" : "").arg(dcpf));
 
 	auto eeUsageRatio = CStatsManager::ComputeCpuUsageRatio(cpuUtilisation.eeIdleTicks, cpuUtilisation.eeTotalTicks);
 	m_cpuUsageLabel->setText(QString("EE CPU: %1%").arg(static_cast<int>(eeUsageRatio)));
@@ -569,7 +621,6 @@ void MainWindow::on_actionSettings_triggered()
 		auto new_gs_index = CAppConfig::GetInstance().GetPreferenceInteger(PREF_VIDEO_GS_HANDLER);
 		if(gs_index != new_gs_index)
 		{
-			UpdateGSHandlerLabel(new_gs_index);
 			SetupGsHandler();
 		}
 		else
@@ -581,6 +632,10 @@ void MainWindow::on_actionSettings_triggered()
 				gsHandler->NotifyPreferencesChanged();
 			}
 		}
+	}
+	else
+	{
+		UpdateGSHandlerLabel();
 	}
 }
 
@@ -1102,9 +1157,10 @@ void MainWindow::on_actionList_Bootables_triggered()
 	ui->stackedWidget->setCurrentIndex(1 - ui->stackedWidget->currentIndex());
 }
 
-void MainWindow::UpdateGSHandlerLabel(int gs_index)
+void MainWindow::UpdateGSHandlerLabel()
 {
 #if HAS_GSH_VULKAN
+	auto gs_index = CAppConfig::GetInstance().GetPreferenceInteger(PREF_VIDEO_GS_HANDLER);
 	switch(gs_index)
 	{
 	default:
@@ -1116,6 +1172,9 @@ void MainWindow::UpdateGSHandlerLabel(int gs_index)
 		break;
 	}
 #endif
+
+	int factor = CAppConfig::GetInstance().GetPreferenceInteger(PREF_CGSH_OPENGL_RESOLUTION_FACTOR);
+	m_scaleFactorLabel->setText(QString("%1x").arg(factor));
 }
 
 void MainWindow::SetupBootableView()
@@ -1125,28 +1184,27 @@ void MainWindow::SetupBootableView()
 
 	bootablesView->AddMsgLabel(m_msgLabel);
 
-	QBootablesView::BootCallback bootGameCallback = [&, showEmu](fs::path filePath) {
+	QBootablesView::BootCallback bootGameCallback = [&, showEmu](const BootablesDb::Bootable& bootable) {
 		try
 		{
-			if(IsBootableDiscImagePath(filePath))
+			switch(bootable.bootableType)
 			{
-				LoadCDROM(filePath);
+			case BootableUtils::PS2_DISC:
+				LoadCDROM(bootable.path);
 				BootCDROM();
-			}
-			else if(IsBootableExecutablePath(filePath))
-			{
-				BootElf(filePath);
-			}
-			else if(IsBootableArcadeDefPath(filePath))
-			{
-				BootArcadeMachine(filePath);
-			}
-			else
-			{
+				break;
+			case BootableUtils::PS2_ELF:
+				BootElf(bootable.path);
+				break;
+			case BootableUtils::PS2_ARCADE:
+				BootArcadeMachine(bootable.path);
+				break;
+			default:
 				QMessageBox messageBox;
 				QString invalid("Invalid File Format.");
 				messageBox.critical(this, this->windowTitle(), invalid);
 				messageBox.show();
+				break;
 			}
 			showEmu();
 		}

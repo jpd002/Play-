@@ -3,8 +3,6 @@
 #include "filesystem_def.h"
 #include <set>
 
-bool IsBootableExecutablePath(const fs::path&);
-bool IsBootableDiscImagePath(const fs::path&);
 bool IsBootableArcadeDefPath(const fs::path&);
 bool DoesBootableExist(const fs::path&);
 bool TryRegisterBootable(const fs::path&);
