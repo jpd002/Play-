@@ -8,7 +8,7 @@ public class BootablesInterop
 	}
 
 	// changes to SORT_* order should also be reflected in
-	// NavigationDrawerFragment.onActivityCreated adpter string list 
+	// NavigationDrawerFragment.onActivityCreated adapter string list 
 	public static final int SORT_RECENT = 0;
 	public static final int SORT_NONE = 1;
 	public static final int SORT_HOMEBREW = 2;
