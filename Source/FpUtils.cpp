@@ -10,7 +10,7 @@
 #elif TARGET_CPU_ARM64
 #define DENORM_AARCH64
 #endif
-#elif defined(__ANDROID__) || defined(__linux__) || defined(__FreeBSD__)
+#elif !defined(__EMSCRIPTEN__)
 #if defined(__i386__) || defined(__x86_64__)
 #define DENORM_X86
 #elif defined(__aarch64__)
