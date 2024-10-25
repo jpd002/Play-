@@ -139,7 +139,7 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 		gameInfo = new GameInfo(MainActivity.this);
 
 		SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
-		sortMethod = sp.getInt("sortMethod", SORT_NONE);
+		sortMethod = sp.getInt("sortMethod.v2", SORT_NONE);
 		onNavigationDrawerItemSelected(sortMethod);
 		sp.registerOnSharedPreferenceChangeListener(this);
 
@@ -339,7 +339,7 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 		prepareFileListView(false);
 
 		SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
-		sp.edit().putInt("sortMethod", sortMethod).apply();
+		sp.edit().putInt("sortMethod.v2", sortMethod).apply();
 	}
 
 	@Override

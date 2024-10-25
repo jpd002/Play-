@@ -8,8 +8,8 @@ public class BootablesInterop
 	}
 
 	public static final int SORT_RECENT = 0;
-	public static final int SORT_HOMEBREW = 1;
-	public static final int SORT_NONE = 2;
+	public static final int SORT_NONE = 1;
+	public static final int SORT_HOMEBREW = 2;
 
 	public static native void scanBootables(String[] rootDirectories);
 	public static native void fullScanBootables(String[] rootDirectories);
