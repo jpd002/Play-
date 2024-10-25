@@ -74,7 +74,7 @@ public class NavigationDrawerFragment extends Fragment
 		else
 		{
 			// Select either the default item (0) or the last selected item.
-			mCurrentSelectedPosition = sp.getInt("sortMethod", BootablesInterop.SORT_NONE);
+			mCurrentSelectedPosition = sp.getInt("sortMethod.v2", BootablesInterop.SORT_NONE);
 		}
 	}
 
@@ -91,8 +91,8 @@ public class NavigationDrawerFragment extends Fragment
 				android.R.id.text1,
 				new String[]{
 						getString(R.string.file_list_recent),
-						getString(R.string.file_list_homebrew),
 						getString(R.string.file_list_default),
+						getString(R.string.file_list_homebrew),
 				}));
 		//Thunder07: Using 'post' might seem weird, but thats the only way I found for setting the selection
 		//highlight on startup, every other way returns null.
