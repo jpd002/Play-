@@ -8,7 +8,7 @@
 #if defined(__APPLE__)
 #include <sys/disk.h>
 #include <sys/stat.h>
-#elif defined(__linux__) || defined(__FreeBSD__) || defined(__EMSCRIPTEN__)
+#else
 #include <unistd.h>
 #include <sys/statvfs.h>
 #endif
@@ -29,15 +29,13 @@ CVolumeStream::CVolumeStream(const char* volumePath)
 	{
 		throw std::runtime_error("Can't get sector size.");
 	}
-#elif defined(__linux__) || defined(__FreeBSD__) || defined(__EMSCRIPTEN__)
+#else
 	struct statvfs s;
 	if(fstatvfs(m_fd, &s))
 	{
 		throw std::runtime_error("Can't get sector size.");
 	}
 	m_sectorSize = s.f_bsize;
-#else
-#error Unsupported
 #endif
 	m_cache = malloc(m_sectorSize);
 	m_cacheSector = m_sectorSize - 1;
