@@ -26,13 +26,13 @@
             "hidden": true
         },
         {
-            "name": "WIN32",
-            "architecture": {
-                "value": "x64",
-                "strategy": "set"
-            },
+            "name": "WINDOWS",
             "cacheVariables": {
                 "USE_QT": {
+                    "type": "BOOL",
+                    "value": "ON"
+                },
+                "BUILD_PSFPLAYER": {
                     "type": "BOOL",
                     "value": "ON"
                 }
@@ -40,16 +40,41 @@
             "hidden": true
         },
         {
-            "name": "win32-vs",
+            "name": "WINDOWS-X86_32",
+            "inherits": "WINDOWS",
+            "architecture": {
+                "value": "Win32",
+                "strategy": "set"
+            },
+            "hidden": true
+        },
+        {
+            "name": "WINDOWS-X86_64",
+            "inherits": "WINDOWS",
+            "architecture": {
+                "value": "x64",
+                "strategy": "set"
+            },
+            "hidden": true
+        },
+        {
+            "name": "windows-x86_32-vs",
             "inherits": [
-                "WIN32",
+                "WINDOWS-X86_32",
                 "VS"
             ]
         },
         {
-            "name": "win32-vs-debugger",
+            "name": "windows-x86_64-vs",
             "inherits": [
-                "WIN32",
+                "WINDOWS-X86_64",
+                "VS"
+            ]
+        },
+        {
+            "name": "windows-debugger-x86_64-vs",
+            "inherits": [
+                "WINDOWS-X86_64",
                 "VS",
                 "DEBUGGER"
             ]
@@ -57,8 +82,8 @@
     ],
     "buildPresets": [
         {
-            "name": "win32-vs",
-            "configurePreset": "win32-vs",
+            "name": "windows-x86_64-vs",
+            "configurePreset": "windows-x86_64-vs",
             "configuration": "RelWithDebInfo",
             "targets": [
                 "Play",
@@ -66,8 +91,8 @@
             ]
         },
         {
-            "name": "win32-vs-debugger",
-            "configurePreset": "win32-vs-debugger",
+            "name": "windows-debugger-x86_64-vs",
+            "configurePreset": "windows-debugger-x86_64-vs",
             "targets": [
                 "Play"
             ]
