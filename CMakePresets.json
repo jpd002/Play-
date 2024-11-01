@@ -16,6 +16,13 @@
             "hidden": true
         },
         {
+            "name": "XCODE",
+            "displayName": "Xcode",
+            "generator": "Xcode",
+            "binaryDir": "${sourceDir}/build_cmake/build/${presetName}",
+            "hidden": true
+        },
+        {
             "name": "DEBUGGER",
             "cacheVariables": {
                 "DEBUGGER_INCLUDED": {
@@ -58,6 +65,20 @@
             "hidden": true
         },
         {
+            "name": "MACOS",
+            "cacheVariables": {
+                "USE_QT": {
+                    "type": "BOOL",
+                    "value": "ON"
+                },
+                "BUILD_PSFPLAYER": {
+                    "type": "BOOL",
+                    "value": "ON"
+                }
+            },
+            "hidden": true
+        },
+        {
             "name": "windows-x86_32-vs",
             "inherits": [
                 "WINDOWS-X86_32",
@@ -76,6 +97,21 @@
             "inherits": [
                 "WINDOWS-X86_64",
                 "VS",
+                "DEBUGGER"
+            ]
+        },
+        {
+            "name": "macos-xcode",
+            "inherits": [
+                "MACOS",
+                "XCODE"
+            ]
+        },
+        {
+            "name": "macos-debugger-xcode",
+            "inherits": [
+                "MACOS",
+                "XCODE",
                 "DEBUGGER"
             ]
         }
