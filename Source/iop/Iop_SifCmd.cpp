@@ -840,7 +840,7 @@ uint32 CSifCmd::SifSendCmd(uint32 commandId, uint32 packetPtr, uint32 packetSize
 
 	m_sifMan.SendPacket(packetData, packetSize);
 
-	return 1;
+	return CSifMan::SIFDMA_XFER_ID;
 }
 
 void CSifCmd::SifBindRpc(CMIPS& context)

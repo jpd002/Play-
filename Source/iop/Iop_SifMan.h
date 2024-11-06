@@ -11,6 +11,8 @@ namespace Iop
 	class CSifMan : public CModule
 	{
 	public:
+		static constexpr uint32 SIFDMA_XFER_ID = 0x2222;
+
 		typedef std::function<void(const std::string&)> ModuleResetHandler;
 		typedef std::function<void(uint32)> CustomCommandHandler;
 

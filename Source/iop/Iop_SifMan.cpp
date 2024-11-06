@@ -13,8 +13,6 @@
 
 using namespace Iop;
 
-constexpr uint32 SIFDMA_XFER_ID = 0x2222;
-
 std::string CSifMan::GetId() const
 {
 	return "sifman";
