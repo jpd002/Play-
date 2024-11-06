@@ -3,7 +3,6 @@
 #include "filesystem_def.h"
 #include <set>
 
-bool IsBootableArcadeDefPath(const fs::path&);
 bool DoesBootableExist(const fs::path&);
 bool TryRegisterBootable(const fs::path&);
 bool TryUpdateLastBootedTime(const fs::path&);
