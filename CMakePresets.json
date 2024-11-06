@@ -79,6 +79,20 @@
             "hidden": true
         },
         {
+            "name": "IOS",
+            "toolchainFile": "${sourceDir}/deps/Dependencies/cmake-ios/ios.cmake",
+            "cacheVariables": {
+                "TARGET_IOS": {
+                    "type": "BOOL",
+                    "value": "ON"
+                },
+                "BUILD_PSFPLAYER": {
+                    "type": "BOOL",
+                    "value": "ON"
+                }
+            }
+        },
+        {
             "name": "windows-x86_32-vs",
             "inherits": [
                 "WINDOWS-X86_32",
@@ -113,6 +127,13 @@
                 "MACOS",
                 "XCODE",
                 "DEBUGGER"
+            ]
+        },
+        {
+            "name": "ios-xcode",
+            "inherits": [
+                "IOS",
+                "XCODE"
             ]
         }
     ],
