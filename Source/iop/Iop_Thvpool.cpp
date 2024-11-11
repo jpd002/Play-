@@ -7,6 +7,7 @@ using namespace Iop;
 
 #define FUNCTION_CREATEVPL "CreateVpl"
 #define FUNCTION_DELETEVPL "DeleteVpl"
+#define FUNCTION_ALLOCATEVPL "AllocateVpl"
 #define FUNCTION_PALLOCATEVPL "pAllocateVpl"
 #define FUNCTION_FREEVPL "FreeVpl"
 #define FUNCTION_REFERVPLSTATUS "ReferVplStatus"
@@ -30,6 +31,9 @@ std::string CThvpool::GetFunctionName(unsigned int functionId) const
 		break;
 	case 5:
 		return FUNCTION_DELETEVPL;
+		break;
+	case 6:
+		return FUNCTION_ALLOCATEVPL;
 		break;
 	case 7:
 		return FUNCTION_PALLOCATEVPL;
@@ -57,6 +61,11 @@ void CThvpool::Invoke(CMIPS& context, unsigned int functionId)
 	case 5:
 		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(DeleteVpl(
 		    context.m_State.nGPR[CMIPS::A0].nV0));
+		break;
+	case 6:
+		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(AllocateVpl(
+		    context.m_State.nGPR[CMIPS::A0].nV0,
+		    context.m_State.nGPR[CMIPS::A1].nV0));
 		break;
 	case 7:
 		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(pAllocateVpl(
@@ -91,6 +100,13 @@ uint32 CThvpool::DeleteVpl(uint32 vplId)
 	CLog::GetInstance().Print(LOG_NAME, FUNCTION_DELETEVPL "(vplId = %d);\r\n",
 	                          vplId);
 	return m_bios.DeleteVpl(vplId);
+}
+
+uint32 CThvpool::AllocateVpl(uint32 vplId, uint32 size)
+{
+	CLog::GetInstance().Print(LOG_NAME, FUNCTION_ALLOCATEVPL "(vplId = %d, size = 0x%08X);\r\n",
+	                          vplId, size);
+	return m_bios.AllocateVpl(vplId, size);
 }
 
 uint32 CThvpool::pAllocateVpl(uint32 vplId, uint32 size)

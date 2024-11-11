@@ -282,6 +282,7 @@ public:
 
 	uint32 CreateVpl(uint32);
 	uint32 DeleteVpl(uint32);
+	uint32 AllocateVpl(uint32, uint32);
 	uint32 pAllocateVpl(uint32, uint32);
 	uint32 FreeVpl(uint32, uint32);
 	uint32 ReferVplStatus(uint32, uint32);

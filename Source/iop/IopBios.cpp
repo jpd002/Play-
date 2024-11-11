@@ -2762,6 +2762,17 @@ uint32 CIopBios::DeleteVpl(uint32 vplId)
 	return 0;
 }
 
+uint32 CIopBios::AllocateVpl(uint32 vplId, uint32 size)
+{
+	uint32 result = pAllocateVpl(vplId, size);
+	if(result == KERNEL_RESULT_ERROR_NO_MEMORY)
+	{
+		CLog::GetInstance().Warn(LOGNAME, "No memory left while calling AllocateVpl, should be waiting. (not implemented)");
+		assert(false);
+	}
+	return result;
+}
+
 uint32 CIopBios::pAllocateVpl(uint32 vplId, uint32 size)
 {
 	auto vpl = m_vpls[vplId];
