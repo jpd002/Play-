@@ -90,7 +90,8 @@
                     "type": "BOOL",
                     "value": "ON"
                 }
-            }
+            },
+            "hidden": true
         },
         {
             "name": "windows-x86_32-vs",
