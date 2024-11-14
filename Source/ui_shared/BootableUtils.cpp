@@ -46,8 +46,7 @@ BootableUtils::BOOTABLE_TYPE BootableUtils::GetBootableType(const fs::path& file
 
 			auto systemConfig = DiskUtils::ParseSystemConfigFile(systemConfigFile.get());
 
-			auto bootItemIterator = systemConfig.find("BOOT2");
-			if(bootItemIterator != std::end(systemConfig))
+			if(auto bootItemIterator = systemConfig.find("BOOT2"); bootItemIterator != std::end(systemConfig))
 			{
 				return BootableUtils::BOOTABLE_TYPE::PS2_DISC;
 			}

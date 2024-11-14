@@ -63,7 +63,7 @@ bool TryRegisterBootable(const fs::path& path)
 			return false;
 		}
 
-		BootableUtils::BOOTABLE_TYPE bootableType = BootableUtils::GetBootableType(path);
+		auto bootableType = BootableUtils::GetBootableType(path);
 		if(bootableType == BootableUtils::UNKNOWN)
 			return false;
 
