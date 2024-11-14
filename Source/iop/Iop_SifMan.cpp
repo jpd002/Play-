@@ -130,7 +130,7 @@ uint32 CSifMan::SifDmaStat(uint32 transferId)
 {
 	CLog::GetInstance().Print(LOG_NAME, FUNCTION_SIFDMASTAT "(transferId = %X);\r\n",
 	                          transferId);
-	assert(transferId == SIFDMA_XFER_ID);
+	assert((transferId == 0) || (transferId == SIFDMA_XFER_ID));
 	if(m_moduleData->dmaTransferTime != 0)
 	{
 		return 0;
