@@ -110,6 +110,7 @@ private:
 	void PABSW();
 	void PCEQW();
 	void PMINW();
+	void PABSH();
 	void PCEQH();
 	void PMINH();
 	void PCEQB();

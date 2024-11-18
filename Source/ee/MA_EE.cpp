@@ -848,6 +848,60 @@ void CMA_EE::PMINW()
 	PullVector(m_nRD);
 }
 
+//05
+void CMA_EE::PABSH()
+{
+	if(m_nRD == 0) return;
+
+	//RD = (RT != 0x8000) ? |RT| : 0x7FFF;
+
+	//Generate mask for overflow
+	m_codeGen->MD_PushCstExpand(0x80008000U);
+	m_codeGen->MD_PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT]));
+	m_codeGen->MD_CmpEqH();
+	uint32 isOverflowMaskCursor = m_codeGen->GetTopCursor();
+
+	//Generate mask for positive number
+	m_codeGen->MD_PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT]));
+	m_codeGen->MD_PushCstExpand(0xFFFFFFFFU);
+	m_codeGen->MD_CmpGtH();
+	uint32 isPositiveMaskCursor = m_codeGen->GetTopCursor();
+
+	//Compute neg(rt)
+	m_codeGen->MD_PushCstExpand(0U);
+	m_codeGen->MD_PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT]));
+	m_codeGen->MD_SubH();
+
+	//Mask result with not(isPositiveMaskCursor)
+	m_codeGen->PushCursor(isPositiveMaskCursor);
+	m_codeGen->MD_Not();
+	m_codeGen->MD_And();
+
+	//Mask input with isPositiveMaskCursor and combine with neg(rt)
+	m_codeGen->MD_PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT]));
+	m_codeGen->PushCursor(isPositiveMaskCursor);
+	m_codeGen->MD_And();
+	m_codeGen->MD_Or();
+
+	//Mask result with not(isOverflowMaskCursor)
+	m_codeGen->PushCursor(isOverflowMaskCursor);
+	m_codeGen->MD_Not();
+	m_codeGen->MD_And();
+
+	//Combine with overflow
+	m_codeGen->PushCursor(isOverflowMaskCursor);
+	m_codeGen->MD_PushCstExpand(0x7FFF7FFFU);
+	m_codeGen->MD_And();
+	m_codeGen->MD_Or();
+
+	//Save result
+	m_codeGen->MD_PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD]));
+
+	//Discard our masks
+	m_codeGen->PullTop();
+	m_codeGen->PullTop();
+}
+
 //06
 void CMA_EE::PCEQH()
 {
@@ -2035,7 +2089,7 @@ CMA_EE::InstructionFuncConstant CMA_EE::m_pOpMmi0[0x20] =
 CMA_EE::InstructionFuncConstant CMA_EE::m_pOpMmi1[0x20] = 
 {
 	//0x00
-	&CMA_EE::Illegal,		&CMA_EE::PABSW,			&CMA_EE::PCEQW,			&CMA_EE::PMINW,			&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::PCEQH,			&CMA_EE::PMINH,
+	&CMA_EE::Illegal,		&CMA_EE::PABSW,			&CMA_EE::PCEQW,			&CMA_EE::PMINW,			&CMA_EE::Illegal,		&CMA_EE::PABSH,			&CMA_EE::PCEQH,			&CMA_EE::PMINH,
 	//0x08
 	&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::PCEQB,			&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,
 	//0x10

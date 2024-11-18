@@ -146,7 +146,7 @@ INSTRUCTION CMA_EE::m_cReflMmi1[32] =
 	{	"PCEQW",	NULL,			CopyMnemonic,		ReflOpRdRsRt,		NULL,				NULL			},
 	{	"PMINW",	NULL,			CopyMnemonic,		ReflOpRdRsRt,		NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
+	{	"PABSH",	NULL,			CopyMnemonic,		ReflOpRdRt,			NULL,				NULL			},
 	{	"PCEQH",	NULL,			CopyMnemonic,		ReflOpRdRsRt,		NULL,				NULL			},
 	{	"PMINH",	NULL,			CopyMnemonic,		ReflOpRdRsRt,		NULL,				NULL			},
 	//0x08
