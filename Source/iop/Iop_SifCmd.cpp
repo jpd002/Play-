@@ -949,6 +949,16 @@ void CSifCmd::SifRegisterRpc(CMIPS& context)
 
 	if(serverDataAddr != 0)
 	{
+		if(buffer == 0)
+		{
+			//This is needed by Pia Carrot e Yokoso: GO Summer Fair.
+			//Game passes 0 for buffer and we have a check in ProcessInvocation to prevent copying RPC call
+			//parameters to address 0. On a real PS2, it probably doesn't really matter, but this is a
+			//questionable thing to do, so, let's be safe and allocate some buffer for the game.
+			CLog::GetInstance().Warn(LOG_NAME, "SifRegisterRpc: address 0 provided for RPC server buffer, allocating dummy buffer.\r\n");
+			buffer = m_sysMem.AllocateMemory(0x100, 0, 0);
+		}
+
 		auto serverData = reinterpret_cast<SIFRPCSERVERDATA*>(&m_ram[serverDataAddr]);
 		serverData->serverId = serverId;
 		serverData->function = function;
