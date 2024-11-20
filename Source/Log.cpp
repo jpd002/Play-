@@ -1,6 +1,5 @@
-#include <stdarg.h>
-#include <time.h>
 #include "Log.h"
+#include <set>
 #include "AppConfig.h"
 #include "PathUtils.h"
 #include "StdStreamUtils.h"
@@ -8,6 +7,13 @@
 #define LOG_PATH "logs"
 
 #define PREF_LOG_SHOWPRINTS "log.showprints"
+
+// clang-format off
+static const std::set<std::string, std::less<>> g_allowedLogs =
+{
+	//"iop_mcserv",
+};
+// clang-format on
 
 CLog::CLog()
 {
@@ -22,7 +28,7 @@ CLog::CLog()
 void CLog::Print(const char* logName, const char* format, ...)
 {
 #if defined(_DEBUG) && !defined(DISABLE_LOGGING)
-	if(!m_showPrints) return;
+	if(!m_showPrints && !g_allowedLogs.count(logName)) return;
 	auto& logStream(GetLog(logName));
 	va_list args;
 	va_start(args, format);
