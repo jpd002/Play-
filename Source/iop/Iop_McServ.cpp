@@ -92,8 +92,8 @@ std::string CMcServ::EncodeMcName(const std::string& inputName)
 	{
 		auto inputChar = inputName[i];
 		if(inputChar == 0) break;
-		//':' is not allowed on Windows
-		if(inputChar == ':')
+		//Encode problematic characters (for Windows)
+		if((inputChar == ':') || (inputChar == '\\'))
 		{
 			result += string_format("%%%02X", inputChar);
 		}
