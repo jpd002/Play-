@@ -1,5 +1,6 @@
 #include "Log.h"
 #include <set>
+#include <cstdarg>
 #include "AppConfig.h"
 #include "PathUtils.h"
 #include "StdStreamUtils.h"
