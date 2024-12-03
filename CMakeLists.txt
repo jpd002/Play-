@@ -89,6 +89,7 @@ if(BUILD_TESTS)
 	add_subdirectory(deps/Framework/build_cmake/Tests)
 endif()
 
+add_subdirectory(tools/DiscChecker)
 add_subdirectory(tools/NamcoSys147NANDTools)
 
 if(BUILD_PSFPLAYER)
