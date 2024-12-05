@@ -17,8 +17,8 @@ CChdImageStream::CChdImageStream(std::unique_ptr<Framework::CStream> baseStream)
 		throw std::runtime_error("Failed to open CHD file.");
 	}
 	auto header = chd_get_header(m_chd);
+	m_unitCount = header->unitcount;
 	m_unitSize = header->unitbytes;
-	m_hunkCount = header->hunkcount;
 	m_hunkSize = header->hunkbytes;
 	m_hunkBuffer.resize(m_hunkSize);
 }
@@ -82,5 +82,5 @@ uint64 CChdImageStream::Write(const void* buffer, uint64 size)
 
 uint64 CChdImageStream::GetTotalSize() const
 {
-	return m_hunkCount * m_hunkSize;
+	return m_unitCount * m_unitSize;
 }

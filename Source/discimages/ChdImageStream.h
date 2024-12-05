@@ -27,8 +27,8 @@ protected:
 	std::unique_ptr<Framework::CStream> m_baseStream;
 	core_file* m_file = nullptr;
 	chd_file* m_chd = nullptr;
+	uint32 m_unitCount = 0;
 	uint32 m_unitSize = 0;
-	uint32 m_hunkCount = 0;
 	uint32 m_hunkSize = 0;
 	uint64 m_position = 0;
 	std::vector<uint8> m_hunkBuffer;
