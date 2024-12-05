@@ -38,6 +38,7 @@ uint64 CMultiImageStream::Tell()
 uint64 CMultiImageStream::Read(void* buffer, uint64 size)
 {
 	auto typedBuffer = reinterpret_cast<uint8*>(buffer);
+	auto result = size;
 	while(size != 0)
 	{
 		auto currentStreamIterator = m_streamMapping.lower_bound(m_position);
@@ -57,6 +58,7 @@ uint64 CMultiImageStream::Read(void* buffer, uint64 size)
 		assert(result == readSize);
 		size -= readSize;
 	}
+	return result;
 }
 	
 uint64 CMultiImageStream::Write(const void*, uint64)
