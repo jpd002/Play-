@@ -63,10 +63,10 @@ target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
 
 if(TARGET_PLATFORM_WIN32)
 	find_program(WINDEPLOYQT_EXE windeployqt HINTS "${QT_BINARY_DIRECTORY}")
-	add_custom_command(TARGET Play POST_BUILD
+	add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
 		COMMAND "${WINDEPLOYQT_EXE}" $<IF:$<CONFIG:Debug>,--debug,--release>
 									 --no-translations
 									 --no-compiler-runtime
-									 "$<TARGET_FILE:Play>"
+									 "$<TARGET_FILE:${PROJECT_NAME}>"
 	)
 endif()
