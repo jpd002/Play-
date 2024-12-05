@@ -38,6 +38,8 @@ set(QT_RESOURCES
 )
 
 set(QT_SOURCES
+	DiscUtils.cpp
+	DiscUtils.h
 	Main.cpp
 	MainWindow.cpp
 	MainWindow.h

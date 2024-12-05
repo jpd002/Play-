@@ -4,6 +4,7 @@
 #include "ui_MainWindow.h"
 #include "../../Source/DiskUtils.h"
 #include "../../Source/ui_qt/QtUtils.h"
+#include "DiscUtils.h"
 #include "string_format.h"
 
 CMainWindow::CMainWindow(QWidget* parent)
@@ -47,8 +48,8 @@ void CMainWindow::on_computeChecksumButton_clicked()
 {
 	if(m_currentImagePath.empty()) return;
 	auto opticalMedia = DiskUtils::CreateOpticalMediaFromPath(m_currentImagePath);
-	//uint32 checksum = DiscUtils::Checksum(opticalMedia);
-	//ui->checksumEdit->setText(string_format("%08X", checksum).c_str());
+	uint32 checksum = DiscUtils::Checksum(opticalMedia);
+	ui->checksumEdit->setText(string_format("%08X", checksum).c_str());
 }
 
 void CMainWindow::on_openRedumpButton_clicked()
