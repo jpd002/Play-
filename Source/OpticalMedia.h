@@ -1,5 +1,6 @@
 #pragma once
 
+#include <vector>
 #include "Stream.h"
 #include "ISO9660/ISO9660.h"
 
