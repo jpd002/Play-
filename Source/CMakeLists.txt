@@ -169,6 +169,8 @@ set(COMMON_SRC_FILES
 	discimages/IszImageStream.h
 	discimages/MdsDiscImage.cpp
 	discimages/MdsDiscImage.h
+	discimages/MultiImageStream.cpp
+	discimages/MultiImageStream.h
 	DiskUtils.cpp
 	DiskUtils.h
 	ee/COP_VU.cpp

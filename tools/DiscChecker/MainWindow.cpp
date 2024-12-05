@@ -80,6 +80,6 @@ void CMainWindow::FillDiscInfo(const fs::path& path)
 	{
 		ui->layerBreakEdit->setText("(N/A)");
 	}
-	auto blockProvider = opticalMedia->GetTrackBlockProvider(0);
+	auto blockProvider = opticalMedia->GetBlockProvider();
 	ui->sectorsEdit->setText(string_format("%d", blockProvider->GetBlockCount()).c_str());
 }
