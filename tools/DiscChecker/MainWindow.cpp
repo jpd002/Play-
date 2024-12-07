@@ -81,6 +81,23 @@ void CMainWindow::FillDiscInfo(const fs::path& path)
 	{
 		ui->layerBreakEdit->setText("(N/A)");
 	}
+	ui->tracksListView->setRowCount(opticalMedia->GetTrackCount());
+	for(int i = 0; i < opticalMedia->GetTrackCount(); i++)
+	{
+		const auto& track = opticalMedia->GetTrack(i);
+		ui->tracksListView->setItem(i, 0, new QTableWidgetItem(string_format("%d", track.start).c_str()));
+		ui->tracksListView->setItem(i, 1, new QTableWidgetItem(string_format("%d", track.pregap).c_str()));
+		ui->tracksListView->setItem(i, 2, new QTableWidgetItem(string_format("%d", track.size).c_str()));
+		QPushButton* computeButton = new QPushButton("Compute");
+		connect(computeButton, &QPushButton::clicked, [this, i]()
+		{
+			if(m_currentImagePath.empty()) return;
+			auto opticalMedia = DiskUtils::CreateOpticalMediaFromPath(m_currentImagePath);
+			uint32 checksum = DiscUtils::TrackChecksum(opticalMedia, i);
+			ui->tracksListView->setItem(i, 3, new QTableWidgetItem(string_format("%08X", checksum).c_str()));
+		});
+		ui->tracksListView->setCellWidget(i, 4, computeButton);
+	}
 	auto blockProvider = opticalMedia->GetBlockProvider();
 	ui->sectorsEdit->setText(string_format("%d", blockProvider->GetBlockCount()).c_str());
 }

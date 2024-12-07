@@ -73,6 +73,11 @@ uint32 COpticalMedia::GetTrackCount() const
 	return static_cast<uint32>(m_tracks.size());
 }
 
+const COpticalMedia::TRACK& COpticalMedia::GetTrack(uint32 trackIndex) const
+{
+	return m_tracks[trackIndex];
+}
+
 COpticalMedia::MEDIA_BLOCK_TYPE COpticalMedia::GetMediaBlockType() const
 {
 	return m_mediaBlockType;
