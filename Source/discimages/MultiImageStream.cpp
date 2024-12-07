@@ -1,5 +1,6 @@
 #include "MultiImageStream.h"
 #include <cassert>
+#include <stdexcept>
 
 CMultiImageStream::CMultiImageStream(std::vector<StreamPtr> streams)
 {

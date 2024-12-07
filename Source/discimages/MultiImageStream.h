@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <map>
+#include <memory>
 #include "Stream.h"
 
 class CMultiImageStream : public Framework::CStream
