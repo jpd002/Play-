@@ -89,8 +89,7 @@ void CMainWindow::FillDiscInfo(const fs::path& path)
 		ui->tracksListView->setItem(i, 1, new QTableWidgetItem(string_format("%d", track.pregap).c_str()));
 		ui->tracksListView->setItem(i, 2, new QTableWidgetItem(string_format("%d", track.size).c_str()));
 		QPushButton* computeButton = new QPushButton("Compute");
-		connect(computeButton, &QPushButton::clicked, [this, i]()
-		{
+		connect(computeButton, &QPushButton::clicked, [this, i]() {
 			if(m_currentImagePath.empty()) return;
 			auto opticalMedia = DiskUtils::CreateOpticalMediaFromPath(m_currentImagePath);
 			uint32 checksum = DiscUtils::TrackChecksum(opticalMedia, i);

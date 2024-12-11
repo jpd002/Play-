@@ -38,14 +38,14 @@ std::unique_ptr<COpticalMedia> COpticalMedia::CreateAuto(const StreamPtr& stream
 			//Failed to check if we got a dual layer DVD (ex.: Couldn't get stream size of physical disc)
 		}
 	}
-	
+
 	if(!(createFlags & CREATE_AUTO_NO_FIRST_TRACK))
 	{
 		TRACK track = {};
 		track.size = result->m_blockProvider->GetBlockCount();
 		result->AddTrack(track);
 	}
-	
+
 	return result;
 }
 

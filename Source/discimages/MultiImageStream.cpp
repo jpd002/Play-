@@ -4,7 +4,7 @@
 
 CMultiImageStream::CMultiImageStream(std::vector<StreamPtr> streams)
 {
-	for(auto& stream  : streams)
+	for(auto& stream : streams)
 	{
 		uint64 streamSize = stream->GetLength();
 		STREAM_INFO streamInfo;
@@ -30,7 +30,7 @@ void CMultiImageStream::Seek(int64 position, Framework::STREAM_SEEK_DIRECTION di
 		break;
 	}
 }
-	
+
 uint64 CMultiImageStream::Tell()
 {
 	return m_position;
@@ -61,12 +61,12 @@ uint64 CMultiImageStream::Read(void* buffer, uint64 size)
 	}
 	return result;
 }
-	
+
 uint64 CMultiImageStream::Write(const void*, uint64)
 {
 	throw std::runtime_error("Not supported.");
 }
-	
+
 bool CMultiImageStream::IsEOF()
 {
 	return false;

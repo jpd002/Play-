@@ -13,7 +13,7 @@ class COpticalMedia
 {
 public:
 	constexpr static uint64 MEDIA_BLOCK_SIZE_2352 = 2352;
-	
+
 	enum MEDIA_BLOCK_TYPE
 	{
 		MEDIA_BLOCK_TYPE_2352, //CD
