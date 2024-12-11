@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>760</width>
-    <height>484</height>
+    <height>600</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -91,6 +91,13 @@
        </widget>
       </item>
      </layout>
+    </item>
+    <item>
+     <widget class="QLabel" name="label">
+      <property name="text">
+       <string>Tracks</string>
+      </property>
+     </widget>
     </item>
     <item>
      <widget class="QTableWidget" name="tracksListView">
