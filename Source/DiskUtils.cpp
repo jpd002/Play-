@@ -151,7 +151,7 @@ static DiskUtils::OpticalMediaPtr CreateOpticalMediaFromCueSheet(const fs::path&
 			track.size = trackSize;
 		}
 		auto discStream = std::make_shared<CMultiImageStream>(streams);
-		result = COpticalMedia::CreateAuto(discStream);
+		result = COpticalMedia::CreateAuto(discStream, COpticalMedia::CREATE_AUTO_NO_FIRST_TRACK);
 		uint64 currentTrackPosition = 0;
 		for(const auto& track : tracks)
 		{
@@ -203,7 +203,15 @@ static DiskUtils::OpticalMediaPtr CreateOpticalMediaFromChd(const fs::path& imag
 			return std::make_pair(std::make_shared<ISO9660::CBlockProvider2048>(imageStream), COpticalMedia::MEDIA_BLOCK_TYPE_2048);
 		}
 	}();
-	return COpticalMedia::CreateCustom(std::move(trackInfo.first), trackInfo.second);
+	std::vector<COpticalMedia::TRACK> tracks;
+	//Create first track
+	{
+		COpticalMedia::TRACK track = {};
+		track.size = trackInfo.first->GetBlockCount();
+		tracks.push_back(track);
+	}
+	auto result = COpticalMedia::CreateCustom(std::move(trackInfo.first), trackInfo.second, std::move(tracks));
+	return result;
 }
 
 const DiskUtils::ExtensionList& DiskUtils::GetSupportedExtensions()

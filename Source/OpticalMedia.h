@@ -23,6 +23,7 @@ public:
 	enum CREATE_FLAGS
 	{
 		CREATE_AUTO_DISABLE_DL_DETECT = 0x01,
+		CREATE_AUTO_NO_FIRST_TRACK = 0x02,
 	};
 
 	struct TRACK
@@ -39,7 +40,7 @@ public:
 
 	static std::unique_ptr<COpticalMedia> CreateAuto(const StreamPtr&, uint32 = 0);
 	static std::unique_ptr<COpticalMedia> CreateDvd(const StreamPtr&, bool = false, uint32 = 0);
-	static std::unique_ptr<COpticalMedia> CreateCustom(BlockProviderPtr, MEDIA_BLOCK_TYPE);
+	static std::unique_ptr<COpticalMedia> CreateCustom(BlockProviderPtr, MEDIA_BLOCK_TYPE, std::vector<TRACK>);
 
 	ISO9660::CBlockProvider* GetBlockProvider() const;
 	MEDIA_BLOCK_TYPE GetMediaBlockType() const;

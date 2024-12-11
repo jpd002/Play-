@@ -38,6 +38,14 @@ std::unique_ptr<COpticalMedia> COpticalMedia::CreateAuto(const StreamPtr& stream
 			//Failed to check if we got a dual layer DVD (ex.: Couldn't get stream size of physical disc)
 		}
 	}
+	
+	if(!(createFlags & CREATE_AUTO_NO_FIRST_TRACK))
+	{
+		TRACK track = {};
+		track.size = result->m_blockProvider->GetBlockCount();
+		result->AddTrack(track);
+	}
+	
 	return result;
 }
 
@@ -54,12 +62,13 @@ std::unique_ptr<COpticalMedia> COpticalMedia::CreateDvd(const StreamPtr& stream,
 	return result;
 }
 
-std::unique_ptr<COpticalMedia> COpticalMedia::CreateCustom(BlockProviderPtr blockProvider, MEDIA_BLOCK_TYPE mediaBlockType)
+std::unique_ptr<COpticalMedia> COpticalMedia::CreateCustom(BlockProviderPtr blockProvider, MEDIA_BLOCK_TYPE mediaBlockType, std::vector<TRACK> tracks)
 {
 	auto result = std::make_unique<COpticalMedia>();
 	result->m_fileSystem = std::make_unique<CISO9660>(blockProvider);
 	result->m_mediaBlockType = mediaBlockType;
-	result->m_blockProvider = blockProvider;
+	result->m_blockProvider = std::move(blockProvider);
+	result->m_tracks = std::move(tracks);
 	return result;
 }
 
