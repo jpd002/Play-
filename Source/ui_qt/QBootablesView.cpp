@@ -117,7 +117,7 @@ void QBootablesView::SetupActions(BootCallback bootCallback)
 		auto bootable = model->GetBootable(src_index);
 
 		BootablesDb::CClient::GetInstance().UnregisterBootable(bootable.path);
-		model->removeItem(index);
+		model->removeItem(src_index);
 	};
 	connect(removeAction, &QAction::triggered, removeGameCallback);
 	ui->listView->addAction(removeAction);
