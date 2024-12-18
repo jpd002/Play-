@@ -114,6 +114,7 @@ namespace VUShared
 	size_t GetAccumulatorElement(unsigned int);
 
 	void PullVector(CMipsJitter*, uint8, size_t);
+	void PushBcElement(CMipsJitter*, size_t);
 	void PushIntegerRegister(CMipsJitter*, unsigned int);
 	void PullIntegerRegister(CMipsJitter*, unsigned int);
 
