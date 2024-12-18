@@ -645,7 +645,7 @@ void CVuBasicBlock::ComputeSkipFlagsHints(const std::vector<uint32>& fmacStallDe
 		bool used = resultUsed[instructionIndex];
 		if(!used)
 		{
-			hints[instructionIndex] |= VUShared::COMPILEHINT_SKIPFMACUPDATE;
+			hints[instructionIndex] |= VUShared::COMPILEHINT_SKIP_FMAC_UPDATE;
 		}
 	}
 }

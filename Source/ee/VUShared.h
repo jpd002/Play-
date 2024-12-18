@@ -95,7 +95,7 @@ namespace VUShared
 
 	enum COMPILEHINT
 	{
-		COMPILEHINT_SKIPFMACUPDATE = 0x01,
+		COMPILEHINT_SKIP_FMAC_UPDATE = (1 << 0),
 	};
 
 	uint32 MakeDestFromComponent(uint32);

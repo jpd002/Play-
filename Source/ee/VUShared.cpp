@@ -229,7 +229,7 @@ void VUShared::TestSZFlags(CMipsJitter* codeGen, uint8 dest, size_t regOffset, u
 		QueueInFlagPipeline(g_pipeInfoSticky, codeGen, LATENCY_MAC, relativePipeTime);
 	}
 
-	if((compileHints & COMPILEHINT_SKIPFMACUPDATE) == 0)
+	if((compileHints & COMPILEHINT_SKIP_FMAC_UPDATE) == 0)
 	{
 		QueueInFlagPipeline(g_pipeInfoMac, codeGen, LATENCY_MAC, relativePipeTime);
 	}
