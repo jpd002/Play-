@@ -176,6 +176,25 @@ void VUShared::PullVector(CMipsJitter* codeGen, uint8 dest, size_t vector)
 	                    DestinationHasElement(dest, 3));
 }
 
+void VUShared::PushBcElement(CMipsJitter* codeGen, size_t offset)
+{
+	if(
+	    (offset == offsetof(CMIPS, m_State.nCOP2[0].nV0)) ||
+	    (offset == offsetof(CMIPS, m_State.nCOP2[0].nV1)) ||
+	    (offset == offsetof(CMIPS, m_State.nCOP2[0].nV2)))
+	{
+		codeGen->MD_PushCstExpand(0.0f);
+	}
+	else if(offset == offsetof(CMIPS, m_State.nCOP2[0].nV3))
+	{
+		codeGen->MD_PushCstExpand(1.0f);
+	}
+	else
+	{
+		codeGen->MD_PushRelExpand(offset);
+	}
+}
+
 void VUShared::PushIntegerRegister(CMipsJitter* codeGen, unsigned int regIdx)
 {
 	regIdx &= 0xF;
@@ -365,7 +384,7 @@ void VUShared::ADD_base(CMipsJitter* codeGen, uint8 dest, size_t fd, size_t fs, 
 	codeGen->MD_ClampS();
 	if(expand)
 	{
-		codeGen->MD_PushRelExpand(ft);
+		PushBcElement(codeGen, ft);
 	}
 	else
 	{
@@ -381,7 +400,7 @@ void VUShared::ADDA_base(CMipsJitter* codeGen, uint8 dest, size_t fs, size_t ft,
 	codeGen->MD_PushRel(fs);
 	if(expand)
 	{
-		codeGen->MD_PushRelExpand(ft);
+		PushBcElement(codeGen, ft);
 	}
 	else
 	{
@@ -400,7 +419,7 @@ void VUShared::MADD_base(CMipsJitter* codeGen, uint8 dest, size_t fd, size_t fs,
 	codeGen->MD_ClampS();
 	if(expand)
 	{
-		codeGen->MD_PushRelExpand(ft);
+		PushBcElement(codeGen, ft);
 		codeGen->MD_ClampS(); //Fatal Frame 1's door-blocking bug can be fixed by this
 	}
 	else
@@ -421,7 +440,7 @@ void VUShared::MADDA_base(CMipsJitter* codeGen, uint8 dest, size_t fs, size_t ft
 	codeGen->MD_ClampS();
 	if(expand)
 	{
-		codeGen->MD_PushRelExpand(ft);
+		PushBcElement(codeGen, ft);
 	}
 	else
 	{
@@ -440,7 +459,7 @@ void VUShared::SUB_base(CMipsJitter* codeGen, uint8 dest, size_t fd, size_t fs, 
 	codeGen->MD_ClampS();
 	if(expand)
 	{
-		codeGen->MD_PushRelExpand(ft);
+		PushBcElement(codeGen, ft);
 	}
 	else
 	{
@@ -457,7 +476,7 @@ void VUShared::SUBA_base(CMipsJitter* codeGen, uint8 dest, size_t fs, size_t ft,
 	codeGen->MD_PushRel(fs);
 	if(expand)
 	{
-		codeGen->MD_PushRelExpand(ft);
+		PushBcElement(codeGen, ft);
 	}
 	else
 	{
@@ -474,7 +493,7 @@ void VUShared::MSUB_base(CMipsJitter* codeGen, uint8 dest, size_t fd, size_t fs,
 	codeGen->MD_PushRel(fs);
 	if(expand)
 	{
-		codeGen->MD_PushRelExpand(ft);
+		PushBcElement(codeGen, ft);
 	}
 	else
 	{
@@ -492,7 +511,7 @@ void VUShared::MSUBA_base(CMipsJitter* codeGen, uint8 dest, size_t fs, size_t ft
 	codeGen->MD_PushRel(fs);
 	if(expand)
 	{
-		codeGen->MD_PushRelExpand(ft);
+		PushBcElement(codeGen, ft);
 	}
 	else
 	{
@@ -510,7 +529,7 @@ void VUShared::MUL_base(CMipsJitter* codeGen, uint8 dest, size_t fd, size_t fs, 
 	codeGen->MD_ClampS();
 	if(expand)
 	{
-		codeGen->MD_PushRelExpand(ft);
+		PushBcElement(codeGen, ft);
 	}
 	else
 	{
@@ -528,7 +547,7 @@ void VUShared::MULA_base(CMipsJitter* codeGen, uint8 dest, size_t fs, size_t ft,
 	codeGen->MD_ClampS();
 	if(expand)
 	{
-		codeGen->MD_PushRelExpand(ft);
+		PushBcElement(codeGen, ft);
 	}
 	else
 	{
@@ -544,7 +563,7 @@ void VUShared::MINI_base(CMipsJitter* codeGen, uint8 dest, size_t fd, size_t fs,
 	const auto pushFt = [&]() {
 		if(expand)
 		{
-			codeGen->MD_PushRelExpand(ft);
+			PushBcElement(codeGen, ft);
 		}
 		else
 		{
@@ -582,7 +601,7 @@ void VUShared::MAX_base(CMipsJitter* codeGen, uint8 dest, size_t fd, size_t fs, 
 	const auto pushFt = [&]() {
 		if(expand)
 		{
-			codeGen->MD_PushRelExpand(ft);
+			PushBcElement(codeGen, ft);
 		}
 		else
 		{
