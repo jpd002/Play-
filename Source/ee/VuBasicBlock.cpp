@@ -9,6 +9,11 @@ CVuBasicBlock::CVuBasicBlock(CMIPS& context, uint32 begin, uint32 end, BLOCK_CAT
 {
 }
 
+void CVuBasicBlock::AddBlockCompileHints(uint32 compileHints)
+{
+	m_blockCompileHints |= compileHints;
+}
+
 bool CVuBasicBlock::IsLinkable() const
 {
 	return m_isLinkable;
@@ -168,7 +173,7 @@ void CVuBasicBlock::CompileRange(CMipsJitter* jitter)
 			jitter->PullRel(offsetof(CMIPS, m_State.savedNextBlockIntRegVal));
 		}
 
-		uint32 compileHints = hints[instructionIndex];
+		uint32 compileHints = hints[instructionIndex] | m_blockCompileHints;
 		arch->SetRelativePipeTime(relativePipeTime, compileHints);
 		arch->CompileInstruction(addressHi, jitter, &m_context, addressHi - m_begin);
 

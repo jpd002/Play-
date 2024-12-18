@@ -3,6 +3,14 @@
 #include "VUShared.h"
 #include "xxhash.h"
 
+// clang-format off
+const CVuExecutor::BLOCK_COMPILE_HINTS CVuExecutor::g_blockCompileHints[] =
+{
+	// Tri-Ace VU0 decompression code
+	{ std::make_pair(uint128{0x3aa43f7c, 0xe932516c, 0x6786472d, 0xf5333e12}, 0x58U), VUShared::COMPILEHINT_USE_ACCURATE_ADDI },
+};
+// clang-format on
+
 CVuExecutor::CVuExecutor(CMIPS& context, uint32 maxAddress)
     : CGenericMipsExecutor(context, maxAddress, BLOCK_CATEGORY_PS2_VU)
 {
@@ -57,6 +65,14 @@ BasicBlockPtr CVuExecutor::BlockFactory(CMIPS& context, uint32 begin, uint32 end
 
 	//Totally new block, build it from scratch
 	auto result = std::make_shared<CVuBasicBlock>(context, begin, end, m_blockCategory);
+
+	auto blockCompileHintsIterator = std::find_if(std::begin(g_blockCompileHints), std::end(g_blockCompileHints),
+	                                              [&](const auto& item) { return item.blockKey == blockKey; });
+	if(blockCompileHintsIterator != std::end(g_blockCompileHints))
+	{
+		result->AddBlockCompileHints(blockCompileHintsIterator->hints);
+	}
+
 	result->Compile();
 	if(!hasBreakpoint)
 	{
