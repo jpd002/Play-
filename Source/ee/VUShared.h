@@ -96,6 +96,7 @@ namespace VUShared
 	enum COMPILEHINT
 	{
 		COMPILEHINT_SKIP_FMAC_UPDATE = (1 << 0),
+		COMPILEHINT_USE_ACCURATE_ADDI = (1 << 1), //For decompression in Tri-Ace games
 	};
 
 	uint32 MakeDestFromComponent(uint32);

@@ -666,22 +666,26 @@ void VUShared::ADDi(CMipsJitter* codeGen, uint8 nDest, uint8 nFd, uint8 nFs, uin
 	//On JavaScript, using it doesn't seem to help Tri-Ace games
 	//there's probably some other rounding issue on that platform
 #if !defined(__EMSCRIPTEN__)
-	for(unsigned int i = 0; i < 4; i++)
+	if(compileHints & COMPILEHINT_USE_ACCURATE_ADDI)
 	{
-		if(!VUShared::DestinationHasElement(nDest, i)) continue;
+		for(unsigned int i = 0; i < 4; i++)
+		{
+			if(!VUShared::DestinationHasElement(nDest, i)) continue;
 
-		codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2[nFs].nV[i]));
-		codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2I));
-		codeGen->Call(reinterpret_cast<void*>(&FpAddTruncate), 2, Jitter::CJitter::RETURN_VALUE_32);
-		codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2[nFd].nV[i]));
+			codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2[nFs].nV[i]));
+			codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2I));
+			codeGen->Call(reinterpret_cast<void*>(&FpAddTruncate), 2, Jitter::CJitter::RETURN_VALUE_32);
+			codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2[nFd].nV[i]));
+		}
 	}
-#else
-	codeGen->MD_PushRel(offsetof(CMIPS, m_State.nCOP2[nFs]));
-	codeGen->MD_PushRelExpand(offsetof(CMIPS, m_State.nCOP2I));
-	codeGen->MD_AddS();
-	PullVector(codeGen, nDest, offsetof(CMIPS, m_State.nCOP2[nFd]));
+	else
 #endif
-
+	{
+		codeGen->MD_PushRel(offsetof(CMIPS, m_State.nCOP2[nFs]));
+		codeGen->MD_PushRelExpand(offsetof(CMIPS, m_State.nCOP2I));
+		codeGen->MD_AddS();
+		PullVector(codeGen, nDest, offsetof(CMIPS, m_State.nCOP2[nFd]));
+	}
 	TestSZFlags(codeGen, nDest, offsetof(CMIPS, m_State.nCOP2[nFd]), relativePipeTime, compileHints);
 }
 
