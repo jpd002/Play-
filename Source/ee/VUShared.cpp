@@ -189,6 +189,14 @@ void VUShared::PushBcElement(CMipsJitter* codeGen, size_t offset)
 	{
 		codeGen->MD_PushCstExpand(1.0f);
 	}
+	else if(
+	    (offset >= offsetof(CMIPS, m_State.nCOP2[1].nV0)) &&
+	    (offset <= offsetof(CMIPS, m_State.nCOP2[31].nV3)))
+	{
+		size_t vectorOffset = offset & ~(sizeof(uint128) - 1);
+		size_t vectorElem = (offset - offsetof(CMIPS, m_State.nCOP2[0].nV0)) % sizeof(uint128);
+		codeGen->MD_PushRelElementExpand(vectorOffset, vectorElem / 4);
+	}
 	else
 	{
 		codeGen->MD_PushRelExpand(offset);
