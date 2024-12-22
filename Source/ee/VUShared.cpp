@@ -1052,36 +1052,12 @@ void VUShared::LQbase(CMipsJitter* codeGen, uint8 dest, uint8 it)
 	}
 	else
 	{
-		codeGen->AddRef();
-
-		//Try some aligned 64-bit reads first
-		for(unsigned int i = 0; i < 3; i += 2)
-		{
-			uint8 mask = (0x03 << i);
-			if((dest & mask) == mask)
-			{
-				unsigned int element = (i ^ 0x03) - 1;
-				codeGen->PushTop();
-				codeGen->PushCst(element * 4);
-				codeGen->Load64FromRefIdx(1);
-				codeGen->PullRel64(offsetof(CMIPS, m_State.nCOP2[it].nV[element]));
-				dest &= ~mask;
-			}
-		}
-
-		//Read any remaining data
-		for(unsigned int i = 0; i < 4; i++)
-		{
-			if(VUShared::DestinationHasElement(static_cast<uint8>(dest), i))
-			{
-				codeGen->PushTop();
-				codeGen->PushCst(i * 4);
-				codeGen->LoadFromRefIdx(1);
-				codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2[it].nV[i]));
-			}
-		}
-
-		codeGen->PullTop();
+		codeGen->MD_PushRel(offsetof(CMIPS, m_State.nCOP2[it]));
+		codeGen->MD_LoadFromRefIdxMasked(DestinationHasElement(dest, 0),
+		                                 DestinationHasElement(dest, 1),
+		                                 DestinationHasElement(dest, 2),
+		                                 DestinationHasElement(dest, 3));
+		codeGen->MD_PullRel(offsetof(CMIPS, m_State.nCOP2[it]));
 	}
 }
 
@@ -1615,36 +1591,11 @@ void VUShared::SQbase(CMipsJitter* codeGen, uint8 dest, uint8 is)
 	}
 	else
 	{
-		codeGen->AddRef();
-
-		//Try some aligned 64-bit writes first
-		for(unsigned int i = 0; i < 3; i += 2)
-		{
-			uint8 mask = (0x03 << i);
-			if((dest & mask) == mask)
-			{
-				unsigned int element = (i ^ 0x03) - 1;
-				codeGen->PushTop();
-				codeGen->PushCst(element * 4);
-				codeGen->PushRel64(offsetof(CMIPS, m_State.nCOP2[is].nV[element]));
-				codeGen->Store64AtRefIdx(1);
-				dest &= ~mask;
-			}
-		}
-
-		//Write any remaining data
-		for(unsigned int i = 0; i < 4; i++)
-		{
-			if(VUShared::DestinationHasElement(static_cast<uint8>(dest), i))
-			{
-				codeGen->PushTop();      //Push dest memory ref
-				codeGen->PushCst(i * 4); //Push index
-				codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2[is].nV[i]));
-				codeGen->StoreAtRefIdx(1);
-			}
-		}
-
-		codeGen->PullTop();
+		codeGen->MD_PushRel(offsetof(CMIPS, m_State.nCOP2[is]));
+		codeGen->MD_StoreAtRefIdxMasked(DestinationHasElement(dest, 0),
+		                                DestinationHasElement(dest, 1),
+		                                DestinationHasElement(dest, 2),
+		                                DestinationHasElement(dest, 3));
 	}
 }
 
