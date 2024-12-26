@@ -2,6 +2,7 @@
 #include <cassert>
 #include "maybe_unused.h"
 #include "PtrStream.h"
+#include <cstring>
 
 using namespace Namco;
 
