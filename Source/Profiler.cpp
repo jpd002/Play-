@@ -85,7 +85,7 @@ void CProfiler::Reset()
 
 void CProfiler::SetWorkThread()
 {
-#ifdef _DEBUG
+#ifndef NDEBUG
 	m_workThreadId = std::this_thread::get_id();
 #endif
 }

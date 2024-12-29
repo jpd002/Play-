@@ -46,7 +46,7 @@ private:
 	ZoneStack m_zoneStack;
 	TimePoint m_currentTime;
 
-#ifdef _DEBUG
+#ifndef NDEBUG
 	std::thread::id m_workThreadId;
 #endif
 };
