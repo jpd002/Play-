@@ -1,4 +1,5 @@
 #include "Iop_SifMan.h"
+#include <cstring>
 #include "Iop_Sysmem.h"
 #include "../MIPSAssembler.h"
 #include "../Log.h"
@@ -89,9 +90,8 @@ void CSifMan::PrepareModuleData(uint8* ram, CSysmem& sysMem)
 		assembler.SW(CMIPS::RA, 0x04, CMIPS::SP);
 		assembler.SW(CMIPS::S0, 0x08, CMIPS::SP);
 
-		assembler.ADDU(CMIPS::S0, CMIPS::V0, CMIPS::R0);
 		assembler.JALR(CMIPS::A1);
-		assembler.NOP();
+		assembler.ADDU(CMIPS::S0, CMIPS::V0, CMIPS::R0);
 
 		assembler.ADDU(CMIPS::V0, CMIPS::S0, CMIPS::R0);
 
@@ -103,35 +103,47 @@ void CSifMan::PrepareModuleData(uint8* ram, CSysmem& sysMem)
 		assert((assembler.GetProgramSize() * 4) <= SIFSETDMACALLBACK_HANDLER_SIZE);
 	}
 
-	m_moduleData->dmaTransferTime = 0;
+	memset(m_moduleData->dmaTransferTimes, 0, sizeof(m_moduleData->dmaTransferTimes));
+	m_moduleData->nextDmaTransferIdx = 0;
 }
 
 void CSifMan::CountTicks(int32 ticks)
 {
-	m_moduleData->dmaTransferTime = std::max(0, m_moduleData->dmaTransferTime - ticks);
+	for(int i = 0; i < DMA_TRANSFER_TIMES_SIZE; i++)
+	{
+		m_moduleData->dmaTransferTimes[i] = std::max(0, m_moduleData->dmaTransferTimes[i] - ticks);
+	}
 }
 
 uint32 CSifMan::SifSetDma(uint32 structAddr, uint32 count)
 {
 	CLog::GetInstance().Print(LOG_NAME, FUNCTION_SIFSETDMA "(structAddr = 0x%08X, count = %d);\r\n",
 	                          structAddr, count);
-	//Reset delay regardless of what we're sending
-	//This doesn't seem to cause harm, but if it does, we could associate a transfer id
-	//with a time and have SifDmaStat check for a specific transfer id
+
+	//Give our transfer some delay time before we report it's complete
 	//This is needed because RenderWare FS code doesn't expect SIF CMD callbacks to
 	//arrive so quickly
-	m_moduleData->dmaTransferTime = 0x800;
+	//Call of Cthulhu: Destiny's End is also sensitive to timings.
+	uint32 transferIdx = m_moduleData->nextDmaTransferIdx;
+	assert(m_moduleData->dmaTransferTimes[transferIdx] == 0);
+	m_moduleData->dmaTransferTimes[transferIdx] = 0x400;
+	m_moduleData->nextDmaTransferIdx = (m_moduleData->nextDmaTransferIdx + 1) % DMA_TRANSFER_TIMES_SIZE;
 
 	ExecuteSifDma(structAddr, count);
-	return SIFDMA_XFER_ID;
+	return SIFDMA_XFER_ID + transferIdx;
 }
 
 uint32 CSifMan::SifDmaStat(uint32 transferId)
 {
 	CLog::GetInstance().Print(LOG_NAME, FUNCTION_SIFDMASTAT "(transferId = %X);\r\n",
 	                          transferId);
-	assert((transferId == 0) || (transferId == SIFDMA_XFER_ID));
-	if(m_moduleData->dmaTransferTime != 0)
+	int32 transferIdx = transferId - SIFDMA_XFER_ID;
+	bool isValidTransferId = (transferId != 0) && (transferIdx >= 0) && (transferIdx < DMA_TRANSFER_TIMES_SIZE);
+	if(!isValidTransferId)
+	{
+		CLog::GetInstance().Warn(LOG_NAME, "SifDmaStat: Provided invalid transfer id %d.\r\n", transferId);
+	}
+	if(isValidTransferId && m_moduleData->dmaTransferTimes[transferIdx] != 0)
 	{
 		return 0;
 	}

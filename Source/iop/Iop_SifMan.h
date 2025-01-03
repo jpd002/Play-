@@ -46,14 +46,15 @@ namespace Iop
 
 		enum
 		{
-			SIFSETDMACALLBACK_HANDLER_SIZE = 0x30,
+			SIFSETDMACALLBACK_HANDLER_SIZE = 0x28,
+			DMA_TRANSFER_TIMES_SIZE = 5,
 		};
 
 		struct MODULEDATA
 		{
 			uint8 sifSetDmaCallbackHandler[SIFSETDMACALLBACK_HANDLER_SIZE];
-			int32 dmaTransferTime;
-			int32 padding[3];
+			int32 dmaTransferTimes[DMA_TRANSFER_TIMES_SIZE];
+			int32 nextDmaTransferIdx;
 		};
 		static_assert(sizeof(MODULEDATA) == 0x40);
 
