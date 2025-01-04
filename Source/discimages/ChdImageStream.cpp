@@ -82,5 +82,5 @@ uint64 CChdImageStream::Write(const void* buffer, uint64 size)
 
 uint64 CChdImageStream::GetTotalSize() const
 {
-	return m_unitCount * m_unitSize;
+	return m_unitCount * static_cast<uint64>(m_unitSize);
 }
