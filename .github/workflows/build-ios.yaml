@@ -48,7 +48,7 @@ jobs:
         cd installer_ios
         ./build_cydia.sh
     - name: Upload a Build Artifact ipa/deb/bz2
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: Play_iOS
         path: |
@@ -56,7 +56,7 @@ jobs:
           installer_ios/Play.deb
           installer_ios/Packages.bz2
     - name: Upload a Build Artifact libretro
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: Play_iOS_libretro
         path: build/Source/ui_libretro/Release-iphoneos/play_libretro_ios.dylib

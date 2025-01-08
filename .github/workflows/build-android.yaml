@@ -66,7 +66,7 @@ jobs:
         ANDROID_KEYSTORE_PASS: ${{ secrets.ANDROID_KEYSTORE_PASS }}
     - name: Upload a Build Artifact Android APK Signed
       if: ${{ matrix.build-type == 'apk' && env.ANDROID_KEYSTORE_PASS != null }}
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: Play_Android_Signed
         path: Play-release.apk
@@ -74,13 +74,13 @@ jobs:
         ANDROID_KEYSTORE_PASS: ${{ secrets.ANDROID_KEYSTORE_PASS }}
     - name: Upload a Build Artifact Android APK Unsigned
       if: ${{ matrix.build-type == 'apk' }}
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: Play_Android_APK_Unsigned
         path: Play-release-unsigned.apk
     - name: Upload a Build Artifact Android libretro
       if: ${{ matrix.build-type == 'libretro' }}
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: Play_Android_libretro
         path: build_retro/play_libretro_*_android.so
