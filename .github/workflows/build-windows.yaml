@@ -88,12 +88,12 @@ jobs:
         cd ..
         makensis.exe ./installer_win32/${{ matrix.installer-script}}
     - name: Upload a Build Artifact Installer
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: Play_Windows_${{ matrix.target-platform }}_Installer
         path: installer_win32\*.exe
     - name: Upload a Build Artifact Libretro Core
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: Play_Windows_${{ matrix.target-platform }}_libretro
         path: build\Source\ui_libretro\Release\play_libretro.dll

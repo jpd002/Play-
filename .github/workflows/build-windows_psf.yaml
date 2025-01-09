@@ -63,13 +63,13 @@ jobs:
       run: makensis.exe ./tools/PsfPlayer/installer_win32/${{ matrix.installer-script }}
     - name: Upload PsfPlayer Build Artifact Installer
       if: ${{ matrix.aot-build == 'off' }}
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: PsfPlayer_Windows_${{ matrix.target-platform }}_Installer
         path: tools/PsfPlayer/installer_win32/*.exe
     - name: Upload PsfAot Build Artifact Installer
       if: ${{ matrix.aot-build == 'on' }}
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: PsfAot_Windows_${{ matrix.target-platform }}
         path: build\tools\PsfPlayer\Source\ui_aot\Release\PsfAot.exe
