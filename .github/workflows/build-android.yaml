@@ -4,7 +4,7 @@ on: [push, pull_request]
 env:
   ANDROID_BUILD_TOOLS_VERSION: '34.0.0'
   ANDROID_NDK_VERSION: '25.2.9519653'
-  ANDROID_CMAKE_VERSION: '3.22.1'
+  ANDROID_CMAKE_VERSION: '3.31.1'
 jobs:
   build_android:
     strategy:
