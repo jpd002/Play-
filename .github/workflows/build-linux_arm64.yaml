@@ -15,7 +15,7 @@ jobs:
           submodules: recursive
           fetch-depth: 0
       - name: Build & Test
-        uses: addnab/docker-run-action@v2
+        uses: addnab/docker-run-action@v3
         with:
           image: jpd002/linux_arm64_build
           options: -v ${{ github.workspace }}:/work --platform=linux/arm64
