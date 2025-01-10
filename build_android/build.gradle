@@ -9,7 +9,7 @@ buildscript {
 	}
 
 	dependencies {
-		classpath 'com.android.tools.build:gradle:8.4.2'
+		classpath 'com.android.tools.build:gradle:8.7.3'
 		classpath 'org.ajoberstar.grgit:grgit-gradle:4.1.1'
 	}
 }
