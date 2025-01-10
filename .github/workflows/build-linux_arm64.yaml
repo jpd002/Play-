@@ -18,7 +18,7 @@ jobs:
         uses: addnab/docker-run-action@v2
         with:
           image: jpd002/linux_arm64_build
-          options: -v ${{ github.workspace }}:/work
+          options: -v ${{ github.workspace }}:/work --platform=linux/arm64
           run: |
             set -e
             apt-get update
