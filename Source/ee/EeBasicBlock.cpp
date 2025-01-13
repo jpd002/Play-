@@ -1,8 +1,27 @@
 #include "EeBasicBlock.h"
 #include "offsetof_def.h"
 
+void CEeBasicBlock::SetFpRoundingMode(Jitter::CJitter::ROUNDINGMODE fpRoundingMode)
+{
+	m_fpRoundingMode = fpRoundingMode;
+}
+
+void CEeBasicBlock::CompileProlog(CMipsJitter* jitter)
+{
+	if(m_fpRoundingMode != DEFAULT_FP_ROUNDING_MODE)
+	{
+		jitter->FP_SetRoundingMode(m_fpRoundingMode);
+	}
+	CBasicBlock::CompileProlog(jitter);
+}
+
 void CEeBasicBlock::CompileEpilog(CMipsJitter* jitter, bool loopsOnItself)
 {
+	if(m_fpRoundingMode != DEFAULT_FP_ROUNDING_MODE)
+	{
+		jitter->FP_SetRoundingMode(DEFAULT_FP_ROUNDING_MODE);
+	}
+
 	if(IsIdleLoopBlock())
 	{
 		jitter->PushCst(MIPS_EXCEPTION_IDLE);

@@ -1,0 +1,5 @@
+<GameConfigs>
+	<GameConfig Executable="SLUS_204.71;1" Title="Rygar - The Legendary Adventure">
+		<BlockFpRoundingMode Address="0x00147D88" Mode="NEAREST" />
+	</GameConfig>
+</GameConfigs>

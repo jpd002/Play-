@@ -22,6 +22,7 @@
 #include "Timer.h"
 #include "SIF.h"
 #include "EEAssembler.h"
+#include "EeExecutor.h"
 #include "PathUtils.h"
 #include "xml/Node.h"
 #include "xml/Parser.h"
@@ -61,6 +62,8 @@
 #define SEMA_ID_BASE 0
 
 #define PATCHESFILENAME "patches.xml"
+#define GAMECONFIG_FILENAME "GameConfig.xml"
+
 #define LOG_NAME ("ps2os")
 
 #define SYSCALL_CUSTOM_RESCHEDULE 0x666
@@ -435,6 +438,7 @@ void CPS2OS::LoadELF(Framework::CStream* stream, const char* executablePath, con
 
 	LoadExecutableInternal();
 	ApplyPatches();
+	ApplyGameConfig();
 
 	OnExecutableChange();
 
@@ -628,6 +632,78 @@ void CPS2OS::ApplyPatches()
 
 			break;
 		}
+	}
+}
+
+void CPS2OS::ApplyGameConfig()
+{
+	std::unique_ptr<Framework::Xml::CNode> document;
+	try
+	{
+#ifdef __ANDROID__
+		Framework::Android::CAssetStream inputStream(GAMECONFIG_FILENAME);
+#else
+		auto gameConfigPath = Framework::PathUtils::GetAppResourcesPath() / GAMECONFIG_FILENAME;
+		Framework::CStdStream inputStream(Framework::CreateInputStdStream(gameConfigPath.native()));
+#endif
+		document = Framework::Xml::CParser::ParseDocument(inputStream);
+		if(!document) return;
+	}
+	catch(const std::exception& exception)
+	{
+		CLog::GetInstance().Warn(LOG_NAME, "Failed to open game config file: %s.\r\n", exception.what());
+		return;
+	}
+
+	auto gameConfigsNode = document->Select("GameConfigs");
+	if(!gameConfigsNode)
+	{
+		return;
+	}
+
+	CEeExecutor::BlockFpRoundingModes blockFpRoundingModes;
+
+	for(Framework::Xml::CFilteringNodeIterator itNode(gameConfigsNode, "GameConfig");
+	    !itNode.IsEnd(); itNode++)
+	{
+		auto gameConfigNode = (*itNode);
+
+		const char* executable = gameConfigNode->GetAttribute("Executable");
+		if(!executable) continue;
+
+		if(strcmp(executable, GetExecutableName())) continue;
+
+		//Found the right executable, apply config
+
+		for(Framework::Xml::CFilteringNodeIterator itNode(gameConfigNode, "BlockFpRoundingMode");
+		    !itNode.IsEnd(); itNode++)
+		{
+			auto node = (*itNode);
+
+			const char* addressString = node->GetAttribute("Address");
+			const char* modeString = node->GetAttribute("Mode");
+
+			if(!addressString) continue;
+			if(!modeString) continue;
+
+			uint32 address = 0;
+			auto roundingMode = Jitter::CJitter::ROUND_NEAREST;
+			if(sscanf(addressString, "%x", &address) == 0) continue;
+
+			if(!strcmp(modeString, "NEAREST"))
+			{
+				roundingMode = Jitter::CJitter::ROUND_NEAREST;
+			}
+			else
+			{
+				continue;
+			}
+
+			blockFpRoundingModes.insert(std::make_pair(address, roundingMode));
+		}
+
+		static_cast<CEeExecutor*>(m_ee.m_executor.get())->SetBlockFpRoundingModes(std::move(blockFpRoundingModes));
+		break;
 	}
 }
 

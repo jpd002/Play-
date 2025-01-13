@@ -40,6 +40,11 @@ CEeExecutor::CEeExecutor(CMIPS& context, uint8* ram)
 	m_pageSize = framework_getpagesize();
 }
 
+void CEeExecutor::SetBlockFpRoundingModes(BlockFpRoundingModes blockFpRoundingMode)
+{
+	m_blockFpRoundingModes = std::move(blockFpRoundingMode);
+}
+
 void CEeExecutor::AddExceptionHandler()
 {
 	assert(g_eeExecutor == nullptr);
@@ -111,6 +116,7 @@ void CEeExecutor::Reset()
 {
 	SetMemoryProtected(m_ram, PS2::EE_RAM_SIZE, false);
 	m_cachedBlocks.clear();
+	m_blockFpRoundingModes.clear();
 	CGenericMipsExecutor::Reset();
 }
 
@@ -170,6 +176,13 @@ BasicBlockPtr CEeExecutor::BlockFactory(CMIPS& context, uint32 start, uint32 end
 	}
 
 	auto result = std::make_shared<CEeBasicBlock>(context, start, end, m_blockCategory);
+
+	if(auto blockFpRoundingModeIterator = m_blockFpRoundingModes.find(start);
+	   blockFpRoundingModeIterator != std::end(m_blockFpRoundingModes))
+	{
+		result->SetFpRoundingMode(blockFpRoundingModeIterator->second);
+	}
+
 	result->Compile();
 	if(!hasBreakpoint)
 	{

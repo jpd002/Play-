@@ -82,6 +82,7 @@ Section "Play! (required)"
   File /oname=styles\qwindowsvistastyle.dll "${BINARY_INPUT_PATH}\styles\qwindowsvistastyle.dll"
   File /oname=imageformats\qjpeg.dll "${BINARY_INPUT_PATH}\imageformats\qjpeg.dll"
   File "..\Patches.xml"
+  File "..\GameConfig.xml"
   File "..\states.db"
   
   SetOutPath $INSTDIR\arcadedefs
@@ -135,6 +136,7 @@ Section "Uninstall"
   Delete $INSTDIR\styles\qwindowsvistastyle.dll
   Delete $INSTDIR\imageformats\qjpeg.dll
   Delete $INSTDIR\Patches.xml
+  Delete $INSTDIR\GameConfig.xml
   Delete $INSTDIR\states.db
   Delete $INSTDIR\arcadedefs\*
   Delete $INSTDIR\uninstall.exe

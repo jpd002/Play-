@@ -343,6 +343,7 @@ private:
 	void UnloadExecutable();
 
 	void ApplyPatches();
+	void ApplyGameConfig();
 
 	void DisassembleSysCall(uint8);
 	std::string GetSysCallDescription(uint8);

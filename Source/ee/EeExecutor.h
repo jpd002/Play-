@@ -1,6 +1,7 @@
 #pragma once
 
 #ifdef _WIN32
+#define NOMINMAX
 #include <Windows.h>
 #elif defined(__APPLE__)
 #include <mach/mach.h>
@@ -14,8 +15,12 @@
 class CEeExecutor : public CGenericMipsExecutor<BlockLookupTwoWay>
 {
 public:
+	using BlockFpRoundingModes = std::map<uint32, Jitter::CJitter::ROUNDINGMODE>;
+
 	CEeExecutor(CMIPS&, uint8*);
 	virtual ~CEeExecutor() = default;
+
+	void SetBlockFpRoundingModes(BlockFpRoundingModes);
 
 	void AddExceptionHandler();
 	void RemoveExceptionHandler();
@@ -31,6 +36,8 @@ private:
 	typedef std::pair<uint128, uint32> CachedBlockKey;
 	typedef std::map<CachedBlockKey, BasicBlockPtr> CachedBlockMap;
 	CachedBlockMap m_cachedBlocks;
+
+	BlockFpRoundingModes m_blockFpRoundingModes;
 
 	uint8* m_ram = nullptr;
 	size_t m_pageSize = 0;
