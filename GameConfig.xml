@@ -2,6 +2,9 @@
 	<GameConfig Executable="SLUS_204.71;1" Title="Rygar - The Legendary Adventure">
 		<BlockFpRoundingMode Address="0x00147D88" Mode="NEAREST" Description="Fixes hang when entering first door." />
 	</GameConfig>
+	<GameConfig Executable="SLUS_206.56;1" Title="X-Men Legends">
+		<BlockFpRoundingMode Address="0x003D74D0" Mode="NEAREST" Description="Fixes hang in Blob boss area." />
+	</GameConfig>
 	<GameConfig Executable="SLUS_210.48;1" Title="Evil Dead: Regeneration">
 		<IdleLoopBlock Address="0x00377898" />
 	</GameConfig>
