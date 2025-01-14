@@ -61,7 +61,6 @@
 // game's lifetime doesn't seem to be used, so this bug probably doesn't have any side effect.
 #define SEMA_ID_BASE 0
 
-#define PATCHESFILENAME "patches.xml"
 #define GAMECONFIG_FILENAME "GameConfig.xml"
 
 #define LOG_NAME ("ps2os")
@@ -437,7 +436,6 @@ void CPS2OS::LoadELF(Framework::CStream* stream, const char* executablePath, con
 	    }();
 
 	LoadExecutableInternal();
-	ApplyPatches();
 	ApplyGameConfig();
 
 	OnExecutableChange();
@@ -569,70 +567,6 @@ uint32 CPS2OS::LoadExecutable(const char* path, const char* section)
 	ioman->Close(handle);
 
 	return result;
-}
-
-void CPS2OS::ApplyPatches()
-{
-	std::unique_ptr<Framework::Xml::CNode> document;
-	try
-	{
-#ifdef __ANDROID__
-		Framework::Android::CAssetStream patchesStream(PATCHESFILENAME);
-#else
-		auto patchesPath = Framework::PathUtils::GetAppResourcesPath() / PATCHESFILENAME;
-		Framework::CStdStream patchesStream(Framework::CreateInputStdStream(patchesPath.native()));
-#endif
-		document = Framework::Xml::CParser::ParseDocument(patchesStream);
-		if(!document) return;
-	}
-	catch(const std::exception& exception)
-	{
-		CLog::GetInstance().Print(LOG_NAME, "Failed to open patch definition file: %s.\r\n", exception.what());
-		return;
-	}
-
-	auto patchesNode = document->Select("Patches");
-	if(patchesNode == NULL)
-	{
-		return;
-	}
-
-	for(Framework::Xml::CFilteringNodeIterator itNode(patchesNode, "Executable"); !itNode.IsEnd(); itNode++)
-	{
-		auto executableNode = (*itNode);
-
-		const char* name = executableNode->GetAttribute("Name");
-		if(name == NULL) continue;
-
-		if(!strcmp(name, GetExecutableName()))
-		{
-			//Found the right executable
-			unsigned int patchCount = 0;
-
-			for(Framework::Xml::CFilteringNodeIterator itNode(executableNode, "Patch"); !itNode.IsEnd(); itNode++)
-			{
-				auto patch = (*itNode);
-
-				const char* addressString = patch->GetAttribute("Address");
-				const char* valueString = patch->GetAttribute("Value");
-
-				if(addressString == nullptr) continue;
-				if(valueString == nullptr) continue;
-
-				uint32 value = 0, address = 0;
-				if(sscanf(addressString, "%x", &address) == 0) continue;
-				if(sscanf(valueString, "%x", &value) == 0) continue;
-
-				*(uint32*)&m_ram[address] = value;
-
-				patchCount++;
-			}
-
-			CLog::GetInstance().Print(LOG_NAME, "Applied %i patch(es).\r\n", patchCount);
-
-			break;
-		}
-	}
 }
 
 void CPS2OS::ApplyGameConfig()

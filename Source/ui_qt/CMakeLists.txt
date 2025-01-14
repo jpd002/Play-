@@ -277,7 +277,7 @@ if(TARGET_PLATFORM_MACOS)
 	FILE(GLOB ARCADE_DEFS ${CMAKE_CURRENT_SOURCE_DIR}/../../arcadedefs/*.arcadedef)
 	set(OSX_RES
 		${CMAKE_CURRENT_SOURCE_DIR}/macos/AppIcon.icns
-		${CMAKE_CURRENT_SOURCE_DIR}/../../patches.xml
+		${CMAKE_CURRENT_SOURCE_DIR}/../../GameConfig.xml
 	)
 	if(DEBUGGER_INCLUDED)
 		list(APPEND OSX_RES ${CMAKE_CURRENT_SOURCE_DIR}/../../ee_functions.xml)

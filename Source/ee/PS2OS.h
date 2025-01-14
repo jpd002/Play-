@@ -342,7 +342,6 @@ private:
 	void LoadExecutableInternal();
 	void UnloadExecutable();
 
-	void ApplyPatches();
 	void ApplyGameConfig();
 
 	void DisassembleSysCall(uint8);

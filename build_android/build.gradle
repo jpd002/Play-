@@ -106,7 +106,7 @@ android {
 	}
 
 	task copyPatchesFile(type: Copy) {
-		from '../patches.xml'
+		from '../GameConfig.xml'
 		into 'src/main/assets'
 	}
 
