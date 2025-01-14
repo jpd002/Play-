@@ -1,4 +1,8 @@
 <GameConfigs>
+	<GameConfig Executable="SLUS_200.24;1" Title="Blood Omen 2">
+		<Patch Address="0x00463018" Value="0x03E00008" Description="Nullify custom exception handler." />
+		<Patch Address="0x0046301C" Value="0x24020001" Description="Nullify custom exception handler." />
+	</GameConfig>
 	<GameConfig Executable="SLUS_204.71;1" Title="Rygar - The Legendary Adventure">
 		<BlockFpRoundingMode Address="0x00147D88" Mode="NEAREST" Description="Fixes hang when entering first door." />
 	</GameConfig>
@@ -10,5 +14,17 @@
 	</GameConfig>
 	<GameConfig Executable="SLUS_213.06;1" Title="Ghost Rider">
 		<IdleLoopBlock Address="0x002F43E8" />
+	</GameConfig>
+	<GameConfig Executable="SLES_501.76;1" Title="Oni">
+		<Patch Address="0x001cef7c" Value="0x00000000 // bc0f $001cef7c" Description="Fix hang by skip branch if copro 0 condition false." />
+	</GameConfig>
+	<GameConfig Executable="SLPM_551.91;1" Title="L2 - Love x Loop">
+		<Patch Address="0x001B4828" Value="0x10000008" Description="Avoid bug in code that fiddles with SP and causes the stack to be clobbered by SifCallRpc. Requires proper data cache handling to avoid issue." />
+	</GameConfig>
+	<GameConfig Executable="SCES_500.03;1" Title="Dead or Alive 2">
+		<Patch Address="0x002b4c44" Value="0x24060000" Description="Make the file reading RPC call synchronous. Requires proper data cache handling to avoid issue." />
+	</GameConfig>
+	<GameConfig Executable="SLPS_250.02;1" Title="Dead or Alive 2">
+		<Patch Address="0x00290408" Value="0x24060000" Description="Make the file reading RPC call synchronous. Requires proper data cache handling to avoid issue." />
 	</GameConfig>
 </GameConfigs>

@@ -676,6 +676,24 @@ void CPS2OS::ApplyGameConfig()
 
 		//Found the right executable, apply config
 
+		for(Framework::Xml::CFilteringNodeIterator itNode(gameConfigNode, "Patch");
+		    !itNode.IsEnd(); itNode++)
+		{
+			auto patch = (*itNode);
+
+			const char* addressString = patch->GetAttribute("Address");
+			const char* valueString = patch->GetAttribute("Value");
+
+			if(!addressString) continue;
+			if(!valueString) continue;
+
+			uint32 value = 0, address = 0;
+			if(sscanf(addressString, "%x", &address) == 0) continue;
+			if(sscanf(valueString, "%x", &value) == 0) continue;
+
+			*reinterpret_cast<uint32*>(m_ram + address) = value;
+		}
+
 		for(Framework::Xml::CFilteringNodeIterator itNode(gameConfigNode, "BlockFpRoundingMode");
 		    !itNode.IsEnd(); itNode++)
 		{
