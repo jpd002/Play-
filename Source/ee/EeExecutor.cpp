@@ -40,9 +40,14 @@ CEeExecutor::CEeExecutor(CMIPS& context, uint8* ram)
 	m_pageSize = framework_getpagesize();
 }
 
-void CEeExecutor::SetBlockFpRoundingModes(BlockFpRoundingModes blockFpRoundingMode)
+void CEeExecutor::SetBlockFpRoundingModes(BlockFpRoundingModeMap blockFpRoundingModes)
 {
-	m_blockFpRoundingModes = std::move(blockFpRoundingMode);
+	m_blockFpRoundingModes = std::move(blockFpRoundingModes);
+}
+
+void CEeExecutor::SetIdleLoopBlocks(IdleLoopBlockSet idleLoopBlocks)
+{
+	m_idleLoopBlocks = std::move(idleLoopBlocks);
 }
 
 void CEeExecutor::AddExceptionHandler()
@@ -181,6 +186,10 @@ BasicBlockPtr CEeExecutor::BlockFactory(CMIPS& context, uint32 start, uint32 end
 	   blockFpRoundingModeIterator != std::end(m_blockFpRoundingModes))
 	{
 		result->SetFpRoundingMode(blockFpRoundingModeIterator->second);
+	}
+	if(m_idleLoopBlocks.count(start))
+	{
+		result->SetIsIdleLoopBlock();
 	}
 
 	result->Compile();

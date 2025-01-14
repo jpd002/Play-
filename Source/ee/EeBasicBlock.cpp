@@ -6,6 +6,11 @@ void CEeBasicBlock::SetFpRoundingMode(Jitter::CJitter::ROUNDINGMODE fpRoundingMo
 	m_fpRoundingMode = fpRoundingMode;
 }
 
+void CEeBasicBlock::SetIsIdleLoopBlock()
+{
+	m_isIdleLoopBlock = true;
+}
+
 void CEeBasicBlock::CompileProlog(CMipsJitter* jitter)
 {
 	if(m_fpRoundingMode != DEFAULT_FP_ROUNDING_MODE)
@@ -22,7 +27,7 @@ void CEeBasicBlock::CompileEpilog(CMipsJitter* jitter, bool loopsOnItself)
 		jitter->FP_SetRoundingMode(DEFAULT_FP_ROUNDING_MODE);
 	}
 
-	if(IsIdleLoopBlock())
+	if(m_isIdleLoopBlock || IsCodeIdleLoopBlock())
 	{
 		jitter->PushCst(MIPS_EXCEPTION_IDLE);
 		jitter->PullRel(offsetof(CMIPS, m_State.nHasException));
@@ -31,7 +36,7 @@ void CEeBasicBlock::CompileEpilog(CMipsJitter* jitter, bool loopsOnItself)
 	CBasicBlock::CompileEpilog(jitter, loopsOnItself);
 }
 
-bool CEeBasicBlock::IsIdleLoopBlock() const
+bool CEeBasicBlock::IsCodeIdleLoopBlock() const
 {
 	enum OP
 	{
