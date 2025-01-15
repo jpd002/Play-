@@ -647,8 +647,21 @@ void CPS2OS::ApplyGameConfig()
 			{
 				roundingMode = Jitter::CJitter::ROUND_NEAREST;
 			}
+			else if(!strcmp(modeString, "PLUSINFINITY"))
+			{
+				roundingMode = Jitter::CJitter::ROUND_PLUSINFINITY;
+			}
+			else if(!strcmp(modeString, "MINUSINFINITY"))
+			{
+				roundingMode = Jitter::CJitter::ROUND_MINUSINFINITY;
+			}
+			else if(!strcmp(modeString, "TRUNCATE"))
+			{
+				roundingMode = Jitter::CJitter::ROUND_TRUNCATE;
+			}
 			else
 			{
+				assert(false);
 				continue;
 			}
 
