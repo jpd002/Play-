@@ -6,6 +6,9 @@
 	<GameConfig Executable="SLUS_204.71;1" Title="Rygar - The Legendary Adventure">
 		<BlockFpRoundingMode Address="0x00147D88" Mode="NEAREST" Description="Fixes hang when entering first door." />
 	</GameConfig>
+	<GameConfig Executable="SLUS_204.87;1" Title="Mega Man X7">
+		<BlockFpRoundingMode Address="0x001027A8" Mode="PLUSINFINITY" Description="Fixes camera wonkiness." />
+	</GameConfig>
 	<GameConfig Executable="SLUS_206.56;1" Title="X-Men Legends">
 		<BlockFpRoundingMode Address="0x003D74D0" Mode="NEAREST" Description="Fixes hang in Blob boss area." />
 	</GameConfig>
