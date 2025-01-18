@@ -22,8 +22,7 @@ public:
 	typedef std::vector<ZONE> ZoneArray;
 	typedef std::chrono::high_resolution_clock::time_point TimePoint;
 
-	CProfiler();
-	virtual ~CProfiler();
+	virtual ~CProfiler() = default;
 
 	ZoneHandle RegisterZone(const char*);
 

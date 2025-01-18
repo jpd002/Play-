@@ -2,14 +2,6 @@
 
 #include <cassert>
 
-CProfiler::CProfiler()
-{
-}
-
-CProfiler::~CProfiler()
-{
-}
-
 CProfiler::ZoneHandle CProfiler::RegisterZone(const char* name)
 {
 #ifdef PROFILE
