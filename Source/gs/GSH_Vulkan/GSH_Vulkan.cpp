@@ -524,7 +524,7 @@ void CGSH_Vulkan::CreateDescriptorPool()
 
 	{
 		VkDescriptorPoolSize poolSize = {};
-		poolSize.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+		poolSize.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
 		poolSize.descriptorCount = 0x800;
 		poolSizes.push_back(poolSize);
 	}
