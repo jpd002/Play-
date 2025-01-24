@@ -219,22 +219,6 @@ void CPresent::UpdateBackbuffer(uint32 imageIndex, const CGSHandler::DISPLAY_INF
 
 	m_context->device.vkCmdEndRenderPass(commandBuffer);
 
-	//Transition image from attachment to present
-	{
-		auto imageMemoryBarrier = Framework::Vulkan::ImageMemoryBarrier();
-		imageMemoryBarrier.image = swapChainImage;
-		imageMemoryBarrier.oldLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-		imageMemoryBarrier.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-		imageMemoryBarrier.newLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
-		imageMemoryBarrier.dstAccessMask = VK_ACCESS_MEMORY_READ_BIT;
-		imageMemoryBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-		imageMemoryBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-		imageMemoryBarrier.subresourceRange = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1};
-
-		m_context->device.vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
-		                                       0, 0, nullptr, 0, nullptr, 1, &imageMemoryBarrier);
-	}
-
 	m_context->annotations.PopCommandLabel(commandBuffer);
 
 	m_context->device.vkEndCommandBuffer(commandBuffer);
@@ -501,7 +485,7 @@ void CPresent::CreateRenderPass()
 	colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
 	colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
 	colorAttachment.initialLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-	colorAttachment.finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+	colorAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
 
 	VkAttachmentReference colorRef = {};
 	colorRef.attachment = 0;
