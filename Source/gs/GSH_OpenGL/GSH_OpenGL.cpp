@@ -202,10 +202,29 @@ void CGSH_OpenGL::FlipImpl(const DISPLAY_INFO& dispInfo)
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_R, GL_RED);
 
+
+		static FramebufferPtr previousFramebuffer;
+		if(halfHeight)
+		{
+			if(!previousFramebuffer)
+			{
+				previousFramebuffer = FramebufferPtr(new CFramebuffer(fb.GetBufPtr(), fb.GetBufWidth(), FRAMEBUFFER_HEIGHT, fb.nPSM, m_fbScale, m_multisampleEnabled));
+			}
+			glActiveTexture(GL_TEXTURE2);
+			glBindTexture(GL_TEXTURE_2D, previousFramebuffer->m_texture);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_R, GL_RED);
+		}
+
+
 		glUseProgram(*m_presentProgram);
 
 		assert(m_presentTextureUniform != -1);
 		glUniform1i(m_presentTextureUniform, 0);
+ 		glUniform1i(m_presentTextureUniform, 2);
 
 		assert(m_presentTexCoordScaleUniform != -1);
 		glUniform2f(m_presentTexCoordScaleUniform, u1, v1);
@@ -213,11 +232,31 @@ void CGSH_OpenGL::FlipImpl(const DISPLAY_INFO& dispInfo)
 		glBindBuffer(GL_ARRAY_BUFFER, m_presentVertexBuffer);
 		glBindVertexArray(m_presentVertexArray);
 
+		glUniform1f(m_presentFieldUniform, (m_nCSR & CSR_FIELD) == CSR_FIELD ? 1 : 0);
+
 #ifdef _DEBUG
 		m_presentProgram->Validate();
 #endif
 
 		glDrawArrays(GL_TRIANGLES, 0, 3);
+
+		if(halfHeight)
+		{
+			if(previousFramebuffer)
+			{
+				glBindFramebuffer(GL_FRAMEBUFFER, previousFramebuffer->m_framebuffer);
+				glBindFramebuffer(GL_READ_FRAMEBUFFER, framebuffer->m_framebuffer);
+
+				//Copy buffers
+				glBlitFramebuffer(
+					0, 0, framebuffer->m_width * m_fbScale, framebuffer->m_height * m_fbScale,
+					0, 0, previousFramebuffer->m_width * m_fbScale, previousFramebuffer->m_height * m_fbScale,
+					GL_COLOR_BUFFER_BIT, GL_NEAREST);
+
+				glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+				glBindFramebuffer(GL_FRAMEBUFFER, m_presentFramebuffer);
+			}
+		}
 	}
 
 	CHECKGLERROR();
@@ -282,7 +321,9 @@ void CGSH_OpenGL::InitializeRC()
 	m_presentVertexBuffer = GeneratePresentVertexBuffer();
 	m_presentVertexArray = GeneratePresentVertexArray();
 	m_presentTextureUniform = glGetUniformLocation(*m_presentProgram, "g_texture");
+	m_presentTexture2Uniform = glGetUniformLocation(*m_presentProgram, "g_texture2");
 	m_presentTexCoordScaleUniform = glGetUniformLocation(*m_presentProgram, "g_texCoordScale");
+	m_presentFieldUniform = glGetUniformLocation(*m_presentProgram, "g_field");
 
 	m_copyToFbProgram = GenerateCopyToFbProgram();
 	m_copyToFbTexture = Framework::OpenGl::CTexture::Create();
@@ -1726,10 +1767,10 @@ void CGSH_OpenGL::DoRenderPass()
 	{
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, m_renderState.texture0Handle);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, m_renderState.texture0MinFilter);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, m_renderState.texture0MagFilter);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, m_renderState.texture0WrapS);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, m_renderState.texture0WrapT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_R, m_renderState.texture0AlphaAsIndex ? GL_ALPHA : GL_RED);
 
 		glActiveTexture(GL_TEXTURE1);
