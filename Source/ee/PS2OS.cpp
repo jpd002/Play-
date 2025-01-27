@@ -422,7 +422,6 @@ void CPS2OS::LoadELF(Framework::CStream* stream, const char* executablePath, con
 
 	m_executableName =
 	    [&]() {
-		    const char* lastSlashPos = nullptr;
 		    static const char separators[] = {'/', '\\', ':'};
 		    auto executableName = executablePath;
 		    for(const auto separator : separators)
