@@ -9,6 +9,10 @@
 	<GameConfig Executable="SLUS_201.60;1" Title="WinBack: Covert Operations">
 		<IdleLoopBlock Address="0x00234E58" />
 	</GameConfig>
+	<GameConfig Executable="SLUS_203.12;1" Title="Final Fantasy X">
+		<BlockFpRoundingMode Address="0x00120F9C" Mode="MINUSINFINITY" Description="Fixes general wonkiness." />
+		<BlockFpRoundingMode Address="0x001ABDDC" Mode="MINUSINFINITY" Description="Fixes general wonkiness in battle." />
+	</GameConfig>
 	<GameConfig Executable="SLUS_204.71;1" Title="Rygar - The Legendary Adventure">
 		<BlockFpRoundingMode Address="0x00147D88" Mode="NEAREST" Description="Fixes hang when entering first door." />
 	</GameConfig>
