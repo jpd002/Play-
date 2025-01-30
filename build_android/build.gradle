@@ -15,7 +15,7 @@ buildscript {
 }
 
 project.ext {
-	signingEnabled = project.hasProperty("PLAY_RELEASE_STORE_FILE");
+	signingEnabled = project.hasProperty("PLAY_RELEASE_STORE_FILE")
 	git = Grgit.open(currentDir: project.rootDir)
 	gitVersionCode = git.tag.list().size()
 	gitVersionName = "${git.describe()}"
