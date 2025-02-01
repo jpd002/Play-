@@ -3,7 +3,7 @@ name: Build Linux ARM32
 on: [push, pull_request]
 jobs:
   build_linux_arm32:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04-arm
     steps:
       - name: Install Dependencies
         run: |
@@ -27,7 +27,17 @@ jobs:
             cd build_cmake
             mkdir build
             cd build
-            cmake ../..
+            # The host CPU is arm64, causing CMake to detect an aarch64 build, even though we're running a 32 bit OS image
+            # HACK: We Override CMAKE_UNAME to return "arm" for the correct 32-bit ARM configuration.
+            echo '#!/bin/sh' > fake_uname.sh
+            echo 'if [ "$1" = "-m" ] || [ "$1" = "-p" ]; then' >> fake_uname.sh
+            echo '  echo "arm"' >> fake_uname.sh
+            echo 'else' >> fake_uname.sh
+            echo '  exec /bin/uname "$@"' >> fake_uname.sh
+            echo 'fi' >> fake_uname.sh
+            chmod 755 fake_uname.sh
+            git config --global --add safe.directory /work
+            cmake ../.. -DCMAKE_UNAME=`pwd`/fake_uname.sh
             make -j $(nproc)
             # VuTest won't work on ARMv7 due to FP differences
             ctest -C Release -E "(VuTest)"
