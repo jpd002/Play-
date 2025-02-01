@@ -132,12 +132,6 @@ void CMIPSInstructionFactory::ComputeMemAccessAddrNoXlat()
 	}
 }
 
-void CMIPSInstructionFactory::ComputeMemAccessRef(uint32 accessSize)
-{
-	ComputeMemAccessRefIdx(accessSize);
-	m_codeGen->AddRef();
-}
-
 void CMIPSInstructionFactory::ComputeMemAccessRefIdx(uint32 accessSize)
 {
 	ComputeMemAccessPageRef();

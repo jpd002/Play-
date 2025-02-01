@@ -29,7 +29,6 @@ public:
 protected:
 	void ComputeMemAccessAddr();
 	void ComputeMemAccessAddrNoXlat();
-	void ComputeMemAccessRef(uint32);
 	void ComputeMemAccessRefIdx(uint32);
 	void ComputeMemAccessPageRef();
 
