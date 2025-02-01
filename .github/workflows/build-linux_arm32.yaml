@@ -5,10 +5,6 @@ jobs:
   build_linux_arm32:
     runs-on: ubuntu-24.04-arm
     steps:
-      - name: Install Dependencies
-        run: |
-          sudo apt update
-          sudo apt install qemu-user-static binfmt-support
       - name: Checkout
         uses: actions/checkout@v3
         with:
