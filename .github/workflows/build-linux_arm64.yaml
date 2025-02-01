@@ -3,30 +3,29 @@ name: Build Linux ARM64
 on: [push, pull_request]
 jobs:
   build_linux_arm64:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04-arm
     steps:
-      - name: Install Dependencies
-        run: |
-          sudo apt update
-          sudo apt install qemu-user-static binfmt-support
-      - name: Checkout
-        uses: actions/checkout@v3
-        with:
-          submodules: recursive
-          fetch-depth: 0
-      - name: Build & Test
-        uses: addnab/docker-run-action@v3
-        with:
-          image: jpd002/linux_arm64_build
-          options: -v ${{ github.workspace }}:/work --platform=linux/arm64
-          run: |
-            set -e
-            apt-get update
-            apt-get install -y libcurl4-openssl-dev libgl1-mesa-dev libglu1-mesa-dev libalut-dev libevdev-dev qt6-base-dev
-            cd /work
-            cd build_cmake
-            mkdir build
-            cd build
-            cmake ../..
-            make -j $(nproc)
-            ctest -C Release
+    - name: Install Dependencies
+      run: |
+        sudo apt update
+        sudo apt install libcurl4-openssl-dev libgl1-mesa-dev libglu1-mesa-dev libalut-dev libevdev-dev qt6-base-dev
+    - name: Checkout
+      uses: actions/checkout@v3
+      with:
+        submodules: recursive
+        fetch-depth: 0
+    - name: Force Fetch Git Tags
+      run: git fetch --tags --force
+    - name: Generate CMake Project
+      run: |
+        mkdir build
+        cd build
+        cmake .. -G"Unix Makefiles" -DCMAKE_INSTALL_PREFIX=./appdir/usr -DBUILD_LIBRETRO_CORE=yes
+    - name: Build
+      run: |
+        cd build
+        cmake --build . --config Release -j $(nproc)
+    - name: Run Tests
+      run: |
+        cd build
+        ctest -C Release
