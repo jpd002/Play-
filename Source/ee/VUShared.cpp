@@ -1807,8 +1807,6 @@ void VUShared::CheckFlagPipeline(const FLAG_PIPEINFO& pipeInfo, CMipsJitter* cod
 	//the flag register every time (pipeTimes[i] <= (pipeTime + relativePipeTime))
 	for(unsigned int i = 0; i < FLAG_PIPELINE_SLOTS; i++)
 	{
-		codeGen->PushRelAddrRef(pipeInfo.timeArray);
-
 		//Compute index into array
 		codeGen->PushRel(pipeInfo.index);
 		codeGen->PushCst(i);
@@ -1816,28 +1814,28 @@ void VUShared::CheckFlagPipeline(const FLAG_PIPEINFO& pipeInfo, CMipsJitter* cod
 		codeGen->PushCst(FLAG_PIPELINE_SLOTS - 1);
 		codeGen->And();
 
+		codeGen->PushRelAddrRef(pipeInfo.timeArray);
+		codeGen->PushIdx(1);
 		codeGen->LoadFromRefIdx();
 
 		codeGen->PushRel(offsetof(CMIPS, m_State.pipeTime));
 		codeGen->PushCst(relativePipeTime);
 		codeGen->Add();
 
-		codeGen->BeginIf(Jitter::CONDITION_LE);
-		{
-			codeGen->PushRelAddrRef(pipeInfo.valueArray);
+		codeGen->Cmp(Jitter::CONDITION_LE);
 
-			//Compute index into array
-			codeGen->PushRel(pipeInfo.index);
-			codeGen->PushCst(i);
-			codeGen->Add();
-			codeGen->PushCst(FLAG_PIPELINE_SLOTS - 1);
-			codeGen->And();
+		//True branch
+		codeGen->PushRelAddrRef(pipeInfo.valueArray);
+		codeGen->PushIdx(2);
+		codeGen->LoadFromRefIdx();
 
-			codeGen->LoadFromRefIdx();
+		//False branch
+		codeGen->PushRel(pipeInfo.value);
 
-			codeGen->PullRel(pipeInfo.value);
-		}
-		codeGen->EndIf();
+		codeGen->Select();
+
+		codeGen->PullRel(pipeInfo.value);
+		codeGen->PullTop();
 	}
 }
 
