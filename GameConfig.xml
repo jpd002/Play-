@@ -6,6 +6,9 @@
 		<Patch Address="0x00463018" Value="0x03E00008" Description="Nullify custom exception handler." />
 		<Patch Address="0x0046301C" Value="0x24020001" Description="Nullify custom exception handler." />
 	</GameConfig>
+	<GameConfig Executable="SLUS_201.60;1" Title="WinBack: Covert Operations">
+		<IdleLoopBlock Address="0x00234E58" />
+	</GameConfig>
 	<GameConfig Executable="SLUS_204.71;1" Title="Rygar - The Legendary Adventure">
 		<BlockFpRoundingMode Address="0x00147D88" Mode="NEAREST" Description="Fixes hang when entering first door." />
 	</GameConfig>
