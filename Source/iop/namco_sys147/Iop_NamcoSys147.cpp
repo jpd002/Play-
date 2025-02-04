@@ -169,6 +169,52 @@ void CSys147::SetButtonState(unsigned int padNumber, PS2::CControllerInfo::BUTTO
 				break;
 			}
 		}
+		else if(padNumber == 2)
+		{
+			switch(button)
+			{
+			case PS2::CControllerInfo::DPAD_UP:
+				playerSwitchMask = 0x0100; //P3 Up
+				break;
+			case PS2::CControllerInfo::DPAD_DOWN:
+				playerSwitchMask = 0x0200; //P3 Down
+				break;
+			case PS2::CControllerInfo::DPAD_LEFT:
+				playerSwitchMask = 0x0800; //P3 Left
+				break;
+			case PS2::CControllerInfo::DPAD_RIGHT:
+				playerSwitchMask = 0x0400; //P3 Right
+				break;
+			case PS2::CControllerInfo::CROSS:
+				systemSwitchMask = 0x0200; //P3 Start
+				break;
+			default:
+				break;
+			}
+		}
+		else if(padNumber == 3)
+		{
+			switch(button)
+			{
+			case PS2::CControllerInfo::DPAD_UP:
+				playerSwitchMask = 0x0001; //P4 Up
+				break;
+			case PS2::CControllerInfo::DPAD_DOWN:
+				playerSwitchMask = 0x0002; //P4 Down
+				break;
+			case PS2::CControllerInfo::DPAD_LEFT:
+				playerSwitchMask = 0x0008; //P4 Left
+				break;
+			case PS2::CControllerInfo::DPAD_RIGHT:
+				playerSwitchMask = 0x0004; //P4 Right
+				break;
+			case PS2::CControllerInfo::CROSS:
+				systemSwitchMask = 0x0100; //P4 Start
+				break;
+			default:
+				break;
+			}
+		}
 		m_systemSwitchState &= ~systemSwitchMask;
 		m_playerSwitchState &= ~playerSwitchMask;
 		if(!pressed)

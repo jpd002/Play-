@@ -92,8 +92,8 @@ namespace Iop
 			std::map<uint8, uint8> m_switchStates;
 
 			//AI board state
-			uint16 m_systemSwitchState = ~0U;
-			uint16 m_playerSwitchState = ~0U;
+			uint16 m_systemSwitchState = 0xFFFF;
+			uint16 m_playerSwitchState = 0xFFFF;
 
 			std::unique_ptr<Framework::CHttpServer> m_ioServer;
 			std::mutex m_barcodeMutex;
