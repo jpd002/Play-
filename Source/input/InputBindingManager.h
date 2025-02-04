@@ -25,7 +25,7 @@ public:
 
 	enum
 	{
-		MAX_PADS = 2,
+		MAX_PADS = 4,
 	};
 
 	enum BINDINGTYPE

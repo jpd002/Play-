@@ -37,6 +37,8 @@ ControllerConfigDialog::ControllerConfigDialog(CInputBindingManager* inputBindin
 
 	m_padUiElements.push_back({ui->pad1TableView, ui->pad1AnalogSensitivitySlider, ui->pad1AnalogSensitivityValueLabel, ui->pad1hapticFeedbackComboBox});
 	m_padUiElements.push_back({ui->pad2TableView, ui->pad2AnalogSensitivitySlider, ui->pad2AnalogSensitivityValueLabel, ui->pad2hapticFeedbackComboBox});
+	m_padUiElements.push_back({ui->pad3TableView, ui->pad3AnalogSensitivitySlider, ui->pad3AnalogSensitivityValueLabel, ui->pad3hapticFeedbackComboBox});
+	m_padUiElements.push_back({ui->pad4TableView, ui->pad4AnalogSensitivitySlider, ui->pad4AnalogSensitivityValueLabel, ui->pad4hapticFeedbackComboBox});
 
 	auto devices = m_inputManager->GetDevices();
 	for(uint32 padIndex = 0; padIndex < m_padUiElements.size(); padIndex++)
