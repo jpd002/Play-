@@ -49,7 +49,9 @@ uint32 CInputBindingManager::m_buttonDefaultValue[PS2::CControllerInfo::MAX_BUTT
 const char* CInputBindingManager::m_padPreferenceName[] =
 {
 	"pad1",
-	"pad2"
+	"pad2",
+	"pad3",
+	"pad4"
 };
 
 // clang-format on

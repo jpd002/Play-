@@ -121,7 +121,6 @@ void CSio2::SaveState(Framework::CZipArchiveWriter& archive)
 
 void CSio2::SetButtonState(unsigned int padNumber, PS2::CControllerInfo::BUTTON button, bool pressed, uint8* ram)
 {
-	assert(padNumber < MAX_PADS);
 	if(padNumber >= MAX_PADS) return;
 
 	auto& padState = m_padState[padNumber];
