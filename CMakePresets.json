@@ -94,6 +94,24 @@
             "hidden": true
         },
         {
+            "name": "WASM",
+            "cacheVariables": {
+                "BUILD_PSFPLAYER": {
+                    "type": "BOOL",
+                    "value": "ON"
+                },
+                "BUILD_TESTS": {
+                    "type": "BOOL",
+                    "value": "OFF"
+                },
+                "USE_QT": {
+                    "type": "BOOL",
+                    "value": "OFF"
+                }
+            },
+            "hidden": true
+        },
+        {
             "name": "windows-x86_32-vs",
             "inherits": [
                 "WINDOWS-X86_32",
@@ -136,6 +154,13 @@
                 "IOS",
                 "XCODE"
             ]
+        },
+        {
+            "name": "wasm-ninja",
+            "inherits": [
+                "WASM",
+                "NINJA"
+            ]
         }
     ],
     "buildPresets": [
@@ -153,6 +178,26 @@
             "configurePreset": "windows-debugger-x86_64-vs",
             "targets": [
                 "Play"
+            ]
+        },
+        {
+            "name": "wasm-ninja-debug",
+            "configurePreset": "wasm-ninja",
+            "configuration": "Debug",
+            "targets": [
+                "Play",
+                "PsfPlayer",
+                "CodeGenTestSuite"
+            ]
+        },
+        {
+            "name": "wasm-ninja-release",
+            "configurePreset": "wasm-ninja",
+            "configuration": "Release",
+            "targets": [
+                "Play",
+                "PsfPlayer",
+                "CodeGenTestSuite"
             ]
         }
     ]
