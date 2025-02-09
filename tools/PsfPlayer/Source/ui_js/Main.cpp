@@ -14,6 +14,7 @@ CPsfBase::TagMap g_tags;
 
 int main(int argc, const char** argv)
 {
+	printf("PsfPlayer - Version %s\r\n", PLAY_VERSION);
 	return 0;
 }
 

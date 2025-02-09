@@ -14,6 +14,7 @@ CSH_OpenAL* g_soundHandler = nullptr;
 
 int main(int argc, const char** argv)
 {
+	printf("Play! - Version %s\r\n", PLAY_VERSION);
 	return 0;
 }
 
