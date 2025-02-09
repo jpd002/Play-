@@ -16,6 +16,14 @@ if(NOT TARGET PlayCore)
 endif()
 list(APPEND PROJECT_LIBS PlayCore)
 
+if(NOT TARGET ui_shared)
+	add_subdirectory(
+		${CMAKE_CURRENT_SOURCE_DIR}/../ui_shared
+		${CMAKE_CURRENT_BINARY_DIR}/ui_shared
+	)
+endif()
+list(APPEND PROJECT_LIBS ui_shared)
+
 if(NOT TARGET gsh_opengl)
 	add_subdirectory(
 		${CMAKE_CURRENT_SOURCE_DIR}/../gs/GSH_OpenGL

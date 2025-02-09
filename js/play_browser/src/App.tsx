@@ -1,7 +1,24 @@
 import './App.css';
-import { ChangeEvent } from 'react';
+import { ChangeEvent, useState, useEffect } from 'react';
 import { PlayModule } from './PlayModule';
 import { useAppDispatch, useAppSelector, bootFile } from "./Actions";
+
+function Stats() {
+  const [stats, setStats] = useState({ fps: 0 });
+  useEffect(() => {
+    const timer = setInterval(() => {
+      const frames = PlayModule.getFrames();
+      PlayModule.clearStats();
+      setStats({ fps: frames }); 
+    }, 1000);
+    return () => {
+      clearInterval(timer);
+    };
+  }, [stats]);
+  return (
+    <span className="stats">{stats.fps} f/s</span>
+  )
+}
 
 function App() {
   const state = useAppSelector((state) => state.play);
@@ -21,6 +38,7 @@ function App() {
     return (
       <div>
         <input type="file" onChange={handleChange}/>
+        <Stats />
         <span className="version">
           {`Version: ${process.env.REACT_APP_VERSION}`}
         </span>

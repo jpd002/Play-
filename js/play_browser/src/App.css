@@ -45,6 +45,10 @@ span.version {
   font-size: smaller;
 }
 
+span.stats {
+  float: right;
+}
+
 .global-row {
   display: flex;
 }

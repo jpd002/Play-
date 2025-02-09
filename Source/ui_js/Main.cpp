@@ -6,8 +6,10 @@
 #include "../../tools/PsfPlayer/Source/ui_js/SH_OpenALProxy.h"
 #include "input/PH_GenericInput.h"
 #include "InputProviderEmscripten.h"
+#include "ui_shared/StatsManager.h"
 
 CPs2VmJs* g_virtualMachine = nullptr;
+CGSHandler::NewFrameEvent::Connection g_gsNewFrameConnection;
 EMSCRIPTEN_WEBGL_CONTEXT_HANDLE g_context = 0;
 std::shared_ptr<CInputProviderEmscripten> g_inputProvider;
 CSH_OpenAL* g_soundHandler = nullptr;
@@ -106,6 +108,8 @@ extern "C" void initVm()
 		g_virtualMachine->CreateSoundHandler(CSH_OpenALProxy::GetFactoryFunction(g_soundHandler));
 	}
 
+	g_gsNewFrameConnection = g_virtualMachine->GetGSHandler()->OnNewFrame.Connect(std::bind(&CStatsManager::OnGsNewFrame, &CStatsManager::GetInstance(), std::placeholders::_1));
+
 	EMSCRIPTEN_RESULT result = EMSCRIPTEN_RESULT_SUCCESS;
 
 	result = emscripten_set_keydown_callback("#outputCanvas", nullptr, false, &keyboardCallback);
@@ -125,10 +129,22 @@ void bootDiscImage(std::string path)
 	g_virtualMachine->BootDiscImage(path);
 }
 
+int getFrames()
+{
+	return CStatsManager::GetInstance().GetFrames();
+}
+
+void clearStats()
+{
+	CStatsManager::GetInstance().ClearStats();
+}
+
 EMSCRIPTEN_BINDINGS(Play)
 {
 	using namespace emscripten;
 
 	function("bootElf", &bootElf);
 	function("bootDiscImage", &bootDiscImage);
+	function("getFrames", &getFrames);
+	function("clearStats", &clearStats);
 }
