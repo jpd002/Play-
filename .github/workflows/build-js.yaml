@@ -9,20 +9,19 @@ jobs:
       uses: mymindstorm/setup-emsdk@v12
       with:
         version: 3.1.51
+    - name: Install Dependencies
+      run: |
+        sudo apt update
+        sudo apt install ninja-build
     - name: Checkout
       uses: actions/checkout@v3
       with:
         submodules: recursive
         fetch-depth: 0
     - name: Generate CMake Project
-      run: |
-        mkdir build
-        cd build
-        emcmake cmake .. -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTS=OFF -DBUILD_PLAY=ON -DBUILD_PSFPLAYER=ON -DUSE_QT=OFF
+      run: emcmake cmake --preset wasm-ninja
     - name: Build Native Code
-      run: |
-        cd build
-        cmake --build . --config Release -j $(nproc)
+      run: cmake --build --preset wasm-ninja-release
     # Setup Node.js since Emscripten can override the node's version.
     - name: Set up Node.js
       uses: actions/setup-node@v3
@@ -33,25 +32,27 @@ jobs:
         cd $GITHUB_WORKSPACE/deps/CodeGen/js
         npm install
         tsc
-        cd $GITHUB_WORKSPACE/build/Source/ui_js/Source/CodeGen
+        cd $GITHUB_WORKSPACE/build_cmake/build/wasm-ninja/Source/ui_js/Source/CodeGen/Release
         node $GITHUB_WORKSPACE/deps/CodeGen/js/out/index.js
     - name: Build Play Browser
       run: |
+        PLAYJS_BUILD_DIR=$GITHUB_WORKSPACE/build_cmake/build/wasm-ninja/Source/ui_js/Release/
         cd js/play_browser
-        cp ../../build/Source/ui_js/Play.js ./src/
-        cp ../../build/Source/ui_js/Play.wasm ./public/
-        cp ../../build/Source/ui_js/Play.js ./public/
-        cp ../../build/Source/ui_js/Play.worker.js ./public/
+        cp $PLAYJS_BUILD_DIR/Play.js ./src/
+        cp $PLAYJS_BUILD_DIR/Play.wasm ./public/
+        cp $PLAYJS_BUILD_DIR/Play.js ./public/
+        cp $PLAYJS_BUILD_DIR/Play.worker.js ./public/
         export REACT_APP_VERSION=$(git describe)
         npm install
         npm run build
     - name: Build PsfPlayer Browser
       run: |
+        PSFPLAYERJS_BUILD_DIR=$GITHUB_WORKSPACE/build_cmake/build/wasm-ninja/tools/PsfPlayer/Source/ui_js/Release/
         cd js/psfplayer_browser
-        cp ../../build/tools/PsfPlayer/Source/ui_js/PsfPlayer.js ./src/
-        cp ../../build/tools/PsfPlayer/Source/ui_js/PsfPlayer.wasm ./public/
-        cp ../../build/tools/PsfPlayer/Source/ui_js/PsfPlayer.js ./public/
-        cp ../../build/tools/PsfPlayer/Source/ui_js/PsfPlayer.worker.js ./public/
+        cp $PSFPLAYERJS_BUILD_DIR/PsfPlayer.js ./src/
+        cp $PSFPLAYERJS_BUILD_DIR/PsfPlayer.wasm ./public/
+        cp $PSFPLAYERJS_BUILD_DIR/PsfPlayer.js ./public/
+        cp $PSFPLAYERJS_BUILD_DIR/PsfPlayer.worker.js ./public/
         export REACT_APP_VERSION=$(git describe)
         npm install
         npm run build
