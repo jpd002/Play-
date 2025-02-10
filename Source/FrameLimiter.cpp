@@ -64,8 +64,8 @@ void CFrameLimiter::EndFrame()
 			WaitForSingleObject(timer, INFINITE);
 			CloseHandle(timer);
 		}
-#elif defined(__APPLE__)
-		//Sleeping for the whole delay on macOS/iOS doesn't provide a good enough resolution
+#elif defined(__APPLE__) || defined(__EMSCRIPTEN__)
+		//Sleeping for the whole delay on some platforms doesn't provide a good enough resolution
 		auto currentTime = std::chrono::high_resolution_clock::now();
 		auto targetTime = currentTime + delay;
 		while(currentTime < targetTime)
