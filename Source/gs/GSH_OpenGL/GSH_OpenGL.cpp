@@ -1588,6 +1588,13 @@ void CGSH_OpenGL::Prim_Sprite()
 	float nS[2] = {0, 0};
 	float nT[2] = {0, 0};
 
+	float nF = 0;
+
+	if(m_PrimitiveMode.nFog)
+	{
+		nF = (float)(0xFF - m_VtxBuffer[0].fog) / 255.0f;
+	}
+
 	if(m_PrimitiveMode.nTexture)
 	{
 		if(m_PrimitiveMode.nUseUV)
@@ -1629,13 +1636,13 @@ void CGSH_OpenGL::Prim_Sprite()
 	// clang-format off
 	PRIM_VERTEX vertices[] =
 	{
-		{nX1, nY1, nZ, color, nS[0], nT[0], 1, 0},
-		{nX2, nY1, nZ, color, nS[1], nT[0], 1, 0},
-		{nX1, nY2, nZ, color, nS[0], nT[1], 1, 0},
+		{nX1, nY1, nZ, color, nS[0], nT[0], 1, nF},
+		{nX2, nY1, nZ, color, nS[1], nT[0], 1, nF},
+		{nX1, nY2, nZ, color, nS[0], nT[1], 1, nF},
 
-		{nX1, nY2, nZ, color, nS[0], nT[1], 1, 0},
-		{nX2, nY1, nZ, color, nS[1], nT[0], 1, 0},
-		{nX2, nY2, nZ, color, nS[1], nT[1], 1, 0},
+		{nX1, nY2, nZ, color, nS[0], nT[1], 1, nF},
+		{nX2, nY1, nZ, color, nS[1], nT[0], 1, nF},
+		{nX2, nY2, nZ, color, nS[1], nT[1], 1, nF},
 	};
 	// clang-format on
 

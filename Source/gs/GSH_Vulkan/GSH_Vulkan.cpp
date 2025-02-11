@@ -1238,6 +1238,13 @@ void CGSH_Vulkan::Prim_Sprite()
 	float s[2] = {0, 0};
 	float t[2] = {0, 0};
 
+	float f = 0;
+
+	if(m_primitiveMode.nFog)
+	{
+		f = static_cast<float>(0xFF - m_vtxBuffer[0].fog) / 255.0f;
+	}
+
 	if(m_primitiveMode.nTexture)
 	{
 		if(m_primitiveMode.nUseUV)
@@ -1279,13 +1286,13 @@ void CGSH_Vulkan::Prim_Sprite()
 	// clang-format off
 	CDraw::PRIM_VERTEX vertices[] =
 	{
-		{x1, y1, z, color, s[0], t[0], 1, 0},
-		{x2, y1, z, color, s[1], t[0], 1, 0},
-		{x1, y2, z, color, s[0], t[1], 1, 0},
+		{x1, y1, z, color, s[0], t[0], 1, f},
+		{x2, y1, z, color, s[1], t[0], 1, f},
+		{x1, y2, z, color, s[0], t[1], 1, f},
 
-		{x1, y2, z, color, s[0], t[1], 1, 0},
-		{x2, y1, z, color, s[1], t[0], 1, 0},
-		{x2, y2, z, color, s[1], t[1], 1, 0},
+		{x1, y2, z, color, s[0], t[1], 1, f},
+		{x2, y1, z, color, s[1], t[0], 1, f},
+		{x2, y2, z, color, s[1], t[1], 1, f},
 	};
 	// clang-format on
 
