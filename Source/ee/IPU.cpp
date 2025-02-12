@@ -141,8 +141,8 @@ void CIPU::Reset()
 
 uint32 CIPU::GetRegister(uint32 nAddress)
 {
-#ifdef _DEBUG
-//	DisassembleGet(nAddress);
+#if LOGGING_ENABLED
+	DisassembleGet(nAddress);
 #endif
 
 	switch(nAddress)
@@ -232,7 +232,7 @@ uint32 CIPU::GetRegister(uint32 nAddress)
 
 void CIPU::SetRegister(uint32 nAddress, uint32 nValue)
 {
-#ifdef _DEBUG
+#if LOGGING_ENABLED
 	DisassembleSet(nAddress, nValue);
 #endif
 
@@ -253,7 +253,7 @@ void CIPU::SetRegister(uint32 nAddress, uint32 nValue)
 			InitializeCommand(nValue);
 			m_isBusy = true;
 		}
-#ifdef _DEBUG
+#if LOGGING_ENABLED
 		DisassembleCommand(nValue);
 #endif
 		break;

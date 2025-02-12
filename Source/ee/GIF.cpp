@@ -299,7 +299,7 @@ uint32 CGIF::ProcessSinglePacket(const uint8* memory, uint32 memorySize, uint32 
 	CProfilerZone profilerZone(m_gifProfilerZone);
 #endif
 
-#if defined(_DEBUG) && defined(DEBUGGER_INCLUDED)
+#if LOGGING_ENABLED
 	CLog::GetInstance().Print(LOG_NAME, "Received GIF packet on path %d at 0x%08X of 0x%08X bytes.\r\n",
 	                          packetMetadata.pathIndex, address, end - address);
 #endif
@@ -322,7 +322,7 @@ uint32 CGIF::ProcessSinglePacket(const uint8* memory, uint32 memorySize, uint32 
 			//We need to update the registers
 			auto tag = *reinterpret_cast<const TAG*>(&memory[address]);
 			address += 0x10;
-#ifdef _DEBUG
+#if LOGGING_ENABLED
 			CLog::GetInstance().Print(LOG_NAME, "TAG(loops = %d, eop = %d, pre = %d, prim = 0x%04X, cmd = %d, nreg = %d);\r\n",
 			                          tag.loops, tag.eop, tag.pre, tag.prim, tag.cmd, tag.nreg);
 #endif
@@ -403,7 +403,7 @@ uint32 CGIF::ProcessSinglePacket(const uint8* memory, uint32 memorySize, uint32 
 
 	m_gs->ProcessWriteBuffer(&packetMetadata);
 
-#ifdef _DEBUG
+#if LOGGING_ENABLED
 	CLog::GetInstance().Print(LOG_NAME, "Processed 0x%08X bytes.\r\n", address - start);
 #endif
 
@@ -571,7 +571,7 @@ uint32 CGIF::GetRegister(uint32 address)
 		CLog::GetInstance().Warn(LOG_NAME, "Reading unknown register 0x%08X.\r\n", address);
 		break;
 	}
-#ifdef _DEBUG
+#if LOGGING_ENABLED
 	DisassembleGet(address);
 #endif
 	return result;
@@ -592,7 +592,7 @@ void CGIF::SetRegister(uint32 address, uint32 value)
 			break;
 		}
 	}
-#ifdef _DEBUG
+#if LOGGING_ENABLED
 	DisassembleSet(address, value);
 #endif
 }

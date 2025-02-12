@@ -3377,7 +3377,7 @@ void CPS2OS::HandleTLBException()
 
 void CPS2OS::DisassembleSysCall(uint8 func)
 {
-#ifdef _DEBUG
+#if LOGGING_ENABLED
 	std::string description(GetSysCallDescription(func));
 	if(description.length() != 0)
 	{

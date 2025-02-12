@@ -181,7 +181,7 @@ uint32 CVif::GetRegister(uint32 address)
 		CLog::GetInstance().Warn(LOG_NAME, "Reading unknown register 0x%08X.\r\n", address);
 		break;
 	}
-#ifdef _DEBUG
+#if LOGGING_ENABLED
 	DisassembleGet(address);
 #endif
 	return result;
@@ -245,7 +245,7 @@ void CVif::SetRegister(uint32 address, uint32 value)
 			break;
 		}
 	}
-#ifdef _DEBUG
+#if LOGGING_ENABLED
 	DisassembleSet(address, value);
 #endif
 }
@@ -363,7 +363,7 @@ uint32 CVif::ReceiveDMA(uint32 address, uint32 qwc, uint32 unused, bool tagInclu
 	CProfilerZone profilerZone(m_vifProfilerZone);
 #endif
 
-#ifdef _DEBUG
+#if LOGGING_ENABLED
 	CLog::GetInstance().Print(LOG_NAME, "vif%i : Processing packet @ 0x%08X, qwc = 0x%X, tagIncluded = %i\r\n",
 	                          m_number, address, qwc, static_cast<int>(tagIncluded));
 #endif
@@ -476,7 +476,7 @@ void CVif::ProcessPacket(StreamType& stream)
 
 void CVif::ExecuteCommand(StreamType& stream, CODE nCommand)
 {
-#ifdef _DEBUG
+#if LOGGING_ENABLED
 	if(m_number == 0)
 	{
 		DisassembleCommand(nCommand);

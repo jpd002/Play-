@@ -345,7 +345,7 @@ uint32 CDMAC::ReceiveDMA9(uint32 nSrcAddress, uint32 nCount, uint32 unused, bool
 
 uint32 CDMAC::GetRegister(uint32 nAddress)
 {
-#ifdef _DEBUG
+#if LOGGING_ENABLED
 	DisassembleGet(nAddress);
 #endif
 
@@ -986,7 +986,7 @@ void CDMAC::SetRegister(uint32 nAddress, uint32 nData)
 		break;
 	}
 
-#ifdef _DEBUG
+#if LOGGING_ENABLED
 	DisassembleSet(nAddress, nData);
 #endif
 }

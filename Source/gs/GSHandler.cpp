@@ -529,7 +529,7 @@ void CGSHandler::WritePrivRegister(uint32 nAddress, uint32 nData)
 		break;
 	}
 
-#ifdef _DEBUG
+#if LOGGING_ENABLED
 	if(nAddress & 0x04)
 	{
 		LogPrivateWrite(nAddress);
@@ -587,7 +587,7 @@ void CGSHandler::MarkNewFrame()
 	OnNewFrame(m_drawCallCount);
 	m_drawCallCount = 0;
 	UpdateFrameDumpState();
-#ifdef _DEBUG
+#if LOGGING_ENABLED
 	CLog::GetInstance().Print(LOG_NAME, "Frame Done.\r\n---------------------------------------------------------------------------------\r\n");
 #endif
 }
@@ -816,7 +816,7 @@ void CGSHandler::WriteRegisterImpl(uint8 nRegister, uint64 nData)
 		break;
 	}
 
-#ifdef _DEBUG
+#if LOGGING_ENABLED
 	LogWrite(nRegister, nData);
 #endif
 }
@@ -825,7 +825,7 @@ void CGSHandler::FeedImageDataImpl(const uint8* imageData, uint32 length)
 {
 	if(m_trxCtx.nSize == 0)
 	{
-#ifdef _DEBUG
+#if LOGGING_ENABLED
 		CLog::GetInstance().Warn(LOG_NAME, "Warning. Received image data when no transfer was expected.\r\n");
 #endif
 	}
@@ -843,7 +843,7 @@ void CGSHandler::FeedImageDataImpl(const uint8* imageData, uint32 length)
 		{
 			ProcessHostToLocalTransfer();
 
-#ifdef _DEBUG
+#if LOGGING_ENABLED
 			auto bltBuf = make_convertible<BITBLTBUF>(m_nReg[GS_REG_BITBLTBUF]);
 			CLog::GetInstance().Print(LOG_NAME, "Completed image transfer at 0x%08X (dirty = %d).\r\n", bltBuf.GetDstPtr(), m_trxCtx.nDirty);
 #endif
