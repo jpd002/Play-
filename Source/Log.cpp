@@ -9,6 +9,8 @@
 
 #define PREF_LOG_SHOWPRINTS "log.showprints"
 
+#if LOGGING_ENABLED
+
 // clang-format off
 static const std::set<std::string, std::less<>> g_allowedLogs =
 {
@@ -18,17 +20,14 @@ static const std::set<std::string, std::less<>> g_allowedLogs =
 
 CLog::CLog()
 {
-#ifndef DISABLE_LOGGING
 	m_logBasePath = CAppConfig::GetInstance().GetBasePath() / LOG_PATH;
 	Framework::PathUtils::EnsurePathExists(m_logBasePath);
 	CAppConfig::GetInstance().RegisterPreferenceBoolean(PREF_LOG_SHOWPRINTS, false);
 	m_showPrints = CAppConfig::GetInstance().GetPreferenceBoolean(PREF_LOG_SHOWPRINTS);
-#endif
 }
 
 void CLog::Print(const char* logName, const char* format, ...)
 {
-#if defined(_DEBUG) && !defined(DISABLE_LOGGING)
 	if(!m_showPrints && !g_allowedLogs.count(logName)) return;
 	auto& logStream(GetLog(logName));
 	va_list args;
@@ -36,19 +35,16 @@ void CLog::Print(const char* logName, const char* format, ...)
 	vfprintf(logStream, format, args);
 	va_end(args);
 	logStream.Flush();
-#endif
 }
 
 void CLog::Warn(const char* logName, const char* format, ...)
 {
-#if defined(_DEBUG) && !defined(DISABLE_LOGGING)
 	auto& logStream(GetLog(logName));
 	va_list args;
 	va_start(args, format);
 	vfprintf(logStream, format, args);
 	va_end(args);
 	logStream.Flush();
-#endif
 }
 
 Framework::CStdStream& CLog::GetLog(const char* logName)
@@ -63,3 +59,5 @@ Framework::CStdStream& CLog::GetLog(const char* logName)
 	}
 	return logIterator->second;
 }
+
+#endif
