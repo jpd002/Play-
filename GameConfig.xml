@@ -31,6 +31,13 @@
 	<GameConfig Executable="SLES_501.76;1" Title="Oni">
 		<Patch Address="0x001cef7c" Value="0x00000000 // bc0f $001cef7c" Description="Fix hang by skip branch if copro 0 condition false." />
 	</GameConfig>
+	<GameConfig Executable="SLES_524.48;1" Title="Knights of the Temple: Infernal Crusade">
+		<BlockFpRoundingMode Address="0x0036581C" Mode="NEAREST" Description="Fixes collision issues." />
+		<BlockFpRoundingMode Address="0x00365948" Mode="NEAREST" Description="Fixes collision issues." />
+		<BlockFpRoundingMode Address="0x00365A1C" Mode="NEAREST" Description="Fixes collision issues." />
+		<BlockFpRoundingMode Address="0x00365AA4" Mode="NEAREST" Description="Fixes collision issues." />
+		<IdleLoopBlock Address="0x002BFB78" />
+	</GameConfig>
 	<GameConfig Executable="SLPM_551.91;1" Title="L2 - Love x Loop">
 		<Patch Address="0x001B4828" Value="0x10000008" Description="Avoid bug in code that fiddles with SP and causes the stack to be clobbered by SifCallRpc. Requires proper data cache handling to avoid issue." />
 	</GameConfig>
