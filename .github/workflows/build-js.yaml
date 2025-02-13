@@ -8,7 +8,7 @@ jobs:
     - name: Setup Emscripten
       uses: mymindstorm/setup-emsdk@v12
       with:
-        version: 3.1.51
+        version: 4.0.1
     - name: Install Dependencies
       run: |
         sudo apt update
@@ -41,7 +41,6 @@ jobs:
         cp $PLAYJS_BUILD_DIR/Play.js ./src/
         cp $PLAYJS_BUILD_DIR/Play.wasm ./public/
         cp $PLAYJS_BUILD_DIR/Play.js ./public/
-        cp $PLAYJS_BUILD_DIR/Play.worker.js ./public/
         export REACT_APP_VERSION=$(git describe)
         npm install
         npm run build
@@ -52,7 +51,6 @@ jobs:
         cp $PSFPLAYERJS_BUILD_DIR/PsfPlayer.js ./src/
         cp $PSFPLAYERJS_BUILD_DIR/PsfPlayer.wasm ./public/
         cp $PSFPLAYERJS_BUILD_DIR/PsfPlayer.js ./public/
-        cp $PSFPLAYERJS_BUILD_DIR/PsfPlayer.worker.js ./public/
         export REACT_APP_VERSION=$(git describe)
         npm install
         npm run build
