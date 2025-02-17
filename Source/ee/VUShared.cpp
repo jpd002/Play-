@@ -1785,11 +1785,19 @@ void VUShared::CheckPipeline(const REGISTER_PIPEINFO& pipeInfo, CMipsJitter* cod
 	codeGen->PushCst(relativePipeTime);
 	codeGen->Add();
 
-	codeGen->BeginIf(Jitter::CONDITION_LE);
-	{
-		FlushPipeline(pipeInfo, codeGen);
-	}
-	codeGen->EndIf();
+	codeGen->Cmp(Jitter::CONDITION_LE);
+	codeGen->PushTop();
+
+	//This needs to match behavior in FlushPipeline
+	codeGen->PushCst(0);
+	codeGen->PushRel(pipeInfo.counter);
+	codeGen->Select();
+	codeGen->PullRel(pipeInfo.counter);
+
+	codeGen->PushRel(pipeInfo.heldValue);
+	codeGen->PushRel(pipeInfo.value);
+	codeGen->Select();
+	codeGen->PullRel(pipeInfo.value);
 }
 
 void VUShared::QueueInPipeline(const REGISTER_PIPEINFO& pipeInfo, CMipsJitter* codeGen, uint32 latency, uint32 relativePipeTime)
