@@ -4,6 +4,7 @@
 #include "Iop_Intc.h"
 #include "../PadInterface.h"
 #include <deque>
+#include <array>
 
 namespace Iop
 {
@@ -97,6 +98,6 @@ namespace Iop
 		ByteBufferType m_inputBuffer;
 		ByteBufferType m_outputBuffer;
 
-		PADSTATE m_padState[MAX_PADS];
+		std::array<PADSTATE, MAX_PADS> m_padState;
 	};
 }

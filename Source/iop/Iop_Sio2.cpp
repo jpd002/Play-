@@ -667,6 +667,8 @@ void CSio2::DisassembleWrite(uint32 address, uint32 value)
 
 void CSio2::GetVibration(unsigned int padId, uint8& largeMotor, uint8& smallMotor)
 {
+	if(padId >= MAX_PADS) return;
+
 	auto& padState = m_padState[padId];
 	largeMotor = padState.largeMotor;
 	smallMotor = padState.smallMotor;
