@@ -22,6 +22,9 @@
 		<BlockFpRoundingMode Address="0x001B4060" Mode="NEAREST" Description="Fixes soft lock in Chapter 4 boss battle." />
 		<IdleLoopBlock Address="0x001B4690" />
 	</GameConfig>
+	<GameConfig Executable="SLUS_208.98;1" Title="Star Wars: Battlefront">
+		<IdleLoopBlock Address="0x00342138" />
+	</GameConfig>
 	<GameConfig Executable="SLUS_210.48;1" Title="Evil Dead: Regeneration">
 		<IdleLoopBlock Address="0x00377898" />
 	</GameConfig>
