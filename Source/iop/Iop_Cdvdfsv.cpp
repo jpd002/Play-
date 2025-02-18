@@ -305,6 +305,13 @@ bool CCdvdfsv::Invoke595(uint32 method, uint32* args, uint32 argsSize, uint32* r
 	}
 	break;
 
+	case 0x08:
+		CLog::GetInstance().Print(LOG_NAME, "Pause();\r\n");
+		assert(m_pendingCommand == COMMAND_NONE);
+		m_pendingCommand = COMMAND_PAUSE;
+		m_pendingCommandDelay = COMMAND_DEFAULT_DELAY;
+		return false;
+
 	case 0x09:
 		return StreamCmd(args, argsSize, ret, retSize, ram);
 		break;
