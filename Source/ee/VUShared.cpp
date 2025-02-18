@@ -1822,8 +1822,14 @@ void VUShared::CheckFlagPipeline(const FLAG_PIPEINFO& pipeInfo, CMipsJitter* cod
 		codeGen->PushCst(FLAG_PIPELINE_SLOTS - 1);
 		codeGen->And();
 
-		codeGen->PushRelAddrRef(pipeInfo.timeArray);
+		//Load value for true branch
+		//Loaded here to allow merging of Cmp and Select operations
+		codeGen->PushRelAddrRef(pipeInfo.valueArray);
 		codeGen->PushIdx(1);
+		codeGen->LoadFromRefIdx();
+
+		codeGen->PushRelAddrRef(pipeInfo.timeArray);
+		codeGen->PushIdx(2);
 		codeGen->LoadFromRefIdx();
 
 		codeGen->PushRel(offsetof(CMIPS, m_State.pipeTime));
@@ -1833,9 +1839,7 @@ void VUShared::CheckFlagPipeline(const FLAG_PIPEINFO& pipeInfo, CMipsJitter* cod
 		codeGen->Cmp(Jitter::CONDITION_LE);
 
 		//True branch
-		codeGen->PushRelAddrRef(pipeInfo.valueArray);
-		codeGen->PushIdx(2);
-		codeGen->LoadFromRefIdx();
+		codeGen->Swap();
 
 		//False branch
 		codeGen->PushRel(pipeInfo.value);
