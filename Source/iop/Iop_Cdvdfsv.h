@@ -48,6 +48,7 @@ namespace Iop
 			COMMAND_READCHAIN,
 			COMMAND_STREAM_READ,
 			COMMAND_NDISKREADY,
+			COMMAND_PAUSE,
 		};
 
 		bool Invoke592(uint32, uint32*, uint32, uint32*, uint32, uint8*);
