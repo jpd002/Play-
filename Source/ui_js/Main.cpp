@@ -139,6 +139,16 @@ void clearStats()
 	CStatsManager::GetInstance().ClearStats();
 }
 
+void setFullscreen()
+{
+	EmscriptenFullscreenStrategy strategy = {};
+	strategy.scaleMode = EMSCRIPTEN_FULLSCREEN_CANVAS_SCALE_NONE;
+	strategy.filteringMode = EMSCRIPTEN_FULLSCREEN_FILTERING_DEFAULT;
+	//strategy.canvasResizedCallback = emscripten_window_resized_callback;
+	//strategy.canvasResizedCallbackUserData = this;
+	emscripten_request_fullscreen_strategy("canvas", true, &strategy);
+}
+
 EMSCRIPTEN_BINDINGS(Play)
 {
 	using namespace emscripten;
@@ -147,4 +157,5 @@ EMSCRIPTEN_BINDINGS(Play)
 	function("bootDiscImage", &bootDiscImage);
 	function("getFrames", &getFrames);
 	function("clearStats", &clearStats);
+	function("setFullscreen", &setFullscreen);
 }

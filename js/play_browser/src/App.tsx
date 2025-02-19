@@ -29,6 +29,9 @@ function App() {
       dispatch(bootFile(file));
     }
   }
+  const setFullscreen = function() {
+    PlayModule.setFullscreen();
+  }
   console.log(state.value);
   if(PlayModule === null) {
     return (
@@ -38,6 +41,7 @@ function App() {
     return (
       <div>
         <input type="file" onChange={handleChange}/>
+        <button onClick={setFullscreen}>Fullscreen</button>
         <Stats />
         <span className="version">
           {`Version: ${process.env.REACT_APP_VERSION}`}
