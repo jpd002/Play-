@@ -31,6 +31,9 @@
 	<GameConfig Executable="SLUS_213.06;1" Title="Ghost Rider">
 		<IdleLoopBlock Address="0x002F43E8" />
 	</GameConfig>
+	<GameConfig Executable="SLUS_213.86;1" Title="Tales of the Abyss">
+		<IdleLoopBlock Address="0x001A4508" />
+	</GameConfig>
 	<GameConfig Executable="SLES_501.76;1" Title="Oni">
 		<Patch Address="0x001cef7c" Value="0x00000000 // bc0f $001cef7c" Description="Fix hang by skip branch if copro 0 condition false." />
 	</GameConfig>
