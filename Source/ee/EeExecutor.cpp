@@ -126,6 +126,7 @@ void CEeExecutor::Reset()
 	SetMemoryProtected(m_ram, PS2::EE_RAM_SIZE, false);
 	m_cachedBlocks.clear();
 	m_blockFpRoundingModes.clear();
+	m_idleLoopBlocks.clear();
 	CGenericMipsExecutor::Reset();
 }
 
