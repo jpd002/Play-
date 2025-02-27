@@ -1797,6 +1797,12 @@ Framework::CBitmap CGSH_Vulkan::GetTextureImpl(uint64 tex0Reg, uint32 maxMip, ui
 	case PSMCT24:
 		bitmap = ReadImage32<CGsPixelFormats::CPixelIndexorPSMCT32, 0x00FFFFFF>(GetRam(), tbp, tbw, width, height);
 		break;
+	case PSMCT16:
+		bitmap = ReadImage16<CGsPixelFormats::CPixelIndexorPSMCT16>(GetRam(), tbp, tbw, width, height);
+		break;
+	case PSMCT16S:
+		bitmap = ReadImage16<CGsPixelFormats::CPixelIndexorPSMCT16S>(GetRam(), tbp, tbw, width, height);
+		break;
 	case PSMT8:
 		bitmap = ReadImage8<CGsPixelFormats::CPixelIndexorPSMT8>(GetRam(), tbp, tbw, width, height);
 		break;
