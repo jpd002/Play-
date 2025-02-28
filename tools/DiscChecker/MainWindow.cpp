@@ -112,6 +112,7 @@ void CMainWindow::FillDiscInfo(const fs::path& path)
 			uint32 checksum = future.get();
 			ui->tracksListView->setItem(i, 3, new QTableWidgetItem(string_format("%08X", checksum).c_str()));
 		});
+		ui->tracksListView->setItem(i, 3, new QTableWidgetItem(""));
 		ui->tracksListView->setCellWidget(i, 4, computeButton);
 	}
 	auto blockProvider = opticalMedia->GetBlockProvider();
