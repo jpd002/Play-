@@ -5,19 +5,26 @@
 class CChdCdImageStream : public CChdImageStream
 {
 public:
-	enum TRACK_TYPE
+	enum DATA_TYPE
 	{
-		TRACK_TYPE_CD_MODE1,
-		TRACK_TYPE_CD_MODE2_RAW,
-		TRACK_TYPE_DVD,
+		DATA_TYPE_CD_MODE1,
+		DATA_TYPE_CD_MODE2_RAW,
+		DATA_TYPE_DVD,
+	};
+
+	struct TRACK
+	{
+		uint32 frames = 0;
 	};
 
 	CChdCdImageStream(std::unique_ptr<Framework::CStream>);
 
-	TRACK_TYPE GetTrack0Type() const;
+	DATA_TYPE GetDataType() const;
+	const std::vector<TRACK>& GetTracks() const;
 
 private:
 	void ReadMetadata();
 
-	TRACK_TYPE m_track0Type = TRACK_TYPE_CD_MODE1;
+	DATA_TYPE m_dataType = DATA_TYPE_CD_MODE1;
+	std::vector<TRACK> m_tracks;
 };

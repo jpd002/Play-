@@ -11,9 +11,14 @@ CChdCdImageStream::CChdCdImageStream(std::unique_ptr<Framework::CStream> baseStr
 	ReadMetadata();
 }
 
-CChdCdImageStream::TRACK_TYPE CChdCdImageStream::GetTrack0Type() const
+CChdCdImageStream::DATA_TYPE CChdCdImageStream::GetDataType() const
 {
-	return m_track0Type;
+	return m_dataType;
+}
+
+const std::vector<CChdCdImageStream::TRACK>& CChdCdImageStream::GetTracks() const
+{
+	return m_tracks;
 }
 
 void CChdCdImageStream::ReadMetadata()
@@ -23,34 +28,59 @@ void CChdCdImageStream::ReadMetadata()
 	uint32_t outlen = 0;
 	if(chd_get_metadata(m_chd, CDROM_TRACK_METADATA2_TAG, 0, &metadata, sizeof(metadata), &outlen, nullptr, nullptr) == CHDERR_NONE)
 	{
-		assert(m_unitSize == 2448);
-
-		metadata[outlen] = 0;
-
-		int track = 0, frames = 0, preGap = 0, postGap = 0;
-		char type[bufferSize], subType[bufferSize], pgType[bufferSize], pgSub[bufferSize];
-		if(sscanf(metadata, CDROM_TRACK_METADATA2_FORMAT, &track, type, subType, &frames, &preGap, pgType, pgSub, &postGap) == 8)
+		auto getTrackDataType = [](const char* typeString)
 		{
-			type[bufferSize - 1] = 0;
-			if(!strcmp(type, "MODE2_RAW"))
+			  if(!strcmp(typeString, "MODE2_RAW") || !strcmp(typeString, "AUDIO"))
+			  {
+				  return DATA_TYPE_CD_MODE2_RAW;
+			  }
+			  else
+			  {
+				  return DATA_TYPE_CD_MODE1;
+			  }
+		};
+		assert(m_unitSize == 2448);
+		int trackIndex = 0;
+		while(1)
+		{
+			metadata[outlen] = 0;
+			int track = 0, frames = 0, preGap = 0, postGap = 0;
+			char type[bufferSize], subType[bufferSize], pgType[bufferSize], pgSub[bufferSize];
+			if(sscanf(metadata, CDROM_TRACK_METADATA2_FORMAT, &track, type, subType, &frames, &preGap, pgType, pgSub, &postGap) == 8)
 			{
-				m_track0Type = TRACK_TYPE_CD_MODE2_RAW;
+				type[bufferSize - 1] = 0;
+				DATA_TYPE trackDataType = getTrackDataType(type);
+				if(trackIndex != 0)
+				{
+					if(trackDataType != m_dataType)
+					{
+						throw std::runtime_error("Inconsistent track types.");
+					}
+				}
+				if(track != (trackIndex + 1))
+				{
+					throw std::runtime_error("Inconsistent track order.");
+				}
+				m_dataType = trackDataType;
+				m_tracks.push_back({static_cast<uint32>(frames)});
 			}
-			else
+			trackIndex++;
+			chd_error result = chd_get_metadata(m_chd, CDROM_TRACK_METADATA2_TAG, trackIndex, &metadata, sizeof(metadata), &outlen, nullptr, nullptr);
+			if(result != CHDERR_NONE)
 			{
-				m_track0Type = TRACK_TYPE_CD_MODE1;
+				break;
 			}
 		}
 	}
 	else if(chd_get_metadata(m_chd, DVD_METADATA_TAG, 0, &metadata, sizeof(metadata), &outlen, nullptr, nullptr) == CHDERR_NONE)
 	{
 		assert(m_unitSize == 2048);
-		m_track0Type = TRACK_TYPE_DVD;
+		m_dataType = DATA_TYPE_DVD;
 	}
 	else
 	{
 		//No interesting metadata found, assuming MODE1 CD
 		assert(m_unitSize == 2448);
-		m_track0Type = TRACK_TYPE_CD_MODE1;
+		m_dataType = DATA_TYPE_CD_MODE1;
 	}
 }

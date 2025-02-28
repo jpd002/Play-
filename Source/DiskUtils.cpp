@@ -184,28 +184,43 @@ static DiskUtils::OpticalMediaPtr CreateOpticalMediaFromMds(const fs::path& imag
 
 static DiskUtils::OpticalMediaPtr CreateOpticalMediaFromChd(const fs::path& imagePath)
 {
-	//Some notes about CHD support:
-	//- We don't support multi track CDs
 	auto imageStream = std::make_shared<CChdCdImageStream>(CreateImageStream(imagePath));
 	auto trackInfo = [&imageStream]() -> std::pair<COpticalMedia::BlockProviderPtr, COpticalMedia::MEDIA_BLOCK_TYPE> {
 		static constexpr uint64 CHD_CD_UNITSIZE = 2448;
 		static constexpr uint64 CD_MEDIA_UNIT_SIZE = COpticalMedia::MEDIA_BLOCK_SIZE_2352;
-		switch(imageStream->GetTrack0Type())
+		switch(imageStream->GetDataType())
 		{
 		default:
 			assert(false);
 			[[fallthrough]];
-		case CChdCdImageStream::TRACK_TYPE_CD_MODE1:
+		case CChdCdImageStream::DATA_TYPE_CD_MODE1:
 			return std::make_pair(std::make_shared<ISO9660::CBlockProviderCustom<CHD_CD_UNITSIZE, CD_MEDIA_UNIT_SIZE, 0>>(imageStream), COpticalMedia::MEDIA_BLOCK_TYPE_2352);
-		case CChdCdImageStream::TRACK_TYPE_CD_MODE2_RAW:
+		case CChdCdImageStream::DATA_TYPE_CD_MODE2_RAW:
 			return std::make_pair(std::make_shared<ISO9660::CBlockProviderCustom<CHD_CD_UNITSIZE, CD_MEDIA_UNIT_SIZE, 0x18>>(imageStream), COpticalMedia::MEDIA_BLOCK_TYPE_2352);
-		case CChdCdImageStream::TRACK_TYPE_DVD:
+		case CChdCdImageStream::DATA_TYPE_DVD:
 			return std::make_pair(std::make_shared<ISO9660::CBlockProvider2048>(imageStream), COpticalMedia::MEDIA_BLOCK_TYPE_2048);
 		}
 	}();
 	std::vector<COpticalMedia::TRACK> tracks;
-	//Create first track
+	const auto& chdTracks = imageStream->GetTracks();
+	if(!chdTracks.empty())
 	{
+		uint32 trackPos = 0;
+		for(int i = 0; i < chdTracks.size(); i++)
+		{
+			const auto& chdTrack = chdTracks[i];
+			COpticalMedia::TRACK track = {};
+			track.start = trackPos;
+			track.size = chdTrack.frames;
+			trackPos += chdTrack.frames;
+			//CHD tracks start on a 4 sector boundary
+			trackPos = (trackPos + 0x03) & ~0x03;
+			tracks.push_back(track);
+		}
+	}
+	else
+	{
+		//Create first track
 		COpticalMedia::TRACK track = {};
 		track.size = trackInfo.first->GetBlockCount();
 		tracks.push_back(track);
