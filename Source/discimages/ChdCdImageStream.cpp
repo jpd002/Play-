@@ -2,6 +2,7 @@
 #include <libchdr/chd.h>
 #include <cassert>
 #include <cstring>
+#include <stdexcept>
 
 #define DVD_METADATA_TAG CHD_MAKE_TAG('D', 'V', 'D', ' ')
 
@@ -28,16 +29,15 @@ void CChdCdImageStream::ReadMetadata()
 	uint32_t outlen = 0;
 	if(chd_get_metadata(m_chd, CDROM_TRACK_METADATA2_TAG, 0, &metadata, sizeof(metadata), &outlen, nullptr, nullptr) == CHDERR_NONE)
 	{
-		auto getTrackDataType = [](const char* typeString)
-		{
-			  if(!strcmp(typeString, "MODE2_RAW") || !strcmp(typeString, "AUDIO"))
-			  {
-				  return DATA_TYPE_CD_MODE2_RAW;
-			  }
-			  else
-			  {
-				  return DATA_TYPE_CD_MODE1;
-			  }
+		auto getTrackDataType = [](const char* typeString) {
+			if(!strcmp(typeString, "MODE2_RAW") || !strcmp(typeString, "AUDIO"))
+			{
+				return DATA_TYPE_CD_MODE2_RAW;
+			}
+			else
+			{
+				return DATA_TYPE_CD_MODE1;
+			}
 		};
 		assert(m_unitSize == 2448);
 		int trackIndex = 0;
