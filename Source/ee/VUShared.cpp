@@ -759,7 +759,8 @@ void VUShared::ADDAq(CMipsJitter* codeGen, uint8 dest, uint8 fs, uint32 relative
 
 void VUShared::CLIP(CMipsJitter* codeGen, uint8 nFs, uint8 nFt, uint32 relativePipeTime)
 {
-	size_t tempOffset = offsetof(CMIPS, m_State.nCOP2T);
+	//We can do better if we got this condition
+	assert(!((nFs == 0) && (nFt == 0)));
 
 	//Load previous value
 	{
@@ -772,51 +773,44 @@ void VUShared::CLIP(CMipsJitter* codeGen, uint8 nFs, uint8 nFt, uint32 relativeP
 		codeGen->And();
 
 		codeGen->LoadFromRefIdx();
-		codeGen->PullRel(tempOffset);
+
+		//Create some space for the new test results
+		codeGen->Shl(6);
 	}
 
-	//Create some space for the new test results
-	codeGen->PushRel(tempOffset);
-	codeGen->Shl(6);
-	codeGen->PullRel(tempOffset);
-
-	for(unsigned int i = 0; i < 3; i++)
+	//Compute test result
 	{
-		//c > +|w|
-		codeGen->FP_PushRel32(offsetof(CMIPS, m_State.nCOP2[nFs].nV[i]));
-		codeGen->FP_PushRel32(offsetof(CMIPS, m_State.nCOP2[nFt].nV[3]));
-		codeGen->FP_AbsS();
+		codeGen->MD_PushRel(offsetof(CMIPS, m_State.nCOP2[nFs]));
 
-		codeGen->FP_CmpS(Jitter::CONDITION_AB);
-		codeGen->PushCst(0);
-		codeGen->BeginIf(Jitter::CONDITION_NE);
+		//Upper bound
+		if(nFt == 0)
 		{
-			codeGen->PushRel(tempOffset);
-			codeGen->PushCst(1 << ((i * 2) + 0));
-			codeGen->Or();
-			codeGen->PullRel(tempOffset);
+			codeGen->MD_PushCstExpand(1.0f);
 		}
-		codeGen->EndIf();
-
-		//c < -|w|
-		codeGen->FP_PushRel32(offsetof(CMIPS, m_State.nCOP2[nFs].nV[i]));
-		codeGen->FP_PushRel32(offsetof(CMIPS, m_State.nCOP2[nFt].nV[3]));
-		codeGen->FP_AbsS();
-		codeGen->FP_NegS();
-
-		codeGen->FP_CmpS(Jitter::CONDITION_BL);
-		codeGen->PushCst(0);
-		codeGen->BeginIf(Jitter::CONDITION_NE);
+		else
 		{
-			codeGen->PushRel(tempOffset);
-			codeGen->PushCst(1 << ((i * 2) + 1));
-			codeGen->Or();
-			codeGen->PullRel(tempOffset);
+			PushBcElement(codeGen, offsetof(CMIPS, m_State.nCOP2[nFt].nV[3]));
+			codeGen->MD_AbsS();
 		}
-		codeGen->EndIf();
+
+		//Lower bound
+		if(nFt == 0)
+		{
+			codeGen->MD_PushCstExpand(-1.0f);
+		}
+		else
+		{
+			PushBcElement(codeGen, offsetof(CMIPS, m_State.nCOP2[nFt].nV[3]));
+			codeGen->MD_AbsS();
+			codeGen->MD_NegS();
+		}
+
+		codeGen->MD_MakeClip();
 	}
 
-	codeGen->PushRel(tempOffset);
+	//Combine with previous value
+	codeGen->Or();
+
 	QueueInFlagPipeline(g_pipeInfoClip, codeGen, LATENCY_MAC, relativePipeTime);
 }
 
