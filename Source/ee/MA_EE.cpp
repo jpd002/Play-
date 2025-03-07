@@ -1250,25 +1250,25 @@ void CMA_EE::PHMADH()
 
 	for(unsigned int i = 0; i < 4; i++)
 	{
-		//Lower 16-bits (An0 * An1)
+		//Higher 16-bits (A(2i + 1) * B(2i + 1))
 		{
 			m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[i]));
-			m_codeGen->SignExt16();
+			m_codeGen->Sra(16);
 
 			m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[i]));
-			m_codeGen->SignExt16();
+			m_codeGen->Sra(16);
 
 			m_codeGen->MultS();
 			m_codeGen->ExtLow64();
 		}
 
-		//Higher 16-bits (Bn0 * Bn1)
+		//Lower 16-bits (A(2i) * B(2i))
 		{
 			m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[i]));
-			m_codeGen->Sra(16);
+			m_codeGen->SignExt16();
 
 			m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[i]));
-			m_codeGen->Sra(16);
+			m_codeGen->SignExt16();
 
 			m_codeGen->MultS();
 			m_codeGen->ExtLow64();
@@ -1307,6 +1307,70 @@ void CMA_EE::PXOR()
 	PushVector(m_nRT);
 	m_codeGen->MD_Xor();
 	PullVector(m_nRD);
+}
+
+//15
+void CMA_EE::PHMSBH()
+{
+	static const size_t offsets[4] =
+	    {
+	        offsetof(CMIPS, m_State.nLO[0]),
+	        offsetof(CMIPS, m_State.nHI[0]),
+	        offsetof(CMIPS, m_State.nLO1[0]),
+	        offsetof(CMIPS, m_State.nHI1[0]),
+	    };
+
+	static const size_t clearOffsets[4] =
+	    {
+	        offsetof(CMIPS, m_State.nLO[1]),
+	        offsetof(CMIPS, m_State.nHI[1]),
+	        offsetof(CMIPS, m_State.nLO1[1]),
+	        offsetof(CMIPS, m_State.nHI1[1]),
+	    };
+
+	for(unsigned int i = 0; i < 4; i++)
+	{
+		m_codeGen->PushCst(0);
+		m_codeGen->PullRel(clearOffsets[i]);
+	}
+
+	for(unsigned int i = 0; i < 4; i++)
+	{
+		//Higher 16-bits (A(2i + 1) * B(2i + 1))
+		{
+			m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[i]));
+			m_codeGen->Sra(16);
+
+			m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[i]));
+			m_codeGen->Sra(16);
+
+			m_codeGen->MultS();
+			m_codeGen->ExtLow64();
+		}
+
+		//Lower 16-bits (A(2i) * B(2i))
+		{
+			m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[i]));
+			m_codeGen->SignExt16();
+
+			m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[i]));
+			m_codeGen->SignExt16();
+
+			m_codeGen->MultS();
+			m_codeGen->ExtLow64();
+		}
+
+		m_codeGen->Sub();
+
+		if(m_nRD != 0)
+		{
+			m_codeGen->PushTop();
+			m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[i]));
+		}
+
+		//Store to LO/HI
+		m_codeGen->PullRel(offsets[i]);
+	}
 }
 
 //1A
@@ -2105,7 +2169,7 @@ CMA_EE::InstructionFuncConstant CMA_EE::m_pOpMmi2[0x20] =
 	//0x08
 	&CMA_EE::PMFHI,			&CMA_EE::PMFLO,			&CMA_EE::PINTH,			&CMA_EE::Illegal,		&CMA_EE::PMULTW,		&CMA_EE::PDIVW,			&CMA_EE::PCPYLD,		&CMA_EE::Illegal,
 	//0x10
-	&CMA_EE::PMADDH,		&CMA_EE::PHMADH,		&CMA_EE::PAND,			&CMA_EE::PXOR,			&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,
+	&CMA_EE::PMADDH,		&CMA_EE::PHMADH,		&CMA_EE::PAND,			&CMA_EE::PXOR,			&CMA_EE::Illegal,		&CMA_EE::PHMSBH,		&CMA_EE::Illegal,		&CMA_EE::Illegal,
 	//0x18
 	&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::PEXEH,			&CMA_EE::PREVH,			&CMA_EE::PMULTH,		&CMA_EE::PDIVBW,		&CMA_EE::PEXEW,			&CMA_EE::PROT3W,
 };
