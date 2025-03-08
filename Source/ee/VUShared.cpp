@@ -223,6 +223,43 @@ void VUShared::PullIntegerRegister(CMipsJitter* codeGen, unsigned int regIdx)
 	codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[regIdx]));
 }
 
+void VUShared::MakeComparableFromFloat(CMipsJitter* codeGen)
+{
+	uint32 valueCursor = codeGen->GetTopCursor();
+
+	//Compute mask
+	codeGen->PushCursor(valueCursor);
+	codeGen->MD_SraW(31);
+	uint32 maskCursor = codeGen->GetTopCursor();
+
+	//Make neg
+	codeGen->MD_PushCstExpand(0xFFFFFFFFU);
+	codeGen->PushCursor(valueCursor);
+	codeGen->MD_SubW();
+	codeGen->PushCursor(maskCursor);
+	codeGen->MD_And();
+
+	//Make pos
+	codeGen->MD_PushCstExpand(0x7FFFFFFFU);
+	codeGen->PushCursor(valueCursor);
+	codeGen->MD_AddW();
+	codeGen->PushCursor(maskCursor);
+	codeGen->MD_Not();
+	codeGen->MD_And();
+
+	codeGen->MD_Or();
+
+	//Make it signed comparable
+	codeGen->MD_PushCstExpand(0x80000000U);
+	codeGen->MD_SubW();
+
+	codeGen->Swap();
+	codeGen->PullTop();
+
+	codeGen->Swap();
+	codeGen->PullTop();
+}
+
 void VUShared::TestSZFlags(CMipsJitter* codeGen, uint8 dest, size_t regOffset, uint32 relativePipeTime, uint32 compileHints)
 {
 	codeGen->MD_PushRel(regOffset);
@@ -579,12 +616,13 @@ void VUShared::MINI_base(CMipsJitter* codeGen, uint8 dest, size_t fd, size_t fs,
 		}
 	};
 
-	codeGen->MD_PushRel(fs);
-	codeGen->MD_ClampS();
 	pushFt();
-	codeGen->MD_ClampS();
+	MakeComparableFromFloat(codeGen);
+	codeGen->MD_PushRel(fs);
+	MakeComparableFromFloat(codeGen);
 
-	codeGen->MD_CmpLtS();
+	//Since we don't have a less-than operator, operands are reversed (ft > fs instead of fs < ft)
+	codeGen->MD_CmpGtW();
 	auto cmp = codeGen->GetTopCursor();
 
 	//Mask FT
@@ -618,11 +656,11 @@ void VUShared::MAX_base(CMipsJitter* codeGen, uint8 dest, size_t fd, size_t fs, 
 	};
 
 	codeGen->MD_PushRel(fs);
-	codeGen->MD_ClampS();
+	MakeComparableFromFloat(codeGen);
 	pushFt();
-	codeGen->MD_ClampS();
+	MakeComparableFromFloat(codeGen);
 
-	codeGen->MD_CmpGtS();
+	codeGen->MD_CmpGtW();
 	auto cmp = codeGen->GetTopCursor();
 
 	//Mask FT

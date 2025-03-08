@@ -118,6 +118,7 @@ namespace VUShared
 	void PushIntegerRegister(CMipsJitter*, unsigned int);
 	void PullIntegerRegister(CMipsJitter*, unsigned int);
 
+	void MakeComparableFromFloat(CMipsJitter*);
 	void TestSZFlags(CMipsJitter*, uint8, size_t, uint32, uint32);
 
 	void GetStatus(CMipsJitter*, size_t, uint32);
