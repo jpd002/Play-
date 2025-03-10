@@ -7,6 +7,7 @@ void CMinMaxTest::Execute(CTestVm& virtualMachine)
 	auto resultReg2 = CVuAssembler::VF17;
 	auto resultReg3 = CVuAssembler::VF18;
 	auto resultReg4 = CVuAssembler::VF19;
+	auto resultReg5 = CVuAssembler::VF20;
 
 	virtualMachine.Reset();
 
@@ -29,7 +30,7 @@ void CMinMaxTest::Execute(CTestVm& virtualMachine)
 	    CVuAssembler::Lower::NOP());
 
 	//Inspired by Gran Turismo 4
-	//MINI/MAX needs to work properly with PS2's minimum & maximum float values
+	//MINI/MAX need to work properly with PS2's minimum & maximum float values
 
 	assembler.Write(
 	    CVuAssembler::Upper::MINI(CVuAssembler::DEST_XYZW, resultReg3, CVuAssembler::VF1, CVuAssembler::VF4),
@@ -37,6 +38,13 @@ void CMinMaxTest::Execute(CTestVm& virtualMachine)
 
 	assembler.Write(
 	    CVuAssembler::Upper::MAX(CVuAssembler::DEST_XYZW, resultReg4, CVuAssembler::VF5, CVuAssembler::VF1),
+	    CVuAssembler::Lower::NOP());
+
+	//Inspired by Dragon Quest - Shounen Yangus to Fushigi no Dungeon
+	//MAX needs to compare denormal with 0 as bigger.
+
+	assembler.Write(
+	    CVuAssembler::Upper::MAXbc(CVuAssembler::DEST_XYZW, resultReg5, CVuAssembler::VF1, CVuAssembler::VF0, CVuAssembler::BC_X),
 	    CVuAssembler::Lower::NOP());
 
 	assembler.Write(
@@ -93,4 +101,9 @@ void CMinMaxTest::Execute(CTestVm& virtualMachine)
 	TEST_VERIFY(virtualMachine.m_cpu.m_State.nCOP2[resultReg4].nV1 == Float::_Minus8);
 	TEST_VERIFY(virtualMachine.m_cpu.m_State.nCOP2[resultReg4].nV2 == Float::_64);
 	TEST_VERIFY(virtualMachine.m_cpu.m_State.nCOP2[resultReg4].nV3 == 0x80);
+
+	TEST_VERIFY(virtualMachine.m_cpu.m_State.nCOP2[resultReg5].nV0 == Float::_1);
+	TEST_VERIFY(virtualMachine.m_cpu.m_State.nCOP2[resultReg5].nV1 == 0);
+	TEST_VERIFY(virtualMachine.m_cpu.m_State.nCOP2[resultReg5].nV2 == Float::_64);
+	TEST_VERIFY(virtualMachine.m_cpu.m_State.nCOP2[resultReg5].nV3 == 0x80);
 }
