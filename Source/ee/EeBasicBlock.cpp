@@ -42,6 +42,7 @@ bool CEeBasicBlock::IsCodeIdleLoopBlock() const
 	{
 		OP_BEQ = 0x04,
 		OP_BNE = 0x05,
+		OP_ADDIU = 0x09,
 		OP_SLTIU = 0x0B,
 		OP_ANDI = 0x0C,
 		OP_XORI = 0x0E,
@@ -53,6 +54,8 @@ bool CEeBasicBlock::IsCodeIdleLoopBlock() const
 
 	enum
 	{
+		OP_SPECIAL_SLL = 0x00,
+		OP_SPECIAL_ADDU = 0x21,
 		OP_SPECIAL_SLT = 0x2A,
 		OP_SPECIAL_SLTU = 0x2B,
 	};
@@ -110,6 +113,11 @@ bool CEeBasicBlock::IsCodeIdleLoopBlock() const
 		case 0x00:
 			switch(special)
 			{
+			case OP_SPECIAL_SLL:
+				newUse = (1 << rt);
+				newDef = (1 << rd);
+				break;
+			case OP_SPECIAL_ADDU:
 			case OP_SPECIAL_SLT:
 			case OP_SPECIAL_SLTU:
 				newUse = (1 << rs) | (1 << rt);
@@ -126,6 +134,7 @@ bool CEeBasicBlock::IsCodeIdleLoopBlock() const
 		case OP_LW:
 		case OP_LQ:
 		case OP_LBU:
+		case OP_ADDIU:
 		case OP_SLTIU:
 		case OP_XORI:
 			newUse = (1 << rs);
@@ -136,17 +145,17 @@ bool CEeBasicBlock::IsCodeIdleLoopBlock() const
 			return false;
 		}
 
+		//Remove uses from defs within this block
+		newUse &= ~defState;
+		useState |= newUse;
+
 		//Bail if this defines any state that we previously used
 		if(useState & newDef)
 		{
 			return false;
 		}
 
-		//Remove uses from defs within this block
-		newUse &= ~defState;
-
 		defState |= newDef;
-		useState |= newUse;
 	}
 
 	//Just make sure that we've at least defined our comparision register
