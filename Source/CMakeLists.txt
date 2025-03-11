@@ -9,6 +9,7 @@ include(Header)
 project(PlayCore)
 
 set(PROJECT_LIBS)
+set(DEFINITIONS_LIST)
 
 include(PrecompiledHeader)
 

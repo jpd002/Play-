@@ -25,7 +25,7 @@ if(NOT TARGET PlayCore)
 		${CMAKE_CURRENT_BINARY_DIR}/Source
 	)
 endif()
-list(APPEND PROJECT_LIBS PlayCore)
+list(APPEND UI_QT_PROJECT_LIBS PlayCore)
 
 if(NOT TARGET gsh_opengl)
 	add_subdirectory(
@@ -33,7 +33,7 @@ if(NOT TARGET gsh_opengl)
 		${CMAKE_CURRENT_BINARY_DIR}/gs/GSH_OpenGL
 	)
 endif()
-list(INSERT PROJECT_LIBS 0 gsh_opengl)
+list(INSERT UI_QT_PROJECT_LIBS 0 gsh_opengl)
 
 if(USE_GSH_VULKAN)
 	if(NOT TARGET gsh_vulkan)
@@ -42,8 +42,8 @@ if(USE_GSH_VULKAN)
 			${CMAKE_CURRENT_BINARY_DIR}/gs/GSH_Vulkan
 		)
 	endif()
-	list(INSERT PROJECT_LIBS 0 gsh_vulkan)
-	list(APPEND DEFINITIONS_LIST HAS_GSH_VULKAN=1)
+	list(INSERT UI_QT_PROJECT_LIBS 0 gsh_vulkan)
+	list(APPEND UI_QT_DEFINITIONS_LIST HAS_GSH_VULKAN=1)
 	set(GSH_VULKAN_QT_SRC
 		GSH_VulkanQt.cpp
 		GSH_VulkanQt.h
@@ -58,16 +58,16 @@ endif()
 if(TARGET_PLATFORM_UNIX)
 	find_package(LIBEVDEV)
 	if(LIBEVDEV_FOUND)
-		list(APPEND PROJECT_LIBS ${LIBEVDEV_LIBRARY})
-		list(APPEND DEFINITIONS_LIST HAS_LIBEVDEV=1)
+		list(APPEND UI_QT_PROJECT_LIBS ${LIBEVDEV_LIBRARY})
+		list(APPEND UI_QT_DEFINITIONS_LIST HAS_LIBEVDEV=1)
 	endif()
 
-	list(APPEND PROJECT_LIBS "-static-libgcc")
-	list(APPEND PROJECT_LIBS "-static-libstdc++")
+	list(APPEND UI_QT_PROJECT_LIBS "-static-libgcc")
+	list(APPEND UI_QT_PROJECT_LIBS "-static-libstdc++")
 
 	if(${CMAKE_SYSTEM_NAME} MATCHES "FreeBSD")
 		# most unix system seem to implicitly link to libinotify, but not FreeBSD
-		list(APPEND PROJECT_LIBS "libinotify.so")
+		list(APPEND UI_QT_PROJECT_LIBS "libinotify.so")
 	endif()
 endif()
 
@@ -78,7 +78,7 @@ if(TARGET_PLATFORM_MACOS OR TARGET_PLATFORM_UNIX)
 			${CMAKE_CURRENT_BINARY_DIR}/SH_OpenAL
 		)
 	endif()
-	list(APPEND PROJECT_LIBS sh_openal)
+	list(APPEND UI_QT_PROJECT_LIBS sh_openal)
 endif()
 
 if(NOT TARGET ui_shared)
@@ -87,7 +87,7 @@ if(NOT TARGET ui_shared)
 		${CMAKE_CURRENT_BINARY_DIR}/ui_shared
 	)
 endif()
-list(APPEND PROJECT_LIBS ui_shared)
+list(APPEND UI_QT_PROJECT_LIBS ui_shared)
 
 set(QT_SOURCES
 	BootableModel.cpp
@@ -170,13 +170,13 @@ if(TARGET_PLATFORM_WIN32)
 			${CMAKE_CURRENT_BINARY_DIR}/Framework_Win32
 		)
 	endif()
-	list(APPEND PROJECT_LIBS Framework_Win32)
+	list(APPEND UI_QT_PROJECT_LIBS Framework_Win32)
 	
 	set(QT_SOURCES
 		${QT_SOURCES}
 		../../tools/PsfPlayer/Source/ui_win32/SH_WaveOut.cpp
 	)
-	list(APPEND PROJECT_LIBS winmm)
+	list(APPEND UI_QT_PROJECT_LIBS winmm)
 	
 	if(TARGET_PLATFORM_WIN32_X86)
 		set(MANIFEST win32/Play-x86.manifest)
@@ -193,8 +193,8 @@ if(TARGET_PLATFORM_WIN32)
 		${MANIFEST}
 	)
 	
-	list(APPEND PROJECT_LIBS dinput8)
-	list(APPEND PROJECT_LIBS xinput)
+	list(APPEND UI_QT_PROJECT_LIBS dinput8)
+	list(APPEND UI_QT_PROJECT_LIBS xinput)
 endif()
 	
 if(DEBUGGER_INCLUDED)
@@ -204,7 +204,7 @@ if(DEBUGGER_INCLUDED)
 			${CMAKE_CURRENT_BINARY_DIR}/PlayDebugSupport
 		)
 	endif()
-	list(APPEND PROJECT_LIBS PlayDebugSupport)
+	list(APPEND UI_QT_PROJECT_LIBS PlayDebugSupport)
 endif()
 	
 set(QT_MOC_HEADERS
@@ -257,9 +257,9 @@ if(NOT Qt6_FOUND)
 	find_package(Qt5 REQUIRED COMPONENTS ${QT_COMPONENTS})
 endif()
 
-list(APPEND PROJECT_LIBS Qt::Widgets Qt::Core)
+list(APPEND UI_QT_PROJECT_LIBS Qt::Widgets Qt::Core)
 if(TARGET_PLATFORM_UNIX AND Qt5_FOUND)
-	list(APPEND PROJECT_LIBS Qt::X11Extras)
+	list(APPEND UI_QT_PROJECT_LIBS Qt::X11Extras)
 endif()
 
 add_definitions(${QT_DEFINITIONS})
@@ -305,7 +305,7 @@ if(TARGET_PLATFORM_MACOS)
 		RESOURCE "${OSX_RES}"
 	)
 	SET_SOURCE_FILES_PROPERTIES(${ARCADE_DEFS} PROPERTIES MACOSX_PACKAGE_LOCATION "Resources/arcadedefs")
-	list(APPEND PROJECT_LIBS "-framework IOKit -framework CoreFoundation")
+	list(APPEND UI_QT_PROJECT_LIBS "-framework IOKit -framework CoreFoundation")
 	if(USE_GSH_VULKAN)
 		target_include_directories(Play PRIVATE $ENV{VULKAN_SDK}/../MoltenVK/include)
 	endif()
@@ -354,8 +354,8 @@ else()
 	add_executable(Play ${QT_SOURCES} ${QT_MOC_SRCS} ${QT_RES_SOURCES} ${QT_UI_HEADERS})
 endif()
 
-target_link_libraries(Play ${PROJECT_LIBS})
-target_compile_definitions(Play PRIVATE ${DEFINITIONS_LIST})
+target_link_libraries(Play ${UI_QT_PROJECT_LIBS})
+target_compile_definitions(Play PRIVATE ${UI_QT_DEFINITIONS_LIST})
 
 target_include_directories(Play PRIVATE
 	./

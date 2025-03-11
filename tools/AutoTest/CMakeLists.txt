@@ -21,7 +21,7 @@ if(TARGET_PLATFORM_WIN32)
 			${CMAKE_CURRENT_BINARY_DIR}/gs/GSH_OpenGLWin32
 		)
 	endif()
-	list(APPEND PROJECT_LIBS gsh_opengl_win32)
+	list(APPEND AUTOTEST_PROJECT_LIBS gsh_opengl_win32)
 
 	if(NOT TARGET gsh_d3d9)
 		add_subdirectory(
@@ -29,11 +29,11 @@ if(TARGET_PLATFORM_WIN32)
 			${CMAKE_CURRENT_BINARY_DIR}/gs/GSH_Direct3D9
 		)
 	endif()
-	list(APPEND PROJECT_LIBS gsh_d3d9)
+	list(APPEND AUTOTEST_PROJECT_LIBS gsh_d3d9)
 endif()
 
 add_executable(autotest
 	JUnitTestReportWriter.cpp
 	Main.cpp
 )
-target_link_libraries(autotest PlayCore ${PROJECT_LIBS})
+target_link_libraries(autotest PlayCore ${AUTOTEST_PROJECT_LIBS})

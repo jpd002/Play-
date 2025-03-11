@@ -14,7 +14,7 @@ if(NOT TARGET PsfCore)
 		${CMAKE_CURRENT_BINARY_DIR}/PsfCore
 	)
 endif()
-list(APPEND PROJECT_LIBS PsfCore)
+list(APPEND PSF_UI_JS_PROJECT_LIBS PsfCore)
 
 if(NOT TARGET sh_openal)
 	add_subdirectory(
@@ -22,7 +22,7 @@ if(NOT TARGET sh_openal)
 		${CMAKE_CURRENT_BINARY_DIR}/SH_OpenAL
 	)
 endif()
-list(APPEND PROJECT_LIBS sh_openal)
+list(APPEND PSF_UI_JS_PROJECT_LIBS sh_openal)
 
 add_executable(PsfPlayer 
 	Main.cpp
@@ -33,7 +33,7 @@ add_executable(PsfPlayer
 	SH_OpenALProxy.cpp
 	SH_OpenALProxy.h
 )
-target_link_libraries(PsfPlayer PUBLIC ${PROJECT_LIBS})
+target_link_libraries(PsfPlayer PUBLIC ${PSF_UI_JS_PROJECT_LIBS})
 
 target_link_options(PsfPlayer PRIVATE "--bind")
 target_link_options(PsfPlayer PRIVATE "-sMODULARIZE=1")

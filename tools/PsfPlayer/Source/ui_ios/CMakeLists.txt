@@ -16,7 +16,7 @@ if(NOT TARGET PsfCore)
 		${CMAKE_CURRENT_BINARY_DIR}/PsfCore
 	)
 endif()
-list(APPEND PROJECT_LIBS PsfCore)
+list(APPEND PSF_UI_IOS_PROJECT_LIBS PsfCore)
 
 if(NOT TARGET sh_openal)
 	add_subdirectory(
@@ -24,7 +24,7 @@ if(NOT TARGET sh_openal)
 		${CMAKE_CURRENT_BINARY_DIR}/SH_OpenAL
 )
 endif()
-list(APPEND PROJECT_LIBS sh_openal)
+list(APPEND PSF_UI_IOS_PROJECT_LIBS sh_openal)
 
 find_library(UIKIT_LIBRARY NAMES UIKit)
 find_library(AVFOUNDATION_LIBRARY NAMES AVFoundation)
@@ -68,7 +68,7 @@ target_link_libraries(PsfPlayer ${UIKIT_LIBRARY})
 target_link_libraries(PsfPlayer ${AVFOUNDATION_LIBRARY})
 target_link_libraries(PsfPlayer ${COREGRAPHICS_LIBRARY})
 target_link_libraries(PsfPlayer ${MEDIAPLAYER_LIBRARY})
-target_link_libraries(PsfPlayer ${PROJECT_LIBS} "-ObjC")
+target_link_libraries(PsfPlayer ${PSF_UI_IOS_PROJECT_LIBS} "-ObjC")
 
 # AOT stuff
 if(USE_AOT_CACHE)

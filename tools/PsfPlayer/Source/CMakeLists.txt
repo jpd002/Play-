@@ -8,10 +8,8 @@ include(Header)
 
 project(PsfCore)
 
-set(PROJECT_LIBS)
 set(PSF_PROJECT_NAME "PsfPlayer")
 set(PSF_PROJECT_VERSION "1.05")
-set(PSF_DEFINITIONS)
 set(PSF_RAR_SUPPORT ON)
 
 if(NOT TARGET PlayCore)
@@ -20,7 +18,7 @@ if(NOT TARGET PlayCore)
 		${CMAKE_CURRENT_BINARY_DIR}/PlayCore
 	)
 endif()
-list(APPEND PROJECT_LIBS PlayCore)
+list(APPEND PSFCORE_PROJECT_LIBS PlayCore)
 
 if(PSF_RAR_SUPPORT)
 	if(NOT TARGET unrar)
@@ -29,7 +27,7 @@ if(PSF_RAR_SUPPORT)
 			${CMAKE_CURRENT_BINARY_DIR}/unrarsrc-5.2.5
 		)
 	endif()
-	list(APPEND PROJECT_LIBS unrar)
+	list(APPEND PSFCORE_PROJECT_LIBS unrar)
 endif()
 
 ##PsfPlayerCore
@@ -96,10 +94,10 @@ set(PSFCORE_SRC_FILES
 
 if(PSF_RAR_SUPPORT)
 	list(APPEND PSFCORE_SRC_FILES PsfRarArchive.cpp)
-	list(APPEND PSF_DEFINITIONS -DRAR_SUPPORT)
+	list(APPEND PSFCORE_DEFINITIONS_LIST -DRAR_SUPPORT)
 endif()
 
 add_library(PsfCore STATIC ${PSFCORE_SRC_FILES})
-target_link_libraries(PsfCore ${PROJECT_LIBS})
+target_link_libraries(PsfCore ${PSFCORE_PROJECT_LIBS})
 target_include_directories(PsfCore PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-target_compile_definitions(PsfCore PRIVATE ${PSF_DEFINITIONS})
+target_compile_definitions(PsfCore PRIVATE ${PSFCORE_DEFINITIONS_LIST})

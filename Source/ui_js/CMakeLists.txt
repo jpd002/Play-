@@ -14,7 +14,7 @@ if(NOT TARGET PlayCore)
 		${CMAKE_CURRENT_BINARY_DIR}/Source
 	)
 endif()
-list(APPEND PROJECT_LIBS PlayCore)
+list(APPEND UI_JS_PROJECT_LIBS PlayCore)
 
 if(NOT TARGET ui_shared)
 	add_subdirectory(
@@ -22,7 +22,7 @@ if(NOT TARGET ui_shared)
 		${CMAKE_CURRENT_BINARY_DIR}/ui_shared
 	)
 endif()
-list(APPEND PROJECT_LIBS ui_shared)
+list(APPEND UI_JS_PROJECT_LIBS ui_shared)
 
 if(NOT TARGET gsh_opengl)
 	add_subdirectory(
@@ -30,7 +30,7 @@ if(NOT TARGET gsh_opengl)
 		${CMAKE_CURRENT_BINARY_DIR}/gs/GSH_OpenGL
 	)
 endif()
-list(APPEND PROJECT_LIBS gsh_opengl)
+list(APPEND UI_JS_PROJECT_LIBS gsh_opengl)
 
 if(NOT TARGET sh_openal)
 	add_subdirectory(
@@ -38,7 +38,7 @@ if(NOT TARGET sh_openal)
 		${CMAKE_CURRENT_BINARY_DIR}/SH_OpenAL
 	)
 endif()
-list(APPEND PROJECT_LIBS sh_openal)
+list(APPEND UI_JS_PROJECT_LIBS sh_openal)
 
 add_executable(Play
 	GSH_OpenGLJs.cpp
@@ -51,7 +51,7 @@ add_executable(Play
 	${CMAKE_CURRENT_SOURCE_DIR}/../../tools/PsfPlayer/Source/ui_js/SH_OpenALProxy.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/../../tools/PsfPlayer/Source/ui_js/SH_OpenALProxy.h
 )
-target_link_libraries(Play PUBLIC ${PROJECT_LIBS})
+target_link_libraries(Play PUBLIC ${UI_JS_PROJECT_LIBS})
 
 target_link_options(Play PRIVATE "--bind")
 target_link_options(Play PRIVATE "-sMODULARIZE=1")

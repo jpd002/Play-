@@ -14,7 +14,7 @@ if(NOT TARGET PsfCore)
 		${CMAKE_CURRENT_BINARY_DIR}/PsfCore
 	)
 endif()
-list(APPEND PROJECT_LIBS PsfCore)
+list(APPEND PSF_UI_WIN32_PROJECT_LIBS PsfCore)
 
 if(NOT TARGET Framework_Win32)
 	add_subdirectory(
@@ -22,7 +22,7 @@ if(NOT TARGET Framework_Win32)
 		${CMAKE_CURRENT_BINARY_DIR}/Framework_Win32
 	)
 endif()
-list(APPEND PROJECT_LIBS Framework_Win32)
+list(APPEND PSF_UI_WIN32_PROJECT_LIBS Framework_Win32)
 
 if(NOT TARGET tdemu)
 	add_subdirectory(
@@ -30,11 +30,11 @@ if(NOT TARGET tdemu)
 		${CMAKE_CURRENT_BINARY_DIR}/tdemu-1.10
 	)
 endif()
-list(APPEND PROJECT_LIBS tdemu)
+list(APPEND PSF_UI_WIN32_PROJECT_LIBS tdemu)
 
 find_package(DirectX9 REQUIRED)
-list(APPEND PROJECT_LIBS ${DirectX_D3D9_LIBRARY})
-list(APPEND PROJECT_LIBS ${DirectX_D3DX9_LIBRARY})
+list(APPEND PSF_UI_WIN32_PROJECT_LIBS ${DirectX_D3D9_LIBRARY})
+list(APPEND PSF_UI_WIN32_PROJECT_LIBS ${DirectX_D3DX9_LIBRARY})
 include_directories(${DirectX_D3D9_INCLUDE_DIR} ${DirectX_D3DX9_INCLUDE_DIR})
 
 set(AUDIO_LIBS)
@@ -46,7 +46,7 @@ if(OPENAL_FOUND)
 			${CMAKE_CURRENT_BINARY_DIR}/FrameworkOpenAl
 		)
 	endif()
-	list(APPEND PROJECT_LIBS Framework_OpenAl)
+	list(APPEND PSF_UI_WIN32_PROJECT_LIBS Framework_OpenAl)
 	add_library(SH_OpenAL SHARED ../SH_OpenAL.cpp SH_OpenAL/DllMain.cpp)
 	target_link_libraries(SH_OpenAL PRIVATE Framework_OpenAl Framework)
 	list(APPEND AUDIO_LIBS SH_OpenAL)
@@ -102,7 +102,7 @@ set(WIN32_SRC
 )
 
 add_executable(PsfPlayer WIN32 ${WIN32_SRC} ${DEBUG_SRC} Res.rc)
-target_link_libraries(PsfPlayer PUBLIC d3d9 uxtheme ${PROJECT_LIBS} ${AUDIO_LIBS})
+target_link_libraries(PsfPlayer PUBLIC d3d9 uxtheme ${PSF_UI_WIN32_PROJECT_LIBS} ${AUDIO_LIBS})
 target_include_directories(PsfPlayer PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/DebugSupport)
 
 include(PrecompiledHeader)

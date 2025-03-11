@@ -15,7 +15,7 @@ if(NOT TARGET Framework)
 		${CMAKE_CURRENT_BINARY_DIR}/Framework
 	)
 endif()
-list(APPEND PROJECT_LIBS Framework)
+list(APPEND SH_OPENAL_PROJECT_LIBS Framework)
 
 if(NOT TARGET Framework_OpenAl)
 add_subdirectory(
@@ -23,10 +23,10 @@ add_subdirectory(
 	${CMAKE_CURRENT_BINARY_DIR}/FrameworkOpenAl
 )
 endif()
-list(APPEND PROJECT_LIBS Framework_OpenAl)
+list(APPEND SH_OPENAL_PROJECT_LIBS Framework_OpenAl)
 
 add_library(sh_openal STATIC
 	../SH_OpenAL.cpp
 	../SH_OpenAL.h
 )
-target_link_libraries(sh_openal ${PROJECT_LIBS})
+target_link_libraries(sh_openal ${SH_OPENAL_PROJECT_LIBS})

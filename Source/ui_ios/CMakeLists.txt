@@ -23,7 +23,7 @@ if(NOT TARGET PlayCore)
 		${CMAKE_CURRENT_BINARY_DIR}/Source
 	)
 endif()
-list(APPEND PROJECT_LIBS PlayCore)
+list(APPEND UI_IOS_PROJECT_LIBS PlayCore)
 
 if(NOT TARGET gsh_opengl)
 	add_subdirectory(
@@ -31,7 +31,7 @@ if(NOT TARGET gsh_opengl)
 		${CMAKE_CURRENT_BINARY_DIR}/gs/GSH_OpenGL
 	)
 endif()
-list(INSERT PROJECT_LIBS 0 gsh_opengl)
+list(INSERT UI_IOS_PROJECT_LIBS 0 gsh_opengl)
 
 if(USE_GSH_VULKAN)
 	if(NOT TARGET gsh_vulkan)
@@ -40,8 +40,8 @@ if(USE_GSH_VULKAN)
 			${CMAKE_CURRENT_BINARY_DIR}/gs/GSH_Vulkan
 		)
 	endif()
-	list(INSERT PROJECT_LIBS 0 gsh_vulkan)
-	list(APPEND DEFINITIONS_LIST HAS_GSH_VULKAN=1)
+	list(INSERT UI_IOS_PROJECT_LIBS 0 gsh_vulkan)
+	list(APPEND UI_IOS_DEFINITIONS_LIST HAS_GSH_VULKAN=1)
 endif()
 
 if(NOT TARGET sh_openal)
@@ -50,7 +50,7 @@ if(NOT TARGET sh_openal)
 		${CMAKE_CURRENT_BINARY_DIR}/SH_OpenAL
 	)
 endif()
-list(APPEND PROJECT_LIBS sh_openal)
+list(APPEND UI_IOS_PROJECT_LIBS sh_openal)
 
 if(NOT TARGET iCade_Static)
 	add_subdirectory(
@@ -58,7 +58,7 @@ if(NOT TARGET iCade_Static)
 		${CMAKE_CURRENT_BINARY_DIR}/iCade-iOS
 	)
 endif()
-list(APPEND PROJECT_LIBS iCade_Static)
+list(APPEND UI_IOS_PROJECT_LIBS iCade_Static)
 
 if(NOT TARGET SDWebImage_Static)
 	add_subdirectory(
@@ -66,7 +66,7 @@ if(NOT TARGET SDWebImage_Static)
 		${CMAKE_CURRENT_BINARY_DIR}/SDWebImage
 	)
 endif()
-list(APPEND PROJECT_LIBS SDWebImage_Static)
+list(APPEND UI_IOS_PROJECT_LIBS SDWebImage_Static)
 
 if(NOT TARGET ui_shared)
 	add_subdirectory(
@@ -74,7 +74,7 @@ if(NOT TARGET ui_shared)
 		${CMAKE_CURRENT_BINARY_DIR}/ui_shared
 	)
 endif()
-list(APPEND PROJECT_LIBS ui_shared)
+list(APPEND UI_IOS_PROJECT_LIBS ui_shared)
 
 if(NOT TARGET AltKit)
 	add_subdirectory(
@@ -82,7 +82,7 @@ if(NOT TARGET AltKit)
 		${CMAKE_CURRENT_BINARY_DIR}/AltKit
 	)
 endif()
-list(APPEND PROJECT_LIBS AltKit)
+list(APPEND UI_IOS_PROJECT_LIBS AltKit)
 
 find_library(UIKIT_LIBRARY NAMES UIKit)
 find_library(COREGRAPHICS_LIBRARY NAMES CoreGraphics)
@@ -165,9 +165,9 @@ target_link_libraries(Play ${COREGRAPHICS_LIBRARY})
 target_link_libraries(Play ${GAMECONTROLLER_LIBRARY})
 target_link_libraries(Play ${QUARTZCORE_LIBRARY})
 target_link_libraries(Play ${IMAGEIO_LIBRARY})
-target_link_libraries(Play ${PROJECT_LIBS} "-ObjC -lsqlite3 -framework OpenAL")
+target_link_libraries(Play ${UI_IOS_PROJECT_LIBS} "-ObjC -lsqlite3 -framework OpenAL")
 
-target_compile_definitions(Play PRIVATE ${DEFINITIONS_LIST})
+target_compile_definitions(Play PRIVATE ${UI_IOS_DEFINITIONS_LIST})
 
 # Set a custom plist file for the app bundle
 # NOTE: for these values to be used Info.plist has to be edited

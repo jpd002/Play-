@@ -16,7 +16,7 @@ if(NOT TARGET ui_shared)
 		${CMAKE_CURRENT_BINARY_DIR}/ui_shared
 	)
 endif()
-list(APPEND PROJECT_LIBS ui_shared)
+list(APPEND UI_LIBRETRO_PROJECT_LIBS ui_shared)
 
 if(NOT TARGET PlayCore)
 	add_subdirectory(
@@ -24,7 +24,7 @@ if(NOT TARGET PlayCore)
 		${CMAKE_CURRENT_BINARY_DIR}/Source
 	)
 endif()
-list(APPEND PROJECT_LIBS PlayCore)
+list(APPEND UI_LIBRETRO_PROJECT_LIBS PlayCore)
 
 if(NOT TARGET gsh_opengl)
 	add_subdirectory(
@@ -32,7 +32,7 @@ if(NOT TARGET gsh_opengl)
 		${CMAKE_CURRENT_BINARY_DIR}/gs/GSH_OpenGL
 	)
 endif()
-list(INSERT PROJECT_LIBS 0 gsh_opengl)
+list(INSERT UI_LIBRETRO_PROJECT_LIBS 0 gsh_opengl)
 
 set(SRC
 	main_libretro.cpp
@@ -45,17 +45,17 @@ set(SRC
 )
 
 if(TARGET_PLATFORM_ANDROID)
-	list(APPEND PROJECT_LIBS android log GLESv3 EGL)
+	list(APPEND UI_LIBRETRO_PROJECT_LIBS android log GLESv3 EGL)
 elseif(TARGET_PLATFORM_IOS)
-	list(APPEND PROJECT_LIBS "-ObjC -lsqlite3 -framework OpenGLES")
+	list(APPEND UI_LIBRETRO_PROJECT_LIBS "-ObjC -lsqlite3 -framework OpenGLES")
 elseif(TARGET_PLATFORM_UNIX)
-	list(APPEND PROJECT_LIBS "-static-libgcc")
-	list(APPEND PROJECT_LIBS "-static-libstdc++")
+	list(APPEND UI_LIBRETRO_PROJECT_LIBS "-static-libgcc")
+	list(APPEND UI_LIBRETRO_PROJECT_LIBS "-static-libstdc++")
 endif()
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 8 AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 9)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -lstdc++fs")
-	list(APPEND PROJECT_LIBS "libstdc++fs.a")
+	list(APPEND UI_LIBRETRO_PROJECT_LIBS "libstdc++fs.a")
 endif()
 
 add_library(play_libretro SHARED ${SRC})
@@ -76,5 +76,5 @@ if(TARGET_PLATFORM_IOS)
 	endif()
 endif()
 
-target_link_libraries(play_libretro ${PROJECT_LIBS})
+target_link_libraries(play_libretro ${UI_LIBRETRO_PROJECT_LIBS})
 set_target_properties(play_libretro PROPERTIES PREFIX "")

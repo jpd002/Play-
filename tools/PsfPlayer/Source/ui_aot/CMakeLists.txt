@@ -14,7 +14,7 @@ if(NOT TARGET PsfCore)
 		${CMAKE_CURRENT_BINARY_DIR}/PsfCore
 	)
 endif()
-list(APPEND PROJECT_LIBS PsfCore)
+list(APPEND PSFAOT_PROJECT_LIBS PsfCore)
 
 add_executable(PsfAot Main_Aot.cpp)
-target_link_libraries(PsfAot PUBLIC ${PROJECT_LIBS})
+target_link_libraries(PsfAot PUBLIC ${PSFAOT_PROJECT_LIBS})
