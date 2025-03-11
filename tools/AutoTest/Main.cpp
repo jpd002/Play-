@@ -1,4 +1,5 @@
 #include "PS2VM.h"
+#include "DefaultAppConfig.h"
 #include "filesystem_def.h"
 #include "StdStream.h"
 #include "StdStreamUtils.h"

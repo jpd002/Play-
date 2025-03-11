@@ -5,9 +5,9 @@
 #include <states/XmlStateFile.h>
 #include <xml/Utils.h>
 #include "string_format.h"
-#include "../AppConfig.h"
+#include "AppConfig.h"
 #include "../PS2VM_Preferences.h"
-#include "../Log.h"
+#include "Log.h"
 #include "Iop_McServ.h"
 #include "Iop_PathUtils.h"
 #include "Iop_Sysmem.h"

@@ -1,6 +1,6 @@
 #include <assert.h>
 #include "Iop_Spu2_Core.h"
-#include "../Log.h"
+#include "Log.h"
 #include "string_format.h"
 
 #define LOG_NAME_FORMAT ("iop_spu2_core_%d")

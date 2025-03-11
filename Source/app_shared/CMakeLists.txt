@@ -22,6 +22,7 @@ endif()
 set(COMMON_SRC_FILES
 	AppConfig.cpp
 	AppConfig.h
+	DefaultAppConfig.h
 	Log.cpp
 	Log.h
 )

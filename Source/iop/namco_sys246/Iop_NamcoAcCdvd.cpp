@@ -1,7 +1,7 @@
 #include "Iop_NamcoAcCdvd.h"
 #include "../Iop_Cdvdman.h"
 #include "../../Ps2Const.h"
-#include "../../Log.h"
+#include "Log.h"
 
 using namespace Iop;
 using namespace Iop::Namco;

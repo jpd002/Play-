@@ -1,6 +1,6 @@
 #include <cstring>
 #include <stdio.h>
-#include "../Log.h"
+#include "Log.h"
 #include "../states/RegisterStateFile.h"
 #include "Timer.h"
 #include "Ps2Const.h"

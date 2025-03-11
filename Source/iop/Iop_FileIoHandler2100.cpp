@@ -1,7 +1,7 @@
 #include <cstring>
 #include "Iop_FileIoHandler2100.h"
 #include "Iop_Ioman.h"
-#include "../Log.h"
+#include "Log.h"
 
 #define LOG_NAME ("iop_fileio")
 

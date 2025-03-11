@@ -1,7 +1,7 @@
 #include "Iop_Dmacman.h"
 #include "Iop_Dmac.h"
 #include "Iop_DmacChannel.h"
-#include "../Log.h"
+#include "Log.h"
 
 #define LOGNAME "iop_dmacman"
 

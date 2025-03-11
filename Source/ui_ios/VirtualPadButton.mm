@@ -1,4 +1,4 @@
-#import "../AppConfig.h"
+#import "AppConfig.h"
 #import "PreferenceDefs.h"
 #import "VirtualPadButton.h"
 

@@ -2,7 +2,7 @@
 #include "Iop_Loadcore.h"
 #include "Iop_Dynamic.h"
 #include "IopBios.h"
-#include "../Log.h"
+#include "Log.h"
 #include "../states/RegisterStateFile.h"
 
 using namespace Iop;

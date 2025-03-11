@@ -1,5 +1,5 @@
 #include <cstring>
-#include "../../AppConfig.h"
+#include "AppConfig.h"
 #include "GSH_VulkanDeviceInfo.h"
 #include "GSH_VulkanPlatformDefs.h"
 #include "GSH_Vulkan.h"

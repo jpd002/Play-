@@ -3,7 +3,7 @@
 #include <stdexcept>
 #include "static_loop.h"
 #include "string_format.h"
-#include "../Log.h"
+#include "Log.h"
 #include "../Ps2Const.h"
 #include "../states/RegisterStateFile.h"
 #include "../states/MemoryStateFile.h"

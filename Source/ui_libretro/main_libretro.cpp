@@ -15,6 +15,8 @@
 #include "MemStream.h"
 
 #include "filesystem_def.h"
+#include "DefaultAppConfig.h"
+
 #include <vector>
 #include <cstdlib>
 

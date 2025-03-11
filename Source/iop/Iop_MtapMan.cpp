@@ -1,6 +1,6 @@
 #include <assert.h>
 #include "Iop_MtapMan.h"
-#include "../Log.h"
+#include "Log.h"
 
 using namespace Iop;
 

@@ -3,7 +3,7 @@
 #include "Iop_Dmac.h"
 #include "Iop_Intc.h"
 #include "../states/RegisterStateFile.h"
-#include "../Log.h"
+#include "Log.h"
 
 #define LOG_NAME ("iop_dmac")
 

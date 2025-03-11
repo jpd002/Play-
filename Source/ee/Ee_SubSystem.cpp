@@ -4,7 +4,7 @@
 #include "AppConfig.h"
 #include "StdStreamUtils.h"
 #include "../Ps2Const.h"
-#include "../Log.h"
+#include "Log.h"
 #include "../states/MemoryStateFile.h"
 #include "../iop/IopBios.h"
 #include "Vif.h"

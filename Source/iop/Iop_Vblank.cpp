@@ -1,6 +1,6 @@
 #include "Iop_Vblank.h"
 #include "IopBios.h"
-#include "../Log.h"
+#include "Log.h"
 
 using namespace Iop;
 

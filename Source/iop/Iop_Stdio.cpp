@@ -3,7 +3,7 @@
 #include "Iop_Ioman.h"
 #include "lexical_cast_ex.h"
 #include "string_format.h"
-#include "../Log.h"
+#include "Log.h"
 
 #define LOG_NAME "iop_stdio"
 

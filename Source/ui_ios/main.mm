@@ -1,6 +1,7 @@
 #import <UIKit/UIKit.h>
 #import "AppDelegate.h"
 #include "DebuggerSimulator.h"
+#include "DefaultAppConfig.h"
 
 int main(int argc, char* argv[])
 {

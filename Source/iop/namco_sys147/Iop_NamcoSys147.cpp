@@ -1,6 +1,6 @@
 #include <cstring>
 #include "Iop_NamcoSys147.h"
-#include "../../Log.h"
+#include "Log.h"
 #include "StdStreamUtils.h"
 #include "PathUtils.h"
 #include "AppConfig.h"

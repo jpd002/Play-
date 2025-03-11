@@ -7,6 +7,7 @@
 #include "input/PH_GenericInput.h"
 #include "InputProviderEmscripten.h"
 #include "ui_shared/StatsManager.h"
+#include "DefaultAppConfig.h"
 
 CPs2VmJs* g_virtualMachine = nullptr;
 CGSHandler::NewFrameEvent::Connection g_gsNewFrameConnection;

@@ -1,6 +1,6 @@
 #import "SettingsViewController.h"
 #import "SettingsListSelectorViewController.h"
-#include "../AppConfig.h"
+#include "AppConfig.h"
 #include "PreferenceDefs.h"
 #include "../gs/GSH_OpenGL/GSH_OpenGL.h"
 

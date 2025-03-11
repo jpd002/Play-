@@ -1,5 +1,5 @@
 #include "Iop_Heaplib.h"
-#include "../Log.h"
+#include "Log.h"
 
 using namespace Iop;
 

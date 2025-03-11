@@ -1,7 +1,7 @@
 #include "Iop_PadMan.h"
 #include <cstdio>
 #include <cassert>
-#include "../Log.h"
+#include "Log.h"
 #include "../states/RegisterStateFile.h"
 #include "placeholder_def.h"
 

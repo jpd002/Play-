@@ -1,6 +1,6 @@
 #include "Iop_Thmsgbx.h"
 #include "IopBios.h"
-#include "../Log.h"
+#include "Log.h"
 
 #define LOG_NAME ("iop_thmsgbx")
 

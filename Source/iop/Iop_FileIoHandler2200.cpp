@@ -5,7 +5,7 @@
 #include "Iop_SifManPs2.h"
 #include "../states/RegisterStateFile.h"
 #include "../states/MemoryStateFile.h"
-#include "../Log.h"
+#include "Log.h"
 #include "../Ps2Const.h"
 
 #define LOG_NAME ("iop_fileio")

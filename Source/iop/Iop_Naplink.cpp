@@ -1,6 +1,6 @@
 #include "Iop_Naplink.h"
 #include "Iop_Ioman.h"
-#include "../Log.h"
+#include "Log.h"
 
 //Naplink is required by some demos that use nprintf
 //The demos won't make an explicit attempt at loading the module

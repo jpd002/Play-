@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <functional>
-#include "../AppConfig.h"
-#include "../Log.h"
+#include "AppConfig.h"
+#include "Log.h"
 #include "../states/MemoryStateFile.h"
 #include "../states/RegisterStateFile.h"
 #include "../FrameDump.h"

@@ -5,7 +5,7 @@
 #include "../states/MemoryStateFile.h"
 #include "../states/RegisterStateFile.h"
 #include "../Ps2Const.h"
-#include "../Log.h"
+#include "Log.h"
 #include "placeholder_def.h"
 
 using namespace Iop;

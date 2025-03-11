@@ -1,5 +1,5 @@
 #include "Iop_Secrman.h"
-#include "../Log.h"
+#include "Log.h"
 
 #define LOGNAME "iop_secrman"
 

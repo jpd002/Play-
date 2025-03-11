@@ -1,7 +1,7 @@
 #include <assert.h>
 #include "COP_VU.h"
 #include "VUShared.h"
-#include "../Log.h"
+#include "Log.h"
 #include "../MIPS.h"
 #include "../MemoryUtils.h"
 #include "offsetof_def.h"

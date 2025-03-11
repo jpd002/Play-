@@ -4,7 +4,7 @@
 #include <climits>
 #include <algorithm>
 #include "string_format.h"
-#include "../Log.h"
+#include "Log.h"
 #include "../states/RegisterStateCollectionFile.h"
 #include "../states/RegisterStateUtils.h"
 #include "../states/RegisterStateFile.h"

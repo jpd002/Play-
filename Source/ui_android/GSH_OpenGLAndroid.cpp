@@ -1,7 +1,6 @@
 #include <cassert>
 #include "opengl/OpenGlDef.h"
 #include "GSH_OpenGLAndroid.h"
-#include "../Log.h"
 #include "AppConfig.h"
 
 CGSH_OpenGLAndroid::CGSH_OpenGLAndroid(NativeWindowType window)

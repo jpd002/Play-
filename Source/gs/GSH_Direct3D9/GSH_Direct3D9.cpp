@@ -1,5 +1,4 @@
 #include "GSH_Direct3D9.h"
-#include "../../Log.h"
 #include "../../gs/GsPixelFormats.h"
 #include "../../gs/GsTransferRange.h"
 #include "direct3d9/D3D9TextureUtils.h"

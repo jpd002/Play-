@@ -4,7 +4,7 @@
 #include "../Ps2Const.h"
 #include "../COP_SCU.h"
 #include "../ee/SIF.h"
-#include "../Log.h"
+#include "Log.h"
 #include "../states/RegisterStateCollectionFile.h"
 
 using namespace Iop;

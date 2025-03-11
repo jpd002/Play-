@@ -17,6 +17,14 @@ if(NOT TARGET Framework_OpenGl)
 endif()
 list(APPEND GSH_OPENGL_PROJECT_LIBS Framework_OpenGl)
 
+if(NOT TARGET app_shared)
+	add_subdirectory(
+		${CMAKE_CURRENT_SOURCE_DIR}/../../app_shared
+		${CMAKE_CURRENT_BINARY_DIR}/app_shared
+	)
+endif()
+list(APPEND GSH_OPENGL_PROJECT_LIBS app_shared)
+
 if(TARGET_PLATFORM_UNIX_ARM)
 	list(APPEND GSH_OPENGL_COMPILE_OPTIONS "-mfpu=neon")
 endif()

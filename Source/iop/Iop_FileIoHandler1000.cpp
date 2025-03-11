@@ -3,7 +3,7 @@
 #include "Iop_Ioman.h"
 #include "Iop_SifManPs2.h"
 #include "IopBios.h"
-#include "../Log.h"
+#include "Log.h"
 
 #define LOG_NAME ("iop_fileio")
 

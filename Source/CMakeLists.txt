@@ -57,6 +57,14 @@ if(NOT TARGET Framework_Http)
 endif()
 list(APPEND PROJECT_LIBS Framework_Http)
 
+if(NOT TARGET app_shared)
+	add_subdirectory(
+		${CMAKE_CURRENT_SOURCE_DIR}/app_shared
+		${CMAKE_CURRENT_BINARY_DIR}/app_shared
+	)
+endif()
+list(APPEND PROJECT_LIBS app_shared)
+
 if(ENABLE_AMAZON_S3)
 	if(NOT TARGET Framework_Amazon)
 		add_subdirectory(
@@ -138,8 +146,6 @@ if(NOT (TARGET_PLATFORM_ANDROID OR TARGET_PLATFORM_IOS))
 endif()
 
 set(COMMON_SRC_FILES
-	AppConfig.cpp
-	AppConfig.h
 	BasicBlock.cpp
 	BasicBlock.h
 	BiosDebugInfoProvider.h
@@ -438,8 +444,6 @@ set(COMMON_SRC_FILES
 	ISO9660/PathTableRecord.h
 	ISO9660/VolumeDescriptor.cpp
 	ISO9660/VolumeDescriptor.h
-	Log.cpp
-	Log.h
 	MA_MIPSIV.cpp
 	MA_MIPSIV.h
 	MA_MIPSIV_Reflection.cpp

@@ -5,7 +5,7 @@
 #import "RenderView.h"
 #include "../PS2VM.h"
 #include "../PS2VM_Preferences.h"
-#include "../AppConfig.h"
+#include "AppConfig.h"
 #include "PreferenceDefs.h"
 #include "GSH_OpenGLiOS.h"
 #ifdef HAS_GSH_VULKAN

@@ -2,7 +2,6 @@
 #include "GsStateUtils.h"
 #include "gs/GsDebuggerInterface.h"
 #include "gs/GsPixelFormats.h"
-#include "../../../AppConfig.h"
 
 #include <QVBoxLayout>
 

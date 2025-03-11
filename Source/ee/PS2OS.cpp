@@ -15,7 +15,7 @@
 #include "../ElfFile.h"
 #include "../COP_SCU.h"
 #include "../uint128.h"
-#include "../Log.h"
+#include "Log.h"
 #include "../iop/IopBios.h"
 #include "DMAC.h"
 #include "INTC.h"

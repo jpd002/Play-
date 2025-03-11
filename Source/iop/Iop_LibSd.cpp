@@ -1,5 +1,5 @@
 #include "Iop_LibSd.h"
-#include "../Log.h"
+#include "Log.h"
 #include "string_format.h"
 
 //Not an actual implementation of the LIBSD module

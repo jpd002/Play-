@@ -4,7 +4,7 @@
 #include "Iop_Intc.h"
 #include "Ps2Const.h"
 #include "string_format.h"
-#include "../Log.h"
+#include "Log.h"
 #include "../states/RegisterStateFile.h"
 
 #define LOG_NAME ("iop_counters")

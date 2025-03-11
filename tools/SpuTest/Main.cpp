@@ -1,4 +1,5 @@
 #include <functional>
+#include "DefaultAppConfig.h"
 #include "KeyOnOffTest.h"
 #include "MultiCoreIrqTest.h"
 #include "SetRepeatTest.h"

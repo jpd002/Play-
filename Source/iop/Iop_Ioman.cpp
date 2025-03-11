@@ -8,8 +8,8 @@
 
 #include "Iop_Ioman.h"
 #include "IopBios.h"
-#include "../AppConfig.h"
-#include "../Log.h"
+#include "AppConfig.h"
+#include "Log.h"
 #include "../states/XmlStateFile.h"
 #include "ioman/PathDirectoryDevice.h"
 

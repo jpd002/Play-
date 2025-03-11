@@ -1,5 +1,5 @@
 #include "Iop_Thvpool.h"
-#include "../Log.h"
+#include "Log.h"
 
 #define LOG_NAME ("iop_thvpool")
 

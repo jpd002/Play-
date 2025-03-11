@@ -3,7 +3,7 @@
 #include <cstring>
 #include "../uint128.h"
 #include "../Ps2Const.h"
-#include "../Log.h"
+#include "Log.h"
 #include "../FrameDump.h"
 #include "../states/RegisterStateFile.h"
 #include "../states/MemoryStateFile.h"

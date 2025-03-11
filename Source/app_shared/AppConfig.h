@@ -11,7 +11,7 @@ public:
 
 	//This needs to be implemented by every application/executable
 	fs::path GetBasePath() const;
-	
+
 private:
 	CConfig::PathType BuildConfigPath();
 };

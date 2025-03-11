@@ -1,6 +1,6 @@
 #import "AltServerJitService.h"
 #import "AltKit-Swift.h"
-#include "../AppConfig.h"
+#include "AppConfig.h"
 #import "PreferenceDefs.h"
 
 @implementation AltServerJitService

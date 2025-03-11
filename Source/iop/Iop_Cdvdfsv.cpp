@@ -1,5 +1,5 @@
 #include <assert.h>
-#include "../Log.h"
+#include "Log.h"
 #include "../Ps2Const.h"
 #include "Iop_Cdvdfsv.h"
 #include "Iop_Cdvdman.h"

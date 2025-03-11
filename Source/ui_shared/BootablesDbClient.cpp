@@ -1,5 +1,5 @@
 #include <cassert>
-#include "../AppConfig.h"
+#include "AppConfig.h"
 #include "string_format.h"
 #include "PathUtils.h"
 #include "BootablesDbClient.h"

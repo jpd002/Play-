@@ -1,6 +1,6 @@
 #import "RenderView.h"
 #import <QuartzCore/QuartzCore.h>
-#include "../AppConfig.h"
+#include "AppConfig.h"
 #include "PreferenceDefs.h"
 
 @implementation RenderView

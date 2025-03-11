@@ -21,7 +21,7 @@
 #include "mpeg2/InverseScanTable.h"
 #include "idct/TrivialC.h"
 #include "idct/IEEE1180.h"
-#include "../Log.h"
+#include "Log.h"
 #include "DMAC.h"
 #include "INTC.h"
 #include "Ps2Const.h"

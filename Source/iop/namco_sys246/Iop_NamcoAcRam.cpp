@@ -3,7 +3,7 @@
 #include "zip/ZipArchiveReader.h"
 #include "zip/ZipArchiveWriter.h"
 #include "../../states/MemoryStateFile.h"
-#include "../../Log.h"
+#include "Log.h"
 
 using namespace Iop;
 using namespace Iop::Namco;

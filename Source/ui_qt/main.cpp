@@ -1,8 +1,9 @@
 #include <QApplication>
 #include <QCommandLineParser>
-#include "mainwindow.h"
-#include "QStringUtils.h"
 #include <QtGlobal>
+#include "mainwindow.h"
+#include "PathUtils.h"
+#include "QStringUtils.h"
 
 Q_DECLARE_METATYPE(std::string)
 
@@ -103,4 +104,24 @@ int main(int argc, char* argv[])
 	}
 #endif
 	return a.exec();
+}
+
+fs::path CAppConfig::GetBasePath() const
+{
+	static const char* BASE_DATA_PATH = "Play Data Files";
+	static const auto basePath =
+	    []() {
+		    fs::path result;
+		    if(fs::exists("portable.txt"))
+		    {
+			    result = BASE_DATA_PATH;
+		    }
+		    else
+		    {
+			    result = Framework::PathUtils::GetPersonalDataPath() / BASE_DATA_PATH;
+		    }
+		    Framework::PathUtils::EnsurePathExists(result);
+		    return result;
+	    }();
+	return basePath;
 }

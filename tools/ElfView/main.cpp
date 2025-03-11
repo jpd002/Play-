@@ -1,4 +1,6 @@
 #include <QApplication>
+#include "AppConfig.h"
+#include "PathUtils.h"
 #include "mainwindow.h"
 
 int main(int argc, char* argv[])
@@ -12,4 +14,16 @@ int main(int argc, char* argv[])
 	w.show();
 
 	return a.exec();
+}
+
+fs::path CAppConfig::GetBasePath() const
+{
+	static const char* BASE_DATA_PATH = "ElfView Data Files";
+	static const auto basePath =
+	    []() {
+		    auto result = Framework::PathUtils::GetPersonalDataPath() / BASE_DATA_PATH;
+		    Framework::PathUtils::EnsurePathExists(result);
+		    return result;
+	    }();
+	return basePath;
 }

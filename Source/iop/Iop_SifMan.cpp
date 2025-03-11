@@ -2,7 +2,7 @@
 #include <cstring>
 #include "Iop_Sysmem.h"
 #include "../MIPSAssembler.h"
-#include "../Log.h"
+#include "Log.h"
 
 #define LOG_NAME ("iop_sifman")
 

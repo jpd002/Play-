@@ -3,8 +3,7 @@
 #include <cstring>
 #include <math.h>
 
-#include "../../Log.h"
-#include "../../AppConfig.h"
+#include "AppConfig.h"
 #include "../GsPixelFormats.h"
 #include "../GsTransferRange.h"
 #include "GSH_OpenGL.h"

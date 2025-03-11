@@ -1,5 +1,5 @@
 #include "Iop_Intrman.h"
-#include "../Log.h"
+#include "Log.h"
 #include "../COP_SCU.h"
 #include "Iop_Intc.h"
 #include "IopBios.h"

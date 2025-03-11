@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <assert.h>
 #include <fenv.h>
+#include "DefaultAppConfig.h"
 #include "FpUtils.h"
 #include "AddTest.h"
 #include "BranchTest.h"

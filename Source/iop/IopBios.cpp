@@ -11,7 +11,7 @@
 
 #include "IopBios.h"
 #include "../COP_SCU.h"
-#include "../Log.h"
+#include "Log.h"
 #include "../ElfFile.h"
 #include "../Ps2Const.h"
 #include "../MipsExecutor.h"

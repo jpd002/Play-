@@ -2,7 +2,7 @@
 #include <cstring>
 #include <vector>
 #include "Iop_Sio2.h"
-#include "../Log.h"
+#include "Log.h"
 #include "../states/RegisterStateFile.h"
 #include "../states/MemoryStateFile.h"
 

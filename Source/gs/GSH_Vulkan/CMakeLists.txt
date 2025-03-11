@@ -25,6 +25,14 @@ if(NOT TARGET Nuanceur)
 endif()
 list(APPEND GSH_VULKAN_PROJECT_LIBS Nuanceur)
 
+if(NOT TARGET app_shared)
+	add_subdirectory(
+		${CMAKE_CURRENT_SOURCE_DIR}/../../app_shared
+		${CMAKE_CURRENT_BINARY_DIR}/app_shared
+	)
+endif()
+list(APPEND GSH_VULKAN_PROJECT_LIBS app_shared)
+
 add_library(gsh_vulkan STATIC
 	GSH_Vulkan.cpp
 	GSH_Vulkan.h

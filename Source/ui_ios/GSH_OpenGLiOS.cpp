@@ -1,7 +1,6 @@
 #include <cassert>
 #include "opengl/OpenGlDef.h"
 #include "GSH_OpenGLiOS.h"
-#include "../Log.h"
 
 CGSH_OpenGLiOS::CGSH_OpenGLiOS(CAEAGLLayer* layer)
     : m_layer(layer)
