@@ -1916,7 +1916,7 @@ void CIopBios::CountTicks(uint32 ticks)
 	m_sifMan->CountTicks(ticks);
 #ifdef _IOP_EMULATE_MODULES
 	m_cdvdman->CountTicks(ticks);
-	m_cdvdfsv->CountTicks(ticks, m_sifMan.get());
+	m_cdvdfsv->CountTicks(ticks);
 	m_mcserv->CountTicks(ticks, m_sifMan.get());
 	m_usbd->CountTicks(ticks);
 #endif

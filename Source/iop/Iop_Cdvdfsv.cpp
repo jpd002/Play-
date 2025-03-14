@@ -24,7 +24,8 @@ using namespace Iop;
 constexpr uint64 COMMAND_DEFAULT_DELAY = TimeUtils::UsecsToCycles(PS2::IOP_CLOCK_OVER_FREQ, 16666);
 
 CCdvdfsv::CCdvdfsv(CSifMan& sif, CCdvdman& cdvdman, uint8* iopRam)
-    : m_cdvdman(cdvdman)
+    : m_sifMan(sif)
+    , m_cdvdman(cdvdman)
     , m_iopRam(iopRam)
 {
 	m_module592 = CSifModuleAdapter(std::bind(&CCdvdfsv::Invoke592, this,
@@ -61,7 +62,7 @@ std::string CCdvdfsv::GetFunctionName(unsigned int) const
 	return "unknown";
 }
 
-void CCdvdfsv::CountTicks(uint32 ticks, CSifMan* sifMan)
+void CCdvdfsv::CountTicks(uint32 ticks)
 {
 	if(m_pendingCommand != COMMAND_NONE)
 	{
@@ -71,60 +72,75 @@ void CCdvdfsv::CountTicks(uint32 ticks, CSifMan* sifMan)
 			return;
 		}
 
-		static const uint32 sectorSize = 0x800;
-
-		uint8* eeRam = nullptr;
-		if(auto sifManPs2 = dynamic_cast<CSifManPs2*>(sifMan))
-		{
-			eeRam = sifManPs2->GetEeRam();
-		}
-
-		if(m_pendingCommand == COMMAND_READ)
-		{
-			if(m_opticalMedia != nullptr)
-			{
-				auto fileSystem = m_opticalMedia->GetFileSystem();
-				for(unsigned int i = 0; i < m_pendingReadCount; i++)
-				{
-					fileSystem->ReadBlock(m_pendingReadSector + i, eeRam + (m_pendingReadAddr + (i * sectorSize)));
-				}
-			}
-		}
-		else if(m_pendingCommand == COMMAND_READIOP)
-		{
-			if(m_opticalMedia != nullptr)
-			{
-				auto fileSystem = m_opticalMedia->GetFileSystem();
-				for(unsigned int i = 0; i < m_pendingReadCount; i++)
-				{
-					fileSystem->ReadBlock(m_pendingReadSector + i, m_iopRam + (m_pendingReadAddr + (i * sectorSize)));
-				}
-			}
-		}
-		else if(m_pendingCommand == COMMAND_STREAM_READ)
-		{
-			if(m_opticalMedia != nullptr)
-			{
-				auto fileSystem = m_opticalMedia->GetFileSystem();
-				for(unsigned int i = 0; i < m_pendingReadCount; i++)
-				{
-					fileSystem->ReadBlock(m_streamPos, eeRam + (m_pendingReadAddr + (i * sectorSize)));
-					m_streamPos++;
-				}
-			}
-		}
-		else if(m_pendingCommand == COMMAND_NDISKREADY)
-		{
-			//Result already set, just return normally
-		}
-		else if(m_pendingCommand == COMMAND_READCHAIN)
-		{
-			//Nothing to do, everything has been read already
-		}
-
-		m_pendingCommand = COMMAND_NONE;
-		sifMan->SendCallReply(MODULE_ID_4, nullptr);
+		FinishPendingCommand();
 	}
+}
+
+void CCdvdfsv::FinishPendingCommand()
+{
+	assert(m_pendingCommand != COMMAND_NONE);
+
+	static const uint32 sectorSize = 0x800;
+
+	uint8* eeRam = nullptr;
+	if(auto sifManPs2 = dynamic_cast<CSifManPs2*>(&m_sifMan))
+	{
+		eeRam = sifManPs2->GetEeRam();
+	}
+
+	if(m_pendingCommand == COMMAND_READ)
+	{
+		if(m_opticalMedia != nullptr)
+		{
+			auto fileSystem = m_opticalMedia->GetFileSystem();
+			for(unsigned int i = 0; i < m_pendingReadCount; i++)
+			{
+				fileSystem->ReadBlock(m_pendingReadSector + i, eeRam + (m_pendingReadAddr + (i * sectorSize)));
+			}
+		}
+	}
+	else if(m_pendingCommand == COMMAND_READIOP)
+	{
+		if(m_opticalMedia != nullptr)
+		{
+			auto fileSystem = m_opticalMedia->GetFileSystem();
+			for(unsigned int i = 0; i < m_pendingReadCount; i++)
+			{
+				fileSystem->ReadBlock(m_pendingReadSector + i, m_iopRam + (m_pendingReadAddr + (i * sectorSize)));
+			}
+		}
+	}
+	else if(m_pendingCommand == COMMAND_STREAM_READ)
+	{
+		if(m_opticalMedia != nullptr)
+		{
+			auto fileSystem = m_opticalMedia->GetFileSystem();
+			for(unsigned int i = 0; i < m_pendingReadCount; i++)
+			{
+				fileSystem->ReadBlock(m_streamPos, eeRam + (m_pendingReadAddr + (i * sectorSize)));
+				m_streamPos++;
+			}
+		}
+	}
+	else if(m_pendingCommand == COMMAND_NDISKREADY)
+	{
+		//Result already set, just return normally
+	}
+	else if(m_pendingCommand == COMMAND_READCHAIN)
+	{
+		//Nothing to do, everything has been read already
+	}
+	else if(m_pendingCommand == COMMAND_PAUSE)
+	{
+		//Nothing to do
+	}
+	else
+	{
+		assert(false);
+	}
+
+	m_pendingCommand = COMMAND_NONE;
+	m_sifMan.SendCallReply(MODULE_ID_4, nullptr);
 }
 
 void CCdvdfsv::SetOpticalMedia(COpticalMedia* opticalMedia)
@@ -387,6 +403,13 @@ bool CCdvdfsv::Invoke59C(uint32 method, uint32* args, uint32 argsSize, uint32* r
 		assert(argsSize >= 4);
 		uint32 mode = args[0x00];
 		CLog::GetInstance().Print(LOG_NAME, "DiskReady(mode = %i);\r\n", mode);
+		//When this is called, it seems we need to make sure that no pending command is
+		//remaining. Castlevania: Curse of Darkness issues a Pause command then uses
+		//DiskReady without acknowledging the pause and assumes it can use GetToc after.
+		if(m_pendingCommand != COMMAND_NONE)
+		{
+			FinishPendingCommand();
+		}
 		ret[0x00] = 2;
 	}
 	break;

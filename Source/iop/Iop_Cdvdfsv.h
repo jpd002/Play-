@@ -21,7 +21,7 @@ namespace Iop
 		std::string GetFunctionName(unsigned int) const override;
 		void Invoke(CMIPS&, unsigned int) override;
 
-		void CountTicks(uint32, CSifMan*);
+		void CountTicks(uint32);
 		void SetOpticalMedia(COpticalMedia*);
 
 		void LoadState(Framework::CZipArchiveReader&) override;
@@ -51,6 +51,8 @@ namespace Iop
 			COMMAND_PAUSE,
 		};
 
+		void FinishPendingCommand();
+
 		bool Invoke592(uint32, uint32*, uint32, uint32*, uint32, uint8*);
 		bool Invoke593(uint32, uint32*, uint32, uint32*, uint32, uint8*);
 		bool Invoke595(uint32, uint32*, uint32, uint32*, uint32, uint8*);
@@ -67,6 +69,7 @@ namespace Iop
 		void ReadChain(uint32*, uint32, uint32*, uint32, uint8*);
 		void SearchFile(uint32*, uint32, uint32*, uint32, uint8*);
 
+		CSifMan& m_sifMan;
 		CCdvdman& m_cdvdman;
 		uint8* m_iopRam = nullptr;
 		COpticalMedia* m_opticalMedia = nullptr;
