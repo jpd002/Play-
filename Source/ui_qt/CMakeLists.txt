@@ -273,6 +273,8 @@ if(TARGET_PLATFORM_MACOS)
 		${QT_SOURCES}
 		macos/InputProviderMacOsHid.cpp
 		macos/InputProviderMacOsHid.h
+		macos/LayerFromView.mm
+		macos/LayerFromView.h
 	)
 	FILE(GLOB ARCADE_DEFS ${CMAKE_CURRENT_SOURCE_DIR}/../../arcadedefs/*.arcadedef)
 	set(OSX_RES
@@ -283,7 +285,8 @@ if(TARGET_PLATFORM_MACOS)
 		list(APPEND OSX_RES ${CMAKE_CURRENT_SOURCE_DIR}/../../ee_functions.xml)
 	endif()
 	if(USE_GSH_VULKAN)
-		list(APPEND OSX_RES $ENV{VULKAN_SDK}/../MoltenVK/dylib/macOS/libMoltenVk.dylib)
+		cmake_path(GET Vulkan_LIBRARY PARENT_PATH VULKAN_LIB_DIR)
+		list(APPEND OSX_RES ${VULKAN_LIB_DIR}/libMoltenVk.dylib)
 	endif()
 	add_executable(Play MACOSX_BUNDLE ${QT_SOURCES} ${QT_MOC_SRCS} ${QT_RES_SOURCES} ${QT_UI_HEADERS} ${OSX_RES} ${ARCADE_DEFS})
 	# Set a custom plist file for the app bundle
@@ -306,9 +309,6 @@ if(TARGET_PLATFORM_MACOS)
 	)
 	SET_SOURCE_FILES_PROPERTIES(${ARCADE_DEFS} PROPERTIES MACOSX_PACKAGE_LOCATION "Resources/arcadedefs")
 	list(APPEND UI_QT_PROJECT_LIBS "-framework IOKit -framework CoreFoundation")
-	if(USE_GSH_VULKAN)
-		target_include_directories(Play PRIVATE $ENV{VULKAN_SDK}/../MoltenVK/include)
-	endif()
 elseif(TARGET_PLATFORM_WIN32)
 	set(QT_SOURCES
 		${QT_SOURCES}

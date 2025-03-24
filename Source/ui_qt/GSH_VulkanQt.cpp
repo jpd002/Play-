@@ -1,6 +1,7 @@
 #include "GSH_VulkanQt.h"
 #include "vulkan/StructDefs.h"
 #include "vulkan/Loader.h"
+#include "vulkanwindow.h"
 #include <QWindow>
 #include <QGuiApplication>
 
@@ -37,7 +38,7 @@ void CGSH_VulkanQt::InitializeImpl()
 
 #ifdef __APPLE__
 	VkMacOSSurfaceCreateInfoMVK surfaceCreateInfo = {};
-	surfaceCreateInfo.pView = reinterpret_cast<const void*>(m_renderWindow->winId());
+	surfaceCreateInfo.pView = static_cast<VulkanWindow*>(m_renderWindow)->GetMetalLayer();
 	auto result = m_instance.vkCreateMacOSSurfaceMVK(m_instance, &surfaceCreateInfo, nullptr, &m_context->surface);
 	CHECKVULKANERROR(result);
 #endif
