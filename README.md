@@ -298,7 +298,6 @@ This will generate the JavaScript glue code and the WebAssembly module required 
 build_cmake/build/Source/ui_js/Play.js -> js/play_browser/src/Play.js
 build_cmake/build/Source/ui_js/Play.wasm -> js/play_browser/public/Play.wasm
 build_cmake/build/Source/ui_js/Play.js -> js/play_browser/public/Play.js
-build_cmake/build/Source/ui_js/Play.worker.js -> js/play_browser/public/Play.worker.js
 ```
 
 Once this is done, you should be able to go in the `js/play_browser` folder and run the following to get a local version running in your web browser:
