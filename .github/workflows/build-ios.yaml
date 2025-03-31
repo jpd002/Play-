@@ -11,12 +11,12 @@ jobs:
     - name: Install Vulkan SDK
       run: |
         cd $RUNNER_WORKSPACE
-        curl -L --show-error --output vulkansdk.dmg https://sdk.lunarg.com/sdk/download/${VULKAN_SDK_VERSION}/mac/vulkansdk-macos-${VULKAN_SDK_VERSION}.dmg?Human=true
-        hdiutil attach vulkansdk.dmg
-        sudo /Volumes/vulkansdk-macos-${VULKAN_SDK_VERSION}/InstallVulkan.app/Contents/MacOS/InstallVulkan in --al --c
-        echo "VULKAN_SDK=~/VulkanSDK/${VULKAN_SDK_VERSION}/macOS" >> $GITHUB_ENV
+        curl -L --show-error --output vulkansdk.zip https://sdk.lunarg.com/sdk/download/${VULKAN_SDK_VERSION}/mac/vulkansdk-macos-${VULKAN_SDK_VERSION}.zip?Human=true
+        unzip vulkansdk.zip
+        sudo ./InstallVulkan-${VULKAN_SDK_VERSION}.app/Contents/MacOS/InstallVulkan-${VULKAN_SDK_VERSION} in --al --c com.lunarg.vulkan.ios
+        echo "VULKAN_SDK=${HOME}/VulkanSDK/${VULKAN_SDK_VERSION}/iOS" >> $GITHUB_ENV
       env:
-        VULKAN_SDK_VERSION: '1.3.268.1'
+        VULKAN_SDK_VERSION: '1.4.309.0'
     - name: Checkout
       uses: actions/checkout@v3
       with:

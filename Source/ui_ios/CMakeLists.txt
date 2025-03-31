@@ -152,7 +152,6 @@ set(OSX_RES
 if(USE_GSH_VULKAN)
 	list(APPEND OSX_SOURCES GSH_VulkaniOS.cpp)
 	list(APPEND OSX_HEADERS GSH_VulkaniOS.h)
-	list(APPEND OSX_RES "$ENV{VULKAN_SDK}/../MoltenVK/dylib/iOS/libMoltenVK.dylib")
 endif()
 
 # Add our Executable
@@ -187,3 +186,12 @@ set_target_properties(
 		XCODE_ATTRIBUTE_TARGETED_DEVICE_FAMILY "1,2"
 		RESOURCE "${OSX_RES}"
 )
+
+if(USE_GSH_VULKAN)
+	set_target_properties(
+		Play
+		PROPERTIES
+			XCODE_EMBED_FRAMEWORKS "$ENV{VULKAN_SDK}/lib/MoltenVK.xcframework"
+			XCODE_EMBED_FRAMEWORKS_CODE_SIGN_ON_COPY TRUE
+	)
+endif()
