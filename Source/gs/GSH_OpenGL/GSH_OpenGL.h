@@ -95,6 +95,8 @@ private:
 		unsigned int hasDestAlphaTest : 1;
 		unsigned int destAlphaTestRef : 1;
 		unsigned int alphaFailMethod : 2;
+		unsigned int alphaTestDepthTest_DepthFetch : 1;
+		unsigned int alphaTestDepthTestEqual_DepthFetch : 1;
 
 		bool isIndexedTextureSource() const
 		{
@@ -356,6 +358,7 @@ private:
 	void SetupFogColor(uint64);
 
 	static bool CanRegionRepeatClampModeSimplified(uint32, uint32);
+	bool RequiresAlphaTestDepthTest_DepthFetch(const TEST&) const;
 	void FillShaderCapsFromTexture(SHADERCAPS&, const uint64&, const uint64&, const uint64&, const uint64&);
 	void FillShaderCapsFromTest(SHADERCAPS&, const uint64&);
 	void FillShaderCapsFromAlpha(SHADERCAPS&, bool, const uint64&);
@@ -474,4 +477,5 @@ private:
 	//If GPU has framebuffer fetch extension, some things will be done
 	//within the shader, such alpha blending
 	bool m_hasFramebufferFetchExtension = false;
+	bool m_hasFramebufferFetchDepthExtension = false;
 };

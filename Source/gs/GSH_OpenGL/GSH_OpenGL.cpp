@@ -312,6 +312,10 @@ void CGSH_OpenGL::CheckExtensions()
 		{
 			m_hasFramebufferFetchExtension = true;
 		}
+		else if(!strcmp(extensionName, "GL_ARM_shader_framebuffer_fetch_depth_stencil"))
+		{
+			m_hasFramebufferFetchDepthExtension = true;
+		}
 	}
 }
 
@@ -1060,6 +1064,20 @@ bool CGSH_OpenGL::CanRegionRepeatClampModeSimplified(uint32 clampMin, uint32 cla
 	return false;
 }
 
+bool CGSH_OpenGL::RequiresAlphaTestDepthTest_DepthFetch(const TEST& test) const
+{
+	if(!m_hasFramebufferFetchDepthExtension) return false;
+	//If alpha test is not enabled, bail
+	if(!test.nAlphaEnabled) return false;
+	//If depth test not enabled, bail
+	if(!test.nDepthEnabled) return false;
+	//If depth test doesn't need depth value to compare, bail
+	if(!((test.nDepthMethod == DEPTH_TEST_GEQUAL) || (test.nDepthMethod == DEPTH_TEST_GREATER))) return false;
+	//If alpha test doesn't discard depth (independently of other channels), bail
+	if(!((test.nAlphaFail == ALPHA_TEST_FAIL_FBONLY) || (test.nAlphaFail == ALPHA_TEST_FAIL_RGBONLY))) return false;
+	return true;
+}
+
 void CGSH_OpenGL::FillShaderCapsFromTexture(SHADERCAPS& shaderCaps, const uint64& tex0Reg, const uint64& tex1Reg, const uint64& texAReg, const uint64& clampReg)
 {
 	auto tex0 = make_convertible<TEX0>(tex0Reg);
@@ -1142,6 +1160,17 @@ void CGSH_OpenGL::FillShaderCapsFromTest(SHADERCAPS& shaderCaps, const uint64& t
 			shaderCaps.hasAlphaTest = m_alphaTestingEnabled ? 1 : 0;
 			shaderCaps.alphaTestMethod = test.nAlphaMethod;
 			shaderCaps.alphaFailMethod = test.nAlphaFail;
+		}
+
+		if(RequiresAlphaTestDepthTest_DepthFetch(test))
+		{
+			//If we use depthbuffer fetch to reject depth writes on alpha test fail,
+			//we need to handle depth test ourselves since we still need to potentially
+			//discard the fragment based on its depth value. Since our strategy for rejecting
+			//depth writes relies on providing the previous depth value to the current
+			//fragment, the built-in depth test won't be able to give proper results.
+			shaderCaps.alphaTestDepthTest_DepthFetch = 1;
+			shaderCaps.alphaTestDepthTestEqual_DepthFetch = (test.nDepthMethod == DEPTH_TEST_GEQUAL);
 		}
 	}
 	else
