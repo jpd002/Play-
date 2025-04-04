@@ -166,7 +166,7 @@ void CVif1::Cmd_DIRECT(StreamType& stream, CODE nCommand)
 		if(hasPartialQword)
 		{
 			//Read enough bytes to try to complete our qword
-			assert(m_directQwordBufferIndex < QWORD_SIZE);
+			assert(m_directQwordBufferIndex <= QWORD_SIZE);
 			uint32 readAmount = std::min(nSize, QWORD_SIZE - m_directQwordBufferIndex);
 			stream.Read(m_directQwordBuffer + m_directQwordBufferIndex, readAmount);
 			m_directQwordBufferIndex += readAmount;
@@ -176,11 +176,14 @@ void CVif1::Cmd_DIRECT(StreamType& stream, CODE nCommand)
 			if(m_directQwordBufferIndex == QWORD_SIZE)
 			{
 				assert(m_CODE.nIMM != 0);
-				FRAMEWORK_MAYBE_UNUSED uint32 processed = m_gif.ProcessMultiplePackets(m_directQwordBuffer,
-				                                                                       QWORD_SIZE, 0, QWORD_SIZE, CGsPacketMetadata(2));
-				assert(processed == QWORD_SIZE);
-				m_CODE.nIMM--;
-				m_directQwordBufferIndex = 0;
+				uint32 processed = m_gif.ProcessMultiplePackets(m_directQwordBuffer,
+				                                                QWORD_SIZE, 0, QWORD_SIZE, CGsPacketMetadata(2));
+				if(processed != 0)
+				{
+					assert(processed == QWORD_SIZE);
+					m_CODE.nIMM--;
+					m_directQwordBufferIndex = 0;
+				}
 			}
 		}
 
