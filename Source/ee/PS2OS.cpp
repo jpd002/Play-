@@ -31,7 +31,7 @@
 #include "AppConfig.h"
 #include "PS2VM_Preferences.h"
 
-#define BIOS_ADDRESS_STATE_BASE 0x1000
+#define BIOS_ADDRESS_STATE_BASE 0x4000
 #define BIOS_ADDRESS_STATE_ITEM(a) (BIOS_ADDRESS_STATE_BASE + offsetof(BIOS_STATE, a))
 
 #define BIOS_ADDRESS_INTERRUPT_THREAD_CONTEXT (BIOS_ADDRESS_STATE_BASE + sizeof(BIOS_STATE))
@@ -239,6 +239,7 @@ CPS2OS::CPS2OS(CMIPS& ee, uint8* ram, uint8* bios, uint8* spr, CGSHandler*& gs, 
     , m_intcHandlerQueue(m_intcHandlers, &m_state->intcHandlerQueueBase)
     , m_dmacHandlerQueue(m_dmacHandlers, &m_state->dmacHandlerQueueBase)
 {
+	static_assert((BIOS_ADDRESS_INTERRUPT_THREAD_CONTEXT + STACKRES) <= BIOS_ADDRESS_DECI2HANDLER_BASE);
 	static_assert((BIOS_ADDRESS_SEMAPHORE_BASE + (sizeof(SEMAPHORE) * MAX_SEMAPHORE)) <= BIOS_ADDRESS_CUSTOMSYSCALL_BASE, "Semaphore overflow");
 
 	CAppConfig::GetInstance().RegisterPreferenceInteger(PREF_SYSTEM_LANGUAGE, static_cast<uint32>(OSD_LANGUAGE::JAPANESE));
