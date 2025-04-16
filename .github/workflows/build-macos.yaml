@@ -15,7 +15,7 @@ jobs:
       env:
         VULKAN_SDK_VERSION: '1.4.309.0'
     - name: Install Qt
-      uses: jurplel/install-qt-action@v3
+      uses: jurplel/install-qt-action@v4
       with:
         cache: true
         cache-key-prefix: ${{ runner.os }}-${{ matrix.qt-arch }}-QtCache
@@ -40,7 +40,7 @@ jobs:
     - name: Prepare Qt Universal Libs
       run: |
         tar xf qt-5.15.2.arm64_big_sur.bottle.tar.gz
-        python3 .github/CI_MISC/pre_qt_universal_build.py $Qt5_DIR/ `pwd`/qt@5/5.15.2/
+        python3 .github/CI_MISC/pre_qt_universal_build.py $QT_ROOT_DIR/ `pwd`/qt@5/5.15.2/
     - name: Set SHORT_HASH
       run: echo "VALUE=${LONG_HASH:0:8}" >> $GITHUB_OUTPUT
       id: short_hash

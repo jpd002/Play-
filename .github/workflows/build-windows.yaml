@@ -48,7 +48,7 @@ jobs:
       with:
         args: install -y openal openalsdk
     - name: Install Qt
-      uses: jurplel/install-qt-action@v3
+      uses: jurplel/install-qt-action@v4
       with:
         version: ${{ env.QT_VERSION }}
         arch: ${{ matrix.qt-arch }}
@@ -83,8 +83,7 @@ jobs:
     - name: Prepare Installer Package
       run: |
         cd build
-        ${{ env.Qt5_DIR }}\bin\windeployqt.exe ./Source/ui_qt/Release --no-system-d3d-compiler --no-quick-import --no-opengl-sw --no-compiler-runtime --no-translations
-
+        ${{ env.QT_ROOT_DIR }}\bin\windeployqt.exe ./Source/ui_qt/Release --no-system-d3d-compiler --no-quick-import --no-opengl-sw --no-compiler-runtime --no-translations
         cd ..
         makensis.exe ./installer_win32/${{ matrix.installer-script}}
     - name: Upload a Build Artifact Installer

@@ -14,7 +14,7 @@ jobs:
       env:
         VULKAN_SDK_VERSION: '1.4.309.0'
     - name: Install Qt
-      uses: jurplel/install-qt-action@v3
+      uses: jurplel/install-qt-action@v4
       with:
         cache: true
         cache-key-prefix: ${{ runner.os }}-${{ matrix.qt-arch }}-QtCache
