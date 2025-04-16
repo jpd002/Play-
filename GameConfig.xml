@@ -22,6 +22,9 @@
 	<GameConfig Executable="SLUS_206.56;1" Title="X-Men Legends">
 		<BlockFpRoundingMode Address="0x003D74D0" Mode="NEAREST" Description="Fixes hang in Blob boss area." />
 	</GameConfig>
+	<GameConfig Executable="SLUS_207.09;1" Title="Batman: Rise of Sin Tzu">
+		<IdleLoopBlock Address="0x0045B538" />
+	</GameConfig>
 	<GameConfig Executable="SLUS_207.82;1" Title="Blood Will Tell: Tezuka Osamu's Dororo">
 		<BlockFpRoundingMode Address="0x001B4060" Mode="NEAREST" Description="Fixes soft lock in Chapter 4 boss battle." />
 		<IdleLoopBlock Address="0x001B4690" />
@@ -36,6 +39,7 @@
 		<IdleLoopBlock Address="0x002F43E8" />
 	</GameConfig>
 	<GameConfig Executable="SLUS_213.86;1" Title="Tales of the Abyss">
+		<BlockFpRoundingMode Address="0x002921B4" Mode="NEAREST" Description="Fixes collision issues." />
 		<IdleLoopBlock Address="0x001A4508" />
 	</GameConfig>
 	<GameConfig Executable="SLES_501.76;1" Title="Oni">
