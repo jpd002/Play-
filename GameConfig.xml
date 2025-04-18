@@ -42,6 +42,9 @@
 		<BlockFpRoundingMode Address="0x002921B4" Mode="NEAREST" Description="Fixes collision issues." />
 		<IdleLoopBlock Address="0x001A4508" />
 	</GameConfig>
+	<GameConfig Executable="SLUS_216.09;1" Title="Dance Dance Revolution: Disney Channel Edition">
+		<IdleLoopBlock Address="0x001B48D8" />
+	</GameConfig>
 	<GameConfig Executable="SLES_501.76;1" Title="Oni">
 		<Patch Address="0x001cef7c" Value="0x00000000 // bc0f $001cef7c" Description="Fix hang by skip branch if copro 0 condition false." />
 	</GameConfig>
@@ -56,6 +59,9 @@
 	</GameConfig>
 	<GameConfig Executable="SLPM_551.91;1" Title="L2 - Love x Loop">
 		<Patch Address="0x001B4828" Value="0x10000008" Description="Avoid bug in code that fiddles with SP and causes the stack to be clobbered by SifCallRpc. Requires proper data cache handling to avoid issue." />
+	</GameConfig>
+	<GameConfig Executable="SLPM_657.75;1" Title="DDR Festival: Dance Dance Revolution">
+		<BlockFpRoundingMode Address="0x00122F08" Mode="NEAREST" Description="Fixes issue with inability to select some options in UI." />
 	</GameConfig>
 	<GameConfig Executable="SCES_500.03;1" Title="Dead or Alive 2">
 		<Patch Address="0x002b4c44" Value="0x24060000" Description="Make the file reading RPC call synchronous. Requires proper data cache handling to avoid issue." />
