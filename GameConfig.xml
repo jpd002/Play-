@@ -35,6 +35,10 @@
 	<GameConfig Executable="SLUS_210.48;1" Title="Evil Dead: Regeneration">
 		<IdleLoopBlock Address="0x00377898" />
 	</GameConfig>
+	<!-- SLUS-21240 -->
+	<GameConfig Executable="SWBFRNT2.ELF;1" Title="Star Wars: Battlefront II">
+		<IdleLoopBlock Address="0x00427F40" />
+	</GameConfig>
 	<GameConfig Executable="SLUS_213.06;1" Title="Ghost Rider">
 		<IdleLoopBlock Address="0x002F43E8" />
 	</GameConfig>
