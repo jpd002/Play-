@@ -1537,6 +1537,13 @@ void CGSH_Vulkan::ProcessLocalToLocalTransfer()
 
 		auto [transferAddress, transferSize] = GsTransfer::GetSrcRange(bltBuf, trxReg, trxPos);
 
+		//Since GetSrcRange returns values in page granularity, it's possible that we obtain an
+		//[address, size] pair that goes beyond RAM's range. Happens in FF12's intro level.
+		if((transferAddress + transferSize) > RAMSIZE)
+		{
+			transferSize = RAMSIZE - transferAddress;
+		}
+
 		auto commandBuffer = m_frameCommandBuffer->GetCommandBuffer();
 
 		VkBufferCopy bufferCopy = {};
