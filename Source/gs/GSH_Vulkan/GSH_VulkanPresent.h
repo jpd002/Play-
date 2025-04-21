@@ -62,7 +62,13 @@ namespace GSH_Vulkan
 			uint32 layerHeight;
 		};
 
-		void UpdateBackbuffer(uint32, const CGSHandler::DISPLAY_INFO&);
+		struct SWAPCHAIN_SEMAPHORES
+		{
+			VkSemaphore imageAcquireSemaphore = VK_NULL_HANDLE;
+			VkSemaphore renderCompleteSemaphore = VK_NULL_HANDLE;
+		};
+
+		void UpdateBackbuffer(uint32, const SWAPCHAIN_SEMAPHORES&, const CGSHandler::DISPLAY_INFO&);
 		PRESENT_COMMANDBUFFER PrepareCommandBuffer();
 		VkDescriptorSet PrepareDescriptorSet(VkDescriptorSetLayout, uint32);
 
@@ -87,10 +93,10 @@ namespace GSH_Vulkan
 		std::vector<VkImage> m_swapChainImages;
 		std::vector<VkImageView> m_swapChainImageViews;
 		std::vector<VkFramebuffer> m_swapChainFramebuffers;
+		std::vector<SWAPCHAIN_SEMAPHORES> m_swapChainSemaphores;
+		uint32 m_currentSwapChainSemaphoreIndex = 0;
 		bool m_swapChainValid = false;
 		CGSHandler::PRESENTATION_VIEWPORT m_presentationViewport;
-		VkSemaphore m_imageAcquireSemaphore = VK_NULL_HANDLE;
-		VkSemaphore m_renderCompleteSemaphore = VK_NULL_HANDLE;
 		VkRenderPass m_renderPass = VK_NULL_HANDLE;
 		Framework::Vulkan::CBuffer m_vertexBuffer;
 		PresentCommandBufferArray m_presentCommandBuffers;

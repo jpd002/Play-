@@ -74,8 +74,11 @@ void CPresent::DoPresent(const CGSHandler::DISPLAY_INFO& dispInfo)
 		assert(m_swapChainValid);
 	}
 
+	const auto& swapChainSemaphores = m_swapChainSemaphores[m_currentSwapChainSemaphoreIndex++];
+	m_currentSwapChainSemaphoreIndex %= m_swapChainSemaphores.size();
+
 	uint32_t imageIndex = 0;
-	result = m_context->device.vkAcquireNextImageKHR(m_context->device, m_swapChain, UINT64_MAX, m_imageAcquireSemaphore, VK_NULL_HANDLE, &imageIndex);
+	result = m_context->device.vkAcquireNextImageKHR(m_context->device, m_swapChain, UINT64_MAX, swapChainSemaphores.imageAcquireSemaphore, VK_NULL_HANDLE, &imageIndex);
 	if((result == VK_ERROR_OUT_OF_DATE_KHR) || (result == VK_ERROR_SURFACE_LOST_KHR))
 	{
 		m_context->device.vkQueueWaitIdle(m_context->queue);
@@ -84,7 +87,7 @@ void CPresent::DoPresent(const CGSHandler::DISPLAY_INFO& dispInfo)
 	}
 	if(result != VK_SUBOPTIMAL_KHR) CHECKVULKANERROR(result);
 
-	UpdateBackbuffer(imageIndex, dispInfo);
+	UpdateBackbuffer(imageIndex, swapChainSemaphores, dispInfo);
 
 	//Queue present
 	{
@@ -93,7 +96,7 @@ void CPresent::DoPresent(const CGSHandler::DISPLAY_INFO& dispInfo)
 		presentInfo.pSwapchains = &m_swapChain;
 		presentInfo.pImageIndices = &imageIndex;
 		presentInfo.waitSemaphoreCount = 1;
-		presentInfo.pWaitSemaphores = &m_renderCompleteSemaphore;
+		presentInfo.pWaitSemaphores = &swapChainSemaphores.renderCompleteSemaphore;
 		result = m_context->device.vkQueuePresentKHR(m_context->queue, &presentInfo);
 		if(result == VK_ERROR_OUT_OF_DATE_KHR)
 		{
@@ -105,7 +108,7 @@ void CPresent::DoPresent(const CGSHandler::DISPLAY_INFO& dispInfo)
 	}
 }
 
-void CPresent::UpdateBackbuffer(uint32 imageIndex, const CGSHandler::DISPLAY_INFO& dispInfo)
+void CPresent::UpdateBackbuffer(uint32 imageIndex, const SWAPCHAIN_SEMAPHORES& swapChainSemaphores, const CGSHandler::DISPLAY_INFO& dispInfo)
 {
 	auto result = VK_SUCCESS;
 
@@ -228,12 +231,12 @@ void CPresent::UpdateBackbuffer(uint32 imageIndex, const CGSHandler::DISPLAY_INF
 		VkPipelineStageFlags pipelineStageFlags = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
 		auto submitInfo = Framework::Vulkan::SubmitInfo();
 		submitInfo.waitSemaphoreCount = 1;
-		submitInfo.pWaitSemaphores = &m_imageAcquireSemaphore;
+		submitInfo.pWaitSemaphores = &swapChainSemaphores.imageAcquireSemaphore;
 		submitInfo.pWaitDstStageMask = &pipelineStageFlags;
 		submitInfo.commandBufferCount = 1;
 		submitInfo.pCommandBuffers = &commandBuffer;
 		submitInfo.signalSemaphoreCount = 1;
-		submitInfo.pSignalSemaphores = &m_renderCompleteSemaphore;
+		submitInfo.pSignalSemaphores = &swapChainSemaphores.renderCompleteSemaphore;
 		result = m_context->device.vkQueueSubmit(m_context->queue, 1, &submitInfo, frameCommandBuffer.execCompleteFence);
 		CHECKVULKANERROR(result);
 	}
@@ -339,8 +342,6 @@ void CPresent::CreateSwapChain()
 	assert(!m_context->device.IsEmpty());
 	assert(m_swapChain == VK_NULL_HANDLE);
 	assert(m_swapChainImages.empty());
-	assert(m_imageAcquireSemaphore == VK_NULL_HANDLE);
-	assert(m_renderCompleteSemaphore == VK_NULL_HANDLE);
 
 	auto result = VK_SUCCESS;
 
@@ -377,19 +378,6 @@ void CPresent::CreateSwapChain()
 	}
 	CHECKVULKANERROR(result);
 
-	//Create the semaphore that will be used to prevent submit from rendering before getting the image
-	{
-		auto semaphoreCreateInfo = Framework::Vulkan::SemaphoreCreateInfo();
-		auto result = m_context->device.vkCreateSemaphore(m_context->device, &semaphoreCreateInfo, nullptr, &m_imageAcquireSemaphore);
-		CHECKVULKANERROR(result);
-	}
-
-	{
-		auto semaphoreCreateInfo = Framework::Vulkan::SemaphoreCreateInfo();
-		auto result = m_context->device.vkCreateSemaphore(m_context->device, &semaphoreCreateInfo, nullptr, &m_renderCompleteSemaphore);
-		CHECKVULKANERROR(result);
-	}
-
 	uint32_t imageCount = 0;
 	result = m_context->device.vkGetSwapchainImagesKHR(m_context->device, m_swapChain, &imageCount, nullptr);
 	CHECKVULKANERROR(result);
@@ -397,6 +385,25 @@ void CPresent::CreateSwapChain()
 	m_swapChainImages.resize(imageCount);
 	result = m_context->device.vkGetSwapchainImagesKHR(m_context->device, m_swapChain, &imageCount, m_swapChainImages.data());
 	CHECKVULKANERROR(result);
+
+	for(int i = 0; i < imageCount; i++)
+	{
+		SWAPCHAIN_SEMAPHORES swapChainSemaphores;
+
+		{
+			auto semaphoreCreateInfo = Framework::Vulkan::SemaphoreCreateInfo();
+			auto result = m_context->device.vkCreateSemaphore(m_context->device, &semaphoreCreateInfo, nullptr, &swapChainSemaphores.imageAcquireSemaphore);
+			CHECKVULKANERROR(result);
+		}
+
+		{
+			auto semaphoreCreateInfo = Framework::Vulkan::SemaphoreCreateInfo();
+			auto result = m_context->device.vkCreateSemaphore(m_context->device, &semaphoreCreateInfo, nullptr, &swapChainSemaphores.renderCompleteSemaphore);
+			CHECKVULKANERROR(result);
+		}
+
+		m_swapChainSemaphores.push_back(swapChainSemaphores);
+	}
 
 	CreateSwapChainImageViews();
 	CreateSwapChainFramebuffers();
@@ -460,17 +467,19 @@ void CPresent::DestroySwapChain()
 	{
 		m_context->device.vkDestroyImageView(m_context->device, swapChainImageView, nullptr);
 	}
+	for(const auto& swapChainSemaphores : m_swapChainSemaphores)
+	{
+		m_context->device.vkDestroySemaphore(m_context->device, swapChainSemaphores.imageAcquireSemaphore, nullptr);
+		m_context->device.vkDestroySemaphore(m_context->device, swapChainSemaphores.renderCompleteSemaphore, nullptr);
+	}
 	m_context->device.vkDestroySwapchainKHR(m_context->device, m_swapChain, nullptr);
-
-	m_context->device.vkDestroySemaphore(m_context->device, m_imageAcquireSemaphore, nullptr);
-	m_context->device.vkDestroySemaphore(m_context->device, m_renderCompleteSemaphore, nullptr);
 
 	m_swapChainImages.clear();
 	m_swapChainImageViews.clear();
 	m_swapChainFramebuffers.clear();
+	m_swapChainSemaphores.clear();
+	m_currentSwapChainSemaphoreIndex = 0;
 	m_swapChain = VK_NULL_HANDLE;
-	m_imageAcquireSemaphore = VK_NULL_HANDLE;
-	m_renderCompleteSemaphore = VK_NULL_HANDLE;
 }
 
 void CPresent::CreateRenderPass()
