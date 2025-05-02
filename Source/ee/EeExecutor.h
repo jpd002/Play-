@@ -11,19 +11,22 @@
 #include <signal.h>
 #endif
 
+#include <optional>
+
 #include "../GenericMipsExecutor.h"
 
 class CEeExecutor : public CGenericMipsExecutor<BlockLookupTwoWay>
 {
 public:
-	using IdleLoopBlockSet = std::set<uint32>;
+	using CachedBlockKey = std::pair<uint128, uint32>;
+	using IdleLoopBlockMap = std::map<uint32, std::optional<CachedBlockKey>>;
 	using BlockFpRoundingModeMap = std::map<uint32, Jitter::CJitter::ROUNDINGMODE>;
 
 	CEeExecutor(CMIPS&, uint8*);
 	virtual ~CEeExecutor() = default;
 
 	void SetBlockFpRoundingModes(BlockFpRoundingModeMap);
-	void SetIdleLoopBlocks(IdleLoopBlockSet);
+	void SetIdleLoopBlocks(IdleLoopBlockMap);
 
 	void AddExceptionHandler();
 	void RemoveExceptionHandler();
@@ -36,11 +39,10 @@ public:
 	BasicBlockPtr BlockFactory(CMIPS&, uint32, uint32) override;
 
 private:
-	typedef std::pair<uint128, uint32> CachedBlockKey;
 	typedef std::map<CachedBlockKey, BasicBlockPtr> CachedBlockMap;
 	CachedBlockMap m_cachedBlocks;
 
-	IdleLoopBlockSet m_idleLoopBlocks;
+	IdleLoopBlockMap m_idleLoopBlocks;
 	BlockFpRoundingModeMap m_blockFpRoundingModes;
 
 	uint8* m_ram = nullptr;

@@ -49,7 +49,7 @@ void CEeExecutor::SetBlockFpRoundingModes(BlockFpRoundingModeMap blockFpRounding
 	m_blockFpRoundingModes = std::move(blockFpRoundingModes);
 }
 
-void CEeExecutor::SetIdleLoopBlocks(IdleLoopBlockSet idleLoopBlocks)
+void CEeExecutor::SetIdleLoopBlocks(IdleLoopBlockMap idleLoopBlocks)
 {
 	m_idleLoopBlocks = std::move(idleLoopBlocks);
 }
@@ -192,9 +192,14 @@ BasicBlockPtr CEeExecutor::BlockFactory(CMIPS& context, uint32 start, uint32 end
 	{
 		result->SetFpRoundingMode(blockFpRoundingModeIterator->second);
 	}
-	if(m_idleLoopBlocks.count(start))
+	if(auto idleLoopBlockIterator = m_idleLoopBlocks.find(start);
+	   idleLoopBlockIterator != std::end(m_idleLoopBlocks))
 	{
-		result->SetIsIdleLoopBlock();
+		const auto& checkBlockKey = idleLoopBlockIterator->second;
+		if(!checkBlockKey.has_value() || (checkBlockKey.value() == blockKey))
+		{
+			result->SetIsIdleLoopBlock();
+		}
 	}
 
 	result->Compile();

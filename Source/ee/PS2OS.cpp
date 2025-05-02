@@ -596,7 +596,7 @@ void CPS2OS::ApplyGameConfig()
 	}
 
 	CEeExecutor::BlockFpRoundingModeMap blockFpRoundingModes;
-	CEeExecutor::IdleLoopBlockSet idleLoopBlocks;
+	CEeExecutor::IdleLoopBlockMap idleLoopBlocks;
 
 	for(Framework::Xml::CFilteringNodeIterator itNode(gameConfigsNode, "GameConfig");
 	    !itNode.IsEnd(); itNode++)
@@ -674,12 +674,29 @@ void CPS2OS::ApplyGameConfig()
 			auto node = (*itNode);
 
 			const char* addressString = node->GetAttribute("Address");
+			const char* checkBlockKeyString = node->GetAttribute("CheckBlockKey");
+
 			if(!addressString) continue;
 
 			uint32 address = 0;
-			if(sscanf(addressString, "%x", &address) == 0) continue;
+			std::optional<CEeExecutor::CachedBlockKey> checkBlockKey;
 
-			idleLoopBlocks.insert(address);
+			if(sscanf(addressString, "%x", &address) == 0) continue;
+			if(checkBlockKeyString)
+			{
+				CEeExecutor::CachedBlockKey blockKey;
+				int parseCount = sscanf(checkBlockKeyString, "%08X%08X%08X%08X;%d",
+				                        &blockKey.first.nV[3], &blockKey.first.nV[2],
+				                        &blockKey.first.nV[1], &blockKey.first.nV0,
+				                        &blockKey.second);
+				if(parseCount != 5)
+				{
+					continue;
+				}
+				checkBlockKey = blockKey;
+			}
+
+			idleLoopBlocks.insert(std::make_pair(address, checkBlockKey));
 		}
 
 		auto executor = static_cast<CEeExecutor*>(m_ee.m_executor.get());
