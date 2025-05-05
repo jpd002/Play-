@@ -1,0 +1,18 @@
+{
+	"id": "tekken4a",
+	"parent": "tekken4",
+	"name": "Tekken 4 (TEF2 Ver. A)",
+	"driver": "sys246",
+	"dongle":
+	{
+		"name": "tekken4a/tef2vera.ic002"
+	},
+	"cdvd":
+	{
+		"name": "tef1dvd0.chd"
+	},
+	"boot": "ac0:TK4LOAD",
+	"patches":
+	[
+	]
+}

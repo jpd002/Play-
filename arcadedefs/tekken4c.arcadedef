@@ -1,0 +1,18 @@
+{
+	"id": "tekken4c",
+	"parent": "tekken4",
+	"name": "Tekken 4 (TEF1 Ver. C)",
+	"driver": "sys246",
+	"dongle":
+	{
+		"name": "tekken4c/tef1verc.ic002"
+	},
+	"cdvd":
+	{
+		"name": "tef1dvd0.chd"
+	},
+	"boot": "ac0:TK4LOAD",
+	"patches":
+	[
+	]
+}
