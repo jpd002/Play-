@@ -13,6 +13,11 @@
 		<BlockFpRoundingMode Address="0x00120F9C" Mode="MINUSINFINITY" Description="Fixes general wonkiness." />
 		<BlockFpRoundingMode Address="0x001ABDDC" Mode="MINUSINFINITY" Description="Fixes general wonkiness in battle." />
 	</GameConfig>
+	<GameConfig Executable="SLUS_203.18;1" Title="King's Field: The Ancient City">
+		<Patch Address="0x001BE42C" Value="0x46150036" Description="Fixes rooms not being loaded properly. (credits: wgarvin)" />
+		<BlockFpRoundingMode Address="0x001C0CE0" Mode="MINUSINFINITY" Description="Fixes rooms not being loaded properly." />
+		<BlockFpRoundingMode Address="0x001C0CE4" Mode="MINUSINFINITY" Description="Fixes rooms not being loaded properly." />
+	</GameConfig>
 	<GameConfig Executable="SLUS_204.71;1" Title="Rygar - The Legendary Adventure">
 		<BlockFpRoundingMode Address="0x00147D88" Mode="NEAREST" Description="Fixes hang when entering first door." />
 	</GameConfig>
