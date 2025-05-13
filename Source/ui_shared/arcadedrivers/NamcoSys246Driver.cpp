@@ -18,16 +18,8 @@
 
 void CNamcoSys246Driver::PrepareEnvironment(CPS2VM* virtualMachine, const ARCADE_MACHINE_DEF& def)
 {
-	auto baseId = def.parent.empty() ? def.id : def.parent;
-	auto romArchiveFileName = string_format("%s.zip", baseId.c_str());
-
 	fs::path arcadeRomPath = CAppConfig::GetInstance().GetPreferencePath(PREF_PS2_ARCADEROMS_DIRECTORY);
-	fs::path arcadeRomArchivePath = arcadeRomPath / romArchiveFileName;
-
-	if(!fs::exists(arcadeRomArchivePath))
-	{
-		throw std::runtime_error(string_format("Failed to find '%s' in arcade ROMs directory.", romArchiveFileName.c_str()));
-	}
+	auto baseId = def.parent.empty() ? def.id : def.parent;
 
 	//Mount CDVD
 	if(!def.cdvdFileName.empty())
@@ -67,19 +59,46 @@ void CNamcoSys246Driver::PrepareEnvironment(CPS2VM* virtualMachine, const ARCADE
 		iopBios->GetIoman()->RegisterDevice("hdd0", device);
 	}
 
+	std::vector<std::pair<std::string, std::string>> dongleSearchPaths;
+	dongleSearchPaths.push_back(std::make_pair(def.id + ".zip", def.dongleFileName));
+	if(!def.parent.empty())
+	{
+		dongleSearchPaths.push_back(std::make_pair(def.parent + ".zip", string_format("%s/%s", def.id.c_str(), def.dongleFileName.c_str())));
+	}
+
 	std::vector<uint8> mcDumpContents;
 
+	for(auto& dongleSearchPathPair : dongleSearchPaths)
 	{
-		auto inputStream = Framework::CreateInputStdStream(arcadeRomArchivePath.native());
-		Framework::CZipArchiveReader archiveReader(inputStream);
-		auto header = archiveReader.GetFileHeader(def.dongleFileName.c_str());
-		if(!header)
+		try
 		{
-			throw std::runtime_error(string_format("Failed to find file '%s' in archive '%s'.", def.dongleFileName.c_str(), romArchiveFileName.c_str()));
+			fs::path arcadeRomArchivePath = arcadeRomPath / dongleSearchPathPair.first;
+			auto inputStream = Framework::CreateInputStdStream(arcadeRomArchivePath.native());
+			Framework::CZipArchiveReader archiveReader(inputStream);
+			auto header = archiveReader.GetFileHeader(dongleSearchPathPair.second.c_str());
+			if(!header)
+			{
+				continue;
+			}
+			auto fileStream = archiveReader.BeginReadFile(dongleSearchPathPair.second.c_str());
+			mcDumpContents.resize(header->uncompressedSize);
+			fileStream->Read(mcDumpContents.data(), header->uncompressedSize);
+			break;
 		}
-		auto fileStream = archiveReader.BeginReadFile(def.dongleFileName.c_str());
-		mcDumpContents.resize(header->uncompressedSize);
-		fileStream->Read(mcDumpContents.data(), header->uncompressedSize);
+		catch(...)
+		{
+			//Something went wrong, continue with next search path...
+		}
+	}
+
+	if(mcDumpContents.empty())
+	{
+		auto message = string_format("Failed to find file '%s' in archive(s):\n", def.dongleFileName.c_str());
+		for(auto& dongleSearchPathPair : dongleSearchPaths)
+		{
+			message += string_format("- %s (%s)\n", dongleSearchPathPair.first.c_str(), dongleSearchPathPair.second.c_str());
+		}
+		throw std::runtime_error(message);
 	}
 
 	//Override mc0 device with special device reading directly from zip file
