@@ -59,50 +59,9 @@ void CNamcoSys246Driver::PrepareEnvironment(CPS2VM* virtualMachine, const ARCADE
 		iopBios->GetIoman()->RegisterDevice("hdd0", device);
 	}
 
-	std::vector<std::pair<std::string, std::string>> dongleSearchPaths;
-	dongleSearchPaths.push_back(std::make_pair(def.id + ".zip", def.dongleFileName));
-	if(!def.parent.empty())
-	{
-		dongleSearchPaths.push_back(std::make_pair(def.parent + ".zip", string_format("%s/%s", def.id.c_str(), def.dongleFileName.c_str())));
-	}
-
-	std::vector<uint8> mcDumpContents;
-
-	for(auto& dongleSearchPathPair : dongleSearchPaths)
-	{
-		try
-		{
-			fs::path arcadeRomArchivePath = arcadeRomPath / dongleSearchPathPair.first;
-			auto inputStream = Framework::CreateInputStdStream(arcadeRomArchivePath.native());
-			Framework::CZipArchiveReader archiveReader(inputStream);
-			auto header = archiveReader.GetFileHeader(dongleSearchPathPair.second.c_str());
-			if(!header)
-			{
-				continue;
-			}
-			auto fileStream = archiveReader.BeginReadFile(dongleSearchPathPair.second.c_str());
-			mcDumpContents.resize(header->uncompressedSize);
-			fileStream->Read(mcDumpContents.data(), header->uncompressedSize);
-			break;
-		}
-		catch(...)
-		{
-			//Something went wrong, continue with next search path...
-		}
-	}
-
-	if(mcDumpContents.empty())
-	{
-		auto message = string_format("Failed to find file '%s' in archive(s):\n", def.dongleFileName.c_str());
-		for(auto& dongleSearchPathPair : dongleSearchPaths)
-		{
-			message += string_format("- %s (%s)\n", dongleSearchPathPair.first.c_str(), dongleSearchPathPair.second.c_str());
-		}
-		throw std::runtime_error(message);
-	}
-
 	//Override mc0 device with special device reading directly from zip file
 	{
+		auto mcDumpContents = ReadDongleData(def);
 		auto device = std::make_shared<Iop::Ioman::CMcDumpDevice>(std::move(mcDumpContents));
 		auto iopBios = dynamic_cast<CIopBios*>(virtualMachine->m_iop->m_bios.get());
 		iopBios->GetIoman()->RegisterDevice("mc0", device);
@@ -181,4 +140,47 @@ void CNamcoSys246Driver::Launch(CPS2VM* virtualMachine, const ARCADE_MACHINE_DEF
 {
 	//Boot mc0:/BOOT (from def)
 	virtualMachine->m_ee->m_os->BootFromVirtualPath(def.boot.c_str(), {"DANGLE"});
+}
+
+std::vector<uint8> CNamcoSys246Driver::ReadDongleData(const ARCADE_MACHINE_DEF& def)
+{
+	fs::path arcadeRomPath = CAppConfig::GetInstance().GetPreferencePath(PREF_PS2_ARCADEROMS_DIRECTORY);
+
+	std::vector<std::pair<std::string, std::string>> dongleSearchPaths;
+	dongleSearchPaths.push_back(std::make_pair(def.id + ".zip", def.dongleFileName));
+	if(!def.parent.empty())
+	{
+		dongleSearchPaths.push_back(std::make_pair(def.parent + ".zip", string_format("%s/%s", def.id.c_str(), def.dongleFileName.c_str())));
+	}
+
+	for(auto& dongleSearchPathPair : dongleSearchPaths)
+	{
+		try
+		{
+			fs::path arcadeRomArchivePath = arcadeRomPath / dongleSearchPathPair.first;
+			auto inputStream = Framework::CreateInputStdStream(arcadeRomArchivePath.native());
+			Framework::CZipArchiveReader archiveReader(inputStream);
+			auto header = archiveReader.GetFileHeader(dongleSearchPathPair.second.c_str());
+			if(!header)
+			{
+				continue;
+			}
+			auto fileStream = archiveReader.BeginReadFile(dongleSearchPathPair.second.c_str());
+			std::vector<uint8> dongleData;
+			dongleData.resize(header->uncompressedSize);
+			fileStream->Read(dongleData.data(), header->uncompressedSize);
+			return dongleData;
+		}
+		catch(...)
+		{
+			//Something went wrong, continue with next search path...
+		}
+	}
+
+	auto message = string_format("Failed to find file '%s' in archive(s):\n", def.dongleFileName.c_str());
+	for(auto& dongleSearchPathPair : dongleSearchPaths)
+	{
+		message += string_format("- %s (%s)\n", dongleSearchPathPair.first.c_str(), dongleSearchPathPair.second.c_str());
+	}
+	throw std::runtime_error(message);
 }
