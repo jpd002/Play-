@@ -24,11 +24,7 @@ void CNamcoSys246Driver::PrepareEnvironment(CPS2VM* virtualMachine, const ARCADE
 	//Mount CDVD
 	if(!def.cdvdFileName.empty())
 	{
-		fs::path cdvdPath = arcadeRomPath / baseId / def.cdvdFileName;
-		if(!fs::exists(cdvdPath))
-		{
-			throw std::runtime_error(string_format("Failed to find '%s' in game's directory.", def.cdvdFileName.c_str()));
-		}
+		fs::path cdvdPath = LocateImageFile(def, def.cdvdFileName);
 
 		//Try to create the optical media for sanity checks (will throw exceptions on errors).
 		DiskUtils::CreateOpticalMediaFromPath(cdvdPath);
@@ -41,11 +37,7 @@ void CNamcoSys246Driver::PrepareEnvironment(CPS2VM* virtualMachine, const ARCADE
 	//Mount HDD
 	if(!def.hddFileName.empty())
 	{
-		fs::path hddPath = arcadeRomPath / baseId / def.hddFileName;
-		if(!fs::exists(hddPath))
-		{
-			throw std::runtime_error(string_format("Failed to find '%s' in game's directory.", def.hddFileName.c_str()));
-		}
+		fs::path hddPath = LocateImageFile(def, def.hddFileName);
 
 		auto imageStream = std::make_unique<CChdImageStream>(std::make_unique<Framework::CStdStream>(hddPath.string().c_str(), "rb"));
 		if(imageStream->GetUnitSize() != Hdd::g_sectorSize)
@@ -144,28 +136,34 @@ void CNamcoSys246Driver::Launch(CPS2VM* virtualMachine, const ARCADE_MACHINE_DEF
 
 std::vector<uint8> CNamcoSys246Driver::ReadDongleData(const ARCADE_MACHINE_DEF& def)
 {
+	struct DONGLE_SEARCH_INFO
+	{
+		std::string archiveFileName;
+		std::string donglePath;
+	};
+
 	fs::path arcadeRomPath = CAppConfig::GetInstance().GetPreferencePath(PREF_PS2_ARCADEROMS_DIRECTORY);
 
-	std::vector<std::pair<std::string, std::string>> dongleSearchPaths;
-	dongleSearchPaths.push_back(std::make_pair(def.id + ".zip", def.dongleFileName));
+	std::vector<DONGLE_SEARCH_INFO> dongleSearchInfos;
+	dongleSearchInfos.push_back({def.id + ".zip", def.dongleFileName});
 	if(!def.parent.empty())
 	{
-		dongleSearchPaths.push_back(std::make_pair(def.parent + ".zip", string_format("%s/%s", def.id.c_str(), def.dongleFileName.c_str())));
+		dongleSearchInfos.push_back({def.parent + ".zip", string_format("%s/%s", def.id.c_str(), def.dongleFileName.c_str())});
 	}
 
-	for(auto& dongleSearchPathPair : dongleSearchPaths)
+	for(const auto& dongleSearchInfo : dongleSearchInfos)
 	{
 		try
 		{
-			fs::path arcadeRomArchivePath = arcadeRomPath / dongleSearchPathPair.first;
+			fs::path arcadeRomArchivePath = arcadeRomPath / dongleSearchInfo.archiveFileName;
 			auto inputStream = Framework::CreateInputStdStream(arcadeRomArchivePath.native());
 			Framework::CZipArchiveReader archiveReader(inputStream);
-			auto header = archiveReader.GetFileHeader(dongleSearchPathPair.second.c_str());
+			auto header = archiveReader.GetFileHeader(dongleSearchInfo.donglePath.c_str());
 			if(!header)
 			{
 				continue;
 			}
-			auto fileStream = archiveReader.BeginReadFile(dongleSearchPathPair.second.c_str());
+			auto fileStream = archiveReader.BeginReadFile(dongleSearchInfo.donglePath.c_str());
 			std::vector<uint8> dongleData;
 			dongleData.resize(header->uncompressedSize);
 			fileStream->Read(dongleData.data(), header->uncompressedSize);
@@ -178,9 +176,37 @@ std::vector<uint8> CNamcoSys246Driver::ReadDongleData(const ARCADE_MACHINE_DEF& 
 	}
 
 	auto message = string_format("Failed to find file '%s' in archive(s):\n", def.dongleFileName.c_str());
-	for(auto& dongleSearchPathPair : dongleSearchPaths)
+	for(const auto& dongleSearchInfo : dongleSearchInfos)
 	{
-		message += string_format("- %s (%s)\n", dongleSearchPathPair.first.c_str(), dongleSearchPathPair.second.c_str());
+		message += string_format("- %s (%s)\n", dongleSearchInfo.archiveFileName.c_str(), dongleSearchInfo.donglePath.c_str());
+	}
+	throw std::runtime_error(message);
+}
+
+fs::path CNamcoSys246Driver::LocateImageFile(const ARCADE_MACHINE_DEF& def, const std::string& fileName)
+{
+	fs::path arcadeRomPath = CAppConfig::GetInstance().GetPreferencePath(PREF_PS2_ARCADEROMS_DIRECTORY);
+
+	std::vector<std::string> imageSearchPaths;
+	imageSearchPaths.push_back(def.id);
+	if(!def.parent.empty())
+	{
+		imageSearchPaths.push_back(def.parent);
+	}
+
+	for(const auto& imageSearchPath : imageSearchPaths)
+	{
+		fs::path imagePath = arcadeRomPath / imageSearchPath / fileName;
+		if(fs::exists(imagePath))
+		{
+			return imagePath;
+		}
+	}
+
+	auto message = string_format("Failed to find file '%s' in location(s):\n", fileName.c_str());
+	for(const auto& imageSearchPath : imageSearchPaths)
+	{
+		message += string_format("- %s\n", imageSearchPath.c_str());
 	}
 	throw std::runtime_error(message);
 }

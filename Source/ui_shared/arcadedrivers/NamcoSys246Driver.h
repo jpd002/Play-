@@ -2,6 +2,7 @@
 
 #include <vector>
 #include "Types.h"
+#include "filesystem_def.h"
 #include "ArcadeDriver.h"
 
 class CNamcoSys246Driver : public CArcadeDriver
@@ -12,4 +13,5 @@ public:
 
 private:
 	std::vector<uint8> ReadDongleData(const ARCADE_MACHINE_DEF&);
+	fs::path LocateImageFile(const ARCADE_MACHINE_DEF&, const std::string&);
 };
