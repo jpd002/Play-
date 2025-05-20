@@ -94,6 +94,24 @@
             "hidden": true
         },
         {
+            "name": "LINUX",
+            "cacheVariables": {
+                "BUILD_PSFPLAYER": {
+                    "type": "BOOL",
+                    "value": "ON"
+                },
+                "BUILD_TESTS": {
+                    "type": "BOOL",
+                    "value": "ON"
+                },
+                "USE_QT": {
+                    "type": "BOOL",
+                    "value": "ON"
+                }
+            },
+            "hidden": true
+        },
+        {
             "name": "WASM",
             "cacheVariables": {
                 "BUILD_PSFPLAYER": {
@@ -156,6 +174,13 @@
             ]
         },
         {
+            "name": "linux-ninja",
+            "inherits": [
+                "LINUX",
+                "NINJA"
+            ]
+        },
+        {
             "name": "wasm-ninja",
             "inherits": [
                 "WASM",
@@ -197,6 +222,24 @@
             "targets": [
                 "Play",
                 "PsfPlayer",
+                "CodeGenTestSuite"
+            ]
+        },
+        {
+            "name": "linux-ninja-debug",
+            "configurePreset": "linux-ninja",
+            "configuration": "Debug",
+            "targets": [
+                "Play",
+                "CodeGenTestSuite"
+            ]
+        },
+        {
+            "name": "linux-ninja-release",
+            "configurePreset": "linux-ninja",
+            "configuration": "Release",
+            "targets": [
+                "Play",
                 "CodeGenTestSuite"
             ]
         }
