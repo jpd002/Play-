@@ -599,22 +599,32 @@ void CIopBios::FinishModuleStart()
 	int32 requesterThreadId = static_cast<int32>(m_cpu.m_State.nGPR[CMIPS::S2].nV0);
 	auto moduleResidentState = static_cast<MODULE_RESIDENT_STATE>(m_cpu.m_State.nGPR[CMIPS::A0].nV0 & 0x3);
 
-	auto loadedModule = m_loadedModules[moduleId];
-	assert(loadedModule != nullptr);
-
-	if(!stopRequest)
 	{
-		assert(loadedModule->state == MODULE_STATE::STOPPED);
-		loadedModule->state = MODULE_STATE::STARTED;
-		loadedModule->residentState = moduleResidentState;
+		auto loadedModule = m_loadedModules[moduleId];
+		assert(loadedModule != nullptr);
 
-		OnModuleStarted(moduleId);
-	}
-	else
-	{
-		assert(moduleResidentState == MODULE_RESIDENT_STATE::NO_RESIDENT_END);
-		assert(loadedModule->state == MODULE_STATE::STARTED);
-		loadedModule->state = MODULE_STATE::STOPPED;
+		if(!stopRequest)
+		{
+			assert(loadedModule->state == MODULE_STATE::STOPPED);
+			if(moduleResidentState == MODULE_RESIDENT_STATE::NO_RESIDENT_END)
+			{
+				//Module's start function returned NO_RESIDENT_END, remove it directly.
+				UnloadModule(moduleId);
+			}
+			else
+			{
+				loadedModule->state = MODULE_STATE::STARTED;
+				loadedModule->residentState = moduleResidentState;
+
+				OnModuleStarted(moduleId);
+			}
+		}
+		else
+		{
+			assert(moduleResidentState == MODULE_RESIDENT_STATE::NO_RESIDENT_END);
+			assert(loadedModule->state == MODULE_STATE::STARTED);
+			loadedModule->state = MODULE_STATE::STOPPED;
+		}
 	}
 
 	//Make sure interrupts are enabled at the end of this
