@@ -82,7 +82,7 @@ endif()
 
 if(NOT TARGET CodeGen)
 	add_subdirectory(
-		${CMAKE_CURRENT_SOURCE_DIR}/../deps/CodeGen/build_cmake
+		${CMAKE_CURRENT_SOURCE_DIR}/../deps/CodeGen
 		${CMAKE_CURRENT_BINARY_DIR}/CodeGen
 	)
 endif()
