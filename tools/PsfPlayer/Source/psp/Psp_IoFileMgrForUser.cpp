@@ -1,4 +1,5 @@
 #include "Psp_IoFileMgrForUser.h"
+#include <cstring>
 #include "Log.h"
 #include "alloca_def.h"
 

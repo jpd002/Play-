@@ -1,6 +1,7 @@
 #include "Iop_PsfSubSystem.h"
 #include "Ps2Const.h"
 #include <thread>
+#include <climits>
 
 using namespace Iop;
 

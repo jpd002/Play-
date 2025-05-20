@@ -1,4 +1,6 @@
 #include "Psp_SasCore.h"
+#include <cstring>
+#include <climits>
 #include "Log.h"
 
 #define LOGNAME ("Psp_SasCore")

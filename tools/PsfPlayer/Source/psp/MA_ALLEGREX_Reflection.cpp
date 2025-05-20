@@ -1,3 +1,4 @@
+#include <cstring>
 #include "MIPS.h"
 #include "MA_ALLEGREX.h"
 

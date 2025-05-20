@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QAbstractTableModel>
+#include <QTimer>
 #include <vector>
 #include "Playlist.h"
 #include "PlaylistDiscoveryService.h"

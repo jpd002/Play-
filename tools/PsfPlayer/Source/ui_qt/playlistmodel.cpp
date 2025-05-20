@@ -1,5 +1,4 @@
 #include "playlistmodel.h"
-#include <QTimer>
 #include "PsfTags.h"
 #include "PsfLoader.h"
 #include "TimeToString.h"

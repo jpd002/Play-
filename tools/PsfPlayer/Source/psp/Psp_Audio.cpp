@@ -1,4 +1,5 @@
 #include "Psp_Audio.h"
+#include <cstring>
 #include "Log.h"
 
 using namespace Psp;

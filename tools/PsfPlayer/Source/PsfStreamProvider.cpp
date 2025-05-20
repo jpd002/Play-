@@ -1,4 +1,5 @@
 #include <cassert>
+#include <algorithm>
 #include "PsfStreamProvider.h"
 #include "StdStream.h"
 #include "MemStream.h"

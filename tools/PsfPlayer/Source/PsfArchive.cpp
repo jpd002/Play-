@@ -1,4 +1,5 @@
 #include "PsfArchive.h"
+#include <cstring>
 #ifdef RAR_SUPPORT
 #include "PsfRarArchive.h"
 #endif

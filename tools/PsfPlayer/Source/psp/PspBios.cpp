@@ -1,4 +1,5 @@
 #include "StdStream.h"
+#include <cstring>
 #include "PspBios.h"
 #include "ElfFile.h"
 #include "lexical_cast_ex.h"

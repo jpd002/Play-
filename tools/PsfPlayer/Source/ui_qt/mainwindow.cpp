@@ -155,7 +155,7 @@ void MainWindow::on_playbackCompleted()
 void MainWindow::OnNewFrame()
 {
 	m_playbackController.Tick();
-	ui->current_time->setText(QDateTime::fromTime_t(m_playbackController.GetFrameCount() / 60).toUTC().toString("mm:ss"));
+	ui->current_time->setText(QDateTime::fromSecsSinceEpoch(m_playbackController.GetFrameCount() / 60).toUTC().toString("mm:ss"));
 }
 
 void MainWindow::on_tableView_customContextMenuRequested(const QPoint& pos)
