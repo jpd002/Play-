@@ -7,6 +7,7 @@ set(CMAKE_MODULE_PATH
 include(Header)
 
 project(PsfPlayer)
+set(PSFPLAYER_PROJECT_LIBS)
 
 if(NOT TARGET PsfCore)
 	add_subdirectory(
@@ -16,7 +17,17 @@ if(NOT TARGET PsfCore)
 endif()
 list(APPEND PSFPLAYER_PROJECT_LIBS PsfCore)
 
+if(NOT TARGET PlayDebugSupport)
+	add_subdirectory(
+		${CMAKE_CURRENT_SOURCE_DIR}/../../../../Source/ui_qt/DebugSupport
+		${CMAKE_CURRENT_BINARY_DIR}/PlayDebugSupport
+	)
+endif()
+list(APPEND PSFPLAYER_PROJECT_LIBS PlayDebugSupport)
+
 set(QT_SOURCES
+	debuggerwindow.cpp
+	debuggerwindow.h
 	main.cpp
 	mainwindow.cpp
 	mainwindow.h
@@ -27,11 +38,13 @@ set(QT_SOURCES
 )
 
 set(QT_MOC_HEADERS
+	debuggerwindow.h
 	mainwindow.h
 	playlistmodel.h
 )
 
 set(QT_UIS
+	Qt_ui/debuggerwindow.ui
 	Qt_ui/mainwindow.ui
 )
 

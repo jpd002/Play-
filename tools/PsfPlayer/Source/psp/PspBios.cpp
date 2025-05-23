@@ -556,6 +556,14 @@ void CBios::LoadModule(const char* path)
 		}
 	}
 
+#ifdef DEBUGGER_INCLUDED
+	m_cpu.m_analysis->Clear();
+	for(const auto& moduleTag : m_moduleTags)
+	{
+		m_cpu.m_analysis->Analyse(moduleTag.begin, moduleTag.end);
+	}
+#endif
+
 	m_cpu.m_State.nGPR[CMIPS::GP].nV0 = moduleInfo->gp;
 
 	uint32 threadId = CreateThread("start_thread", baseAddress + moduleHeader.nEntryPoint, 0x20, DEFAULT_STACKSIZE, 0, 0);

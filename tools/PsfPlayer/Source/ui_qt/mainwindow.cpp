@@ -35,6 +35,9 @@ MainWindow::MainWindow(QWidget* parent)
 
 	model.setHeaderData(0, Qt::Orientation::Horizontal, QVariant("Title"), Qt::DisplayRole);
 	model.setHeaderData(1, Qt::Orientation::Horizontal, QVariant("Length"), Qt::DisplayRole);
+	m_debugger = std::make_unique<DebuggerWindow>(*m_virtualMachine);
+	m_debugger->showMaximized();
+
 	ui->tableView->setModel(&model);
 	ui->tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 	ui->tableView->verticalHeader()->setSectionResizeMode(QHeaderView::Fixed);
@@ -53,6 +56,7 @@ MainWindow::MainWindow(QWidget* parent)
 
 MainWindow::~MainWindow()
 {
+	m_debugger.reset();
 	if(m_virtualMachine != nullptr)
 	{
 		m_virtualMachine->Pause();
@@ -177,17 +181,50 @@ void MainWindow::on_tableView_customContextMenuRequested(const QPoint& pos)
 	}
 }
 
+void MainWindow::UnloadCurrentTrack()
+{
+	if(m_currentindex == -1)
+	{
+		return;
+	}
+	m_virtualMachine->Pause();
+#ifdef DEBUGGER_INCLUDED
+	auto item = model.at(m_currentindex);
+	auto itemPath = fs::path(item->path);
+	auto tagPackageName = itemPath.stem().string();
+	m_virtualMachine->SaveDebugTags(tagPackageName.c_str());
+#endif
+	m_currentindex = -1;
+}
+
 void MainWindow::PlayTrackIndex(int index)
 {
-	m_virtualMachine->Pause();
+	UnloadCurrentTrack();
 	m_virtualMachine->Reset();
 	m_currentindex = index;
+
 	CPsfBase::TagMap tags;
 	auto item = model.at(m_currentindex);
 	auto archivePath = model.getArchivePath(item->archiveId);
 	CPsfLoader::LoadPsf(*m_virtualMachine, item->path, archivePath, &tags);
 	UpdateTrackDetails(tags);
+
+#ifdef DEBUGGER_INCLUDED
+	auto itemPath = fs::path(item->path);
+	auto tagPackageName = itemPath.stem().string();
+	m_virtualMachine->LoadDebugTags(tagPackageName.c_str());
+	m_debugger->Reset();
+#else
 	m_virtualMachine->Resume();
+#endif
+}
+
+void MainWindow::closeEvent(QCloseEvent* event)
+{
+	UnloadCurrentTrack();
+#ifdef DEBUGGER_INCLUDED
+	m_debugger->close();
+#endif
 }
 
 void MainWindow::on_tableView_doubleClicked(const QModelIndex& index)
