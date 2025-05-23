@@ -531,9 +531,10 @@ int32 CIoman::AddDrv(CMIPS& context)
 		return 0;
 	}
 
-	//We will report to "cdrom_stm" that registration succeeded, but we don't actually
+	//We will report to some devices that registration succeeded, but we don't actually
 	//add it to our device list.
-	static std::set<std::string> silentDevices = {"cdrom_stm"};
+	//"host" is needed for proper FF10 PSF initialization.
+	static std::set<std::string> silentDevices = {"cdrom_stm", "host"};
 	if(silentDevices.count(deviceName))
 	{
 		return 0;
