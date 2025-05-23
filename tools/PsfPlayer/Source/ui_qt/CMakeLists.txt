@@ -17,19 +17,7 @@ if(NOT TARGET PsfCore)
 endif()
 list(APPEND PSFPLAYER_PROJECT_LIBS PsfCore)
 
-if(DEBUGGER_INCLUDED)
-	if(NOT TARGET PlayDebugSupport)
-		add_subdirectory(
-			${CMAKE_CURRENT_SOURCE_DIR}/../../../../Source/ui_qt/DebugSupport
-			${CMAKE_CURRENT_BINARY_DIR}/PlayDebugSupport
-		)
-	endif()
-	list(APPEND PSFPLAYER_PROJECT_LIBS PlayDebugSupport)
-endif()
-
 set(QT_SOURCES
-	debuggerwindow.cpp
-	debuggerwindow.h
 	main.cpp
 	mainwindow.cpp
 	mainwindow.h
@@ -40,19 +28,37 @@ set(QT_SOURCES
 )
 
 set(QT_MOC_HEADERS
-	debuggerwindow.h
 	mainwindow.h
 	playlistmodel.h
 )
 
 set(QT_UIS
-	Qt_ui/debuggerwindow.ui
 	Qt_ui/mainwindow.ui
-	Qt_ui/debugmenu.ui
 )
 
 set(QT_RESOURCES
 )
+
+if(DEBUGGER_INCLUDED)
+	if(NOT TARGET PlayDebugSupport)
+		add_subdirectory(
+			${CMAKE_CURRENT_SOURCE_DIR}/../../../../Source/ui_qt/DebugSupport
+			${CMAKE_CURRENT_BINARY_DIR}/PlayDebugSupport
+		)
+	endif()
+	list(APPEND QT_SOURCES
+		debuggerwindow.cpp
+		debuggerwindow.h
+	)
+	list(APPEND QT_MOC_HEADERS
+		debuggerwindow.h
+	)
+	list(APPEND QT_UIS
+		Qt_ui/debuggerwindow.ui
+		Qt_ui/debugmenu.ui
+	)
+	list(APPEND PSFPLAYER_PROJECT_LIBS PlayDebugSupport)
+endif()
 
 if(TARGET_PLATFORM_MACOS OR TARGET_PLATFORM_UNIX)
 	if(NOT TARGET sh_openal)

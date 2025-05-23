@@ -1,12 +1,11 @@
 #pragma once
 
+#include <thread>
 #include <QMainWindow>
 #include "PsfVm.h"
 #include "PsfBase.h"
 #include "PlaybackController.h"
 #include "playlistmodel.h"
-#include "debuggerwindow.h"
-#include <thread>
 #include "filesystem_def.h"
 
 namespace Ui
@@ -15,6 +14,8 @@ namespace Ui
 }
 
 #ifdef DEBUGGER_INCLUDED
+class DebuggerWindow;
+
 namespace Ui
 {
 	class DebugMenu;

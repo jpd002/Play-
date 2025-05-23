@@ -12,6 +12,10 @@
 #include "SH_OpenAL.h"
 #endif
 
+#ifdef DEBUGGER_INCLUDED
+#include "debuggerwindow.h"
+#endif
+
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QDateTime>
@@ -57,7 +61,9 @@ MainWindow::MainWindow(QWidget* parent)
 
 MainWindow::~MainWindow()
 {
+#ifdef DEBUGGER_INCLUDED
 	m_debugger.reset();
+#endif
 	if(m_virtualMachine != nullptr)
 	{
 		m_virtualMachine->Pause();
@@ -155,12 +161,16 @@ void MainWindow::AddArchiveToPlaylist(const fs::path& archivePath)
 	}
 }
 
+#ifdef DEBUGGER_INCLUDED
+
 void MainWindow::ShowDebugger()
 {
 	m_debugger->showMaximized();
 	m_debugger->raise();
 	m_debugger->activateWindow();
 }
+
+#endif
 
 void MainWindow::UpdateTrackDetails(CPsfBase::TagMap& tags)
 {
