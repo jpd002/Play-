@@ -7,9 +7,8 @@ set(CMAKE_MODULE_PATH
 include(Header)
 
 project(PsfCore)
+set(PSFCORE_PROJECT_LIBS)
 
-set(PSF_PROJECT_NAME "PsfPlayer")
-set(PSF_PROJECT_VERSION "1.05")
 set(PSF_RAR_SUPPORT ON)
 
 if(NOT TARGET PlayCore)
