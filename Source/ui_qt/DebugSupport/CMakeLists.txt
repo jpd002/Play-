@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.5)
 project(PlayDebugSupport)
+set(PLAYDEBUGSUPPORT_LIBS)
 
 if(CMAKE_VERSION VERSION_LESS "3.7.0")
 	set(CMAKE_INCLUDE_CURRENT_DIR ON)
@@ -179,6 +180,7 @@ QT_WRAP_CPP(QT_DEBUGGER_MOC_SRCS ${QT_DEBUGGER_MOC_HEADERS})
 add_library(PlayDebugSupport STATIC ${SRC_FILES} ${QT_DEBUGGER_UI_HEADERS} ${QT_DEBUGGER_MOC_SRCS} ${QT_RES_SOURCES})
 target_link_libraries(PlayDebugSupport PlayCore ${PLAYDEBUGSUPPORT_LIBS})
 target_compile_definitions(PlayDebugSupport PRIVATE NOMINMAX ${PLAYDEBUGSUPPORT_DEFS})
+target_include_directories(PlayDebugSupport PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_include_directories(PlayDebugSupport PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} ../../${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR})
 
 add_executable(PlayDebugSupportTests ${TEST_SRC_FILES})
