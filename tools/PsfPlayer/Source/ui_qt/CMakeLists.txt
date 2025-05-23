@@ -48,6 +48,7 @@ set(QT_MOC_HEADERS
 set(QT_UIS
 	Qt_ui/debuggerwindow.ui
 	Qt_ui/mainwindow.ui
+	Qt_ui/debugmenu.ui
 )
 
 set(QT_RESOURCES

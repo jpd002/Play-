@@ -14,6 +14,13 @@ namespace Ui
 	class MainWindow;
 }
 
+#ifdef DEBUGGER_INCLUDED
+namespace Ui
+{
+	class DebugMenu;
+}
+#endif
+
 class MainWindow : public QMainWindow
 {
 	Q_OBJECT
@@ -34,6 +41,8 @@ private:
 	void PlayTrackIndex(int index);
 	void DeleteTrackIndex(int index);
 
+	void SetupDebugger();
+
 	void closeEvent(QCloseEvent*) override;
 
 	Ui::MainWindow* ui;
@@ -44,7 +53,10 @@ private:
 
 	fs::path m_path;
 
+#ifdef DEBUGGER_INCLUDED
 	std::unique_ptr<DebuggerWindow> m_debugger;
+	Ui::DebugMenu* debugMenuUi = nullptr;
+#endif
 
 	Framework::CSignal<void()>::Connection m_OnNewFrameConnection;
 

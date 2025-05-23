@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include "ui_debugmenu.h"
 #include "PsfLoader.h"
 #include "PsfTags.h"
 #include "AppConfig.h"
@@ -35,7 +36,8 @@ MainWindow::MainWindow(QWidget* parent)
 
 	model.setHeaderData(0, Qt::Orientation::Horizontal, QVariant("Title"), Qt::DisplayRole);
 	model.setHeaderData(1, Qt::Orientation::Horizontal, QVariant("Length"), Qt::DisplayRole);
-	m_debugger = std::make_unique<DebuggerWindow>(*m_virtualMachine);
+
+	SetupDebugger();
 
 	ui->tableView->setModel(&model);
 	ui->tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
@@ -63,6 +65,25 @@ MainWindow::~MainWindow()
 		m_virtualMachine = nullptr;
 	}
 	delete ui;
+#ifdef DEBUGGER_INCLUDED
+	delete debugMenuUi;
+#endif
+}
+
+void MainWindow::SetupDebugger()
+{
+#ifdef DEBUGGER_INCLUDED
+	m_debugger = std::make_unique<DebuggerWindow>(*m_virtualMachine);
+
+	{
+		auto debugMenu = new QMenu(this);
+		debugMenuUi = new Ui::DebugMenu();
+		debugMenuUi->setupUi(debugMenu);
+		ui->menuBar->insertMenu(nullptr, debugMenu);
+
+		connect(debugMenuUi->actionShowDebugger, &QAction::triggered, this, std::bind(&MainWindow::ShowDebugger, this));
+	}
+#endif
 }
 
 void MainWindow::on_actionOpen_triggered()

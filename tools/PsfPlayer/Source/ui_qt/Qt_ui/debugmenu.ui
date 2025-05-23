@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>DebugMenu</class>
+ <widget class="QMenu" name="DebugMenu">
+  <property name="title">
+   <string>Debug</string>
+  </property>
+  <action name="actionShowDebugger">
+   <property name="text">
+    <string>Show Debugger</string>
+   </property>
+  </action>
+  <addaction name="actionShowDebugger"/>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
