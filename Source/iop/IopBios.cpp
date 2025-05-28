@@ -2601,8 +2601,9 @@ uint32 CIopBios::CreateFpl(uint32 paramPtr)
 		return -1;
 	}
 
+	uint32 blocksSize = param->blockCount * param->blockSize;
 	uint32 bitmapSize = (param->blockCount + 7) / 8;
-	uint32 totalSize = (param->blockCount * param->blockSize) + bitmapSize;
+	uint32 totalSize = blocksSize + bitmapSize;
 
 	uint32 poolPtr = m_sysmem->AllocateMemory(totalSize, 0, 0);
 	if(poolPtr == 0)
@@ -2617,6 +2618,9 @@ uint32 CIopBios::CreateFpl(uint32 paramPtr)
 	fpl->blockCount = param->blockCount;
 	fpl->blockSize = param->blockSize;
 	fpl->poolPtr = poolPtr;
+
+	auto bitmap = m_ram + fpl->poolPtr + blocksSize;
+	memset(bitmap, 0, bitmapSize);
 
 	return fplId;
 }
