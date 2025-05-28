@@ -1233,8 +1233,8 @@ int32 CIopBios::StartThreadArgs(uint32 threadId, uint32 args, uint32 argpPtr)
 	    };
 
 	thread->status = THREAD_STATUS_RUNNING;
-	LinkThread(threadId);
 	thread->priority = thread->initPriority;
+	LinkThread(threadId);
 	thread->context.epc = thread->threadProc;
 	thread->context.gpr[CMIPS::RA] = m_threadFinishAddress;
 	thread->context.gpr[CMIPS::SP] = thread->stackBase + thread->stackSize;
