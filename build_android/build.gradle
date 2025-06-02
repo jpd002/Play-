@@ -9,7 +9,7 @@ buildscript {
 	}
 
 	dependencies {
-		classpath 'com.android.tools.build:gradle:8.8.2'
+		classpath 'com.android.tools.build:gradle:8.10.1'
 		classpath 'org.ajoberstar.grgit:grgit-gradle:4.1.1'
 	}
 }
@@ -32,7 +32,7 @@ android {
 	}
 
 	namespace 'com.virtualapplications.play'
-	compileSdk 34
+	compileSdk 35
 
 	buildFeatures {
 		buildConfig true
@@ -42,7 +42,7 @@ android {
 		versionCode (100 + gitVersionCode)
 		versionName gitVersionName
 		minSdkVersion 19
-		targetSdkVersion 34
+		targetSdkVersion 35
 		externalNativeBuild {
 			cmake {
 				arguments "-DANDROID_ARM_NEON=TRUE", "-DANDROID_TOOLCHAIN=clang",
