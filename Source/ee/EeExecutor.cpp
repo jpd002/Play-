@@ -164,7 +164,27 @@ BasicBlockPtr CEeExecutor::BlockFactory(CMIPS& context, uint32 start, uint32 end
 	auto blockKey = std::make_pair(hash, blockSize);
 
 	bool hasBreakpoint = m_context.HasBreakpointInRange(start, end);
-	if(!hasBreakpoint)
+
+	std::optional<Jitter::CJitter::ROUNDINGMODE> blockFpRoundingModeOverride;
+	if(auto blockFpRoundingModeIterator = m_blockFpRoundingModes.find(start);
+	   blockFpRoundingModeIterator != std::end(m_blockFpRoundingModes))
+	{
+		blockFpRoundingModeOverride = blockFpRoundingModeIterator->second;
+	}
+
+	bool isIdleLoopBlockOverride = false;
+	if(auto idleLoopBlockIterator = m_idleLoopBlocks.find(start);
+	   idleLoopBlockIterator != std::end(m_idleLoopBlocks))
+	{
+		const auto& checkBlockKey = idleLoopBlockIterator->second;
+		if(!checkBlockKey.has_value() || (checkBlockKey.value() == blockKey))
+		{
+			isIdleLoopBlockOverride = true;
+		}
+	}
+
+	bool isCacheableBlock = !hasBreakpoint && !blockFpRoundingModeOverride.has_value() && !isIdleLoopBlockOverride;
+	if(isCacheableBlock)
 	{
 		auto blockIterator = m_cachedBlocks.find(blockKey);
 		if(blockIterator != std::end(m_cachedBlocks))
@@ -186,24 +206,16 @@ BasicBlockPtr CEeExecutor::BlockFactory(CMIPS& context, uint32 start, uint32 end
 	}
 
 	auto result = std::make_shared<CEeBasicBlock>(context, start, end, m_blockCategory);
-
-	if(auto blockFpRoundingModeIterator = m_blockFpRoundingModes.find(start);
-	   blockFpRoundingModeIterator != std::end(m_blockFpRoundingModes))
+	if(blockFpRoundingModeOverride.has_value())
 	{
-		result->SetFpRoundingMode(blockFpRoundingModeIterator->second);
+		result->SetFpRoundingMode(blockFpRoundingModeOverride.value());
 	}
-	if(auto idleLoopBlockIterator = m_idleLoopBlocks.find(start);
-	   idleLoopBlockIterator != std::end(m_idleLoopBlocks))
+	if(isIdleLoopBlockOverride)
 	{
-		const auto& checkBlockKey = idleLoopBlockIterator->second;
-		if(!checkBlockKey.has_value() || (checkBlockKey.value() == blockKey))
-		{
-			result->SetIsIdleLoopBlock();
-		}
+		result->SetIsIdleLoopBlock();
 	}
-
 	result->Compile();
-	if(!hasBreakpoint)
+	if(isCacheableBlock)
 	{
 		m_cachedBlocks.insert(std::make_pair(blockKey, result));
 	}
