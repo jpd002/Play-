@@ -797,9 +797,6 @@ void VUShared::ADDAq(CMipsJitter* codeGen, uint8 dest, uint8 fs, uint32 relative
 
 void VUShared::CLIP(CMipsJitter* codeGen, uint8 nFs, uint8 nFt, uint32 relativePipeTime)
 {
-	//We can do better if we got this condition
-	assert(!((nFs == 0) && (nFt == 0)));
-
 	//Load previous value
 	{
 		codeGen->PushRelAddrRef(offsetof(CMIPS, m_State.pipeClip.values));
@@ -816,7 +813,12 @@ void VUShared::CLIP(CMipsJitter* codeGen, uint8 nFs, uint8 nFt, uint32 relativeP
 		codeGen->Shl(6);
 	}
 
-	//Compute test result
+	//Compute test result (if both fs and ft are 0, result is 0)
+	if((nFs == 0) && (nFt == 0))
+	{
+		codeGen->PushCst(0);
+	}
+	else
 	{
 		codeGen->MD_PushRel(offsetof(CMIPS, m_State.nCOP2[nFs]));
 
