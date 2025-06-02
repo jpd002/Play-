@@ -37,6 +37,9 @@
 	<GameConfig Executable="SLUS_208.98;1" Title="Star Wars: Battlefront">
 		<IdleLoopBlock Address="0x00342138" />
 	</GameConfig>
+	<GameConfig Executable="SLUS_210.15;1" Title="DreamWorks Madagascar">
+		<IdleLoopBlock Address="0x00294410" CheckBlockKey="8F7278F0F50BB7EBF2039E27C816E4B3;20" Description="Version 3.01" />
+	</GameConfig>
 	<GameConfig Executable="SLUS_210.48;1" Title="Evil Dead: Regeneration">
 		<IdleLoopBlock Address="0x00377898" />
 	</GameConfig>
