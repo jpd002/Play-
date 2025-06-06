@@ -1,9 +1,11 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
 
     <!-- colorPrimary is used for the default action bar background and to create background gradient -->
     <!-- colorPrimaryDark is used for the status bar and navigation drawer background -->
 
-    <style name="BaseTheme" parent="Theme.AppCompat.NoActionBar" />
+    <style name="BaseTheme" parent="Theme.AppCompat.NoActionBar">
+        <item name="android:windowOptOutEdgeToEdgeEnforcement" tools:targetApi="35">true</item>
+    </style>
 
     <style name="Purple" parent="BaseTheme">
         <item name="colorPrimary">#9C27B0</item>
