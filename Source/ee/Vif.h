@@ -727,6 +727,8 @@ protected:
 	uint32 m_pendingMicroProgram;
 	uint32 m_incomingFifoDelay;
 	int32 m_interruptDelayTicks;
+	bool m_delayDmaCompletion;
+	uint32 m_delayedDmaQwc;
 
 	CProfiler::ZoneHandle m_vifProfilerZone = 0;
 };

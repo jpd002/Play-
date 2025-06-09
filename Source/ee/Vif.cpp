@@ -86,6 +86,8 @@ void CVif::Reset()
 	m_pendingMicroProgram = -1;
 	m_incomingFifoDelay = 0;
 	m_interruptDelayTicks = 0;
+	m_delayDmaCompletion = false;
+	m_delayedDmaQwc = 0;
 }
 
 uint32 CVif::GetRegister(uint32 address)
@@ -293,6 +295,7 @@ void CVif::SaveState(Framework::CZipArchiveWriter& archive)
 		registerFile->SetRegister32(STATE_REGS_FIFOINDEX, m_fifoIndex);
 		registerFile->SetRegister32(STATE_REGS_INCOMINGFIFODELAY, m_incomingFifoDelay);
 		registerFile->SetRegister32(STATE_REGS_INTERRUPTDELAYTICKS, m_interruptDelayTicks);
+		//TODO: Save state dmaDelay
 		registerFile->SetRegister128(STATE_REGS_STREAM_BUFFER, m_stream.GetBuffer());
 		registerFile->SetRegister32(STATE_REGS_STREAM_BUFFERPOSITION, m_stream.GetBufferPosition());
 		archive.InsertFile(std::move(registerFile));
@@ -359,6 +362,13 @@ uint32 CVif::ReceiveDMA(uint32 address, uint32 qwc, uint32 unused, bool tagInclu
 		return 0;
 	}
 
+	//If DMA completion was previously delayed, we can now complete it
+	if(m_delayDmaCompletion)
+	{
+		m_delayDmaCompletion = false;
+		return m_delayedDmaQwc;
+	}
+
 #ifdef PROFILE
 	CProfilerZone profilerZone(m_vifProfilerZone);
 #endif
@@ -376,7 +386,22 @@ uint32 CVif::ReceiveDMA(uint32 address, uint32 qwc, uint32 unused, bool tagInclu
 	assert((remainingSize & 0x0F) == 0);
 	remainingSize /= 0x10;
 
-	return qwc - remainingSize;
+	uint32 result = qwc - remainingSize;
+	if(result == 0)
+	{
+		m_delayDmaCompletion = false;
+	}
+
+	//DMA completion delay requested, return 0 to indicate that VIF is still "working".
+	if(m_delayDmaCompletion)
+	{
+		m_delayedDmaQwc = result;
+		return 0;
+	}
+	else
+	{
+		return result;
+	}
 }
 
 bool CVif::IsWaitingForProgramEnd() const

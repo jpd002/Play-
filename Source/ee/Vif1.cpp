@@ -155,6 +155,15 @@ void CVif1::ExecuteCommand(StreamType& stream, CODE nCommand)
 
 void CVif1::Cmd_DIRECT(StreamType& stream, CODE nCommand)
 {
+	if(m_STAT.nVPS != 1)
+	{
+		if(nCommand.nIMM >= 0x10)
+		{
+			//Delay DMA completion on bigger DIRECT commands
+			m_delayDmaCompletion = true;
+		}
+	}
+
 	uint32 nSize = stream.GetAvailableReadBytes();
 	assert((nSize & 0x03) == 0);
 
