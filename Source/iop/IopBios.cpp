@@ -1463,6 +1463,7 @@ uint32 CIopBios::ReferThreadStatus(uint32 threadId, uint32 statusPtr, bool inInt
 	case THREAD_STATUS_WAITING_MESSAGEBOX:
 	case THREAD_STATUS_WAITING_EVENTFLAG:
 	case THREAD_STATUS_WAITING_SEMAPHORE:
+	case THREAD_STATUS_WAITING_FPL:
 	case THREAD_STATUS_WAIT_VBLANK_START:
 	case THREAD_STATUS_WAIT_VBLANK_END:
 		threadStatus = 0x04;
@@ -2651,8 +2652,16 @@ uint32 CIopBios::AllocateFpl(uint32 fplId)
 	uint32 result = pAllocateFpl(fplId);
 	if(result == KERNEL_RESULT_ERROR_NO_MEMORY)
 	{
-		CLog::GetInstance().Warn(LOGNAME, "No memory left while calling AllocateFpl, should be waiting. (not implemented)");
-		assert(false);
+		auto fpl = m_fpls[fplId];
+		assert(fpl);
+		fpl->waitCount++;
+
+		auto thread = GetThread(m_currentThreadId);
+		thread->status = THREAD_STATUS_WAITING_FPL;
+		UnlinkThread(thread->id);
+		assert(thread->waitObjectId == g_invalidObjectId);
+		thread->waitObjectId = fplId;
+		m_rescheduleNeeded = true;
 	}
 	return result;
 }
@@ -2706,6 +2715,29 @@ uint32 CIopBios::FreeFpl(uint32 fplId, uint32 blockPtr)
 	uint32 bitmapBitMask = 1 << (blockIdx % 8);
 
 	bitmap[bitmapByteIdx] &= ~bitmapBitMask;
+
+	if(fpl->waitCount != 0)
+	{
+		for(auto thread : m_threads)
+		{
+			if(!thread) continue;
+			if(thread->status != THREAD_STATUS_WAITING_FPL) continue;
+			if(thread->waitObjectId == fplId)
+			{
+				uint32 allocResult = pAllocateFpl(fplId);
+				assert(allocResult >= 0);
+
+				thread->waitObjectId = g_invalidObjectId;
+				thread->context.gpr[CMIPS::V0] = allocResult;
+				thread->status = THREAD_STATUS_RUNNING;
+				LinkThread(thread->id);
+
+				fpl->waitCount--;
+				m_rescheduleNeeded = true;
+				break;
+			}
+		}
+	}
 
 	return KERNEL_RESULT_OK;
 }
@@ -3894,6 +3926,9 @@ BiosDebugObjectArray CIopBios::GetBiosObjects(uint32 typeId) const
 				break;
 			case THREAD_STATUS_WAITING_MESSAGEBOX:
 				stateDescription = string_format("Waiting (Message Box: %d)", thread->waitObjectId);
+				break;
+			case THREAD_STATUS_WAITING_FPL:
+				stateDescription = string_format("Waiting (Fpl: %d)", thread->waitObjectId);
 				break;
 			case THREAD_STATUS_WAIT_VBLANK_START:
 				stateDescription = "Waiting (Vblank Start)";
