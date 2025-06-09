@@ -97,6 +97,8 @@
 
 #define MODULE_ID_CDVD_EE_DRIVER 0x70000000
 
+constexpr uint32 g_invalidObjectId = ~0U;
+
 CIopBios::CIopBios(CMIPS& cpu, uint8* ram, uint8* spr)
     : m_cpu(cpu)
     , m_ram(ram)
@@ -1117,6 +1119,7 @@ uint32 CIopBios::CreateThread(uint32 threadProc, uint32 priority, uint32 stackSi
 	thread->priority = 0;
 	thread->initPriority = priority;
 	thread->status = THREAD_STATUS_DORMANT;
+	thread->waitObjectId = g_invalidObjectId;
 	thread->threadProc = threadProc;
 	thread->optionData = optionData;
 	thread->attributes = attributes;
@@ -1255,7 +1258,7 @@ void CIopBios::ExitThread()
 #endif
 	THREAD* thread = GetThread(m_currentThreadId);
 	thread->status = THREAD_STATUS_DORMANT;
-	assert(thread->waitSemaphore == 0);
+	assert(thread->waitObjectId == g_invalidObjectId);
 	UnlinkThread(thread->id);
 	m_rescheduleNeeded = true;
 }
@@ -1279,16 +1282,18 @@ uint32 CIopBios::TerminateThread(uint32 threadId)
 	{
 		return -1;
 	}
-	if(thread->waitSemaphore != 0)
+	if(thread->status == THREAD_STATUS_WAITING_SEMAPHORE)
 	{
-		auto semaphore = m_semaphores[thread->waitSemaphore];
+		assert(thread->waitObjectId != g_invalidObjectId);
+		auto semaphore = m_semaphores[thread->waitObjectId];
 		if(semaphore != nullptr)
 		{
 			assert(semaphore->waitCount > 0);
 			semaphore->waitCount--;
 		}
-		thread->waitSemaphore = 0;
+		thread->waitObjectId = g_invalidObjectId;
 	}
+	assert(thread->waitObjectId == g_invalidObjectId);
 	thread->status = THREAD_STATUS_DORMANT;
 	UnlinkThread(thread->id);
 	return KERNEL_RESULT_OK;
@@ -1659,15 +1664,15 @@ int32 CIopBios::ReleaseWaitThread(uint32 threadId, bool inInterrupt)
 		break;
 	case THREAD_STATUS_WAITING_SEMAPHORE:
 	{
-		auto semaphore = m_semaphores[thread->waitSemaphore];
+		auto semaphore = m_semaphores[thread->waitObjectId];
 		assert(semaphore);
 		assert(semaphore->waitCount != 0);
 		semaphore->waitCount--;
-		thread->waitSemaphore = 0;
+		thread->waitObjectId = g_invalidObjectId;
 	}
 	break;
 	case THREAD_STATUS_WAITING_EVENTFLAG:
-		thread->waitEventFlag = 0;
+		thread->waitObjectId = g_invalidObjectId;
 		thread->waitEventFlagResultPtr = 0;
 		break;
 	default:
@@ -2073,7 +2078,8 @@ uint32 CIopBios::WaitSemaphore(uint32 semaphoreId)
 		uint32 threadId = m_currentThreadId;
 		THREAD* thread = GetThread(threadId);
 		thread->status = THREAD_STATUS_WAITING_SEMAPHORE;
-		thread->waitSemaphore = semaphoreId;
+		assert(thread->waitObjectId == g_invalidObjectId);
+		thread->waitObjectId = semaphoreId;
 		UnlinkThread(threadId);
 		semaphore->waitCount++;
 		m_rescheduleNeeded = true;
@@ -2138,13 +2144,13 @@ bool CIopBios::SemaReleaseSingleThread(uint32 semaphoreId, bool deleted)
 	for(auto thread : m_threads)
 	{
 		if(!thread) continue;
-		if(thread->waitSemaphore == semaphoreId)
+		if(thread->status != THREAD_STATUS_WAITING_SEMAPHORE) continue;
+		if(thread->waitObjectId == semaphoreId)
 		{
-			assert(thread->status == THREAD_STATUS_WAITING_SEMAPHORE);
 			thread->context.gpr[CMIPS::V0] = deleted ? KERNEL_RESULT_ERROR_WAIT_DELETE : KERNEL_RESULT_OK;
 			thread->status = THREAD_STATUS_RUNNING;
 			LinkThread(thread->id);
-			thread->waitSemaphore = 0;
+			thread->waitObjectId = g_invalidObjectId;
 			semaphore->waitCount--;
 			changed = true;
 			break;
@@ -2220,13 +2226,13 @@ uint32 CIopBios::SetEventFlag(uint32 eventId, uint32 value, bool inInterrupt)
 	{
 		if(!thread) continue;
 		if(thread->status != THREAD_STATUS_WAITING_EVENTFLAG) continue;
-		if(thread->waitEventFlag == eventId)
+		if(thread->waitObjectId == eventId)
 		{
 			bool success = ProcessEventFlag(thread->waitEventFlagMode, eventFlag->value, thread->waitEventFlagMask,
 			                                (thread->waitEventFlagResultPtr != 0) ? reinterpret_cast<uint32*>(m_ram + thread->waitEventFlagResultPtr) : nullptr);
 			if(success)
 			{
-				thread->waitEventFlag = 0;
+				thread->waitObjectId = g_invalidObjectId;
 				thread->waitEventFlagResultPtr = 0;
 
 				thread->status = THREAD_STATUS_RUNNING;
@@ -2281,7 +2287,7 @@ uint32 CIopBios::WaitEventFlag(uint32 eventId, uint32 value, uint32 mode, uint32
 		auto thread = GetThread(m_currentThreadId);
 		thread->status = THREAD_STATUS_WAITING_EVENTFLAG;
 		UnlinkThread(thread->id);
-		thread->waitEventFlag = eventId;
+		thread->waitObjectId = eventId;
 		thread->waitEventFlagMode = mode;
 		thread->waitEventFlagMask = value;
 		thread->waitEventFlagResultPtr = resultPtr;
@@ -2434,7 +2440,7 @@ uint32 CIopBios::SendMessageBox(uint32 boxId, uint32 messagePtr, bool inInterrup
 	{
 		if(!thread) continue;
 		if(thread->status != THREAD_STATUS_WAITING_MESSAGEBOX) continue;
-		if(thread->waitMessageBox == boxId)
+		if(thread->waitObjectId == boxId)
 		{
 			if(thread->waitMessageBoxResultPtr != 0)
 			{
@@ -2442,7 +2448,7 @@ uint32 CIopBios::SendMessageBox(uint32 boxId, uint32 messagePtr, bool inInterrup
 				*result = messagePtr;
 			}
 
-			thread->waitMessageBox = 0;
+			thread->waitObjectId = g_invalidObjectId;
 			thread->waitMessageBoxResultPtr = 0;
 
 			thread->status = THREAD_STATUS_RUNNING;
@@ -2526,7 +2532,8 @@ uint32 CIopBios::ReceiveMessageBox(uint32 messagePtr, uint32 boxId)
 		THREAD* thread = GetThread(m_currentThreadId);
 		thread->status = THREAD_STATUS_WAITING_MESSAGEBOX;
 		UnlinkThread(thread->id);
-		thread->waitMessageBox = boxId;
+		assert(thread->waitObjectId == g_invalidObjectId);
+		thread->waitObjectId = boxId;
 		thread->waitMessageBoxResultPtr = messagePtr;
 		m_rescheduleNeeded = true;
 	}
@@ -3880,13 +3887,13 @@ BiosDebugObjectArray CIopBios::GetBiosObjects(uint32 typeId) const
 				stateDescription = "Sleeping";
 				break;
 			case THREAD_STATUS_WAITING_SEMAPHORE:
-				stateDescription = string_format("Waiting (Semaphore: %d)", thread->waitSemaphore);
+				stateDescription = string_format("Waiting (Semaphore: %d)", thread->waitObjectId);
 				break;
 			case THREAD_STATUS_WAITING_EVENTFLAG:
-				stateDescription = string_format("Waiting (Event Flag: %d)", thread->waitEventFlag);
+				stateDescription = string_format("Waiting (Event Flag: %d)", thread->waitObjectId);
 				break;
 			case THREAD_STATUS_WAITING_MESSAGEBOX:
-				stateDescription = string_format("Waiting (Message Box: %d)", thread->waitMessageBox);
+				stateDescription = string_format("Waiting (Message Box: %d)", thread->waitObjectId);
 				break;
 			case THREAD_STATUS_WAIT_VBLANK_START:
 				stateDescription = "Waiting (Vblank Start)";

@@ -94,12 +94,10 @@ public:
 		uint32 threadProc;
 		THREADCONTEXT context;
 		uint32 status;
-		uint32 waitSemaphore;
-		uint32 waitEventFlag;
+		uint32 waitObjectId;
 		uint32 waitEventFlagMode;
 		uint32 waitEventFlagMask;
 		uint32 waitEventFlagResultPtr;
-		uint32 waitMessageBox;
 		uint32 waitMessageBoxResultPtr;
 		uint32 wakeupCount;
 		uint32 stackBase;
