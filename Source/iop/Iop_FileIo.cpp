@@ -85,12 +85,12 @@ bool CFileIo::Invoke(uint32 method, uint32* args, uint32 argsSize, uint32* ret, 
 		char versionString[16] = {};
 		if(retSize == 8)
 		{
-			sprintf(versionString, "%d....", m_moduleVersion);
+			snprintf(versionString, sizeof(versionString), "%d....", m_moduleVersion);
 			memcpy(ret, versionString, 8);
 		}
 		else if(retSize == 4)
 		{
-			sprintf(versionString, "%d", m_moduleVersion);
+			snprintf(versionString, sizeof(versionString), "%d", m_moduleVersion);
 			memcpy(ret, versionString, 4);
 		}
 		else

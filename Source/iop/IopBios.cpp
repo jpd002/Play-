@@ -4033,9 +4033,7 @@ void CIopBios::PrepareModuleDebugInfo(CELF32& elf, const ExecutableRange& module
 				}
 				else
 				{
-					char functionNameTemp[256];
-					sprintf(functionNameTemp, "unknown_%04X", functionId);
-					functionName = functionNameTemp;
+					functionName = string_format("unknown_%04X", functionId);
 				}
 				if(!m_cpu.m_Functions.Find(address))
 				{

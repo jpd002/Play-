@@ -1,4 +1,5 @@
 #include <cstring>
+#include "string_format.h"
 #include "Iop_Dynamic.h"
 #include "Log.h"
 
@@ -49,9 +50,7 @@ std::string CDynamic::GetId() const
 
 std::string CDynamic::GetFunctionName(unsigned int functionId) const
 {
-	char functionName[256];
-	sprintf(functionName, "unknown_%04X", functionId);
-	return functionName;
+	return string_format("unknown_%04X", functionId);
 }
 
 void CDynamic::Invoke(CMIPS& context, unsigned int functionId)

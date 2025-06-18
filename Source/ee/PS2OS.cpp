@@ -509,7 +509,7 @@ void CPS2OS::LoadExecutableInternal()
 				}
 				else
 				{
-					sprintf(syscallName, "syscall_%04X", syscallId);
+					snprintf(syscallName, 256, "syscall_%04X", syscallId);
 				}
 				m_ee.m_Functions.InsertTag(address - 4, syscallName);
 			}
