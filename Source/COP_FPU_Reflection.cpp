@@ -10,7 +10,7 @@ void CCOP_FPU::ReflOpRtFs(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uin
 	uint8 nRT = static_cast<uint8>((nOpcode >> 16) & 0x001F);
 	uint8 nFS = static_cast<uint8>((nOpcode >> 11) & 0x001F);
 
-	sprintf(sText, "%s, F%i", CMIPS::m_sGPRName[nRT], nFS);
+	snprintf(sText, nCount, "%s, F%d", CMIPS::m_sGPRName[nRT], nFS);
 }
 
 void CCOP_FPU::ReflOpRtFcs(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, char* sText, unsigned int nCount)
@@ -18,7 +18,7 @@ void CCOP_FPU::ReflOpRtFcs(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, ui
 	uint8 nRT = static_cast<uint8>((nOpcode >> 16) & 0x001F);
 	uint8 nFS = static_cast<uint8>((nOpcode >> 11) & 0x001F);
 
-	sprintf(sText, "%s, FCR%i", CMIPS::m_sGPRName[nRT], nFS);
+	snprintf(sText, nCount, "%s, FCR%d", CMIPS::m_sGPRName[nRT], nFS);
 }
 
 void CCOP_FPU::ReflOpFdFs(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, char* sText, unsigned int nCount)
@@ -26,7 +26,7 @@ void CCOP_FPU::ReflOpFdFs(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uin
 	uint8 nFS = static_cast<uint8>((nOpcode >> 11) & 0x001F);
 	uint8 nFD = static_cast<uint8>((nOpcode >> 6) & 0x001F);
 
-	sprintf(sText, "F%i, F%i", nFD, nFS);
+	snprintf(sText, nCount, "F%d, F%d", nFD, nFS);
 }
 
 void CCOP_FPU::ReflOpFdFt(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, char* sText, unsigned int nCount)
@@ -34,7 +34,7 @@ void CCOP_FPU::ReflOpFdFt(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uin
 	uint8 nFT = static_cast<uint8>((nOpcode >> 16) & 0x001F);
 	uint8 nFD = static_cast<uint8>((nOpcode >> 6) & 0x001F);
 
-	sprintf(sText, "F%i, F%i", nFD, nFT);
+	snprintf(sText, nCount, "F%d, F%d", nFD, nFT);
 }
 
 void CCOP_FPU::ReflOpFsFt(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, char* sText, unsigned int nCount)
@@ -42,7 +42,7 @@ void CCOP_FPU::ReflOpFsFt(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uin
 	uint8 nFS = static_cast<uint8>((nOpcode >> 11) & 0x001F);
 	uint8 nFT = static_cast<uint8>((nOpcode >> 16) & 0x001F);
 
-	sprintf(sText, "F%i, F%i", nFS, nFT);
+	snprintf(sText, nCount, "F%d, F%d", nFS, nFT);
 }
 
 void CCOP_FPU::ReflOpCcFsFt(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, char* sText, unsigned int nCount)
@@ -51,7 +51,7 @@ void CCOP_FPU::ReflOpCcFsFt(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, u
 	uint8 nFS = static_cast<uint8>((nOpcode >> 11) & 0x001F);
 	uint8 nCC = static_cast<uint8>((nOpcode >> 8) & 0x0007);
 
-	sprintf(sText, "CC%i, F%i, F%i", nCC, nFS, nFT);
+	snprintf(sText, nCount, "CC%d, F%d, F%d", nCC, nFS, nFT);
 }
 
 void CCOP_FPU::ReflOpFdFsFt(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, char* sText, unsigned int nCount)
@@ -60,7 +60,7 @@ void CCOP_FPU::ReflOpFdFsFt(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, u
 	uint8 nFS = static_cast<uint8>((nOpcode >> 11) & 0x001F);
 	uint8 nFD = static_cast<uint8>((nOpcode >> 6) & 0x001F);
 
-	sprintf(sText, "F%i, F%i, F%i", nFD, nFS, nFT);
+	snprintf(sText, nCount, "F%d, F%d, F%d", nFD, nFS, nFT);
 }
 
 void CCOP_FPU::ReflOpFtOffRs(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, char* sText, unsigned int nCount)
@@ -69,14 +69,14 @@ void CCOP_FPU::ReflOpFtOffRs(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, 
 	uint8 nFT = static_cast<uint8>((nOpcode >> 16) & 0x001F);
 	uint16 nImm = static_cast<uint16>((nOpcode >> 0) & 0xFFFF);
 
-	sprintf(sText, "F%i, $%04X(%s)", nFT, nImm, CMIPS::m_sGPRName[nRS]);
+	snprintf(sText, nCount, "F%d, $%04X(%s)", nFT, nImm, CMIPS::m_sGPRName[nRS]);
 }
 
 void CCOP_FPU::ReflOpCcOff(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, char* sText, unsigned int nCount)
 {
 	uint16 nImm = static_cast<uint16>((nOpcode >> 0) & 0xFFFF);
 	nAddress += 4;
-	sprintf(sText, "CC%i, $%08X", (nOpcode >> 18) & 0x07, nAddress + CMIPS::GetBranch(nImm));
+	snprintf(sText, nCount, "CC%d, $%08X", (nOpcode >> 18) & 0x07, nAddress + CMIPS::GetBranch(nImm));
 }
 
 uint32 CCOP_FPU::ReflEaOffset(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode)

@@ -13,7 +13,7 @@ void CMA_ALLEGREX::ReflOpExt(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, 
 
 	size = size + 1;
 
-	sprintf(sText, "%s, %s, %i, %i", CMIPS::m_sGPRName[rt], CMIPS::m_sGPRName[rs], pos, size);
+	snprintf(sText, nCount, "%s, %s, %d, %d", CMIPS::m_sGPRName[rt], CMIPS::m_sGPRName[rs], pos, size);
 }
 
 void CMA_ALLEGREX::ReflOpIns(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, char* sText, unsigned int nCount)
@@ -25,7 +25,7 @@ void CMA_ALLEGREX::ReflOpIns(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, 
 
 	size = size - pos + 1;
 
-	sprintf(sText, "%s, %s, %i, %i", CMIPS::m_sGPRName[rt], CMIPS::m_sGPRName[rs], pos, size);
+	snprintf(sText, nCount, "%s, %s, %d, %d", CMIPS::m_sGPRName[rt], CMIPS::m_sGPRName[rs], pos, size);
 }
 
 void CMA_ALLEGREX::ReflOpRdRt(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, char* sText, unsigned int nCount)
@@ -33,7 +33,7 @@ void CMA_ALLEGREX::ReflOpRdRt(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress,
 	uint8 rt = (uint8)((nOpcode >> 16) & 0x001F);
 	uint8 rd = (uint8)((nOpcode >> 11) & 0x001F);
 
-	sprintf(sText, "%s, %s", CMIPS::m_sGPRName[rd], CMIPS::m_sGPRName[rt]);
+	snprintf(sText, nCount, "%s, %s", CMIPS::m_sGPRName[rd], CMIPS::m_sGPRName[rt]);
 }
 
 // clang-format off

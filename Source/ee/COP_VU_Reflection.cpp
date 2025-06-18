@@ -9,23 +9,14 @@ using namespace VUShared;
 
 void CCOP_VU::ReflMnemI(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nOpcode, char* sText, unsigned int nCount)
 {
-	strncpy(sText, pInstr->sMnemonic, nCount);
-
-	if(nOpcode & 1)
-	{
-		strcat(sText, ".I");
-	}
-	else
-	{
-		strcat(sText, ".NI");
-	}
+	snprintf(sText, nCount, "%s.%s", pInstr->sMnemonic, (nOpcode & 1) ? "I" : "NI");
 }
 
 void CCOP_VU::ReflOpOff(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, char* sText, unsigned int nCount)
 {
 	auto imm = static_cast<uint16>((nOpcode >> 0) & 0xFFFF);
 	nAddress += 4;
-	sprintf(sText, "$%08X", nAddress + CMIPS::GetBranch(imm));
+	snprintf(sText, nCount, "$%08X", nAddress + CMIPS::GetBranch(imm));
 }
 
 void CCOP_VU::ReflOpRtFd(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, char* sText, unsigned int nCount)
@@ -33,7 +24,7 @@ void CCOP_VU::ReflOpRtFd(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint
 	uint8 nRT = static_cast<uint8>((nOpcode >> 16) & 0x001F);
 	uint8 nFD = static_cast<uint8>((nOpcode >> 11) & 0x001F);
 
-	sprintf(sText, "%s, VF%i", CMIPS::m_sGPRName[nRT], nFD);
+	snprintf(sText, nCount, "%s, VF%d", CMIPS::m_sGPRName[nRT], nFD);
 }
 
 void CCOP_VU::ReflOpRtId(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, char* sText, unsigned int nCount)
@@ -41,14 +32,14 @@ void CCOP_VU::ReflOpRtId(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint
 	uint8 nRT = static_cast<uint8>((nOpcode >> 16) & 0x001F);
 	uint8 nID = static_cast<uint8>((nOpcode >> 11) & 0x001F);
 
-	sprintf(sText, "%s, VI%i", CMIPS::m_sGPRName[nRT], nID);
+	snprintf(sText, nCount, "%s, VI%d", CMIPS::m_sGPRName[nRT], nID);
 }
 
 void CCOP_VU::ReflOpImm15(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, char* sText, unsigned int nCount)
 {
 	uint16 nImm = static_cast<uint16>((nOpcode >> 6) & 0x7FFF);
 
-	sprintf(sText, "$%04X", nImm);
+	snprintf(sText, nCount, "$%04X", nImm);
 }
 
 void CCOP_VU::ReflOpAccFsFt(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, char* sText, unsigned int nCount)
@@ -57,7 +48,7 @@ void CCOP_VU::ReflOpAccFsFt(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, u
 	uint8 nFS = static_cast<uint8>((nOpcode >> 11) & 0x001F);
 	uint8 nDest = static_cast<uint8>((nOpcode >> 21) & 0x000F);
 
-	sprintf(sText, "ACC%s, VF%i%s, VF%i%s", m_sDestination[nDest], nFS, m_sDestination[nDest], nFT, m_sDestination[nDest]);
+	snprintf(sText, nCount, "ACC%s, VF%d%s, VF%d%s", m_sDestination[nDest], nFS, m_sDestination[nDest], nFT, m_sDestination[nDest]);
 }
 
 void CCOP_VU::ReflOpFtOffRs(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, char* sText, unsigned int nCount)
@@ -66,12 +57,12 @@ void CCOP_VU::ReflOpFtOffRs(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, u
 	uint8 nFT = static_cast<uint8>((nOpcode >> 16) & 0x001F);
 	uint16 nImm = static_cast<uint16>((nOpcode >> 0) & 0xFFFF);
 
-	sprintf(sText, "VF%i, $%04X(%s)", nFT, nImm, CMIPS::m_sGPRName[nRS]);
+	snprintf(sText, nCount, "VF%d, $%04X(%s)", nFT, nImm, CMIPS::m_sGPRName[nRS]);
 }
 
 void CCOP_VU::ReflOpVi27(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, char* sText, unsigned int nCount)
 {
-	sprintf(sText, "VI27");
+	snprintf(sText, nCount, "VI27");
 }
 
 uint32 CCOP_VU::ReflEaOffset(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode)

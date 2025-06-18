@@ -12,7 +12,7 @@ void CMA_VU::CUpper::ReflOpFtFs(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddres
 	uint8 nFS = static_cast<uint8>((nOpcode >> 11) & 0x001F);
 	uint8 nDest = static_cast<uint8>((nOpcode >> 21) & 0x000F);
 
-	sprintf(sText, "VF%i%s, VF%i%s", nFT, m_sDestination[nDest], nFS, m_sDestination[nDest]);
+	snprintf(sText, nCount, "VF%d%s, VF%d%s", nFT, m_sDestination[nDest], nFS, m_sDestination[nDest]);
 }
 
 // clang-format off

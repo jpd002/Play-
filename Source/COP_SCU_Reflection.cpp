@@ -9,7 +9,7 @@ void CCOP_SCU::ReflOpRt(INSTRUCTION* instr, CMIPS* ctx, uint32 address, uint32 o
 {
 	auto rt = static_cast<uint8>((opcode >> 16) & 0x1F);
 
-	sprintf(text, "%s", CMIPS::m_sGPRName[rt]);
+	snprintf(text, count, "%s", CMIPS::m_sGPRName[rt]);
 }
 
 void CCOP_SCU::ReflOpRtPcr(INSTRUCTION* instr, CMIPS* ctx, uint32 address, uint32 opcode, char* text, unsigned int count)
@@ -17,7 +17,7 @@ void CCOP_SCU::ReflOpRtPcr(INSTRUCTION* instr, CMIPS* ctx, uint32 address, uint3
 	auto rt = static_cast<uint8>((opcode >> 16) & 0x1F);
 	auto reg = static_cast<uint8>((opcode >> 1) & 0x01);
 
-	sprintf(text, "%s, PCR%d", CMIPS::m_sGPRName[rt], reg);
+	snprintf(text, count, "%s, PCR%d", CMIPS::m_sGPRName[rt], reg);
 }
 
 void CCOP_SCU::ReflOpRtRd(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, char* sText, unsigned int nCount)
@@ -25,14 +25,14 @@ void CCOP_SCU::ReflOpRtRd(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uin
 	uint8 nRT = static_cast<uint8>((nOpcode >> 16) & 0x1F);
 	uint8 nRD = static_cast<uint8>((nOpcode >> 11) & 0x1F);
 
-	sprintf(sText, "%s, %s", CMIPS::m_sGPRName[nRT], m_sRegName[nRD]);
+	snprintf(sText, nCount, "%s, %s", CMIPS::m_sGPRName[nRT], m_sRegName[nRD]);
 }
 
 void CCOP_SCU::ReflOpCcOff(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, char* sText, unsigned int nCount)
 {
 	uint16 nImm = static_cast<uint16>((nOpcode >> 0) & 0xFFFF);
 	nAddress += 4;
-	sprintf(sText, "CC%i, $%08X", (nOpcode >> 18) & 0x07, nAddress + CMIPS::GetBranch(nImm));
+	snprintf(sText, nCount, "CC%d, $%08X", (nOpcode >> 18) & 0x07, nAddress + CMIPS::GetBranch(nImm));
 }
 
 uint32 CCOP_SCU::ReflEaOffset(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode)

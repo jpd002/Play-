@@ -10,7 +10,7 @@ void CMA_EE::ReflOpRdRt(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint3
 	uint8 nRT = static_cast<uint8>((nOpcode >> 16) & 0x001F);
 	uint8 nRD = static_cast<uint8>((nOpcode >> 11) & 0x001F);
 
-	sprintf(sText, "%s, %s", CMIPS::m_sGPRName[nRD], CMIPS::m_sGPRName[nRT]);
+	snprintf(sText, nCount, "%s, %s", CMIPS::m_sGPRName[nRD], CMIPS::m_sGPRName[nRT]);
 }
 
 void CMA_EE::ReflOpRsImm(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, char* sText, unsigned int nCount)
@@ -18,7 +18,7 @@ void CMA_EE::ReflOpRsImm(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint
 	uint8 nRS = static_cast<uint8>((nOpcode >> 21) & 0x001F);
 	uint16 nImm = static_cast<uint16>((nOpcode >> 0) & 0xFFFF);
 
-	sprintf(sText, "%s, $%04X", CMIPS::m_sGPRName[nRS], nImm);
+	snprintf(sText, nCount, "%s, $%04X", CMIPS::m_sGPRName[nRS], nImm);
 }
 
 // clang-format off
