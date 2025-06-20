@@ -9,6 +9,7 @@ using namespace Iop;
 #define FUNCTION_WAITVBLANKSTART "WaitVblankStart"
 #define FUNCTION_WAITVBLANKEND "WaitVblankEnd"
 #define FUNCTION_WAITVBLANK "WaitVblank"
+#define FUNCTION_WAITNONVBLANK "WaitNonVblank"
 #define FUNCTION_REGISTERVBLANKHANDLER "RegisterVblankHandler"
 #define FUNCTION_RELEASEVBLANKHANDLER "ReleaseVblankHandler"
 
@@ -35,6 +36,9 @@ std::string CVblank::GetFunctionName(unsigned int functionId) const
 	case 6:
 		return FUNCTION_WAITVBLANK;
 		break;
+	case 7:
+		return FUNCTION_WAITNONVBLANK;
+		break;
 	case 8:
 		return FUNCTION_REGISTERVBLANKHANDLER;
 		break;
@@ -59,6 +63,9 @@ void CVblank::Invoke(CMIPS& context, unsigned int functionId)
 		break;
 	case 6:
 		context.m_State.nGPR[CMIPS::V0].nD0 = WaitVblank();
+		break;
+	case 7:
+		context.m_State.nGPR[CMIPS::V0].nD0 = WaitNonVblank();
 		break;
 	case 8:
 		context.m_State.nGPR[CMIPS::V0].nD0 = RegisterVblankHandler(
@@ -101,8 +108,16 @@ int32 CVblank::WaitVblank()
 #ifdef _DEBUG
 	CLog::GetInstance().Print(LOG_NAME, FUNCTION_WAITVBLANK "();\r\n");
 #endif
-	//TODO: Skip waiting if we're already in Vblank
-	m_bios.SleepThreadTillVBlankStart();
+	m_bios.SleepThreadTillVBlank();
+	return 0;
+}
+
+int32 CVblank::WaitNonVblank()
+{
+#ifdef _DEBUG
+	CLog::GetInstance().Print(LOG_NAME, FUNCTION_WAITNONVBLANK "();\r\n");
+#endif
+	m_bios.SleepThreadTillNonVBlank();
 	return 0;
 }
 
