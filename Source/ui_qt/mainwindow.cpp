@@ -404,7 +404,7 @@ void MainWindow::BootElf(fs::path filePath)
 {
 	m_virtualMachine->Pause();
 	m_virtualMachine->Reset();
-	m_virtualMachine->m_ee->m_os->BootFromFile(filePath);
+	m_virtualMachine->BootFromFile(filePath);
 #ifndef DEBUGGER_INCLUDED
 	m_virtualMachine->Resume();
 #endif
