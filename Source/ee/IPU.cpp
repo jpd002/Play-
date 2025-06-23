@@ -6,6 +6,7 @@
 #include <exception>
 #include <functional>
 #include "maybe_unused.h"
+#include "EndianUtils.h"
 #include "IPU_MacroblockAddressIncrementTable.h"
 #include "IPU_MacroblockTypeITable.h"
 #include "IPU_MacroblockTypePTable.h"
@@ -998,12 +999,7 @@ void CIPU::CINFIFO::LoadState(const char* regsFileName, Framework::CZipArchiveRe
 void CIPU::CINFIFO::SyncLookupBits()
 {
 	unsigned int lookupPosition = (m_bitPosition & ~0x1F) / 8;
-	uint8 lookupBytes[8];
-	for(unsigned int i = 0; i < 8; i++)
-	{
-		lookupBytes[7 - i] = m_buffer[lookupPosition + i];
-	}
-	m_lookupBits = *reinterpret_cast<uint64*>(lookupBytes);
+	m_lookupBits = Framework::CEndian::FromMSBF64(*reinterpret_cast<const uint64*>(m_buffer + lookupPosition));
 }
 
 /////////////////////////////////////////////
