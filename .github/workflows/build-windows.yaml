@@ -8,7 +8,7 @@ jobs:
   build_windows:
     strategy:
       matrix:
-        build-type: ['Visual Studio 16 2019']
+        build-type: ['Visual Studio 17 2022']
         target-platform: ['x64', 'Win32']
         include: 
           - target-platform: 'x64'
@@ -19,7 +19,7 @@ jobs:
             arch-type: 'x86_32'
             qt-arch: 'win32_msvc2019'
             installer-script: 'installer32.nsi'
-    runs-on: windows-2019
+    runs-on: windows-2022
     steps:
     - name: Checkout
       uses: actions/checkout@v3
@@ -65,7 +65,7 @@ jobs:
       run: |
         mkdir build
         cd build
-        cmake .. -G"${{ matrix.build-type }}" -A ${{ matrix.target-platform }} -T v141_xp -DUSE_QT=on -DBUILD_LIBRETRO_CORE=yes
+        cmake .. -G"${{ matrix.build-type }}" -A ${{ matrix.target-platform }} -DUSE_QT=on -DBUILD_LIBRETRO_CORE=yes
     - name: Build
       run: |
         cd build

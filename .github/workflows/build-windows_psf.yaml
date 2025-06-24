@@ -7,11 +7,11 @@ jobs:
     strategy:
       matrix:
         aot-build: ['off', 'on']
-        build-type: ['Visual Studio 16 2019']
+        build-type: ['Visual Studio 17 2022']
         target-platform: ['x64']
         arch-type: ['x86_64']
         installer-script: ['installer64.nsi']
-    runs-on: windows-2019
+    runs-on: windows-2022
     steps:
     - name: Add msbuild to PATH
       uses: microsoft/setup-msbuild@v1.1
@@ -51,7 +51,7 @@ jobs:
       run: |
         mkdir build
         cd build
-        cmake .. -G"${{ matrix.build-type }}" -A ${{ matrix.target-platform }} -T v141_xp -DBUILD_PLAY=off -DBUILD_TESTS=off -DBUILD_PSFPLAYER=on -DBUILD_AOT_CACHE=${{ matrix.aot-build }}
+        cmake .. -G"${{ matrix.build-type }}" -A ${{ matrix.target-platform }} -DBUILD_PLAY=off -DBUILD_TESTS=off -DBUILD_PSFPLAYER=on -DBUILD_AOT_CACHE=${{ matrix.aot-build }}
       env:
         DXSDK_DIR: '${{ github.workspace }}\DX_SDK'
     - name: Build
