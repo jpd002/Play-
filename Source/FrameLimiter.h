@@ -3,6 +3,10 @@
 #include <chrono>
 #include "Types.h"
 
+#ifdef _WIN32
+#include <Windows.h>
+#endif
+
 class CFrameLimiter
 {
 public:
@@ -28,4 +32,8 @@ private:
 	std::chrono::microseconds m_minFrameDuration = std::chrono::microseconds(0);
 	bool m_frameStarted = false;
 	TimePoint m_lastFrameTime;
+
+#ifdef _WIN32
+	HANDLE m_timer = 0;
+#endif
 };
