@@ -1259,17 +1259,19 @@ bool CIPU::CIDECCommand::IsDelayed() const
 void CIPU::CIDECCommand::ConvertRawBlock()
 {
 	//Convert block from RAW16 to RAW8
-	int16 blockData[CCSCCommand::BLOCK_SIZE];
+	int16 inBlockData[CCSCCommand::BLOCK_SIZE];
+	uint8 outBlockData[CCSCCommand::BLOCK_SIZE];
 	m_blockStream.Seek(0, Framework::STREAM_SEEK_SET);
-	m_blockStream.Read(blockData, CCSCCommand::BLOCK_SIZE * sizeof(int16));
-	m_blockStream.ResetBuffer();
+	m_blockStream.Read(inBlockData, CCSCCommand::BLOCK_SIZE * sizeof(int16));
 	for(uint32 i = 0; i < CCSCCommand::BLOCK_SIZE; i++)
 	{
-		int16 blockValue = blockData[i];
+		int16 blockValue = inBlockData[i];
 		blockValue = std::max<int16>(blockValue, 0);
 		blockValue = std::min<int16>(blockValue, 255);
-		m_blockStream.Write8(static_cast<uint8>(blockValue));
+		outBlockData[i] = static_cast<uint8>(blockValue);
 	}
+	m_blockStream.ResetBuffer();
+	m_blockStream.Write(outBlockData, CCSCCommand::BLOCK_SIZE * sizeof(uint8));
 }
 
 /////////////////////////////////////////////
