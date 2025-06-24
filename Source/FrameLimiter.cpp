@@ -2,14 +2,11 @@
 #include <cassert>
 #include <thread>
 
-#ifdef _WIN32
-#include <Windows.h>
-#endif
-
 CFrameLimiter::CFrameLimiter()
 {
 #ifdef _WIN32
 	timeBeginPeriod(1);
+	m_timer = CreateWaitableTimer(NULL, TRUE, NULL);
 #endif
 	for(uint32 i = 0; i < MAX_FRAMETIMES; i++)
 	{
@@ -20,6 +17,7 @@ CFrameLimiter::CFrameLimiter()
 CFrameLimiter::~CFrameLimiter()
 {
 #ifdef _WIN32
+	CloseHandle(m_timer);
 	timeEndPeriod(1);
 #endif
 }
@@ -58,11 +56,8 @@ void CFrameLimiter::EndFrame()
 		{
 			LARGE_INTEGER ft = {};
 			ft.QuadPart = -static_cast<int64>(delay.count() * 10);
-
-			HANDLE timer = CreateWaitableTimer(NULL, TRUE, NULL);
-			SetWaitableTimer(timer, &ft, 0, NULL, NULL, 0);
-			WaitForSingleObject(timer, INFINITE);
-			CloseHandle(timer);
+			SetWaitableTimer(m_timer, &ft, 0, NULL, NULL, 0);
+			WaitForSingleObject(m_timer, INFINITE);
 		}
 #elif defined(__APPLE__) || defined(__EMSCRIPTEN__)
 		//Sleeping for the whole delay on some platforms doesn't provide a good enough resolution
