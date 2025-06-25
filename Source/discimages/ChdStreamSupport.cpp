@@ -10,14 +10,14 @@ static size_t stream_core_fread(void* buffer, size_t elemSize, size_t elemCount,
 	return stream->Read(buffer, elemSize * elemCount);
 }
 
-static int stream_core_fseek(core_file* file, INT64 position, int whence)
+static int stream_core_fseek(core_file* file, int64_t position, int whence)
 {
 	auto stream = reinterpret_cast<Framework::CStream*>(file->argp);
 	stream->Seek(position, static_cast<Framework::STREAM_SEEK_DIRECTION>(whence));
 	return 0;
 }
 
-static UINT64 stream_core_fsize(core_file* file)
+static uint64_t stream_core_fsize(core_file* file)
 {
 	auto stream = reinterpret_cast<Framework::CStream*>(file->argp);
 	auto currPos = stream->Tell();

@@ -20,7 +20,7 @@ void CChdCdImageStream::ReadMetadata()
 {
 	static const size_t bufferSize = 256;
 	char metadata[bufferSize];
-	UINT32 outlen = 0;
+	uint32_t outlen = 0;
 	if(chd_get_metadata(m_chd, CDROM_TRACK_METADATA2_TAG, 0, &metadata, sizeof(metadata), &outlen, nullptr, nullptr) == CHDERR_NONE)
 	{
 		assert(m_unitSize == 2448);
