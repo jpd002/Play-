@@ -58,6 +58,8 @@ bool CEeBasicBlock::IsCodeIdleLoopBlock() const
 		OP_SPECIAL_ADDU = 0x21,
 		OP_SPECIAL_SLT = 0x2A,
 		OP_SPECIAL_SLTU = 0x2B,
+		OP_SPECIAL_DSLL32 = 0x3C,
+		OP_SPECIAL_DSRL32 = 0x3E,
 	};
 
 	uint32 endInstructionAddress = m_end - 4;
@@ -114,6 +116,8 @@ bool CEeBasicBlock::IsCodeIdleLoopBlock() const
 			switch(special)
 			{
 			case OP_SPECIAL_SLL:
+			case OP_SPECIAL_DSLL32:
+			case OP_SPECIAL_DSRL32:
 				newUse = (1 << rt);
 				newDef = (1 << rd);
 				break;
