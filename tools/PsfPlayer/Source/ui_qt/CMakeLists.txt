@@ -85,6 +85,7 @@ if(TARGET_PLATFORM_WIN32)
 	set(QT_SOURCES
 		${QT_SOURCES}
 		../ui_win32/SH_WaveOut.cpp
+		../ui_win32/SH_WaveOut.h
 	)
 	list(APPEND PSFPLAYER_PROJECT_LIBS winmm)
 	add_executable(PsfPlayer WIN32 ${QT_SOURCES} ${QT_MOC_SRCS} ${QT_RES_SOURCES} ${QT_UI_HEADERS})

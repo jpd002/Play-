@@ -175,6 +175,7 @@ if(TARGET_PLATFORM_WIN32)
 	set(QT_SOURCES
 		${QT_SOURCES}
 		../../tools/PsfPlayer/Source/ui_win32/SH_WaveOut.cpp
+		../../tools/PsfPlayer/Source/ui_win32/SH_WaveOut.h
 	)
 	list(APPEND UI_QT_PROJECT_LIBS winmm)
 	
