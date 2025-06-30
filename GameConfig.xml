@@ -18,6 +18,9 @@
 		<BlockFpRoundingMode Address="0x001C0CE0" Mode="MINUSINFINITY" Description="Fixes rooms not being loaded properly." />
 		<BlockFpRoundingMode Address="0x001C0CE4" Mode="MINUSINFINITY" Description="Fixes rooms not being loaded properly." />
 	</GameConfig>
+	<GameConfig Executable="SLUS_203.47;1" Title="Shadow Hearts">
+		<BlockFpRoundingMode Address="0x0021C614" Mode="NEAREST" Description="Fixes soft-lock in gambling wheel game." />
+	</GameConfig>
 	<GameConfig Executable="SLUS_204.71;1" Title="Rygar - The Legendary Adventure">
 		<BlockFpRoundingMode Address="0x00147D88" Mode="NEAREST" Description="Fixes hang when entering first door." />
 	</GameConfig>
