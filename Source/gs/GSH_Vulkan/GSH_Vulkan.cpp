@@ -140,7 +140,20 @@ void CGSH_Vulkan::InitializeImpl()
 	{
 		auto surfaceFormats = GetDeviceSurfaceFormats(m_context->physicalDevice);
 		assert(surfaceFormats.size() > 0);
-		m_context->surfaceFormat = surfaceFormats[0];
+		int surfaceFormatIndex = 0;
+		//Look for a suitable surface format
+		for(int i = 0; i < surfaceFormats.size(); i++)
+		{
+			const auto& surfaceFormat = surfaceFormats[i];
+			if(
+			    (surfaceFormat.format == VK_FORMAT_B8G8R8A8_UNORM) ||
+			    (surfaceFormat.format == VK_FORMAT_R8G8B8A8_UNORM))
+			{
+				surfaceFormatIndex = i;
+				break;
+			}
+		}
+		m_context->surfaceFormat = surfaceFormats[surfaceFormatIndex];
 	}
 
 	CreateDevice(m_context->physicalDevice);
