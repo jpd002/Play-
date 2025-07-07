@@ -145,6 +145,10 @@ void CGSH_Vulkan::InitializeImpl()
 		for(int i = 0; i < surfaceFormats.size(); i++)
 		{
 			const auto& surfaceFormat = surfaceFormats[i];
+			if(surfaceFormat.colorSpace != VK_COLORSPACE_SRGB_NONLINEAR_KHR)
+			{
+				continue;
+			}
 			if(
 			    (surfaceFormat.format == VK_FORMAT_B8G8R8A8_UNORM) ||
 			    (surfaceFormat.format == VK_FORMAT_R8G8B8A8_UNORM))
