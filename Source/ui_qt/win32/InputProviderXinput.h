@@ -3,7 +3,13 @@
 #include "input/InputProvider.h"
 #include <thread>
 #include <Windows.h>
+
+#pragma push_macro("_WIN32_WINNT")
+// We only want definitions from XInput 9.1.0
+#undef _WIN32_WINNT
+#define _WIN32_WINNT _WIN32_WINNT_WIN7
 #include <Xinput.h>
+#pragma pop_macro("_WIN32_WINNT")
 
 class CInputProviderXInput : public CInputProvider
 {
