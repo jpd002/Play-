@@ -200,6 +200,9 @@
    <property name="text">
     <string>Reset</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+R</string>
+   </property>
   </action>
   <action name="actionMemory_Card_Manager">
    <property name="text">
