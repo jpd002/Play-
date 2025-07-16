@@ -29,6 +29,7 @@
 #include <QStorageInfo>
 #include <QtGlobal>
 #include <QCheckBox>
+#include <QShortcut>
 
 #include "StdStreamUtils.h"
 #include "string_format.h"
@@ -641,6 +642,17 @@ void MainWindow::on_actionSettings_triggered()
 
 void MainWindow::SetupSaveLoadStateSlots()
 {
+	auto saveActions = ui->menuSave_States->actions();
+	auto loadActions = ui->menuLoad_States->actions();
+
+	for(const auto& actions : {saveActions, loadActions})
+	{
+		for(auto action : actions)
+		{
+			this->removeAction(action);
+		}
+	}
+
 	bool enable = IsExecutableLoaded();
 	ui->menuSave_States->clear();
 	ui->menuLoad_States->clear();
@@ -651,12 +663,16 @@ void MainWindow::SetupSaveLoadStateSlots()
 		QAction* saveaction = new QAction(this);
 		saveaction->setText(QString("Save Slot %1 - %2").arg(i).arg(info));
 		saveaction->setEnabled(enable);
+		saveaction->setShortcut(QKeySequence(Qt::CTRL | Qt::SHIFT | (Qt::Key_0 + i)));
 		ui->menuSave_States->addAction(saveaction);
+		this->addAction(saveaction);
 
 		QAction* loadaction = new QAction(this);
 		loadaction->setText(QString("Load Slot %1 - %2").arg(i).arg(info));
 		loadaction->setEnabled(enable);
+		loadaction->setShortcut(QKeySequence(Qt::CTRL | (Qt::Key_0 + i)));
 		ui->menuLoad_States->addAction(loadaction);
+		this->addAction(loadaction);
 
 		if(enable)
 		{
