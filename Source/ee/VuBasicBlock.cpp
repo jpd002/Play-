@@ -104,7 +104,7 @@ void CVuBasicBlock::CompileRange(CMipsJitter* jitter)
 						jitter->BeginIf(Jitter::CONDITION_NE);
 						{
 							//Clear writes
-							jitter->MD_PushCstExpand(0U);
+							jitter->MD_PushCstExpandW(0U);
 							jitter->MD_PullRel(offsetof(CMIPS, m_State.pipeFmacWrite[i]));
 
 							//Increment pipe time
@@ -119,7 +119,7 @@ void CVuBasicBlock::CompileRange(CMipsJitter* jitter)
 			}
 
 			//Clear writes
-			jitter->MD_PushCstExpand(0U);
+			jitter->MD_PushCstExpandW(0U);
 			jitter->MD_PullRel(offsetof(CMIPS, m_State.pipeFmacWrite[extraPipeTimeIndex]));
 		}
 		extraPipeTimeIndex++;
@@ -390,7 +390,7 @@ void CVuBasicBlock::CompileRange(CMipsJitter* jitter)
 	{
 		//Clear unused writes
 		//TODO: Find a way to push that to the next block (would become index 0 of next block)
-		jitter->MD_PushCstExpand(0U);
+		jitter->MD_PushCstExpandW(0U);
 		jitter->MD_PullRel(offsetof(CMIPS, m_State.pipeFmacWrite[i]));
 	}
 

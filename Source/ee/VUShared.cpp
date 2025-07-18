@@ -183,11 +183,11 @@ void VUShared::PushBcElement(CMipsJitter* codeGen, size_t offset)
 	    (offset == offsetof(CMIPS, m_State.nCOP2[0].nV1)) ||
 	    (offset == offsetof(CMIPS, m_State.nCOP2[0].nV2)))
 	{
-		codeGen->MD_PushCstExpand(0.0f);
+		codeGen->MD_PushCstExpandS(0.0f);
 	}
 	else if(offset == offsetof(CMIPS, m_State.nCOP2[0].nV3))
 	{
-		codeGen->MD_PushCstExpand(1.0f);
+		codeGen->MD_PushCstExpandS(1.0f);
 	}
 	else if(
 	    (offset >= offsetof(CMIPS, m_State.nCOP2[1].nV0)) &&
@@ -195,11 +195,12 @@ void VUShared::PushBcElement(CMipsJitter* codeGen, size_t offset)
 	{
 		size_t vectorOffset = offset & ~(sizeof(uint128) - 1);
 		size_t vectorElem = (offset - offsetof(CMIPS, m_State.nCOP2[0].nV0)) % sizeof(uint128);
-		codeGen->MD_PushRelElementExpand(vectorOffset, vectorElem / 4);
+		codeGen->MD_PushRelElementExpandW(vectorOffset, vectorElem / 4);
 	}
 	else
 	{
-		codeGen->MD_PushRelExpand(offset);
+		codeGen->PushRel(offset);
+		codeGen->MD_ExpandW();
 	}
 }
 
@@ -233,14 +234,14 @@ void VUShared::MakeComparableFromFloat(CMipsJitter* codeGen)
 	uint32 maskCursor = codeGen->GetTopCursor();
 
 	//Make neg
-	codeGen->MD_PushCstExpand(0xFFFFFFFFU);
+	codeGen->MD_PushCstExpandW(0xFFFFFFFFU);
 	codeGen->PushCursor(valueCursor);
 	codeGen->MD_SubW();
 	codeGen->PushCursor(maskCursor);
 	codeGen->MD_And();
 
 	//Make pos
-	codeGen->MD_PushCstExpand(0x7FFFFFFFU);
+	codeGen->MD_PushCstExpandW(0x7FFFFFFFU);
 	codeGen->PushCursor(valueCursor);
 	codeGen->MD_AddW();
 	codeGen->PushCursor(maskCursor);
@@ -250,7 +251,7 @@ void VUShared::MakeComparableFromFloat(CMipsJitter* codeGen)
 	codeGen->MD_Or();
 
 	//Make it signed comparable
-	codeGen->MD_PushCstExpand(0x80000000U);
+	codeGen->MD_PushCstExpandW(0x80000000U);
 	codeGen->MD_SubW();
 
 	codeGen->Swap();
@@ -747,7 +748,8 @@ void VUShared::ADDi(CMipsJitter* codeGen, uint8 nDest, uint8 nFd, uint8 nFs, uin
 #endif
 	{
 		codeGen->MD_PushRel(offsetof(CMIPS, m_State.nCOP2[nFs]));
-		codeGen->MD_PushRelExpand(offsetof(CMIPS, m_State.nCOP2I));
+		codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2I));
+		codeGen->MD_ExpandW();
 		codeGen->MD_AddS();
 		PullVector(codeGen, nDest, offsetof(CMIPS, m_State.nCOP2[nFd]));
 	}
@@ -825,7 +827,7 @@ void VUShared::CLIP(CMipsJitter* codeGen, uint8 nFs, uint8 nFt, uint32 relativeP
 		//Upper bound
 		if(nFt == 0)
 		{
-			codeGen->MD_PushCstExpand(1.0f);
+			codeGen->MD_PushCstExpandS(1.0f);
 		}
 		else
 		{
@@ -836,7 +838,7 @@ void VUShared::CLIP(CMipsJitter* codeGen, uint8 nFs, uint8 nFt, uint32 relativeP
 		//Lower bound
 		if(nFt == 0)
 		{
-			codeGen->MD_PushCstExpand(-1.0f);
+			codeGen->MD_PushCstExpandS(-1.0f);
 		}
 		else
 		{
@@ -889,7 +891,7 @@ void VUShared::FTOI0(CMipsJitter* codeGen, uint8 nDest, uint8 nFt, uint8 nFs)
 	if(nFt == 0) return;
 
 	codeGen->MD_PushRel(offsetof(CMIPS, m_State.nCOP2[nFs]));
-	codeGen->MD_ToWordTruncate();
+	codeGen->MD_ToInt32TruncateS();
 	PullVector(codeGen, nDest, offsetof(CMIPS, m_State.nCOP2[nFt]));
 }
 
@@ -898,9 +900,9 @@ void VUShared::FTOI4(CMipsJitter* codeGen, uint8 nDest, uint8 nFt, uint8 nFs)
 	if(nFt == 0) return;
 
 	codeGen->MD_PushRel(offsetof(CMIPS, m_State.nCOP2[nFs]));
-	codeGen->MD_PushCstExpand(16.0f);
+	codeGen->MD_PushCstExpandS(16.0f);
 	codeGen->MD_MulS();
-	codeGen->MD_ToWordTruncate();
+	codeGen->MD_ToInt32TruncateS();
 	PullVector(codeGen, nDest, offsetof(CMIPS, m_State.nCOP2[nFt]));
 }
 
@@ -909,9 +911,9 @@ void VUShared::FTOI12(CMipsJitter* codeGen, uint8 nDest, uint8 nFt, uint8 nFs)
 	if(nFt == 0) return;
 
 	codeGen->MD_PushRel(offsetof(CMIPS, m_State.nCOP2[nFs]));
-	codeGen->MD_PushCstExpand(4096.0f);
+	codeGen->MD_PushCstExpandS(4096.0f);
 	codeGen->MD_MulS();
-	codeGen->MD_ToWordTruncate();
+	codeGen->MD_ToInt32TruncateS();
 	PullVector(codeGen, nDest, offsetof(CMIPS, m_State.nCOP2[nFt]));
 }
 
@@ -920,9 +922,9 @@ void VUShared::FTOI15(CMipsJitter* codeGen, uint8 nDest, uint8 nFt, uint8 nFs)
 	if(nFt == 0) return;
 
 	codeGen->MD_PushRel(offsetof(CMIPS, m_State.nCOP2[nFs]));
-	codeGen->MD_PushCstExpand(32768.0f);
+	codeGen->MD_PushCstExpandS(32768.0f);
 	codeGen->MD_MulS();
-	codeGen->MD_ToWordTruncate();
+	codeGen->MD_ToInt32TruncateS();
 	PullVector(codeGen, nDest, offsetof(CMIPS, m_State.nCOP2[nFt]));
 }
 
@@ -999,7 +1001,7 @@ void VUShared::ITOF0(CMipsJitter* codeGen, uint8 dest, uint8 ft, uint8 fs)
 	if(ft == 0) return;
 
 	codeGen->MD_PushRel(offsetof(CMIPS, m_State.nCOP2[fs]));
-	codeGen->MD_ToSingle();
+	codeGen->MD_ToSingleI32();
 	PullVector(codeGen, dest, offsetof(CMIPS, m_State.nCOP2[ft]));
 }
 
@@ -1008,8 +1010,8 @@ void VUShared::ITOF4(CMipsJitter* codeGen, uint8 dest, uint8 ft, uint8 fs)
 	if(ft == 0) return;
 
 	codeGen->MD_PushRel(offsetof(CMIPS, m_State.nCOP2[fs]));
-	codeGen->MD_ToSingle();
-	codeGen->MD_PushCstExpand(16.0f);
+	codeGen->MD_ToSingleI32();
+	codeGen->MD_PushCstExpandS(16.0f);
 	codeGen->MD_DivS();
 	PullVector(codeGen, dest, offsetof(CMIPS, m_State.nCOP2[ft]));
 }
@@ -1019,8 +1021,8 @@ void VUShared::ITOF12(CMipsJitter* codeGen, uint8 dest, uint8 ft, uint8 fs)
 	if(ft == 0) return;
 
 	codeGen->MD_PushRel(offsetof(CMIPS, m_State.nCOP2[fs]));
-	codeGen->MD_ToSingle();
-	codeGen->MD_PushCstExpand(4096.0f);
+	codeGen->MD_ToSingleI32();
+	codeGen->MD_PushCstExpandS(4096.0f);
 	codeGen->MD_DivS();
 	PullVector(codeGen, dest, offsetof(CMIPS, m_State.nCOP2[ft]));
 }
@@ -1030,8 +1032,8 @@ void VUShared::ITOF15(CMipsJitter* codeGen, uint8 dest, uint8 ft, uint8 fs)
 	if(ft == 0) return;
 
 	codeGen->MD_PushRel(offsetof(CMIPS, m_State.nCOP2[fs]));
-	codeGen->MD_ToSingle();
-	codeGen->MD_PushCstExpand(32768.0f);
+	codeGen->MD_ToSingleI32();
+	codeGen->MD_PushCstExpandS(32768.0f);
 	codeGen->MD_DivS();
 	PullVector(codeGen, dest, offsetof(CMIPS, m_State.nCOP2[ft]));
 }
@@ -1705,7 +1707,7 @@ void VUShared::SUB(CMipsJitter* codeGen, uint8 dest, uint8 fd, uint8 fs, uint8 f
 	{
 		//Source and target registers are the same, clear the vector instead of going through a SUB instruction
 		//SUB might generate NaNs instead of clearing the values like the game intended (ex.: Homura with 0xFFFF8000)
-		codeGen->MD_PushRelExpand(offsetof(CMIPS, m_State.nCOP2[0].nV0));
+		codeGen->MD_PushCstExpandW(0);
 		PullVector(codeGen, dest, fdOffset);
 		TestSZFlags(codeGen, dest, fdOffset, relativePipeTime, compileHints);
 	}

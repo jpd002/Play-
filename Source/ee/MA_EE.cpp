@@ -856,19 +856,19 @@ void CMA_EE::PABSH()
 	//RD = (RT != 0x8000) ? |RT| : 0x7FFF;
 
 	//Generate mask for overflow
-	m_codeGen->MD_PushCstExpand(0x80008000U);
+	m_codeGen->MD_PushCstExpandW(0x80008000U);
 	m_codeGen->MD_PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT]));
 	m_codeGen->MD_CmpEqH();
 	uint32 isOverflowMaskCursor = m_codeGen->GetTopCursor();
 
 	//Generate mask for positive number
 	m_codeGen->MD_PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT]));
-	m_codeGen->MD_PushCstExpand(0xFFFFFFFFU);
+	m_codeGen->MD_PushCstExpandW(0xFFFFFFFFU);
 	m_codeGen->MD_CmpGtH();
 	uint32 isPositiveMaskCursor = m_codeGen->GetTopCursor();
 
 	//Compute neg(rt)
-	m_codeGen->MD_PushCstExpand(0U);
+	m_codeGen->MD_PushCstExpandW(0U);
 	m_codeGen->MD_PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT]));
 	m_codeGen->MD_SubH();
 
@@ -890,7 +890,7 @@ void CMA_EE::PABSH()
 
 	//Combine with overflow
 	m_codeGen->PushCursor(isOverflowMaskCursor);
-	m_codeGen->MD_PushCstExpand(0x7FFF7FFFU);
+	m_codeGen->MD_PushCstExpandW(0x7FFF7FFFU);
 	m_codeGen->MD_And();
 	m_codeGen->MD_Or();
 
