@@ -49,7 +49,7 @@ using namespace Iop;
 // - Tekken 5.1 and Tekken 5.5: Can get bad textures in title screen if delays are not set properly.
 const uint64 CCdvdman::COMMAND_READ_BASE_DELAY = TimeUtils::UsecsToCycles(PS2::IOP_CLOCK_OVER_FREQ, 100);
 const uint64 CCdvdman::COMMAND_READ_SECTOR_DELAY = TimeUtils::UsecsToCycles(PS2::IOP_CLOCK_OVER_FREQ, 500);
-const uint64 CCdvdman::COMMAND_SEEK_DELAY = TimeUtils::UsecsToCycles(PS2::IOP_CLOCK_OVER_FREQ, 500);
+const uint64 CCdvdman::COMMAND_SEEK_DELAY = TimeUtils::UsecsToCycles(PS2::IOP_CLOCK_OVER_FREQ, 750);
 
 CCdvdman::CCdvdman(CIopBios& bios, uint8* ram)
     : m_bios(bios)
