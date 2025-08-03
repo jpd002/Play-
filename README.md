@@ -105,13 +105,20 @@ For driving games, the following buttons are mapped:
 
 #### Failed to open CHD file ####
 
-Please make sure your CHD files are in the proper format. It's possible to use `chdman` to verify whether your CDVD image is really a CDVD image.
+There are a lot of dumps out there that are not in the proper format, especially for games using CDs or DVDs. The emulator expects CDVD images
+to be compressed using chdman's `createcd` or `createdvd` command. If they are not, you will get an error. To check if a game uses CDVD or HDD
+images, look inside the associated `arcadedef` file for `cdvd` or `hdd` settings.
+
+It's possible to use `chdman` to verify whether your CDVD image is really a CDVD image. Use this command on your image:
 
 ```
 chdman info -i image.chd
 ```
 
-If you see a `GDDD` metadata in there, it means your CDVD image needs to be converted. It can be done this way:
+If you see `CHT2` metadata in the output, it means your image is a CDVD image.
+If you see `GDDD` metadata in the output, it means your image is a HDD image and that it needs to be converted to CDVD. 
+
+Conversion from HDD to CDVD can be done this way:
 
 ```
 mv image.chd image.chd.orig
