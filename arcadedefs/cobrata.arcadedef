@@ -21,11 +21,6 @@
 	"patches":
 	[
 		{
-			"address": "0x001003CC",
-			"value": "0x0805DDB0",
-			"description": "Wait for Vblank after signaling Vblank sema"
-		},
-		{
 			"address": "0x002ECE74",
 			"value": "0x0",
 			"description": "Skip card detection"
