@@ -10,12 +10,6 @@
     <height>430</height>
    </rect>
   </property>
-  <property name="minimumSize">
-   <size>
-    <width>825</width>
-    <height>430</height>
-   </size>
-  </property>
   <property name="sizeIncrement">
    <size>
     <width>810</width>
