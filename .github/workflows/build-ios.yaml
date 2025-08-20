@@ -5,6 +5,10 @@ jobs:
   build_ios:
     runs-on: macos-latest
     steps:
+    - name: Set Xcode version
+      uses: maxim-lobanov/setup-xcode@v1
+      with:
+        xcode-version: latest-stable
     - name: Install dpkg
       run: |
         brew install dpkg
