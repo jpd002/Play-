@@ -1636,6 +1636,14 @@ void CGSH_OpenGL::Prim_Sprite()
 
 			nT[0] = uv[0].GetV() / static_cast<float>(m_nTexHeight);
 			nT[1] = uv[1].GetV() / static_cast<float>(m_nTexHeight);
+
+			// Avoid half pixels causing black lines in Tekken.
+			float fractionalPart = nX2 - floor(nX2);
+			if(fractionalPart >= 0.4f && fractionalPart <= 0.6f)
+			{
+				nX2 += 0.5f;
+				nS[1] = (uv[1].GetU() + 0.5f) / static_cast<float>(m_nTexWidth);
+			}
 		}
 		else
 		{
