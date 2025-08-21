@@ -803,7 +803,7 @@ void CSys246::ProcessMemRequest(uint8* ram, uint32 infoPtr)
 			//0x40 -> Output Level (Voltage) of Video Signal
 			//0x20 -> Monitor Sync Frequency (1: 31Khz or 0: 15Khz)
 			//0x10 -> Video Sync Signal (1: Separate Sync or 0: Composite Sync)
-			//ram[recvDataPtr + 0x30] = 0;
+			ram[recvDataPtr + 0x30] = 0x70;
 
 			uint16 pktId = sendData[0x0C];
 			if(pktId != 0)
