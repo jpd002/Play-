@@ -220,7 +220,6 @@ void CMA_VU::CLower::ReflOpAffRdItIs(VUINSTRUCTION*, CMIPS*, uint32, uint32 opco
 
 void CMA_VU::CLower::ReflOpAffP(VUINSTRUCTION*, CMIPS*, uint32, uint32 opcode, OPERANDSET& operandSet)
 {
-	//Naming? (check WAITQ)
 	operandSet.syncP = true;
 }
 
@@ -350,9 +349,9 @@ void CMA_VU::CLower::ReflOpAffWrPRdFs(VUINSTRUCTION*, CMIPS*, uint32, uint32 opc
 	auto dest = static_cast<uint8>((opcode >> 21) & 0x000F);
 	auto fs = static_cast<uint8>((opcode >> 11) & 0x001F);
 
-	//TODO: Write P
 	operandSet.readF0 = fs;
 	operandSet.readElemF0 = dest;
+	operandSet.syncP = true;
 }
 
 void CMA_VU::CLower::ReflOpAffWrPRdFsf(VUINSTRUCTION*, CMIPS*, uint32, uint32 opcode, OPERANDSET& operandSet)
