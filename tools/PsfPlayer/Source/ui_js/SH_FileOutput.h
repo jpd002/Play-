@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../SoundHandler.h"
+#include "sound/SoundHandler.h"
 #include <cstdio>
 
 class CSH_FileOutput : public CSoundHandler

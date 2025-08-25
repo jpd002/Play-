@@ -34,7 +34,7 @@ list(APPEND UI_JS_PROJECT_LIBS gsh_opengl)
 
 if(NOT TARGET sh_openal)
 	add_subdirectory(
-		${CMAKE_CURRENT_SOURCE_DIR}/../../tools/PsfPlayer/Source/SH_OpenAL
+		${CMAKE_CURRENT_SOURCE_DIR}/../sound/SH_OpenAL
 		${CMAKE_CURRENT_BINARY_DIR}/SH_OpenAL
 	)
 endif()
@@ -48,8 +48,6 @@ add_executable(Play
 	Main.cpp
 	Ps2VmJs.cpp
 	Ps2VmJs.h
-	${CMAKE_CURRENT_SOURCE_DIR}/../../tools/PsfPlayer/Source/ui_js/SH_OpenALProxy.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/../../tools/PsfPlayer/Source/ui_js/SH_OpenALProxy.h
 )
 target_link_libraries(Play PUBLIC ${UI_JS_PROJECT_LIBS})
 

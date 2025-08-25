@@ -71,10 +71,20 @@ if(TARGET_PLATFORM_UNIX)
 	endif()
 endif()
 
+if(TARGET_PLATFORM_WIN32)
+	if(NOT TARGET sh_waveout)
+		add_subdirectory(
+			${CMAKE_CURRENT_SOURCE_DIR}/../sound/SH_WaveOut
+			${CMAKE_CURRENT_BINARY_DIR}/SH_WaveOut
+		)
+	endif()
+	list(APPEND UI_QT_PROJECT_LIBS sh_waveout)
+endif()
+
 if(TARGET_PLATFORM_MACOS OR TARGET_PLATFORM_UNIX)
 	if(NOT TARGET sh_openal)
 		add_subdirectory(
-			${CMAKE_CURRENT_SOURCE_DIR}/../../tools/PsfPlayer/Source/SH_OpenAL
+			${CMAKE_CURRENT_SOURCE_DIR}/../sound/SH_OpenAL
 			${CMAKE_CURRENT_BINARY_DIR}/SH_OpenAL
 		)
 	endif()
@@ -171,14 +181,7 @@ if(TARGET_PLATFORM_WIN32)
 		)
 	endif()
 	list(APPEND UI_QT_PROJECT_LIBS Framework_Win32)
-	
-	set(QT_SOURCES
-		${QT_SOURCES}
-		../../tools/PsfPlayer/Source/ui_win32/SH_WaveOut.cpp
-		../../tools/PsfPlayer/Source/ui_win32/SH_WaveOut.h
-	)
-	list(APPEND UI_QT_PROJECT_LIBS winmm)
-	
+
 	if(TARGET_PLATFORM_WIN32_X86)
 		set(MANIFEST win32/Play-x86.manifest)
 	else()

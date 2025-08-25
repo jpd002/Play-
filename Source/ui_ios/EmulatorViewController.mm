@@ -13,7 +13,7 @@
 #endif
 #include "../ui_shared/BootableUtils.h"
 #include "PH_Generic.h"
-#include "../../tools/PsfPlayer/Source/SH_OpenAL.h"
+#include "sound/SH_OpenAL/SH_OpenAL.h"
 #include "../ui_shared/StatsManager.h"
 
 CPS2VM* g_virtualMachine = nullptr;

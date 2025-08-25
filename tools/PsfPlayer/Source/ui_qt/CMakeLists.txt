@@ -60,14 +60,24 @@ if(DEBUGGER_INCLUDED)
 	list(APPEND PSFPLAYER_PROJECT_LIBS PlayDebugSupport)
 endif()
 
+if(TARGET_PLATFORM_WIN32)
+	if(NOT TARGET sh_waveout)
+		add_subdirectory(
+			${CMAKE_CURRENT_SOURCE_DIR}/../sound/SH_WaveOut
+			${CMAKE_CURRENT_BINARY_DIR}/SH_WaveOut
+		)
+	endif()
+	list(INSERT PSFPLAYER_PROJECT_LIBS 0 sh_waveout)
+endif()
+
 if(TARGET_PLATFORM_MACOS OR TARGET_PLATFORM_UNIX)
 	if(NOT TARGET sh_openal)
 		add_subdirectory(
-			${CMAKE_CURRENT_SOURCE_DIR}/SH_OpenAL
+			${CMAKE_CURRENT_SOURCE_DIR}/../sound/SH_OpenAL
 			${CMAKE_CURRENT_BINARY_DIR}/SH_OpenAL
 		)
 	endif()
-	list(APPEND PSFPLAYER_PROJECT_LIBS sh_openal)
+	list(INSERT PSFPLAYER_PROJECT_LIBS 0 sh_openal)
 endif()
 
 set(QT_COMPONENTS Widgets Core)
@@ -82,12 +92,6 @@ QT_WRAP_UI(QT_UI_HEADERS ${QT_UIS})
 QT_WRAP_CPP(QT_MOC_SRCS ${QT_MOC_HEADERS})
 
 if(TARGET_PLATFORM_WIN32)
-	set(QT_SOURCES
-		${QT_SOURCES}
-		../ui_win32/SH_WaveOut.cpp
-		../ui_win32/SH_WaveOut.h
-	)
-	list(APPEND PSFPLAYER_PROJECT_LIBS winmm)
 	add_executable(PsfPlayer WIN32 ${QT_SOURCES} ${QT_MOC_SRCS} ${QT_RES_SOURCES} ${QT_UI_HEADERS})
 else()
 	add_executable(PsfPlayer ${QT_SOURCES} ${QT_MOC_SRCS} ${QT_RES_SOURCES} ${QT_UI_HEADERS})

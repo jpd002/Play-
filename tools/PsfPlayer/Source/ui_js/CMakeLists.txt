@@ -30,8 +30,6 @@ add_executable(PsfPlayer
 	PsfVmJs.h
 	SH_FileOutput.cpp
 	SH_FileOutput.h
-	SH_OpenALProxy.cpp
-	SH_OpenALProxy.h
 )
 target_link_libraries(PsfPlayer PUBLIC ${PSF_UI_JS_PROJECT_LIBS})
 

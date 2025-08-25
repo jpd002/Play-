@@ -35,9 +35,9 @@
 #include "string_format.h"
 
 #ifdef _WIN32
-#include "../../tools/PsfPlayer/Source/ui_win32/SH_WaveOut.h"
+#include "sound/SH_WaveOut/SH_WaveOut.h"
 #else
-#include "tools/PsfPlayer/Source/SH_OpenAL.h"
+#include "sound/SH_OpenAL/SH_OpenAL.h"
 #endif
 #ifdef DEBUGGER_INCLUDED
 #include "DebugSupport/DebugSupportSettings.h"

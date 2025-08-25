@@ -1,6 +1,6 @@
 #import "MainTabBarController.h"
 #import "PsfLoader.h"
-#import "SH_OpenAL.h"
+#import "sound/SH_OpenAL/SH_OpenAL.h"
 #import "string_cast.h"
 #import <AVFoundation/AVAudioSession.h>
 #import <MediaPlayer/MediaPlayer.h>

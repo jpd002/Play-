@@ -2,7 +2,7 @@
 
 #include <windows.h>
 #include <mmsystem.h>
-#include "..\SoundHandler.h"
+#include "../SoundHandler.h"
 
 class CSH_WaveOut : public CSoundHandler
 {

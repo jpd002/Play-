@@ -2,8 +2,7 @@
 #include <emscripten/bind.h>
 #include "Ps2VmJs.h"
 #include "GSH_OpenGLJs.h"
-#include "../../tools/PsfPlayer/Source/SH_OpenAL.h"
-#include "../../tools/PsfPlayer/Source/ui_js/SH_OpenALProxy.h"
+#include "sound/SH_OpenAL/SH_OpenALProxy.h"
 #include "input/PH_GenericInput.h"
 #include "InputProviderEmscripten.h"
 #include "ui_shared/StatsManager.h"

@@ -3,9 +3,8 @@
 #include "filesystem_def.h"
 #include "PsfArchive.h"
 #include "PsfStreamProvider.h"
-#include "SH_OpenALProxy.h"
 #include "SH_FileOutput.h"
-#include "../SH_OpenAL.h"
+#include "sound/SH_OpenAL/SH_OpenALProxy.h"
 #include <emscripten/bind.h>
 
 CPsfVmJs* g_virtualMachine = nullptr;

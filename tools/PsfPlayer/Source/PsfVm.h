@@ -2,7 +2,7 @@
 
 #include "Types.h"
 #include "MIPS.h"
-#include "SoundHandler.h"
+#include "sound/SoundHandler.h"
 #include "PsfVmSubSystem.h"
 #include "VirtualMachine.h"
 #include "Debuggable.h"

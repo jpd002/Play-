@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../tools/PsfPlayer/Source/SoundHandler.h"
+#include "sound/SoundHandler.h"
 #include <SLES/OpenSLES.h>
 #include <SLES/OpenSLES_Android.h>
 

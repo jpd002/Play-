@@ -1,6 +1,6 @@
 #pragma once
 
-#include "tools/PsfPlayer/Source/SoundHandler.h"
+#include "sound/SoundHandler.h"
 
 #include <deque>
 #include <vector>

@@ -4,7 +4,7 @@
 #include "MIPS.h"
 #include "BiosDebugInfoProvider.h"
 #include "iop/Iop_SpuBase.h"
-#include "SoundHandler.h"
+#include "sound/SoundHandler.h"
 #include "signal/Signal.h"
 
 class CPsfVmSubSystem

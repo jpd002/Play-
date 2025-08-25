@@ -46,7 +46,7 @@ endif()
 
 if(NOT TARGET sh_openal)
 	add_subdirectory(
-		${CMAKE_CURRENT_SOURCE_DIR}/../../tools/PsfPlayer/Source/SH_OpenAL
+		${CMAKE_CURRENT_SOURCE_DIR}/../sound/SH_OpenAL
 		${CMAKE_CURRENT_BINARY_DIR}/SH_OpenAL
 	)
 endif()

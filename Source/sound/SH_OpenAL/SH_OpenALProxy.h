@@ -1,7 +1,7 @@
 #pragma once
 
 #include <emscripten/threading.h>
-#include "../SH_OpenAL.h"
+#include "SH_OpenAL.h"
 
 class CSH_OpenALProxy : public CSoundHandler
 {
