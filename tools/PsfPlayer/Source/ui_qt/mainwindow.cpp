@@ -1,6 +1,5 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include "ui_debugmenu.h"
 #include "PsfLoader.h"
 #include "PsfTags.h"
 #include "AppConfig.h"
@@ -13,6 +12,7 @@
 #endif
 
 #ifdef DEBUGGER_INCLUDED
+#include "ui_debugmenu.h"
 #include "debuggerwindow.h"
 #endif
 
