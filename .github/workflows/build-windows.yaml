@@ -65,7 +65,7 @@ jobs:
       run: |
         mkdir build
         cd build
-        cmake .. -G"${{ matrix.build-type }}" -A ${{ matrix.target-platform }} -DUSE_QT=on -DBUILD_LIBRETRO_CORE=yes
+        cmake .. -G"${{ matrix.build-type }}" -A ${{ matrix.target-platform }} -DUSE_QT=on -DBUILD_LIBRETRO_CORE=yes -DBUILD_PSFPLAYER=yes
     - name: Build
       run: |
         cd build
