@@ -12,7 +12,7 @@
 #include "VirtualMachine.h"
 #include "ee/Ee_SubSystem.h"
 #include "iop/Iop_SubSystem.h"
-#include "../tools/PsfPlayer/Source/SoundHandler.h"
+#include "sound/SoundHandler.h"
 #include "FrameLimiter.h"
 #include "Profiler.h"
 

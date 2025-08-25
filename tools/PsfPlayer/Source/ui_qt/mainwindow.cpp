@@ -7,7 +7,7 @@
 #include "../../../../Source/ui_qt/QStringUtils.h"
 
 #ifdef WIN32
-#include "ui_win32/SH_WaveOut.h"
+#include "sound/SH_WaveOut/SH_WaveOut.h"
 #else
 #include "SH_OpenAL.h"
 #endif
