@@ -43,16 +43,20 @@ set(QT_SOURCES
 	Main.cpp
 	MainWindow.cpp
 	MainWindow.h
+	ProgressDialog.cpp
+	ProgressDialog.h
 	../../Source/ui_qt/QtUtils.cpp
 	../../Source/ui_qt/QtUtils.h
 )
 
 set(QT_MOC_HEADERS
 	MainWindow.h
+	ProgressDialog.h
 )
 
 set(QT_UIS
 	MainWindow.ui
+	ProgressDialog.ui
 )
 
 QT_ADD_RESOURCES(QT_RES_SOURCES ${QT_RESOURCES})

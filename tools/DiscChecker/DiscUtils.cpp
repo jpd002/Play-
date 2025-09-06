@@ -6,30 +6,42 @@
 
 using namespace DiscUtils;
 
-uint32 DiscUtils::RangeChecksum(OpticalMediaPtr& opticalMedia, uint32 start, uint32 size)
+DiscUtils::RangeChecksumTaskPtr DiscUtils::RangeChecksumAsync(OpticalMediaPtr& opticalMedia, uint32 start, uint32 size)
 {
-	auto blockProvider = opticalMedia->GetBlockProvider();
-	const uint32 blockSize = blockProvider->GetMediaBlockSize();
-	auto buffer = new uint8[blockSize];
-	uint32 checksum = 0;
-	for(uint32 i = 0; i < size; i++)
-	{
-		blockProvider->ReadMediaBlock(i + start, buffer);
-		checksum = crc32(checksum, reinterpret_cast<Bytef*>(buffer), blockSize);
-	}
-	delete[] buffer;
-	return checksum;
+	auto task = std::make_shared<RangeChecksumTask>();
+	std::thread execThread(
+	    [task, opticalMedia = opticalMedia.get(), start, size] {
+		    auto blockProvider = opticalMedia->GetBlockProvider();
+		    const uint32 blockSize = blockProvider->GetMediaBlockSize();
+		    auto buffer = new uint8[blockSize];
+		    uint32 checksum = 0;
+		    for(uint32 i = 0; i < size; i++)
+		    {
+			    if(task->cancelFlag)
+			    {
+				    break;
+			    }
+			    task->progress = static_cast<float>(i) / static_cast<float>(size);
+			    blockProvider->ReadMediaBlock(i + start, buffer);
+			    checksum = crc32(checksum, reinterpret_cast<Bytef*>(buffer), blockSize);
+		    }
+		    delete[] buffer;
+		    task->progress = 1.f;
+		    task->value.set_value(checksum);
+	    });
+	execThread.detach();
+	return task;
 }
 
-uint32 DiscUtils::Checksum(OpticalMediaPtr& opticalMedia)
+DiscUtils::RangeChecksumTaskPtr DiscUtils::ChecksumAsync(OpticalMediaPtr& opticalMedia)
 {
 	auto blockProvider = opticalMedia->GetBlockProvider();
 	uint32 blockCount = blockProvider->GetBlockCount();
-	return RangeChecksum(opticalMedia, 0, blockCount);
+	return RangeChecksumAsync(opticalMedia, 0, blockCount);
 }
 
-uint32 DiscUtils::TrackChecksum(OpticalMediaPtr& opticalMedia, uint32 trackIndex)
+DiscUtils::RangeChecksumTaskPtr DiscUtils::TrackChecksumAsync(OpticalMediaPtr& opticalMedia, uint32 trackIndex)
 {
 	auto track = opticalMedia->GetTrack(trackIndex);
-	return RangeChecksum(opticalMedia, track.start, track.size);
+	return RangeChecksumAsync(opticalMedia, track.start, track.size);
 }

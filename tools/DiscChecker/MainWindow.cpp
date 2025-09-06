@@ -2,6 +2,7 @@
 #include <QFileDialog>
 #include <QDesktopServices>
 #include "ui_MainWindow.h"
+#include "ProgressDialog.h"
 #include "../../Source/DiskUtils.h"
 #include "../../Source/ui_qt/QtUtils.h"
 #include "DiscUtils.h"
@@ -48,7 +49,15 @@ void CMainWindow::on_computeChecksumButton_clicked()
 {
 	if(m_currentImagePath.empty()) return;
 	auto opticalMedia = DiskUtils::CreateOpticalMediaFromPath(m_currentImagePath);
-	uint32 checksum = DiscUtils::Checksum(opticalMedia);
+	auto task = DiscUtils::ChecksumAsync(opticalMedia);
+	auto dialog = new CProgressDialog(task, this);
+	dialog->exec();
+	if(task->cancelFlag)
+	{
+		return;
+	}
+	auto future = task->value.get_future();
+	uint32 checksum = future.get();
 	ui->checksumEdit->setText(string_format("%08X", checksum).c_str());
 }
 
@@ -92,7 +101,15 @@ void CMainWindow::FillDiscInfo(const fs::path& path)
 		connect(computeButton, &QPushButton::clicked, [this, i]() {
 			if(m_currentImagePath.empty()) return;
 			auto opticalMedia = DiskUtils::CreateOpticalMediaFromPath(m_currentImagePath);
-			uint32 checksum = DiscUtils::TrackChecksum(opticalMedia, i);
+			auto task = DiscUtils::TrackChecksumAsync(opticalMedia, i);
+			auto dialog = new CProgressDialog(task, this);
+			dialog->exec();
+			if(task->cancelFlag)
+			{
+				return;
+			}
+			auto future = task->value.get_future();
+			uint32 checksum = future.get();
 			ui->tracksListView->setItem(i, 3, new QTableWidgetItem(string_format("%08X", checksum).c_str()));
 		});
 		ui->tracksListView->setCellWidget(i, 4, computeButton);
