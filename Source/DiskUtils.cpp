@@ -195,6 +195,8 @@ static DiskUtils::OpticalMediaPtr CreateOpticalMediaFromChd(const fs::path& imag
 			[[fallthrough]];
 		case CChdCdImageStream::DATA_TYPE_CD_MODE1:
 			return std::make_pair(std::make_shared<ISO9660::CBlockProviderCustom<CHD_CD_UNITSIZE, CD_MEDIA_UNIT_SIZE, 0>>(imageStream), COpticalMedia::MEDIA_BLOCK_TYPE_2352);
+		case CChdCdImageStream::DATA_TYPE_CD_MODE1_RAW:
+			return std::make_pair(std::make_shared<ISO9660::CBlockProviderCustom<CHD_CD_UNITSIZE, CD_MEDIA_UNIT_SIZE, 0x10>>(imageStream), COpticalMedia::MEDIA_BLOCK_TYPE_2352);
 		case CChdCdImageStream::DATA_TYPE_CD_MODE2_RAW:
 			return std::make_pair(std::make_shared<ISO9660::CBlockProviderCustom<CHD_CD_UNITSIZE, CD_MEDIA_UNIT_SIZE, 0x18>>(imageStream), COpticalMedia::MEDIA_BLOCK_TYPE_2352);
 		case CChdCdImageStream::DATA_TYPE_DVD:

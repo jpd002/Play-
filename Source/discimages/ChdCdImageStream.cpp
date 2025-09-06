@@ -30,14 +30,19 @@ void CChdCdImageStream::ReadMetadata()
 	if(chd_get_metadata(m_chd, CDROM_TRACK_METADATA2_TAG, 0, &metadata, sizeof(metadata), &outlen, nullptr, nullptr) == CHDERR_NONE)
 	{
 		auto getTrackDataType = [](const char* typeString) {
-			if(!strcmp(typeString, "MODE2_RAW") || !strcmp(typeString, "AUDIO"))
+			if(!strcmp(typeString, "AUDIO"))
+			{
+				return DATA_TYPE_CD_AUDIO;
+			}
+			if(!strcmp(typeString, "MODE1_RAW"))
+			{
+				return DATA_TYPE_CD_MODE1_RAW;
+			}
+			if(!strcmp(typeString, "MODE2_RAW"))
 			{
 				return DATA_TYPE_CD_MODE2_RAW;
 			}
-			else
-			{
-				return DATA_TYPE_CD_MODE1;
-			}
+			return DATA_TYPE_CD_MODE1;
 		};
 		assert(m_unitSize == 2448);
 		int trackIndex = 0;
@@ -48,20 +53,16 @@ void CChdCdImageStream::ReadMetadata()
 			char type[bufferSize], subType[bufferSize], pgType[bufferSize], pgSub[bufferSize];
 			if(sscanf(metadata, CDROM_TRACK_METADATA2_FORMAT, &track, type, subType, &frames, &preGap, pgType, pgSub, &postGap) == 8)
 			{
-				type[bufferSize - 1] = 0;
-				DATA_TYPE trackDataType = getTrackDataType(type);
-				if(trackIndex != 0)
-				{
-					if(trackDataType != m_dataType)
-					{
-						throw std::runtime_error("Inconsistent track types.");
-					}
-				}
 				if(track != (trackIndex + 1))
 				{
 					throw std::runtime_error("Inconsistent track order.");
 				}
-				m_dataType = trackDataType;
+				type[bufferSize - 1] = 0;
+				DATA_TYPE trackDataType = getTrackDataType(type);
+				if(trackIndex == 0)
+				{
+					m_dataType = trackDataType;
+				}
 				m_tracks.push_back({static_cast<uint32>(frames)});
 			}
 			trackIndex++;

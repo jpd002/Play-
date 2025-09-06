@@ -7,7 +7,9 @@ class CChdCdImageStream : public CChdImageStream
 public:
 	enum DATA_TYPE
 	{
+		DATA_TYPE_CD_AUDIO,
 		DATA_TYPE_CD_MODE1,
+		DATA_TYPE_CD_MODE1_RAW,
 		DATA_TYPE_CD_MODE2_RAW,
 		DATA_TYPE_DVD,
 	};
