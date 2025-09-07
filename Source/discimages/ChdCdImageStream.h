@@ -16,6 +16,7 @@ public:
 
 	struct TRACK
 	{
+		uint32 startFrame = 0;
 		uint32 frames = 0;
 	};
 

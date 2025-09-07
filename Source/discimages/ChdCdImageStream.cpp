@@ -46,6 +46,7 @@ void CChdCdImageStream::ReadMetadata()
 		};
 		assert(m_unitSize == 2448);
 		int trackIndex = 0;
+		int trackPos = 0;
 		while(1)
 		{
 			metadata[outlen] = 0;
@@ -63,7 +64,10 @@ void CChdCdImageStream::ReadMetadata()
 				{
 					m_dataType = trackDataType;
 				}
-				m_tracks.push_back({static_cast<uint32>(frames)});
+				m_tracks.push_back({static_cast<uint32>(trackPos), static_cast<uint32>(frames)});
+				trackPos += frames;
+				//CHD tracks start on a 4 sector boundary
+				trackPos = (trackPos + 0x03) & ~0x03;
 			}
 			trackIndex++;
 			chd_error result = chd_get_metadata(m_chd, CDROM_TRACK_METADATA2_TAG, trackIndex, &metadata, sizeof(metadata), &outlen, nullptr, nullptr);

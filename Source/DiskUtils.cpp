@@ -207,16 +207,12 @@ static DiskUtils::OpticalMediaPtr CreateOpticalMediaFromChd(const fs::path& imag
 	const auto& chdTracks = imageStream->GetTracks();
 	if(!chdTracks.empty())
 	{
-		uint32 trackPos = 0;
 		for(int i = 0; i < chdTracks.size(); i++)
 		{
 			const auto& chdTrack = chdTracks[i];
 			COpticalMedia::TRACK track = {};
-			track.start = trackPos;
+			track.start = chdTrack.startFrame;
 			track.size = chdTrack.frames;
-			trackPos += chdTrack.frames;
-			//CHD tracks start on a 4 sector boundary
-			trackPos = (trackPos + 0x03) & ~0x03;
 			tracks.push_back(track);
 		}
 	}
