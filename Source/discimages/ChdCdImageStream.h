@@ -25,9 +25,14 @@ public:
 	DATA_TYPE GetDataType() const;
 	const std::vector<TRACK>& GetTracks() const;
 
+	uint64 Read(void*, uint64) override;
+
 private:
 	void ReadMetadata();
 
 	DATA_TYPE m_dataType = DATA_TYPE_CD_MODE1;
 	std::vector<TRACK> m_tracks;
+
+	uint64 m_audioRangeStart = -1;
+	uint64 m_audioRangeEnd = -1;
 };

@@ -22,6 +22,34 @@ const std::vector<CChdCdImageStream::TRACK>& CChdCdImageStream::GetTracks() cons
 	return m_tracks;
 }
 
+uint64 CChdCdImageStream::Read(void* buffer, uint64 size)
+{
+	uint64 startPosition = m_position;
+	uint64 readCount = CChdImageStream::Read(buffer, size);
+	uint64 endPosition = m_position;
+	if((m_audioRangeStart != -1) && (m_audioRangeEnd != -1))
+	{
+		//CHD stores CDDA in big endian format. We need to byteswap the data to make it coherent
+		//with other disc image formats.
+		bool startIn = (startPosition >= m_audioRangeStart) && (startPosition <= m_audioRangeEnd);
+		bool endIn = (endPosition >= m_audioRangeStart) && (endPosition <= m_audioRangeEnd);
+		if(startIn && endIn)
+		{
+			assert((size & 0x01) == 0);
+			uint8* work = reinterpret_cast<uint8*>(buffer);
+			for(uint64 i = 0; i < size; i += 2)
+			{
+				std::swap(work[i], work[i + 1]);
+			}
+		}
+		else
+		{
+			assert(!startIn && !endIn);
+		}
+	}
+	return readCount;
+}
+
 void CChdCdImageStream::ReadMetadata()
 {
 	static const size_t bufferSize = 256;
@@ -63,6 +91,20 @@ void CChdCdImageStream::ReadMetadata()
 				if(trackIndex == 0)
 				{
 					m_dataType = trackDataType;
+				}
+				if(trackDataType == DATA_TYPE_CD_AUDIO)
+				{
+					uint32 trackEnd = trackPos + frames;
+					if((m_audioRangeStart == -1) && (m_audioRangeEnd == -1))
+					{
+						m_audioRangeStart = trackPos * m_unitSize;
+						m_audioRangeEnd = trackEnd * m_unitSize;
+					}
+					else
+					{
+						assert(m_audioRangeEnd <= (trackPos * m_unitSize));
+						m_audioRangeEnd = trackEnd * m_unitSize;
+					}
 				}
 				m_tracks.push_back({static_cast<uint32>(trackPos), static_cast<uint32>(frames)});
 				trackPos += frames;
