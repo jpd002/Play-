@@ -111,6 +111,8 @@ uint32 FpAddTruncate(uint32 a, uint32 b)
 		{
 			//const bool sticky = bSignificand << (typeWidth - align);
 			bSignificand = bSignificand >> align;
+			// Mask off round and sticky bits
+			bSignificand &= ~0x03;
 		}
 		else
 		{
