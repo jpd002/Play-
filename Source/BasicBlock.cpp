@@ -186,6 +186,11 @@ void CBasicBlock::Compile()
 #endif
 }
 
+void CBasicBlock::AddBlockCompileHints(uint32 compileHints)
+{
+	m_blockCompileHints |= compileHints;
+}
+
 void CBasicBlock::CompileRange(CMipsJitter* jitter)
 {
 	if(IsEmpty())
@@ -212,6 +217,8 @@ void CBasicBlock::CompileRange(CMipsJitter* jitter)
 		}
 		return target == m_begin;
 	}();
+
+	m_context.m_pArch->SetCompileHints(m_blockCompileHints);
 
 	CompileProlog(jitter);
 	jitter->MarkFirstBlockLabel();

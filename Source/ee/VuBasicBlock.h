@@ -8,7 +8,6 @@ public:
 	CVuBasicBlock(CMIPS&, uint32, uint32, BLOCK_CATEGORY);
 	virtual ~CVuBasicBlock() = default;
 
-	void AddBlockCompileHints(uint32);
 	bool IsLinkable() const;
 
 protected:
@@ -46,5 +45,4 @@ private:
 	static void EmitXgKick(CMipsJitter*);
 
 	bool m_isLinkable = true;
-	uint32 m_blockCompileHints = 0;
 };

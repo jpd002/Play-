@@ -69,10 +69,9 @@ void CMA_VU::CUpper::CompileInstruction(uint32 nAddress, CMipsJitter* codeGen, C
 	}
 }
 
-void CMA_VU::CUpper::SetRelativePipeTime(uint32 relativePipeTime, uint32 compileHints)
+void CMA_VU::CUpper::SetRelativePipeTime(uint32 relativePipeTime)
 {
 	m_relativePipeTime = relativePipeTime;
-	m_compileHints = compileHints;
 }
 
 void CMA_VU::CUpper::LOI(uint32 nValue)

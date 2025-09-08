@@ -64,11 +64,11 @@ protected:
 	MIPSReflection::SUBTABLE m_ReflSpecialTable;
 	MIPSReflection::SUBTABLE m_ReflRegImmTable;
 
-	uint8 m_nRS;
-	uint8 m_nRT;
-	uint8 m_nRD;
-	uint8 m_nSA;
-	uint16 m_nImmediate;
+	uint8 m_nRS = 0;
+	uint8 m_nRT = 0;
+	uint8 m_nRD = 0;
+	uint8 m_nSA = 0;
+	uint16 m_nImmediate = 0;
 
 protected:
 	struct MemoryAccessTraits

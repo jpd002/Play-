@@ -24,6 +24,7 @@ public:
 	CMIPSInstructionFactory(MIPS_REGSIZE);
 	virtual ~CMIPSInstructionFactory() = default;
 	virtual void CompileInstruction(uint32, CMipsJitter*, CMIPS*, uint32) = 0;
+	virtual void SetCompileHints(uint32);
 	void Illegal();
 
 protected:
@@ -44,5 +45,6 @@ protected:
 	uint32 m_nOpcode = 0;
 	uint32 m_nAddress = 0;
 	uint32 m_instrPosition = 0;
+	uint32 m_compileHints = 0;
 	MIPS_REGSIZE m_regSize;
 };

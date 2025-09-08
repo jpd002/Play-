@@ -76,6 +76,8 @@ public:
 	void Compile();
 	virtual void CompileRange(CMipsJitter*);
 
+	void AddBlockCompileHints(uint32);
+
 	uint32 GetBeginAddress() const;
 	uint32 GetEndAddress() const;
 	bool IsCompiled() const;
@@ -102,6 +104,8 @@ protected:
 	uint32 m_end;
 	BLOCK_CATEGORY m_category;
 	CMIPS& m_context;
+
+	uint32 m_blockCompileHints = 0;
 
 	virtual void CompileProlog(CMipsJitter*);
 	virtual void CompileEpilog(CMipsJitter*, bool);

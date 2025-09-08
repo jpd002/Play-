@@ -22,10 +22,16 @@ void CMA_VU::CompileInstruction(uint32 nAddress, CMipsJitter* codeGen, CMIPS* pC
 	}
 }
 
-void CMA_VU::SetRelativePipeTime(uint32 relativePipeTime, uint32 compileHints)
+void CMA_VU::SetCompileHints(uint32 compileHints)
 {
-	m_Lower.SetRelativePipeTime(relativePipeTime, compileHints);
-	m_Upper.SetRelativePipeTime(relativePipeTime, compileHints);
+	m_Lower.SetCompileHints(compileHints);
+	m_Upper.SetCompileHints(compileHints);
+}
+
+void CMA_VU::SetRelativePipeTime(uint32 relativePipeTime)
+{
+	m_Lower.SetRelativePipeTime(relativePipeTime);
+	m_Upper.SetRelativePipeTime(relativePipeTime);
 }
 
 void CMA_VU::SetupReflectionTables()

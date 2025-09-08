@@ -477,9 +477,10 @@ void CMA_MIPSIV::LUI()
 //10
 void CMA_MIPSIV::COP0()
 {
-	if(m_pCtx->m_pCOP[0] != NULL)
+	auto cop = m_pCtx->m_pCOP[0];
+	if(cop != NULL)
 	{
-		m_pCtx->m_pCOP[0]->CompileInstruction(m_nAddress, m_codeGen, m_pCtx, m_instrPosition);
+		cop->CompileInstruction(m_nAddress, m_codeGen, m_pCtx, m_instrPosition);
 	}
 	else
 	{
@@ -490,9 +491,11 @@ void CMA_MIPSIV::COP0()
 //11
 void CMA_MIPSIV::COP1()
 {
-	if(m_pCtx->m_pCOP[1] != NULL)
+	auto cop = m_pCtx->m_pCOP[1];
+	if(cop)
 	{
-		m_pCtx->m_pCOP[1]->CompileInstruction(m_nAddress, m_codeGen, m_pCtx, m_instrPosition);
+		cop->SetCompileHints(m_compileHints);
+		cop->CompileInstruction(m_nAddress, m_codeGen, m_pCtx, m_instrPosition);
 	}
 	else
 	{
@@ -503,9 +506,10 @@ void CMA_MIPSIV::COP1()
 //12
 void CMA_MIPSIV::COP2()
 {
-	if(m_pCtx->m_pCOP[2] != NULL)
+	auto cop = m_pCtx->m_pCOP[2];
+	if(cop)
 	{
-		m_pCtx->m_pCOP[2]->CompileInstruction(m_nAddress, m_codeGen, m_pCtx, m_instrPosition);
+		cop->CompileInstruction(m_nAddress, m_codeGen, m_pCtx, m_instrPosition);
 	}
 	else
 	{

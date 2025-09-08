@@ -19,7 +19,8 @@ public:
 	uint32 GetInstructionEffectiveAddress(CMIPS*, uint32, uint32) override;
 	VUShared::OPERANDSET GetAffectedOperands(CMIPS*, uint32, uint32);
 
-	void SetRelativePipeTime(uint32, uint32);
+	void SetCompileHints(uint32) override;
+	void SetRelativePipeTime(uint32);
 
 private:
 	void SetupReflectionTables();
@@ -37,7 +38,7 @@ private:
 		MIPS_BRANCH_TYPE IsInstructionBranch(CMIPS*, uint32, uint32);
 		uint32 GetInstructionEffectiveAddress(CMIPS*, uint32, uint32);
 
-		void SetRelativePipeTime(uint32, uint32);
+		void SetRelativePipeTime(uint32);
 
 	private:
 		typedef void (CUpper::*InstructionFuncConstant)();
@@ -54,7 +55,6 @@ private:
 		uint8 m_nBc;
 		uint8 m_nDest;
 		uint32 m_relativePipeTime = 0;
-		uint32 m_compileHints = 0;
 
 		static void ReflOpFtFs(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
 
@@ -184,7 +184,7 @@ private:
 		uint32 GetInstructionEffectiveAddress(CMIPS*, uint32, uint32);
 		VUShared::OPERANDSET GetAffectedOperands(CMIPS*, uint32, uint32);
 
-		void SetRelativePipeTime(uint32, uint32);
+		void SetRelativePipeTime(uint32);
 
 	private:
 		enum
@@ -214,7 +214,6 @@ private:
 		uint16 m_nImm15S = 0;
 		uint32 m_nImm24 = 0;
 		uint32 m_relativePipeTime = 0;
-		uint32 m_compileHints = 0;
 		uint32 m_vuMemAddressMask;
 
 		void SetBranchAddress(bool, int32);

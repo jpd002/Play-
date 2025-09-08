@@ -17,6 +17,11 @@ CMIPSInstructionFactory::CMIPSInstructionFactory(MIPS_REGSIZE nRegSize)
 {
 }
 
+void CMIPSInstructionFactory::SetCompileHints(uint32 compileHints)
+{
+	m_compileHints = compileHints;
+}
+
 void CMIPSInstructionFactory::SetupQuickVariables(uint32 nAddress, CMipsJitter* codeGen, CMIPS* pCtx, uint32 instrPosition)
 {
 	m_pCtx = pCtx;
