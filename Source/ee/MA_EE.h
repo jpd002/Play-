@@ -5,6 +5,11 @@
 class CMA_EE : public CMA_MIPSIV
 {
 public:
+	enum COMPILEHINT
+	{
+		COMPILEHINT_FPU_USE_ACCURATE_ADD_SUB = (1 << 0),
+	};
+
 	CMA_EE();
 	virtual ~CMA_EE() = default;
 

@@ -6,6 +6,8 @@
 #include "offsetof_def.h"
 #include "MemoryUtils.h"
 #include "FpUtils.h"
+#include "ee/MA_EE.h"
+#include "ee/FpAddTruncate.h"
 
 // clang-format off
 const uint32 CCOP_FPU::m_ccMask[8] =
@@ -246,23 +248,45 @@ void CCOP_FPU::BC1TL()
 //00
 void CCOP_FPU::ADD_S()
 {
-	m_codeGen->FP_PushRel32(offsetof(CMIPS, m_State.nCOP1[m_fs]));
-	m_codeGen->FP_ClampS();
-	m_codeGen->FP_PushRel32(offsetof(CMIPS, m_State.nCOP1[m_ft]));
-	m_codeGen->FP_ClampS();
-	m_codeGen->FP_AddS();
-	m_codeGen->FP_PullRel32(offsetof(CMIPS, m_State.nCOP1[m_fd]));
+	if(m_compileHints & CMA_EE::COMPILEHINT_FPU_USE_ACCURATE_ADD_SUB)
+	{
+		m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP1[m_fs]));
+		m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP1[m_ft]));
+		m_codeGen->Call(reinterpret_cast<void*>(&FpAddTruncate), 2, Jitter::CJitter::RETURN_VALUE_32);
+		m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP1[m_fd]));
+	}
+	else
+	{
+		m_codeGen->FP_PushRel32(offsetof(CMIPS, m_State.nCOP1[m_fs]));
+		m_codeGen->FP_ClampS();
+		m_codeGen->FP_PushRel32(offsetof(CMIPS, m_State.nCOP1[m_ft]));
+		m_codeGen->FP_ClampS();
+		m_codeGen->FP_AddS();
+		m_codeGen->FP_PullRel32(offsetof(CMIPS, m_State.nCOP1[m_fd]));
+	}
 }
 
 //01
 void CCOP_FPU::SUB_S()
 {
-	m_codeGen->FP_PushRel32(offsetof(CMIPS, m_State.nCOP1[m_fs]));
-	m_codeGen->FP_ClampS();
-	m_codeGen->FP_PushRel32(offsetof(CMIPS, m_State.nCOP1[m_ft]));
-	m_codeGen->FP_ClampS();
-	m_codeGen->FP_SubS();
-	m_codeGen->FP_PullRel32(offsetof(CMIPS, m_State.nCOP1[m_fd]));
+	if(m_compileHints & CMA_EE::COMPILEHINT_FPU_USE_ACCURATE_ADD_SUB)
+	{
+		m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP1[m_fs]));
+		m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP1[m_ft]));
+		m_codeGen->PushCst(0x80000000);
+		m_codeGen->Xor();
+		m_codeGen->Call(reinterpret_cast<void*>(&FpAddTruncate), 2, Jitter::CJitter::RETURN_VALUE_32);
+		m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP1[m_fd]));
+	}
+	else
+	{
+		m_codeGen->FP_PushRel32(offsetof(CMIPS, m_State.nCOP1[m_fs]));
+		m_codeGen->FP_ClampS();
+		m_codeGen->FP_PushRel32(offsetof(CMIPS, m_State.nCOP1[m_ft]));
+		m_codeGen->FP_ClampS();
+		m_codeGen->FP_SubS();
+		m_codeGen->FP_PullRel32(offsetof(CMIPS, m_State.nCOP1[m_fd]));
+	}
 }
 
 //02
