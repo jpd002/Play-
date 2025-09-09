@@ -7,6 +7,7 @@
 [submodule "deps/CodeGen"]
 	path = deps/CodeGen
 	url = https://github.com/EmiMidnight/Play--CodeGen.git
+	branch = rawPtr
 [submodule "deps/Nuanceur"]
 	path = deps/Nuanceur
 	url = https://github.com/jpd002/Nuanceur.git
