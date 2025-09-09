@@ -273,7 +273,7 @@ void CSys246::ProcessJvsPacket(const uint8* input, uint8* output)
 			}
 			else if(m_jvsMode == JVS_MODE::LIGHTGUN)
 			{
-				#ifndef TEKNOPARROT
+#ifndef TEKNOPARROT
 				(*output++) = 0x06; //Screen Pos Input
 				(*output++) = 0x10; //X pos bits
 				(*output++) = 0x10; //Y pos bits
@@ -284,7 +284,7 @@ void CSys246::ProcessJvsPacket(const uint8* input, uint8* output)
 				(*output++) = 0x02; //Channel Count (2 channels)
 				(*output++) = 0x10; //Bits (16 bits)
 				(*output++) = 0x00;
-				#else
+#else
 				if(m_gameId == "vnight")
 				{
 					(*output++) = 0x06; //Screen Pos Input
@@ -311,7 +311,7 @@ void CSys246::ProcessJvsPacket(const uint8* input, uint8* output)
 					(*output++) = 0x10; //Bits (16 bits)
 					(*output++) = 0x00;
 				}
-				#endif
+#endif
 
 				(*dstSize) += 8;
 			}
@@ -364,12 +364,13 @@ void CSys246::ProcessJvsPacket(const uint8* input, uint8* output)
 			inSize -= 2;
 
 			(*output++) = 0x01; //Command success
-			#ifdef TEKNOPARROT
+#ifdef TEKNOPARROT
 			BYTE testData = 0;
 			BYTE control1 = 0;
 			BYTE control1ext = 0;
 			BYTE control2 = 0;
 			BYTE control2ext = 0;
+			OutputDebugStringA("IS TP");
 #ifdef _WIN32
 			if(g_jvs_view_ptr)
 			{
@@ -386,7 +387,6 @@ void CSys246::ProcessJvsPacket(const uint8* input, uint8* output)
 			}
 #endif
 #endif
-
 			m_counter++;
 			if(m_testButtonState == 0 && m_jvsSystemButtonState == 0x03 && m_counter > 16)
 			{
@@ -398,7 +398,7 @@ void CSys246::ProcessJvsPacket(const uint8* input, uint8* output)
 				m_testButtonState = 0;
 				m_counter = 0;
 			}
-			#ifndef TEKNOPARROT
+#ifndef TEKNOPARROT
 			(*output++) = m_testButtonState;
 
 			//(*output++) = (m_jvsSystemButtonState == 0x03) ? 0x80 : 0;  //Test
@@ -412,9 +412,9 @@ void CSys246::ProcessJvsPacket(const uint8* input, uint8* output)
 				(*output++) = static_cast<uint8>(m_jvsButtonState[1] >> 8); //Player 2
 				(*dstSize) += 2;
 			}
-			#else
-						(*output++) = testData;
-
+			OutputDebugStringA("IS NOT TP");
+#else
+			(*output++) = testData;
 			//(*output++) = (m_jvsSystemButtonState == 0x03) ? 0x80 : 0;  //Test
 			(*output++) = control1;
 			(*output++) = control1ext;
@@ -426,7 +426,7 @@ void CSys246::ProcessJvsPacket(const uint8* input, uint8* output)
 				(*output++) = control2ext; //Player 2
 				(*dstSize) += 2;
 			}
-			#endif
+#endif
 		}
 		break;
 		case JVS_CMD_COININP:
@@ -445,7 +445,7 @@ void CSys246::ProcessJvsPacket(const uint8* input, uint8* output)
 			//					0x03 = busy
 
 #ifdef TEKNOPARROT
-		// Read coin button state from shared memory (StateView[32] - separate coin offset)
+			// Read coin button state from shared memory (StateView[32] - separate coin offset)
 			// Ported from Wii TeknoParrot code
 			BYTE coin_state = 0;
 #ifdef _WIN32
@@ -485,7 +485,6 @@ void CSys246::ProcessJvsPacket(const uint8* input, uint8* output)
 
 				(*dstSize) += 2;
 			}
-
 		}
 		break;
 		case JVS_CMD_COININC: // actually never received this jvs cmd
@@ -606,9 +605,9 @@ void CSys246::ProcessJvsPacket(const uint8* input, uint8* output)
 					uint16_t a0 = (analog0 << 8) | analog0;
 					uint16_t a2 = (analog2 << 8) | analog2;
 
-					a0 = ~a0; // Vertical axis needs to be inverted somehow
+					a0 = ~a0;                     // Vertical axis needs to be inverted somehow
 					if(analog2 == 0) a2 = 0xFFFF; // 0xFFFF = out of screen. 0 does not trigger it
-					if(a0 == 0xFFFF) a0 = 0x0; // and for vertical its the other way around? 
+					if(a0 == 0xFFFF) a0 = 0x0;    // and for vertical its the other way around?
 
 					(*output++) = static_cast<uint8_t>((a2 >> 8) & 0xFF);
 					(*output++) = static_cast<uint8_t>(a2 & 0xFF);

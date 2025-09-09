@@ -157,6 +157,18 @@ MainWindow::~MainWindow()
 	delete debugDockMenuUi;
 	delete debugMenuUi;
 #endif
+#if defined(_WIN32) && defined(TEKNOPARROT)
+	if(m_canvasInfoView)
+	{
+		UnmapViewOfFile(m_canvasInfoView);
+		m_canvasInfoView = nullptr;
+	}
+	if(m_canvasInfoMMF)
+	{
+		CloseHandle(m_canvasInfoMMF);
+		m_canvasInfoMMF = nullptr;
+	}
+#endif
 }
 
 void MainWindow::InitVirtualMachine()
@@ -304,6 +316,9 @@ void MainWindow::outputWindow_resized()
 			m_virtualMachine->m_ee->m_gs->Flip(CGSHandler::FLIP_FLAG_WAIT | CGSHandler::FLIP_FLAG_FORCE);
 		}
 	}
+#ifdef TEKNOPARROT
+	UpdateCanvasInfo();
+#endif
 }
 
 void MainWindow::on_actionBoot_DiscImage_triggered()
@@ -838,7 +853,11 @@ void MainWindow::EmitOnExecutableChange()
 void MainWindow::HandleOnExecutableChange()
 {
 	UpdateUI();
+#ifndef TEKNOPARROT
 	auto titleString = QString("Play! - [ %1 ] - %2").arg(m_virtualMachine->m_ee->m_os->GetExecutableName(), QString(PLAY_VERSION));
+#else
+	auto titleString = QString("Play! - [ %1 ] - TeknoParrot").arg(m_virtualMachine->m_ee->m_os->GetExecutableName(), QString(PLAY_VERSION));
+#endif
 	setWindowTitle(titleString);
 	ui->bootablesView->AsyncResetModel(true);
 }
@@ -1270,3 +1289,89 @@ void MainWindow::SetupDebugger()
 
 #endif //DEBUGGER_INCLUDED
 }
+
+#ifdef TEKNOPARROT
+void MainWindow::UpdateCanvasInfo()
+{
+#ifdef _WIN32
+	if(!m_virtualMachine || !m_virtualMachine->GetGSHandler()) return;
+
+	auto gsHandler = m_virtualMachine->GetGSHandler();
+	qreal scale = 1.0;
+#if QT_VERSION >= QT_VERSION_CHECK(5, 6, 0)
+	scale = devicePixelRatioF();
+#endif
+	auto presentationViewport = gsHandler->GetPresentationViewport();
+
+	CanvasInfo info = {};
+
+	HWND hwnd = reinterpret_cast<HWND>(m_outputwindow->winId());
+	if(hwnd)
+	{
+		RECT clientRect;
+		GetClientRect(hwnd, &clientRect);
+
+		RECT windowRect;
+		GetWindowRect(hwnd, &windowRect);
+
+		info.windowWidth = clientRect.right;
+		info.windowHeight = clientRect.bottom;
+
+		auto border = (windowRect.right - windowRect.left - clientRect.right) / 2;
+		info.windowLocationX = windowRect.left + border;
+		info.windowLocationY = windowRect.bottom - info.windowHeight - border;
+
+		int vpOfsX = static_cast<int>(presentationViewport.offsetX);
+		int vpOfsY = static_cast<int>(presentationViewport.offsetY);
+		int vpWidth = static_cast<int>(presentationViewport.width);
+		int vpHeight = static_cast<int>(presentationViewport.height);
+
+		info.viewportLeft = info.windowLocationX + vpOfsX;
+		info.viewportTop = info.windowLocationY + vpOfsY;
+		info.viewportRight = info.viewportLeft + vpWidth;
+		info.viewportBottom = info.viewportTop + vpHeight;
+
+		HDC hdc = GetDC(hwnd);
+		if(hdc)
+		{
+			int dpiX = GetDeviceCaps(hdc, LOGPIXELSX);
+			int dpiY = GetDeviceCaps(hdc, LOGPIXELSY);
+			info.dpiScaleX = static_cast<double>(dpiX) / 96.0;
+			info.dpiScaleY = static_cast<double>(dpiY) / 96.0;
+			ReleaseDC(hwnd, hdc);
+		}
+		else
+		{
+			info.dpiScaleX = 1.0;
+			info.dpiScaleY = 1.0;
+		}
+	}
+
+	if(!m_canvasInfoMMF)
+	{
+		m_canvasInfoMMF = CreateFileMappingA(
+		    INVALID_HANDLE_VALUE,
+		    nullptr,
+		    PAGE_READWRITE,
+		    0,
+		    sizeof(CanvasInfo),
+		    "PlayCanvasInfo");
+
+		if(m_canvasInfoMMF)
+		{
+			m_canvasInfoView = MapViewOfFile(
+			    m_canvasInfoMMF,
+			    FILE_MAP_ALL_ACCESS,
+			    0,
+			    0,
+			    sizeof(CanvasInfo));
+		}
+	}
+
+	if(m_canvasInfoView)
+	{
+		memcpy(m_canvasInfoView, &info, sizeof(CanvasInfo));
+	}
+#endif
+}
+#endif
