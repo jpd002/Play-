@@ -122,7 +122,7 @@ void CSio2::SaveState(Framework::CZipArchiveWriter& archive)
 void CSio2::SetButtonState(unsigned int padNumber, PS2::CControllerInfo::BUTTON button, bool pressed, uint8* ram)
 {
 	if(padNumber >= MAX_PADS) return;
-
+#ifndef TEKNOPARROT
 	auto& padState = m_padState[padNumber];
 	auto buttonMask = static_cast<uint16>(GetButtonMask(button));
 	padState.buttonState &= ~buttonMask;
@@ -130,11 +130,13 @@ void CSio2::SetButtonState(unsigned int padNumber, PS2::CControllerInfo::BUTTON 
 	{
 		padState.buttonState |= buttonMask;
 	}
+#endif
 }
 
 void CSio2::SetAxisState(unsigned int padNumber, PS2::CControllerInfo::BUTTON axis, uint8 axisValue, uint8* ram)
 {
 	assert(padNumber < MAX_PADS);
+	#ifndef TEKNOPARROT
 	if(padNumber >= MAX_PADS) return;
 
 	assert(axis < 4);
@@ -149,6 +151,7 @@ void CSio2::SetAxisState(unsigned int padNumber, PS2::CControllerInfo::BUTTON ax
 
 	auto& padState = m_padState[padNumber];
 	padState.analogStickState[axisIndex[axis]] = axisValue;
+	#endif
 }
 
 uint32 CSio2::ReadRegister(uint32 address)
@@ -295,7 +298,11 @@ void CSio2::ProcessController(unsigned int portId, size_t outputOffset, uint32 d
 		assert(srcSize >= 3);
 
 		unsigned int padId = portId & 0x01;
+#ifndef TEKNOPARROT
 		auto& padState = m_padState[padId];
+#else
+		PADSTATE padState{};
+#endif
 
 		//Write header
 		m_outputBuffer[outputOffset + 0x00] = 0xFF;

@@ -99,6 +99,7 @@ CPS2VM::CPS2VM()
 
 	CAppConfig::GetInstance().RegisterPreferenceBoolean(PREF_PS2_ARCADE_IO_SERVER_ENABLED, false);
 	CAppConfig::GetInstance().RegisterPreferenceInteger(PREF_PS2_ARCADE_IO_SERVER_PORT, 9876);
+	CAppConfig::GetInstance().RegisterPreferenceInteger(PREF_SYS256_CABINET_LINK_ID, 1);
 }
 
 //////////////////////////////////////////////////

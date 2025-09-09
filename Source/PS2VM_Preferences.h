@@ -17,3 +17,5 @@
 #define PREF_AUDIO_SPUBLOCKCOUNT ("audio.spublockcount")
 
 #define PREF_SYSTEM_LANGUAGE ("system.language")
+
+#define PREF_SYS256_CABINET_LINK_ID ("sys256.cabinet.linkid")

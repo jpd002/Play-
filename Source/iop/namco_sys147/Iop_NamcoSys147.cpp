@@ -11,6 +11,12 @@ using namespace Iop::Namco;
 
 #define LOG_NAME ("iop_namco_sys147")
 
+#ifdef _WIN32
+static void* g_jvs_file_mapping = nullptr;
+static void* g_jvs_view_ptr = nullptr;
+static bool g_coin_pressed_prev_147;
+#endif
+
 //Switch IDs for games
 //--------------------
 
@@ -33,6 +39,14 @@ using namespace Iop::Namco;
 // 86 - Up
 // 87 - Down
 // 88 - Enter
+// 89 - Stick Down
+// 90 - Stick Up
+// 91 - Stick Right
+// 92 - Stick Left
+// 93 - Button 1
+// 94 - Button 2
+// 95 - P1
+// 102 - P2
 
 CSys147::CSys147(CSifMan& sifMan, const std::string& gameId)
     : m_gameId(gameId)
@@ -66,6 +80,29 @@ CSys147::CSys147(CSifMan& sifMan, const std::string& gameId)
 		uint16 port = CAppConfig::GetInstance().GetPreferenceInteger(PREF_PS2_ARCADE_IO_SERVER_PORT);
 		m_ioServer = std::make_unique<Framework::CHttpServer>(port, std::bind(&CSys147::HandleIoServerRequest, this, std::placeholders::_1), logPath);
 	}
+
+#ifdef _WIN32
+	if(!g_jvs_file_mapping)
+	{
+		g_jvs_file_mapping = CreateFileMappingA(INVALID_HANDLE_VALUE,  // Use paging file
+		                                        nullptr,               // Default security
+		                                        PAGE_READWRITE,        // Read/write access
+		                                        0,                     // Maximum object size (high-order DWORD)
+		                                        64,                    // Maximum object size (low-order DWORD) - 64 bytes
+		                                        "TeknoParrot_JvsState" // Name of mapping object
+		);
+
+		if(g_jvs_file_mapping)
+		{
+			g_jvs_view_ptr = MapViewOfFile(g_jvs_file_mapping,  // Handle to map object
+			                               FILE_MAP_ALL_ACCESS, // Read/write permission
+			                               0,                   // High-order 32 bits of file offset
+			                               0,                   // Low-order 32 bits of file offset
+			                               64                   // Number of bytes to map
+			);
+		}
+	}
+#endif
 }
 
 std::string CSys147::GetId() const
@@ -85,11 +122,12 @@ void CSys147::SetIoMode(IO_MODE ioMode)
 
 void CSys147::SetButton(unsigned int switchIndex, unsigned int padNumber, PS2::CControllerInfo::BUTTON button)
 {
-	m_switchBindings[{padNumber, button}] = switchIndex;
+	//m_switchBindings[{padNumber, button}] = switchIndex;
 }
 
 void CSys147::SetButtonState(unsigned int padNumber, PS2::CControllerInfo::BUTTON button, bool pressed, uint8* ram)
 {
+#ifndef TEKNOPARROT
 	const auto& binding = m_switchBindings.find({padNumber, button});
 	if(binding != std::end(m_switchBindings))
 	{
@@ -223,7 +261,191 @@ void CSys147::SetButtonState(unsigned int padNumber, PS2::CControllerInfo::BUTTO
 			m_playerSwitchState |= playerSwitchMask;
 		}
 	}
+#endif
 }
+
+#ifdef TEKNOPARROT
+void CSys147::GetTpUiButtons()
+{
+#ifdef _WIN32
+	uint16 systemSwitchMask = 0;
+	uint16 playerSwitchMask = 0;
+	BYTE p1buttons = 0;
+	BYTE p2buttons = 0;
+	BYTE p3buttons = 0;
+	BYTE p4buttons = 0;
+	BYTE coinStatus = 0;
+	BYTE p1buttons2 = 0;
+
+	if(g_jvs_view_ptr)
+	{
+		p1buttons = *reinterpret_cast<BYTE*>(static_cast<BYTE*>(g_jvs_view_ptr) + 8);
+		p2buttons = *reinterpret_cast<BYTE*>(static_cast<BYTE*>(g_jvs_view_ptr) + 9);
+		p3buttons = *reinterpret_cast<BYTE*>(static_cast<BYTE*>(g_jvs_view_ptr) + 10);
+		p4buttons = *reinterpret_cast<BYTE*>(static_cast<BYTE*>(g_jvs_view_ptr) + 11);
+		// awkward...
+		p1buttons2 = *reinterpret_cast<BYTE*>(static_cast<BYTE*>(g_jvs_view_ptr) + 12);
+
+		coinStatus = *reinterpret_cast<BYTE*>(static_cast<BYTE*>(g_jvs_view_ptr) + 32);
+	}
+
+	for(auto& switchState : m_switchStates)
+	{
+		switchState.second = 0x00;
+	}
+
+	if(coinStatus & 0x01)
+	{
+		if(!g_coin_pressed_prev_147)
+		{
+			m_currentCredits++;
+			g_coin_pressed_prev_147 = true;
+		}
+	}
+	else
+	{
+		g_coin_pressed_prev_147 = false;
+	}
+
+	if(p1buttons & 0x01) //Test Button
+	{
+		systemSwitchMask = 0x0008;  //Test Button
+		m_switchStates[108] = 0xFF; // Animal Kaiser Test
+		m_switchStates[PACMAN_AP_BUTTON_TEST] = 0xFF;
+	}
+	if(p1buttons & 0x02) //Select Up
+	{
+		systemSwitchMask |= 0x0002; //Select Up
+		playerSwitchMask |= 0x1000; //P1 Up
+		m_switchStates[110] = 0xFF; //Animal Kaiser Up
+		m_switchStates[PACMAN_AP_BUTTON_UP] = 0xFF;
+	}
+	if(p1buttons & 0x04) //Select Down
+	{
+		systemSwitchMask |= 0x0001; //Select Down
+		playerSwitchMask |= 0x2000; //P1 Down
+		m_switchStates[111] = 0xFF; //Animal Kaiser Down
+		m_switchStates[PACMAN_AP_BUTTON_DOWN] = 0xFF;
+	}
+	if(p1buttons & 0x08) //P1 Left
+	{
+		playerSwitchMask |= 0x8000; //P1 Left
+		m_switchStates[116] = 0xFF; //Animal Kaiser Left
+	}
+	if(p1buttons & 0x10) //P1 Right
+	{
+		playerSwitchMask |= 0x4000; //P1 Right
+		m_switchStates[117] = 0xFF; //Animal Kaiser Right
+	}
+	if(p1buttons & 0x20) //P1 Start
+	{
+		systemSwitchMask |= 0x0804;                    //P1 Start + Enter
+		m_switchStates[109] = 0xFF;                    //Animal Kaiser Enter
+		m_switchStates[PACMAN_AP_BUTTON_ENTER] = 0xFF; //Pacman Arcade Party Enter
+	}
+	if(p1buttons & 0x40) // Service 1
+	{
+		m_switchStates[114] = 0xFF; //Animal Kaiser Service
+		m_switchStates[PACMAN_AP_BUTTON_SERVICE] = 0xFF;
+	}
+	if(p2buttons & 0x02) //Select Up
+	{
+		playerSwitchMask |= 0x0010; //P2 Up
+		m_switchStates[PACMAN_AP_BUTTON_STICKUP] = 0xFF;
+	}
+	if(p2buttons & 0x04) //Select Down
+	{
+		playerSwitchMask |= 0x0020; //P2 Down
+		m_switchStates[PACMAN_AP_BUTTON_STICKDOWN] = 0xFF;
+	}
+	if(p2buttons & 0x08) //P2 Left
+	{
+		playerSwitchMask |= 0x0080; //P2 Left
+		m_switchStates[119] = 0xFF; //Animal Kaiser 2P Left
+		m_switchStates[PACMAN_AP_BUTTON_STICKLEFT] = 0xFF;
+	}
+	if(p2buttons & 0x10) //P2 Right
+	{
+		playerSwitchMask |= 0x0040; //P2 Right
+		m_switchStates[118] = 0xFF; //Animal Kaiser 2P Right
+		m_switchStates[PACMAN_AP_BUTTON_STICKRIGHT] = 0xFF;
+	}
+	if(p2buttons & 0x20) //P2 Start
+	{
+		systemSwitchMask |= 0x0400; //P2 Start
+	}
+	if(p3buttons & 0x02) //Select Up
+	{
+		playerSwitchMask |= 0x0100; //P3 Up
+	}
+	if(p3buttons & 0x04) //Select Down
+	{
+		playerSwitchMask |= 0x0200; //P3 Down
+	}
+	if(p3buttons & 0x08) //P3 Left
+	{
+		playerSwitchMask |= 0x0800; //P3 Left
+	}
+	if(p3buttons & 0x10) //P3 Right
+	{
+		playerSwitchMask |= 0x0400; //P3 Right
+	}
+	if(p3buttons & 0x20) //P3 Start
+	{
+		systemSwitchMask |= 0x0200; //P3 Start
+	}
+	if(p4buttons & 0x02)
+	{
+		playerSwitchMask |= 0x0001; //P4 Up
+	}
+	if(p4buttons & 0x04)
+	{
+		playerSwitchMask |= 0x0002; //P4 Down
+	}
+	if(p4buttons & 0x08) //P4 Left
+	{
+		playerSwitchMask |= 0x0008; //P4 Left
+	}
+	if(p4buttons & 0x10) //P4 Right
+	{
+		playerSwitchMask |= 0x0004; //P4 Right
+	}
+	if(p4buttons & 0x20) //P4 Start
+	{
+		systemSwitchMask |= 0x0100; //P4 Start
+	}
+	if(p1buttons2 & 0x01) //Button 1
+	{
+		m_switchStates[PACMAN_AP_BUTTON_B1] = 0xFF;
+	}
+	if(p1buttons2 & 0x02) //Button 2
+	{
+		m_switchStates[PACMAN_AP_BUTTON_B2] = 0xFF;
+	}
+	if(p1buttons2 & 0x04) //Button 3
+	{
+		m_switchStates[PACMAN_AP_BUTTON_P1] = 0xFF;
+	}
+	if(p1buttons2 & 0x08) //Button 4
+	{
+		m_switchStates[PACMAN_AP_BUTTON_P2] = 0xFF;
+	}
+	// These aren't needed in any games for now but they're mapped in the pipe
+	// so I'll keep them here for future reference
+	// if(p1buttons2 & 0x10) //Button 5
+	// {
+	// 	//m_switchStates[PACMAN_AP_BUTTON_B1] = 0xFF;
+	// }
+	// if(p1buttons2 & 0x20) //Button 6
+	// {
+	// 	//m_switchStates[PACMAN_AP_BUTTON_B1] = 0xFF;
+	// }
+
+	m_systemSwitchState = ~systemSwitchMask;
+	m_playerSwitchState = ~playerSwitchMask;
+#endif
+}
+#endif
 
 void CSys147::SetAxisState(unsigned int padNumber, PS2::CControllerInfo::BUTTON button, uint8 axisValue, uint8* ram)
 {
@@ -369,7 +591,7 @@ bool CSys147::Invoke99(uint32 method, uint32* args, uint32 argsSize, uint32* ret
 			auto packet = reinterpret_cast<const MODULE_99_PACKET*>(args);
 			CLog::GetInstance().Warn(LOG_NAME, "Recv Command 0x%02X.\r\n", packet->command);
 
-			//0x0D -> ???
+			//0x0D -> Timeout Parameter
 			//0x0F -> Get PCB info
 			//0x10 -> System Switches (?)
 			//0x18 -> Switch
@@ -474,7 +696,10 @@ bool CSys147::Invoke99(uint32 method, uint32* args, uint32 argsSize, uint32* ret
 			}
 			else if(packet->command == 0x39)
 			{
-				//Seems to be related to switch values?
+//Seems to be related to switch values?
+#ifdef TEKNOPARROT
+				GetTpUiButtons();
+#endif
 				for(const auto& switchState : m_switchStates)
 				{
 					MODULE_99_PACKET reply = {};
@@ -552,6 +777,9 @@ bool CSys147::Invoke99(uint32 method, uint32* args, uint32 argsSize, uint32* ret
 				//Pac Man Battle Royale uses this for switch state
 				if(m_ioMode == IO_MODE::AI)
 				{
+#ifdef TEKNOPARROT
+					GetTpUiButtons();
+#endif
 					{
 						MODULE_99_PACKET reply = {};
 						reply.type = 2;
@@ -581,6 +809,23 @@ bool CSys147::Invoke99(uint32 method, uint32* args, uint32 argsSize, uint32* ret
 					reply.data[0] = packet->data[0];
 					reply.checksum = ComputePacketChecksum(reply);
 					m_pendingReplies.emplace_back(reply);
+				}
+			}
+			else if(packet->command == 0x41)
+			{
+#ifdef TEKNOPARROT
+				GetTpUiButtons();
+#endif
+				{
+					MODULE_99_PACKET reply = {};
+					reply.type = 2;
+					reply.command = 0x41;
+					reply.data[0] = 0x11;             // flags 1, slot 1 (unsure what the flags do, maybe coin/card/whatever?)
+					reply.data[1] = 0x00;             // slot status (0 == no error)
+					reply.data[2] = m_currentCredits; // amount of credits inserted, delta
+					reply.checksum = ComputePacketChecksum(reply);
+					m_pendingReplies.emplace_back(reply);
+					m_currentCredits = 0; // reset credits after sending
 				}
 			}
 			reinterpret_cast<uint16*>(ret)[0] = 1;

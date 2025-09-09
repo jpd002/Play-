@@ -152,6 +152,16 @@ private:
 		bool depthTest;
 	};
 
+	// Performance statistics (lightweight). Reset each frame in FlipImpl.
+	struct PERFSTATS
+	{
+		uint32 flushes = 0;
+		uint32 contextChanges = 0;
+		uint32 textureSetups = 0;
+		uint32 verticesDrawn = 0;
+	};
+
+	PERFSTATS m_perfStats;
 	//These need to match the layout of the shader's uniform block
 	struct VERTEXPARAMS
 	{
@@ -459,10 +469,11 @@ private:
 		GLSTATE_BLEND = 0x0010,
 		GLSTATE_COLORMASK = 0x0020,
 		GLSTATE_DEPTHMASK = 0x0040,
-		GLSTATE_TEXTURE = 0x0080,
-		GLSTATE_FRAMEBUFFER = 0x0100,
-		GLSTATE_VIEWPORT = 0x0200,
-		GLSTATE_DEPTHTEST = 0x0400,
+		GLSTATE_TEXTURE_BIND = 0x0080,
+		GLSTATE_TEXTURE_PARAMS = 0x0100,
+		GLSTATE_FRAMEBUFFER = 0x0200,
+		GLSTATE_VIEWPORT = 0x0400,
+		GLSTATE_DEPTHTEST = 0x0800,
 	};
 
 	ShaderMap m_shaders;

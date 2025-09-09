@@ -3,6 +3,7 @@
 #include "Types.h"
 #include <functional>
 #include <vector>
+#include <memory>
 
 enum MEMORYMAP_ENDIANNESS
 {
@@ -29,8 +30,14 @@ public:
 		MemoryMapHandlerType handler;
 		MEMORYMAP_TYPE nType;
 	};
-	typedef std::vector<MEMORYMAPELEMENT> MemoryMapListType;
+	//typedef std::vector<MEMORYMAPELEMENT> MemoryMapListType;
 
+	static constexpr uint32 PAGE_SIZE = 4096;
+	static constexpr uint32 PAGE_MASK = PAGE_SIZE - 1;
+	static constexpr uint32 MAX_PAGES = 0x100000;
+	typedef std::vector<MEMORYMAPELEMENT*> MemoryMapListType;
+
+	CMemoryMap();
 	virtual ~CMemoryMap() = default;
 	uint8 GetByte(uint32);
 	virtual uint16 GetHalf(uint32) = 0;
@@ -57,8 +64,9 @@ protected:
 	MemoryMapListType m_writeMap;
 
 private:
-	static void InsertMap(MemoryMapListType&, uint32, uint32, void*, unsigned char);
-	static void InsertMap(MemoryMapListType&, uint32, uint32, const MemoryMapHandlerType&, unsigned char);
+	std::vector<std::unique_ptr<MEMORYMAPELEMENT>> m_elements;
+	void InsertMap(MemoryMapListType&, uint32, uint32, void*, unsigned char);
+	void InsertMap(MemoryMapListType&, uint32, uint32, const MemoryMapHandlerType&, unsigned char);
 };
 
 class CMemoryMap_LSBF : public CMemoryMap

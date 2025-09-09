@@ -135,6 +135,7 @@ namespace Iop
 			uint16 m_coin2 = 0;
 			uint8 m_testButtonState = 0;
 			uint8 m_counter = 0;
+			uint8 m_cabinetId = 1;
 		};
 	}
 }

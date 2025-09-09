@@ -9,6 +9,10 @@
 #include "PathUtils.h"
 #include "iop/Iop_SifCmd.h"
 #include "iop/namco_sys246/Iop_NamcoAcRam.h"
+#ifdef _WIN32
+#include "windows.h"
+#endif
+#include "PS2VM_Preferences.h"
 
 using namespace Iop;
 using namespace Iop::Namco;
@@ -18,6 +22,12 @@ using namespace Iop::Namco;
 #define STATE_FILE ("iop_namcoarcade/state.xml")
 #define STATE_RECV_ADDR ("recvAddr")
 #define STATE_SEND_ADDR ("sendAddr")
+
+#ifdef _WIN32
+static void* g_jvs_file_mapping = nullptr;
+static void* g_jvs_view_ptr = nullptr;
+static bool g_coin_pressed_prev_246;
+#endif
 
 //Ref: http://daifukkat.su/files/jvs_wip.pdf
 enum
@@ -96,6 +106,12 @@ CSys246::CSys246(CSifMan& sifMan, CSifCmd& sifCmd, Namco::CAcRam& acRam, const s
     : m_acRam(acRam)
     , m_gameId(gameId)
 {
+	if(gameId == "wanganmd")
+		m_jvsMode = JVS_MODE::DRIVE;
+	if(gameId == "wanganmr")
+		m_jvsMode = JVS_MODE::DRIVE;
+	if(gameId == "rrvac")
+		m_jvsMode = JVS_MODE::DRIVE;
 	m_module001 = CSifModuleAdapter(std::bind(&CSys246::Invoke001, this,
 	                                          std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5, std::placeholders::_6));
 	m_module003 = CSifModuleAdapter(std::bind(&CSys246::Invoke003, this,
@@ -111,6 +127,32 @@ CSys246::CSys246(CSifMan& sifMan, CSifCmd& sifCmd, Namco::CAcRam& acRam, const s
 	                                                      std::placeholders::_1, std::placeholders::_2));
 
 	m_jvsButtonBits = g_defaultJvsButtonBits;
+#ifdef _WIN32
+#ifdef TEKNOPARROT
+	if(!g_jvs_file_mapping)
+	{
+		g_jvs_file_mapping = CreateFileMappingA(INVALID_HANDLE_VALUE,  // Use paging file
+		                                        nullptr,               // Default security
+		                                        PAGE_READWRITE,        // Read/write access
+		                                        0,                     // Maximum object size (high-order DWORD)
+		                                        64,                    // Maximum object size (low-order DWORD) - 64 bytes
+		                                        "TeknoParrot_JvsState" // Name of mapping object
+		);
+
+		if(g_jvs_file_mapping)
+		{
+			g_jvs_view_ptr = MapViewOfFile(g_jvs_file_mapping,  // Handle to map object
+			                               FILE_MAP_ALL_ACCESS, // Read/write permission
+			                               0,                   // High-order 32 bits of file offset
+			                               0,                   // Low-order 32 bits of file offset
+			                               64                   // Number of bytes to map
+			);
+		}
+	}
+#endif
+#endif
+
+	m_cabinetId = CAppConfig::GetInstance().GetPreferenceInteger(PREF_SYS256_CABINET_LINK_ID);
 }
 
 std::string CSys246::GetId() const
@@ -231,6 +273,7 @@ void CSys246::ProcessJvsPacket(const uint8* input, uint8* output)
 			}
 			else if(m_jvsMode == JVS_MODE::LIGHTGUN)
 			{
+				#ifndef TEKNOPARROT
 				(*output++) = 0x06; //Screen Pos Input
 				(*output++) = 0x10; //X pos bits
 				(*output++) = 0x10; //Y pos bits
@@ -241,6 +284,34 @@ void CSys246::ProcessJvsPacket(const uint8* input, uint8* output)
 				(*output++) = 0x02; //Channel Count (2 channels)
 				(*output++) = 0x10; //Bits (16 bits)
 				(*output++) = 0x00;
+				#else
+				if(m_gameId == "vnight")
+				{
+					(*output++) = 0x06; //Screen Pos Input
+					(*output++) = 0x10; //X pos bits
+					(*output++) = 0x10; //Y pos bits
+					(*output++) = 0x02; //channels
+
+					//Time Crisis 4 reads from analog input to determine screen position
+					(*output++) = 0x03; //Analog Input
+					(*output++) = 0x02; //Channel Count (2 channels)
+					(*output++) = 0x10; //Bits (16 bits)
+					(*output++) = 0x00;
+				}
+				else
+				{
+					(*output++) = 0x06; //Screen Pos Input
+					(*output++) = 0x10; //X pos bits
+					(*output++) = 0x10; //Y pos bits
+					(*output++) = 0x01; //channels
+
+					//Time Crisis 4 reads from analog input to determine screen position
+					(*output++) = 0x03; //Analog Input
+					(*output++) = 0x02; //Channel Count (2 channels)
+					(*output++) = 0x10; //Bits (16 bits)
+					(*output++) = 0x00;
+				}
+				#endif
 
 				(*dstSize) += 8;
 			}
@@ -293,6 +364,28 @@ void CSys246::ProcessJvsPacket(const uint8* input, uint8* output)
 			inSize -= 2;
 
 			(*output++) = 0x01; //Command success
+			#ifdef TEKNOPARROT
+			BYTE testData = 0;
+			BYTE control1 = 0;
+			BYTE control1ext = 0;
+			BYTE control2 = 0;
+			BYTE control2ext = 0;
+#ifdef _WIN32
+			if(g_jvs_view_ptr)
+			{
+				testData = *reinterpret_cast<BYTE*>(static_cast<BYTE*>(g_jvs_view_ptr) + 8);
+				control1 = *reinterpret_cast<BYTE*>(static_cast<BYTE*>(g_jvs_view_ptr) + 9);
+				control1ext = *reinterpret_cast<BYTE*>(static_cast<BYTE*>(g_jvs_view_ptr) + 10);
+				control2 = *reinterpret_cast<BYTE*>(static_cast<BYTE*>(g_jvs_view_ptr) + 11);
+				control2ext = *reinterpret_cast<BYTE*>(static_cast<BYTE*>(g_jvs_view_ptr) + 12);
+
+				if(m_gameId == "timecrs3" && m_cabinetId == 2)
+				{
+					control1ext |= 0x40;
+				}
+			}
+#endif
+#endif
 
 			m_counter++;
 			if(m_testButtonState == 0 && m_jvsSystemButtonState == 0x03 && m_counter > 16)
@@ -305,6 +398,7 @@ void CSys246::ProcessJvsPacket(const uint8* input, uint8* output)
 				m_testButtonState = 0;
 				m_counter = 0;
 			}
+			#ifndef TEKNOPARROT
 			(*output++) = m_testButtonState;
 
 			//(*output++) = (m_jvsSystemButtonState == 0x03) ? 0x80 : 0;  //Test
@@ -318,6 +412,21 @@ void CSys246::ProcessJvsPacket(const uint8* input, uint8* output)
 				(*output++) = static_cast<uint8>(m_jvsButtonState[1] >> 8); //Player 2
 				(*dstSize) += 2;
 			}
+			#else
+						(*output++) = testData;
+
+			//(*output++) = (m_jvsSystemButtonState == 0x03) ? 0x80 : 0;  //Test
+			(*output++) = control1;
+			(*output++) = control1ext;
+			(*dstSize) += 4;
+
+			if(playerCount == 2)
+			{
+				(*output++) = control2;    //Player 2
+				(*output++) = control2ext; //Player 2
+				(*dstSize) += 2;
+			}
+			#endif
 		}
 		break;
 		case JVS_CMD_COININP:
@@ -335,6 +444,33 @@ void CSys246::ProcessJvsPacket(const uint8* input, uint8* output)
 			//					0x02 = counter disconnected
 			//					0x03 = busy
 
+#ifdef TEKNOPARROT
+		// Read coin button state from shared memory (StateView[32] - separate coin offset)
+			// Ported from Wii TeknoParrot code
+			BYTE coin_state = 0;
+#ifdef _WIN32
+			if(g_jvs_view_ptr)
+			{
+				coin_state = *reinterpret_cast<BYTE*>(static_cast<BYTE*>(g_jvs_view_ptr) + 32);
+			}
+#endif
+
+			// Check coin button state from shared memory (direct value, not bit flag)
+			bool coin_pressed_now = (coin_state != 0);
+
+			// Increment coin counter on rising edge (when coin button goes from not pressed to pressed)
+			if(coin_pressed_now && !g_coin_pressed_prev_246)
+			{
+				m_coin1++;
+				if(slotCount == 2)
+				{
+					m_coin2++; // For multiple slots, increment both counters
+				}
+			}
+
+			// Update previous state for next frame
+			g_coin_pressed_prev_246 = coin_pressed_now;
+#endif
 			(*output++) = 0x01; //Command success
 
 			(*output++) = static_cast<uint8>(((m_coin1 >> 8) & 0x3f) | (slot1Condition << 6)); //Coin 1 MSB + slot1condition
@@ -349,6 +485,7 @@ void CSys246::ProcessJvsPacket(const uint8* input, uint8* output)
 
 				(*dstSize) += 2;
 			}
+
 		}
 		break;
 		case JVS_CMD_COININC: // actually never received this jvs cmd
@@ -399,7 +536,7 @@ void CSys246::ProcessJvsPacket(const uint8* input, uint8* output)
 			inSize--;
 
 			(*output++) = 0x01; //Command success
-
+#ifndef TEKNOPARROT
 			if(m_jvsMode == JVS_MODE::LIGHTGUN)
 			{
 				assert(channel == 2);
@@ -429,7 +566,92 @@ void CSys246::ProcessJvsPacket(const uint8* input, uint8* output)
 			{
 				assert(false);
 			}
+#else
+#ifdef _WIN32
+			BYTE analog0 = 0;
+			BYTE analog2 = 0;
+			BYTE analog4 = 0;
+			BYTE analog6 = 0;
+			if(g_jvs_view_ptr)
+			{
+				analog0 = *reinterpret_cast<BYTE*>(static_cast<BYTE*>(g_jvs_view_ptr) + 13);
+				analog2 = *reinterpret_cast<BYTE*>(static_cast<BYTE*>(g_jvs_view_ptr) + 14);
+				analog4 = *reinterpret_cast<BYTE*>(static_cast<BYTE*>(g_jvs_view_ptr) + 15);
+				analog6 = *reinterpret_cast<BYTE*>(static_cast<BYTE*>(g_jvs_view_ptr) + 16);
+			}
+#endif
 
+			if(m_jvsMode == JVS_MODE::LIGHTGUN)
+			{
+				if(m_gameId == "vnight")
+				{
+					(*output++) = static_cast<uint8>(analog0);
+					(*output++) = static_cast<uint8>(0);
+					(*output++) = static_cast<uint8>(analog2);
+					(*output++) = static_cast<uint8>(0);
+					(*output++) = static_cast<uint8>(analog4);
+					(*output++) = static_cast<uint8>(0);
+					(*output++) = static_cast<uint8>(analog6);
+					(*output++) = static_cast<uint8>(0);
+				}
+				else if(m_gameId == "timecrs4")
+				{
+					(*output++) = static_cast<uint8>(0);
+					(*output++) = static_cast<uint8>(analog0);
+					(*output++) = static_cast<uint8>(0);
+					(*output++) = static_cast<uint8>(analog2);
+				}
+				else if(m_gameId == "cobrata" || m_gameId == "cobrataw")
+				{
+					uint16_t a0 = (analog0 << 8) | analog0;
+					uint16_t a2 = (analog2 << 8) | analog2;
+
+					a0 = ~a0; // Vertical axis needs to be inverted somehow
+					if(analog2 == 0) a2 = 0xFFFF; // 0xFFFF = out of screen. 0 does not trigger it
+					if(a0 == 0xFFFF) a0 = 0x0; // and for vertical its the other way around? 
+
+					(*output++) = static_cast<uint8_t>((a2 >> 8) & 0xFF);
+					(*output++) = static_cast<uint8_t>(a2 & 0xFF);
+					(*output++) = static_cast<uint8_t>((a0 >> 8) & 0xFF);
+					(*output++) = static_cast<uint8_t>(a0 & 0xFF);
+				}
+				else
+				{
+					assert(channel == 2);
+					(*output++) = static_cast<uint8>(m_jvsScreenPosX >> 8); //Pos X MSB
+					(*output++) = static_cast<uint8>(m_jvsScreenPosX);      //Pos X LSB
+					(*output++) = static_cast<uint8>(m_jvsScreenPosY >> 8); //Pos Y MSB
+					(*output++) = static_cast<uint8>(m_jvsScreenPosY);      //Pos Y LSB
+				}
+			}
+			else if(m_jvsMode == JVS_MODE::DRUM)
+			{
+				assert(channel == JVS_DRUM_CHANNEL_MAX);
+				for(int i = 0; i < JVS_DRUM_CHANNEL_MAX; i++)
+				{
+					(*output++) = static_cast<uint8>(m_jvsDrumChannels[i] >> 8);
+					(*output++) = static_cast<uint8>(m_jvsDrumChannels[i]);
+				}
+			}
+			else if(m_jvsMode == JVS_MODE::DRIVE)
+			{
+				(*output++) = static_cast<uint8>(analog0);
+				(*output++) = static_cast<uint8>(0);
+				(*output++) = static_cast<uint8>(analog2);
+				(*output++) = static_cast<uint8>(0);
+				(*output++) = static_cast<uint8>(analog4);
+				(*output++) = static_cast<uint8>(0);
+				//for(int i = 0; i < JVS_WHEEL_CHANNEL_MAX; i++)
+				//{
+				//	(*output++) = static_cast<uint8>(m_jvsWheelChannels[i] >> 8);
+				//	(*output++) = static_cast<uint8>(m_jvsWheelChannels[i]);
+				//}
+			}
+			else
+			{
+				assert(false);
+			}
+#endif
 			(*dstSize) += (2 * channel) + 1;
 		}
 		break;
@@ -440,14 +662,66 @@ void CSys246::ProcessJvsPacket(const uint8* input, uint8* output)
 			assert(channel == 1);
 			inWorkChecksum += channel;
 			inSize--;
-
+#ifndef TEKNOPARROT
 			(*output++) = 0x01; //Command success
 
 			(*output++) = static_cast<uint8>(m_jvsScreenPosX >> 8); //Pos X MSB
 			(*output++) = static_cast<uint8>(m_jvsScreenPosX);      //Pos X LSB
 			(*output++) = static_cast<uint8>(m_jvsScreenPosY >> 8); //Pos Y MSB
 			(*output++) = static_cast<uint8>(m_jvsScreenPosY);      //Pos Y LSB
+#else
+#ifdef _WIN32
+			BYTE analog0 = 0;
+			BYTE analog2 = 0;
+			BYTE analog4 = 0;
+			BYTE analog6 = 0;
+			if(g_jvs_view_ptr)
+			{
+				analog0 = *reinterpret_cast<BYTE*>(static_cast<BYTE*>(g_jvs_view_ptr) + 13);
+				analog2 = *reinterpret_cast<BYTE*>(static_cast<BYTE*>(g_jvs_view_ptr) + 14);
+				analog4 = *reinterpret_cast<BYTE*>(static_cast<BYTE*>(g_jvs_view_ptr) + 15);
+				analog6 = *reinterpret_cast<BYTE*>(static_cast<BYTE*>(g_jvs_view_ptr) + 16);
+			}
+#endif
+			(*output++) = 0x01; //Command success
+			if(channel == 1)
+			{
+				if(m_gameId == "timecrs3")
+				{
+					// TPs coordinates need to be inverted
+					float gunX = static_cast<float>(255 - analog2) / 255.0f;
+					float gunY = static_cast<float>(255 - analog0) / 255.0f;
+					m_jvsScreenPosX = static_cast<int16>((gunX * m_screenPosXform[0]) + m_screenPosXform[1]);
+					m_jvsScreenPosY = static_cast<int16>((gunY * m_screenPosXform[2]) + m_screenPosXform[3]);
+					(*output++) = static_cast<uint8>(m_jvsScreenPosX >> 8); //Pos X MSB
+					(*output++) = static_cast<uint8>(m_jvsScreenPosX);      //Pos X LSB
+					(*output++) = static_cast<uint8>(m_jvsScreenPosY >> 8); //Pos Y MSB
+					(*output++) = static_cast<uint8>(m_jvsScreenPosY);      //Pos Y LSB
+				}
+				else if(m_gameId == "timecrs4")
+				{
+					(*output++) = static_cast<uint8>(0);
+					(*output++) = static_cast<uint8>(analog0);
+					(*output++) = static_cast<uint8>(0);
+					(*output++) = static_cast<uint8>(analog2);
+				}
+				else
+				{
+					(*output++) = static_cast<uint8>(analog0);
+					(*output++) = static_cast<uint8>(0);
+					(*output++) = static_cast<uint8>(analog2);
+					(*output++) = static_cast<uint8>(0);
+				}
+			}
+			else
+			{
+				(*output++) = static_cast<uint8>(analog4);
+				(*output++) = static_cast<uint8>(0);
+				(*output++) = static_cast<uint8>(analog6);
+				(*output++) = static_cast<uint8>(0);
+			}
 
+#endif
 			(*dstSize) += 5;
 		}
 		break;
@@ -695,6 +969,7 @@ bool CSys246::Invoke003(uint32 method, uint32* args, uint32 argsSize, uint32* re
 {
 	//method 0x02 -> jvsif_starts
 	//method 0x04 -> jvsif_registers
+	//method 0x05 -> jvsif_request (RRV)
 	//Brake and Gaz pedals control?
 	switch(method)
 	{
@@ -804,7 +1079,14 @@ void CSys246::ProcessMemRequest(uint8* ram, uint32 infoPtr)
 			//0x20 -> Monitor Sync Frequency (1: 31Khz or 0: 15Khz)
 			//0x10 -> Video Sync Signal (1: Separate Sync or 0: Composite Sync)
 			//ram[recvDataPtr + 0x30] = 0;
-
+			// Forcing 31khz mode seems to work fine across games, and will set compatible games to progressive mode.
+			// Games like TC3 that do not support 31khz will still work in 15khz mode with these dipswitches it seems.
+			// Update: Soul Calibur 3 runs progressive even without dipswitches. In fact, having them enabled
+			// will make the game run at 20fps?
+			if(m_gameId != "soulclb3")
+			{
+				ram[recvDataPtr + 0x30] = 0x70;
+			}
 			uint16 pktId = sendData[0x0C];
 			if(pktId != 0)
 			{
