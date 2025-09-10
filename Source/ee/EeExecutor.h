@@ -20,12 +20,14 @@ class CEeExecutor : public CGenericMipsExecutor<BlockLookupTwoWay>
 public:
 	using CachedBlockKey = std::pair<uint128, uint32>;
 	using IdleLoopBlockMap = std::map<uint32, std::optional<CachedBlockKey>>;
+	using BlockFpUseAccurateAddSubSet = std::set<uint32>;
 	using BlockFpRoundingModeMap = std::map<uint32, Jitter::CJitter::ROUNDINGMODE>;
 
 	CEeExecutor(CMIPS&, uint8*);
 	virtual ~CEeExecutor() = default;
 
 	void SetBlockFpRoundingModes(BlockFpRoundingModeMap);
+	void SetBlockFpUseAccurateAddSub(BlockFpUseAccurateAddSubSet);
 	void SetIdleLoopBlocks(IdleLoopBlockMap);
 
 	void AddExceptionHandler();
@@ -43,6 +45,7 @@ private:
 	CachedBlockMap m_cachedBlocks;
 
 	IdleLoopBlockMap m_idleLoopBlocks;
+	BlockFpUseAccurateAddSubSet m_blockFpUseAccurateAddSub;
 	BlockFpRoundingModeMap m_blockFpRoundingModes;
 
 	uint8* m_ram = nullptr;

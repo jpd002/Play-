@@ -596,6 +596,7 @@ void CPS2OS::ApplyGameConfig()
 	}
 
 	CEeExecutor::BlockFpRoundingModeMap blockFpRoundingModes;
+	CEeExecutor::BlockFpUseAccurateAddSubSet blockFpUseAccurateAddSub;
 	CEeExecutor::IdleLoopBlockMap idleLoopBlocks;
 
 	for(Framework::Xml::CFilteringNodeIterator itNode(gameConfigsNode, "GameConfig");
@@ -668,6 +669,20 @@ void CPS2OS::ApplyGameConfig()
 			blockFpRoundingModes.insert(std::make_pair(address, roundingMode));
 		}
 
+		for(Framework::Xml::CFilteringNodeIterator itNode(gameConfigNode, "BlockFpUseAccurateAddSub");
+		    !itNode.IsEnd(); itNode++)
+		{
+			auto node = (*itNode);
+
+			const char* addressString = node->GetAttribute("Address");
+			if(!addressString) continue;
+
+			uint32 address = 0;
+			if(sscanf(addressString, "%x", &address) == 0) continue;
+
+			blockFpUseAccurateAddSub.insert(address);
+		}
+
 		for(Framework::Xml::CFilteringNodeIterator itNode(gameConfigNode, "IdleLoopBlock");
 		    !itNode.IsEnd(); itNode++)
 		{
@@ -701,6 +716,7 @@ void CPS2OS::ApplyGameConfig()
 
 		auto executor = static_cast<CEeExecutor*>(m_ee.m_executor.get());
 		executor->SetBlockFpRoundingModes(std::move(blockFpRoundingModes));
+		executor->SetBlockFpUseAccurateAddSub(std::move(blockFpUseAccurateAddSub));
 		executor->SetIdleLoopBlocks(std::move(idleLoopBlocks));
 
 		break;

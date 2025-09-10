@@ -50,6 +50,11 @@ void CEeExecutor::SetBlockFpRoundingModes(BlockFpRoundingModeMap blockFpRounding
 	m_blockFpRoundingModes = std::move(blockFpRoundingModes);
 }
 
+void CEeExecutor::SetBlockFpUseAccurateAddSub(BlockFpUseAccurateAddSubSet blockFpUseAccurateAddSub)
+{
+	m_blockFpUseAccurateAddSub = std::move(blockFpUseAccurateAddSub);
+}
+
 void CEeExecutor::SetIdleLoopBlocks(IdleLoopBlockMap idleLoopBlocks)
 {
 	m_idleLoopBlocks = std::move(idleLoopBlocks);
@@ -184,7 +189,7 @@ BasicBlockPtr CEeExecutor::BlockFactory(CMIPS& context, uint32 start, uint32 end
 		}
 	}
 
-	bool fpUseAccurateAddSub = false;
+	bool fpUseAccurateAddSub = (m_blockFpUseAccurateAddSub.count(start) != 0);
 
 	bool isCacheableBlock = !hasBreakpoint && !blockFpRoundingModeOverride.has_value() && !isIdleLoopBlockOverride && !fpUseAccurateAddSub;
 	if(isCacheableBlock)
