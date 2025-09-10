@@ -687,7 +687,7 @@ void CPS2OS::ApplyGameConfig()
 				CEeExecutor::CachedBlockKey blockKey;
 				int parseCount = sscanf(checkBlockKeyString, "%08X%08X%08X%08X;%d",
 				                        &blockKey.first.nV[3], &blockKey.first.nV[2],
-				                        &blockKey.first.nV[1], &blockKey.first.nV0,
+				                        &blockKey.first.nV[1], &blockKey.first.nV[0],
 				                        &blockKey.second);
 				if(parseCount != 5)
 				{
