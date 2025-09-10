@@ -40,6 +40,10 @@
 	<GameConfig Executable="SLUS_208.98;1" Title="Star Wars: Battlefront">
 		<IdleLoopBlock Address="0x00342138" />
 	</GameConfig>
+	<GameConfig Executable="SLUS_210.05;1" Title="Kingdom Hearts II">
+		<BlockFpUseAccurateAddSub Address="0x001D8154" Description="Fixes issue with Tron level boss" />
+		<BlockFpUseAccurateAddSub Address="0x001D8164" Description="Fixes issue with Tron level boss" />
+	</GameConfig>
 	<GameConfig Executable="SLUS_210.15;1" Title="DreamWorks Madagascar">
 		<IdleLoopBlock Address="0x00294410" CheckBlockKey="8F7278F0F50BB7EBF2039E27C816E4B3;20" Description="Version 3.01" />
 	</GameConfig>
