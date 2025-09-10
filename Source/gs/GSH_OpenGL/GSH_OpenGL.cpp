@@ -566,24 +566,67 @@ void CGSH_OpenGL::SetRenderingContext(uint64 primReg)
 	}
 
 	//--------------------------------------------------------
-	//Check if a different shader is needed
+	// Fast path: if everything (shader caps + relevant regs) matches, skip.
 	//--------------------------------------------------------
-
-	if(!m_renderState.isValid ||
-	   (static_cast<uint32>(m_renderState.shaderCaps) != static_cast<uint32>(shaderCaps)))
+	if(m_renderState.isValid)
 	{
-		FlushVertexBuffer();
-		m_renderState.shaderCaps = shaderCaps;
+		if(m_renderState.isTextureStateValid && m_renderState.isFramebufferStateValid &&
+		   (static_cast<uint32>(m_renderState.shaderCaps) == static_cast<uint32>(shaderCaps)) &&
+		   (m_renderState.primReg == primReg) &&
+		   (m_renderState.alphaReg == alphaReg) &&
+		   (m_renderState.testReg == testReg) &&
+		   (m_renderState.zbufReg == zbufReg) &&
+		   (m_renderState.frameReg == frameReg) &&
+		   (m_renderState.scissorReg == scissorReg) &&
+		   (m_renderState.tex0Reg == tex0Reg) &&
+		   (m_renderState.tex1Reg == tex1Reg) &&
+		   (m_renderState.texAReg == texAReg) &&
+		   (m_renderState.clampReg == clampReg) &&
+		   (m_renderState.fogColReg == fogColReg))
+		{
+			// Nothing changed.
+			auto offsetFast = make_convertible<XYOFFSET>(m_nReg[GS_REG_XYOFFSET_1 + context]);
+			m_nPrimOfsX = offsetFast.GetX();
+			m_nPrimOfsY = offsetFast.GetY();
+			return;
+		}
 	}
 
 	//--------------------------------------------------------
-	//Set render states
+	// Determine which states changed; perform a single flush before modifying any.
 	//--------------------------------------------------------
+	uint64 prevPrimValue = m_renderState.isValid ? m_renderState.primReg : 0;
+	auto prevPrim = make_convertible<PRMODE>(prevPrimValue);
+	bool shaderChanged = !m_renderState.isValid || (static_cast<uint32>(m_renderState.shaderCaps) != static_cast<uint32>(shaderCaps));
+	bool primChanged = !m_renderState.isValid || (m_renderState.primReg != primReg);
+	bool blendEnableChanged = primChanged && !m_hasFramebufferFetchExtension && ((!m_renderState.isValid) || (prevPrim.nAlpha != prim.nAlpha));
+	bool alphaChanged = !m_renderState.isValid || (m_renderState.alphaReg != alphaReg);
+	bool testChanged = !m_renderState.isValid || (m_renderState.testReg != testReg);
+	bool zbufChanged = !m_renderState.isValid || (m_renderState.zbufReg != zbufReg);
+	bool framebufferRelatedChanged = !m_renderState.isValid || !m_renderState.isFramebufferStateValid ||
+	                                 (m_renderState.frameReg != frameReg) || zbufChanged || (m_renderState.scissorReg != scissorReg) || testChanged;
+	bool textureEnableChanged = !m_renderState.isValid || (prevPrim.nTexture != prim.nTexture);
+	bool textureChanged = !m_renderState.isValid || !m_renderState.isTextureStateValid ||
+	                      (m_renderState.tex0Reg != tex0Reg) || (m_renderState.tex1Reg != tex1Reg) || (m_renderState.texAReg != texAReg) ||
+	                      (m_renderState.clampReg != clampReg) || textureEnableChanged;
+	bool fogColorChanged = !m_renderState.isValid || (m_renderState.fogColReg != fogColReg);
 
-	if(!m_renderState.isValid ||
-	   (m_renderState.primReg != primReg))
+	bool needFlush = shaderChanged || primChanged || alphaChanged || testChanged || zbufChanged || framebufferRelatedChanged || textureChanged || fogColorChanged;
+	if(needFlush)
 	{
 		FlushVertexBuffer();
+	}
+
+	//--------------------------------------------------------
+	// Apply state changes (order kept similar to original when relevant)
+	//--------------------------------------------------------
+	if(shaderChanged)
+	{
+		m_renderState.shaderCaps = shaderCaps;
+	}
+
+	if(blendEnableChanged)
+	{
 		if(!m_hasFramebufferFetchExtension)
 		{
 			m_renderState.blendEnabled = ((prim.nAlpha != 0) && m_alphaBlendingEnabled) ? GL_TRUE : GL_FALSE;
@@ -591,60 +634,38 @@ void CGSH_OpenGL::SetRenderingContext(uint64 primReg)
 		}
 	}
 
-	if(!m_renderState.isValid ||
-	   (m_renderState.alphaReg != alphaReg))
+	if(alphaChanged)
 	{
-		FlushVertexBuffer();
 		SetupBlendingFunction(alphaReg);
 		CHECKGLERROR();
 	}
 
-	if(!m_renderState.isValid ||
-	   (m_renderState.testReg != testReg))
+	if(testChanged)
 	{
-		FlushVertexBuffer();
 		SetupTestFunctions(testReg);
 		CHECKGLERROR();
 	}
 
-	if(!m_renderState.isValid ||
-	   (m_renderState.zbufReg != zbufReg) ||
-	   (m_renderState.testReg != testReg))
+	if(zbufChanged || testChanged)
 	{
-		FlushVertexBuffer();
 		SetupDepthBuffer(zbufReg, testReg);
 		CHECKGLERROR();
 	}
 
-	if(!m_renderState.isValid ||
-	   !m_renderState.isFramebufferStateValid ||
-	   (m_renderState.frameReg != frameReg) ||
-	   (m_renderState.zbufReg != zbufReg) ||
-	   (m_renderState.scissorReg != scissorReg) ||
-	   (m_renderState.testReg != testReg))
+	if(framebufferRelatedChanged)
 	{
-		FlushVertexBuffer();
 		SetupFramebuffer(frameReg, zbufReg, scissorReg, testReg);
 		CHECKGLERROR();
 	}
 
-	if(!m_renderState.isValid ||
-	   !m_renderState.isTextureStateValid ||
-	   (m_renderState.tex0Reg != tex0Reg) ||
-	   (m_renderState.tex1Reg != tex1Reg) ||
-	   (m_renderState.texAReg != texAReg) ||
-	   (m_renderState.clampReg != clampReg) ||
-	   (m_renderState.primReg != primReg))
+	if(textureChanged)
 	{
-		FlushVertexBuffer();
 		SetupTexture(primReg, tex0Reg, tex1Reg, texAReg, clampReg);
 		CHECKGLERROR();
 	}
 
-	if(!m_renderState.isValid ||
-	   (m_renderState.fogColReg != fogColReg))
+	if(fogColorChanged)
 	{
-		FlushVertexBuffer();
 		SetupFogColor(fogColReg);
 		CHECKGLERROR();
 	}
@@ -1996,7 +2017,39 @@ void CGSH_OpenGL::VertexKick(uint8 nRegister, uint64 nValue)
 
 		if(nDrawingKick)
 		{
-			SetRenderingContext(m_PrimitiveMode);
+			// Fast skip if nothing relevant changed since last draw
+			bool needCtx = true;
+			if(m_renderState.isValid && m_renderState.isTextureStateValid && m_renderState.isFramebufferStateValid)
+			{
+				uint64 primReg = m_PrimitiveMode;
+				auto primLocal = make_convertible<PRMODE>(primReg);
+				unsigned ctx = primLocal.nContext;
+				uint64 testReg = m_nReg[GS_REG_TEST_1 + ctx];
+				uint64 frameReg = m_nReg[GS_REG_FRAME_1 + ctx];
+				uint64 alphaReg = m_nReg[GS_REG_ALPHA_1 + ctx];
+				uint64 zbufReg = m_nReg[GS_REG_ZBUF_1 + ctx];
+				uint64 tex0Reg = m_nReg[GS_REG_TEX0_1 + ctx];
+				uint64 tex1Reg = m_nReg[GS_REG_TEX1_1 + ctx];
+				uint64 texAReg = m_nReg[GS_REG_TEXA];
+				uint64 clampReg = m_nReg[GS_REG_CLAMP_1 + ctx];
+				uint64 fogColReg = m_nReg[GS_REG_FOGCOL];
+				uint64 scissorReg = m_nReg[GS_REG_SCISSOR_1 + ctx];
+				if(m_renderState.primReg == primReg &&
+				   m_renderState.testReg == testReg &&
+				   m_renderState.frameReg == frameReg &&
+				   m_renderState.alphaReg == alphaReg &&
+				   m_renderState.zbufReg == zbufReg &&
+				   m_renderState.tex0Reg == tex0Reg &&
+				   m_renderState.tex1Reg == tex1Reg &&
+				   m_renderState.texAReg == texAReg &&
+				   m_renderState.clampReg == clampReg &&
+				   m_renderState.fogColReg == fogColReg &&
+				   m_renderState.scissorReg == scissorReg)
+				{
+					needCtx = false; // fully same state; skip call
+				}
+			}
+			if(needCtx) SetRenderingContext(m_PrimitiveMode);
 		}
 
 		switch(m_primitiveType)
