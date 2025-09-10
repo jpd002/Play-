@@ -48,6 +48,7 @@ else()
 endif()
 
 add_definitions(-DPLAY_VERSION="${PROJECT_Version}")
+add_definitions(-DTEKNOPARROT)
 set(PROJECT_LIBS)
 
 include(PrecompiledHeader)

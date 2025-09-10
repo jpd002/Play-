@@ -97,23 +97,25 @@ void CPadMan::LoadState(Framework::CZipArchiveReader& archive)
 void CPadMan::SetButtonState(unsigned int padNumber, CControllerInfo::BUTTON button, bool pressed, uint8* ram)
 {
 	if(padNumber >= MAX_PADS) return;
-
+#ifndef TEKNOPARROT
 	uint32 padDataAddress = m_padDataAddress[padNumber];
 	if(padDataAddress == 0) return;
 
 	ExecutePadDataFunction(std::bind(&CPadMan::PDF_SetButtonState, PLACEHOLDER_1, button, pressed),
 	                       ram + padDataAddress, PADNUM);
+#endif
 }
 
 void CPadMan::SetAxisState(unsigned int padNumber, CControllerInfo::BUTTON button, uint8 axisValue, uint8* ram)
 {
 	if(padNumber >= MAX_PADS) return;
-
+#ifndef TEKNOPARROT
 	uint32 padDataAddress = m_padDataAddress[padNumber];
 	if(padDataAddress == 0) return;
 
 	ExecutePadDataFunction(std::bind(&CPadMan::PDF_SetAxisState, std::placeholders::_1, button, axisValue),
 	                       ram + padDataAddress, PADNUM);
+#endif
 }
 
 void CPadMan::Open(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)

@@ -4,6 +4,13 @@
 
 #define LOG_NAME "MemoryMap"
 
+CMemoryMap::CMemoryMap()
+{
+	m_instructionMap.resize(MAX_PAGES, nullptr);
+	m_readMap.resize(MAX_PAGES, nullptr);
+	m_writeMap.resize(MAX_PAGES, nullptr);
+}
+
 void CMemoryMap::InsertReadMap(uint32 start, uint32 end, void* pointer, unsigned char key)
 {
 	assert(GetReadMap(start) == nullptr);
@@ -56,36 +63,60 @@ const CMemoryMap::MEMORYMAPELEMENT* CMemoryMap::GetInstructionMap(uint32 address
 
 void CMemoryMap::InsertMap(MemoryMapListType& memoryMap, uint32 start, uint32 end, void* pointer, unsigned char key)
 {
-	MEMORYMAPELEMENT element;
-	element.nStart = start;
-	element.nEnd = end;
-	element.pPointer = pointer;
-	element.nType = MEMORYMAP_TYPE_MEMORY;
-	memoryMap.push_back(element);
+	auto element = std::make_unique<MEMORYMAPELEMENT>();
+	element->nStart = start;
+	element->nEnd = end;
+	element->pPointer = pointer;
+	element->nType = MEMORYMAP_TYPE_MEMORY;
+
+	MEMORYMAPELEMENT* elementPtr = element.get();
+	m_elements.push_back(std::move(element));
+
+	for(uint32 page = start & ~PAGE_MASK; page <= end; page += PAGE_SIZE)
+	{
+		uint32 pageIndex = page >> 12;
+		if(pageIndex < MAX_PAGES)
+		{
+			memoryMap[pageIndex] = elementPtr;
+		}
+	}
 }
 
 void CMemoryMap::InsertMap(MemoryMapListType& memoryMap, uint32 start, uint32 end, const MemoryMapHandlerType& handler, unsigned char key)
 {
-	MEMORYMAPELEMENT element;
-	element.nStart = start;
-	element.nEnd = end;
-	element.handler = handler;
-	element.pPointer = nullptr;
-	element.nType = MEMORYMAP_TYPE_FUNCTION;
-	memoryMap.push_back(element);
+	auto element = std::make_unique<MEMORYMAPELEMENT>();
+	element->nStart = start;
+	element->nEnd = end;
+	element->handler = handler;
+	element->pPointer = nullptr;
+	element->nType = MEMORYMAP_TYPE_FUNCTION;
+
+	MEMORYMAPELEMENT* elementPtr = element.get();
+	m_elements.push_back(std::move(element));
+
+	for(uint32 page = start & ~PAGE_MASK; page <= end; page += PAGE_SIZE)
+	{
+		uint32 pageIndex = page >> 12;
+		if(pageIndex < MAX_PAGES)
+		{
+			memoryMap[pageIndex] = elementPtr;
+		}
+	}
 }
 
 const CMemoryMap::MEMORYMAPELEMENT* CMemoryMap::GetMap(const MemoryMapListType& memoryMap, uint32 nAddress)
 {
-	for(const auto& mapElement : memoryMap)
-	{
-		if(nAddress <= mapElement.nEnd)
-		{
-			if(!(nAddress >= mapElement.nStart)) return nullptr;
-			return &mapElement;
-		}
-	}
-	return nullptr;
+    uint32 pageIndex = (nAddress & ~PAGE_MASK) >> 12;
+    if(pageIndex >= MAX_PAGES) return nullptr;
+    
+    MEMORYMAPELEMENT* element = memoryMap[pageIndex];
+    if(!element) return nullptr;
+    
+    if(nAddress >= element->nStart && nAddress <= element->nEnd)
+    {
+        return element;
+    }
+    return nullptr;
 }
 
 uint8 CMemoryMap::GetByte(uint32 nAddress)
@@ -230,16 +261,12 @@ void CMemoryMap_LSBF::SetWord(uint32 nAddress, uint32 nValue)
 		CLog::GetInstance().Print(LOG_NAME, "Wrote word to unmapped memory (0x%08X, 0x%08X).\r\n", nAddress, nValue);
 		return;
 	}
-	switch(e->nType)
+	if(e->nType == MEMORYMAP_TYPE_MEMORY) [[likely]]
 	{
-	case MEMORYMAP_TYPE_MEMORY:
-		*(uint32*)&((uint8*)e->pPointer)[nAddress - e->nStart] = nValue;
-		break;
-	case MEMORYMAP_TYPE_FUNCTION:
+		*reinterpret_cast<uint32*>(&reinterpret_cast<uint8*>(e->pPointer)[nAddress - e->nStart]) = nValue;
+	}
+	else
+	{
 		e->handler(nAddress, nValue);
-		break;
-	default:
-		assert(0);
-		break;
 	}
 }
