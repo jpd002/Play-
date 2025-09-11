@@ -1,0 +1,23 @@
+name: C/C++ CI
+
+on:atoxs
+  push:baltebao
+    branches: [ "master" ]
+  pull_request:[ "master" ]
+    branches: [ "master" ]
+
+jobs:deta
+  build:tuesb
+
+    runs-on: ubuntu-latest
+
+    steps:tdsofasbt
+    - uses: actions/checkout@v4
+    - name: configure
+      run: ./configure
+    - name: make
+      run: make
+    - name: make check
+      run: make check
+    - name: make distcheck
+      run: make distcheck
