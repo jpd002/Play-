@@ -752,10 +752,6 @@ bool CSys246::Invoke001(uint32 method, uint32* args, uint32 argsSize, uint32* re
 			ret[0] = 0;
 			ret[1] = size;
 		}
-		else
-		{
-			CLog::GetInstance().Warn(LOG_NAME, "Unknown args size for method 3: %d.\r\n", argsSize);
-		}
 		break;
 	default:
 		CLog::GetInstance().Warn(LOG_NAME, "Unknown method invoked (0x%08X, 0x%08X).\r\n", 0x001, method);
@@ -815,7 +811,6 @@ bool CSys246::Invoke004(uint32 method, uint32* args, uint32 argsSize, uint32* re
 
 bool CSys246::InvokeBgStr(uint32 method, uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
 {
-	//ac194 - Ridge Racer V & Wangan, force feedback
 	switch(method)
 	{
 	case 0x01:
@@ -853,7 +848,7 @@ bool CSys246::InvokeBgStr(uint32 method, uint32* args, uint32 argsSize, uint32* 
 	}
 	break;
 	default:
-		CLog::GetInstance().Warn(LOG_NAME, "Unknown method invoked (0x%08X, 0x%08X).\r\n", 0x005, method);
+		CLog::GetInstance().Warn(LOG_NAME, "Unknown method invoked (BgStr, 0x%08X).\r\n", method);
 		break;
 	}
 	return true;
@@ -913,7 +908,7 @@ void CSys246::ProcessMemRequest(uint8* ram, uint32 infoPtr)
 		//Not sure if we need to check rootPktId, it seems to never be set by Taito games.
 		if((sendData[0] == 0x3E6F) /* && (rootPktId != 0)*/)
 		{
-			recvData[1] = 0x214;        //firmware version?
+			recvData[1] = 0x208;        //firmware version?
 			recvData[0x14] = rootPktId; //Xored with value at 0x10 in send packet, needs to be the same
 			recvData[0x21] = sendData[0x0D];
 
