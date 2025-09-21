@@ -88,6 +88,10 @@
 	<GameConfig Executable="SLPM_657.75;1" Title="DDR Festival: Dance Dance Revolution">
 		<BlockFpRoundingMode Address="0x00122F08" Mode="NEAREST" Description="Fixes issue with inability to select some options in UI." />
 	</GameConfig>
+	<GameConfig Executable="SLPM_666.75;1" Title="Kingdom Hearts II Final Mix">
+		<BlockFpUseAccurateAddSub Address="0x001DA9FC" Description="Fixes issue with Tron level boss" />
+		<BlockFpUseAccurateAddSub Address="0x001DAA0C" Description="Fixes issue with Tron level boss" />
+	</GameConfig>
 	<GameConfig Executable="SCES_500.03;1" Title="Dead or Alive 2">
 		<Patch Address="0x002b4c44" Value="0x24060000" Description="Make the file reading RPC call synchronous. Requires proper data cache handling to avoid issue." />
 	</GameConfig>
