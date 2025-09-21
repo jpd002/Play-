@@ -102,10 +102,15 @@ CSys246::CSys246(CSifMan& sifMan, CSifCmd& sifCmd, Namco::CAcRam& acRam, const s
 	                                          std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5, std::placeholders::_6));
 	m_module004 = CSifModuleAdapter(std::bind(&CSys246::Invoke004, this,
 	                                          std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5, std::placeholders::_6));
+	m_moduleBgStr = CSifModuleAdapter(std::bind(&CSys246::InvokeBgStr, this,
+	                                          std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5, std::placeholders::_6));
+	
 
 	sifMan.RegisterModule(MODULE_ID_1, &m_module001);
 	sifMan.RegisterModule(MODULE_ID_3, &m_module003);
 	sifMan.RegisterModule(MODULE_ID_4, &m_module004);
+	sifMan.RegisterModule(0x00830120, &m_moduleBgStr);	// Serial IO SIF module ID
+														// May be used for other 246 games that use the serial port
 
 	sifCmd.AddHleCmdHandler(COMMAND_ID_ACFLASH, std::bind(&CSys246::ProcessAcFlashCommand, this,
 	                                                      std::placeholders::_1, std::placeholders::_2));
@@ -460,6 +465,70 @@ void CSys246::ProcessJvsPacket(const uint8* input, uint8* output)
 	FRAMEWORK_MAYBE_UNUSED uint8 inChecksum = (*input);
 	assert(inChecksum == (inWorkChecksum & 0xFF));
 }
+void CSys246::ProcessBgStrPacket(const uint8* input, uint8* output)
+{
+	switch((*input++))
+	{
+	case 0x20:
+	{ // Reset
+		(*output++) = 0xA0;
+		(*output++) = 0x00;
+		m_bgStrReportWheelPos = false;
+		return;
+	};
+	case 0x1F:
+	{ // Motor stop
+		if(!m_bgStrReportWheelPos)
+		{
+			(*output++) = 0x1F;	// Skip calibration, 0x8F for normal calibration routine
+			(*output++) = 0x00;
+			return;
+		}
+		break;
+	};
+	case 0x11:
+	{ // Begin reporting wheel pos
+		m_bgStrReportWheelPos = true;
+		(*output++) = 0x00;
+		(*output++) = 0x00;
+		return;
+	};
+	case 0x14:
+	{                          // Get board state
+		(*output++) = 0x1A;
+		(*output++) = 0x05;
+		return;
+	};
+	// The below are all force feedback motor commands
+	case 0x01:
+	case 0x02:
+	case 0x03:
+	case 0x04:
+	case 0x05:
+	case 0x06:
+	case 0x07:
+	case 0x0A:
+	case 0x0B:
+	case 0x0D:
+	case 0x0E:
+		break;
+	case 0x00: // No-operation, the game just wants steering data
+		break;
+	}
+
+	if(m_bgStrReportWheelPos)
+	{
+		uint8_t precision = 3; // Dont know what values are expected here, but this is what real board returns
+		uint16_t wheelPos = m_jvsWheelChannels[0] | (m_jvsWheelChannels[1] >> 8); // With above gives us 10-bit wheel value
+		uint16_t state = wheelPos | (precision << 10);
+		*output = wheelPos;
+	}
+	else
+	{
+		(*output++) = 0x8C;
+		(*output++) = 0xA0;
+	}
+}
 
 void CSys246::SaveState(Framework::CZipArchiveWriter& archive) const
 {
@@ -683,6 +752,10 @@ bool CSys246::Invoke001(uint32 method, uint32* args, uint32 argsSize, uint32* re
 			ret[0] = 0;
 			ret[1] = size;
 		}
+		else
+		{
+			CLog::GetInstance().Warn(LOG_NAME, "Unknown args size for method 3: %d.\r\n", argsSize);
+		}
 		break;
 	default:
 		CLog::GetInstance().Warn(LOG_NAME, "Unknown method invoked (0x%08X, 0x%08X).\r\n", 0x001, method);
@@ -735,6 +808,52 @@ bool CSys246::Invoke004(uint32 method, uint32* args, uint32 argsSize, uint32* re
 		break;
 	default:
 		CLog::GetInstance().Warn(LOG_NAME, "Unknown method invoked (0x%08X, 0x%08X).\r\n", 0x004, method);
+		break;
+	}
+	return true;
+}
+
+bool CSys246::InvokeBgStr(uint32 method, uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
+{
+	//ac194 - Ridge Racer V & Wangan, force feedback
+	switch(method)
+	{
+	case 0x01:
+	{
+		uint32 baud = args[0];
+		uint32 fifo = args[1];
+		ret[0x00] = 0;
+	}
+	break;
+	case 0x03:
+	{
+		if(!m_bgStrReply.empty())
+		{
+			ret[0x00] = 2;
+			reinterpret_cast<uint8*>(ret)[0x04] = m_bgStrReply.front(); m_bgStrReply.pop();
+			reinterpret_cast<uint8*>(ret)[0x05] = m_bgStrReply.front(); m_bgStrReply.pop();
+		}
+	}
+	break;
+	case 0x04:
+	{
+		uint32 len = args[0];
+		uint8* data = reinterpret_cast<uint8*>(&args[1]);
+		uint8 res[2];
+		ProcessBgStrPacket(data, res);
+		m_bgStrReply.push(res[0]);
+		m_bgStrReply.push(res[1]);
+		ret[0x00] = 0;
+	}
+	break;
+	case 0x0A:
+	{
+		uint32 param1 = args[0];
+		ret[0x00] = 0;
+	}
+	break;
+	default:
+		CLog::GetInstance().Warn(LOG_NAME, "Unknown method invoked (0x%08X, 0x%08X).\r\n", 0x005, method);
 		break;
 	}
 	return true;
@@ -794,7 +913,7 @@ void CSys246::ProcessMemRequest(uint8* ram, uint32 infoPtr)
 		//Not sure if we need to check rootPktId, it seems to never be set by Taito games.
 		if((sendData[0] == 0x3E6F) /* && (rootPktId != 0)*/)
 		{
-			recvData[1] = 0x208;        //firmware version?
+			recvData[1] = 0x214;        //firmware version?
 			recvData[0x14] = rootPktId; //Xored with value at 0x10 in send packet, needs to be the same
 			recvData[0x21] = sendData[0x0D];
 
@@ -822,6 +941,10 @@ void CSys246::ProcessMemRequest(uint8* ram, uint32 infoPtr)
 			recvData[0x15] = 0x5210;
 			recvData[0x16] = 0x5210;
 			recvData[0x17] = 0x5210;
+		}
+		else
+		{
+			CLog::GetInstance().Warn(LOG_NAME, "UNK SENDDATA: 0x%04X\r\n", sendData[0]);
 		}
 	}
 	else if((info[1] >= 0x40000000) && (info[1] < 0x50000000))

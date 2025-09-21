@@ -1,6 +1,7 @@
 #pragma once
 
 #include <array>
+#include <queue>
 #include "../Iop_Module.h"
 #include "../Iop_SifMan.h"
 #include "../../SifModuleAdapter.h"
@@ -98,10 +99,12 @@ namespace Iop
 			bool Invoke001(uint32, uint32*, uint32, uint32*, uint32, uint8*);
 			bool Invoke003(uint32, uint32*, uint32, uint32*, uint32, uint8*);
 			bool Invoke004(uint32, uint32*, uint32, uint32*, uint32, uint8*);
+			bool InvokeBgStr(uint32, uint32*, uint32, uint32*, uint32, uint8*);
 
 			void ProcessAcFlashCommand(const SIFCMDHEADER*, CSifMan&);
 
 			void ProcessJvsPacket(const uint8*, uint8*);
+			void ProcessBgStrPacket(const uint8*, uint8*);
 
 			static fs::path GetArcadeSavePath();
 			void ProcessMemRequest(uint8*, uint32);
@@ -113,6 +116,7 @@ namespace Iop
 			CSifModuleAdapter m_module001;
 			CSifModuleAdapter m_module003;
 			CSifModuleAdapter m_module004;
+			CSifModuleAdapter m_moduleBgStr;
 
 			std::string m_gameId;
 			uint32 m_recvAddr = 0;
@@ -135,6 +139,9 @@ namespace Iop
 			uint16 m_coin2 = 0;
 			uint8 m_testButtonState = 0;
 			uint8 m_counter = 0;
+
+			std::queue<uint8> m_bgStrReply;
+			bool m_bgStrReportWheelPos = false;
 		};
 	}
 }
