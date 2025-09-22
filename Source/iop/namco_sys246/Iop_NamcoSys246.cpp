@@ -808,13 +808,7 @@ void CSys246::ProcessMemRequest(uint8* ram, uint32 infoPtr)
 
 			// Forcing 31khz mode seems to work fine across games, and will set compatible games to progressive mode.
 			// Games like TC3 that do not support 31khz will still work in 15khz mode with these dipswitches it seems.
-			// Update: Soul Calibur 3 runs progressive even without dipswitches. In fact, having them enabled
-			// will make the game run at 20fps?
-			// Soul Calibur 2 also seems to run slower with this on.
-			if(m_gameId != "soulclb3")
-			{
-				ram[recvDataPtr + 0x30] = 0x70;
-			}
+			ram[recvDataPtr + 0x30] = 0x70;
 
 			uint16 pktId = sendData[0x0C];
 			if(pktId != 0)
