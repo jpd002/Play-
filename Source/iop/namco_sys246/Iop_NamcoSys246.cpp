@@ -519,9 +519,11 @@ void CSys246::ProcessBgStrPacket(const uint8* input, uint8* output)
 	if(m_bgStrReportWheelPos)
 	{
 		uint8_t precision = 3; // Dont know what values are expected here, but this is what real board returns
-		uint16_t wheelPos = m_jvsWheelChannels[0] | (m_jvsWheelChannels[1] >> 8); // With above gives us 10-bit wheel value
+		uint16_t wheelPos = (0xFF - (m_jvsWheelChannels[JVS_WHEEL_CHANNEL_WHEEL] >> 8)) * 4; // With above gives us 10-bit wheel value, though play only provides an 8 bit axis, 
+																							 // which when passed to jvs is converted to a 16 bit big endian number, bg3 also needs this inverted for some reason?
 		uint16_t state = wheelPos | (precision << 10);
-		*output = wheelPos;
+		(*output++) = static_cast<uint8>(state >> 8);
+		(*output++) = static_cast<uint8>(state);
 	}
 	else
 	{
@@ -813,14 +815,19 @@ bool CSys246::InvokeBgStr(uint32 method, uint32* args, uint32 argsSize, uint32* 
 {
 	switch(method)
 	{
-	case 0x01:
+	case 0x01:	// Serial setup
 	{
 		uint32 baud = args[0];
 		uint32 fifo = args[1];
 		ret[0x00] = 0;
 	}
 	break;
-	case 0x03:
+	case 0x02:	// ???
+	{
+		ret[0x00] = 0;
+	}
+	break;
+	case 0x03:	// Serial Read
 	{
 		if(!m_bgStrReply.empty())
 		{
@@ -830,7 +837,7 @@ bool CSys246::InvokeBgStr(uint32 method, uint32* args, uint32 argsSize, uint32* 
 		}
 	}
 	break;
-	case 0x04:
+	case 0x04:	// Serial Write
 	{
 		uint32 len = args[0];
 		uint8* data = reinterpret_cast<uint8*>(&args[1]);
@@ -841,9 +848,21 @@ bool CSys246::InvokeBgStr(uint32 method, uint32* args, uint32 argsSize, uint32* 
 		ret[0x00] = 0;
 	}
 	break;
-	case 0x0A:
+	case 0x05:	// ???
+	{
+		ret[0x00] = 0;
+	}
+	break;
+	case 0x0A:	// Serial Write? and Read (Used after bootup to actually read steering data)
 	{
 		uint32 param1 = args[0];
+		uint8* data = reinterpret_cast<uint8*>(&args[1]);
+		ProcessBgStrPacket(data, &reinterpret_cast<uint8*>(ret)[0x04]);
+		ret[0x00] = 2;
+	}
+	break;
+	case 0x0D:	// ???
+	{
 		ret[0x00] = 0;
 	}
 	break;
