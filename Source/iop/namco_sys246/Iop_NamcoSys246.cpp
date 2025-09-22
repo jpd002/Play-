@@ -695,6 +695,7 @@ bool CSys246::Invoke003(uint32 method, uint32* args, uint32 argsSize, uint32* re
 {
 	//method 0x02 -> jvsif_starts
 	//method 0x04 -> jvsif_registers
+	//method 0x05 -> jvsif_request (RRV)
 	//Brake and Gaz pedals control?
 	switch(method)
 	{
