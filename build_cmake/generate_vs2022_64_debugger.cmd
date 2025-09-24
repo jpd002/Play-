@@ -1,2 +1,2 @@
 @echo off
-cmake .. --preset windows-debugger-x86_64-vs -DCMAKE_PREFIX_PATH="C:\Qt\5.15.2\msvc2019_64"
+cmake .. --preset windows-debugger-x86_64-vs -DCMAKE_PREFIX_PATH="C:\Qt\6.8.0\msvc2022_64"

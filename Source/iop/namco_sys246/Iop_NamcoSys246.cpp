@@ -779,6 +779,7 @@ bool CSys246::Invoke003(uint32 method, uint32* args, uint32 argsSize, uint32* re
 {
 	//method 0x02 -> jvsif_starts
 	//method 0x04 -> jvsif_registers
+	//method 0x05 -> jvsif_request (RRV)
 	//Brake and Gaz pedals control?
 	switch(method)
 	{
@@ -974,6 +975,10 @@ void CSys246::ProcessMemRequest(uint8* ram, uint32 infoPtr)
 			//0x20 -> Monitor Sync Frequency (1: 31Khz or 0: 15Khz)
 			//0x10 -> Video Sync Signal (1: Separate Sync or 0: Composite Sync)
 			//ram[recvDataPtr + 0x30] = 0;
+
+			// Forcing 31khz mode seems to work fine across games, and will set compatible games to progressive mode.
+			// Games like TC3 that do not support 31khz will still work in 15khz mode with these dipswitches it seems.
+			ram[recvDataPtr + 0x30] = 0x70;
 
 			uint16 pktId = sendData[0x0C];
 			if(pktId != 0)
