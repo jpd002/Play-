@@ -102,15 +102,14 @@ CSys246::CSys246(CSifMan& sifMan, CSifCmd& sifCmd, Namco::CAcRam& acRam, const s
 	                                          std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5, std::placeholders::_6));
 	m_module004 = CSifModuleAdapter(std::bind(&CSys246::Invoke004, this,
 	                                          std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5, std::placeholders::_6));
-	m_moduleBgStr = CSifModuleAdapter(std::bind(&CSys246::InvokeBgStr, this,
-	                                          std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5, std::placeholders::_6));
+	m_moduleSerial = CSifModuleAdapter(std::bind(&CSys246::InvokeSerial, this,
+	                                             std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5, std::placeholders::_6));
 	
 
 	sifMan.RegisterModule(MODULE_ID_1, &m_module001);
 	sifMan.RegisterModule(MODULE_ID_3, &m_module003);
 	sifMan.RegisterModule(MODULE_ID_4, &m_module004);
-	sifMan.RegisterModule(0x00830120, &m_moduleBgStr);	// Serial IO SIF module ID
-														// May be used for other 246 games that use the serial port
+	sifMan.RegisterModule(MODULE_ID_SERIAL, &m_moduleSerial);
 
 	sifCmd.AddHleCmdHandler(COMMAND_ID_ACFLASH, std::bind(&CSys246::ProcessAcFlashCommand, this,
 	                                                      std::placeholders::_1, std::placeholders::_2));
@@ -465,72 +464,6 @@ void CSys246::ProcessJvsPacket(const uint8* input, uint8* output)
 	FRAMEWORK_MAYBE_UNUSED uint8 inChecksum = (*input);
 	assert(inChecksum == (inWorkChecksum & 0xFF));
 }
-void CSys246::ProcessBgStrPacket(const uint8* input, uint8* output)
-{
-	switch((*input++))
-	{
-	case 0x20:
-	{ // Reset
-		(*output++) = 0xA0;
-		(*output++) = 0x00;
-		m_bgStrReportWheelPos = false;
-		return;
-	};
-	case 0x1F:
-	{ // Motor stop
-		if(!m_bgStrReportWheelPos)
-		{
-			(*output++) = 0x1F;	// Skip calibration, 0x8F for normal calibration routine
-			(*output++) = 0x00;
-			return;
-		}
-		break;
-	};
-	case 0x11:
-	{ // Begin reporting wheel pos
-		m_bgStrReportWheelPos = true;
-		(*output++) = 0x00;
-		(*output++) = 0x00;
-		return;
-	};
-	case 0x14:
-	{                          // Get board state
-		(*output++) = 0x1A;
-		(*output++) = 0x05;
-		return;
-	};
-	// The below are all force feedback motor commands
-	case 0x01:
-	case 0x02:
-	case 0x03:
-	case 0x04:
-	case 0x05:
-	case 0x06:
-	case 0x07:
-	case 0x0A:
-	case 0x0B:
-	case 0x0D:
-	case 0x0E:
-		break;
-	case 0x00: // No-operation, the game just wants steering data
-		break;
-	}
-
-	if(m_bgStrReportWheelPos)
-	{
-		uint8_t precision = 3; // Dont know what values are expected here, but this is what real board returns
-		uint16_t wheelPos = (0xFF - (m_jvsWheelChannels[JVS_WHEEL_CHANNEL_WHEEL] >> 8)) * 4; // With above gives us 10-bit wheel value, though play only provides an 8 bit axis, 
-																							 // which when passed to jvs is converted to a 16 bit big endian number, bg3 also needs this inverted for some reason?
-		uint16_t state = wheelPos | (precision << 10);
-		(*output++) = static_cast<uint8>(state >> 8);
-		(*output++) = static_cast<uint8>(state);
-	}
-	else
-	{
-		(*output++) = 0x8C;
-		(*output++) = 0xA0;
-	}
-}
 
 void CSys246::SaveState(Framework::CZipArchiveWriter& archive) const
 {
@@ -689,6 +622,86 @@ void CSys246::ReleaseScreenPosition()
 	m_jvsScreenPosY = 0xFFFF; //Y position is negligible
 }
 
+void CSys246::ProcessBgStrPacket(const uint8* input, uint8* output, int length)
+{
+	for(int i = 0; i < length; i += 2)
+	{
+		switch(*(input + i))
+		{
+		case 0x20: // Reset
+		{
+			(*output++) = 0xA0;
+			(*output++) = 0x00;
+			m_bgStrReportWheelPos = false;
+			continue;
+		};
+		case 0x1F: // Motor stop
+		{
+			if(!m_bgStrReportWheelPos)
+			{
+				(*output++) = 0x1F; // Skip calibration, 0x8F for normal calibration routine
+				(*output++) = 0x00;
+				continue;
+			}
+			break;
+		};
+		case 0x11: // Begin reporting wheel pos
+		{
+			m_bgStrReportWheelPos = true;
+			(*output++) = 0x00;
+			(*output++) = 0x00;
+			continue;
+		};
+		case 0x14: // Get board/calibration state
+		{
+			(*output++) = 0x1A;
+			(*output++) = 0x05;
+			continue;
+		};
+		// The below we dont use, but control the boards behaviour
+		case 0x0C: // Begin Calibration
+		case 0x12: // Steering Radius
+		case 0x13:
+		case 0x15:
+		case 0x16:
+		case 0x18:
+		case 0x1A:
+			break;
+		// The below are all force feedback motor commands, param2 for most is a signed byte
+		case 0x01: // Roll Force
+		case 0x02: // Friction Force
+		case 0x03: // Spring Force
+		case 0x04: // Similar to 0x02, but weaker?
+		case 0x05: // Rumble Frequency
+		case 0x06: // Rumble Strength
+		case 0x07: // Force Strength (Everything but rumble)
+		case 0x08:
+		case 0x0A:
+		case 0x0B: // Motor Deadzone
+		case 0x0D: // Spring Center Point (Has a matching speed/force command I believe)
+		case 0x0E: // Center Range
+			break;
+		case 0x00: // No-operation, the game just wants steering data
+			break;
+		}
+
+		if(m_bgStrReportWheelPos)
+		{
+			uint8_t param = 3; // Byte order, either bits can be set, real board has both set
+			uint16_t wheelPos = (0xFF - (m_jvsWheelChannels[JVS_WHEEL_CHANNEL_WHEEL] >> 8)) * 4; // With above gives us 10-bit wheel value, though play only provides an 8 bit axis,
+			                                                                                     // which when passed to jvs is converted to a 16 bit big endian number, bg3 also needs this inverted for some reason?
+			uint16_t state = wheelPos | (param << 10);
+			(*output++) = static_cast<uint8>(state >> 8);
+			(*output++) = static_cast<uint8>(state);
+		}
+		else
+		{
+			(*output++) = 0x8C;
+			(*output++) = 0xA0;
+		}
+	}
+}
+
 bool CSys246::Invoke001(uint32 method, uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
 {
 	//JVIO stuff?
@@ -811,57 +824,81 @@ bool CSys246::Invoke004(uint32 method, uint32* args, uint32 argsSize, uint32* re
 	return true;
 }
 
-bool CSys246::InvokeBgStr(uint32 method, uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
+bool CSys246::InvokeSerial(uint32 method, uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
 {
 	switch(method)
 	{
-	case 0x01:	// Serial setup
+	case SERIAL_SETUP:
 	{
 		uint32 baud = args[0];
 		uint32 fifo = args[1];
 		ret[0x00] = 0;
 	}
 	break;
-	case 0x02:	// ???
+	case SERIAL_2:
 	{
 		ret[0x00] = 0;
 	}
 	break;
-	case 0x03:	// Serial Read
+	case SERIAL_READ:
 	{
-		if(!m_bgStrReply.empty())
+		int length = 0;
+		uint8* response = reinterpret_cast<uint8*>(ret + 1);
+		while (!m_serialQueue.empty() && length < retSize + 4)
 		{
-			ret[0x00] = 2;
-			reinterpret_cast<uint8*>(ret)[0x04] = m_bgStrReply.front(); m_bgStrReply.pop();
-			reinterpret_cast<uint8*>(ret)[0x05] = m_bgStrReply.front(); m_bgStrReply.pop();
+			response[length] = m_serialQueue.front();
+			m_serialQueue.pop();
+			length++;
 		}
+		ret[0x00] = length;
 	}
 	break;
-	case 0x04:	// Serial Write
+	case SERIAL_WRITE:
 	{
-		uint32 len = args[0];
-		uint8* data = reinterpret_cast<uint8*>(&args[1]);
-		uint8 res[2];
-		ProcessBgStrPacket(data, res);
-		m_bgStrReply.push(res[0]);
-		m_bgStrReply.push(res[1]);
+		uint32 length = args[0];
+		uint8* data = reinterpret_cast<uint8*>(args + 1);
+		assert(length <= argsSize - 4);
+		uint8* output = new uint8[length];
+		ProcessBgStrPacket(data, output, length);
+		for (int i = 0; i < length; i++)
+		{
+			m_serialQueue.push(output[i]);
+		}
+		ret[0x00] = length;
+		delete[] output;
+	}
+	break;
+	case SERIAL_5:
+	{
 		ret[0x00] = 0;
 	}
 	break;
-	case 0x05:	// ???
+	case SERIAL_WRITE_READ:
+	{
+		uint32 length = args[0];
+		uint8* data = reinterpret_cast<uint8*>(args + 1);
+		assert(length <= argsSize - 4);
+		assert(length <= retSize - 4);
+		ProcessBgStrPacket(data, reinterpret_cast<uint8*>(ret + 1), length);
+		ret[0x00] = length;
+	}
+	break;
+	case SERIAL_12:
 	{
 		ret[0x00] = 0;
 	}
 	break;
-	case 0x0A:	// Serial Write? and Read (Used after bootup to actually read steering data)
+	case SERIAL_13:
 	{
-		uint32 param1 = args[0];
-		uint8* data = reinterpret_cast<uint8*>(&args[1]);
-		ProcessBgStrPacket(data, &reinterpret_cast<uint8*>(ret)[0x04]);
-		ret[0x00] = 2;
+		ret[0x00] = 0;
 	}
 	break;
-	case 0x0D:	// ???
+	case SERIAL_14:
+	{
+		ret[0x00] = 0;
+	}
+	break;
+	case SERIAL_15:
 	{
 		ret[0x00] = 0;
 	}
