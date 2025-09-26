@@ -678,7 +678,7 @@ void CSys246::ProcessBgStrPacket(const uint8* input, uint8* output, int length)
 		case 0x0A:
 		case 0x0B: // Motor Deadzone
 		case 0x0D: // Spring Center Point (Has a matching speed/force command I believe)
-		case 0x0E: // Center Range
+		case 0x0E: // Spring Center Range
 			break;
 		case 0x00: // No-operation, the game just wants steering data
 			break;
