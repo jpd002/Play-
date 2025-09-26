@@ -1,0 +1,23 @@
+{
+	"id": "batlgr3",
+	"name": "Battle Gear 3 (Ver.2.01A)",
+	"driver": "sys246",
+	"dongle":
+	{
+		"name": "batlgr3.ic002"
+	},
+	"hdd":
+	{
+		"name": "batlgr3.chd"
+	},
+	"inputMode": "drive",
+	"boot": "ac0:BGRLOAD",
+	"patches":
+	[
+		{
+			"address": "0x001008FC",
+			"value": "0x0",
+			"description": "Fixes hang on white screen."
+		}
+	]
+}

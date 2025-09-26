@@ -1,0 +1,28 @@
+{
+	"id": "batlgr3t",
+	"name": "Battle Gear 3 Tuned (Ver.2.05J)",
+	"driver": "sys246",
+	"dongle":
+	{
+		"name": "batlgr3t.ic002"
+	},
+	"hdd":
+	{
+		"name": "batlgr3t.chd"
+	},
+	"inputMode": "drive",
+	"boot": "ac0:BGTLOAD",
+	"patches":
+	[
+		{
+			"address": "0x0010090C",
+			"value": "0x0",
+			"description": "Fixes hang on white screen."
+		},		
+		{
+			"address": "0x00160D58",
+			"value": "0x10000011",
+			"description": "Fixes rack error message."
+		}
+	]
+}

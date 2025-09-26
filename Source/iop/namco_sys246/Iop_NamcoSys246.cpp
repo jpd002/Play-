@@ -104,7 +104,6 @@ CSys246::CSys246(CSifMan& sifMan, CSifCmd& sifCmd, Namco::CAcRam& acRam, const s
 	                                          std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5, std::placeholders::_6));
 	m_moduleSerial = CSifModuleAdapter(std::bind(&CSys246::InvokeSerial, this,
 	                                             std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5, std::placeholders::_6));
-	
 
 	sifMan.RegisterModule(MODULE_ID_1, &m_module001);
 	sifMan.RegisterModule(MODULE_ID_3, &m_module003);
@@ -687,7 +686,7 @@ void CSys246::ProcessBgStrPacket(const uint8* input, uint8* output, int length)
 
 		if(m_bgStrReportWheelPos)
 		{
-			uint8_t param = 3; // Byte order, either bits can be set, real board has both set
+			uint8_t param = 3;                                                                   // Byte order, either bits can be set, real board has both set
 			uint16_t wheelPos = (0xFF - (m_jvsWheelChannels[JVS_WHEEL_CHANNEL_WHEEL] >> 8)) * 4; // With above gives us 10-bit wheel value, though play only provides an 8 bit axis,
 			                                                                                     // which when passed to jvs is converted to a 16 bit big endian number, bg3 also needs this inverted for some reason?
 			uint16_t state = wheelPos | (param << 10);
@@ -845,7 +844,7 @@ bool CSys246::InvokeSerial(uint32 method, uint32* args, uint32 argsSize, uint32*
 	{
 		int length = 0;
 		uint8* response = reinterpret_cast<uint8*>(ret + 1);
-		while (!m_serialQueue.empty() && length < retSize + 4)
+		while(!m_serialQueue.empty() && length < retSize + 4)
 		{
 			response[length] = m_serialQueue.front();
 			m_serialQueue.pop();
@@ -861,7 +860,7 @@ bool CSys246::InvokeSerial(uint32 method, uint32* args, uint32 argsSize, uint32*
 		assert(length <= argsSize - 4);
 		uint8* output = new uint8[length];
 		ProcessBgStrPacket(data, output, length);
-		for (int i = 0; i < length; i++)
+		for(int i = 0; i < length; i++)
 		{
 			m_serialQueue.push(output[i]);
 		}
