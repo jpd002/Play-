@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../Iop_Module.h"
+#include "../IopBios.h"
 
 namespace Iop
 {
@@ -9,7 +10,7 @@ namespace Iop
 		class CAcRam : public CModule
 		{
 		public:
-			CAcRam(uint8*);
+			CAcRam(CIopBios&, uint8*);
 			virtual ~CAcRam() = default;
 
 			std::string GetId() const override;
@@ -23,6 +24,8 @@ namespace Iop
 			void Write(uint32, const uint8*, uint32);
 
 		private:
+			CIopBios& m_bios;
+
 			//TODO: Make this configurable per game
 			static constexpr uint32 g_extRamSize = 0x6000000;
 			uint8 m_extRam[g_extRamSize];

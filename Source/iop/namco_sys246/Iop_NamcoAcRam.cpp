@@ -16,8 +16,9 @@ using namespace Iop::Namco;
 #define FUNCTION_READ "Read"
 #define FUNCTION_WRITE "Write"
 
-CAcRam::CAcRam(uint8* iopRam)
-    : m_iopRam(iopRam)
+CAcRam::CAcRam(CIopBios& bios, uint8* iopRam)
+    : m_bios(bios)
+    , m_iopRam(iopRam)
 {
 }
 
@@ -70,8 +71,12 @@ void CAcRam::Invoke(CMIPS& context, unsigned int functionId)
 		                         handlePtr, ramAddr, iopAddr, size);
 		Read(ramAddr, m_iopRam + iopAddr, size);
 		uint32 otherResultPtr = context.m_pMemoryMap->GetWord(handlePtr + 0x0C);
+		uint32 ptr1 = context.m_pMemoryMap->GetWord(handlePtr + 0x08);
+		uint32 ptr2 = context.m_pMemoryMap->GetWord(handlePtr + 0x0C);
 		context.m_pMemoryMap->SetWord(otherResultPtr, ~0U);
 		context.m_State.nGPR[CMIPS::V0].nV0 = 1; //?
+		if(ptr1)
+			m_bios.TriggerCallback(ptr1, handlePtr, ptr2, 0);
 	}
 	break;
 	case 11:
@@ -84,8 +89,12 @@ void CAcRam::Invoke(CMIPS& context, unsigned int functionId)
 		                         handlePtr, ramAddr, iopAddr, size);
 		Write(ramAddr, m_iopRam + iopAddr, size);
 		uint32 otherResultPtr = context.m_pMemoryMap->GetWord(handlePtr + 0x0C);
+		uint32 ptr1 = context.m_pMemoryMap->GetWord(handlePtr + 0x08);
+		uint32 ptr2 = context.m_pMemoryMap->GetWord(handlePtr + 0x0C);
 		context.m_pMemoryMap->SetWord(otherResultPtr, ~0U);
 		context.m_State.nGPR[CMIPS::V0].nV0 = 1; //?
+		if(ptr1)
+			m_bios.TriggerCallback(ptr1, handlePtr, ptr2, 0);
 	}
 	break;
 	default:

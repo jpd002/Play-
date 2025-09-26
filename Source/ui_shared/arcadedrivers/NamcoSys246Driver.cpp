@@ -78,7 +78,7 @@ void CNamcoSys246Driver::PrepareEnvironment(CPS2VM* virtualMachine, const ARCADE
 		//Assuming that the BIOS image for arcade boards is version 2.0.5
 		iopBios->SetDefaultImageVersion(2050);
 
-		auto acRam = std::make_shared<Iop::Namco::CAcRam>(virtualMachine->m_iop->m_ram);
+		auto acRam = std::make_shared<Iop::Namco::CAcRam>(*iopBios, virtualMachine->m_iop->m_ram);
 		iopBios->RegisterModule(acRam);
 		iopBios->RegisterHleModuleReplacement("Arcade_Ext._Memory", acRam);
 
