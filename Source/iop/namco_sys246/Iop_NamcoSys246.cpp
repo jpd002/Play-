@@ -844,7 +844,7 @@ bool CSys246::InvokeSerial(uint32 method, uint32* args, uint32 argsSize, uint32*
 	{
 		int length = 0;
 		uint8* response = reinterpret_cast<uint8*>(ret + 1);
-		while(!m_serialQueue.empty() && length < retSize + 4)
+		while(!m_serialQueue.empty() && length < retSize - 4)
 		{
 			response[length] = m_serialQueue.front();
 			m_serialQueue.pop();
