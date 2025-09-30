@@ -1,4 +1,7 @@
 <GameConfigs>
+	<GameConfig Executable="SCUS_974.90;1" Title="Rogue Galaxy">
+		<BlockFpRoundingMode Address="0x0013CF40" Mode="NEAREST" Description="Fixes out of bound issues in Vedan - Myna."/>
+	</GameConfig>
 	<GameConfig Executable="SLUS_200.18;1" Title="Onimusha: Warlords">
 		<BlockFpRoundingMode Address="0x001025D8" Mode="NEAREST" Description="Fixes inability to go inside the hole." />
 	</GameConfig>
