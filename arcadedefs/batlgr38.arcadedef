@@ -13,7 +13,7 @@
 	"inputMode": "drive",
 	"boot": "ac0:BGRLOAD",
 	"patches":
-	[	
+	[
 		{
 			"address": "0x001008EC",
 			"value": "0x0",
