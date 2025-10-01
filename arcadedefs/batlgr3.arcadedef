@@ -23,6 +23,11 @@
 			"address": "0x00181064",
 			"value": "0x0",
 			"description": "Removes T1_COUNT read that throws off idle detector."
+		},
+		{
+			"address": "0x001811EC",
+			"value": "0x0",
+			"description": "Removes T1_COUNT read that throws off idle detector (Race Mode)."
 		}
 	]
 }
