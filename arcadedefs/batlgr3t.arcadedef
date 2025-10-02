@@ -18,11 +18,21 @@
 			"address": "0x0010090C",
 			"value": "0x0",
 			"description": "Fixes hang on white screen."
-		},		
+		},
 		{
 			"address": "0x00160D58",
 			"value": "0x10000011",
 			"description": "Fixes rack error message."
+		},
+		{
+			"address": "0x0019F8CC",
+			"value": "0x0",
+			"description": "Removes T1_COUNT read that throws off idle detector."
+		},
+		{
+			"address": "0x0019FA54",
+			"value": "0x0",
+			"description": "Removes T1_COUNT read that throws off idle detector (Race Mode)."
 		}
 	]
 }

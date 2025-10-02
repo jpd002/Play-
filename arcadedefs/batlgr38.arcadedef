@@ -18,6 +18,16 @@
 			"address": "0x001008EC",
 			"value": "0x0",
 			"description": "Fixes hang on white screen."
+		},
+		{
+			"address": "0x0017E52C",
+			"value": "0x0",
+			"description": "Removes T1_COUNT read that throws off idle detector."
+		},
+		{
+			"address": "0x0017E6B4",
+			"value": "0x0",
+			"description": "Removes T1_COUNT read that throws off idle detector (Race Mode)."
 		}
 	]
 }
