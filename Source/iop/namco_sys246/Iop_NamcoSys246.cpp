@@ -178,6 +178,8 @@ void CSys246::ProcessJvsPacket(const uint8* input, uint8* output)
 			(*dstSize)++;
 
 			//const char* boardName = "namco ltd.;RAYS PCB;";
+			//const char* boardName = "namco ltd.;FCA-1;Ver1.01;JPN,Multipurpose";
+			//const char* boardName = "namco ltd.;FCB;Ver1.02;JPN,TouchPanel&Multipurpose";
 			const char* boardName = "namco ltd.;TSS-I/O;Ver2.11;GUN-EXTENSION";
 			size_t length = strlen(boardName);
 
@@ -252,7 +254,7 @@ void CSys246::ProcessJvsPacket(const uint8* input, uint8* output)
 				(*output++) = 0x12; //GPIO output
 				(*output++) = 0x10; //slot(?) count
 				(*output++) = 0x00;
-				(*output++) = 0x00; 
+				(*output++) = 0x00;
 
 				//Time Crisis 4 reads from analog input to determine screen position
 				(*output++) = 0x03; //Analog Input
@@ -477,17 +479,21 @@ void CSys246::ProcessJvsPacket(const uint8* input, uint8* output)
 			{
 				uint16 bytecount = (*input++);
 				inSize--;
-				if(bytecount >= 1)
+
+				for (int i=1;i<=bytecount;i++)
 				{
-					uint16 gpvalue1 = (*input++);
+					uint16 gpvalue = (*input++);
 					inSize--;
 
-					// value1 0xC0 indicates P1 recoil triggered
-					int p1Recoil = (gpvalue1 >= 0x80) ? 1 : 0;
-					if(p1Recoil != m_p1RecoilLast)
+					if(i == 1)
 					{
-						m_p1RecoilLast = p1Recoil;
-						CSys246::m_outputCallbackFunction(p1Recoil);
+						// value1 0xC0 indicates P1 recoil triggered
+						int p1Recoil = (gpvalue >= 0x80) ? 1 : 0;
+						if(p1Recoil != m_p1RecoilLast)
+						{
+							m_p1RecoilLast = p1Recoil;
+							CSys246::m_outputCallbackFunction(p1Recoil);
+						}
 					}
 				}
 			}
