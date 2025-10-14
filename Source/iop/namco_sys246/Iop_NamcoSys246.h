@@ -52,6 +52,10 @@ namespace Iop
 			void SetScreenPosition(float, float) override;
 			void ReleaseScreenPosition() override;
 
+			// Recoil event callback
+			static std::function<void(int)> m_outputCallbackFunction;
+			static void SetOutputCallback(std::function<void(int)> callback);
+
 		private:
 			enum MODULE_ID
 			{
@@ -157,6 +161,9 @@ namespace Iop
 
 			std::queue<uint8> m_serialQueue;
 			bool m_bgStrReportWheelPos = false;
+
+			// track last recoil state to limit events
+			uint8 m_p1RecoilLast = 0;
 		};
 	}
 }
