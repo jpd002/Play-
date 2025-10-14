@@ -129,6 +129,39 @@ private:
 	Ui::DebugMenu* debugMenuUi = nullptr;
 #endif
 
+#ifdef _WIN32
+	// Windows message setup for Lightgun recoil via MAMEHooker
+	static const WCHAR* MAME_START_STRING;
+	static const WCHAR* MAME_STOP_STRING;
+	static const WCHAR* MAME_UPDATE_STRING;
+	static const WCHAR* MAME_REGISTER_STRING;
+	static const WCHAR* MAME_UNREGISTER_STRING;
+	static const WCHAR* MAME_GETID_STRING;
+
+	static const int COPYDATA_MESSAGE_ID_STRING = 1;
+	
+	static WPARAM m_mameHookerHwnd;
+	static std::string m_mameHookerRomName;
+	typedef std::unordered_map<const WCHAR*, uint> outputMessageMap;
+	static outputMessageMap m_outputMessages;
+
+	typedef struct tagMHGETIDSTRUCT
+	{
+		uint32 Id;
+		char lpStr[255];
+	} MHGETIDSTRUCT, *PMHGETIDSTRUCT;
+
+	typedef struct tagCOPYDATASTRUCT
+	{
+		ULONG_PTR dwData;
+		DWORD cbData;
+		PVOID lpData;
+	} COPYDATASTRUCT, *PCOPYDATASTRUCT;
+
+	bool nativeEvent(const QByteArray& eventType, void* message, qintptr* result) override;
+	//
+#endif
+
 protected:
 	void closeEvent(QCloseEvent*) Q_DECL_OVERRIDE;
 	void changeEvent(QEvent*) Q_DECL_OVERRIDE;
@@ -139,6 +172,10 @@ signals:
 public slots:
 	void outputWindow_resized();
 	void updateStats();
+#ifdef _WIN32
+	// recoil output callback method
+	static void OutputP1Recoil(int value);
+#endif
 
 private slots:
 	void on_actionBoot_DiscImage_triggered();
