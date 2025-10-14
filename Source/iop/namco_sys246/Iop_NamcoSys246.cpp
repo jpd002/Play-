@@ -250,7 +250,7 @@ void CSys246::ProcessJvsPacket(const uint8* input, uint8* output)
 
 				//GPIO for recoil
 				(*output++) = 0x12; //GPIO output
-				(*output++) = 0x02; //slot(?) count
+				(*output++) = 0x10; //slot(?) count
 				(*output++) = 0x00;
 				(*output++) = 0x00; 
 
@@ -472,23 +472,18 @@ void CSys246::ProcessJvsPacket(const uint8* input, uint8* output)
 		// GPIO output
 		case JVS_CMD_GPIOW:
 		{
+			assert(inSize >= 2);
 			if(CSys246::m_outputCallbackFunction != nullptr)
 			{
 				uint16 bytecount = (*input++);
-				if(bytecount == 0x01)
+				inSize--;
+				if(bytecount >= 1)
 				{
-					uint16 gpvalue = (*input++);
+					uint16 gpvalue1 = (*input++);
+					inSize--;
 
-					// value 0xC0 indicates P1 recoil triggered
-					int p1Recoil = 0;
-					if(gpvalue >= 0x80)
-					{
-						p1Recoil = 1;
-					}
-					else
-					{
-						p1Recoil = 0;
-					}
+					// value1 0xC0 indicates P1 recoil triggered
+					int p1Recoil = (gpvalue1 >= 0x80) ? 1 : 0;
 					if(p1Recoil != m_p1RecoilLast)
 					{
 						m_p1RecoilLast = p1Recoil;
@@ -497,7 +492,6 @@ void CSys246::ProcessJvsPacket(const uint8* input, uint8* output)
 				}
 			}
 		}
-		break;
 		break;
 		default:
 			//Unknown command
