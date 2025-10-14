@@ -1307,7 +1307,7 @@ bool MainWindow::nativeEvent(const QByteArray& eventType, void* message, qintptr
 	else if(msg->message == m_outputMessages[MAME_GETID_STRING])
 	{
 		std::string lpStr;
-		uint Id = (uint) msg->lParam;
+		uint Id = (uint)msg->lParam;
 
 		// event ids and labels from Demulshooter . . .
 		switch(Id)
@@ -1336,7 +1336,7 @@ bool MainWindow::nativeEvent(const QByteArray& eventType, void* message, qintptr
 		copyData.dwData = 1;
 		copyData.lpData = &data;
 		copyData.cbData = sizeof(data);
-		SendMessage((HWND)msg->wParam, WM_COPYDATA, this->winId(), (LPARAM) &copyData);
+		SendMessage((HWND)msg->wParam, WM_COPYDATA, this->winId(), (LPARAM)&copyData);
 	}
 
 	return false;

@@ -139,7 +139,7 @@ private:
 	static const WCHAR* MAME_GETID_STRING;
 
 	static const int COPYDATA_MESSAGE_ID_STRING = 1;
-	
+
 	static WPARAM m_mameHookerHwnd;
 	static std::string m_mameHookerRomName;
 	typedef std::unordered_map<const WCHAR*, uint> outputMessageMap;
