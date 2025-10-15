@@ -480,7 +480,7 @@ void CSys246::ProcessJvsPacket(const uint8* input, uint8* output)
 				uint16 bytecount = (*input++);
 				inSize--;
 
-				for (int i=1;i<=bytecount;i++)
+				for(int i = 1; i <= bytecount; i++)
 				{
 					uint16 gpvalue = (*input++);
 					inSize--;
