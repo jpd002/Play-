@@ -158,7 +158,7 @@ private:
 		PVOID lpData;
 	} COPYDATASTRUCT, *PCOPYDATASTRUCT;
 
-	bool nativeEvent(const QByteArray& eventType, void* message, qintptr* result) override;
+	bool nativeEvent(const QByteArray& eventType, void* message, qintptr* result);
 	//
 #endif
 
