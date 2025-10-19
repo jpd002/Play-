@@ -98,7 +98,7 @@ For Taiko no Tatsujin games, the following buttons are mapped:
 For driving games, the following buttons are mapped:
 
 - Wheel : Left Analog Stick X +/-
-- Gaz Pedal : Left Analog Stick Y +
+- Gas Pedal : Left Analog Stick Y +
 - Brake Pedal : Right Analog Stick X +
 
 ## General Troubleshooting ##
