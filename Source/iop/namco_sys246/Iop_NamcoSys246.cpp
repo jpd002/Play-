@@ -9,7 +9,10 @@
 #include "PathUtils.h"
 #include "iop/Iop_SifCmd.h"
 #include "iop/namco_sys246/Iop_NamcoAcRam.h"
+
+#ifdef _WIN32
 #include "output/OutputNetwork.h"
+#endif
 
 using namespace Iop;
 using namespace Iop::Namco;
@@ -485,7 +488,9 @@ void CSys246::ProcessJvsPacket(const uint8* input, uint8* output)
 					if(p1Recoil != m_p1RecoilLast)
 					{
 						m_p1RecoilLast = p1Recoil;
+#ifdef _WIN32
 						Output::OutputNetwork::SendRecoil(p1Recoil);
+#endif
 					}
 				}
 			}
