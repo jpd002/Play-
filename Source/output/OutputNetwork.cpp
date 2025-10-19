@@ -1,8 +1,9 @@
+#ifdef _WIN32
 #include <thread>
 #include <iostream>
 #include <winsock2.h>
 #include <ws2tcpip.h>
-#include <Ws2ipdef.h> 
+#include <Ws2ipdef.h>
 #include <sys/types.h>
 #include "Log.h"
 #include "output/OutputNetwork.h"
@@ -150,3 +151,4 @@ void OutputNetwork::SendRecoil(int value)
 		}
 	}
 }
+#endif

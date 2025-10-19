@@ -7,6 +7,7 @@ namespace Output
 		static void Hello(std::string gameId);
 		static void Stop();
 		static void SendRecoil(int value);
+
 	private:
 		void Listen();
 	};
