@@ -12,7 +12,7 @@ namespace PS2
 
 	enum
 	{
-		EE_CLOCK_FREQ = 0x11940000
+		EE_CLOCK_FREQ = 0x11940000 / 4
 	};
 
 	enum
