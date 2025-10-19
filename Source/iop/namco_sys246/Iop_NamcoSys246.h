@@ -52,10 +52,6 @@ namespace Iop
 			void SetScreenPosition(float, float) override;
 			void ReleaseScreenPosition() override;
 
-			// Recoil event callback
-			static std::function<void(int)> m_outputCallbackFunction;
-			static void SetOutputCallback(std::function<void(int)> callback);
-
 		private:
 			enum MODULE_ID
 			{

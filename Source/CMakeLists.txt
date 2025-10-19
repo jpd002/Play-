@@ -478,6 +478,8 @@ set(COMMON_SRC_FILES
 	OsStructManager.h
 	OsStructQueue.h
 	OsVariableWrapper.h
+	output/OutputNetwork.cpp
+	output/OutputNetwork.h
 	PadHandler.cpp
 	PadHandler.h
 	PadInterface.cpp

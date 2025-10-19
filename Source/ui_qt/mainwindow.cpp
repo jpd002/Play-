@@ -73,22 +73,8 @@
 #endif
 
 #ifdef _WIN32
-// MAMEHooker setup
-
-// Import needed to register recoil callback
-#include "iop/namco_sys246/Iop_NamcoSys246.h"
-
-const WCHAR* MainWindow::MAME_START_STRING = L"MAMEOutputStart";
-const WCHAR* MainWindow::MAME_STOP_STRING = L"MAMEOutputStop";
-const WCHAR* MainWindow::MAME_UPDATE_STRING = L"MAMEOutputUpdateState";
-const WCHAR* MainWindow::MAME_REGISTER_STRING = L"MAMEOutputRegister";
-const WCHAR* MainWindow::MAME_UNREGISTER_STRING = L"MAMEOutputUnregister";
-const WCHAR* MainWindow::MAME_GETID_STRING = L"MAMEOutputGetIDString";
-
-WPARAM MainWindow::m_mameHookerHwnd = (WPARAM) nullptr;
-std::string MainWindow::m_mameHookerRomName;
-std::unordered_map<const WCHAR*, uint> MainWindow::m_outputMessages({});
-//
+// System 2x6 outputs setup
+#include "output/OutputNetwork.h"
 #endif
 
 MainWindow::MainWindow(QWidget* parent)
@@ -152,13 +138,8 @@ MainWindow::MainWindow(QWidget* parent)
 	});
 
 #ifdef _WIN32
-	// Register MAMEHooker window messages
-	m_outputMessages[MAME_START_STRING] = RegisterWindowMessage(MAME_START_STRING);
-	m_outputMessages[MAME_STOP_STRING] = RegisterWindowMessage(MAME_STOP_STRING);
-	m_outputMessages[MAME_UPDATE_STRING] = RegisterWindowMessage(MAME_UPDATE_STRING);
-	m_outputMessages[MAME_REGISTER_STRING] = RegisterWindowMessage(MAME_REGISTER_STRING);
-	m_outputMessages[MAME_UNREGISTER_STRING] = RegisterWindowMessage(MAME_UNREGISTER_STRING);
-	m_outputMessages[MAME_GETID_STRING] = RegisterWindowMessage(MAME_GETID_STRING);
+	// start recoil output server
+	Output::OutputNetwork::Start();
 #endif
 }
 
@@ -188,16 +169,8 @@ MainWindow::~MainWindow()
 #endif
 
 #ifdef _WIN32
-	// notify MAMEHooker that the emulator has stopped
-	if(m_mameHookerHwnd)
-	{
-		//make sure we don't exit w/ the recoil solenoid active
-		PostMessage((HWND)m_mameHookerHwnd, m_outputMessages[MAME_UPDATE_STRING], 100, 0);
-	}
-	// apparently mamehooker may not release output dll without the stop/start/stop sequence
-	PostMessage(HWND_BROADCAST, m_outputMessages[MAME_STOP_STRING], this->winId(), 0);
-	PostMessage(HWND_BROADCAST, m_outputMessages[MAME_START_STRING], this->winId(), 0);
-	PostMessage(HWND_BROADCAST, m_outputMessages[MAME_STOP_STRING], this->winId(), 0);
+	// notify output clients that the emulator has stopped
+	Output::OutputNetwork::Stop();
 #endif
 }
 
@@ -496,10 +469,8 @@ void MainWindow::BootArcadeMachine(fs::path arcadeDefPath)
 		UpdateUI();
 
 #ifdef _WIN32
-		//notify MAMEHooker that the emulator is running and start handling recoil events
-		m_mameHookerRomName = arcadeDefPath.stem().string();
-		PostMessage(HWND_BROADCAST, m_outputMessages[MAME_START_STRING], this->winId(), 0);
-		Iop::Namco::CSys246::SetOutputCallback(OutputP1Recoil);
+		//notify output clients of game start
+		Output::OutputNetwork::Hello(arcadeDefPath.stem().string());
 #endif
 	}
 	catch(const std::exception& e)
@@ -1282,75 +1253,6 @@ void MainWindow::SetupBootableView()
 	};
 	bootablesView->SetupActions(bootGameCallback);
 }
-
-#ifdef _WIN32
-// MAMEHooker window messages
-bool MainWindow::nativeEvent(const QByteArray& eventType, void* message, qintptr* result)
-{
-	MSG* msg = static_cast<MSG*>(message);
-
-	if(msg->message == m_outputMessages[MAME_REGISTER_STRING])
-	{
-		m_mameHookerHwnd = msg->wParam;
-		if(m_mameHookerHwnd)
-		{
-			//MAMEHooker requires these initial output messages on startup
-			PostMessage((HWND)m_mameHookerHwnd, m_outputMessages[MAME_UPDATE_STRING], 12345, 0);
-			PostMessage((HWND)m_mameHookerHwnd, m_outputMessages[MAME_UPDATE_STRING], 12346, 0);
-			PostMessage((HWND)m_mameHookerHwnd, m_outputMessages[MAME_UPDATE_STRING], 100, 0);
-		}
-	}
-	else if(msg->message == m_outputMessages[MAME_UNREGISTER_STRING])
-	{
-		m_mameHookerHwnd = 0;
-	}
-	else if(msg->message == m_outputMessages[MAME_GETID_STRING])
-	{
-		std::string lpStr;
-		uint Id = (uint)msg->lParam;
-
-		// event ids and labels from Demulshooter . . .
-		switch(Id)
-		{
-		case 0:
-			lpStr = m_mameHookerRomName;
-			break;
-		case 100:
-			lpStr = "P1_GunRecoil";
-			break;
-		case 12345:
-			lpStr = R"(Orientation(\\.\DISPLAY1))";
-			break;
-		case 12346:
-			lpStr = "pause";
-			break;
-		default:
-			lpStr = "Unknown";
-			break;
-		}
-
-		MHGETIDSTRUCT data = MHGETIDSTRUCT();
-		data.Id = Id;
-		strcpy(data.lpStr, lpStr.c_str());
-		COPYDATASTRUCT copyData = COPYDATASTRUCT();
-		copyData.dwData = 1;
-		copyData.lpData = &data;
-		copyData.cbData = sizeof(data);
-		SendMessage((HWND)msg->wParam, WM_COPYDATA, this->winId(), (LPARAM)&copyData);
-	}
-
-	return false;
-}
-
-// Namco IO emulation will call this when recoil state changes to notify MAMEHooker
-void MainWindow::OutputP1Recoil(int value)
-{
-	if(m_mameHookerHwnd)
-	{
-		PostMessage((HWND)m_mameHookerHwnd, m_outputMessages[MAME_UPDATE_STRING], 100, value);
-	}
-}
-#endif
 
 void MainWindow::SetupDebugger()
 {
