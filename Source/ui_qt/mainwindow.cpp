@@ -72,11 +72,6 @@
 #include "win32/InputProviderXInput.h"
 #endif
 
-#ifdef _WIN32
-// System 2x6 outputs setup
-#include "output/OutputNetwork.h"
-#endif
-
 MainWindow::MainWindow(QWidget* parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
@@ -136,11 +131,6 @@ MainWindow::MainWindow(QWidget* parent)
 		if(m_virtualMachine->GetStatus() == CVirtualMachine::RUNNING)
 			ui->stackedWidget->setCurrentIndex(1);
 	});
-
-#ifdef _WIN32
-	// start recoil output server
-	Output::OutputNetwork::Start();
-#endif
 }
 
 MainWindow::~MainWindow()
@@ -166,11 +156,6 @@ MainWindow::~MainWindow()
 #ifdef DEBUGGER_INCLUDED
 	delete debugDockMenuUi;
 	delete debugMenuUi;
-#endif
-
-#ifdef _WIN32
-	// notify output clients that the emulator has stopped
-	Output::OutputNetwork::Stop();
 #endif
 }
 
@@ -467,11 +452,6 @@ void MainWindow::BootArcadeMachine(fs::path arcadeDefPath)
 		m_lastOpenCommand = LastOpenCommand(BootType::ARCADE, arcadeDefPath);
 		m_msgLabel->setText(QString("Started arcade machine '%1'.").arg(arcadeDefPath.filename().c_str()));
 		UpdateUI();
-
-#ifdef _WIN32
-		//notify output clients of game start
-		Output::OutputNetwork::Hello(arcadeDefPath.stem().string());
-#endif
 	}
 	catch(const std::exception& e)
 	{

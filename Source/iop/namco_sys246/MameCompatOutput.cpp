@@ -6,15 +6,16 @@
 #include <Ws2ipdef.h>
 #include <sys/types.h>
 #include "Log.h"
-#include "output/OutputNetwork.h"
+#include "MameCompatOutput.h"
 
 #pragma comment(lib, "Ws2_32.lib") // Link with the Winsock library
 
-using namespace Output;
+using namespace Iop;
+using namespace Iop::Namco;
 
-#define LOG_NAME ("output_network")
+#define LOG_NAME ("iop_namco_mameCompatOutput")
 
-void OutputNetwork::Listen()
+void MameCompatOutput::Listen(std::string gameId)
 {
 	// Initialize Winsock
 	WSADATA wsaData;
@@ -72,17 +73,14 @@ void OutputNetwork::Listen()
 
 			CLog::GetInstance().Warn(LOG_NAME, "Client connected");
 
-			if(Output::m_outputRomName.compare("") != 0)
+			// Send hello event
+			std::string hello = "mame_start = " + gameId + "\r";
+			int sent = send(clientSocket, hello.c_str(), hello.length(), 0);
+			if(sent == -1)
 			{
-				// Send hello event
-				std::string hello = "mame_start = " + Output::m_outputRomName + "\r";
-				int sent = send(clientSocket, hello.c_str(), hello.length(), 0);
-				if(sent == -1)
-				{
-					CLog::GetInstance().Warn(LOG_NAME, "Error sending hello string: %d", errno);
-					closesocket(clientSocket);
-					continue;
-				}
+				CLog::GetInstance().Warn(LOG_NAME, "Error sending hello string: %d", errno);
+				closesocket(clientSocket);
+				continue;
 			}
 
 			m_clientSocket = clientSocket;
@@ -91,17 +89,16 @@ void OutputNetwork::Listen()
 	}
 }
 
-void OutputNetwork::Start()
+void MameCompatOutput::Start(std::string gameId)
 {
-	OutputNetwork network;
-	std::thread t([&network]() {
-		network.Listen();
-	});
-	m_outputNetwork = network;
+	MameCompatOutput network;
+	std::thread t([&network](std::string gameId) {
+		network.Listen(gameId);
+	}, gameId);
 	t.detach();
 }
 
-void OutputNetwork::Stop()
+void MameCompatOutput::Stop()
 {
 	if(m_clientSocket)
 	{
@@ -118,25 +115,7 @@ void OutputNetwork::Stop()
 	WSACleanup();
 }
 
-void OutputNetwork::Hello(std::string gameId)
-{
-	Output::m_outputRomName = gameId;
-
-	if(m_clientSocket)
-	{
-		// Send hello event
-		std::string hello = "mame_start = " + gameId + "\r";
-		int sent = send(m_clientSocket, hello.c_str(), hello.length(), 0);
-		if(sent == -1)
-		{
-			CLog::GetInstance().Warn(LOG_NAME, "Error sending hello string: %d", errno);
-			closesocket(m_clientSocket);
-			m_clientSocket = 0;
-		}
-	}
-}
-
-void OutputNetwork::SendRecoil(int value)
+void MameCompatOutput::SendRecoil(int value)
 {
 	if(m_clientSocket)
 	{

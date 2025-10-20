@@ -11,7 +11,7 @@
 #include "iop/namco_sys246/Iop_NamcoAcRam.h"
 
 #ifdef _WIN32
-#include "output/OutputNetwork.h"
+#include "iop/namco_sys246/MameCompatOutput.h"
 #endif
 
 using namespace Iop;
@@ -120,6 +120,19 @@ CSys246::CSys246(CSifMan& sifMan, CSifCmd& sifCmd, Namco::CAcRam& acRam, const s
 	                                                      std::placeholders::_1, std::placeholders::_2));
 
 	m_jvsButtonBits = g_defaultJvsButtonBits;
+
+#ifdef _WIN32
+	// start recoil output server
+	MameCompatOutput::Start(gameId);
+#endif
+}
+
+CSys246::~CSys246()
+{
+#ifdef _WIN32
+	// stop recoil output server
+	MameCompatOutput::Stop();
+#endif
 }
 
 std::string CSys246::GetId() const
@@ -489,7 +502,7 @@ void CSys246::ProcessJvsPacket(const uint8* input, uint8* output)
 					{
 						m_p1RecoilLast = p1Recoil;
 #ifdef _WIN32
-						Output::OutputNetwork::SendRecoil(p1Recoil);
+						MameCompatOutput::SendRecoil(p1Recoil);
 #endif
 					}
 				}

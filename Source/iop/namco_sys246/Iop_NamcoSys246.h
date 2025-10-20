@@ -30,7 +30,7 @@ namespace Iop
 			};
 
 			CSys246(CSifMan&, CSifCmd&, Namco::CAcRam&, const std::string&);
-			virtual ~CSys246() = default;
+			virtual ~CSys246();
 
 			std::string GetId() const override;
 			std::string GetFunctionName(unsigned int) const override;
