@@ -94,7 +94,8 @@ void MameCompatOutput::Start(std::string gameId)
 	MameCompatOutput network;
 	std::thread t([&network](std::string gameId) {
 		network.Listen(gameId);
-	}, gameId);
+	},
+	              gameId);
 	t.detach();
 }
 
