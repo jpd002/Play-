@@ -8,6 +8,9 @@
 #include "../../PadInterface.h"
 #include "../../ScreenPositionListener.h"
 #include "filesystem_def.h"
+#ifdef _WIN32
+#include "iop/namco_sys246/MameCompatOutput.h"
+#endif
 
 namespace Iop
 {
@@ -30,7 +33,7 @@ namespace Iop
 			};
 
 			CSys246(CSifMan&, CSifCmd&, Namco::CAcRam&, const std::string&);
-			virtual ~CSys246();
+			virtual ~CSys246() = default;
 
 			std::string GetId() const override;
 			std::string GetFunctionName(unsigned int) const override;
@@ -157,6 +160,11 @@ namespace Iop
 
 			std::queue<uint8> m_serialQueue;
 			bool m_bgStrReportWheelPos = false;
+
+#ifdef _WIN32
+			// MAME-compatible network output listener
+			std::unique_ptr<MameCompatOutput> m_mameCompatOutput;
+#endif
 
 			// track last recoil state to limit events
 			uint8 m_p1RecoilLast = 0;

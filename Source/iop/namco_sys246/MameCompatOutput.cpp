@@ -15,6 +15,19 @@ using namespace Iop::Namco;
 
 #define LOG_NAME ("iop_namco_mameCompatOutput")
 
+MameCompatOutput::MameCompatOutput(std::string gameId)
+{
+	m_doListen = true;
+	Start(gameId);
+}
+
+MameCompatOutput::~MameCompatOutput()
+{
+	m_doListen = false;
+	std::this_thread::sleep_for(std::chrono::milliseconds(100));
+	Stop();
+}
+
 void MameCompatOutput::Listen(std::string gameId)
 {
 	// Initialize Winsock
@@ -57,7 +70,7 @@ void MameCompatOutput::Listen(std::string gameId)
 
 	CLog::GetInstance().Print(LOG_NAME, "Listening on port 8000");
 
-	while(true)
+	while(m_doListen)
 	{
 		if(!m_clientSocket)
 		{
@@ -91,9 +104,8 @@ void MameCompatOutput::Listen(std::string gameId)
 
 void MameCompatOutput::Start(std::string gameId)
 {
-	MameCompatOutput network;
-	std::thread t([&network](std::string gameId) {
-		network.Listen(gameId);
+	std::thread t([this](std::string gameId) {
+		Listen(gameId);
 	},
 	              gameId);
 	t.detach();

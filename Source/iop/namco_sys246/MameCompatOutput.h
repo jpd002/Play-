@@ -5,14 +5,17 @@ namespace Iop
 		class MameCompatOutput
 		{
 		public:
-			static void Start(std::string gameId);
-			static void Stop();
-			static void SendRecoil(int value);
+			MameCompatOutput(std::string gameId);
+			~MameCompatOutput();
+			void SendRecoil(int value);
 
 		private:
+			void Start(std::string gameId);
 			void Listen(std::string gameId);
-		};
+			void Stop();
 
-		static int m_clientSocket = 0;
+			bool m_doListen = false;
+			int m_clientSocket = 0;
+		};
 	}
 }
