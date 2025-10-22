@@ -24,8 +24,8 @@ MameCompatOutput::MameCompatOutput(std::string gameId)
 MameCompatOutput::~MameCompatOutput()
 {
 	m_doListen = false;
-	std::this_thread::sleep_for(std::chrono::milliseconds(100));
 	Stop();
+	m_listenThread.join();
 }
 
 void MameCompatOutput::Listen(std::string gameId)
@@ -104,11 +104,10 @@ void MameCompatOutput::Listen(std::string gameId)
 
 void MameCompatOutput::Start(std::string gameId)
 {
-	std::thread t([this](std::string gameId) {
-		Listen(gameId);
-	},
-	              gameId);
-	t.detach();
+	m_listenThread = std::thread(
+	    [this, gameId]() {
+		    Listen(gameId);
+	    });
 }
 
 void MameCompatOutput::Stop()

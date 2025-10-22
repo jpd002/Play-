@@ -16,6 +16,7 @@ namespace Iop
 
 			bool m_doListen = false;
 			int m_clientSocket = 0;
+			std::thread m_listenThread;
 		};
 	}
 }
