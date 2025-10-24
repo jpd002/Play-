@@ -41,7 +41,7 @@ enum
 	JVS_CMD_RESET = 0xF0,
 	JVS_CMD_SETADDR = 0xF1,
 
-	JVS_CMD_GPIOW = 0x32,
+	JVS_CMD_GPIOW = 0x32, //Also OUTPUT1
 };
 
 // clang-format off
@@ -474,12 +474,14 @@ void CSys246::ProcessJvsPacket(const uint8* input, uint8* output)
 		{
 			assert(inSize >= 2);
 
-			uint16 bytecount = (*input++);
+			uint8 bytecount = (*input++);
+			inWorkChecksum += bytecount;
 			inSize--;
 
 			for(int i = 1; i <= bytecount; i++)
 			{
-				uint16 gpvalue = (*input++);
+				uint8 gpvalue = (*input++);
+				inWorkChecksum += gpvalue;
 				inSize--;
 
 				if(i == 1)
@@ -495,6 +497,9 @@ void CSys246::ProcessJvsPacket(const uint8* input, uint8* output)
 					}
 				}
 			}
+
+			(*output++) = 0x01; //Command success
+			(*dstSize) += 1;
 		}
 		break;
 		default:
