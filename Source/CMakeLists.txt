@@ -365,6 +365,8 @@ set(COMMON_SRC_FILES
 	iop/namco_sys246/Iop_NamcoPadMan.h
 	iop/namco_sys246/Iop_NamcoSys246.cpp
 	iop/namco_sys246/Iop_NamcoSys246.h
+	iop/namco_sys246/MameCompatOutput.cpp
+	iop/namco_sys246/MameCompatOutput.h
 	iop/Iop_PadMan.cpp
 	iop/Iop_PadMan.h
 	iop/Iop_PathUtils.cpp

@@ -40,6 +40,8 @@ enum
 
 	JVS_CMD_RESET = 0xF0,
 	JVS_CMD_SETADDR = 0xF1,
+
+	JVS_CMD_GPIOW = 0x32,
 };
 
 // clang-format off
@@ -114,6 +116,11 @@ CSys246::CSys246(CSifMan& sifMan, CSifCmd& sifCmd, Namco::CAcRam& acRam, const s
 	                                                      std::placeholders::_1, std::placeholders::_2));
 
 	m_jvsButtonBits = g_defaultJvsButtonBits;
+
+#ifdef _WIN32
+	// start recoil output server
+	m_mameCompatOutput = std::make_unique<MameCompatOutput>(gameId);
+#endif
 }
 
 std::string CSys246::GetId() const
@@ -169,7 +176,9 @@ void CSys246::ProcessJvsPacket(const uint8* input, uint8* output)
 			(*dstSize)++;
 
 			//const char* boardName = "namco ltd.;RAYS PCB;";
-			const char* boardName = "namco ltd.;TSS-I/O;";
+			//const char* boardName = "namco ltd.;FCA-1;Ver1.01;JPN,Multipurpose";
+			//const char* boardName = "namco ltd.;FCB;Ver1.02;JPN,TouchPanel&Multipurpose";
+			const char* boardName = "namco ltd.;TSS-I/O;Ver2.11;GUN-EXTENSION";
 			size_t length = strlen(boardName);
 
 			for(int i = 0; i < length + 1; i++)
@@ -239,13 +248,19 @@ void CSys246::ProcessJvsPacket(const uint8* input, uint8* output)
 				(*output++) = 0x10; //Y pos bits
 				(*output++) = 0x01; //channels
 
+				//GPIO for recoil
+				(*output++) = 0x12; //GPIO output
+				(*output++) = 0x10; //slot(?) count
+				(*output++) = 0x00;
+				(*output++) = 0x00;
+
 				//Time Crisis 4 reads from analog input to determine screen position
 				(*output++) = 0x03; //Analog Input
 				(*output++) = 0x02; //Channel Count (2 channels)
 				(*output++) = 0x10; //Bits (16 bits)
 				(*output++) = 0x00;
 
-				(*dstSize) += 8;
+				(*dstSize) += 12;
 			}
 			else if(m_jvsMode == JVS_MODE::DRUM)
 			{
@@ -452,6 +467,34 @@ void CSys246::ProcessJvsPacket(const uint8* input, uint8* output)
 			(*output++) = static_cast<uint8>(m_jvsScreenPosY);      //Pos Y LSB
 
 			(*dstSize) += 5;
+		}
+		break;
+		// GPIO output
+		case JVS_CMD_GPIOW:
+		{
+			assert(inSize >= 2);
+
+			uint16 bytecount = (*input++);
+			inSize--;
+
+			for(int i = 1; i <= bytecount; i++)
+			{
+				uint16 gpvalue = (*input++);
+				inSize--;
+
+				if(i == 1)
+				{
+					// value1 0xC0 indicates P1 recoil triggered
+					int p1Recoil = (gpvalue >= 0x80) ? 1 : 0;
+					if(p1Recoil != m_p1RecoilLast)
+					{
+						m_p1RecoilLast = p1Recoil;
+#ifdef _WIN32
+						m_mameCompatOutput->SendRecoil(p1Recoil);
+#endif
+					}
+				}
+			}
 		}
 		break;
 		default:
