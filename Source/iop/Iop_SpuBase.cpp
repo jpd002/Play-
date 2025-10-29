@@ -778,7 +778,7 @@ void CSpuBase::Render(int16* samples, unsigned int sampleCount)
 		{
 			int32 blockSamples[2] = {};
 			// if the SPDIF_OUT register (0x1F9007C0) contains value 0x0100,
-			// then data from the sound input data area should bypass spu internal 
+			// then data from the sound input data area should bypass spu internal
 			// processing. This only works for core 0.
 			bool spdifBypass = (m_spuNumber == 0 && m_spdifOutput == SPDIF_OUT_BYPASS);
 			m_blockReader.GetSamples(blockSamples, spdifBypass);

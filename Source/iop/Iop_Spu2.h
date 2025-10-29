@@ -38,7 +38,7 @@ namespace Iop
 			SPDIF_OUT = 0x1F9007C0, // SPDIF Out: OFF/'PCM'/Bitstream/Bypass
 			SPDIF_IRQINFO = 0x1F9007C2,
 			SPDIF_MODE = 0x1F9007C6,
-			SPDIF_MEDIA = 0x1F9007C8, // SPDIF Media: 'CD'/DVD
+			SPDIF_MEDIA = 0x1F9007C8,   // SPDIF Media: 'CD'/DVD
 			SPDIF_PROTECT = 0x1F9007CC, // SPDIF Copy Protection
 		};
 
