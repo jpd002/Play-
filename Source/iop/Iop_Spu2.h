@@ -32,6 +32,16 @@ namespace Iop
 			REGS_END = 0x1F90FFFF,
 		};
 
+		enum REGISTERS
+		{
+			// SPDIF interface
+			SPDIF_OUT = 0x1F9007C0, // SPDIF Out: OFF/'PCM'/Bitstream/Bypass
+			SPDIF_IRQINFO = 0x1F9007C2,
+			SPDIF_MODE = 0x1F9007C6,
+			SPDIF_MEDIA = 0x1F9007C8, // SPDIF Media: 'CD'/DVD
+			SPDIF_PROTECT = 0x1F9007CC, // SPDIF Copy Protection
+		};
+
 	private:
 		typedef std::function<uint32(uint32, uint32)> RegisterAccessFunction;
 		typedef std::unique_ptr<Spu2::CCore> CorePtr;

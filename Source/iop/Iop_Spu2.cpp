@@ -113,6 +113,15 @@ void CSpu2::LogWrite(uint32 address, uint32 value)
 {
 	switch(address)
 	{
+	case SPDIF_OUT:
+		Iop::CSpuBase::m_spdifOutput = value;
+		break;
+	case SPDIF_MODE:
+		Iop::CSpuBase::m_spdifMode = value;
+		break;
+	case SPDIF_MEDIA:
+		Iop::CSpuBase::m_spdifMedia = value;
+		break;
 	default:
 		CLog::GetInstance().Warn(LOG_NAME, "Wrote 0x%08X to unknown register 0x%08X.\r\n", value, address);
 		break;

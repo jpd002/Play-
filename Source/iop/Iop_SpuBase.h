@@ -274,6 +274,10 @@ namespace Iop
 
 		static bool g_reverbParamIsAddress[REVERB_PARAM_COUNT];
 
+		static uint32 m_spdifOutput;
+		static uint32 m_spdifMode;
+		static uint32 m_spdifMedia;
+
 	private:
 		enum
 		{
@@ -360,7 +364,7 @@ namespace Iop
 			bool CanReadSamples() const;
 
 			void FillBlock(const uint8*);
-			void GetSamples(int32[2]);
+			void GetSamples(int32[2], bool);
 
 		private:
 			void UpdateSampleStep();
