@@ -113,13 +113,13 @@ void CSpu2::LogWrite(uint32 address, uint32 value)
 {
 	switch(address)
 	{
-	case SPDIF_OUT:
+	case C_SPDIF_OUT:
 		Iop::CSpuBase::m_spdifOutput = value;
 		break;
-	case SPDIF_MODE:
+	case C_SPDIF_MODE:
 		Iop::CSpuBase::m_spdifMode = value;
 		break;
-	case SPDIF_MEDIA:
+	case C_SPDIF_MEDIA:
 		Iop::CSpuBase::m_spdifMedia = value;
 		break;
 	default:
