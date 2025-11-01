@@ -359,11 +359,12 @@ void CSpuBase::SetBlockReaderBaseSamplingRate()
 	{
 		// if the C_SPDIF_OUT register (0x1F9007C0) contains value 0x0100,
 		// then data from the sound input data area should bypass spu internal
-		// processing on core 0. In this mode, we need to read input data 
+		// processing on core 0. In this mode, we need to read input data
 		// at twice the effective rate.
 		m_blockReader.SetBaseSamplingRate(m_baseSamplingRate * 2);
 	}
-	else {
+	else
+	{
 		m_blockReader.SetBaseSamplingRate(m_baseSamplingRate);
 	}
 }
