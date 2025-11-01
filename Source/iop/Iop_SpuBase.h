@@ -220,7 +220,6 @@ namespace Iop
 		void SetReverbEnabled(bool);
 
 		void SetBaseSamplingRate(uint32);
-		void SetBlockReaderBaseSamplingRate();
 		void SetInputBypass(bool);
 		void SetDestinationSamplingRate(uint32);
 
@@ -358,6 +357,7 @@ namespace Iop
 			void Reset();
 			void SetBaseSamplingRate(uint32);
 			void SetDestinationSamplingRate(uint32);
+			void SetSpdifBypass(bool);
 
 			bool CanReadSamples() const;
 
@@ -371,6 +371,7 @@ namespace Iop
 			uint32 m_dstSamplingRate = 0;
 			uint32 m_srcSampleIdx = 0;
 			uint32 m_sampleStep = 0;
+			bool m_spdifBypass = false;
 			uint8 m_blockBuffer[SOUND_INPUT_DATA_SIZE];
 		};
 
@@ -422,8 +423,6 @@ namespace Iop
 		CBlockSampleReader m_blockReader;
 		uint32 m_soundInputDataAddr = 0;
 		uint32 m_blockWritePtr = 0;
-
-		bool m_inputBypass = false;
 
 		static_assert((sizeof(decltype(m_reverb)) % 16) == 0, "sizeof(m_reverb) must be a multiple of 16 (needed for saved state).");
 	};
