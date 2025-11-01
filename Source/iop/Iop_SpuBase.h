@@ -220,6 +220,7 @@ namespace Iop
 		void SetReverbEnabled(bool);
 
 		void SetBaseSamplingRate(uint32);
+		void SetInputBypass(bool);
 		void SetDestinationSamplingRate(uint32);
 
 		bool GetIrqPending() const;
@@ -356,6 +357,7 @@ namespace Iop
 			void Reset();
 			void SetBaseSamplingRate(uint32);
 			void SetDestinationSamplingRate(uint32);
+			void SetSpdifBypass(bool);
 
 			bool CanReadSamples() const;
 
@@ -369,6 +371,7 @@ namespace Iop
 			uint32 m_dstSamplingRate = 0;
 			uint32 m_srcSampleIdx = 0;
 			uint32 m_sampleStep = 0;
+			bool m_spdifBypass = false;
 			uint8 m_blockBuffer[SOUND_INPUT_DATA_SIZE];
 		};
 

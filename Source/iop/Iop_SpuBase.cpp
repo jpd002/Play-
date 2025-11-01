@@ -353,6 +353,11 @@ void CSpuBase::SetBaseSamplingRate(uint32 samplingRate)
 	m_blockReader.SetBaseSamplingRate(samplingRate);
 }
 
+void CSpuBase::SetInputBypass(bool inputBypass)
+{
+	m_blockReader.SetSpdifBypass(inputBypass);
+}
+
 void CSpuBase::SetDestinationSamplingRate(uint32 samplingRate)
 {
 	m_blockReader.SetDestinationSamplingRate(samplingRate);
@@ -1522,10 +1527,24 @@ void CSpuBase::CBlockSampleReader::SetDestinationSamplingRate(uint32 dstSampling
 	UpdateSampleStep();
 }
 
+void CSpuBase::CBlockSampleReader::SetSpdifBypass(bool spdifBypass)
+{
+	m_spdifBypass = spdifBypass;
+}
+
 bool CSpuBase::CBlockSampleReader::CanReadSamples() const
 {
 	uint32 sampleIdx = (m_srcSampleIdx / TIME_SCALE);
-	return (sampleIdx < SOUND_INPUT_DATA_SAMPLES);
+	if(m_spdifBypass)
+	{
+		// in S/PDIF bypass mode, we consume 2 adjacent samples per cycle
+		// as a stereo pair.
+		return (sampleIdx < (SOUND_INPUT_DATA_SAMPLES / 2));
+	}
+	else
+	{
+		return (sampleIdx < SOUND_INPUT_DATA_SAMPLES);
+	}
 }
 
 void CSpuBase::CBlockSampleReader::FillBlock(const uint8* block)
@@ -1542,8 +1561,20 @@ void CSpuBase::CBlockSampleReader::GetSamples(int32 samples[2])
 	assert(srcSampleIdx < SOUND_INPUT_DATA_SAMPLES);
 
 	auto inputSamples = reinterpret_cast<const int16*>(m_blockBuffer);
-	samples[0] = inputSamples[0x000 + srcSampleIdx];
-	samples[1] = inputSamples[0x100 + srcSampleIdx];
+
+	if(m_spdifBypass)
+	{
+		// in S/PDIF bypass mode, input data contains linear interleaved
+		// stereo samples, in a single stream. The L sample should always
+		// be at an even-numbered index.
+		samples[0] = inputSamples[0x000 + (srcSampleIdx * 2)];
+		samples[1] = inputSamples[0x000 + (srcSampleIdx * 2) + 1];
+	}
+	else
+	{
+		samples[0] = inputSamples[0x000 + srcSampleIdx];
+		samples[1] = inputSamples[0x100 + srcSampleIdx];
+	}
 
 	m_srcSampleIdx += m_sampleStep;
 }

@@ -23,7 +23,10 @@ namespace Iop
 
 		enum
 		{
-			C_IRQINFO = 0x1F9007C2
+			C_SPDIF_OUT = 0x1F9007C0,
+			C_IRQINFO = 0x1F9007C2,
+			C_SPDIF_MODE = 0x1F9007C6,
+			C_SPDIF_MEDIA = 0x1F9007C8,
 		};
 
 		enum
@@ -56,6 +59,10 @@ namespace Iop
 		REGISTER_DISPATCH_INFO m_readDispatchInfo;
 		REGISTER_DISPATCH_INFO m_writeDispatchInfo;
 		CorePtr m_core[CORE_NUM];
+
+		uint32 m_spdifOutput = 0x0000;
+		uint32 m_spdifMode = 0x0000;
+		uint32 m_spdifMedia = 0x0000;
 	};
 }
 
