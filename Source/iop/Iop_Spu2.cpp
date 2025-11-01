@@ -129,10 +129,10 @@ void CSpu2::LogRead(uint32 address)
 
 	switch(address)
 	{
-	LOG_GET(C_IRQINFO)
-	LOG_GET(C_SPDIF_OUT)
-	LOG_GET(C_SPDIF_MODE)
-	LOG_GET(C_SPDIF_MEDIA)
+		LOG_GET(C_IRQINFO)
+		LOG_GET(C_SPDIF_OUT)
+		LOG_GET(C_SPDIF_MODE)
+		LOG_GET(C_SPDIF_MEDIA)
 
 	default:
 		CLog::GetInstance().Warn(LOG_NAME, "Read an unknown register 0x%08X.\r\n", address);
