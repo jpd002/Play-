@@ -6,6 +6,8 @@
 
 #define LOG_NAME ("iop_spu2")
 
+#define SPDIF_OUT_BYPASS 0x0100
+
 using namespace Iop;
 using namespace Iop::Spu2;
 
@@ -85,14 +87,45 @@ uint32 CSpu2::ReadRegisterImpl(uint32 address, uint32 value)
 			}
 		}
 		break;
+	case C_SPDIF_OUT:
+		result = m_spdifOutput;
+		break;
+	case C_SPDIF_MODE:
+		result = m_spdifMode;
+		break;
+	case C_SPDIF_MEDIA:
+		result = m_spdifMedia;
+		break;
+	case C_SPDIF_PROTECT:
+		result = m_spdifProtect;
+		break;
+	default:
+		LogRead(address);
+		break;
 	}
-	LogRead(address);
 	return result;
 }
 
 uint32 CSpu2::WriteRegisterImpl(uint32 address, uint32 value)
 {
-	LogWrite(address, value);
+	switch(address)
+	{
+	case C_SPDIF_OUT:
+		m_spdifOutput = value;
+		m_core[0]->GetSpuBase().SetInputBypass(value & SPDIF_OUT_BYPASS ? true : false);
+		break;
+	case C_SPDIF_MODE:
+		m_spdifMode = value;
+		break;
+	case C_SPDIF_MEDIA:
+		m_spdifMedia = value;
+		break;
+	case C_SPDIF_PROTECT:
+		m_spdifProtect = value;
+		break;
+	default:
+		LogWrite(address, value);
+	}
 	return 0;
 }
 
@@ -100,9 +133,6 @@ void CSpu2::LogRead(uint32 address)
 {
 	switch(address)
 	{
-	case C_IRQINFO:
-		CLog::GetInstance().Print(LOG_NAME, " = C_IRQINFO\r\n");
-		break;
 	default:
 		CLog::GetInstance().Warn(LOG_NAME, "Read an unknown register 0x%08X.\r\n", address);
 		break;
@@ -113,15 +143,6 @@ void CSpu2::LogWrite(uint32 address, uint32 value)
 {
 	switch(address)
 	{
-	case C_SPDIF_OUT:
-		Iop::CSpuBase::m_spdifOutput = value;
-		break;
-	case C_SPDIF_MODE:
-		Iop::CSpuBase::m_spdifMode = value;
-		break;
-	case C_SPDIF_MEDIA:
-		Iop::CSpuBase::m_spdifMedia = value;
-		break;
 	default:
 		CLog::GetInstance().Warn(LOG_NAME, "Wrote 0x%08X to unknown register 0x%08X.\r\n", value, address);
 		break;

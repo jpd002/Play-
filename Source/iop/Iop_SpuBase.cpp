@@ -69,12 +69,6 @@ using namespace Iop;
 #define STATE_IRQWATCHER_REGS_IRQPENDING0 ("irqPending0")
 #define STATE_IRQWATCHER_REGS_IRQPENDING1 ("irqPending1")
 
-#define SPDIF_OUT_BYPASS 0x0100
-
-uint32 CSpuBase::m_spdifOutput = 0x0000;
-uint32 CSpuBase::m_spdifMode = 0x0000;
-uint32 CSpuBase::m_spdifMedia = 0x0000;
-
 // clang-format off
 bool CSpuBase::g_reverbParamIsAddress[REVERB_PARAM_COUNT] =
 {
@@ -356,7 +350,28 @@ void CSpuBase::SetControl(uint16 value)
 void CSpuBase::SetBaseSamplingRate(uint32 samplingRate)
 {
 	m_baseSamplingRate = samplingRate;
-	m_blockReader.SetBaseSamplingRate(samplingRate);
+	SetBlockReaderBaseSamplingRate();
+}
+
+void CSpuBase::SetBlockReaderBaseSamplingRate()
+{
+	if(m_spuNumber == 0 && m_inputBypass)
+	{
+		// if the C_SPDIF_OUT register (0x1F9007C0) contains value 0x0100,
+		// then data from the sound input data area should bypass spu internal
+		// processing on core 0. In this mode, we need to read input data 
+		// at twice the effective rate.
+		m_blockReader.SetBaseSamplingRate(m_baseSamplingRate * 2);
+	}
+	else {
+		m_blockReader.SetBaseSamplingRate(m_baseSamplingRate);
+	}
+}
+
+void CSpuBase::SetInputBypass(bool inputBypass)
+{
+	m_inputBypass = inputBypass;
+	SetBlockReaderBaseSamplingRate();
 }
 
 void CSpuBase::SetDestinationSamplingRate(uint32 samplingRate)
@@ -777,11 +792,7 @@ void CSpuBase::Render(int16* samples, unsigned int sampleCount)
 		if(m_blockReader.CanReadSamples())
 		{
 			int32 blockSamples[2] = {};
-			// if the SPDIF_OUT register (0x1F9007C0) contains value 0x0100,
-			// then data from the sound input data area should bypass spu internal
-			// processing. This only works for core 0.
-			bool spdifBypass = (m_spuNumber == 0 && m_spdifOutput == SPDIF_OUT_BYPASS);
-			m_blockReader.GetSamples(blockSamples, spdifBypass);
+			m_blockReader.GetSamples(blockSamples);
 
 			MixSamples(blockSamples[0], 0x3FFF, samples + 0);
 			MixSamples(blockSamples[1], 0x3FFF, samples + 1);
@@ -1544,13 +1555,9 @@ void CSpuBase::CBlockSampleReader::FillBlock(const uint8* block)
 	m_srcSampleIdx = 0;
 }
 
-void CSpuBase::CBlockSampleReader::GetSamples(int32 samples[2], bool spdifBypass)
+void CSpuBase::CBlockSampleReader::GetSamples(int32 samples[2])
 {
-	// When bypassing SPU2 internal processing of data from the sound data input area
-	// for PCM or bitstream spdif bypass, we need to read at twice the effective rate
-	auto sampleStep = spdifBypass ? m_sampleStep * 2 : m_sampleStep;
-
-	assert(sampleStep != 0);
+	assert(m_sampleStep != 0);
 
 	uint32 srcSampleIdx = m_srcSampleIdx / TIME_SCALE;
 	assert(srcSampleIdx < SOUND_INPUT_DATA_SAMPLES);
@@ -1559,7 +1566,7 @@ void CSpuBase::CBlockSampleReader::GetSamples(int32 samples[2], bool spdifBypass
 	samples[0] = inputSamples[0x000 + srcSampleIdx];
 	samples[1] = inputSamples[0x100 + srcSampleIdx];
 
-	m_srcSampleIdx += sampleStep;
+	m_srcSampleIdx += m_sampleStep;
 }
 
 void CSpuBase::CBlockSampleReader::UpdateSampleStep()
