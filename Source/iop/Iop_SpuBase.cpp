@@ -350,7 +350,7 @@ void CSpuBase::SetControl(uint16 value)
 void CSpuBase::SetBaseSamplingRate(uint32 samplingRate)
 {
 	m_baseSamplingRate = samplingRate;
-	m_blockReader.SetBaseSamplingRate(m_baseSamplingRate);
+	m_blockReader.SetBaseSamplingRate(samplingRate);
 }
 
 void CSpuBase::SetInputBypass(bool inputBypass)
@@ -1541,7 +1541,8 @@ bool CSpuBase::CBlockSampleReader::CanReadSamples() const
 		// as a stereo pair.
 		return (sampleIdx < (SOUND_INPUT_DATA_SAMPLES / 2));
 	}
-	else {
+	else
+	{
 		return (sampleIdx < SOUND_INPUT_DATA_SAMPLES);
 	}
 }
