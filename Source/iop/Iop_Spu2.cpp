@@ -96,10 +96,8 @@ uint32 CSpu2::ReadRegisterImpl(uint32 address, uint32 value)
 	case C_SPDIF_MEDIA:
 		result = m_spdifMedia;
 		break;
-	default:
-		LogRead(address);
-		break;
 	}
+	LogRead(address);
 	return result;
 }
 
@@ -117,16 +115,25 @@ uint32 CSpu2::WriteRegisterImpl(uint32 address, uint32 value)
 	case C_SPDIF_MEDIA:
 		m_spdifMedia = value;
 		break;
-	default:
-		LogWrite(address, value);
 	}
+	LogWrite(address, value);
 	return 0;
 }
 
 void CSpu2::LogRead(uint32 address)
 {
+#define LOG_GET(registerId)                                      \
+	case registerId:                                             \
+		CLog::GetInstance().Print(LOG_NAME, #registerId "\r\n"); \
+		break;
+
 	switch(address)
 	{
+	LOG_GET(C_IRQINFO)
+	LOG_GET(C_SPDIF_OUT)
+	LOG_GET(C_SPDIF_MODE)
+	LOG_GET(C_SPDIF_MEDIA)
+
 	default:
 		CLog::GetInstance().Warn(LOG_NAME, "Read an unknown register 0x%08X.\r\n", address);
 		break;
@@ -135,8 +142,17 @@ void CSpu2::LogRead(uint32 address)
 
 void CSpu2::LogWrite(uint32 address, uint32 value)
 {
+#define LOG_SET(registerId)                                                      \
+	case registerId:                                                             \
+		CLog::GetInstance().Print(LOG_NAME, #registerId " = 0x%04X\r\n", value); \
+		break;
+
 	switch(address)
 	{
+		LOG_SET(C_SPDIF_OUT)
+		LOG_SET(C_SPDIF_MODE)
+		LOG_SET(C_SPDIF_MEDIA)
+
 	default:
 		CLog::GetInstance().Warn(LOG_NAME, "Wrote 0x%08X to unknown register 0x%08X.\r\n", value, address);
 		break;
