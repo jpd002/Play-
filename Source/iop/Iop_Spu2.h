@@ -27,7 +27,6 @@ namespace Iop
 			C_IRQINFO = 0x1F9007C2,
 			C_SPDIF_MODE = 0x1F9007C6,
 			C_SPDIF_MEDIA = 0x1F9007C8,
-			C_SPDIF_PROTECT = 0x1F9007CC,
 		};
 
 		enum
@@ -64,7 +63,6 @@ namespace Iop
 		uint32 m_spdifOutput = 0x0000;
 		uint32 m_spdifMode = 0x0000;
 		uint32 m_spdifMedia = 0x0000;
-		uint32 m_spdifProtect = 0x0000;
 	};
 }
 

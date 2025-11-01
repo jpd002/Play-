@@ -96,9 +96,6 @@ uint32 CSpu2::ReadRegisterImpl(uint32 address, uint32 value)
 	case C_SPDIF_MEDIA:
 		result = m_spdifMedia;
 		break;
-	case C_SPDIF_PROTECT:
-		result = m_spdifProtect;
-		break;
 	default:
 		LogRead(address);
 		break;
@@ -119,9 +116,6 @@ uint32 CSpu2::WriteRegisterImpl(uint32 address, uint32 value)
 		break;
 	case C_SPDIF_MEDIA:
 		m_spdifMedia = value;
-		break;
-	case C_SPDIF_PROTECT:
-		m_spdifProtect = value;
 		break;
 	default:
 		LogWrite(address, value);
