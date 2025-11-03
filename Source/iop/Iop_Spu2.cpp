@@ -6,6 +6,8 @@
 
 #define LOG_NAME ("iop_spu2")
 
+#define SPDIF_OUT_BYPASS 0x0100
+
 using namespace Iop;
 using namespace Iop::Spu2;
 
@@ -85,6 +87,15 @@ uint32 CSpu2::ReadRegisterImpl(uint32 address, uint32 value)
 			}
 		}
 		break;
+	case C_SPDIF_OUT:
+		result = m_spdifOutput;
+		break;
+	case C_SPDIF_MODE:
+		result = m_spdifMode;
+		break;
+	case C_SPDIF_MEDIA:
+		result = m_spdifMedia;
+		break;
 	}
 	LogRead(address);
 	return result;
@@ -92,17 +103,37 @@ uint32 CSpu2::ReadRegisterImpl(uint32 address, uint32 value)
 
 uint32 CSpu2::WriteRegisterImpl(uint32 address, uint32 value)
 {
+	switch(address)
+	{
+	case C_SPDIF_OUT:
+		m_spdifOutput = value;
+		m_core[0]->GetSpuBase().SetInputBypass(value & SPDIF_OUT_BYPASS ? true : false);
+		break;
+	case C_SPDIF_MODE:
+		m_spdifMode = value;
+		break;
+	case C_SPDIF_MEDIA:
+		m_spdifMedia = value;
+		break;
+	}
 	LogWrite(address, value);
 	return 0;
 }
 
 void CSpu2::LogRead(uint32 address)
 {
+#define LOG_GET(registerId)                                      \
+	case registerId:                                             \
+		CLog::GetInstance().Print(LOG_NAME, #registerId "\r\n"); \
+		break;
+
 	switch(address)
 	{
-	case C_IRQINFO:
-		CLog::GetInstance().Print(LOG_NAME, " = C_IRQINFO\r\n");
-		break;
+		LOG_GET(C_IRQINFO)
+		LOG_GET(C_SPDIF_OUT)
+		LOG_GET(C_SPDIF_MODE)
+		LOG_GET(C_SPDIF_MEDIA)
+
 	default:
 		CLog::GetInstance().Warn(LOG_NAME, "Read an unknown register 0x%08X.\r\n", address);
 		break;
@@ -111,8 +142,17 @@ void CSpu2::LogRead(uint32 address)
 
 void CSpu2::LogWrite(uint32 address, uint32 value)
 {
+#define LOG_SET(registerId)                                                      \
+	case registerId:                                                             \
+		CLog::GetInstance().Print(LOG_NAME, #registerId " = 0x%04X\r\n", value); \
+		break;
+
 	switch(address)
 	{
+		LOG_SET(C_SPDIF_OUT)
+		LOG_SET(C_SPDIF_MODE)
+		LOG_SET(C_SPDIF_MEDIA)
+
 	default:
 		CLog::GetInstance().Warn(LOG_NAME, "Wrote 0x%08X to unknown register 0x%08X.\r\n", value, address);
 		break;
