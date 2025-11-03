@@ -39,8 +39,8 @@ void MameCompatOutput::Listen(std::string gameId)
 	}
 
 	// Create socket
-	int listenSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-	if(listenSocket == -1)
+	m_listenSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+	if(m_listenSocket == INVALID_SOCKET)
 	{
 		CLog::GetInstance().Warn(LOG_NAME, "Error creating socket: %d", errno);
 		return;
@@ -53,18 +53,18 @@ void MameCompatOutput::Listen(std::string gameId)
 	serverAddr.sin_addr.s_addr = INADDR_ANY; // Listen on all available interfaces
 
 	// Bind socket
-	if(bind(listenSocket, (struct sockaddr*)&serverAddr, sizeof(serverAddr)) == -1)
+	if(bind(m_listenSocket, (struct sockaddr*)&serverAddr, sizeof(serverAddr)) == -1)
 	{
 		CLog::GetInstance().Warn(LOG_NAME, "Error binding socket: %d", errno);
-		closesocket(listenSocket);
+		closesocket(m_listenSocket);
 		return;
 	}
 
 	// Listen for connections
-	if(listen(listenSocket, 5) == -1)
+	if(listen(m_listenSocket, 5) == -1)
 	{
 		CLog::GetInstance().Warn(LOG_NAME, "Error listening on socket: %d", errno);
-		closesocket(listenSocket);
+		closesocket(m_listenSocket);
 		return;
 	}
 
@@ -77,7 +77,7 @@ void MameCompatOutput::Listen(std::string gameId)
 			// Accept a connection
 			sockaddr_in clientAddr;
 			socklen_t clientAddrSize = sizeof(clientAddr);
-			int clientSocket = accept(listenSocket, (struct sockaddr*)&clientAddr, &clientAddrSize);
+			int clientSocket = accept(m_listenSocket, (struct sockaddr*)&clientAddr, &clientAddrSize);
 			if(clientSocket == -1)
 			{
 				CLog::GetInstance().Warn(LOG_NAME, "Error accepting connection: %d", errno);
@@ -112,7 +112,7 @@ void MameCompatOutput::Start(std::string gameId)
 
 void MameCompatOutput::Stop()
 {
-	if(m_clientSocket)
+	if(m_clientSocket != INVALID_SOCKET)
 	{
 		// Send goodbye string
 		std::string goodbye = "mame_stop = 1\r";
@@ -120,9 +120,14 @@ void MameCompatOutput::Stop()
 		if(sent == -1)
 		{
 			CLog::GetInstance().Warn(LOG_NAME, "Error sending goodbye string: %d", errno);
-			closesocket(m_clientSocket);
-			m_clientSocket = 0;
 		}
+		closesocket(m_clientSocket);
+		m_clientSocket = INVALID_SOCKET;
+	}
+	if(m_listenSocket != INVALID_SOCKET)
+	{
+		closesocket(m_listenSocket);
+		m_listenSocket = INVALID_SOCKET;
 	}
 	WSACleanup();
 }

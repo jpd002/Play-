@@ -1,3 +1,7 @@
+#pragma once
+
+#include "SocketDef.h"
+
 namespace Iop
 {
 	namespace Namco
@@ -15,7 +19,8 @@ namespace Iop
 			void Stop();
 
 			bool m_doListen = false;
-			int m_clientSocket = 0;
+			SOCKET m_listenSocket = INVALID_SOCKET;
+			SOCKET m_clientSocket = INVALID_SOCKET;
 			std::thread m_listenThread;
 		};
 	}
