@@ -89,6 +89,8 @@ namespace Iop
 				P_EVOLR = 0x1F900766,
 				P_BVOLL = 0x1F90076C, //Audio input volume
 				P_BVOLR = 0x1F90076E,
+				P_AVOLL = 0x1F900768, //External Input Volume (Core 1)
+				P_AVOLR = 0x1F90076A,
 				RVB_C_REG_BASE = 0x1F900774,
 				RVB_C_REG_END = 0x1F900788,
 			};

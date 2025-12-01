@@ -787,10 +787,11 @@ void CPS2VM::UpdateSpu()
 
 		for(unsigned int i = 0; i < BLOCK_SIZE; i++)
 		{
-			int32 resultSample = static_cast<int32>(samplesSpu0[i]) + static_cast<int32>(samplesSpu1[i]);
-			resultSample = std::max<int32>(resultSample, SHRT_MIN);
-			resultSample = std::min<int32>(resultSample, SHRT_MAX);
-			samplesSpu0[i] = static_cast<int16>(resultSample);
+			// Core0 output should be mixed with Core1 at volume
+			// corresponding to Core1's AVOL register values
+			int32 volume = (i % 2) ? m_iop->m_spuCore1.m_extInputVolR : m_iop->m_spuCore1.m_extInputVolL;
+			Iop::CSpuBase::MixSamples(samplesSpu0[i], volume, &samplesSpu1[i]);
+			samplesSpu0[i] = samplesSpu1[i];
 		}
 	}
 
