@@ -469,7 +469,7 @@ void CDrawMobile::CreateRenderPass()
 		VkSubpassDescription subpass = {};
 		subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
 		subpass.pColorAttachments = attachmentRefs.data();
-		subpass.colorAttachmentCount = attachmentRefs.size();
+		subpass.colorAttachmentCount = static_cast<uint32>(attachmentRefs.size());
 		subpasses.push_back(subpass);
 	}
 
@@ -478,9 +478,9 @@ void CDrawMobile::CreateRenderPass()
 		VkSubpassDescription subpass = {};
 		subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
 		subpass.pColorAttachments = attachmentRefs.data();
-		subpass.colorAttachmentCount = attachmentRefs.size();
+		subpass.colorAttachmentCount = static_cast<uint32>(attachmentRefs.size());
 		subpass.pInputAttachments = attachmentRefs.data();
-		subpass.inputAttachmentCount = attachmentRefs.size();
+		subpass.inputAttachmentCount = static_cast<uint32>(attachmentRefs.size());
 		subpasses.push_back(subpass);
 	}
 
@@ -489,9 +489,9 @@ void CDrawMobile::CreateRenderPass()
 		VkSubpassDescription subpass = {};
 		subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
 		subpass.pColorAttachments = attachmentRefs.data();
-		subpass.colorAttachmentCount = attachmentRefs.size();
+		subpass.colorAttachmentCount = static_cast<uint32>(attachmentRefs.size());
 		subpass.pInputAttachments = attachmentRefs.data();
-		subpass.inputAttachmentCount = attachmentRefs.size();
+		subpass.inputAttachmentCount = static_cast<uint32>(attachmentRefs.size());
 		subpasses.push_back(subpass);
 	}
 
