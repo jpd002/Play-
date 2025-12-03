@@ -112,6 +112,12 @@ void CInputProviderMacOsHid::InputReportCallbackStub_DS4(void* context, IOReturn
 	deviceInfo->provider->InputReportCallback_DS4(deviceInfo, result, sender, type, reportID, report, reportLength);
 }
 
+void CInputProviderMacOsHid::InputReportCallbackStub_DualSense(void* context, IOReturn result, void* sender, IOHIDReportType type, uint32_t reportID, uint8_t* report, CFIndex reportLength)
+{
+	auto deviceInfo = reinterpret_cast<DEVICE_INFO*>(context);
+	deviceInfo->provider->InputReportCallback_DualSense(deviceInfo, result, sender, type, reportID, report, reportLength);
+}
+
 void CInputProviderMacOsHid::OnDeviceMatched(IOReturn result, void* sender, IOHIDDeviceRef device)
 {
 	m_devices.push_back(DEVICE_INFO());
@@ -273,13 +279,73 @@ void CInputProviderMacOsHid::InputReportCallback_DS4(DEVICE_INFO* deviceInfo, IO
 	}
 }
 
+void CInputProviderMacOsHid::InputReportCallback_DualSense(DEVICE_INFO* deviceInfo, IOReturn result, void* sender, IOHIDReportType type, uint32_t reportID, uint8_t* report, CFIndex reportLength)
+{
+	int offset = 2;
+
+	struct PS5Btn* new_btn_state = reinterpret_cast<struct PS5Btn*>(&report[offset]);
+	struct PS5Btn* prev_btn_state = reinterpret_cast<struct PS5Btn*>(deviceInfo->prev_btn_state);
+	int is_change = 0;
+
+#define checkbtnstate(prev_btn_state, new_btn_state, btn, btn_id, type)      \
+	if(deviceInfo->first_run || (prev_btn_state->btn != new_btn_state->btn)) \
+	{                                                                        \
+		is_change += 1;                                                      \
+		BINDINGTARGET tgt;                                                   \
+		tgt.providerId = PROVIDER_ID;                                        \
+		tgt.deviceId = deviceInfo->deviceId;                                 \
+		tgt.keyId = btn_id;                                                  \
+		tgt.keyType = type;                                                  \
+		OnInput(tgt, new_btn_state->btn);                                    \
+	}
+
+	deviceInfo->first_run = false;
+
+	checkbtnstate(prev_btn_state, new_btn_state, LX, 1, BINDINGTARGET::KEYTYPE::AXIS);
+	checkbtnstate(prev_btn_state, new_btn_state, LY, 2, BINDINGTARGET::KEYTYPE::AXIS);
+	checkbtnstate(prev_btn_state, new_btn_state, RX, 3, BINDINGTARGET::KEYTYPE::AXIS);
+	checkbtnstate(prev_btn_state, new_btn_state, RY, 4, BINDINGTARGET::KEYTYPE::AXIS);
+
+	checkbtnstate(prev_btn_state, new_btn_state, DPad, 5, BINDINGTARGET::KEYTYPE::POVHAT);
+	checkbtnstate(prev_btn_state, new_btn_state, Triangle, 6, BINDINGTARGET::KEYTYPE::BUTTON);
+	checkbtnstate(prev_btn_state, new_btn_state, Circle, 7, BINDINGTARGET::KEYTYPE::BUTTON);
+	checkbtnstate(prev_btn_state, new_btn_state, Cross, 8, BINDINGTARGET::KEYTYPE::BUTTON);
+	checkbtnstate(prev_btn_state, new_btn_state, Square, 9, BINDINGTARGET::KEYTYPE::BUTTON);
+
+	checkbtnstate(prev_btn_state, new_btn_state, L1, 10, BINDINGTARGET::KEYTYPE::BUTTON);
+	checkbtnstate(prev_btn_state, new_btn_state, R1, 11, BINDINGTARGET::KEYTYPE::BUTTON);
+	//checkbtnstate(prev_btn_state, new_btn_state, L2, 12, 1);
+	//checkbtnstate(prev_btn_state, new_btn_state, R2, 13, 1);
+
+	checkbtnstate(prev_btn_state, new_btn_state, Share, 14, BINDINGTARGET::KEYTYPE::BUTTON);
+	checkbtnstate(prev_btn_state, new_btn_state, Option, 15, BINDINGTARGET::KEYTYPE::BUTTON);
+	checkbtnstate(prev_btn_state, new_btn_state, L3, 16, BINDINGTARGET::KEYTYPE::BUTTON);
+	checkbtnstate(prev_btn_state, new_btn_state, R3, 17, BINDINGTARGET::KEYTYPE::BUTTON);
+
+	checkbtnstate(prev_btn_state, new_btn_state, PSHome, 18, BINDINGTARGET::KEYTYPE::BUTTON);
+	checkbtnstate(prev_btn_state, new_btn_state, TouchPad, 19, BINDINGTARGET::KEYTYPE::BUTTON);
+	checkbtnstate(prev_btn_state, new_btn_state, LT, 20, BINDINGTARGET::KEYTYPE::AXIS);
+	checkbtnstate(prev_btn_state, new_btn_state, RT, 21, BINDINGTARGET::KEYTYPE::AXIS);
+
+#undef checkbtnstate
+
+	if(is_change > 0)
+	{
+		memcpy(deviceInfo->prev_btn_state, new_btn_state, sizeof(struct PS5Btn));
+	}
+}
+
 IOHIDReportCallback CInputProviderMacOsHid::GetCallback(IOHIDDeviceRef device)
 {
 	auto vid = GetIntProperty(device, CFSTR(kIOHIDVendorIDKey));
 	auto pid = GetIntProperty(device, CFSTR(kIOHIDProductIDKey));
 	if(vid == 0x54C)
 	{
-		if(pid == 0x9CC || pid == 0x5C4)
+		if(pid == 0xCE6)
+		{
+			return &InputReportCallbackStub_DualSense;
+		}
+		else if(pid == 0x9CC || pid == 0x5C4)
 		{
 			return &InputReportCallbackStub_DS4;
 		}
