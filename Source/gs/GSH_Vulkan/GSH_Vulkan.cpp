@@ -113,9 +113,9 @@ Framework::Vulkan::CInstance CGSH_Vulkan::CreateInstance(bool useValidationLayer
 #endif
 
 	instanceCreateInfo.pApplicationInfo = &appInfo;
-	instanceCreateInfo.enabledExtensionCount = extensions.size();
+	instanceCreateInfo.enabledExtensionCount = static_cast<uint32>(extensions.size());
 	instanceCreateInfo.ppEnabledExtensionNames = extensions.data();
-	instanceCreateInfo.enabledLayerCount = layers.size();
+	instanceCreateInfo.enabledLayerCount = static_cast<uint32>(layers.size());
 	instanceCreateInfo.ppEnabledLayerNames = layers.data();
 	return Framework::Vulkan::CInstance(instanceCreateInfo);
 }
