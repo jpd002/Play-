@@ -690,9 +690,27 @@ int32 CSpuBase::ComputeChannelVolume(const CHANNEL_VOLUME& volume, int32 current
 
 void CSpuBase::MixSamples(int32 inputSample, int32 volumeLevel, int16* output)
 {
+	// Mixing based on https://www.vttoth.com/CMS/technical-notes/?view=article&id=68
+	// to preserve source volumes w/out clipping
 	inputSample = (inputSample * volumeLevel) / 0x7FFF;
-	int32 resultSample = inputSample + static_cast<int32>(*output);
-	resultSample = std::clamp<int32>(resultSample, SHRT_MIN, SHRT_MAX);
+	int32 outputSample = static_cast<int32>(*output);
+	int32 resultSample;
+
+	inputSample += 32768;
+	outputSample += 32768;
+
+	if((inputSample < 32768) && (outputSample < 32768))
+	{
+		resultSample = (inputSample * outputSample) / 32768;
+	}
+	else
+	{
+		resultSample = (2 * (inputSample + outputSample)) - ((inputSample * outputSample) / 32768) - 65536;
+	}
+
+	if(resultSample == 65536) resultSample = 65535;
+	resultSample -= 32768;
+
 	*output = static_cast<int16>(resultSample);
 }
 
@@ -778,8 +796,18 @@ void CSpuBase::Render(int16* samples, unsigned int sampleCount)
 			int32 blockSamples[2] = {};
 			m_blockReader.GetSamples(blockSamples);
 
-			MixSamples(blockSamples[0], 0x3FFF, samples + 0);
-			MixSamples(blockSamples[1], 0x3FFF, samples + 1);
+			// Audio input data should have volume adjusted to BVOL register values . . .
+			if(m_spuNumber == 0 && m_blockReader.m_spdifBypass)
+			{
+				//  . . . unless in bypass mode
+				MixSamples(blockSamples[0], 0x7FFF, samples + 0);
+				MixSamples(blockSamples[1], 0x7FFF, samples + 1);
+			}
+			else
+			{
+				MixSamples(blockSamples[0], m_inputVolL, samples + 0);
+				MixSamples(blockSamples[1], m_inputVolR, samples + 1);
+			}
 		}
 
 		//Simulate SPU CORE0 writing its output in RAM and check for potential interrupts
