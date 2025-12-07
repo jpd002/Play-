@@ -892,6 +892,14 @@ void CGSH_Vulkan::SetRenderingContext(uint64 primReg)
 		pipelineCaps.depthTestFunction = CGSHandler::DEPTH_TEST_ALWAYS;
 	}
 
+	//Disable depth writes if both frame buffer and z buffer share the same address
+	//TODO: This could be refined to check if there's actually no frame buffer writes
+	//(ie.: fbmsk, alpha testing)
+	if(frame.GetBasePtr() == zbuf.GetBasePtr())
+	{
+		pipelineCaps.writeDepth = false;
+	}
+
 	pipelineCaps.alphaTestFunction = test.nAlphaMethod;
 	pipelineCaps.alphaTestFailAction = test.nAlphaFail;
 	if(!test.nAlphaEnabled || !m_alphaTestingEnabled)
