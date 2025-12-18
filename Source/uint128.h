@@ -1,5 +1,4 @@
-#ifndef _UINT128_H_
-#define _UINT128_H_
+#pragma once
 
 #include "Types.h"
 #include <tuple>
@@ -38,5 +37,4 @@ struct uint128
 		return std::tie(lhs.nD1, lhs.nD0) == std::tie(rhs.nD1, rhs.nD0);
 	}
 };
-
-#endif
+static_assert(sizeof(uint128) == 0x10);

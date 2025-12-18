@@ -1,4 +1,5 @@
 #include <exception>
+#include <cassert>
 #include "tcharx.h"
 #include "VolumeStream.h"
 
