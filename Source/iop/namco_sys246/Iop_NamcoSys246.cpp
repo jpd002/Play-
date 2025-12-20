@@ -559,14 +559,14 @@ void CSys246::SetButtonState(unsigned int padNumber, PS2::CControllerInfo::BUTTO
 
 		if(m_gameId == "timecrs3" || m_gameId == "timecrs3e" || m_gameId == "timecrs3u")
 		{
-				if(button == PS2::CControllerInfo::TRIANGLE)
-				{
-					button = PS2::CControllerInfo::R2;
-				}
-				else if(button == PS2::CControllerInfo::R2)
-				{
-					button = PS2::CControllerInfo::TRIANGLE;
-				}
+			if(button == PS2::CControllerInfo::TRIANGLE)
+			{
+				button = PS2::CControllerInfo::R2;
+			}
+			else if(button == PS2::CControllerInfo::R2)
+			{
+				button = PS2::CControllerInfo::TRIANGLE;
+			}
 		}
 
 		m_jvsButtonState[padNumber] &= ~m_jvsButtonBits[button];
