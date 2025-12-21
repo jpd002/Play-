@@ -175,14 +175,15 @@ void CSys246::ProcessJvsPacket(const uint8* input, uint8* output)
 			(*output++) = 0x01; //Command success
 			(*dstSize)++;
 
-			//const char* boardName = "namco ltd.;RAYS PCB;";
-			//const char* boardName = "namco ltd.;FCA-1;Ver1.01;JPN,Multipurpose";
-			//const char* boardName = "namco ltd.;FCB;Ver1.02;JPN,TouchPanel&Multipurpose";
-			const char* boardName = "namco ltd.;TSS-I/O;Ver2.11;GUN-EXTENSION";
-			if(m_gameId == "timecrs3" || m_gameId == "timecrs3e" || m_gameId == "timecrs3u")
-			{
-				boardName = "namco ltd.;MIU-I/O;Ver2.05;JPN,GUN-EXTENTION";
-			}
+			// JVS I/O board ID is set via arcadedef, and affects some game functions
+			// Some known-valid I/O board ID values:
+			// "namco ltd.;RAYS PCB;";
+			// "namco ltd.;FCA-1;Ver1.01;JPN,Multipurpose";
+			// "namco ltd.;FCB;Ver1.02;JPN,TouchPanel&Multipurpose";
+			// "namco ltd.;TSS-I/O;Ver2.11;GUN-EXTENTION";
+			// "namco ltd.;MIU-I/O;Ver2.05;JPN,GUN-EXTENTION";
+
+			const char* boardName = m_boardId.c_str();
 			size_t length = strlen(boardName);
 
 			for(int i = 0; i < length + 1; i++)
@@ -536,6 +537,11 @@ void CSys246::SetJvsMode(JVS_MODE jvsMode)
 	m_jvsMode = jvsMode;
 }
 
+void CSys246::SetBoardId(std::string boardId)
+{
+	m_boardId = boardId;
+}
+
 void CSys246::SetButton(unsigned int buttonIndex, PS2::CControllerInfo::BUTTON buttonValue)
 {
 	m_jvsButtonBits[buttonValue] = (1 << buttonIndex);
@@ -556,18 +562,6 @@ void CSys246::SetButtonState(unsigned int padNumber, PS2::CControllerInfo::BUTTO
 	if(padNumber < JVS_PLAYER_COUNT)
 	{
 		static const uint16 drumPressValue = 0x200;
-
-		if(m_gameId == "timecrs3" || m_gameId == "timecrs3e" || m_gameId == "timecrs3u")
-		{
-			if(button == PS2::CControllerInfo::TRIANGLE)
-			{
-				button = PS2::CControllerInfo::R2;
-			}
-			else if(button == PS2::CControllerInfo::R2)
-			{
-				button = PS2::CControllerInfo::TRIANGLE;
-			}
-		}
 
 		m_jvsButtonState[padNumber] &= ~m_jvsButtonBits[button];
 		m_jvsButtonState[padNumber] |= (pressed ? m_jvsButtonBits[button] : 0);

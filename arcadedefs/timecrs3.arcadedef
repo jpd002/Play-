@@ -10,7 +10,13 @@
 	{
 		"name": "tst1dvd0.chd"
 	},
+	"buttons":
+	{
+		"15": "r2",
+		"12": "triangle"
+	},
 	"inputMode": "lightgun",
+	"boardId": "namco ltd.;MIU-I/O;Ver2.05;JPN,GUN-EXTENTION",
 	"screenPosXform": [ 660, 16053, 220, 16273 ],
 	"boot": "ac0:TC3LOAD",
 	"patches":
