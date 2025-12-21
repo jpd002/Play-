@@ -131,7 +131,8 @@ void CNamcoSys246Driver::PrepareEnvironment(CPS2VM* virtualMachine, const ARCADE
 				break;
 			}
 
-			if (!def.boardId.empty()) {
+			if(!def.boardId.empty())
+			{
 				namcoArcadeModule->SetBoardId(def.boardId);
 			}
 		}
