@@ -492,7 +492,7 @@ void CSys246::ProcessJvsPacket(const uint8* input, uint8* output)
 				if(i == 1)
 				{
 					// value1 0xC0 indicates P1 recoil triggered
-					int p1Recoil = (gpvalue >= 0x80) ? 1 : 0;
+					int p1Recoil = (gpvalue >= 0x50) ? 1 : 0;
 					if(p1Recoil != m_p1RecoilLast)
 					{
 						m_p1RecoilLast = p1Recoil;
