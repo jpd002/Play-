@@ -50,6 +50,7 @@ struct ARCADE_MACHINE_DEF
 	std::map<unsigned int, ButtonSelector> buttons;
 	INPUT_MODE inputMode = INPUT_MODE::DEFAULT;
 	IO_MODE ioMode = IO_MODE::DEFAULT;
+	std::string boardId;
 	std::array<float, 4> screenPosXform = {65535, 0, 65535, 0};
 	uint32 eeFreqScaleNumerator = 1;
 	uint32 eeFreqScaleDenominator = 1;

@@ -43,6 +43,7 @@ namespace Iop
 			void LoadState(Framework::CZipArchiveReader&) override;
 
 			void SetJvsMode(JVS_MODE);
+			void SetBoardId(std::string);
 			void SetButton(unsigned int, PS2::CControllerInfo::BUTTON);
 			void SetScreenPosXform(const std::array<float, 4>&);
 
@@ -142,6 +143,7 @@ namespace Iop
 
 			JVS_MODE m_jvsMode = JVS_MODE::DEFAULT;
 			std::array<float, 4> m_screenPosXform = {65535, 0, 65535, 0};
+			std::string m_boardId = "namco ltd.;TSS-I/O;Ver2.11;GUN-EXTENTION";
 
 			std::array<uint16, PS2::CControllerInfo::MAX_BUTTONS> m_jvsButtonBits = {};
 			uint16 m_jvsButtonState[JVS_PLAYER_COUNT] = {};
