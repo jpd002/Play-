@@ -34,7 +34,7 @@ void MameCompatOutput::Listen(std::string gameId)
 	WSADATA wsaData;
 	if(WSAStartup(MAKEWORD(2, 2), &wsaData) != 0)
 	{
-		CLog::GetInstance().Warn(LOG_NAME, "WSAStartup failed: %d\n", errno);
+		CLog::GetInstance().Warn(LOG_NAME, "WSAStartup failed: %d\r\n", errno);
 		return;
 	}
 
@@ -42,7 +42,7 @@ void MameCompatOutput::Listen(std::string gameId)
 	m_listenSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 	if(m_listenSocket == INVALID_SOCKET)
 	{
-		CLog::GetInstance().Warn(LOG_NAME, "Error creating socket: %d", errno);
+		CLog::GetInstance().Warn(LOG_NAME, "Error creating socket: %d\r\n", errno);
 		return;
 	}
 
@@ -55,7 +55,7 @@ void MameCompatOutput::Listen(std::string gameId)
 	// Bind socket
 	if(bind(m_listenSocket, (struct sockaddr*)&serverAddr, sizeof(serverAddr)) == -1)
 	{
-		CLog::GetInstance().Warn(LOG_NAME, "Error binding socket: %d", errno);
+		CLog::GetInstance().Warn(LOG_NAME, "Error binding socket: %d\r\n", errno);
 		closesocket(m_listenSocket);
 		return;
 	}
@@ -63,12 +63,12 @@ void MameCompatOutput::Listen(std::string gameId)
 	// Listen for connections
 	if(listen(m_listenSocket, 5) == -1)
 	{
-		CLog::GetInstance().Warn(LOG_NAME, "Error listening on socket: %d", errno);
+		CLog::GetInstance().Warn(LOG_NAME, "Error listening on socket: %d\r\n", errno);
 		closesocket(m_listenSocket);
 		return;
 	}
 
-	CLog::GetInstance().Print(LOG_NAME, "Listening on port 8000");
+	CLog::GetInstance().Print(LOG_NAME, "Listening on port 8000\r\n");
 
 	while(m_doListen)
 	{
@@ -80,18 +80,18 @@ void MameCompatOutput::Listen(std::string gameId)
 			int clientSocket = accept(m_listenSocket, (struct sockaddr*)&clientAddr, &clientAddrSize);
 			if(clientSocket == -1)
 			{
-				CLog::GetInstance().Warn(LOG_NAME, "Error accepting connection: %d", errno);
+				CLog::GetInstance().Warn(LOG_NAME, "Error accepting connection: %d\r\n", errno);
 				continue;
 			}
 
-			CLog::GetInstance().Warn(LOG_NAME, "Client connected");
+			CLog::GetInstance().Warn(LOG_NAME, "Client connected\r\n");
 
 			// Send hello event
 			std::string hello = "mame_start = " + gameId + "\r";
 			int sent = send(clientSocket, hello.c_str(), hello.length(), 0);
 			if(sent == -1)
 			{
-				CLog::GetInstance().Warn(LOG_NAME, "Error sending hello string: %d", errno);
+				CLog::GetInstance().Warn(LOG_NAME, "Error sending hello string: %d\r\n", errno);
 				closesocket(clientSocket);
 				continue;
 			}
@@ -119,7 +119,7 @@ void MameCompatOutput::Stop()
 		int sent = send(m_clientSocket, goodbye.c_str(), goodbye.length(), 0);
 		if(sent == -1)
 		{
-			CLog::GetInstance().Warn(LOG_NAME, "Error sending goodbye string: %d", errno);
+			CLog::GetInstance().Warn(LOG_NAME, "Error sending goodbye string: %d\r\n", errno);
 		}
 		closesocket(m_clientSocket);
 		m_clientSocket = INVALID_SOCKET;
@@ -141,7 +141,7 @@ void MameCompatOutput::SendRecoil(int value)
 		int sent = send(m_clientSocket, recoil.c_str(), recoil.length(), 0);
 		if(sent == -1)
 		{
-			CLog::GetInstance().Warn(LOG_NAME, "Error sending recoil string: %d", errno);
+			CLog::GetInstance().Warn(LOG_NAME, "Error sending recoil string: %d\r\n", errno);
 			closesocket(m_clientSocket);
 			m_clientSocket = 0;
 		}
