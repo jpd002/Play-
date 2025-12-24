@@ -113,6 +113,22 @@
       }
     }
 
+    /* Portrait mode: position canvas at top with padding */
+    @media screen and (orientation: portrait) {
+      .global-column>div:first-child {
+        align-items: flex-start;
+        padding-top: 2vh;
+      }
+      
+      #outputCanvas {
+        /* In portrait, maintain aspect ratio but fit to width */
+        width: min(90vw, calc((100vh - 4vh) * 4 / 3));
+        height: auto;
+        max-width: 90vw;
+        max-height: calc(100vh - 4vh);
+      }
+    }
+
     #root {
       position: relative;
       z-index: 10;
