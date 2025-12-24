@@ -7,6 +7,7 @@
 #include "InputProviderEmscripten.h"
 #include "ui_shared/StatsManager.h"
 #include "DefaultAppConfig.h"
+#include "filesystem_def.h"
 
 CPs2VmJs* g_virtualMachine = nullptr;
 CGSHandler::NewFrameEvent::Connection g_gsNewFrameConnection;
@@ -139,6 +140,28 @@ void clearStats()
 	CStatsManager::GetInstance().ClearStats();
 }
 
+bool saveState(std::string path)
+{
+	if(!g_virtualMachine)
+	{
+		return false;
+	}
+	fs::path statePath(path);
+	auto future = g_virtualMachine->SaveState(statePath);
+	return future.get();
+}
+
+bool loadState(std::string path)
+{
+	if(!g_virtualMachine)
+	{
+		return false;
+	}
+	fs::path statePath(path);
+	auto future = g_virtualMachine->LoadState(statePath);
+	return future.get();
+}
+
 EMSCRIPTEN_BINDINGS(Play)
 {
 	using namespace emscripten;
@@ -147,4 +170,6 @@ EMSCRIPTEN_BINDINGS(Play)
 	function("bootDiscImage", &bootDiscImage);
 	function("getFrames", &getFrames);
 	function("clearStats", &clearStats);
+	function("saveState", &saveState);
+	function("loadState", &loadState);
 }

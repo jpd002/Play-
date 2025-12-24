@@ -73,6 +73,12 @@ export const store = configureStore({
     reducer: { play: reducer }
 });
 
+// Expose store and bootFile on window for Swift injection
+if (typeof window !== 'undefined') {
+    (window as any).store = store;
+    (window as any).bootFileAction = bootFile;
+}
+
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;
 

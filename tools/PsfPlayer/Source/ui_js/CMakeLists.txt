@@ -36,7 +36,7 @@ target_link_libraries(PsfPlayer PUBLIC ${PSF_UI_JS_PROJECT_LIBS})
 target_link_options(PsfPlayer PRIVATE "--bind")
 target_link_options(PsfPlayer PRIVATE "-sMODULARIZE=1")
 target_link_options(PsfPlayer PRIVATE "-sEXPORT_ES6=1")
-target_link_options(PsfPlayer PRIVATE "-sUSE_ES6_IMPORT_META=0")
+# Removed -sUSE_ES6_IMPORT_META=0 as it's no longer supported in newer Emscripten
 target_link_options(PsfPlayer PRIVATE "-sEXPORTED_FUNCTIONS=['_main', '_initVm', '_EmptyBlockHandler', '_MemoryUtils_GetByteProxy', '_MemoryUtils_GetHalfProxy', '_MemoryUtils_GetWordProxy', '_MemoryUtils_SetByteProxy', '_MemoryUtils_SetHalfProxy', '_MemoryUtils_SetWordProxy', '_LWL_Proxy', '_LWR_Proxy', '_SWL_Proxy', '_SWR_Proxy']")
 target_link_options(PsfPlayer PRIVATE "-sEXPORTED_RUNTIME_METHODS=['ccall', 'FS', 'NODEFS']")
 target_link_options(PsfPlayer PRIVATE "-sFORCE_FILESYSTEM")
