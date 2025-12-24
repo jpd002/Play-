@@ -1,141 +1,140 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#000000" />
-    <meta
-      name="description"
-      content="A PlayStation2 emulator for web browsers"
-    />
-    <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
-    <!--
-      manifest.json provides metadata used when your web app is installed on a
-      user's mobile device or desktop. See https://developers.google.com/web/fundamentals/web-app-manifest/
-    -->
-    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
-    <!--
-      Notice the use of %PUBLIC_URL% in the tags above.
-      It will be replaced with the URL of the `public` folder during the build.
-      Only files inside the `public` folder can be referenced from the HTML.
 
-      Unlike "/favicon.ico" or "favicon.ico", "%PUBLIC_URL%/favicon.ico" will
-      work correctly both with client-side routing and a non-root public URL.
-      Learn how to configure a non-root public URL by running `npm run build`.
-    -->
-    <title>Play!.js</title>
-  </head>
-  <body>
-    <noscript>You need to enable JavaScript to run this app.</noscript>
-    <div class="global-row">
-      <div class="global-column">
-        <div>
-          <canvas id="outputCanvas" width="640" height="480" tabindex="-1"/>
-        </div>
-        <div id="root"></div>
-      </div>
-      <div class="global-column">
-        <p>
-          <h1>Play!.js</h1>
-          <h3>What is this?</h3>
-          <p>
-            This is a port of Play!, a PlayStation2 emulator, running in a web browser.
-            This is only an experiment and is not meant to play all games that are currently supported
-            by the emulator on desktop and mobile.
-          </p>
-          <p>Supported file types: ISO, CSO, CHD, ISZ, BIN, ELF.</p>
-          <p>No BIOS file required.</p>
-          <p>Recent version of Chrome or Firefox required for a smoother experience.</p>
-        </p>
-        <p>
-          <h3>Links</h3>
-          <div><a href="https://purei.org" target="blank">Official Website</a></div>
-          <div><a href="https://github.com/jpd002/Play-" target="blank">Source Code</a></div>
-          <div><a href="https://github.com/jpd002/Play-Compatibility/issues" target="blank">Compatibility List</a></div>
-        </p>
-        <p>
-          <h3>Controls</h3>
-          <div class="controls-row">
-            <div class="controls-column">
-              <table>
-                <tr>
-                  <th>PS2 Controller</th>
-                  <th>Keyboard</th>
-                </tr>
-                <tr>
-                  <td>D. Pad</td>
-                  <td>Arrow Keys</td>
-                </tr>
-                <tr>
-                  <td>Left Analog Stick</td>
-                  <td>F, H, T, G</td>
-                </tr>
-                <tr>
-                  <td>Right Analog Stick</td>
-                  <td>J, L, I, K</td>
-                </tr>
-                <tr>
-                  <td>Square</td>
-                  <td>A</td>
-                </tr>
-                <tr>
-                  <td>Cross</td>
-                  <td>Z</td>
-                </tr>
-                <tr>
-                  <td>Triangle</td>
-                  <td>S</td>
-                </tr>
-                <tr>
-                  <td>Circle</td>
-                  <td>X</td>
-                </tr>
-              </table>
-            </div>
-            <div class="controls-column">
-              <table>
-                <tr>
-                  <th>PS2 Controller</th>
-                  <th>Keyboard</th>
-                </tr>
-                <tr>
-                  <td>Start</td>
-                  <td>Return</td>
-                </tr>
-                <tr>
-                  <td>Select</td>
-                  <td>Backspace</td>
-                </tr>
-                <tr>
-                  <td>L1</td>
-                  <td>1</td>
-                </tr>
-                <tr>
-                  <td>L2</td>
-                  <td>2</td>
-                </tr>
-                <tr>
-                  <td>L3</td>
-                  <td>3</td>
-                </tr>
-                <tr>
-                  <td>R1</td>
-                  <td>8</td>
-                </tr>
-                <tr>
-                  <td>R2</td>
-                  <td>9</td>
-                </tr>
-                <tr>
-                  <td>R3</td>
-                  <td>0</td>
-                </tr>
-              </table>
-            </div>
-          </div>
-        </p>
-      </div>
+<head>
+  <meta charset="utf-8" />
+  <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#000000" />
+  <meta name="description" content="A PlayStation2 emulator for web browsers" />
+  <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
+  <!--
+    manifest.json provides metadata used when your web app is installed on a
+    user's mobile device or desktop. See https://developers.google.com/web/fundamentals/web-app-manifest/
+  -->
+  <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+  <!--
+    Notice the use of %PUBLIC_URL% in the tags above.
+    It will be replaced with the URL of the `public` folder during the build.
+    Only files inside the `public` folder can be referenced from the HTML.
+
+    Unlike "/favicon.ico" or "favicon.ico", "%PUBLIC_URL%/favicon.ico" will
+    work correctly both with client-side routing and a non-root public URL.
+    Learn how to configure a non-root public URL by running `npm run build`.
+  -->
+  <title>Play!.js</title>
+  <style>
+    html {
+      background-color: #000000;
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      position: fixed;
+      -webkit-user-select: none;
+      user-select: none;
+      -webkit-touch-callout: none;
+      touch-action: manipulation;
+    }
+
+    body {
+      background-color: #000000;
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      position: fixed;
+      -webkit-user-select: none;
+      user-select: none;
+      -webkit-touch-callout: none;
+      touch-action: manipulation;
+    }
+
+    .global-row {
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0;
+      padding: 0;
+    }
+
+    .global-column {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      margin: 0;
+      padding: 0;
+      position: relative;
+    }
+
+    .global-column>div:first-child {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+
+    #outputCanvas {
+      max-width: 100vw;
+      max-height: 100vh;
+      width: auto;
+      height: auto;
+      object-fit: contain;
+      -webkit-user-select: none;
+      user-select: none;
+      -webkit-touch-callout: none;
+      touch-action: manipulation;
+      position: relative;
+      z-index: 1;
+      /* Ensure it scales properly on mobile */
+      -webkit-transform: translateZ(0);
+      transform: translateZ(0);
+    }
+
+    /* Mobile-specific optimizations for iPad/iPhone */
+    @media screen and (max-width: 1024px) {
+      #outputCanvas {
+        /* Calculate size based on viewport while maintaining 640:480 (4:3) aspect ratio */
+        width: min(100vw, calc(100vh * 4 / 3));
+        height: min(100vh, calc(100vw * 3 / 4));
+        max-width: 100vw;
+        max-height: 100vh;
+      }
+    }
+
+    #root {
+      position: relative;
+      z-index: 10;
+      width: 100%;
+      height: 100%;
+    }
+
+    * {
+      -webkit-user-select: none;
+      user-select: none;
+      -webkit-touch-callout: none;
+    }
+  </style>
+</head>
+
+<body><noscript>You need to enable JavaScript to run this app.</noscript>
+  <div class="global-row">
+    <div class="global-column">
+      <div><canvas id="outputCanvas" width="640" height="480" tabindex="-1" /></div>
+      <div id="root"></div>
     </div>
-  </body>
+  </div>
+</body>
+
 </html>

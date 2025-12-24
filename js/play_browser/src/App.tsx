@@ -1,5 +1,5 @@
 import './App.css';
-import { ChangeEvent, useState, useEffect } from 'react';
+import { ChangeEvent, useState, useEffect, useCallback } from 'react';
 import { PlayModule } from './PlayModule';
 import { useAppDispatch, useAppSelector, bootFile } from "./Actions";
 
@@ -23,6 +23,10 @@ function Stats() {
 function App() {
   const state = useAppSelector((state) => state.play);
   const dispatch = useAppDispatch();
+  const [isLoading, setIsLoading] = useState(false);
+  const [loadingMessage, setLoadingMessage] = useState("Loading...");
+  const [romLoaded, setRomLoaded] = useState(false);
+  const [stateLoaded, setStateLoaded] = useState(false);
   
   // Check for ROM URL parameter and load it automatically
   // Wait for PlayModule to be ready before loading ROM
@@ -40,14 +44,22 @@ function App() {
       console.log('State URL found in query parameter:', stateUrl);
     }
     
+    // Initialize loading state
+    setIsLoading(true);
+    setLoadingMessage("Loading ROM...");
+    setRomLoaded(false);
+    setStateLoaded(!stateUrl); // If no state URL, mark as loaded immediately
+    
     // Function to load the state file
     const loadState = async (stateUrl: string) => {
       if (!PlayModule) {
         console.error('PlayModule not initialized for state loading');
+        setStateLoaded(true); // Mark as loaded even on error to hide loading
         return;
       }
       
       try {
+        setLoadingMessage("Loading Save State...");
         console.log('Fetching state file from:', stateUrl);
         const response = await fetch(stateUrl);
         if (!response.ok) {
@@ -73,8 +85,10 @@ function App() {
         } else {
           console.error('Failed to load state from URL');
         }
+        setStateLoaded(true);
       } catch (error) {
         console.error('Error loading state file:', error);
+        setStateLoaded(true); // Mark as loaded even on error to hide loading
       }
     };
     
@@ -130,6 +144,7 @@ function App() {
           }
           
           console.log('ROM loaded successfully');
+          setRomLoaded(true);
           
           // Load state file if provided, wait a bit for ROM to initialize
           if (stateUrl) {
@@ -140,6 +155,8 @@ function App() {
         })
         .catch(error => {
           console.error('Error loading ROM file:', error);
+          setRomLoaded(true); // Mark as loaded even on error to hide loading
+          setIsLoading(false);
         });
       
       return true; // Successfully started loading
@@ -177,7 +194,7 @@ function App() {
     }
   }
   
-  const handleSaveState = async function() {
+  const handleSaveState = useCallback(async function() {
     if(PlayModule === null) {
       console.error("PlayModule not initialized");
       return;
@@ -204,7 +221,25 @@ function App() {
     } catch(error) {
       console.error("Error saving state:", error);
     }
-  }
+  }, []);
+  
+  // Expose handleSaveState to global window object so Swift can call it
+  useEffect(() => {
+    (window as any).handleSaveState = handleSaveState;
+    return () => {
+      delete (window as any).handleSaveState;
+    };
+  }, [handleSaveState]);
+  
+  // Hide loading modal when both ROM and state (if any) are loaded
+  useEffect(() => {
+    if (romLoaded && stateLoaded) {
+      // Small delay to ensure everything is ready
+      setTimeout(() => {
+        setIsLoading(false);
+      }, 500);
+    }
+  }, [romLoaded, stateLoaded]);
   
   const handleLoadState = async function(event : ChangeEvent<HTMLInputElement>) {
     if(PlayModule === null) {
@@ -239,15 +274,70 @@ function App() {
   console.log(state.value);
   if(PlayModule === null) {
     return (
-      <div>Loading...</div>
+      <div style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        width: '100%',
+        height: '100%',
+        backgroundColor: 'rgba(0, 0, 0, 0.95)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 9999,
+        color: 'white',
+        fontSize: '24px',
+        fontFamily: 'system-ui, -apple-system, sans-serif'
+      }}>
+        Loading...
+      </div>
     );
   } else {
     return (
       <div>
+        {/* Loading Modal */}
+        {isLoading && (
+          <div style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            backgroundColor: 'rgba(0, 0, 0, 0.95)',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 9999,
+            color: 'white',
+            fontFamily: 'system-ui, -apple-system, sans-serif'
+          }}>
+            <div style={{
+              fontSize: '32px',
+              marginBottom: '20px',
+              animation: 'spin 1s linear infinite'
+            }}>
+              ⏳
+            </div>
+            <div style={{
+              fontSize: '24px',
+              fontWeight: '500'
+            }}>
+              {loadingMessage}
+            </div>
+            <style>{`
+              @keyframes spin {
+                from { transform: rotate(0deg); }
+                to { transform: rotate(360deg); }
+              }
+            `}</style>
+          </div>
+        )}
+        
         {/* disable file input b/c load from URL */}
         {/* <input type="file" onChange={handleChange} accept=".iso,.cso,.chd,.isz,.bin,.elf"/> */}
         <div>
-          <button onClick={handleSaveState}>Download Save State</button>
+          <button onClick={handleSaveState} style={{display: "none"}}>Download Save State</button>
           {/* <input type="file" id="loadStateInput" onChange={handleLoadState} accept=".bin,.zip" style={{display: "none"}}/> */}
           {/* <button onClick={() => document.getElementById("loadStateInput")?.click()}>Upload Load State</button> */}
         </div>
