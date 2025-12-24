@@ -993,6 +993,13 @@ void CDrawDesktop::FlushVertices()
 
 	if(!m_renderPassBegun)
 	{
+		auto memoryBarrier = Framework::Vulkan::MemoryBarrier();
+		memoryBarrier.srcAccessMask = VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_SHADER_WRITE_BIT;
+		memoryBarrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_SHADER_WRITE_BIT;
+
+		m_context->device.vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
+		                                       0, 1, &memoryBarrier, 0, nullptr, 0, nullptr);
+
 		auto renderPassBeginInfo = Framework::Vulkan::RenderPassBeginInfo();
 		renderPassBeginInfo.renderPass = m_renderPass;
 		renderPassBeginInfo.renderArea.extent.width = DRAW_AREA_SIZE;
