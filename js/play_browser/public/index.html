@@ -53,8 +53,8 @@
     }
 
     .global-row {
-      width: 100vw;
-      height: 100vh;
+      width: 100%;
+      height: 100%;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -100,32 +100,73 @@
       /* Ensure it scales properly on mobile */
       -webkit-transform: translateZ(0);
       transform: translateZ(0);
+      /* Remove focus outline */
+      outline: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    
+    #outputCanvas:focus {
+      outline: none;
+      border: none;
+    }
+    
+    #outputCanvas:focus-visible {
+      outline: none;
+      border: none;
     }
 
-    /* Mobile-specific optimizations for iPad/iPhone */
-    @media screen and (max-width: 1024px) {
+    /* Landscape mode: stretch canvas to fill screen */
+    @media screen and (orientation: landscape) {
       #outputCanvas {
-        /* Calculate size based on viewport while maintaining 640:480 (4:3) aspect ratio */
-        width: min(100vw, calc(100vh * 4 / 3));
-        height: min(100vh, calc(100vw * 3 / 4));
-        max-width: 100vw;
-        max-height: 100vh;
+        width: 100% !important;
+        height: 100% !important;
+        max-width: 100% !important;
+        max-height: 100% !important;
+        object-fit: contain;
       }
     }
 
-    /* Portrait mode: position canvas at top with padding */
-    @media screen and (orientation: portrait) {
+    /* iPad landscape: ensure canvas fits within viewport */
+    @media screen and (min-width: 768px) and (orientation: landscape) {
+      #outputCanvas {
+        width: min(100vw, 100%) !important;
+        height: min(100vh, 100%) !important;
+        max-width: 100% !important;
+        max-height: 100% !important;
+        object-fit: contain;
+      }
+    }
+
+    /* Mobile-specific optimizations for iPhone (portrait) */
+    @media screen and (max-width: 768px) and (orientation: portrait) {
       .global-column>div:first-child {
         align-items: flex-start;
         padding-top: 2vh;
       }
       
       #outputCanvas {
-        /* In portrait, maintain aspect ratio but fit to width */
+        /* In portrait on small devices, maintain aspect ratio but fit to width */
         width: min(90vw, calc((100vh - 4vh) * 4 / 3));
         height: auto;
         max-width: 90vw;
         max-height: calc(100vh - 4vh);
+        object-fit: contain;
+      }
+    }
+
+    /* iPad and larger devices in portrait */
+    @media screen and (min-width: 769px) and (orientation: portrait) {
+      .global-column>div:first-child {
+        align-items: flex-start;
+        padding-top: 2vh;
+      }
+      
+      #outputCanvas {
+        width: min(90vw, calc((100vh - 4vh) * 4 / 3));
+        height: auto;
+        max-width: 90vw;
+        max-height: calc(100vh - 4vh);
+        object-fit: contain;
       }
     }
 
