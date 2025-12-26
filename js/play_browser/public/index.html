@@ -192,6 +192,173 @@
       <div id="root"></div>
     </div>
   </div>
+  <script>
+    // Black frame filter: detects and replaces black frames with the last valid frame
+    (function() {
+      let canvas, gl, overlayCanvas, overlayCtx, lastValidFrameImageData = null;
+      let checkInterval = null;
+      const BLACK_THRESHOLD = 5; // Pixel value threshold for "black" (0-255)
+      const SAMPLE_RATE = 20; // Check every Nth pixel for performance
+      
+      function initBlackFrameFilter() {
+        canvas = document.getElementById('outputCanvas');
+        if (!canvas) {
+          setTimeout(initBlackFrameFilter, 100);
+          return;
+        }
+
+        // Try to get WebGL context (the emulator uses WebGL)
+        try {
+          gl = canvas.getContext('webgl2') || canvas.getContext('webgl') || 
+               canvas.getContext('experimental-webgl');
+        } catch (e) {
+          console.log('Black frame filter: Could not get WebGL context');
+          return;
+        }
+
+        if (!gl) {
+          console.log('Black frame filter: WebGL context not available');
+          return;
+        }
+
+        // Create an overlay canvas (2D) to store and display the last valid frame
+        overlayCanvas = document.createElement('canvas');
+        overlayCanvas.width = canvas.width;
+        overlayCanvas.height = canvas.height;
+        overlayCanvas.style.cssText = window.getComputedStyle(canvas).cssText;
+        overlayCanvas.style.position = 'absolute';
+        overlayCanvas.style.top = '0';
+        overlayCanvas.style.left = '0';
+        overlayCanvas.style.pointerEvents = 'none'; // Don't block interactions
+        overlayCanvas.style.zIndex = '2'; // Above canvas but below UI
+        overlayCanvas.style.display = 'none'; // Hidden by default
+        overlayCanvas.tabIndex = -1;
+        // Insert overlay canvas right after the main canvas in the parent
+        const canvasParent = canvas.parentElement;
+        if (canvas.nextSibling) {
+          canvasParent.insertBefore(overlayCanvas, canvas.nextSibling);
+        } else {
+          canvasParent.appendChild(overlayCanvas);
+        }
+        
+        overlayCtx = overlayCanvas.getContext('2d');
+        if (!overlayCtx) {
+          console.log('Black frame filter: Could not create overlay canvas context');
+          return;
+        }
+
+        // Sync overlay canvas size with main canvas when it resizes
+        const resizeObserver = new ResizeObserver(() => {
+          const rect = canvas.getBoundingClientRect();
+          overlayCanvas.style.width = rect.width + 'px';
+          overlayCanvas.style.height = rect.height + 'px';
+        });
+        resizeObserver.observe(canvas);
+
+        // Function to check if frame is black (or mostly black)
+        function isBlackFrame(pixels, width, height) {
+          let nonBlackPixels = 0;
+          const totalPixels = width * height;
+          const pixelsToCheck = Math.floor(totalPixels / SAMPLE_RATE);
+
+          for (let i = 0; i < pixels.length; i += 4 * SAMPLE_RATE) {
+            const r = pixels[i];
+            const g = pixels[i + 1];
+            const b = pixels[i + 2];
+            
+            // If any color channel is above threshold, it's not black
+            if (r > BLACK_THRESHOLD || g > BLACK_THRESHOLD || b > BLACK_THRESHOLD) {
+              nonBlackPixels++;
+            }
+          }
+
+          // If less than 1% of sampled pixels are non-black, consider it black
+          return nonBlackPixels < pixelsToCheck * 0.01;
+        }
+
+        // Function to capture current frame from WebGL canvas
+        function captureFrame() {
+          try {
+            const width = canvas.width;
+            const height = canvas.height;
+            const pixels = new Uint8Array(width * height * 4);
+            
+            // readPixels might fail if framebuffer is incomplete or not ready
+            gl.readPixels(0, 0, width, height, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
+            
+            return { pixels, width, height };
+          } catch (e) {
+            // Return null if readPixels fails
+            return null;
+          }
+        }
+
+        // Function to check frame and handle black frames
+        function checkFrame() {
+          if (!gl || !canvas) return;
+
+          try {
+            const frame = captureFrame();
+            if (!frame) return; // Skip if capture failed
+            
+            if (isBlackFrame(frame.pixels, frame.width, frame.height)) {
+              // Frame is black - show the last valid frame on overlay
+              if (lastValidFrameImageData) {
+                overlayCanvas.width = frame.width;
+                overlayCanvas.height = frame.height;
+                overlayCtx.putImageData(lastValidFrameImageData, 0, 0);
+                overlayCanvas.style.display = 'block';
+              }
+            } else {
+              // Frame is valid - save it and hide overlay
+              const imageData = overlayCtx.createImageData(frame.width, frame.height);
+              
+              // WebGL readPixels returns data upside down, flip it
+              const data = frame.pixels;
+              const flipped = new Uint8ClampedArray(data.length);
+              const rowBytes = frame.width * 4;
+              
+              for (let y = 0; y < frame.height; y++) {
+                const srcRow = y * rowBytes;
+                const dstRow = (frame.height - 1 - y) * rowBytes;
+                flipped.set(data.subarray(srcRow, srcRow + rowBytes), dstRow);
+              }
+              
+              imageData.data.set(flipped);
+              lastValidFrameImageData = imageData;
+              overlayCanvas.style.display = 'none';
+            }
+          } catch (e) {
+            // Silently handle errors (WebGL might not be ready yet)
+            console.debug('Black frame filter check error:', e);
+          }
+        }
+
+        // Start checking frames periodically (check every ~2 frames for performance)
+        let frameCount = 0;
+        function frameChecker() {
+          frameCount++;
+          if (frameCount % 2 === 0) { // Check every 2 frames
+            checkFrame();
+          }
+          requestAnimationFrame(frameChecker);
+        }
+
+        // Wait a bit for the emulator to initialize, then start checking
+        setTimeout(() => {
+          requestAnimationFrame(frameChecker);
+          console.log('Black frame filter initialized');
+        }, 2000);
+      }
+
+      // Initialize when DOM is ready
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initBlackFrameFilter);
+      } else {
+        initBlackFrameFilter();
+      }
+    })();
+  </script>
 </body>
 
 </html>
