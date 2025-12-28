@@ -91,6 +91,12 @@
 	<GameConfig Executable="SLPM_657.75;1" Title="DDR Festival: Dance Dance Revolution">
 		<BlockFpRoundingMode Address="0x00122F08" Mode="NEAREST" Description="Fixes issue with inability to select some options in UI." />
 	</GameConfig>
+	<GameConfig Executable="SLPM_661.11;1" Title="Fushigi no Umi no Nadia: Dennou Battle: Miss Nautilus Contest">
+		<IdleLoopBlock Address="0x001B0C40" />
+	</GameConfig>
+	<GameConfig Executable="SLPM_661.12;1" Title="Fushigi no Umi no Nadia: Inherit the Blue Water">
+		<IdleLoopBlock Address="0x001D26A0" />
+	</GameConfig>
 	<GameConfig Executable="SLPM_666.75;1" Title="Kingdom Hearts II Final Mix">
 		<BlockFpUseAccurateAddSub Address="0x001DA9FC" Description="Fixes issue with Tron level boss" />
 		<BlockFpUseAccurateAddSub Address="0x001DAA0C" Description="Fixes issue with Tron level boss" />
