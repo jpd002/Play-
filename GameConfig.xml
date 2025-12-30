@@ -69,6 +69,9 @@
 	<GameConfig Executable="SLUS_216.09;1" Title="Dance Dance Revolution: Disney Channel Edition">
 		<IdleLoopBlock Address="0x001B48D8" />
 	</GameConfig>
+	<GameConfig Executable="SLUS_216.91;1" Title="Swashbucklers: Blue vs. Grey">
+		<IdleLoopBlock Address="0x0022FC70" />
+	</GameConfig>
 	<GameConfig Executable="SLES_501.76;1" Title="Oni">
 		<Patch Address="0x001cef7c" Value="0x00000000 // bc0f $001cef7c" Description="Fix hang by skip branch if copro 0 condition false." />
 	</GameConfig>
