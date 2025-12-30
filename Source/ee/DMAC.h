@@ -130,6 +130,7 @@ public:
 	uint32 ResumeDMA3(const void*, uint32);
 	void ResumeDMA4();
 	void ResumeDMA8();
+	void ResumeDMA9();
 	bool IsDMA4Started() const;
 	static bool IsEndSrcTagId(uint32);
 	static bool IsEndDstTagId(uint32);
