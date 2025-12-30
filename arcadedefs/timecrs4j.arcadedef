@@ -1,0 +1,24 @@
+{
+	"id": "timecrs4j",
+	"name": "Time Crisis 4 (JAPAN)",
+	"driver": "sys246",
+	"dongle":
+	{
+		"name": "tsf1001-na-a.ic002"
+	},
+	"hdd":
+	{
+		"name": "tsf1-ha.chd"
+	},
+	"buttons":
+	{
+		"3": "circle"
+	},
+	"inputMode": "lightgun",
+	"screenPosXform": [ -65535, 0, 65535, 0 ],
+	"eeFrequencyScale": [3, 2],
+	"boot": "ac0:TC4LOAD",
+	"patches":
+	[
+	]
+}

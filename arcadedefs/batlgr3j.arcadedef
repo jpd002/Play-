@@ -1,0 +1,33 @@
+{
+	"id": "batlgr3j",
+	"name": "Battle Gear 3 JAPAN (Ver.2.10J)",
+	"driver": "sys246",
+	"dongle":
+	{
+		"name": "batlgr3j.ic002"
+	},
+	"hdd":
+	{
+		"name": "batlgr3.chd"
+	},
+	"inputMode": "drive",
+	"boot": "ac0:BGRLOAD",
+	"patches":
+	[
+		{
+			"address": "0x001008EC",
+			"value": "0x0",
+			"description": "Fixes hang on white screen."
+		},
+		{
+			"address": "0x0017E52C",
+			"value": "0x0",
+			"description": "Removes T1_COUNT read that throws off idle detector."
+		},
+		{
+			"address": "0x0017E6B4",
+			"value": "0x0",
+			"description": "Removes T1_COUNT read that throws off idle detector (Race Mode)."
+		}
+	]
+}
