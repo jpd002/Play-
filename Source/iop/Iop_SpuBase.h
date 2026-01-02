@@ -275,6 +275,14 @@ namespace Iop
 
 		static bool g_reverbParamIsAddress[REVERB_PARAM_COUNT];
 
+		uint32 m_inputVolL = 0x7FFF;
+		uint32 m_inputVolR = 0x7FFF;
+
+		int32 m_extInputVolL = 0x7FFF;
+		int32 m_extInputVolR = 0x7FFF;
+
+		static void MixSamples(int32, int32, int16*);
+
 	private:
 		enum
 		{
@@ -357,6 +365,7 @@ namespace Iop
 			void Reset();
 			void SetBaseSamplingRate(uint32);
 			void SetDestinationSamplingRate(uint32);
+			bool GetSpdifBypass();
 			void SetSpdifBypass(bool);
 
 			bool CanReadSamples() const;
@@ -371,8 +380,8 @@ namespace Iop
 			uint32 m_dstSamplingRate = 0;
 			uint32 m_srcSampleIdx = 0;
 			uint32 m_sampleStep = 0;
-			bool m_spdifBypass = false;
 			uint8 m_blockBuffer[SOUND_INPUT_DATA_SIZE];
+			bool m_spdifBypass = false;
 		};
 
 		enum
@@ -388,7 +397,6 @@ namespace Iop
 		uint32 GetReverbOffset(unsigned int) const;
 		float GetReverbCoef(unsigned int) const;
 
-		static void MixSamples(int32, int32, int16*);
 		int32 ComputeChannelVolume(const CHANNEL_VOLUME&, int32);
 
 		static const uint32 g_linearIncreaseSweepDeltas[0x80];
