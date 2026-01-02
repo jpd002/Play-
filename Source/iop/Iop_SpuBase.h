@@ -365,14 +365,13 @@ namespace Iop
 			void Reset();
 			void SetBaseSamplingRate(uint32);
 			void SetDestinationSamplingRate(uint32);
+			bool GetSpdifBypass();
 			void SetSpdifBypass(bool);
 
 			bool CanReadSamples() const;
 
 			void FillBlock(const uint8*);
 			void GetSamples(int32[2]);
-
-			bool m_spdifBypass = false;
 
 		private:
 			void UpdateSampleStep();
@@ -382,6 +381,7 @@ namespace Iop
 			uint32 m_srcSampleIdx = 0;
 			uint32 m_sampleStep = 0;
 			uint8 m_blockBuffer[SOUND_INPUT_DATA_SIZE];
+			bool m_spdifBypass = false;
 		};
 
 		enum
