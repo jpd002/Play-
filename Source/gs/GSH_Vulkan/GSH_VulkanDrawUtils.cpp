@@ -184,7 +184,9 @@ void CDrawUtils::ExpandAlpha(Nuanceur::CShaderBuilder& b, uint32 textureFormat, 
 		requiresExpansion =
 		    (textureFormat == CGSHandler::PSMCT24) ||
 		    (textureFormat == CGSHandler::PSMCT16) ||
-		    (textureFormat == CGSHandler::PSMCT16S);
+		    (textureFormat == CGSHandler::PSMCT16S) ||
+		    (textureFormat == CGSHandler::PSMZ16) ||
+		    (textureFormat == CGSHandler::PSMZ16S);
 	}
 
 	if(!requiresExpansion)

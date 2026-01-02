@@ -1,7 +1,7 @@
 #include "InputProviderEmscripten.h"
 #include "string_format.h"
 
-#define PROVIDER_ID 'EmSc'
+constexpr uint32 PROVIDER_ID = 'EmSc';
 
 enum
 {

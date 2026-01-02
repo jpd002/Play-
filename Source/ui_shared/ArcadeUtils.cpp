@@ -194,6 +194,10 @@ ARCADE_MACHINE_DEF ReadArcadeMachineDefinition(const fs::path& arcadeDefPath)
 		std::string ioModeString = defJson["ioMode"];
 		def.ioMode = ParseEnumValue(ioModeString.c_str(), std::begin(g_ioModeValues), std::end(g_ioModeValues));
 	}
+	if(defJson.contains("boardId"))
+	{
+		def.boardId = defJson["boardId"];
+	}
 	if(defJson.contains("screenPosXform"))
 	{
 		auto screenPosXformArray = defJson["screenPosXform"];

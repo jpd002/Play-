@@ -1,0 +1,17 @@
+{
+	"id": "zgundmdx",
+	"name": "Mobile Suit Z-Gundam: A.E.U.G. vs Titans DX",
+	"driver": "sys246",
+	"dongle":
+	{
+		"name": "zdx1vera.ic002"
+	},
+	"cdvd":
+	{
+		"name": "zdx1dvd0.chd"
+	},
+	"boot": "ac0:GDXLOAD",
+	"patches":
+	[
+	]
+}

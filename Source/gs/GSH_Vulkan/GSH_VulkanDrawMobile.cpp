@@ -437,7 +437,7 @@ void CDrawMobile::CreateFramebuffer()
 	frameBufferCreateInfo.width = DRAW_AREA_SIZE;
 	frameBufferCreateInfo.height = DRAW_AREA_SIZE;
 	frameBufferCreateInfo.layers = 1;
-	frameBufferCreateInfo.attachmentCount = attachments.size();
+	frameBufferCreateInfo.attachmentCount = static_cast<uint32>(attachments.size());
 	frameBufferCreateInfo.pAttachments = attachments.data();
 
 	auto result = m_context->device.vkCreateFramebuffer(m_context->device, &frameBufferCreateInfo, nullptr, &m_framebuffer);
@@ -469,7 +469,7 @@ void CDrawMobile::CreateRenderPass()
 		VkSubpassDescription subpass = {};
 		subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
 		subpass.pColorAttachments = attachmentRefs.data();
-		subpass.colorAttachmentCount = attachmentRefs.size();
+		subpass.colorAttachmentCount = static_cast<uint32>(attachmentRefs.size());
 		subpasses.push_back(subpass);
 	}
 
@@ -478,9 +478,9 @@ void CDrawMobile::CreateRenderPass()
 		VkSubpassDescription subpass = {};
 		subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
 		subpass.pColorAttachments = attachmentRefs.data();
-		subpass.colorAttachmentCount = attachmentRefs.size();
+		subpass.colorAttachmentCount = static_cast<uint32>(attachmentRefs.size());
 		subpass.pInputAttachments = attachmentRefs.data();
-		subpass.inputAttachmentCount = attachmentRefs.size();
+		subpass.inputAttachmentCount = static_cast<uint32>(attachmentRefs.size());
 		subpasses.push_back(subpass);
 	}
 
@@ -489,9 +489,9 @@ void CDrawMobile::CreateRenderPass()
 		VkSubpassDescription subpass = {};
 		subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
 		subpass.pColorAttachments = attachmentRefs.data();
-		subpass.colorAttachmentCount = attachmentRefs.size();
+		subpass.colorAttachmentCount = static_cast<uint32>(attachmentRefs.size());
 		subpass.pInputAttachments = attachmentRefs.data();
-		subpass.inputAttachmentCount = attachmentRefs.size();
+		subpass.inputAttachmentCount = static_cast<uint32>(attachmentRefs.size());
 		subpasses.push_back(subpass);
 	}
 
@@ -587,11 +587,11 @@ void CDrawMobile::CreateRenderPass()
 	}
 
 	auto renderPassCreateInfo = Framework::Vulkan::RenderPassCreateInfo();
-	renderPassCreateInfo.subpassCount = subpasses.size();
+	renderPassCreateInfo.subpassCount = static_cast<uint32>(subpasses.size());
 	renderPassCreateInfo.pSubpasses = subpasses.data();
-	renderPassCreateInfo.attachmentCount = attachments.size();
+	renderPassCreateInfo.attachmentCount = static_cast<uint32>(attachments.size());
 	renderPassCreateInfo.pAttachments = attachments.data();
-	renderPassCreateInfo.dependencyCount = subpassDependencies.size();
+	renderPassCreateInfo.dependencyCount = static_cast<uint32>(subpassDependencies.size());
 	renderPassCreateInfo.pDependencies = subpassDependencies.data();
 
 	result = m_context->device.vkCreateRenderPass(m_context->device, &renderPassCreateInfo, nullptr, &m_renderPass);
@@ -781,7 +781,7 @@ PIPELINE CDrawMobile::CreateDrawPipeline(const PIPELINE_CAPS& caps)
 	}
 
 	auto colorBlendStateInfo = Framework::Vulkan::PipelineColorBlendStateCreateInfo();
-	colorBlendStateInfo.attachmentCount = blendAttachmentStates.size();
+	colorBlendStateInfo.attachmentCount = static_cast<uint32>(blendAttachmentStates.size());
 	colorBlendStateInfo.pAttachments = blendAttachmentStates.data();
 
 	auto viewportStateInfo = Framework::Vulkan::PipelineViewportStateCreateInfo();
