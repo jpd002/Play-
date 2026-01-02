@@ -211,7 +211,7 @@ void CSpuBase::Reset()
 
 	m_inputVolL = 0x7FFF;
 	m_inputVolR = 0x7FFF;
-    m_extInputVolL = 0x7FFF;
+	m_extInputVolL = 0x7FFF;
 	m_extInputVolR = 0x7FFF;
 
 	memset(m_channel, 0, sizeof(m_channel));
@@ -252,7 +252,7 @@ void CSpuBase::LoadState(Framework::CZipArchiveReader& archive)
 		m_inputVolL = state.GetRegister32(STATE_REGS_INPVOLUMELEFT);
 		m_inputVolR = state.GetRegister32(STATE_REGS_INPVOLUMERIGHT);
 		m_extInputVolL = state.GetRegister32(STATE_REGS_EXTINPVOLUMELEFT);
-	    m_extInputVolR = state.GetRegister32(STATE_REGS_EXTINPVOLUMERIGHT);
+		m_extInputVolR = state.GetRegister32(STATE_REGS_EXTINPVOLUMERIGHT);
 		RegisterStateUtils::ReadArray(state, m_reverb, STATE_REGS_REVERB_FORMAT);
 	}
 
