@@ -6,7 +6,7 @@
 //
 
 #import "StikDebugJitService.h"
-#import <BreakpointJIT.framework/BreakJIT.h>
+#import <BreakpointJIT/BreakpointJIT.h>
 #include "AppConfig.h"
 #import "PreferenceDefs.h"
 #include <sys/sysctl.h>
