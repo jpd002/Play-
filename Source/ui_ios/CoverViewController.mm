@@ -8,6 +8,7 @@
 #import "BackgroundLayer.h"
 #import "CoverViewCell.h"
 #import "AltServerJitService.h"
+#import "StikDebugJitService.h"
 
 static bool IsJitAvailable()
 {
