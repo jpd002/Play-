@@ -1,0 +1,74 @@
+name: Build iOS 26
+
+on: [push, pull_request]
+jobs:
+  build_ios:
+    runs-on: macos-latest
+    steps:
+    - name: Set Xcode version
+      uses: maxim-lobanov/setup-xcode@v1
+      with:
+        xcode-version: 16.4
+    - name: Install dpkg
+      run: |
+        brew install dpkg
+    - name: Install Vulkan SDK
+      run: |
+        cd $RUNNER_WORKSPACE
+        curl -L --show-error --output vulkansdk.zip https://sdk.lunarg.com/sdk/download/${VULKAN_SDK_VERSION}/mac/vulkansdk-macos-${VULKAN_SDK_VERSION}.zip?Human=true
+        unzip vulkansdk.zip
+        sudo ./InstallVulkan-${VULKAN_SDK_VERSION}.app/Contents/MacOS/InstallVulkan-${VULKAN_SDK_VERSION} in --al --c com.lunarg.vulkan.ios
+        echo "VULKAN_SDK=${HOME}/VulkanSDK/${VULKAN_SDK_VERSION}/iOS" >> $GITHUB_ENV
+      env:
+        VULKAN_SDK_VERSION: '1.4.309.0'
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+        fetch-depth: 0
+    - name: Force Fetch Git Tags
+      run: git fetch --tags --force
+    - name: Set SHORT_HASH
+      run: echo "VALUE=${LONG_HASH:0:8}" >> $GITHUB_OUTPUT
+      id: short_hash
+      env:
+        LONG_HASH: ${{ github.sha }}
+    - name: Generate CMake Project
+      run: |
+        mkdir build
+        cd build
+        cmake .. -G"Xcode" -DCMAKE_TOOLCHAIN_FILE=../deps/Dependencies/cmake-ios/ios.cmake -DTARGET_IOS=ON -DCMAKE_PREFIX_PATH=$VULKAN_SDK -DBUILD_PSFPLAYER=ON -DBUILD_LIBRETRO_CORE=yes
+    - name: Build
+      run: |
+        cd build
+        cmake --build . --config Release
+        codesign -s "-" Source/ui_ios/Release-iphoneos/Play.app
+    - name: Generate IPA
+      run: |
+        cd installer_ios
+        ./build_ipa.sh
+    - name: Upload a Build Artifact ipa/deb/bz2
+      uses: actions/upload-artifact@v4
+      with:
+        name: Play_iOS
+        path: |
+          installer_ios/Play.ipa
+          installer_ios/Play.deb
+          installer_ios/Packages.bz2
+    - name: Upload a Build Artifact libretro
+      uses: actions/upload-artifact@v4
+      with:
+        name: Play_iOS_libretro
+        path: build/Source/ui_libretro/Release-iphoneos/play_libretro_ios.dylib
+    - name: Upload to S3
+      if: ${{ env.AWS_ACCESS_KEY_ID != null}}
+      run: |
+        aws s3 cp installer_ios/Play.ipa s3://playbuilds/$SHORT_HASH/Play.ipa --acl public-read
+        aws s3 cp installer_ios/Play.deb s3://playbuilds/$SHORT_HASH/Play.deb --acl public-read
+        aws s3 cp installer_ios/Packages.bz2 s3://playbuilds/$SHORT_HASH/Packages.bz2 --acl public-read
+        aws s3 cp build/Source/ui_libretro/Release-iphoneos/play_libretro_ios.dylib s3://playbuilds/$SHORT_HASH/play_libretro_ios.dylib --acl public-read
+      env:
+        SHORT_HASH: ${{ steps.short_hash.outputs.VALUE }}
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        AWS_DEFAULT_REGION: 'us-east-2'
