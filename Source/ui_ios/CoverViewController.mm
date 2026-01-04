@@ -124,7 +124,20 @@ static NSString* const reuseIdentifier = @"coverCell";
 	[[AltServerJitService sharedAltServerJitService] startProcess];
 	[self buildCollectionWithForcedFullScan:NO];
 }
-
+- (void)viewDidAppear:(BOOL)animated
+{
+    [super viewDidAppear:animated];
+    
+    // ========== AJOUT JIT iOS 26 ==========
+    StikDebugJitService* jitService = [StikDebugJitService sharedService];
+    
+    if ([jitService needsActivation]) {
+        [self showJITActivationAlert];
+    }
+    // ========== FIN AJOUT JIT iOS 26 ==========
+    
+    // ... reste du code existant ...
+}
 - (void)viewDidUnload
 {
 	assert(_bootables != nullptr);
@@ -132,7 +145,70 @@ static NSString* const reuseIdentifier = @"coverCell";
 
 	[super viewDidUnload];
 }
-
+- (void)showJITActivationAlert
+{
+    StikDebugJitService* jitService = [StikDebugJitService sharedService];
+    
+    NSString* message;
+    if ([jitService isStikDebugInstalled]) {
+        message = @"iOS 26 requires JIT activation for PS2 emulation.\n\n"
+                  @"Tap 'Activate JIT' to open StikDebug and enable JIT.\n"
+                  @"Then return to Play! to start gaming.";
+    } else {
+        message = @"iOS 26 requires JIT activation for PS2 emulation.\n\n"
+                  @"Please install StikDebug from your preferred source "
+                  @"(AltStore, SideStore, etc.) to enable JIT.";
+    }
+    
+    UIAlertController* alert = [UIAlertController alertControllerWithTitle:@"JIT Required"
+                                                                   message:message
+                                                            preferredStyle:UIAlertControllerStyleAlert];
+    
+    if ([jitService isStikDebugInstalled]) {
+        UIAlertAction* activateAction = [UIAlertAction actionWithTitle:@"Activate JIT"
+                                                                 style:UIAlertActionStyleDefault
+                                                               handler:^(UIAlertAction* action) {
+            [jitService requestActivationWithCompletion:^(BOOL success, NSError* error) {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    if (success) {
+                        // JIT activated - user can now play games
+                        UIAlertController* successAlert = [UIAlertController 
+                            alertControllerWithTitle:@"JIT Active"
+                                             message:@"JIT has been activated. You can now play PS2 games!"
+                                      preferredStyle:UIAlertControllerStyleAlert];
+                        [successAlert addAction:[UIAlertAction actionWithTitle:@"OK" 
+                                                                         style:UIAlertActionStyleDefault 
+                                                                       handler:nil]];
+                        [self presentViewController:successAlert animated:YES completion:nil];
+                    } else {
+                        // Show error
+                        UIAlertController* errorAlert = [UIAlertController 
+                            alertControllerWithTitle:@"JIT Activation Failed"
+                                             message:error.localizedDescription
+                                      preferredStyle:UIAlertControllerStyleAlert];
+                        [errorAlert addAction:[UIAlertAction actionWithTitle:@"Retry" 
+                                                                       style:UIAlertActionStyleDefault 
+                                                                     handler:^(UIAlertAction* action) {
+                            [self showJITActivationAlert];
+                        }]];
+                        [errorAlert addAction:[UIAlertAction actionWithTitle:@"Cancel" 
+                                                                       style:UIAlertActionStyleCancel 
+                                                                     handler:nil]];
+                        [self presentViewController:errorAlert animated:YES completion:nil];
+                    }
+                });
+            }];
+        }];
+        [alert addAction:activateAction];
+    }
+    
+    UIAlertAction* cancelAction = [UIAlertAction actionWithTitle:@"Later"
+                                                           style:UIAlertActionStyleCancel
+                                                         handler:nil];
+    [alert addAction:cancelAction];
+    
+    [self presentViewController:alert animated:YES completion:nil];
+}
 - (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
 {
 	// resize your layers based on the view’s new bounds
