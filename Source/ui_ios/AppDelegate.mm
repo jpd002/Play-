@@ -2,7 +2,7 @@
 #import "EmulatorViewController.h"
 #include "../gs/GSH_OpenGL/GSH_OpenGL.h"
 #include "DebuggerSimulator.h"
-
+#import "StikDebugJitService.h"
 @interface AppDelegate ()
 
 @end
