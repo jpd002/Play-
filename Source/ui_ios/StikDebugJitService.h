@@ -33,12 +33,12 @@
 - (void)detachDebugger;
 
 /// JIT enabled status (read-only)
-@property (nonatomic, readonly) BOOL jitEnabled;
+@property(nonatomic, readonly) BOOL jitEnabled;
 
 /// TXM active status (read-only)
-@property (nonatomic, readonly) BOOL txmActive;
+@property(nonatomic, readonly) BOOL txmActive;
 
 /// iOS version (read-only)
-@property (nonatomic, readonly) float iosVersion;
+@property(nonatomic, readonly) float iosVersion;
 
 @end
