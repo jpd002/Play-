@@ -14,3 +14,5 @@
 #define PREFERENCE_VALUE_VIDEO_GS_HANDLER_VULKAN 1
 
 #define PREFERENCE_ALTSTORE_JIT_ENABLED "altstore.jit.enabled"
+// iOS 26+ StikDebug JIT activation
+#define PREFERENCE_STIKDEBUG_JIT_ENABLED "stikdebug.jit.enabled"
