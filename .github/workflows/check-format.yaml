@@ -1,11 +1,15 @@
 name: Check Format
 
 on: [push, pull_request]
+
 jobs:
   run_clangformat:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+
     - uses: DoozyX/clang-format-lint-action@v0.18.2
       with:
         source: './Source ./tools'
@@ -13,18 +17,22 @@ jobs:
         extensions: 'h,cpp,c,m,mm'
         clangFormatVersion: 16
         inplace: True
+
     - name: Check for changes
       run: |
-        set +e
         git config --global user.name "Clang-Format"
         git config --global user.email "Clang-Format"
-        git commit -am"Clang-format";
-        if [ $? -eq 0 ]; then
-            url=$(git format-patch -1 HEAD --stdout | nc termbin.com 9999)
-            echo "generated clang-format patch can be found at: $url"
-            echo "you can pipe patch directly using the following command:";
-            echo "curl $url | git apply -v"
+        
+        if [ -n "$(git status --porcelain)" ]; then
+            git commit -am "Clang-format"
+            
+            # Correction technique pour supprimer l'erreur "ignored null byte"
+            URL=$(git format-patch -1 HEAD --stdout | nc termbin.com 9999 | tr -d '\000')
+            
+            echo "generated clang-format patch can be found at: $URL"
+            echo "you can pipe patch directly using the following command:"
+            echo "curl $URL | git apply -v"
             echo "then manually commit and push the changes"
-            exit -1;
+            exit 1
         fi
-        exit 0;
+        exit 0
