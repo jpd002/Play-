@@ -24,7 +24,27 @@
 	<string>icon@2x.png</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
-	<key>UILaunchStoryboardName</key>
+	<key>CFBundleURLTypes</key>
+<array>
+    <!-- Schéma existant pour AltStore (si présent) -->
+    <dict>
+        <key>CFBundleURLName</key>
+        <string>com.virtualapplications.play.altstore</string>
+        <key>CFBundleURLSchemes</key>
+        <array>
+            <string>play</string>
+        </array>
+    </dict>
+    <!-- NOUVEAU : Schema for StikDebug callback -->
+    <dict>
+        <key>CFBundleURLName</key>
+        <string>com.virtualapplications.play.jit</string>
+        <key>CFBundleURLSchemes</key>
+        <array>
+            <string>play-jit</string>
+        </array>
+    </dict>
+</array>	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>
 	<string>Main</string>
@@ -46,7 +66,13 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
-	<key>UIFileSharingEnabled</key>
+	<key>LSApplicationQueriesSchemes</key>
+<array>
+    <string>altstore</string>
+    <string>sidestore</string>
+    <string>stikdebug</string>    <!-- AJOUTER -->
+</array>	
+    <key>UIFileSharingEnabled</key>
 	<true/>
 	<key>LSSupportsOpeningDocumentsInPlace</key>
 	<true/>
