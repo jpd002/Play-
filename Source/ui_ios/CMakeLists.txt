@@ -92,6 +92,7 @@ find_library(IMAGEIO_LIBRARY NAMES ImageIO)
 
 set(OSX_SOURCES
 	AltServerJitService.mm
+	StikDebugJitService.mm 
 	AppDelegate.mm
 	BackgroundLayer.m
 	CoverViewCell.m
@@ -113,6 +114,7 @@ set(OSX_SOURCES
 
 set(OSX_HEADERS
 	AltServerJitService.h
+	StikDebugJitService.h 
 	AppDelegate.h
 	BackgroundLayer.h
 	CoverViewCell.h
@@ -167,6 +169,8 @@ target_link_libraries(Play ${IMAGEIO_LIBRARY})
 target_link_libraries(Play ${UI_IOS_PROJECT_LIBS} "-ObjC -lsqlite3 -framework OpenAL")
 target_link_libraries(Play "-framework BreakpointJIT")
 
+# BreakpointJIT framework search path
+target_link_options(Play PRIVATE "-F${CMAKE_CURRENT_SOURCE_DIR}/../../deps/BreakpointJIT")
 target_compile_definitions(Play PRIVATE ${UI_IOS_DEFINITIONS_LIST})
 
 # Set a custom plist file for the app bundle
