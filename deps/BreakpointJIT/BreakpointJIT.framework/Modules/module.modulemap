@@ -1,6 +1,0 @@
-framework module BreakpointJIT {
-    umbrella header "BreakJIT.h"
-    
-    export *
-    module * { export * }
-}
