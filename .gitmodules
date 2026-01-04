@@ -6,7 +6,7 @@
 	url = https://github.com/jpd002/Play--Framework.git
 [submodule "deps/CodeGen"]
 	path = deps/CodeGen
-	url = https://github.com/jpd002/Play--CodeGen.git
+	url = https://github.com/Dmamss/Play--CodeGen
 [submodule "deps/Nuanceur"]
 	path = deps/Nuanceur
 	url = https://github.com/jpd002/Nuanceur.git
