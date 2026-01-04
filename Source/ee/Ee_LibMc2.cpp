@@ -17,6 +17,7 @@ using namespace Ee;
 #define STATE_LAST_RESULT ("lastResult")
 #define STATE_WAIT_THREADID ("waitThreadId")
 #define STATE_WAIT_VBLANK_COUNT ("waitVBlankCount")
+#define STATE_COMMAND_DELAY_VBLANK_COUNT ("commandDelayVblankCount")
 
 #define MC_PORT 0
 
@@ -55,6 +56,7 @@ void CLibMc2::SaveState(Framework::CZipArchiveWriter& archive)
 	registerFile->SetRegister32(STATE_LAST_RESULT, m_lastResult);
 	registerFile->SetRegister32(STATE_WAIT_THREADID, m_waitThreadId);
 	registerFile->SetRegister32(STATE_WAIT_VBLANK_COUNT, m_waitVBlankCount);
+	registerFile->SetRegister32(STATE_COMMAND_DELAY_VBLANK_COUNT, m_commandDelayVBlankCount);
 	archive.InsertFile(std::move(registerFile));
 }
 
@@ -65,6 +67,7 @@ void CLibMc2::LoadState(Framework::CZipArchiveReader& archive)
 	m_lastResult = registerFile.GetRegister32(STATE_LAST_RESULT);
 	m_waitThreadId = registerFile.GetRegister32(STATE_WAIT_THREADID);
 	m_waitVBlankCount = registerFile.GetRegister32(STATE_WAIT_VBLANK_COUNT);
+	m_commandDelayVBlankCount = registerFile.GetRegister32(STATE_COMMAND_DELAY_VBLANK_COUNT);
 }
 
 uint32 CLibMc2::AnalyzeFunction(MODULE_FUNCTIONS& moduleFunctions, uint32 startAddress, int16 stackAlloc)
@@ -408,6 +411,10 @@ void CLibMc2::NotifyVBlankStart()
 			m_waitThreadId = WAIT_THREAD_ID_EMPTY;
 		}
 	}
+	if(m_commandDelayVBlankCount != 0)
+	{
+		m_commandDelayVBlankCount--;
+	}
 }
 
 static void CopyDirParamTime(CLibMc2::DIRPARAM::TIME* dst, const Iop::CMcServ::ENTRY::TIME* src)
@@ -444,19 +451,33 @@ void CLibMc2::CheckAsync(CMIPS& context)
 	//Returns -1 if no function was executing
 	uint32 result = (m_lastCmd != 0) ? 1 : -1;
 
-	//Don't report last cmd result if we didn't execute a command
-	uint32 lastCmdResult = (m_lastCmd != 0) ? m_lastResult : 0;
-
-	if(cmdPtr != 0)
+	if(mode == 0)
 	{
-		*reinterpret_cast<uint32*>(m_eeBios.GetStructPtr(cmdPtr)) = m_lastCmd;
-	}
-	if(resultPtr != 0)
-	{
-		*reinterpret_cast<uint32*>(m_eeBios.GetStructPtr(resultPtr)) = lastCmdResult;
+		//If we're in sync mode, consider the command delay complete.
+		m_commandDelayVBlankCount = 0;
 	}
 
-	m_lastCmd = 0;
+	if(m_commandDelayVBlankCount == 0)
+	{
+		//Don't report last cmd result if we didn't execute a command
+		uint32 lastCmdResult = (m_lastCmd != 0) ? m_lastResult : 0;
+
+		if(cmdPtr != 0)
+		{
+			*reinterpret_cast<uint32*>(m_eeBios.GetStructPtr(cmdPtr)) = m_lastCmd;
+		}
+		if(resultPtr != 0)
+		{
+			*reinterpret_cast<uint32*>(m_eeBios.GetStructPtr(resultPtr)) = lastCmdResult;
+		}
+
+		m_lastCmd = 0;
+	}
+	else
+	{
+		//Report that command is still running
+		result = 0;
+	}
 
 	context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(result);
 
@@ -486,6 +507,9 @@ int32 CLibMc2::GetInfoAsync(uint32 socketId, uint32 infoPtr)
 	//Potential return value 0x81019003 -> Probably means memory card changed
 	m_lastResult = MC2_RESULT_OK;
 	m_lastCmd = SYSCALL_MC2_GETINFO_ASYNC & 0xFF;
+
+	//Arbitrary delay to fix some games (Princess Lover! series)
+	m_commandDelayVBlankCount = 3;
 
 	return 0;
 }
