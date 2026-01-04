@@ -132,5 +132,6 @@ namespace Ee
 		uint32 m_lastResult = 0;
 		uint32 m_waitThreadId = WAIT_THREAD_ID_EMPTY;
 		uint32 m_waitVBlankCount = 0;
+		uint32 m_commandDelayVBlankCount = 0;
 	};
 }
