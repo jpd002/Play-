@@ -115,6 +115,7 @@ set(OSX_SOURCES
 set(OSX_HEADERS
 	AltServerJitService.h
 	StikDebugJitService.h 
+	PlayJIT-Bridging-Header.h	
 	AppDelegate.h
 	BackgroundLayer.h
 	CoverViewCell.h
