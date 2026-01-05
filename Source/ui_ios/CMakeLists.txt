@@ -168,7 +168,9 @@ target_link_libraries(Play ${GAMECONTROLLER_LIBRARY})
 target_link_libraries(Play ${QUARTZCORE_LIBRARY})
 target_link_libraries(Play ${IMAGEIO_LIBRARY})
 target_link_libraries(Play ${UI_IOS_PROJECT_LIBS} "-ObjC -lsqlite3 -framework OpenAL")
-target_link_libraries(Play "-framework BreakpointJIT")
+target_include_directories(Play PRIVATE
+    "${CMAKE_SOURCE_DIR}/deps/BreakpointJIT/BreakpointJIT.framework/Headers"
+)
 
 # BreakpointJIT framework search path
 target_link_options(Play PRIVATE "-F${CMAKE_CURRENT_SOURCE_DIR}/../../deps/BreakpointJIT")
@@ -191,7 +193,8 @@ set_target_properties(
 		MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/Info.plist.in"
 		XCODE_ATTRIBUTE_TARGETED_DEVICE_FAMILY "1,2"
 		RESOURCE "${OSX_RES}"
-)
+		XCODE_ATTRIBUTE_FRAMEWORK_SEARCH_PATHS "${CMAKE_SOURCE_DIR}/deps/BreakpointJIT"
+		)
 
 if(USE_GSH_VULKAN)
 	set_target_properties(
