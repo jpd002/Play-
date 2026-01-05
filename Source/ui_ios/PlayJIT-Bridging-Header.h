@@ -5,9 +5,13 @@
 //  Bridging header for Swift access to JIT functions
 //
 
-#ifndef PlayJIT_Bridging_Header_h
-#define PlayJIT_Bridging_Header_h
-
-#import "PlayJIT.h"
-
-#endif /* PlayJIT_Bridging_Header_h */
+#include "idevice/JITEnableContext.h"
+#import "Utilities/ProcessInspectorBridge.h"
+#include "idevice/idevice.h"
+#include "idevice/heartbeat.h"
+#include "JSSupport/JSSupport.h"
+#include "idevice/ideviceinfo.h"
+#include "idevice/ls.h"
+#include "idevice/profiles.h"
+#include "idevice/something.h"
+#include "MiniToolSupport/JSSupport/JSSupport.h"
