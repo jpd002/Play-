@@ -33,6 +33,10 @@ using namespace Iop;
 #define STATE_REGS_REVERBWORKADDREND ("REVERBWORKADDREND")
 #define STATE_REGS_REVERBCURRADDR ("REVERBCURRADDR")
 #define STATE_REGS_REVERB_FORMAT ("REVERB%d")
+#define STATE_REGS_INPVOLUMELEFT ("INPVOLUMELEFT")
+#define STATE_REGS_INPVOLUMERIGHT ("INPVOLUMERIGHT")
+#define STATE_REGS_EXTINPVOLUMELEFT ("EXTINPVOLUMELEFT")
+#define STATE_REGS_EXTINPVOLUMERIGHT ("EXTINPVOLUMERIGHT")
 
 #define STATE_CHANNEL_REGS_FORMAT ("Channel%02dRegs")
 #define STATE_CHANNEL_REGS_VOLUMELEFT ("VOLUMELEFT")
@@ -205,6 +209,11 @@ void CSpuBase::Reset()
 	m_reverbWorkAddrEnd = 0x80000;
 	m_baseSamplingRate = INIT_SAMPLE_RATE;
 
+	m_inputVolL = 0x7FFF;
+	m_inputVolR = 0x7FFF;
+	m_extInputVolL = 0x7FFF;
+	m_extInputVolR = 0x7FFF;
+
 	memset(m_channel, 0, sizeof(m_channel));
 	memset(m_reverb, 0, sizeof(m_reverb));
 
@@ -240,6 +249,10 @@ void CSpuBase::LoadState(Framework::CZipArchiveReader& archive)
 		m_reverbWorkAddrStart = state.GetRegister32(STATE_REGS_REVERBWORKADDRSTART);
 		m_reverbWorkAddrEnd = state.GetRegister32(STATE_REGS_REVERBWORKADDREND);
 		m_reverbCurrAddr = state.GetRegister32(STATE_REGS_REVERBCURRADDR);
+		m_inputVolL = state.GetRegister32(STATE_REGS_INPVOLUMELEFT);
+		m_inputVolR = state.GetRegister32(STATE_REGS_INPVOLUMERIGHT);
+		m_extInputVolL = state.GetRegister32(STATE_REGS_EXTINPVOLUMELEFT);
+		m_extInputVolR = state.GetRegister32(STATE_REGS_EXTINPVOLUMERIGHT);
 		RegisterStateUtils::ReadArray(state, m_reverb, STATE_REGS_REVERB_FORMAT);
 	}
 
@@ -286,6 +299,10 @@ void CSpuBase::SaveState(Framework::CZipArchiveWriter& archive)
 		state.SetRegister32(STATE_REGS_REVERBWORKADDRSTART, m_reverbWorkAddrStart);
 		state.SetRegister32(STATE_REGS_REVERBWORKADDREND, m_reverbWorkAddrEnd);
 		state.SetRegister32(STATE_REGS_REVERBCURRADDR, m_reverbCurrAddr);
+		state.SetRegister32(STATE_REGS_INPVOLUMELEFT, m_inputVolL);
+		state.SetRegister32(STATE_REGS_INPVOLUMERIGHT, m_inputVolR);
+		state.SetRegister32(STATE_REGS_EXTINPVOLUMELEFT, m_extInputVolL);
+		state.SetRegister32(STATE_REGS_EXTINPVOLUMERIGHT, m_extInputVolR);
 		RegisterStateUtils::WriteArray(state, m_reverb, STATE_REGS_REVERB_FORMAT);
 		stateCollectionFile->InsertRegisterState(STATE_REGS, std::move(state));
 	}
@@ -693,6 +710,7 @@ void CSpuBase::MixSamples(int32 inputSample, int32 volumeLevel, int16* output)
 	inputSample = (inputSample * volumeLevel) / 0x7FFF;
 	int32 resultSample = inputSample + static_cast<int32>(*output);
 	resultSample = std::clamp<int32>(resultSample, SHRT_MIN, SHRT_MAX);
+
 	*output = static_cast<int16>(resultSample);
 }
 
@@ -778,8 +796,18 @@ void CSpuBase::Render(int16* samples, unsigned int sampleCount)
 			int32 blockSamples[2] = {};
 			m_blockReader.GetSamples(blockSamples);
 
-			MixSamples(blockSamples[0], 0x3FFF, samples + 0);
-			MixSamples(blockSamples[1], 0x3FFF, samples + 1);
+			// Audio input data should have volume adjusted to BVOL register values . . .
+			if(m_spuNumber == 0 && m_blockReader.GetSpdifBypass())
+			{
+				//  . . . unless in bypass mode
+				MixSamples(blockSamples[0], 0x7FFF, samples + 0);
+				MixSamples(blockSamples[1], 0x7FFF, samples + 1);
+			}
+			else
+			{
+				MixSamples(blockSamples[0], m_inputVolL, samples + 0);
+				MixSamples(blockSamples[1], m_inputVolR, samples + 1);
+			}
 		}
 
 		//Simulate SPU CORE0 writing its output in RAM and check for potential interrupts
@@ -1525,6 +1553,11 @@ void CSpuBase::CBlockSampleReader::SetDestinationSamplingRate(uint32 dstSampling
 {
 	m_dstSamplingRate = dstSamplingRate;
 	UpdateSampleStep();
+}
+
+bool CSpuBase::CBlockSampleReader::GetSpdifBypass()
+{
+	return m_spdifBypass;
 }
 
 void CSpuBase::CBlockSampleReader::SetSpdifBypass(bool spdifBypass)

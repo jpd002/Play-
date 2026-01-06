@@ -267,6 +267,18 @@ uint32 CCore::WriteRegisterCore(unsigned int channelId, uint32 address, uint32 v
 		case A_EEA_HI:
 			m_spuBase.SetReverbWorkAddressEnd(((value & 0x0F) << 17) | 0x1FFFF);
 			break;
+		case P_AVOLL:
+			m_spuBase.m_extInputVolL = value;
+			break;
+		case P_AVOLR:
+			m_spuBase.m_extInputVolR = value;
+			break;
+		case P_BVOLL:
+			m_spuBase.m_inputVolL = value;
+			break;
+		case P_BVOLR:
+			m_spuBase.m_inputVolR = value;
+			break;
 		}
 	}
 	LogWrite(address, value);
@@ -479,6 +491,8 @@ void CCore::LogWrite(uint32 address, uint32 value)
 		LOG_SET(P_MVOLR)
 		LOG_SET(P_EVOLL)
 		LOG_SET(P_EVOLR)
+		LOG_SET(P_AVOLL)
+		LOG_SET(P_AVOLR)
 		LOG_SET(P_BVOLL)
 		LOG_SET(P_BVOLR)
 
