@@ -324,7 +324,7 @@ function App() {
         const url = URL.createObjectURL(blob);
         const a = document.createElement("a");
         a.href = url;
-        
+
         // Generate download filename from ROM name
         let downloadFileName = "savestate.bin";
         if (selectedRomFileName) {
@@ -333,7 +333,7 @@ function App() {
           const sanitizedRomName = sanitizeFolderName(romNameWithoutExt);
           downloadFileName = `${sanitizedRomName}__state.bin`;
         }
-        
+
         a.download = downloadFileName;
         document.body.appendChild(a);
         a.click();
@@ -490,9 +490,9 @@ function App() {
                 width: '56px',
                 height: '56px',
                 borderRadius: '28px',
-                backgroundColor: controlsExpanded ? '#007AFF' : 'rgba(0, 122, 255, 0.8)',
+                backgroundColor: controlsExpanded ? '#000000' : 'rgba(0, 0, 0, 0.6)',
                 color: 'white',
-                border: 'none',
+                border: '3px solid rgba(255, 255, 255, 0.5)',
                 cursor: 'pointer',
                 zIndex: 1001,
                 display: 'flex',
@@ -518,7 +518,7 @@ function App() {
                 top: 0,
                 left: 0,
                 right: 0,
-                backgroundColor: 'rgba(0, 0, 0, 0.9)',
+                backgroundColor: 'rgba(0, 0, 0, 0.2)',
                 backdropFilter: 'blur(10px)',
                 WebkitBackdropFilter: 'blur(10px)',
                 zIndex: 1000,
@@ -552,35 +552,35 @@ function App() {
                 />
                 <button
                   onClick={() => !romLoaded && document.getElementById("romFileInput")?.click()}
-                  disabled={romLoaded}
+                  // disabled={romLoaded}
                   style={{
-                    padding: '14px 24px',
-                    backgroundColor: romLoaded ? '#666' : '#5856D6',
+                    padding: '12px',
+                    backgroundColor: romLoaded ? 'rgba(0, 0, 0, 0.4)' : 'rgba(0, 0, 0, 0.6)',
                     color: 'white',
-                    border: 'none',
-                    borderRadius: '12px',
+                    border: '3px solid rgba(255, 255, 255, 0.5)',
+                    borderRadius: '50px',
                     cursor: romLoaded ? 'not-allowed' : 'pointer',
                     fontSize: '16px',
                     fontWeight: '500',
                     minHeight: '44px',
                     flex: '1',
                     minWidth: '140px',
-                    boxShadow: romLoaded ? 'none' : '0 2px 8px rgba(88, 86, 214, 0.3)',
                     WebkitTapHighlightColor: 'transparent',
                     touchAction: 'manipulation',
                     transition: 'opacity 0.2s ease',
-                    opacity: romLoaded ? 0.6 : 1,
+                    // opacity: romLoaded ? 0.6 : 1,
+                    opacity: 1,
                   }}
                   onTouchStart={(e) => !romLoaded && (e.currentTarget.style.opacity = '0.7')}
                   onTouchEnd={(e) => !romLoaded && (e.currentTarget.style.opacity = '1')}
                 >
-                  {selectedRomFileName || 'Select the ROM file (On my iPhone/iPad → GamePlaytoo → roms)'}
+                  {selectedRomFileName || 'Select the ROM file from any location (e.g. On my iPhone/iPad → GamePlaytoo → roms)'}
                 </button>
               </div>
               <div style={{
                 display: 'flex',
+                flexDirection: 'column',
                 gap: '12px',
-                flexWrap: 'wrap',
                 justifyContent: 'center',
                 width: '100%',
                 maxWidth: '400px'
@@ -588,27 +588,25 @@ function App() {
                 <button
                   onClick={handleSaveState}
                   style={{
-                    padding: '14px 24px',
-                    backgroundColor: '#007AFF',
+                    padding: '12px',
+                    backgroundColor: 'rgba(0, 0, 0, 0.6)',
                     color: 'white',
-                    border: 'none',
-                    borderRadius: '12px',
+                    border: '3px solid rgba(255, 255, 255, 0.5)',
+                    borderRadius: '50px',
                     cursor: 'pointer',
                     fontSize: '16px',
                     fontWeight: '500',
                     minHeight: '44px',
-                    flex: '1',
-                    minWidth: '140px',
-                    boxShadow: '0 2px 8px rgba(0, 122, 255, 0.3)',
+                    width: '100%',
                     WebkitTapHighlightColor: 'transparent',
                     touchAction: 'manipulation',
                     transition: 'opacity 0.2s ease',
-                    display: 'none',
+                    display: romLoaded ? 'block' : 'none',
                   }}
                   onTouchStart={(e) => e.currentTarget.style.opacity = '0.7'}
                   onTouchEnd={(e) => e.currentTarget.style.opacity = '1'}
                 >
-                  Download Save State
+                  Save state to a file (On my iPhone/iPad → GamePlaytoo → states → [ROM Name])
                 </button>
                 <input
                   type="file"
@@ -620,18 +618,16 @@ function App() {
                 <button
                   onClick={() => document.getElementById("loadStateInput")?.click()}
                   style={{
-                    padding: '14px 24px',
-                    backgroundColor: '#34C759',
+                    padding: '12px',
+                    backgroundColor: 'rgba(0, 0, 0, 0.6)',
                     color: 'white',
-                    border: 'none',
-                    borderRadius: '12px',
+                    border: '3px solid rgba(255, 255, 255, 0.5)',
+                    borderRadius: '50px',
                     cursor: 'pointer',
                     fontSize: '16px',
                     fontWeight: '500',
                     minHeight: '44px',
-                    flex: '1',
-                    minWidth: '140px',
-                    boxShadow: '0 2px 8px rgba(52, 199, 89, 0.3)',
+                    width: '100%',
                     WebkitTapHighlightColor: 'transparent',
                     touchAction: 'manipulation',
                     transition: 'opacity 0.2s ease',
@@ -640,14 +636,15 @@ function App() {
                   onTouchStart={(e) => e.currentTarget.style.opacity = '0.7'}
                   onTouchEnd={(e) => e.currentTarget.style.opacity = '1'}
                 >
-                  Load State from File (On my iPhone/iPad → GamePlaytoo → states)
+                  Load state from a file (On my iPhone/iPad → GamePlaytoo → states → [ROM Name])
                 </button>
               </div>
             </div>
           </>
-        )}
+        )
+        }
         <Stats />
-      </div>
+      </div >
     );
   }
 }
