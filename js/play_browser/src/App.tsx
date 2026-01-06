@@ -551,15 +551,14 @@ function App() {
                   style={{ display: "none" }}
                 />
                 <button
-                  onClick={() => !romLoaded && document.getElementById("romFileInput")?.click()}
-                  // disabled={romLoaded}
+                  onClick={() => document.getElementById("romFileInput")?.click()}
                   style={{
                     padding: '12px',
                     backgroundColor: romLoaded ? 'rgba(0, 0, 0, 0.4)' : 'rgba(0, 0, 0, 0.6)',
                     color: 'white',
                     border: '3px solid rgba(255, 255, 255, 0.5)',
                     borderRadius: '50px',
-                    cursor: romLoaded ? 'not-allowed' : 'pointer',
+                    cursor: 'pointer',
                     fontSize: '16px',
                     fontWeight: '500',
                     minHeight: '44px',
@@ -568,11 +567,10 @@ function App() {
                     WebkitTapHighlightColor: 'transparent',
                     touchAction: 'manipulation',
                     transition: 'opacity 0.2s ease',
-                    // opacity: romLoaded ? 0.6 : 1,
                     opacity: 1,
                   }}
-                  onTouchStart={(e) => !romLoaded && (e.currentTarget.style.opacity = '0.7')}
-                  onTouchEnd={(e) => !romLoaded && (e.currentTarget.style.opacity = '1')}
+                  onTouchStart={(e) => (e.currentTarget.style.opacity = '0.7')}
+                  onTouchEnd={(e) => (e.currentTarget.style.opacity = '1')}
                 >
                   {selectedRomFileName || 'Select the ROM file from any location (e.g. On my iPhone/iPad → GamePlaytoo → roms)'}
                 </button>
