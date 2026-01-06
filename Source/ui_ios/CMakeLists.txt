@@ -76,11 +76,23 @@ if(NOT TARGET ui_shared)
 endif()
 list(APPEND UI_IOS_PROJECT_LIBS ui_shared)
 
+# 1. Gestion de AltKit
 if(NOT TARGET AltKit)
-	add_subdirectory(
-		${CMAKE_CURRENT_SOURCE_DIR}/../../deps/AltKit
-		${CMAKE_CURRENT_BINARY_DIR}/AltKit
-	)
+    add_subdirectory(
+        ${CMAKE_CURRENT_SOURCE_DIR}/../../deps/AltKit
+        ${CMAKE_CURRENT_BINARY_DIR}/AltKit
+    )
+endif() # <--- IL FAUT FERMER ICI
+
+# 2. Gestion de BreakpointJIT (Indépendant)
+set(BREAKPOINTJIT_FRAMEWORK_PATH "${CMAKE_CURRENT_SOURCE_DIR}/Frameworks/BreakpointJIT.framework")
+
+if(EXISTS "${BREAKPOINTJIT_FRAMEWORK_PATH}")
+    message("Building with BreakpointJIT support for iOS 26+")
+    list(APPEND UI_IOS_DEFINITIONS_LIST HAS_BREAKPOINTJIT=1)
+else()
+    # Debug radical : si ça ne marche pas, CMake affichera le chemin qu'il a testé
+    message(WARNING "BreakpointJIT non trouve a : ${BREAKPOINTJIT_FRAMEWORK_PATH}")
 endif()
 list(APPEND UI_IOS_PROJECT_LIBS AltKit)
 
@@ -115,7 +127,7 @@ set(OSX_SOURCES
 set(OSX_HEADERS
 	AltServerJitService.h
 	StikDebugJitService.h 
-	PlayJIT-Bridging-Header.h	
+	Bridging-Header.h	
 	AppDelegate.h
 	BackgroundLayer.h
 	CoverViewCell.h
@@ -170,7 +182,29 @@ target_link_libraries(Play ${IMAGEIO_LIBRARY})
 target_link_libraries(Play ${UI_IOS_PROJECT_LIBS} "-ObjC -lsqlite3 -framework OpenAL")
 target_include_directories(Play PRIVATE
     "${CMAKE_SOURCE_DIR}/deps/BreakpointJIT/BreakpointJIT.framework/Headers"
-)
+) 
+BreakpointJIT framework linking
+if(EXISTS ${BREAKPOINTJIT_FRAMEWORK_PATH})
+    target_include_directories(Play PRIVATE
+        "${BREAKPOINTJIT_FRAMEWORK_PATH}/Headers"
+    )
+    target_link_libraries(Play
+        "-F${CMAKE_CURRENT_SOURCE_DIR}/Frameworks"
+        "-framework BreakpointJIT"
+    )
+    
+    # Embed framework in app bundle
+    set_target_properties(Play PROPERTIES
+        XCODE_EMBED_FRAMEWORKS "${BREAKPOINTJIT_FRAMEWORK_PATH}"
+        XCODE_EMBED_FRAMEWORKS_CODE_SIGN_ON_COPY TRUE
+    )
+    
+    # Add framework search path for runtime
+    set_target_properties(Play PROPERTIES
+        BUILD_RPATH "@executable_path/Frameworks"
+        INSTALL_RPATH "@executable_path/Frameworks"
+    )
+endif()
 
 # BreakpointJIT framework search path
 target_link_options(Play PRIVATE "-F${CMAKE_CURRENT_SOURCE_DIR}/../../deps/BreakpointJIT")
@@ -193,7 +227,7 @@ set_target_properties(
 		MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/Info.plist.in"
 		XCODE_ATTRIBUTE_TARGETED_DEVICE_FAMILY "1,2"
 		RESOURCE "${OSX_RES}"
-		XCODE_ATTRIBUTE_FRAMEWORK_SEARCH_PATHS "${CMAKE_SOURCE_DIR}/deps/BreakpointJIT"
+		XCODE_ATTRIBUTE_FRAMEWORK_SEARCH_PATHS "${CMAKE_SOURCE_DIR}/source/ui_ios/BreakpointJIT"
 		)
 
 if(USE_GSH_VULKAN)
