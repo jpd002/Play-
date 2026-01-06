@@ -31,6 +31,7 @@ CSoundHandler::FactoryFunction CSH_OpenALProxy::GetFactoryFunction(CSH_OpenAL* s
 
 void CSH_OpenALProxy::Reset()
 {
+#if USE_PTHREADS
 	if(m_recycleBuffersCall != nullptr)
 	{
 		emscripten_async_waitable_close(m_recycleBuffersCall);
@@ -41,6 +42,14 @@ void CSH_OpenALProxy::Reset()
 	        EM_FUNC_SIG_WITH_N_PARAMETERS(1) |
 	        EM_FUNC_SIG_SET_PARAM(0, EM_FUNC_SIG_PARAM_I),
 	    &SH_OpenAL_Reset_Proxy, m_parent);
+#else
+	// When pthreads are disabled, we're already in the main thread, so call directly
+	if(m_recycleBuffersCall != nullptr)
+	{
+		m_recycleBuffersCall = nullptr;
+	}
+	m_parent->Reset();
+#endif
 	m_bufferCount = CSH_OpenAL::MAX_BUFFERS;
 }
 
@@ -48,6 +57,7 @@ void CSH_OpenALProxy::Write(int16* samples, unsigned int sampleCount, unsigned i
 {
 	assert(m_bufferCount != 0);
 	if(m_bufferCount == 0) return;
+#if USE_PTHREADS
 	int16* proxySamples = new int16[sampleCount];
 	memcpy(proxySamples, samples, sizeof(int16) * sampleCount);
 	emscripten_async_run_in_main_runtime_thread(
@@ -56,6 +66,10 @@ void CSH_OpenALProxy::Write(int16* samples, unsigned int sampleCount, unsigned i
 	        EM_FUNC_SIG_SET_PARAM(0, EM_FUNC_SIG_PARAM_I) | EM_FUNC_SIG_SET_PARAM(1, EM_FUNC_SIG_PARAM_I) |
 	        EM_FUNC_SIG_SET_PARAM(2, EM_FUNC_SIG_PARAM_I) | EM_FUNC_SIG_SET_PARAM(3, EM_FUNC_SIG_PARAM_I),
 	    &SH_OpenAL_Write_Proxy, m_parent, proxySamples, sampleCount, sampleRate);
+#else
+	// When pthreads are disabled, we're already in the main thread, so call directly
+	m_parent->Write(samples, sampleCount, sampleRate);
+#endif
 	m_bufferCount--;
 }
 
@@ -66,6 +80,7 @@ bool CSH_OpenALProxy::HasFreeBuffers()
 
 void CSH_OpenALProxy::RecycleBuffers()
 {
+#if USE_PTHREADS
 	if(m_recycleBuffersCall != nullptr)
 	{
 		int bufferCount = 0;
@@ -84,4 +99,9 @@ void CSH_OpenALProxy::RecycleBuffers()
 		        EM_FUNC_SIG_SET_PARAM(0, EM_FUNC_SIG_PARAM_I),
 		    &SH_OpenAL_RecycleBuffers_Proxy, m_parent);
 	}
+#else
+	// When pthreads are disabled, we're already in the main thread, so call directly
+	m_parent->RecycleBuffers();
+	m_bufferCount = m_parent->GetFreeBufferCount();
+#endif
 }
