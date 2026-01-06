@@ -76,7 +76,6 @@ if(NOT TARGET ui_shared)
 endif()
 list(APPEND UI_IOS_PROJECT_LIBS ui_shared)
 
-# 1. Gestion de AltKit
 if(NOT TARGET AltKit)
 	add_subdirectory(
 		${CMAKE_CURRENT_SOURCE_DIR}/../../deps/AltKit
@@ -84,16 +83,6 @@ if(NOT TARGET AltKit)
 	)
 endif()
 list(APPEND UI_IOS_PROJECT_LIBS AltKit)
-
-# 2. Gestion de BreakpointJIT (Support iOS 26+)
-set(BREAKPOINTJIT_FRAMEWORK_PATH "${CMAKE_CURRENT_SOURCE_DIR}/Frameworks/BreakpointJIT.framework")
-
-if(EXISTS "${BREAKPOINTJIT_FRAMEWORK_PATH}")
-	message("Building with BreakpointJIT support for iOS 26+")
-	list(APPEND UI_IOS_DEFINITIONS_LIST HAS_BREAKPOINTJIT=1)
-else()
-	message(WARNING "BreakpointJIT non trouve a : ${BREAKPOINTJIT_FRAMEWORK_PATH}")
-endif()
 
 find_library(UIKIT_LIBRARY NAMES UIKit)
 find_library(COREGRAPHICS_LIBRARY NAMES CoreGraphics)
@@ -103,7 +92,7 @@ find_library(IMAGEIO_LIBRARY NAMES ImageIO)
 
 set(OSX_SOURCES
 	AltServerJitService.mm
-	StikDebugJitService.mm
+	StikDebugJitService.mm 
 	AppDelegate.mm
 	BackgroundLayer.m
 	CoverViewCell.m
@@ -125,7 +114,7 @@ set(OSX_SOURCES
 
 set(OSX_HEADERS
 	AltServerJitService.h
-	StikDebugJitService.h
+	StikDebugJitService.h 
 	Bridging-Header.h	
 	AppDelegate.h
 	BackgroundLayer.h
@@ -172,37 +161,24 @@ endif()
 add_executable(Play MACOSX_BUNDLE ${OSX_SOURCES} ${OSX_HEADERS} ${OSX_RES})
 target_compile_options(Play PRIVATE $<$<NOT:$<COMPILE_LANGUAGE:Swift>>:-x objective-c++ -fobjc-arc>)
 
-# Link libraries
-target_link_libraries(Play 
-	${UIKIT_LIBRARY}
-	${COREGRAPHICS_LIBRARY}
-	${GAMECONTROLLER_LIBRARY}
-	${QUARTZCORE_LIBRARY}
-	${IMAGEIO_LIBRARY}
-	${UI_IOS_PROJECT_LIBS} 
-	"-ObjC -lsqlite3 -framework OpenAL"
+# Probably a better way to set the framework link libraries.
+target_link_libraries(Play ${UIKIT_LIBRARY})
+target_link_libraries(Play ${COREGRAPHICS_LIBRARY})
+target_link_libraries(Play ${GAMECONTROLLER_LIBRARY})
+target_link_libraries(Play ${QUARTZCORE_LIBRARY})
+target_link_libraries(Play ${IMAGEIO_LIBRARY})
+target_link_libraries(Play ${UI_IOS_PROJECT_LIBS} "-ObjC -lsqlite3 -framework OpenAL")
+target_include_directories(Play PRIVATE
+    "${CMAKE_SOURCE_DIR}/deps/BreakpointJIT/BreakpointJIT.framework/Headers"
 )
 
-# 3. Linking spécifique BreakpointJIT
-if(EXISTS "${BREAKPOINTJIT_FRAMEWORK_PATH}")
-	target_include_directories(Play PRIVATE "${BREAKPOINTJIT_FRAMEWORK_PATH}/Headers")
-	
-	target_link_libraries(Play
-		"-F${CMAKE_CURRENT_SOURCE_DIR}/Frameworks"
-		"-framework BreakpointJIT"
-	)
-	
-	set_target_properties(Play PROPERTIES
-		XCODE_EMBED_FRAMEWORKS "${BREAKPOINTJIT_FRAMEWORK_PATH}"
-		XCODE_EMBED_FRAMEWORKS_CODE_SIGN_ON_COPY TRUE
-		BUILD_RPATH "@executable_path/Frameworks"
-		INSTALL_RPATH "@executable_path/Frameworks"
-	)
-endif()
-
+# BreakpointJIT framework search path
+target_link_options(Play PRIVATE "-F${CMAKE_CURRENT_SOURCE_DIR}/../../deps/BreakpointJIT")
 target_compile_definitions(Play PRIVATE ${UI_IOS_DEFINITIONS_LIST})
 
-# Set custom plist and bundle properties
+# Set a custom plist file for the app bundle
+# NOTE: for these values to be used Info.plist has to be edited
+# NOTE: from cmake 3.7.0 you can use %b for month name abbreviations
 string(TIMESTAMP DATE "%Y-%m-%d")
 set_target_properties(
 	Play
@@ -217,7 +193,8 @@ set_target_properties(
 		MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/Info.plist.in"
 		XCODE_ATTRIBUTE_TARGETED_DEVICE_FAMILY "1,2"
 		RESOURCE "${OSX_RES}"
-)
+		XCODE_ATTRIBUTE_FRAMEWORK_SEARCH_PATHS "${CMAKE_SOURCE_DIR}/deps/BreakpointJIT"
+		)
 
 if(USE_GSH_VULKAN)
 	set_target_properties(
