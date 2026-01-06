@@ -169,7 +169,7 @@ target_link_libraries(Play ${QUARTZCORE_LIBRARY})
 target_link_libraries(Play ${IMAGEIO_LIBRARY})
 target_link_libraries(Play ${UI_IOS_PROJECT_LIBS} "-ObjC -lsqlite3 -framework OpenAL")
 target_include_directories(Play PRIVATE
-    "${CMAKE_SOURCE_DIR}/deps/BreakpointJIT/BreakpointJIT.framework/Headers"
+    "${CMAKE_SOURCE_DIR}/Source/ui_ios/BreakpointJIT/BreakpointJIT.framework/Headers"
 )
 
 # BreakpointJIT framework search path
