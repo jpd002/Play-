@@ -74,5 +74,5 @@ target_link_options(Play PRIVATE "-sEXPORT_NAME=Play")
 target_link_options(Play PRIVATE "-sWASM_BIGINT")
 target_link_options(Play PRIVATE "-sOFFSCREEN_FRAMEBUFFER=1")
 # No worker environment needed when pthreads are disabled
-target_link_options(Play PRIVATE "-sENVIRONMENT=web")
+target_link_options(Play PRIVATE "-sENVIRONMENT=web,worker")
 target_link_options(Play PRIVATE "-sUSE_WEBGL2=1")
