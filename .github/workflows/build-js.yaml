@@ -44,6 +44,20 @@ jobs:
         export REACT_APP_VERSION=$(git describe)
         npm install
         npm run build
+    - name: Upload Play.js and Play.wasm artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: play-wasm-files
+        path: |
+          build_cmake/build/wasm-ninja/Source/ui_js/Release/Play.js
+          build_cmake/build/wasm-ninja/Source/ui_js/Release/Play.wasm
+        retention-days: 30
+    - name: Upload Play Browser build artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: play-browser-build
+        path: js/play_browser/build
+        retention-days: 30
     - name: Build PsfPlayer Browser
       run: |
         PSFPLAYERJS_BUILD_DIR=$GITHUB_WORKSPACE/build_cmake/build/wasm-ninja/tools/PsfPlayer/Source/ui_js/Release/
