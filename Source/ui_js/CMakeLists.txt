@@ -64,7 +64,7 @@ target_link_options(Play PRIVATE "-sALLOW_MEMORY_GROWTH")
 #target_link_options(Play PRIVATE "-sASSERTIONS=2")
 target_link_options(Play PRIVATE "-sEXPORT_NAME=Play")
 # Completely disable pthreads for iOS compatibility (SharedArrayBuffer not available on all iOS devices)
-target_link_options(Play PRIVATE "-sUSE_PTHREADS=1")
+target_link_options(Play PRIVATE "-sUSE_PTHREADS=2")
 target_link_options(Play PRIVATE "-sWASM_BIGINT")
 target_link_options(Play PRIVATE "-sOFFSCREEN_FRAMEBUFFER=1")
 # No need for "worker" environment when pthreads are disabled
