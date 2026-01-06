@@ -48,7 +48,7 @@ jobs:
         npm install
         npm run build
     - name: Upload Play.js and Play.wasm artifacts
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: play-wasm-files
         path: |
@@ -56,7 +56,7 @@ jobs:
           build_cmake/build/wasm-ninja/Source/ui_js/Release/Play.wasm
         retention-days: 30
     - name: Upload Play Browser build artifacts
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: play-browser-build
         path: js/play_browser/build
