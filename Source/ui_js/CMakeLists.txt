@@ -51,11 +51,6 @@ add_executable(Play
 )
 target_link_libraries(Play PUBLIC ${UI_JS_PROJECT_LIBS})
 
-# Disable pthreads at compile time to ensure USE_PTHREADS macro is correctly set
-target_compile_options(Play PRIVATE "-sUSE_PTHREADS=0")
-# Also propagate to all linked libraries
-target_compile_definitions(Play PRIVATE "USE_PTHREADS=0")
-
 target_link_options(Play PRIVATE "--bind")
 target_link_options(Play PRIVATE "-sMODULARIZE=1")
 target_link_options(Play PRIVATE "-sEXPORT_ES6=1")
@@ -64,20 +59,12 @@ target_link_options(Play PRIVATE "-sEXPORTED_FUNCTIONS=['_main', '_initVm', '_Em
 target_link_options(Play PRIVATE "-sEXPORTED_RUNTIME_METHODS=['ccall', 'FS']")
 target_link_options(Play PRIVATE "-sFORCE_FILESYSTEM")
 target_link_options(Play PRIVATE "-sALLOW_TABLE_GROWTH")
-target_link_options(Play PRIVATE "-sINITIAL_TABLE=1024")
-# Memory settings optimized for low RAM devices
-# Allow memory to grow dynamically (required for low RAM devices)
-target_link_options(Play PRIVATE "-sALLOW_MEMORY_GROWTH")
-# Set initial memory to 32MB (lower for low RAM devices, will grow as needed)
-target_link_options(Play PRIVATE "-sINITIAL_MEMORY=33554432")
-# Set maximum memory to 256MB (prevents excessive memory usage on low RAM devices)
-target_link_options(Play PRIVATE "-sMAXIMUM_MEMORY=268435456")
-# Disable pthreads completely to avoid SharedArrayBuffer requirements on iOS
-target_link_options(Play PRIVATE "-sUSE_PTHREADS=0")
+target_link_options(Play PRIVATE "-sINITIAL_TABLE=512")
+# target_link_options(Play PRIVATE "-sALLOW_MEMORY_GROWTH")
 #target_link_options(Play PRIVATE "-sASSERTIONS=2")
 target_link_options(Play PRIVATE "-sEXPORT_NAME=Play")
+target_link_options(Play PRIVATE "-sPTHREAD_POOL_SIZE=2")
 target_link_options(Play PRIVATE "-sWASM_BIGINT")
 target_link_options(Play PRIVATE "-sOFFSCREEN_FRAMEBUFFER=1")
-# No worker environment needed when pthreads are disabled
-target_link_options(Play PRIVATE "-sENVIRONMENT=web")
+target_link_options(Play PRIVATE "-sENVIRONMENT=web,worker")
 target_link_options(Play PRIVATE "-sUSE_WEBGL2=1")
