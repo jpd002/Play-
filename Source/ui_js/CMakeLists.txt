@@ -70,4 +70,4 @@ target_link_options(Play PRIVATE "-sOFFSCREEN_FRAMEBUFFER=1")
 target_link_options(Play PRIVATE "-sENVIRONMENT=web,worker")
 target_link_options(Play PRIVATE "-sUSE_WEBGL2=1")
 target_link_options(Play PRIVATE "-sEXCEPTION_CATCHING_ALLOWED=['c++']")
-target_link_options(Play PRIVATE "-sEXCEPTION_STACK_SIZE=65536")
+# Removed -sEXCEPTION_STACK_SIZE as it's no longer supported in newer Emscripten
