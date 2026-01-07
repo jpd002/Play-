@@ -2,14 +2,26 @@
 
 // Check if pthreads are enabled
 // When -sUSE_PTHREADS=0 is set, Emscripten won't define these macros
-#if defined(__EMSCRIPTEN_PTHREADS__) || defined(EMSCRIPTEN_PTHREADS)
-	#define USE_PTHREADS 1
-	#include <emscripten/threading.h>
+// If USE_PTHREADS is explicitly defined via compiler flags, use that value
+#ifndef USE_PTHREADS
+	#if defined(__EMSCRIPTEN_PTHREADS__) || defined(EMSCRIPTEN_PTHREADS) || defined(USE_PTHREADS_ENABLED)
+		#define USE_PTHREADS 1
+		#include <emscripten/threading.h>
+	#else
+		// Pthreads are disabled - don't include threading.h and use direct calls
+		#define USE_PTHREADS 0
+		// Forward declaration for em_queued_call when pthreads are disabled
+		typedef void* em_queued_call;
+	#endif
 #else
-	// Pthreads are disabled - don't include threading.h and use direct calls
-	#define USE_PTHREADS 0
-	// Forward declaration for em_queued_call when pthreads are disabled
-	typedef void* em_queued_call;
+	// USE_PTHREADS was already defined (e.g., via compiler flags)
+	// Only include threading.h if it's enabled
+	#if USE_PTHREADS == 1
+		#include <emscripten/threading.h>
+	#else
+		// Forward declaration for em_queued_call when pthreads are disabled
+		typedef void* em_queued_call;
+	#endif
 #endif
 
 #include "SH_OpenAL.h"

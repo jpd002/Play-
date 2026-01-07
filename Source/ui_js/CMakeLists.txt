@@ -51,6 +51,11 @@ add_executable(Play
 )
 target_link_libraries(Play PUBLIC ${UI_JS_PROJECT_LIBS})
 
+# Disable pthreads at compile time to ensure USE_PTHREADS macro is correctly set
+target_compile_options(Play PRIVATE "-sUSE_PTHREADS=0")
+# Also propagate to all linked libraries
+target_compile_definitions(Play PRIVATE "USE_PTHREADS=0")
+
 target_link_options(Play PRIVATE "--bind")
 target_link_options(Play PRIVATE "-sMODULARIZE=1")
 target_link_options(Play PRIVATE "-sEXPORT_ES6=1")
