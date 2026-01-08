@@ -70,13 +70,16 @@ target_link_options(Play PRIVATE "-sALLOW_MEMORY_GROWTH")
 # CRITICAL: With PTHREAD_POOL_SIZE=2 and shared memory, INITIAL_MEMORY must be large enough
 # The shared memory buffer is the same size as INITIAL_MEMORY and must accommodate:
 # - Main thread heap/stack
-# - Shared memory buffer for pthread communication
+# - Shared memory buffer for pthread communication  
 # - Worker thread initialization overhead
-# 32MB (33554432 bytes) is needed to prevent "Out of bounds memory access" in workers
-target_link_options(Play PRIVATE "-sINITIAL_MEMORY=33554432")
-# Reduced MAXIMUM_MEMORY to 192MB for low RAM devices (iPhone Air has limited memory)
-# This caps total memory usage while allowing growth from 32MB initial allocation
-# target_link_options(Play PRIVATE "-sMAXIMUM_MEMORY=201326592")
+# - initVm function table and initialization code (requires significant memory)
+# 48MB (50331648 bytes) provides enough headroom to prevent "Out of bounds memory access"
+# during initVm execution and worker thread initialization
+# Lower values (32MB) cause crashes when initVm accesses function tables or large data structures
+target_link_options(Play PRIVATE "-sINITIAL_MEMORY=50331648")
+# MAXIMUM_MEMORY set to 160MB - below this threshold causes app crashes
+# Testing showed that values below 167772160 (160MB) cause immediate crashes
+# This is the minimum required for stable operation on iPhone Air
 
 # too low
 # target_link_options(Play PRIVATE "-sMAXIMUM_MEMORY=100663296")
@@ -90,7 +93,8 @@ target_link_options(Play PRIVATE "-sINITIAL_MEMORY=33554432")
 # something around 170 MB
 # ta÷rget_link_options(Play PRIVATE "-sMAXIMUM_MEMORY=178257920")
 
-# something around 160 MB
+# 160MB minimum - below this causes crashes
+# Must be at least 167772160 (160MB) for iPhone Air compatibility
 target_link_options(Play PRIVATE "-sMAXIMUM_MEMORY=167772160")
 
 
