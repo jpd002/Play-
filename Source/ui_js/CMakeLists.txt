@@ -76,9 +76,9 @@ target_link_options(Play PRIVATE "-sMAXIMUM_MEMORY=268435456")
 # Reduced TOTAL_STACK to 512KB per thread to minimize memory overhead
 # Lower stack reduces memory pressure on worker threads during initialization
 target_link_options(Play PRIVATE "-sTOTAL_STACK=524288")
-# Reduced pthread pool from 2 to 1 to minimize worker thread overhead
-# Single worker thread reduces shared memory requirements and initialization complexity
-target_link_options(Play PRIVATE "-sPTHREAD_POOL_SIZE=1")
+# Keep PTHREAD_POOL_SIZE=2 (required to prevent loading freeze)
+# Cannot reduce below 2 as it causes loading to freeze
+target_link_options(Play PRIVATE "-sPTHREAD_POOL_SIZE=2")
 
 #target_link_options(Play PRIVATE "-sASSERTIONS=2")
 target_link_options(Play PRIVATE "-sEXPORT_NAME=Play")
