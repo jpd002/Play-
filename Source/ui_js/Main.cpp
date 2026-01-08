@@ -166,6 +166,7 @@ EMSCRIPTEN_BINDINGS(Play)
 {
 	using namespace emscripten;
 
+	function("initVm", &initVm);
 	function("bootElf", &bootElf);
 	function("bootDiscImage", &bootDiscImage);
 	function("getFrames", &getFrames);
