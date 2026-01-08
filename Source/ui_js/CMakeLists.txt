@@ -65,7 +65,9 @@ target_link_options(Play PRIVATE "-sINITIAL_TABLE=128")
 
 target_link_options(Play PRIVATE "-sALLOW_MEMORY_GROWTH")
 
-target_link_options(Play PRIVATE "-sINITIAL_MEMORY=8388608")
+# Increased initial memory from 8MB to 64MB to prevent out-of-bounds errors during initialization
+# on low RAM devices, especially when using pthreads with shared memory
+target_link_options(Play PRIVATE "-sINITIAL_MEMORY=67108864")
 # MAXIMUM_MEMORY must match the shared memory maximum (32768 pages = 2GB) when using pthreads
 target_link_options(Play PRIVATE "-sMAXIMUM_MEMORY=2147483648")
 target_link_options(Play PRIVATE "-sTOTAL_STACK=1048576")
