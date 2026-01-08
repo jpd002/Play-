@@ -76,14 +76,17 @@ target_link_options(Play PRIVATE "-sTOTAL_STACK=2097152")
 
 # Disable pthreads to avoid out-of-bounds memory access errors in worker threads
 # Pthreads can cause issues in WebKit/WebView environments, especially during initialization
-# If pthreads are needed, uncomment the SHARED_MEMORY and PTHREAD_POOL_SIZE options below
+# Explicitly set pool size to 0 to ensure no worker threads are created
+# (Even though -pthread flag is present, no workers will spawn with PTHREAD_POOL_SIZE=0)
+target_link_options(Play PRIVATE "-sPTHREAD_POOL_SIZE=0")
+# Do not enable shared memory when pool size is 0
 # target_link_options(Play PRIVATE "-sSHARED_MEMORY")
-# target_link_options(Play PRIVATE "-sPTHREAD_POOL_SIZE=2")
 
 #target_link_options(Play PRIVATE "-sASSERTIONS=2")
 target_link_options(Play PRIVATE "-sEXPORT_NAME=Play")
 target_link_options(Play PRIVATE "-sWASM_BIGINT")
 target_link_options(Play PRIVATE "-sOFFSCREEN_FRAMEBUFFER=1")
-# Only use 'web' environment when pthreads are disabled (worker not needed without pthreads)
-target_link_options(Play PRIVATE "-sENVIRONMENT=web")
+# Must include 'worker' when -pthread flag is present (even if pthreads are disabled via PTHREAD_POOL_SIZE=0)
+# Since we've disabled PTHREAD_POOL_SIZE and SHARED_MEMORY, no actual worker threads will be created
+target_link_options(Play PRIVATE "-sENVIRONMENT=web,worker")
 target_link_options(Play PRIVATE "-sUSE_WEBGL2=1")
