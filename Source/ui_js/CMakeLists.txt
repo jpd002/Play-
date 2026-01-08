@@ -88,5 +88,5 @@ target_link_options(Play PRIVATE "-sWASM_BIGINT")
 target_link_options(Play PRIVATE "-sOFFSCREEN_FRAMEBUFFER=1")
 # Since pthreads are disabled (PTHREAD_POOL_SIZE=0), we only need 'web' environment
 # Removing 'worker' to avoid any worker-related issues on iOS WebKit
-target_link_options(Play PRIVATE "-sENVIRONMENT=web,worker")
+target_link_options(Play PRIVATE "-sENVIRONMENT=web")
 target_link_options(Play PRIVATE "-sUSE_WEBGL2=1")
