@@ -88,8 +88,10 @@ target_link_options(Play PRIVATE "-sINITIAL_MEMORY=33554432")
 # target_link_options(Play PRIVATE "-sMAXIMUM_MEMORY=188743680")
 
 # something around 170 MB
-target_link_options(Play PRIVATE "-sMAXIMUM_MEMORY=178257920")
+# ta÷rget_link_options(Play PRIVATE "-sMAXIMUM_MEMORY=178257920")
 
+# something around 160 MB
+target_link_options(Play PRIVATE "-sMAXIMUM_MEMORY=167772160")
 
 
 # Increased TOTAL_STACK to 512KB per thread - 384KB was too small for worker initialization
