@@ -60,33 +60,29 @@ target_link_options(Play PRIVATE "-sEXPORTED_RUNTIME_METHODS=['ccall', 'FS']")
 target_link_options(Play PRIVATE "-sFORCE_FILESYSTEM")
 target_link_options(Play PRIVATE "-sALLOW_TABLE_GROWTH")
 
-target_link_options(Play PRIVATE "-sINITIAL_TABLE=1024")
-# target_link_options(Play PRIVATE "-sINITIAL_TABLE=128")
+# Reduced INITIAL_TABLE from 1024 to 256 to minimize memory usage
+target_link_options(Play PRIVATE "-sINITIAL_TABLE=256")
+# target_link_options(Play PRIVATE "-sINITIAL_TABLE=1024")
 
 target_link_options(Play PRIVATE "-sALLOW_MEMORY_GROWTH")
 
-# Reduced initial memory to 32MB for low RAM device compatibility (iPhone Air)
-# Default is 16MB, but 32MB provides buffer for initial allocations while staying low
-# When pthreads are enabled, shared memory overhead requires more initial allocation
-target_link_options(Play PRIVATE "-sINITIAL_MEMORY=33554432")
-# MAXIMUM_MEMORY reduced to 256MB for low RAM device compatibility
-# Original: 2147483648 (2GB), Previous: 536870912 (512MB), New: 268435456 (256MB)
+# Memory optimizations for iPhone Air compatibility
+# Set explicit INITIAL_MEMORY to 16MB (16777216 bytes) - minimum needed for pthreads + shared memory
+# This prevents iOS WebKit from running out of memory during WASM initialization
+target_link_options(Play PRIVATE "-sINITIAL_MEMORY=16777216")
+# Reduced MAXIMUM_MEMORY to 256MB for low RAM devices (iPhone Air has limited memory)
+# Original: 536870912 (512MB), Reduced: 268435456 (256MB)
 target_link_options(Play PRIVATE "-sMAXIMUM_MEMORY=268435456")
-# Reduced stack size to 1MB per thread to minimize memory usage
-target_link_options(Play PRIVATE "-sTOTAL_STACK=1048576")
-
-# Reduced pthread pool size to 1 to minimize memory usage and reduce worker thread overhead
-# Lower pool size reduces shared memory requirements and worker initialization complexity
-# This helps prevent "Out of bounds memory access" errors in worker threads on iOS WebKit
+# Reduced TOTAL_STACK to 512KB per thread to minimize memory overhead
+# Lower stack reduces memory pressure on worker threads during initialization
+target_link_options(Play PRIVATE "-sTOTAL_STACK=524288")
+# Reduced pthread pool from 2 to 1 to minimize worker thread overhead
+# Single worker thread reduces shared memory requirements and initialization complexity
 target_link_options(Play PRIVATE "-sPTHREAD_POOL_SIZE=1")
-# Shared memory is required when pthreads are enabled, so we keep it enabled
-target_link_options(Play PRIVATE "-sSHARED_MEMORY")
 
 #target_link_options(Play PRIVATE "-sASSERTIONS=2")
 target_link_options(Play PRIVATE "-sEXPORT_NAME=Play")
 target_link_options(Play PRIVATE "-sWASM_BIGINT")
 target_link_options(Play PRIVATE "-sOFFSCREEN_FRAMEBUFFER=1")
-# Since pthreads are disabled (PTHREAD_POOL_SIZE=0), we only need 'web' environment
-# Removing 'worker' to avoid any worker-related issues on iOS WebKit
-target_link_options(Play PRIVATE "-sENVIRONMENT=web")
+target_link_options(Play PRIVATE "-sENVIRONMENT=web,worker")
 target_link_options(Play PRIVATE "-sUSE_WEBGL2=1")
