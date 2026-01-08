@@ -76,13 +76,13 @@ target_link_options(Play PRIVATE "-sALLOW_MEMORY_GROWTH")
 target_link_options(Play PRIVATE "-sINITIAL_MEMORY=33554432")
 # Reduced MAXIMUM_MEMORY to 192MB for low RAM devices (iPhone Air has limited memory)
 # This caps total memory usage while allowing growth from 32MB initial allocation
-# target_link_options(Play PRIVATE "-sMAXIMUM_MEMORY=201326592")
+target_link_options(Play PRIVATE "-sMAXIMUM_MEMORY=201326592")
 
 # too low
 # target_link_options(Play PRIVATE "-sMAXIMUM_MEMORY=100663296")
 
 # something around 150 MB
-target_link_options(Play PRIVATE "-sMAXIMUM_MEMORY=157286400")
+# target_link_options(Play PRIVATE "-sMAXIMUM_MEMORY=157286400")
 
 
 # Increased TOTAL_STACK to 512KB per thread - 384KB was too small for worker initialization
