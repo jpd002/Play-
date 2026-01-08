@@ -67,18 +67,22 @@ target_link_options(Play PRIVATE "-sINITIAL_TABLE=256")
 target_link_options(Play PRIVATE "-sALLOW_MEMORY_GROWTH")
 
 # Memory optimizations for iPhone Air compatibility
-# Set explicit INITIAL_MEMORY to 16MB (16777216 bytes) - minimum needed for pthreads + shared memory
-# This prevents iOS WebKit from running out of memory during WASM initialization
-target_link_options(Play PRIVATE "-sINITIAL_MEMORY=16777216")
-# Reduced MAXIMUM_MEMORY to 256MB for low RAM devices (iPhone Air has limited memory)
-# Original: 536870912 (512MB), Reduced: 268435456 (256MB)
-target_link_options(Play PRIVATE "-sMAXIMUM_MEMORY=268435456")
-# Reduced TOTAL_STACK to 512KB per thread to minimize memory overhead
-# Lower stack reduces memory pressure on worker threads during initialization
-target_link_options(Play PRIVATE "-sTOTAL_STACK=524288")
+# IMPORTANT: With PTHREAD_POOL_SIZE=2 and shared memory, we need at least 24MB initial memory
+# 16MB was too low and caused "Out of bounds memory access" errors in worker threads
+# 24MB (25165824 bytes) provides enough space for shared memory + 2 worker thread stacks
+target_link_options(Play PRIVATE "-sINITIAL_MEMORY=25165824")
+# Reduced MAXIMUM_MEMORY to 192MB for low RAM devices (iPhone Air has limited memory)
+# Original: 536870912 (512MB), Previous: 268435456 (256MB), New: 201326592 (192MB)
+target_link_options(Play PRIVATE "-sMAXIMUM_MEMORY=201326592")
+# Reduced TOTAL_STACK to 384KB per thread to minimize memory overhead
+# With 2 threads: 384KB * 2 = 768KB total stack overhead (vs 1MB at 512KB each)
+target_link_options(Play PRIVATE "-sTOTAL_STACK=393216")
 # Keep PTHREAD_POOL_SIZE=2 (required to prevent loading freeze)
 # Cannot reduce below 2 as it causes loading to freeze
 target_link_options(Play PRIVATE "-sPTHREAD_POOL_SIZE=2")
+# Limit memory growth increment to reduce memory spikes during allocation
+# Smaller growth increments (8MB at a time) reduce memory pressure on low RAM devices
+target_link_options(Play PRIVATE "-sMEMORY_GROWTH_LINEAR_STEP=8388608")
 
 #target_link_options(Play PRIVATE "-sASSERTIONS=2")
 target_link_options(Play PRIVATE "-sEXPORT_NAME=Play")
