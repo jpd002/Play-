@@ -74,15 +74,16 @@ target_link_options(Play PRIVATE "-sMAXIMUM_MEMORY=2147483648")
 # Increased stack size to 2MB to ensure sufficient space for each thread during initialization
 target_link_options(Play PRIVATE "-sTOTAL_STACK=2097152")
 
-# Enable shared memory for pthreads (required when using PTHREAD_POOL_SIZE)
-target_link_options(Play PRIVATE "-sSHARED_MEMORY")
+# Disable pthreads to avoid out-of-bounds memory access errors in worker threads
+# Pthreads can cause issues in WebKit/WebView environments, especially during initialization
+# If pthreads are needed, uncomment the SHARED_MEMORY and PTHREAD_POOL_SIZE options below
+# target_link_options(Play PRIVATE "-sSHARED_MEMORY")
+# target_link_options(Play PRIVATE "-sPTHREAD_POOL_SIZE=2")
 
 #target_link_options(Play PRIVATE "-sASSERTIONS=2")
 target_link_options(Play PRIVATE "-sEXPORT_NAME=Play")
-# usaully freeze when using this
-# target_link_options(Play PRIVATE "-sPTHREAD_POOL_SIZE=1")
-target_link_options(Play PRIVATE "-sPTHREAD_POOL_SIZE=2")
 target_link_options(Play PRIVATE "-sWASM_BIGINT")
 target_link_options(Play PRIVATE "-sOFFSCREEN_FRAMEBUFFER=1")
-target_link_options(Play PRIVATE "-sENVIRONMENT=web,worker")
+# Only use 'web' environment when pthreads are disabled (worker not needed without pthreads)
+target_link_options(Play PRIVATE "-sENVIRONMENT=web")
 target_link_options(Play PRIVATE "-sUSE_WEBGL2=1")
