@@ -69,11 +69,12 @@ extern "C" void initVm()
 
 	{
 		//Size here needs to match the size of the canvas in HTML file.
+		//Reduced resolution from 640x480 to 480x360 for low RAM device compatibility
 
 		CGSHandler::PRESENTATION_PARAMS presentationParams;
 		presentationParams.mode = CGSHandler::PRESENTATION_MODE_FIT;
-		presentationParams.windowWidth = 640;
-		presentationParams.windowHeight = 480;
+		presentationParams.windowWidth = 480;
+		presentationParams.windowHeight = 360;
 
 		g_virtualMachine->m_ee->m_gs->SetPresentationParams(presentationParams);
 	}

@@ -69,8 +69,9 @@ target_link_options(Play PRIVATE "-sALLOW_MEMORY_GROWTH")
 # when using pthreads with shared memory. Each thread needs stack space and the shared
 # memory must be large enough for all threads during initialization.
 # target_link_options(Play PRIVATE "-sINITIAL_MEMORY=134217728")
-# MAXIMUM_MEMORY must match the shared memory maximum (32768 pages = 2GB) when using pthreads
-target_link_options(Play PRIVATE "-sMAXIMUM_MEMORY=2147483648")
+# MAXIMUM_MEMORY reduced to 512MB for low RAM device compatibility
+# Original: 2147483648 (2GB), Reduced: 536870912 (512MB)
+target_link_options(Play PRIVATE "-sMAXIMUM_MEMORY=536870912")
 # Increased stack size to 2MB to ensure sufficient space for each thread during initialization
 # target_link_options(Play PRIVATE "-sTOTAL_STACK=2097152")
 
