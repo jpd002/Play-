@@ -66,7 +66,8 @@ target_link_options(Play PRIVATE "-sINITIAL_TABLE=128")
 target_link_options(Play PRIVATE "-sALLOW_MEMORY_GROWTH")
 
 target_link_options(Play PRIVATE "-sINITIAL_MEMORY=8388608")
-# target_link_options(Play PRIVATE "-sMAXIMUM_MEMORY=134217728")
+# MAXIMUM_MEMORY must match the shared memory maximum (32768 pages = 2GB) when using pthreads
+target_link_options(Play PRIVATE "-sMAXIMUM_MEMORY=2147483648")
 target_link_options(Play PRIVATE "-sTOTAL_STACK=1048576")
 
 
