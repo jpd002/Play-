@@ -47,7 +47,21 @@ extern "C" void initVm()
 	attr.minorVersion = 0;
 	attr.alpha = false;
 	g_context = emscripten_webgl_create_context("#outputCanvas", &attr);
-	assert(g_context >= 0);
+	if(g_context <= 0)
+	{
+		// Try WebGL 1.0 as fallback if WebGL 2.0 fails
+		attr.majorVersion = 1;
+		attr.minorVersion = 0;
+		g_context = emscripten_webgl_create_context("#outputCanvas", &attr);
+		if(g_context <= 0)
+		{
+			printf("ERROR: Failed to create WebGL context. Error code: %d\n", g_context);
+			printf("Canvas #outputCanvas may not exist or WebGL is not available.\n");
+			// Throw an exception that JavaScript can catch
+			emscripten_throw_string("WebGL context creation failed");
+			return;
+		}
+	}
 
 	g_virtualMachine = new CPs2VmJs();
 	g_virtualMachine->Initialize();
