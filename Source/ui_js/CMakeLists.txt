@@ -59,14 +59,18 @@ target_link_options(Play PRIVATE "-sEXPORTED_FUNCTIONS=['_main', '_initVm', '_Em
 target_link_options(Play PRIVATE "-sEXPORTED_RUNTIME_METHODS=['ccall', 'FS']")
 target_link_options(Play PRIVATE "-sFORCE_FILESYSTEM")
 target_link_options(Play PRIVATE "-sALLOW_TABLE_GROWTH")
-target_link_options(Play PRIVATE "-sINITIAL_TABLE=128")
+target_link_options(Play PRIVATE "-sINITIAL_TABLE=1024")
 target_link_options(Play PRIVATE "-sALLOW_MEMORY_GROWTH")
+
 target_link_options(Play PRIVATE "-sINITIAL_MEMORY=8388608")
 target_link_options(Play PRIVATE "-sMAXIMUM_MEMORY=134217728")
-target_link_options(Play PRIVATE "-sTOTAL_STACK=1048576")
+# target_link_options(Play PRIVATE "-sTOTAL_STACK=1048576")
+
+
 #target_link_options(Play PRIVATE "-sASSERTIONS=2")
 target_link_options(Play PRIVATE "-sEXPORT_NAME=Play")
-target_link_options(Play PRIVATE "-sPTHREAD_POOL_SIZE=1")
+# target_link_options(Play PRIVATE "-sPTHREAD_POOL_SIZE=1")
+target_link_options(Play PRIVATE "-sPTHREAD_POOL_SIZE=2")
 target_link_options(Play PRIVATE "-sWASM_BIGINT")
 target_link_options(Play PRIVATE "-sOFFSCREEN_FRAMEBUFFER=1")
 target_link_options(Play PRIVATE "-sENVIRONMENT=web,worker")
