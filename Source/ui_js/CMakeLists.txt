@@ -67,19 +67,25 @@ target_link_options(Play PRIVATE "-sINITIAL_TABLE=256")
 target_link_options(Play PRIVATE "-sALLOW_MEMORY_GROWTH")
 
 # Memory optimizations for iPhone Air compatibility
-# IMPORTANT: With PTHREAD_POOL_SIZE=2 and shared memory, we need at least 24MB initial memory
-# 16MB was too low and caused "Out of bounds memory access" errors in worker threads
-# 24MB (25165824 bytes) provides enough space for shared memory + 2 worker thread stacks
-target_link_options(Play PRIVATE "-sINITIAL_MEMORY=25165824")
+# CRITICAL: With PTHREAD_POOL_SIZE=2 and shared memory, INITIAL_MEMORY must be large enough
+# The shared memory buffer is the same size as INITIAL_MEMORY and must accommodate:
+# - Main thread heap/stack
+# - Shared memory buffer for pthread communication
+# - Worker thread initialization overhead
+# 32MB (33554432 bytes) is needed to prevent "Out of bounds memory access" in workers
+target_link_options(Play PRIVATE "-sINITIAL_MEMORY=33554432")
 # Reduced MAXIMUM_MEMORY to 192MB for low RAM devices (iPhone Air has limited memory)
-# Original: 536870912 (512MB), Previous: 268435456 (256MB), New: 201326592 (192MB)
+# This caps total memory usage while allowing growth from 32MB initial allocation
 target_link_options(Play PRIVATE "-sMAXIMUM_MEMORY=201326592")
-# Reduced TOTAL_STACK to 384KB per thread to minimize memory overhead
-# With 2 threads: 384KB * 2 = 768KB total stack overhead (vs 1MB at 512KB each)
-target_link_options(Play PRIVATE "-sTOTAL_STACK=393216")
+# Increased TOTAL_STACK to 512KB per thread - 384KB was too small for worker initialization
+# With 2 threads: 512KB * 2 = 1MB total stack overhead
+# Smaller stack caused out-of-bounds errors during pthread initialization
+target_link_options(Play PRIVATE "-sTOTAL_STACK=524288")
 # Keep PTHREAD_POOL_SIZE=2 (required to prevent loading freeze)
 # Cannot reduce below 2 as it causes loading to freeze
 target_link_options(Play PRIVATE "-sPTHREAD_POOL_SIZE=2")
+# Enable shared memory explicitly (required for pthreads with PTHREAD_POOL_SIZE > 0)
+target_link_options(Play PRIVATE "-sSHARED_MEMORY")
 # Limit memory growth increment to reduce memory spikes during allocation
 # Smaller growth increments (8MB at a time) reduce memory pressure on low RAM devices
 target_link_options(Play PRIVATE "-sMEMORY_GROWTH_LINEAR_STEP=8388608")
