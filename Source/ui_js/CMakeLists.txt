@@ -88,7 +88,8 @@ target_link_options(Play PRIVATE "-sPTHREAD_POOL_SIZE=0")
 target_link_options(Play PRIVATE "-sEXPORT_NAME=Play")
 target_link_options(Play PRIVATE "-sWASM_BIGINT")
 target_link_options(Play PRIVATE "-sOFFSCREEN_FRAMEBUFFER=1")
-# Since pthreads are disabled (PTHREAD_POOL_SIZE=0), we only need 'web' environment
-# Removing 'worker' to avoid any worker-related issues on iOS WebKit
-target_link_options(Play PRIVATE "-sENVIRONMENT=web")
+# Emscripten requires 'worker' in ENVIRONMENT when -pthread flag is present
+# However, with PTHREAD_POOL_SIZE=0, no actual worker threads will be created
+# This satisfies the build requirement while preventing worker thread issues on iOS WebKit
+target_link_options(Play PRIVATE "-sENVIRONMENT=web,worker")
 target_link_options(Play PRIVATE "-sUSE_WEBGL2=1")
