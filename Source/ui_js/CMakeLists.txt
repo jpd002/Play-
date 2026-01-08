@@ -51,7 +51,6 @@ add_executable(Play
 )
 target_link_libraries(Play PUBLIC ${UI_JS_PROJECT_LIBS})
 
-target_compile_options(Play PRIVATE "-fexceptions")
 target_link_options(Play PRIVATE "--bind")
 target_link_options(Play PRIVATE "-sMODULARIZE=1")
 target_link_options(Play PRIVATE "-sEXPORT_ES6=1")
@@ -72,6 +71,3 @@ target_link_options(Play PRIVATE "-sWASM_BIGINT")
 target_link_options(Play PRIVATE "-sOFFSCREEN_FRAMEBUFFER=1")
 target_link_options(Play PRIVATE "-sENVIRONMENT=web,worker")
 target_link_options(Play PRIVATE "-sUSE_WEBGL2=1")
-target_link_options(Play PRIVATE "-sEXCEPTION_CATCHING_ALLOWED=['c++']")
-target_link_options(Play PRIVATE "-sDISABLE_EXCEPTION_CATCHING=0")
-# Removed -sEXCEPTION_STACK_SIZE as it's no longer supported in newer Emscripten
