@@ -65,18 +65,21 @@ target_link_options(Play PRIVATE "-sINITIAL_TABLE=128")
 
 target_link_options(Play PRIVATE "-sALLOW_MEMORY_GROWTH")
 
-# Increased initial memory from 8MB to 64MB to prevent out-of-bounds errors during initialization
-# on low RAM devices, especially when using pthreads with shared memory
-target_link_options(Play PRIVATE "-sINITIAL_MEMORY=67108864")
+# Increased initial memory to 128MB to prevent out-of-bounds errors during initialization
+# when using pthreads with shared memory. Each thread needs stack space and the shared
+# memory must be large enough for all threads during initialization.
+target_link_options(Play PRIVATE "-sINITIAL_MEMORY=134217728")
 # MAXIMUM_MEMORY must match the shared memory maximum (32768 pages = 2GB) when using pthreads
 target_link_options(Play PRIVATE "-sMAXIMUM_MEMORY=2147483648")
-target_link_options(Play PRIVATE "-sTOTAL_STACK=1048576")
+# Increased stack size to 2MB to ensure sufficient space for each thread during initialization
+target_link_options(Play PRIVATE "-sTOTAL_STACK=2097152")
 
 # Enable shared memory for pthreads (required when using PTHREAD_POOL_SIZE)
 target_link_options(Play PRIVATE "-sSHARED_MEMORY")
 
 #target_link_options(Play PRIVATE "-sASSERTIONS=2")
 target_link_options(Play PRIVATE "-sEXPORT_NAME=Play")
+# usaully freeze when using this
 # target_link_options(Play PRIVATE "-sPTHREAD_POOL_SIZE=1")
 target_link_options(Play PRIVATE "-sPTHREAD_POOL_SIZE=2")
 target_link_options(Play PRIVATE "-sWASM_BIGINT")
