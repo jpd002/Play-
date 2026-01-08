@@ -65,31 +65,28 @@ target_link_options(Play PRIVATE "-sINITIAL_TABLE=1024")
 
 target_link_options(Play PRIVATE "-sALLOW_MEMORY_GROWTH")
 
-# Initial memory: Using Emscripten default since pthreads are disabled
-# When pthreads were enabled, 128MB was needed for thread stack space and shared memory
-# With pthreads disabled, default initial memory is sufficient
-# target_link_options(Play PRIVATE "-sINITIAL_MEMORY=134217728")
-# MAXIMUM_MEMORY reduced to 512MB for low RAM device compatibility
-# Original: 2147483648 (2GB), Reduced: 536870912 (512MB)
-target_link_options(Play PRIVATE "-sMAXIMUM_MEMORY=536870912")
-# Increased stack size to 2MB to ensure sufficient space for each thread during initialization
-# target_link_options(Play PRIVATE "-sTOTAL_STACK=2097152")
+# Reduced initial memory to 32MB for low RAM device compatibility (iPhone Air)
+# Default is 16MB, but 32MB provides buffer for initial allocations while staying low
+# When pthreads are enabled, shared memory overhead requires more initial allocation
+target_link_options(Play PRIVATE "-sINITIAL_MEMORY=33554432")
+# MAXIMUM_MEMORY reduced to 256MB for low RAM device compatibility
+# Original: 2147483648 (2GB), Previous: 536870912 (512MB), New: 268435456 (256MB)
+target_link_options(Play PRIVATE "-sMAXIMUM_MEMORY=268435456")
+# Reduced stack size to 1MB per thread to minimize memory usage
+target_link_options(Play PRIVATE "-sTOTAL_STACK=1048576")
 
-# Disable pthreads to avoid out-of-bounds memory access errors in worker threads
-# Pthreads can cause issues in WebKit/WebView environments, especially on iOS/iPhone
-# Explicitly set pool size to 0 to ensure no worker threads are created
-# This prevents "Out of bounds memory access" errors in worker threads on iOS WebKit
-target_link_options(Play PRIVATE "-sPTHREAD_POOL_SIZE=0")
-# target_link_options(Play PRIVATE "-sPTHREAD_POOL_SIZE=2")
-# Do not enable shared memory when pool size is 0
-# target_link_options(Play PRIVATE "-sSHARED_MEMORY")
+# Reduced pthread pool size to 1 to minimize memory usage and reduce worker thread overhead
+# Lower pool size reduces shared memory requirements and worker initialization complexity
+# This helps prevent "Out of bounds memory access" errors in worker threads on iOS WebKit
+target_link_options(Play PRIVATE "-sPTHREAD_POOL_SIZE=1")
+# Shared memory is required when pthreads are enabled, so we keep it enabled
+target_link_options(Play PRIVATE "-sSHARED_MEMORY")
 
 #target_link_options(Play PRIVATE "-sASSERTIONS=2")
 target_link_options(Play PRIVATE "-sEXPORT_NAME=Play")
 target_link_options(Play PRIVATE "-sWASM_BIGINT")
 target_link_options(Play PRIVATE "-sOFFSCREEN_FRAMEBUFFER=1")
-# Emscripten requires 'worker' in ENVIRONMENT when -pthread flag is present
-# However, with PTHREAD_POOL_SIZE=0, no actual worker threads will be created
-# This satisfies the build requirement while preventing worker thread issues on iOS WebKit
+# Since pthreads are disabled (PTHREAD_POOL_SIZE=0), we only need 'web' environment
+# Removing 'worker' to avoid any worker-related issues on iOS WebKit
 target_link_options(Play PRIVATE "-sENVIRONMENT=web,worker")
 target_link_options(Play PRIVATE "-sUSE_WEBGL2=1")
