@@ -59,17 +59,20 @@ target_link_options(Play PRIVATE "-sEXPORTED_FUNCTIONS=['_main', '_initVm', '_Em
 target_link_options(Play PRIVATE "-sEXPORTED_RUNTIME_METHODS=['ccall', 'FS']")
 target_link_options(Play PRIVATE "-sFORCE_FILESYSTEM")
 target_link_options(Play PRIVATE "-sALLOW_TABLE_GROWTH")
+
 target_link_options(Play PRIVATE "-sINITIAL_TABLE=1024")
+# target_link_options(Play PRIVATE "-sINITIAL_TABLE=128")
+
 target_link_options(Play PRIVATE "-sALLOW_MEMORY_GROWTH")
 
 # Increased initial memory to 128MB to prevent out-of-bounds errors during initialization
 # when using pthreads with shared memory. Each thread needs stack space and the shared
 # memory must be large enough for all threads during initialization.
-target_link_options(Play PRIVATE "-sINITIAL_MEMORY=134217728")
+# target_link_options(Play PRIVATE "-sINITIAL_MEMORY=134217728")
 # MAXIMUM_MEMORY must match the shared memory maximum (32768 pages = 2GB) when using pthreads
 target_link_options(Play PRIVATE "-sMAXIMUM_MEMORY=2147483648")
 # Increased stack size to 2MB to ensure sufficient space for each thread during initialization
-target_link_options(Play PRIVATE "-sTOTAL_STACK=2097152")
+# target_link_options(Play PRIVATE "-sTOTAL_STACK=2097152")
 
 # Disable pthreads to avoid out-of-bounds memory access errors in worker threads
 # Pthreads can cause issues in WebKit/WebView environments, especially during initialization
