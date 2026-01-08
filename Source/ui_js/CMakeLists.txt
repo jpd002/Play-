@@ -78,7 +78,8 @@ target_link_options(Play PRIVATE "-sTOTAL_STACK=2097152")
 # Pthreads can cause issues in WebKit/WebView environments, especially during initialization
 # Explicitly set pool size to 0 to ensure no worker threads are created
 # (Even though -pthread flag is present, no workers will spawn with PTHREAD_POOL_SIZE=0)
-target_link_options(Play PRIVATE "-sPTHREAD_POOL_SIZE=0")
+# target_link_options(Play PRIVATE "-sPTHREAD_POOL_SIZE=0")
+target_link_options(Play PRIVATE "-sPTHREAD_POOL_SIZE=2")
 # Do not enable shared memory when pool size is 0
 # target_link_options(Play PRIVATE "-sSHARED_MEMORY")
 
