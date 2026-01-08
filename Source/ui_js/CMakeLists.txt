@@ -65,9 +65,9 @@ target_link_options(Play PRIVATE "-sINITIAL_TABLE=1024")
 
 target_link_options(Play PRIVATE "-sALLOW_MEMORY_GROWTH")
 
-# Increased initial memory to 128MB to prevent out-of-bounds errors during initialization
-# when using pthreads with shared memory. Each thread needs stack space and the shared
-# memory must be large enough for all threads during initialization.
+# Initial memory: Using Emscripten default since pthreads are disabled
+# When pthreads were enabled, 128MB was needed for thread stack space and shared memory
+# With pthreads disabled, default initial memory is sufficient
 # target_link_options(Play PRIVATE "-sINITIAL_MEMORY=134217728")
 # MAXIMUM_MEMORY reduced to 512MB for low RAM device compatibility
 # Original: 2147483648 (2GB), Reduced: 536870912 (512MB)
@@ -76,11 +76,11 @@ target_link_options(Play PRIVATE "-sMAXIMUM_MEMORY=536870912")
 # target_link_options(Play PRIVATE "-sTOTAL_STACK=2097152")
 
 # Disable pthreads to avoid out-of-bounds memory access errors in worker threads
-# Pthreads can cause issues in WebKit/WebView environments, especially during initialization
+# Pthreads can cause issues in WebKit/WebView environments, especially on iOS/iPhone
 # Explicitly set pool size to 0 to ensure no worker threads are created
-# (Even though -pthread flag is present, no workers will spawn with PTHREAD_POOL_SIZE=0)
-# target_link_options(Play PRIVATE "-sPTHREAD_POOL_SIZE=0")
-target_link_options(Play PRIVATE "-sPTHREAD_POOL_SIZE=2")
+# This prevents "Out of bounds memory access" errors in worker threads on iOS WebKit
+target_link_options(Play PRIVATE "-sPTHREAD_POOL_SIZE=0")
+# target_link_options(Play PRIVATE "-sPTHREAD_POOL_SIZE=2")
 # Do not enable shared memory when pool size is 0
 # target_link_options(Play PRIVATE "-sSHARED_MEMORY")
 
@@ -88,7 +88,7 @@ target_link_options(Play PRIVATE "-sPTHREAD_POOL_SIZE=2")
 target_link_options(Play PRIVATE "-sEXPORT_NAME=Play")
 target_link_options(Play PRIVATE "-sWASM_BIGINT")
 target_link_options(Play PRIVATE "-sOFFSCREEN_FRAMEBUFFER=1")
-# Must include 'worker' when -pthread flag is present (even if pthreads are disabled via PTHREAD_POOL_SIZE=0)
-# Since we've disabled PTHREAD_POOL_SIZE and SHARED_MEMORY, no actual worker threads will be created
-target_link_options(Play PRIVATE "-sENVIRONMENT=web,worker")
+# Since pthreads are disabled (PTHREAD_POOL_SIZE=0), we only need 'web' environment
+# Removing 'worker' to avoid any worker-related issues on iOS WebKit
+target_link_options(Play PRIVATE "-sENVIRONMENT=web")
 target_link_options(Play PRIVATE "-sUSE_WEBGL2=1")
