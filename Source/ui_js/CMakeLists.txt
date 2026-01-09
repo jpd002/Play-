@@ -83,7 +83,9 @@ target_link_options(Play PRIVATE "-sALLOW_MEMORY_GROWTH=0")
 #
 # Testing showed ~300MB (314572800 bytes) is needed for stable operation
 # Lower values cause "unwind" errors during initVm due to insufficient memory
-target_link_options(Play PRIVATE "-sINITIAL_MEMORY=314572800")
+# target_link_options(Play PRIVATE "-sINITIAL_MEMORY=314572800")
+# 600
+target_link_options(Play PRIVATE "-sINITIAL_MEMORY=629145600")
 
 
 # Increased TOTAL_STACK to 512KB per thread - 384KB was too small for worker initialization
