@@ -96,7 +96,10 @@ target_link_options(Play PRIVATE "-sINITIAL_MEMORY=50331648")
 
 # 160MB minimum - below this causes crashes
 # Must be at least 167772160 (160MB) for iPhone Air compatibility
-target_link_options(Play PRIVATE "-sMAXIMUM_MEMORY=167772160")
+# target_link_options(Play PRIVATE "-sMAXIMUM_MEMORY=167772160")
+
+# something around 300 MB
+target_link_options(Play PRIVATE "-sMAXIMUM_MEMORY=308700160")
 
 
 # Increased TOTAL_STACK to 512KB per thread - 384KB was too small for worker initialization
