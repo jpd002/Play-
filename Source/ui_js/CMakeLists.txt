@@ -64,42 +64,26 @@ target_link_options(Play PRIVATE "-sALLOW_TABLE_GROWTH")
 target_link_options(Play PRIVATE "-sINITIAL_TABLE=256")
 # target_link_options(Play PRIVATE "-sINITIAL_TABLE=1024")
 
-# target_link_options(Play PRIVATE "-sALLOW_MEMORY_GROWTH")
+# Fixed memory mode to fix iOS 26.2 shared memory issues with pthreads + growable memory
+# See: https://github.com/emscripten-core/emscripten/issues/25905
+# With ALLOW_MEMORY_GROWTH=0, memory is fixed at INITIAL_MEMORY size (no growth)
 target_link_options(Play PRIVATE "-sALLOW_MEMORY_GROWTH=0")
 
-# Memory optimizations for iPhone Air compatibility
-# CRITICAL: With PTHREAD_POOL_SIZE=2 and shared memory, INITIAL_MEMORY must be large enough
-# The shared memory buffer is the same size as INITIAL_MEMORY and must accommodate:
+# Memory configuration for fixed memory mode (ALLOW_MEMORY_GROWTH=0)
+# CRITICAL: With fixed memory, INITIAL_MEMORY is both the initial AND maximum memory size
+# MAXIMUM_MEMORY is ignored when ALLOW_MEMORY_GROWTH=0
+# INITIAL_MEMORY must be large enough for all memory needs from the start
+# 
+# With PTHREAD_POOL_SIZE=2 and shared memory, INITIAL_MEMORY must accommodate:
 # - Main thread heap/stack
-# - Shared memory buffer for pthread communication  
+# - Shared memory buffer for pthread communication (same size as INITIAL_MEMORY)
 # - Worker thread initialization overhead
-# - initVm function table and initialization code (requires significant memory)
-# 48MB (50331648 bytes) provides enough headroom to prevent "Out of bounds memory access"
-# during initVm execution and worker thread initialization
-# Lower values (32MB) cause crashes when initVm accesses function tables or large data structures
-target_link_options(Play PRIVATE "-sINITIAL_MEMORY=50331648")
-# MAXIMUM_MEMORY set to 160MB - below this threshold causes app crashes
-# Testing showed that values below 167772160 (160MB) cause immediate crashes
-# This is the minimum required for stable operation on iPhone Air
-
-# too low
-# target_link_options(Play PRIVATE "-sMAXIMUM_MEMORY=100663296")
-
-# something around 150 MB
-# target_link_options(Play PRIVATE "-sMAXIMUM_MEMORY=157286400")
-
-# something around 180 MB
-# target_link_options(Play PRIVATE "-sMAXIMUM_MEMORY=188743680")
-
-# something around 170 MB
-# ta÷rget_link_options(Play PRIVATE "-sMAXIMUM_MEMORY=178257920")
-
-# 160MB minimum - below this causes crashes
-# Must be at least 167772160 (160MB) for iPhone Air compatibility
-# target_link_options(Play PRIVATE "-sMAXIMUM_MEMORY=167772160")
-
-# something around 300 MB
-target_link_options(Play PRIVATE "-sMAXIMUM_MEMORY=308700160")
+# - initVm function table and initialization code
+# - All runtime allocations (PS2 emulation, textures, audio buffers, etc.)
+#
+# Testing showed ~300MB (314572800 bytes) is needed for stable operation
+# Lower values cause "unwind" errors during initVm due to insufficient memory
+target_link_options(Play PRIVATE "-sINITIAL_MEMORY=314572800")
 
 
 # Increased TOTAL_STACK to 512KB per thread - 384KB was too small for worker initialization
@@ -111,9 +95,7 @@ target_link_options(Play PRIVATE "-sTOTAL_STACK=524288")
 target_link_options(Play PRIVATE "-sPTHREAD_POOL_SIZE=2")
 # Enable shared memory explicitly (required for pthreads with PTHREAD_POOL_SIZE > 0)
 target_link_options(Play PRIVATE "-sSHARED_MEMORY")
-# Limit memory growth increment to reduce memory spikes during allocation
-# Smaller growth increments (8MB at a time) reduce memory pressure on low RAM devices
-target_link_options(Play PRIVATE "-sMEMORY_GROWTH_LINEAR_STEP=8388608")
+# Note: MEMORY_GROWTH_LINEAR_STEP is not used when ALLOW_MEMORY_GROWTH=0 (fixed memory mode)
 
 #target_link_options(Play PRIVATE "-sASSERTIONS=2")
 target_link_options(Play PRIVATE "-sEXPORT_NAME=Play")
