@@ -64,7 +64,8 @@ target_link_options(Play PRIVATE "-sALLOW_TABLE_GROWTH")
 target_link_options(Play PRIVATE "-sINITIAL_TABLE=256")
 # target_link_options(Play PRIVATE "-sINITIAL_TABLE=1024")
 
-target_link_options(Play PRIVATE "-sALLOW_MEMORY_GROWTH")
+# target_link_options(Play PRIVATE "-sALLOW_MEMORY_GROWTH")
+target_link_options(Play PRIVATE "-sALLOW_MEMORY_GROWTH=0")
 
 # Memory optimizations for iPhone Air compatibility
 # CRITICAL: With PTHREAD_POOL_SIZE=2 and shared memory, INITIAL_MEMORY must be large enough
