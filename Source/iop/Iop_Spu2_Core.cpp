@@ -176,6 +176,18 @@ uint32 CCore::ReadRegisterCore(unsigned int channelId, uint32 address, uint32 va
 	case A_EEA_HI:
 		result = GetAddressHi(m_spuBase.GetReverbWorkAddressEnd());
 		break;
+	case P_AVOLL:
+		result = m_spuBase.m_extInputVolL;
+		break;
+	case P_AVOLR:
+		result = m_spuBase.m_extInputVolR;
+		break;
+	case P_BVOLL:
+		result = m_spuBase.m_inputVolL;
+		break;
+	case P_BVOLR:
+		result = m_spuBase.m_inputVolR;
+		break;
 	}
 	LogRead(address, result);
 	return result;
@@ -438,6 +450,10 @@ void CCore::LogRead(uint32 address, uint32 value)
 		LOG_GET(A_ESA_LO)
 		LOG_GET(A_EEA_HI)
 		LOG_GET(A_EEA_LO)
+		LOG_GET(P_AVOLL)
+		LOG_GET(P_AVOLR)
+		LOG_GET(P_BVOLL)
+		LOG_GET(P_BVOLR)
 
 	default:
 		CLog::GetInstance().Warn(logName, "Read an unknown register 0x%04X.\r\n", address);
