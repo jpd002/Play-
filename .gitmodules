@@ -16,6 +16,3 @@
 [submodule "deps/AltKit"]
 	path = deps/AltKit
 	url = https://github.com/Dmamss/AltKit.git
-[submodule "deps/BreakpointJIT"]
-	path = deps/BreakpointJIT
-	url = https://github.com/Dmamss/Play-/tree/master/deps/BreakpointJIT
