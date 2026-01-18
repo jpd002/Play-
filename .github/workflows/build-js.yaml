@@ -89,7 +89,7 @@ jobs:
         SOURCE_DIR: 'js/psfplayer_browser/build'
     - name: Invalidate Play/Test Environment CloudFront Distribution
       if: ${{ env.AWS_ACCESS_KEY_ID != null }}
-      uses: chetan/invalidate-cloudfront-action@v1.3
+      uses: chetan/invalidate-cloudfront-action@v2.4
       env:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -98,7 +98,7 @@ jobs:
         PATHS: '/*'
     - name: Invalidate Play/Prod Environment CloudFront Distribution
       if: ${{ (env.AWS_ACCESS_KEY_ID != null) && (github.ref == 'refs/heads/master') }}
-      uses: chetan/invalidate-cloudfront-action@v1.3
+      uses: chetan/invalidate-cloudfront-action@v2.4
       env:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -107,7 +107,7 @@ jobs:
         PATHS: '/*'
     - name: Invalidate PsfPlayer/Test Environment CloudFront Distribution
       if: ${{ env.AWS_ACCESS_KEY_ID != null }}
-      uses: chetan/invalidate-cloudfront-action@v1.3
+      uses: chetan/invalidate-cloudfront-action@v2.4
       env:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
