@@ -1,5 +1,6 @@
 #import "AppDelegate.h"
 #import "EmulatorViewController.h"
+#import "JITInitializer.h"
 #include "../gs/GSH_OpenGL/GSH_OpenGL.h"
 #include "DebuggerSimulator.h"
 #import "StikDebugJitService.h"
@@ -18,19 +19,24 @@
 	{
 		[[StikDebugJitService sharedService] setEnvironmentForJIT];
 	}
-	-(BOOL)application : (UIApplication*)app openURL : (NSURL*)url options : (NSDictionary<UIApplicationOpenURLOptionsKey, id>*)options
-	{
-		// Handle StikDebug callback
-		if([[StikDebugJitService sharedService] handleCallbackURL:url])
-		{
-			return YES;
-		}
 
-		return NO;
-	}
+	// Initialize CodeGen JIT system with appropriate mode based on iOS version and TXM status
+	[JITInitializer initializeJITSystem];
+
 	[EmulatorViewController registerPreferences];
 	CGSH_OpenGL::RegisterPreferences();
 	return YES;
+}
+
+- (BOOL)application:(UIApplication*)app openURL:(NSURL*)url options:(NSDictionary<UIApplicationOpenURLOptionsKey, id>*)options
+{
+	// Handle StikDebug callback
+	if([[StikDebugJitService sharedService] handleCallbackURL:url])
+	{
+		return YES;
+	}
+
+	return NO;
 }
 
 - (void)applicationWillResignActive:(UIApplication*)application
