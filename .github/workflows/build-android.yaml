@@ -22,7 +22,7 @@ jobs:
     - name: Install CMake
       run: $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "cmake;${{ env.ANDROID_CMAKE_VERSION }}"
     - name: Checkout
-      uses: actions/checkout@v3
+      uses: actions/checkout@v6
       with:
         submodules: recursive
         fetch-depth: 0

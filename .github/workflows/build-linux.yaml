@@ -31,7 +31,7 @@ jobs:
         # The following packages are necessary for linuxdeployqt to work
         sudo apt install libfuse2 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-render-util0 libxcb-xinerama0
     - name: Checkout
-      uses: actions/checkout@v3
+      uses: actions/checkout@v6
       with:
         submodules: recursive
         fetch-depth: 0

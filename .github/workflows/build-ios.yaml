@@ -22,7 +22,7 @@ jobs:
       env:
         VULKAN_SDK_VERSION: '1.4.309.0'
     - name: Checkout
-      uses: actions/checkout@v3
+      uses: actions/checkout@v6
       with:
         submodules: recursive
         fetch-depth: 0

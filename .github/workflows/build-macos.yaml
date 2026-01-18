@@ -22,7 +22,7 @@ jobs:
     - name: Install AppDmg
       run: npm install -g appdmg
     - name: Checkout
-      uses: actions/checkout@v3
+      uses: actions/checkout@v6
       with:
         submodules: recursive
         fetch-depth: 0
