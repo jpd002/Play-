@@ -10,7 +10,7 @@ jobs:
         sudo apt update
         sudo apt install libcurl4-openssl-dev libgl1-mesa-dev libglu1-mesa-dev libalut-dev libevdev-dev qt6-base-dev
     - name: Checkout
-      uses: actions/checkout@v3
+      uses: actions/checkout@v6
       with:
         submodules: recursive
         fetch-depth: 0
