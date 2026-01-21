@@ -33,7 +33,7 @@ S3FileBrowser::~S3FileBrowser()
 
 bool S3FileBrowser::IsAvailable()
 {
-	return CS3ObjectStream::CConfig::GetInstance().GetCredentials().IsValid();
+	return CS3ObjectStream::CConfig::GetInstance().GetConfigs().IsValid();
 }
 
 fs::path S3FileBrowser::GetSelectedPath() const
@@ -96,7 +96,7 @@ void S3FileBrowser::launchUpdate()
 	updateOkButtonState();
 
 	auto getListFuture = std::async([bucketName = m_lastUpdateBucketName.toStdString()]() {
-		auto credentials = CS3ObjectStream::CConfig::GetInstance().GetCredentials();
+		auto credentials = CS3ObjectStream::CConfig::GetInstance().GetConfigs();
 		return AmazonS3Utils::GetListObjects(credentials, bucketName);
 	});
 	m_continuationChecker->GetContinuationManager().Register(std::move(getListFuture),
