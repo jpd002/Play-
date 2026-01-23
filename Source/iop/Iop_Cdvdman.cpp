@@ -426,6 +426,7 @@ void CCdvdman::CountTicks(uint32 ticks)
 				break;
 			}
 			m_bios.ReleaseWaitCdSync();
+			m_bios.CheckReschedule();
 			m_status = CDVD_STATUS_PAUSED;
 			m_pendingCommand = COMMAND_NONE;
 		}

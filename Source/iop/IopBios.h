@@ -187,6 +187,7 @@ public:
 	void HandleInterrupt() override;
 
 	void Reschedule();
+	void CheckReschedule();
 
 	void CountTicks(uint32) override;
 	uint64 GetCurrentTime() const;
