@@ -1856,6 +1856,16 @@ void CIopBios::UnlinkThread(uint32 threadId)
 	}
 }
 
+void CIopBios::CheckReschedule()
+{
+	if(m_rescheduleNeeded)
+	{
+		assert((m_cpu.m_State.nCOP0[CCOP_SCU::STATUS] & CMIPS::STATUS_EXL) == 0);
+		m_rescheduleNeeded = false;
+		Reschedule();
+	}
+}
+
 void CIopBios::Reschedule()
 {
 	if((m_cpu.m_State.nCOP0[CCOP_SCU::STATUS] & CMIPS::STATUS_EXL) != 0)
@@ -3323,13 +3333,7 @@ void CIopBios::HandleException()
 		}
 	}
 
-	if(m_rescheduleNeeded)
-	{
-		assert((m_cpu.m_State.nCOP0[CCOP_SCU::STATUS] & CMIPS::STATUS_EXL) == 0);
-		m_rescheduleNeeded = false;
-		Reschedule();
-	}
-
+	CheckReschedule();
 	m_cpu.m_State.nHasException = 0;
 }
 
