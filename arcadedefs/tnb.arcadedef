@@ -1,0 +1,17 @@
+{
+	"id": "tnb",
+	"name": "Technic Beat",
+	"driver": "sys246",
+	"dongle":
+	{
+		"name": "NM00003 TNB1, Ver.A a025901146209a.bin"
+	},
+	"cdvd":
+	{
+		"name": "NM00003 TNB1 DVD0 (DVD-ROM).chd"
+	},
+	"boot": "ac0:VPNGAME",
+	"patches":
+	[
+	]
+}
