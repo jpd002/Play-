@@ -56,6 +56,9 @@
 	<GameConfig Executable="SLUS_211.32;1" Title="Stella Deus: The Gate of Eternity">
 		<IdleLoopBlock Address="0x001CAF28" />
 	</GameConfig>
+	<GameConfig Executable="SLUS_212.39;1" Title="Beatmania">
+		<IdleLoopBlock Address="0x00161888" />
+	</GameConfig>
 	<GameConfig Executable="SLUS_212.91;1" Title="Suikoden 5">
 		<IdleLoopBlock Address="0x002317F4" />
 	</GameConfig>
