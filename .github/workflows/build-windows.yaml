@@ -29,7 +29,7 @@ jobs:
     - name: Force Fetch Git Tags
       run: git fetch --tags --force
     - name: Add msbuild to PATH
-      uses: microsoft/setup-msbuild@v1.3
+      uses: microsoft/setup-msbuild@v2
     - name: Cache Vulkan SDK
       uses: actions/cache@v5
       id: cache-vulkansdk
