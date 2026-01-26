@@ -1,0 +1,17 @@
+{
+	"id": "netchu02c",
+	"name": "Netchuu Pro Yakyuu 2002 (NPY1 Ver. C)",
+	"driver": "sys246",
+	"dongle":
+	{
+		"name": "npy1verc.ic002"
+	},
+	"cdvd":
+	{
+		"name": "npy1cd0c.chd"
+	},
+	"boot": "ac0:NPBLOAD",
+	"patches":
+	[
+	]
+}
