@@ -1,0 +1,18 @@
+{
+	"id": "yuyuhaku",
+	"name": "The Battle of Yu Yu Hakusho: Shitou! Ankoku Bujutsukai!",
+	"driver": "sys246",
+	"dongle":
+	{
+		"name": "dongle.bin"
+	},
+	"cdvd":
+	{
+		"name": "yh1.chd"
+	},
+	"eeFrequencyScale": [4, 3],
+	"boot": "ac0:YUULOAD",
+	"patches":
+	[
+	]
+}
