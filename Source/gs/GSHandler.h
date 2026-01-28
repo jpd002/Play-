@@ -946,6 +946,7 @@ protected:
 	{
 		CRT_MODE_NTSC = 0x02,
 		CRT_MODE_PAL = 0x03,
+		CRT_MODE_VGA_640_60 = 0x1A,
 		CRT_MODE_VGA_640_75 = 0x1C,
 		CRT_MODE_HDTV_480P = 0x50,
 	};
