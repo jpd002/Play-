@@ -798,6 +798,8 @@ bool CSys246::Invoke001(uint32 method, uint32* args, uint32 argsSize, uint32* re
 			{
 				ProcessMemRequest(ram, infoPtr + (i * 0x10));
 			}
+			ret[0] = 0;
+			ret[1] = infoCount;
 		}
 		else
 		{
@@ -1067,6 +1069,8 @@ void CSys246::ProcessMemRequest(uint8* ram, uint32 infoPtr)
 	else if((info[1] >= 0x50000000) && (info[1] < 0x60000000))
 	{
 		ReadBackupRam(info[1] - 0x50000000, ram + info[2], info[3]);
+		//Write back size into first element (needed for YuYu Hakusho)
+		info[0] = info[3];
 	}
 	else if((info[2] >= 0x40000000) && (info[2] < 0x50000000))
 	{
@@ -1075,6 +1079,8 @@ void CSys246::ProcessMemRequest(uint8* ram, uint32 infoPtr)
 	else if((info[2] >= 0x50000000) && (info[1] < 0x60000000))
 	{
 		WriteBackupRam(info[2] - 0x50000000, ram + info[1], info[3]);
+		//Write back size into first element (needed for YuYu Hakusho)
+		info[0] = info[3];
 	}
 	else
 	{
