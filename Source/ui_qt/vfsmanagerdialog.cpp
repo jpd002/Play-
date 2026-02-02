@@ -12,11 +12,11 @@ VFSManagerDialog::VFSManagerDialog(QWidget* parent)
 {
 	ui->setupUi(this);
 	VFSModel* model = new VFSModel(this);
-	model->setHeaderData(1, Qt::Orientation::Horizontal, QVariant("Device"),
+	model->setHeaderData(0, Qt::Orientation::Horizontal, QVariant("Device"),
 	                     Qt::DisplayRole);
 	model->setHeaderData(1, Qt::Orientation::Horizontal, QVariant("Binding Type"),
 	                     Qt::DisplayRole);
-	model->setHeaderData(1, Qt::Orientation::Horizontal,
+	model->setHeaderData(2, Qt::Orientation::Horizontal,
 	                     QVariant("Binding Value"), Qt::DisplayRole);
 	ui->tableView->setModel(model);
 	ui->tableView->horizontalHeader()->setStretchLastSection(true);

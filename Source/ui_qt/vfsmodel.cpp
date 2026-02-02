@@ -23,14 +23,7 @@ int VFSModel::rowCount(const QModelIndex& /*parent*/) const
 
 int VFSModel::columnCount(const QModelIndex& /*parent*/) const
 {
-	if(m_devices.size() > 0)
-	{
-		return 3;
-	}
-	else
-	{
-		return 0;
-	}
+	return 3;
 }
 
 QVariant VFSModel::data(const QModelIndex& index, int role) const
