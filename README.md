@@ -6,6 +6,8 @@ If a specific game doesn't work with the emulator, please create a new issue the
 
 For more information, please visit [purei.org](https://purei.org).
 
+You can test the latest improvements and bug fixes in the [Actions](https://github.com/jpd002/Play-/actions) page by clicking in the build category for your system (Build X), opening the most recent successful item (workflow run) and downloading the file below the "Artifacts" field (if you have problems test them again if new improvements are available.
+
 You can try the experimental web browser version here: [playjs.purei.org](https://playjs.purei.org).
 
 For general discussion, you're welcome to join our Discord: https://discord.gg/HygQnQP.
