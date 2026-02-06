@@ -8,14 +8,6 @@ VFSModel::VFSModel(QObject* parent)
 	SetupDevices();
 }
 
-VFSModel::~VFSModel()
-{
-	for(int i = 0; i < m_devices.size(); i++)
-	{
-		delete m_devices.at(i);
-	}
-}
-
 int VFSModel::rowCount(const QModelIndex& /*parent*/) const
 {
 	return m_devices.size();
@@ -30,7 +22,7 @@ QVariant VFSModel::data(const QModelIndex& index, int role) const
 {
 	if(role == Qt::DisplayRole)
 	{
-		auto device = m_devices.at(index.row());
+		const auto& device = m_devices.at(index.row());
 		QString val;
 		switch(index.column())
 		{
@@ -51,11 +43,11 @@ QVariant VFSModel::data(const QModelIndex& index, int role) const
 
 void VFSModel::SetupDevices()
 {
-	m_devices[0] = new CDirectoryDevice("mc0", PREF_PS2_MC0_DIRECTORY);
-	m_devices[1] = new CDirectoryDevice("mc1", PREF_PS2_MC1_DIRECTORY);
-	m_devices[2] = new CDirectoryDevice("host", PREF_PS2_HOST_DIRECTORY);
-	m_devices[3] = new CCdrom0Device();
-	m_devices[4] = new CDirectoryDevice("rom0", PREF_PS2_ROM0_DIRECTORY);
+	m_devices[0] = std::make_unique<CDirectoryDevice>("mc0", PREF_PS2_MC0_DIRECTORY);
+	m_devices[1] = std::make_unique<CDirectoryDevice>("mc1", PREF_PS2_MC1_DIRECTORY);
+	m_devices[2] = std::make_unique<CDirectoryDevice>("host", PREF_PS2_HOST_DIRECTORY);
+	m_devices[3] = std::make_unique<CCdrom0Device>();
+	m_devices[4] = std::make_unique<CDirectoryDevice>("rom0", PREF_PS2_ROM0_DIRECTORY);
 }
 
 bool VFSModel::setHeaderData(int section, Qt::Orientation orientation, const QVariant& value, int role)

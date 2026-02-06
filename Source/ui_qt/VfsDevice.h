@@ -14,7 +14,7 @@ public:
 	virtual bool RequestModification(QWidget*) = 0;
 	virtual void Save() = 0;
 };
-typedef std::map<unsigned int, CDevice*> DeviceList;
+typedef std::map<unsigned int, std::unique_ptr<CDevice>> DeviceList;
 
 class CDirectoryDevice : public CDevice
 {
@@ -29,8 +29,8 @@ public:
 	void Save() override;
 
 private:
-	const char* m_name;
-	const char* m_preference;
+	const char* m_name = nullptr;
+	const char* m_preference = nullptr;
 	fs::path m_value;
 };
 
