@@ -79,10 +79,11 @@ QVariant VFSModel::headerData(int section, Qt::Orientation orientation, int role
 	return QAbstractTableModel::headerData(section, orientation, role);
 }
 
-void VFSModel::DoubleClicked(const QModelIndex& index, QWidget* parent)
+void VFSModel::DoubleClicked(const QModelIndex& modelIndex, QWidget* parent)
 {
-	CDevice* m_device = m_devices.at(index.row());
-	m_device->RequestModification(parent);
+	const auto& device = m_devices.at(modelIndex.row());
+	device->RequestModification(parent);
+	emit QAbstractTableModel::dataChanged(index(modelIndex.row(), 0), index(modelIndex.row(), columnCount()));
 }
 
 void VFSModel::Save()

@@ -170,13 +170,16 @@ void ControllerConfigDialog::bindingsViewDoubleClicked(const QModelIndex& index)
 	uint32 padIndex = ui->tabWidget->currentIndex();
 	assert(padIndex < CInputBindingManager::MAX_PADS);
 	OpenBindConfigDialog(padIndex, index.row());
+	auto& bindingsView = m_padUiElements[padIndex].bindingsView;
+	static_cast<CInputBindingModel*>(bindingsView->model())->RefreshRow(index);
 }
 
 void ControllerConfigDialog::bindingsViewDeleteItem()
 {
 	uint32 padIndex = ui->tabWidget->currentIndex();
 	assert(padIndex < CInputBindingManager::MAX_PADS);
-	QItemSelectionModel* selModel = m_padUiElements[padIndex].bindingsView->selectionModel();
+	auto& bindingsView = m_padUiElements[padIndex].bindingsView;
+	QItemSelectionModel* selModel = bindingsView->selectionModel();
 	auto selRows = selModel->selectedRows();
 	if(selRows.empty())
 	{
@@ -189,6 +192,7 @@ void ControllerConfigDialog::bindingsViewDeleteItem()
 		for(const auto& selRow : selRows)
 		{
 			m_inputManager->ResetBinding(padIndex, static_cast<PS2::CControllerInfo::BUTTON>(selRow.row()));
+			static_cast<CInputBindingModel*>(bindingsView->model())->RefreshRow(selRow);
 		}
 	}
 }

@@ -78,3 +78,8 @@ void CInputBindingModel::Refresh()
 {
 	QAbstractTableModel::layoutChanged();
 }
+
+void CInputBindingModel::RefreshRow(const QModelIndex& modelIndex)
+{
+	emit QAbstractTableModel::dataChanged(index(modelIndex.row(), 0), index(modelIndex.row(), columnCount()));
+}
