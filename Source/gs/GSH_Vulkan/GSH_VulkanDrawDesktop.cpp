@@ -1,4 +1,5 @@
 #include "GSH_VulkanDrawDesktop.h"
+#include "string_format.h"
 #include "MemStream.h"
 #include "vulkan/StructDefs.h"
 #include "nuanceur/Builder.h"
@@ -993,6 +994,8 @@ void CDrawDesktop::FlushVertices()
 
 	if(!m_renderPassBegun)
 	{
+		m_context->annotations.PushCommandLabel(commandBuffer, string_format("Draw (FBP: 0x%06X, ZBP: 0x%06X)", m_pushConstants.fbBufAddr, m_pushConstants.depthBufAddr).c_str());
+
 		auto renderPassBeginInfo = Framework::Vulkan::RenderPassBeginInfo();
 		renderPassBeginInfo.renderPass = m_renderPass;
 		renderPassBeginInfo.renderArea.extent.width = DRAW_AREA_SIZE;
@@ -1065,6 +1068,7 @@ void CDrawDesktop::FlushRenderPass()
 	{
 		auto commandBuffer = m_frameCommandBuffer->GetCommandBuffer();
 		m_context->device.vkCmdEndRenderPass(commandBuffer);
+		m_context->annotations.PopCommandLabel(commandBuffer);
 		m_renderPassBegun = false;
 	}
 }

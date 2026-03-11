@@ -1,6 +1,7 @@
 #include "GSH_VulkanClutLoad.h"
 #include "GSH_VulkanMemoryUtils.h"
 #include "../GsPixelFormats.h"
+#include "string_format.h"
 #include "MemStream.h"
 #include "nuanceur/Builder.h"
 #include "nuanceur/generators/SpirvShaderGenerator.h"
@@ -44,6 +45,8 @@ void CClutLoad::DoClutLoad(uint32 clutBufferOffset, const CGSHandler::TEX0& tex0
 	auto descriptorSet = PrepareDescriptorSet(loadPipeline->descriptorSetLayout, tex0.nCPSM);
 	auto commandBuffer = m_frameCommandBuffer->GetCommandBuffer();
 
+	m_context->annotations.PushCommandLabel(commandBuffer, string_format("CLUT Load (CBP: 0x%06X)", tex0.GetCLUTPtr()).c_str());
+
 	//Add a barrier to ensure writes to GS memory are complete
 	{
 		auto memoryBarrier = Framework::Vulkan::MemoryBarrier();
@@ -58,6 +61,8 @@ void CClutLoad::DoClutLoad(uint32 clutBufferOffset, const CGSHandler::TEX0& tex0
 	m_context->device.vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, loadPipeline->pipeline);
 	m_context->device.vkCmdPushConstants(commandBuffer, loadPipeline->pipelineLayout, VK_SHADER_STAGE_COMPUTE_BIT, 0, sizeof(LOAD_PARAMS), &loadParams);
 	m_context->device.vkCmdDispatch(commandBuffer, 1, 1, 1);
+
+	m_context->annotations.PopCommandLabel(commandBuffer);
 }
 
 VkDescriptorSet CClutLoad::PrepareDescriptorSet(VkDescriptorSetLayout descriptorSetLayout, uint32 cpsm)

@@ -1,6 +1,7 @@
 #include "GSH_VulkanDrawMobile.h"
 #include "GSH_VulkanDrawUtils.h"
 #include "GSH_VulkanMemoryUtils.h"
+#include "string_format.h"
 #include "MemStream.h"
 #include "vulkan/StructDefs.h"
 #include "vulkan/Utils.h"
@@ -152,6 +153,8 @@ void CDrawMobile::FlushVertices()
 
 	if(!m_renderPassBegun)
 	{
+		m_context->annotations.PushCommandLabel(commandBuffer, string_format("Draw (FBP: 0x%06X, ZBP: 0x%06X)", m_pushConstants.fbBufAddr, m_pushConstants.depthBufAddr).c_str());
+
 		auto renderPassBeginInfo = Framework::Vulkan::RenderPassBeginInfo();
 		renderPassBeginInfo.renderPass = m_renderPass;
 		renderPassBeginInfo.renderArea.extent.width = DRAW_AREA_SIZE;
@@ -279,6 +282,7 @@ void CDrawMobile::FlushRenderPass()
 		m_context->device.vkCmdDraw(commandBuffer, 3, 1, 0, 0);
 
 		m_context->device.vkCmdEndRenderPass(commandBuffer);
+		m_context->annotations.PopCommandLabel(commandBuffer);
 		m_renderPassBegun = false;
 	}
 	m_renderPassMinX = FLT_MAX;
