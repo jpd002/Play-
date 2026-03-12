@@ -30,6 +30,7 @@
 #include "iop/ioman/PreferenceDirectoryDevice.h"
 #include "Log.h"
 #include "DiskUtils.h"
+#include "GameConfig.h"
 #ifdef __ANDROID__
 #include "android/JavaVM.h"
 #endif
@@ -474,6 +475,7 @@ void CPS2VM::CreateVM()
 
 	m_ee = std::make_unique<Ee::CSubSystem>(m_iop->m_ram, *iopOs);
 	m_OnRequestLoadExecutableConnection = m_ee->m_os->OnRequestLoadExecutable.Connect(std::bind(&CPS2VM::ReloadExecutable, this, std::placeholders::_1, std::placeholders::_2));
+	m_OnExecutableChangeConnection = m_ee->m_os->OnExecutableChange.Connect(std::bind(&CPS2VM::OnExecutableChange, this));
 	m_OnCrtModeChangeConnection = m_ee->m_os->OnCrtModeChange.Connect(std::bind(&CPS2VM::OnCrtModeChange, this));
 
 	ResetVM();
@@ -880,6 +882,11 @@ void CPS2VM::ReloadExecutable(const char* executablePath, const CPS2OS::Argument
 	{
 		AfterExecutableReloaded(this);
 	}
+}
+
+void CPS2VM::OnExecutableChange()
+{
+	CGameConfig::ApplyGameConfig(*this);
 }
 
 void CPS2VM::OnCrtModeChange()

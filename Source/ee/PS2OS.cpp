@@ -5,8 +5,8 @@
 #include "string_format.h"
 #include "PS2OS.h"
 #include "StdStream.h"
+#include "StdStreamUtils.h"
 #ifdef __ANDROID__
-#include "android/AssetStream.h"
 #include "android/ContentStream.h"
 #include "android/ContentUtils.h"
 #endif
@@ -23,11 +23,6 @@
 #include "SIF.h"
 #include "EEAssembler.h"
 #include "EeExecutor.h"
-#include "PathUtils.h"
-#include "xml/Node.h"
-#include "xml/Parser.h"
-#include "xml/FilteringNodeIterator.h"
-#include "StdStreamUtils.h"
 #include "AppConfig.h"
 #include "PS2VM_Preferences.h"
 
@@ -60,8 +55,6 @@
 // On a real PS2, this seem to work because ids start at 0. The first semaphore created in the
 // game's lifetime doesn't seem to be used, so this bug probably doesn't have any side effect.
 #define SEMA_ID_BASE 0
-
-#define GAMECONFIG_FILENAME "GameConfig.xml"
 
 #define LOG_NAME ("ps2os")
 
@@ -436,8 +429,6 @@ void CPS2OS::LoadELF(Framework::CStream* stream, const char* executablePath, con
 	    }();
 
 	LoadExecutableInternal();
-	ApplyGameConfig();
-
 	OnExecutableChange();
 
 	CLog::GetInstance().Print(LOG_NAME, "Loaded '%s' executable file.\r\n", executablePath);
@@ -567,160 +558,6 @@ uint32 CPS2OS::LoadExecutable(const char* path, const char* section)
 	ioman->Close(handle);
 
 	return result;
-}
-
-void CPS2OS::ApplyGameConfig()
-{
-	std::unique_ptr<Framework::Xml::CNode> document;
-	try
-	{
-#ifdef __ANDROID__
-		Framework::Android::CAssetStream inputStream(GAMECONFIG_FILENAME);
-#else
-		auto gameConfigPath = Framework::PathUtils::GetAppResourcesPath() / GAMECONFIG_FILENAME;
-		Framework::CStdStream inputStream(Framework::CreateInputStdStream(gameConfigPath.native()));
-#endif
-		document = Framework::Xml::CParser::ParseDocument(inputStream);
-		if(!document) return;
-	}
-	catch(const std::exception& exception)
-	{
-		CLog::GetInstance().Warn(LOG_NAME, "Failed to open game config file: %s.\r\n", exception.what());
-		return;
-	}
-
-	auto gameConfigsNode = document->Select("GameConfigs");
-	if(!gameConfigsNode)
-	{
-		return;
-	}
-
-	CEeExecutor::BlockFpRoundingModeMap blockFpRoundingModes;
-	CEeExecutor::BlockFpUseAccurateAddSubSet blockFpUseAccurateAddSub;
-	CEeExecutor::IdleLoopBlockMap idleLoopBlocks;
-
-	for(Framework::Xml::CFilteringNodeIterator itNode(gameConfigsNode, "GameConfig");
-	    !itNode.IsEnd(); itNode++)
-	{
-		auto gameConfigNode = (*itNode);
-
-		const char* executable = gameConfigNode->GetAttribute("Executable");
-		if(!executable) continue;
-
-		if(strcmp(executable, GetExecutableName())) continue;
-
-		//Found the right executable, apply config
-
-		for(Framework::Xml::CFilteringNodeIterator itNode(gameConfigNode, "Patch");
-		    !itNode.IsEnd(); itNode++)
-		{
-			auto patch = (*itNode);
-
-			const char* addressString = patch->GetAttribute("Address");
-			const char* valueString = patch->GetAttribute("Value");
-
-			if(!addressString) continue;
-			if(!valueString) continue;
-
-			uint32 value = 0, address = 0;
-			if(sscanf(addressString, "%x", &address) == 0) continue;
-			if(sscanf(valueString, "%x", &value) == 0) continue;
-
-			*reinterpret_cast<uint32*>(m_ram + address) = value;
-		}
-
-		for(Framework::Xml::CFilteringNodeIterator itNode(gameConfigNode, "BlockFpRoundingMode");
-		    !itNode.IsEnd(); itNode++)
-		{
-			auto node = (*itNode);
-
-			const char* addressString = node->GetAttribute("Address");
-			const char* modeString = node->GetAttribute("Mode");
-
-			if(!addressString) continue;
-			if(!modeString) continue;
-
-			uint32 address = 0;
-			auto roundingMode = Jitter::CJitter::ROUND_NEAREST;
-			if(sscanf(addressString, "%x", &address) == 0) continue;
-
-			if(!strcmp(modeString, "NEAREST"))
-			{
-				roundingMode = Jitter::CJitter::ROUND_NEAREST;
-			}
-			else if(!strcmp(modeString, "PLUSINFINITY"))
-			{
-				roundingMode = Jitter::CJitter::ROUND_PLUSINFINITY;
-			}
-			else if(!strcmp(modeString, "MINUSINFINITY"))
-			{
-				roundingMode = Jitter::CJitter::ROUND_MINUSINFINITY;
-			}
-			else if(!strcmp(modeString, "TRUNCATE"))
-			{
-				roundingMode = Jitter::CJitter::ROUND_TRUNCATE;
-			}
-			else
-			{
-				assert(false);
-				continue;
-			}
-
-			blockFpRoundingModes.insert(std::make_pair(address, roundingMode));
-		}
-
-		for(Framework::Xml::CFilteringNodeIterator itNode(gameConfigNode, "BlockFpUseAccurateAddSub");
-		    !itNode.IsEnd(); itNode++)
-		{
-			auto node = (*itNode);
-
-			const char* addressString = node->GetAttribute("Address");
-			if(!addressString) continue;
-
-			uint32 address = 0;
-			if(sscanf(addressString, "%x", &address) == 0) continue;
-
-			blockFpUseAccurateAddSub.insert(address);
-		}
-
-		for(Framework::Xml::CFilteringNodeIterator itNode(gameConfigNode, "IdleLoopBlock");
-		    !itNode.IsEnd(); itNode++)
-		{
-			auto node = (*itNode);
-
-			const char* addressString = node->GetAttribute("Address");
-			const char* checkBlockKeyString = node->GetAttribute("CheckBlockKey");
-
-			if(!addressString) continue;
-
-			uint32 address = 0;
-			std::optional<CEeExecutor::CachedBlockKey> checkBlockKey;
-
-			if(sscanf(addressString, "%x", &address) == 0) continue;
-			if(checkBlockKeyString)
-			{
-				CEeExecutor::CachedBlockKey blockKey;
-				int parseCount = sscanf(checkBlockKeyString, "%08X%08X%08X%08X;%d",
-				                        &blockKey.first.nV[3], &blockKey.first.nV[2],
-				                        &blockKey.first.nV[1], &blockKey.first.nV[0],
-				                        &blockKey.second);
-				if(parseCount != 5)
-				{
-					continue;
-				}
-				checkBlockKey = blockKey;
-			}
-
-			idleLoopBlocks.insert(std::make_pair(address, checkBlockKey));
-		}
-
-		auto executor = static_cast<CEeExecutor*>(m_ee.m_executor.get());
-		executor->SetBlockFpRoundingModes(std::move(blockFpRoundingModes));
-		executor->SetBlockFpUseAccurateAddSub(std::move(blockFpUseAccurateAddSub));
-		executor->SetIdleLoopBlocks(std::move(idleLoopBlocks));
-
-		break;
-	}
 }
 
 void CPS2OS::AssembleCustomSyscallHandler()

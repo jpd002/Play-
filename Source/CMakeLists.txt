@@ -255,6 +255,8 @@ set(COMMON_SRC_FILES
 	ScreenPositionListener.h
 	InputConfig.cpp
 	InputConfig.h
+	GameConfig.cpp
+	GameConfig.h
 	GenericMipsExecutor.h
 	gs/GsCachedArea.cpp
 	gs/GsCachedArea.h

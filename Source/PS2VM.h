@@ -123,6 +123,7 @@ private:
 	void LoadVmTimingState(Framework::CZipArchiveReader&);
 
 	void ReloadExecutable(const char*, const CPS2OS::ArgumentList&);
+	void OnExecutableChange();
 	void OnCrtModeChange();
 
 	void PauseImpl();
@@ -203,5 +204,6 @@ private:
 	CProfiler::ZoneHandle m_otherProfilerZone = 0;
 
 	CPS2OS::RequestLoadExecutableEvent::Connection m_OnRequestLoadExecutableConnection;
+	Framework::CSignal<void()>::Connection m_OnExecutableChangeConnection;
 	Framework::CSignal<void()>::Connection m_OnCrtModeChangeConnection;
 };
