@@ -78,6 +78,7 @@ public:
 	std::future<bool> LoadState(const fs::path&);
 
 	CPU_UTILISATION_INFO GetCpuUtilisationInfo() const;
+	void BootFromFile(const fs::path&);
 
 #ifdef DEBUGGER_INCLUDED
 	fs::path MakeDebugTagsPackagePath(const char*);
