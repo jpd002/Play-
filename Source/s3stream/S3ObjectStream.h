@@ -13,7 +13,7 @@ public:
 	{
 	public:
 		CConfig();
-		CAmazonCredentials GetCredentials();
+		CAmazonConfigs GetConfigs();
 	};
 
 	CS3ObjectStream(const char*, const char*);
