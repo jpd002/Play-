@@ -44,8 +44,10 @@ namespace Ee
 		// When true, T1_COUNT reads won't trigger the idle loop detector.
 		// Use this for games (e.g. Battle Gear 3) that idle-loop
 		// on T1_COUNT but whose idle-loop address varies across ROM versions.
-		void SetSuppressT1CountForIdle(bool suppress) { m_suppressT1CountForIdle = suppress; }
-
+		void SetSuppressT1CountForIdle(bool suppress)
+		{
+			m_suppressT1CountForIdle = suppress;
+		}
 		uint8* m_ram = nullptr;
 		uint8* m_bios = nullptr;
 		uint8* m_spr = nullptr;
