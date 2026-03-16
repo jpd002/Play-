@@ -227,6 +227,10 @@ ARCADE_MACHINE_DEF ReadArcadeMachineDefinition(const fs::path& arcadeDefPath)
 	{
 		def.patches = parsePatches(defJson["patches"]);
 	}
+	if(defJson.contains("suppressT1CountForIdle"))
+	{
+		def.suppressT1CountForIdle = defJson["suppressT1CountForIdle"].get<bool>();
+	}
 	return def;
 }
 
@@ -328,6 +332,7 @@ void ArcadeUtils::BootArcadeMachine(CPS2VM* virtualMachine, const fs::path& arca
 	driver->Launch(virtualMachine, def);
 
 	ApplyPatchesFromArcadeDefinition(virtualMachine, def);
+	virtualMachine->m_ee->SetSuppressT1CountForIdle(def.suppressT1CountForIdle);
 
 	virtualMachine->BeforeExecutableReloaded =
 	    [def](CPS2VM* virtualMachine) {
