@@ -233,7 +233,11 @@ void CSubSystem::Reset(uint32 ramSize)
 
 	m_statusRegisterCheckers.clear();
 	m_isIdle = false;
-	m_suppressT1CountForIdle = false;
+	// NOTE: m_suppressT1CountForIdle is intentionally NOT reset here.
+	// It is a per-game configuration flag set by the arcade driver before
+	// booting and must survive internal EXE reloads (e.g. course selection
+	// in Battle Gear 3). The caller (ArcadeUtils) is responsible for
+	// setting/clearing this flag.
 }
 
 int CSubSystem::ExecuteCpu(int quota)
