@@ -343,6 +343,7 @@ void ArcadeUtils::BootArcadeMachine(CPS2VM* virtualMachine, const fs::path& arca
 	virtualMachine->AfterExecutableReloaded =
 	    [def](CPS2VM* virtualMachine) {
 		    ApplyPatchesFromArcadeDefinition(virtualMachine, def);
+		    virtualMachine->m_ee->SetSuppressT1CountForIdle(def.suppressT1CountForIdle);
 	    };
 
 #ifndef DEBUGGER_INCLUDED
