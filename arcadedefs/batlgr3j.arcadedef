@@ -20,7 +20,5 @@
 			"description": "Fixes hang on white screen."
 		}
 	],
-    // No need to patch address for skipping T1_Count
-    // Just enable below flag
 	"suppressT1CountForIdle": true
 }
