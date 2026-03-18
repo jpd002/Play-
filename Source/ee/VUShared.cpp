@@ -427,7 +427,10 @@ void VUShared::SetStatus(CMipsJitter* codeGen, size_t srcOffset)
 void VUShared::ADD_base(CMipsJitter* codeGen, uint8 dest, size_t fd, size_t fs, size_t ft, bool expand, uint32 relativePipeTime, uint32 compileHints)
 {
 	codeGen->MD_PushRel(fs);
-	codeGen->MD_ClampS();
+	if(UseClamping(compileHints))
+	{
+		codeGen->MD_ClampS();
+	}
 	if(expand)
 	{
 		PushBcElement(codeGen, ft);
@@ -462,11 +465,17 @@ void VUShared::MADD_base(CMipsJitter* codeGen, uint8 dest, size_t fd, size_t fs,
 	codeGen->MD_PushRel(offsetof(CMIPS, m_State.nCOP2A));
 	codeGen->MD_PushRel(fs);
 	//Clamping is needed by Baldur's Gate Deadly Alliance here because it multiplies junk values (potentially NaN/INF) by 0
-	codeGen->MD_ClampS();
+	if(UseClamping(compileHints))
+	{
+		codeGen->MD_ClampS();
+	}
 	if(expand)
 	{
 		PushBcElement(codeGen, ft);
-		codeGen->MD_ClampS(); //Fatal Frame 1's door-blocking bug can be fixed by this
+		if(UseClamping(compileHints))
+		{
+			codeGen->MD_ClampS(); //Fatal Frame 1's door-blocking bug can be fixed by this
+		}
 	}
 	else
 	{
@@ -482,8 +491,11 @@ void VUShared::MADDA_base(CMipsJitter* codeGen, uint8 dest, size_t fs, size_t ft
 {
 	codeGen->MD_PushRel(offsetof(CMIPS, m_State.nCOP2A));
 	codeGen->MD_PushRel(fs);
-	//Clamping is needed by Dynasty Warriors 2 here because it multiplies junk values (potentially NaN/INF) by some other value
-	codeGen->MD_ClampS();
+	if(UseClamping(compileHints))
+	{
+		//Clamping is needed by Dynasty Warriors 2 here because it multiplies junk values (potentially NaN/INF) by some other value
+		codeGen->MD_ClampS();
+	}
 	if(expand)
 	{
 		PushBcElement(codeGen, ft);
@@ -492,7 +504,10 @@ void VUShared::MADDA_base(CMipsJitter* codeGen, uint8 dest, size_t fs, size_t ft
 	{
 		codeGen->MD_PushRel(ft);
 	}
-	codeGen->MD_ClampS();
+	if(UseClamping(compileHints))
+	{
+		codeGen->MD_ClampS();
+	}
 	codeGen->MD_MulS();
 	codeGen->MD_AddS();
 	PullVector(codeGen, dest, offsetof(CMIPS, m_State.nCOP2A));
@@ -502,7 +517,10 @@ void VUShared::MADDA_base(CMipsJitter* codeGen, uint8 dest, size_t fs, size_t ft
 void VUShared::SUB_base(CMipsJitter* codeGen, uint8 dest, size_t fd, size_t fs, size_t ft, bool expand, uint32 relativePipeTime, uint32 compileHints)
 {
 	codeGen->MD_PushRel(fs);
-	codeGen->MD_ClampS();
+	if(UseClamping(compileHints))
+	{
+		codeGen->MD_ClampS();
+	}
 	if(expand)
 	{
 		PushBcElement(codeGen, ft);
@@ -511,7 +529,10 @@ void VUShared::SUB_base(CMipsJitter* codeGen, uint8 dest, size_t fd, size_t fs, 
 	{
 		codeGen->MD_PushRel(ft);
 	}
-	codeGen->MD_ClampS();
+	if(UseClamping(compileHints))
+	{
+		codeGen->MD_ClampS();
+	}
 	codeGen->MD_SubS();
 	PullVector(codeGen, dest, fd);
 	TestSZFlags(codeGen, dest, fd, relativePipeTime, compileHints);
@@ -572,7 +593,10 @@ void VUShared::MSUBA_base(CMipsJitter* codeGen, uint8 dest, size_t fs, size_t ft
 void VUShared::MUL_base(CMipsJitter* codeGen, uint8 dest, size_t fd, size_t fs, size_t ft, bool expand, uint32 relativePipeTime, uint32 compileHints)
 {
 	codeGen->MD_PushRel(fs);
-	codeGen->MD_ClampS();
+	if(UseClamping(compileHints))
+	{
+		codeGen->MD_ClampS();
+	}
 	if(expand)
 	{
 		PushBcElement(codeGen, ft);
@@ -581,7 +605,10 @@ void VUShared::MUL_base(CMipsJitter* codeGen, uint8 dest, size_t fd, size_t fs, 
 	{
 		codeGen->MD_PushRel(ft);
 	}
-	codeGen->MD_ClampS();
+	if(UseClamping(compileHints))
+	{
+		codeGen->MD_ClampS();
+	}
 	codeGen->MD_MulS();
 	PullVector(codeGen, dest, fd);
 	TestSZFlags(codeGen, dest, fd, relativePipeTime, compileHints);
@@ -590,7 +617,10 @@ void VUShared::MUL_base(CMipsJitter* codeGen, uint8 dest, size_t fd, size_t fs, 
 void VUShared::MULA_base(CMipsJitter* codeGen, uint8 dest, size_t fs, size_t ft, bool expand, uint32 relativePipeTime, uint32 compileHints)
 {
 	codeGen->MD_PushRel(fs);
-	codeGen->MD_ClampS();
+	if(UseClamping(compileHints))
+	{
+		codeGen->MD_ClampS();
+	}
 	if(expand)
 	{
 		PushBcElement(codeGen, ft);
