@@ -16,9 +16,15 @@ CVuExecutor::CVuExecutor(CMIPS& context, uint32 maxAddress)
 {
 }
 
+void CVuExecutor::SetBlockNoClamping(BlockNoClampingSet blockNoClamping)
+{
+	m_blockNoClamping = std::move(blockNoClamping);
+}
+
 void CVuExecutor::Reset()
 {
 	m_cachedBlocks.clear();
+	m_blockNoClamping.clear();
 	CGenericMipsExecutor::Reset();
 }
 
@@ -71,6 +77,11 @@ BasicBlockPtr CVuExecutor::BlockFactory(CMIPS& context, uint32 begin, uint32 end
 	if(blockCompileHintsIterator != std::end(g_blockCompileHints))
 	{
 		result->AddBlockCompileHints(blockCompileHintsIterator->hints);
+	}
+	if(auto blockNoClamping = m_blockNoClamping.find(blockKey);
+	   blockNoClamping != std::end(m_blockNoClamping))
+	{
+		result->AddBlockCompileHints(VUShared::COMPILEHINT_NO_CLAMPING);
 	}
 
 	result->Compile();

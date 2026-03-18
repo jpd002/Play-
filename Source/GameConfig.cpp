@@ -10,10 +10,29 @@
 #include "Log.h"
 #include "PS2VM.h"
 #include "ee/EeExecutor.h"
+#include "ee/VuExecutor.h"
 
 #define LOG_NAME "GameConfig"
 
 #define GAMECONFIG_FILENAME "GameConfig.xml"
+
+template <typename BlockKeyType>
+static std::optional<BlockKeyType> ParseBlockKey(const char* blockKeyString)
+{
+	BlockKeyType blockKey;
+	int parseCount = sscanf(blockKeyString, "%08X%08X%08X%08X;%d",
+	                        &blockKey.first.nV[3], &blockKey.first.nV[2],
+	                        &blockKey.first.nV[1], &blockKey.first.nV[0],
+	                        &blockKey.second);
+	if(parseCount == 5)
+	{
+		return std::optional<BlockKeyType>(blockKey);
+	}
+	else
+	{
+		return std::optional<BlockKeyType>();
+	}
+}
 
 void CGameConfig::ApplyGameConfig(CPS2VM& virtualMachine)
 {
@@ -44,9 +63,11 @@ void CGameConfig::ApplyGameConfig(CPS2VM& virtualMachine)
 	CEeExecutor::BlockFpRoundingModeMap blockFpRoundingModes;
 	CEeExecutor::BlockFpUseAccurateAddSubSet blockFpUseAccurateAddSub;
 	CEeExecutor::IdleLoopBlockMap idleLoopBlocks;
+	CVuExecutor::BlockNoClampingSet blockNoClamping;
 
 	const char* executableName = virtualMachine.m_ee->m_os->GetExecutableName();
 	auto eeExecutor = static_cast<CEeExecutor*>(virtualMachine.m_ee->m_EE.m_executor.get());
+	auto vu1Executor = static_cast<CVuExecutor*>(virtualMachine.m_ee->m_vpu1->GetContext().m_executor.get());
 	auto eeRam = virtualMachine.m_ee->m_ram;
 
 	for(Framework::Xml::CFilteringNodeIterator itNode(gameConfigsNode, "GameConfig");
@@ -149,24 +170,37 @@ void CGameConfig::ApplyGameConfig(CPS2VM& virtualMachine)
 			if(sscanf(addressString, "%x", &address) == 0) continue;
 			if(checkBlockKeyString)
 			{
-				CEeExecutor::CachedBlockKey blockKey;
-				int parseCount = sscanf(checkBlockKeyString, "%08X%08X%08X%08X;%d",
-				                        &blockKey.first.nV[3], &blockKey.first.nV[2],
-				                        &blockKey.first.nV[1], &blockKey.first.nV[0],
-				                        &blockKey.second);
-				if(parseCount != 5)
+				auto blockKey = ParseBlockKey<CEeExecutor::CachedBlockKey>(checkBlockKeyString);
+				if(!blockKey.has_value())
 				{
 					continue;
 				}
-				checkBlockKey = blockKey;
+				checkBlockKey = blockKey.value();
 			}
 
 			idleLoopBlocks.insert(std::make_pair(address, checkBlockKey));
 		}
 
+		for(Framework::Xml::CFilteringNodeIterator itNode(gameConfigNode, "Vu1BlockNoClamping");
+		    !itNode.IsEnd(); itNode++)
+		{
+			auto node = (*itNode);
+
+			const char* blockKeyString = node->GetAttribute("BlockKey");
+			if(!blockKeyString) continue;
+
+			auto blockKey = ParseBlockKey<CVuExecutor::CachedBlockKey>(blockKeyString);
+			if(blockKey.has_value())
+			{
+				blockNoClamping.insert(blockKey.value());
+			}
+		}
+
 		eeExecutor->SetBlockFpRoundingModes(std::move(blockFpRoundingModes));
 		eeExecutor->SetBlockFpUseAccurateAddSub(std::move(blockFpUseAccurateAddSub));
 		eeExecutor->SetIdleLoopBlocks(std::move(idleLoopBlocks));
+
+		vu1Executor->SetBlockNoClamping(std::move(blockNoClamping));
 
 		break;
 	}

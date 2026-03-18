@@ -1,4 +1,11 @@
 <GameConfigs>
+	<GameConfig Executable="SCUS_973.16;1" Title="Sly 2: Band of Thieves">
+		<Vu1BlockNoClamping BlockKey="36605D29AD96FFFE30895C24E0016A2B;40" />
+		<Vu1BlockNoClamping BlockKey="D28BFBE4C726F016DCA80BECE7C4114B;40" />
+		<Vu1BlockNoClamping BlockKey="4E7ED78F963A2076ECF775BFAA3D8AFB;40" />
+		<Vu1BlockNoClamping BlockKey="2BBED1DEDFAAA676D34A4B8975CFD17D;40" />
+		<Vu1BlockNoClamping BlockKey="C2A5656FA61988893D4F67239AB837FC;64" />
+	</GameConfig>
 	<GameConfig Executable="SLUS_200.18;1" Title="Onimusha: Warlords">
 		<BlockFpRoundingMode Address="0x001025D8" Mode="NEAREST" Description="Fixes inability to go inside the hole." />
 	</GameConfig>
