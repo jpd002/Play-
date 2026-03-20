@@ -439,6 +439,11 @@ void CSys246::ProcessJvsPacket(const uint8* input, uint8* output)
 					(*output++) = static_cast<uint8>(m_jvsDrumChannels[i] >> 8);
 					(*output++) = static_cast<uint8>(m_jvsDrumChannels[i]);
 				}
+				// Reset drum channels after sending — drum inputs are pulses, not held states
+				for(int i = 0; i < JVS_DRUM_CHANNEL_MAX; i++)
+				{
+					m_jvsDrumChannels[i] = 0;
+				}
 			}
 			else if(m_jvsMode == JVS_MODE::DRIVE)
 			{
@@ -591,20 +596,22 @@ void CSys246::SetButtonState(unsigned int padNumber, PS2::CControllerInfo::BUTTO
 			}
 			else if(m_jvsMode == JVS_MODE::DRUM)
 			{
-				if(button == PS2::CControllerInfo::L1) m_jvsDrumChannels[JVS_DRUM_CHANNEL_1P_DL] = pressed ? drumPressValue << 6 : 0;
-				if(button == PS2::CControllerInfo::L2) m_jvsDrumChannels[JVS_DRUM_CHANNEL_1P_KL] = pressed ? drumPressValue << 6 : 0;
-				if(button == PS2::CControllerInfo::R1) m_jvsDrumChannels[JVS_DRUM_CHANNEL_1P_DR] = pressed ? drumPressValue << 6 : 0;
-				if(button == PS2::CControllerInfo::R2) m_jvsDrumChannels[JVS_DRUM_CHANNEL_1P_KR] = pressed ? drumPressValue << 6 : 0;
+				// Taiko no Tatsujin: DPAD_LEFT=Left Men, L2=Left Fuchi, CROSS=Right Men, R2=Right Fuchi
+				if(button == PS2::CControllerInfo::DPAD_LEFT) m_jvsDrumChannels[JVS_DRUM_CHANNEL_1P_DL] = pressed ? drumPressValue << 6 : 0;
+				if(button == PS2::CControllerInfo::L2)        m_jvsDrumChannels[JVS_DRUM_CHANNEL_1P_KL] = pressed ? drumPressValue << 6 : 0;
+				if(button == PS2::CControllerInfo::CROSS)     m_jvsDrumChannels[JVS_DRUM_CHANNEL_1P_DR] = pressed ? drumPressValue << 6 : 0;
+				if(button == PS2::CControllerInfo::R2)        m_jvsDrumChannels[JVS_DRUM_CHANNEL_1P_KR] = pressed ? drumPressValue << 6 : 0;
 			}
 		}
 		else if(padNumber == 1)
 		{
 			if(m_jvsMode == JVS_MODE::DRUM)
 			{
-				if(button == PS2::CControllerInfo::L1) m_jvsDrumChannels[JVS_DRUM_CHANNEL_2P_DL] = pressed ? drumPressValue << 6 : 0;
-				if(button == PS2::CControllerInfo::L2) m_jvsDrumChannels[JVS_DRUM_CHANNEL_2P_KL] = pressed ? drumPressValue << 6 : 0;
-				if(button == PS2::CControllerInfo::R1) m_jvsDrumChannels[JVS_DRUM_CHANNEL_2P_DR] = pressed ? drumPressValue << 6 : 0;
-				if(button == PS2::CControllerInfo::R2) m_jvsDrumChannels[JVS_DRUM_CHANNEL_2P_KR] = pressed ? drumPressValue << 6 : 0;
+				// Taiko no Tatsujin: DPAD_LEFT=Left Men, L2=Left Fuchi, CROSS=Right Men, R2=Right Fuchi
+				if(button == PS2::CControllerInfo::DPAD_LEFT) m_jvsDrumChannels[JVS_DRUM_CHANNEL_2P_DL] = pressed ? drumPressValue << 6 : 0;
+				if(button == PS2::CControllerInfo::L2)        m_jvsDrumChannels[JVS_DRUM_CHANNEL_2P_KL] = pressed ? drumPressValue << 6 : 0;
+				if(button == PS2::CControllerInfo::CROSS)     m_jvsDrumChannels[JVS_DRUM_CHANNEL_2P_DR] = pressed ? drumPressValue << 6 : 0;
+				if(button == PS2::CControllerInfo::R2)        m_jvsDrumChannels[JVS_DRUM_CHANNEL_2P_KR] = pressed ? drumPressValue << 6 : 0;
 			}
 		}
 	}
@@ -686,6 +693,7 @@ void CSys246::SetAxisState(unsigned int padNumber, PS2::CControllerInfo::BUTTON 
 			break;
 		}
 	}
+
 }
 
 void CSys246::SetScreenPosition(float x, float y)
