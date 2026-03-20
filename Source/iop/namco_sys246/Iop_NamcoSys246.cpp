@@ -54,13 +54,13 @@ static const std::array<uint16, PS2::CControllerInfo::MAX_BUTTONS> g_defaultJvsB
 	0x0020, //DPAD_UP,
 	0x0010, //DPAD_DOWN,
 	0x0008, //DPAD_LEFT (Shutter Sensor Top),
-	0x0004, //DPAD_RIGHT (Shutter Sensor Down),
+	0x0800, //DPAD_RIGHT (Shift Up),
 	0x0040, //SELECT,
 	0x0080, //START,
 	0x4000, //SQUARE,
 	0x8000, //TRIANGLE,
 	0x0001, //CIRCLE (Motor Sensor),
-	0x0002, //CROSS,
+	0x0100, //CROSS (Shift Down),
 	0x0100, //L1,
 	0x0200, //L2,
 	0x0400, //L3,
@@ -563,8 +563,20 @@ void CSys246::SetButtonState(unsigned int padNumber, PS2::CControllerInfo::BUTTO
 	{
 		static const uint16 drumPressValue = 0x200;
 
-		m_jvsButtonState[padNumber] &= ~m_jvsButtonBits[button];
-		m_jvsButtonState[padNumber] |= (pressed ? m_jvsButtonBits[button] : 0);
+		// In DRIVE mode, remap R1 -> Shift Up (0x0004) and L1 -> Shift Down (0x0002)
+		// Disable original DPAD_RIGHT and CROSS for shift
+		uint16 buttonBit = m_jvsButtonBits[button];
+		if(m_jvsMode == JVS_MODE::DRIVE)
+		{
+			if(button == PS2::CControllerInfo::R1)         buttonBit = 0x0004;
+			else if(button == PS2::CControllerInfo::L1)    buttonBit = 0x0002;
+			else if(button == PS2::CControllerInfo::DPAD_RIGHT) buttonBit = 0x0000;
+			else if(button == PS2::CControllerInfo::CROSS)      buttonBit = 0x0000;
+		}
+
+		m_jvsButtonState[padNumber] &= ~m_jvsButtonBits[button]; // clear original bit
+		m_jvsButtonState[padNumber] &= ~buttonBit;               // clear remapped bit
+		m_jvsButtonState[padNumber] |= (pressed ? buttonBit : 0);
 
 		if(padNumber == 0)
 		{
@@ -645,25 +657,34 @@ void CSys246::SetButtonState(unsigned int padNumber, PS2::CControllerInfo::BUTTO
 
 void CSys246::SetAxisState(unsigned int padNumber, PS2::CControllerInfo::BUTTON button, uint8 axisValue, uint8* ram)
 {
-	switch(button)
+	if(m_jvsMode == JVS_MODE::DRIVE)
 	{
-	case PS2::CControllerInfo::BUTTON::ANALOG_LEFT_X:
-		if(axisValue >= 0 || axisValue < 128) m_jvsWheel = axisValue + 128;
-		if(axisValue > 128 || axisValue < 256) m_jvsWheel = axisValue - 128;
-		m_jvsWheel = axisValue;
-		break;
-	case PS2::CControllerInfo::BUTTON::ANALOG_LEFT_Y:
-		if(axisValue >= 128) axisValue = 127; // limit Left stick Y axis to Y+
-		m_jvsGaz = -axisValue + 127;
-		break;
-	case PS2::CControllerInfo::BUTTON::ANALOG_RIGHT_X:
-		if(axisValue < 128) axisValue = 128; // limit Right stick X axis to X+
-		m_jvsBrake = axisValue - 128;
-		break;
-	case PS2::CControllerInfo::BUTTON::ANALOG_RIGHT_Y:
-		break;
-	default:
-		break;
+		switch(button)
+		{
+		case PS2::CControllerInfo::BUTTON::ANALOG_LEFT_X:
+			if(axisValue >= 0 || axisValue < 128) m_jvsWheel = axisValue + 128;
+			if(axisValue > 128 || axisValue < 256) m_jvsWheel = axisValue - 128;
+			m_jvsWheel = axisValue;
+			break;
+		case PS2::CControllerInfo::BUTTON::ANALOG_LEFT_Y:
+			break;
+		case PS2::CControllerInfo::BUTTON::ANALOG_RIGHT_X:
+			break;
+		case PS2::CControllerInfo::BUTTON::ANALOG_RIGHT_Y:
+			// Right stick Y upper -> Gaz (Accelerator)
+			if(axisValue < 128)
+			{
+				m_jvsGaz = -axisValue + 127;
+			}
+			// Right stick Y lower -> Brake
+			else
+			{
+				m_jvsBrake = axisValue - 128;
+			}
+			break;
+		default:
+			break;
+		}
 	}
 }
 
