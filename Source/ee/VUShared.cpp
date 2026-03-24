@@ -228,34 +228,25 @@ void VUShared::MakeComparableFromFloat(CMipsJitter* codeGen)
 {
 	uint32 valueCursor = codeGen->GetTopCursor();
 
-	//Compute mask
-	codeGen->PushCursor(valueCursor);
-	codeGen->MD_SraW(31);
-	uint32 maskCursor = codeGen->GetTopCursor();
-
 	//Make neg
 	codeGen->MD_PushCstExpandW(0xFFFFFFFFU);
 	codeGen->PushCursor(valueCursor);
 	codeGen->MD_SubW();
-	codeGen->PushCursor(maskCursor);
-	codeGen->MD_And();
 
 	//Make pos
 	codeGen->MD_PushCstExpandW(0x7FFFFFFFU);
 	codeGen->PushCursor(valueCursor);
 	codeGen->MD_AddW();
-	codeGen->PushCursor(maskCursor);
-	codeGen->MD_Not();
-	codeGen->MD_And();
 
-	codeGen->MD_Or();
+	//Compute selector
+	codeGen->PushCursor(valueCursor);
+	codeGen->MD_SraW(31);
+
+	codeGen->MD_BitSelect();
 
 	//Make it signed comparable
 	codeGen->MD_PushCstExpandW(0x80000000U);
 	codeGen->MD_SubW();
-
-	codeGen->Swap();
-	codeGen->PullTop();
 
 	codeGen->Swap();
 	codeGen->PullTop();
@@ -647,30 +638,23 @@ void VUShared::MINI_base(CMipsJitter* codeGen, uint8 dest, size_t fd, size_t fs,
 		}
 	};
 
-	pushFt();
-	MakeComparableFromFloat(codeGen);
+	//Operand A
 	codeGen->MD_PushRel(fs);
-	MakeComparableFromFloat(codeGen);
 
+	//Operand B
+	pushFt();
+
+	//Selector
 	//Since we don't have a less-than operator, operands are reversed (ft > fs instead of fs < ft)
-	codeGen->MD_CmpGtW();
-	auto cmp = codeGen->GetTopCursor();
-
-	//Mask FT
-	codeGen->PushTop();
-	codeGen->MD_Not();
 	pushFt();
-	codeGen->MD_And();
-
-	//Mask FS
-	codeGen->PushCursor(cmp);
+	MakeComparableFromFloat(codeGen);
 	codeGen->MD_PushRel(fs);
-	codeGen->MD_And();
+	MakeComparableFromFloat(codeGen);
+	codeGen->MD_CmpGtW();
 
-	codeGen->MD_Or();
+	codeGen->MD_BitSelect();
+
 	PullVector(codeGen, dest, fd);
-
-	codeGen->PullTop();
 }
 
 void VUShared::MAX_base(CMipsJitter* codeGen, uint8 dest, size_t fd, size_t fs, size_t ft, bool expand)
@@ -686,29 +670,22 @@ void VUShared::MAX_base(CMipsJitter* codeGen, uint8 dest, size_t fd, size_t fs, 
 		}
 	};
 
+	//Operand A
+	codeGen->MD_PushRel(fs);
+
+	//Operand B
+	pushFt();
+
+	//Selector
 	codeGen->MD_PushRel(fs);
 	MakeComparableFromFloat(codeGen);
 	pushFt();
 	MakeComparableFromFloat(codeGen);
-
 	codeGen->MD_CmpGtW();
-	auto cmp = codeGen->GetTopCursor();
 
-	//Mask FT
-	codeGen->PushTop();
-	codeGen->MD_Not();
-	pushFt();
-	codeGen->MD_And();
+	codeGen->MD_BitSelect();
 
-	//Mask FS
-	codeGen->PushCursor(cmp);
-	codeGen->MD_PushRel(fs);
-	codeGen->MD_And();
-
-	codeGen->MD_Or();
 	PullVector(codeGen, dest, fd);
-
-	codeGen->PullTop();
 }
 
 void VUShared::ABS(CMipsJitter* codeGen, uint8 nDest, uint8 nFt, uint8 nFs)
