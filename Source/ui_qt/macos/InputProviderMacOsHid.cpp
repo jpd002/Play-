@@ -281,11 +281,13 @@ void CInputProviderMacOsHid::InputReportCallback_DS4(DEVICE_INFO* deviceInfo, IO
 
 void CInputProviderMacOsHid::InputReportCallback_DualSense(DEVICE_INFO* deviceInfo, IOReturn result, void* sender, IOHIDReportType type, uint32_t reportID, uint8_t* report, CFIndex reportLength)
 {
-	int offset = 2;
+	int offset = report[0] == 1 ? 1 : 3;
 
-	struct PS5Btn* new_btn_state = reinterpret_cast<struct PS5Btn*>(&report[offset]);
-	struct PS5Btn* prev_btn_state = reinterpret_cast<struct PS5Btn*>(deviceInfo->prev_btn_state);
+	struct PS4Btn* new_btn_state = reinterpret_cast<struct PS4Btn*>(&report[offset]);
+	struct PS4Btn* prev_btn_state = reinterpret_cast<struct PS4Btn*>(deviceInfo->prev_btn_state);
 	int is_change = 0;
+
+	//printf("Hello: %d, %d\n", report[0], report[1]);
 
 #define checkbtnstate(prev_btn_state, new_btn_state, btn, btn_id, type)      \
 	if(deviceInfo->first_run || (prev_btn_state->btn != new_btn_state->btn)) \
