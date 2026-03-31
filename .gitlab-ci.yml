@@ -76,6 +76,12 @@ libretro-build-linux-i686:
     - .libretro-linux-cmake-x86
     - .core-defs
 
+# Linux 64-bit (ARM)
+libretro-build-linux-aarch64:
+  extends:
+    - .libretro-linux-cmake-aarch64
+    - .core-defs
+
 # Windows 64-bit
 libretro-build-windows-x64:
   extends:
