@@ -281,13 +281,13 @@ void CInputProviderMacOsHid::InputReportCallback_DS4(DEVICE_INFO* deviceInfo, IO
 
 void CInputProviderMacOsHid::InputReportCallback_DualSense(DEVICE_INFO* deviceInfo, IOReturn result, void* sender, IOHIDReportType type, uint32_t reportID, uint8_t* report, CFIndex reportLength)
 {
-	int offset = report[0] == 1 ? 1 : 3;
+	//Source of info: https://github.com/nondebug/dualsense
 
-	struct PS4Btn* new_btn_state = reinterpret_cast<struct PS4Btn*>(&report[offset]);
-	struct PS4Btn* prev_btn_state = reinterpret_cast<struct PS4Btn*>(deviceInfo->prev_btn_state);
+	int offset = report[0] == 1 ? 1 : 3;
 	int is_change = 0;
 
-	//printf("Hello: %d, %d\n", report[0], report[1]);
+	bool isBluetooth = (reportLength == 10);
+	assert(isBluetooth || (reportLength == 64));
 
 #define checkbtnstate(prev_btn_state, new_btn_state, btn, btn_id, type)      \
 	if(deviceInfo->first_run || (prev_btn_state->btn != new_btn_state->btn)) \
@@ -303,38 +303,79 @@ void CInputProviderMacOsHid::InputReportCallback_DualSense(DEVICE_INFO* deviceIn
 
 	deviceInfo->first_run = false;
 
-	checkbtnstate(prev_btn_state, new_btn_state, LX, 1, BINDINGTARGET::KEYTYPE::AXIS);
-	checkbtnstate(prev_btn_state, new_btn_state, LY, 2, BINDINGTARGET::KEYTYPE::AXIS);
-	checkbtnstate(prev_btn_state, new_btn_state, RX, 3, BINDINGTARGET::KEYTYPE::AXIS);
-	checkbtnstate(prev_btn_state, new_btn_state, RY, 4, BINDINGTARGET::KEYTYPE::AXIS);
-
-	checkbtnstate(prev_btn_state, new_btn_state, DPad, 5, BINDINGTARGET::KEYTYPE::POVHAT);
-	checkbtnstate(prev_btn_state, new_btn_state, Triangle, 6, BINDINGTARGET::KEYTYPE::BUTTON);
-	checkbtnstate(prev_btn_state, new_btn_state, Circle, 7, BINDINGTARGET::KEYTYPE::BUTTON);
-	checkbtnstate(prev_btn_state, new_btn_state, Cross, 8, BINDINGTARGET::KEYTYPE::BUTTON);
-	checkbtnstate(prev_btn_state, new_btn_state, Square, 9, BINDINGTARGET::KEYTYPE::BUTTON);
-
-	checkbtnstate(prev_btn_state, new_btn_state, L1, 10, BINDINGTARGET::KEYTYPE::BUTTON);
-	checkbtnstate(prev_btn_state, new_btn_state, R1, 11, BINDINGTARGET::KEYTYPE::BUTTON);
-	//checkbtnstate(prev_btn_state, new_btn_state, L2, 12, 1);
-	//checkbtnstate(prev_btn_state, new_btn_state, R2, 13, 1);
-
-	checkbtnstate(prev_btn_state, new_btn_state, Share, 14, BINDINGTARGET::KEYTYPE::BUTTON);
-	checkbtnstate(prev_btn_state, new_btn_state, Option, 15, BINDINGTARGET::KEYTYPE::BUTTON);
-	checkbtnstate(prev_btn_state, new_btn_state, L3, 16, BINDINGTARGET::KEYTYPE::BUTTON);
-	checkbtnstate(prev_btn_state, new_btn_state, R3, 17, BINDINGTARGET::KEYTYPE::BUTTON);
-
-	checkbtnstate(prev_btn_state, new_btn_state, PSHome, 18, BINDINGTARGET::KEYTYPE::BUTTON);
-	checkbtnstate(prev_btn_state, new_btn_state, TouchPad, 19, BINDINGTARGET::KEYTYPE::BUTTON);
-	checkbtnstate(prev_btn_state, new_btn_state, LT, 20, BINDINGTARGET::KEYTYPE::AXIS);
-	checkbtnstate(prev_btn_state, new_btn_state, RT, 21, BINDINGTARGET::KEYTYPE::AXIS);
-
-#undef checkbtnstate
-
-	if(is_change > 0)
+	if(isBluetooth)
 	{
-		memcpy(deviceInfo->prev_btn_state, new_btn_state, sizeof(struct PS5Btn));
+		struct PS4Btn* new_btn_state = reinterpret_cast<struct PS4Btn*>(&report[offset]);
+		struct PS4Btn* prev_btn_state = reinterpret_cast<struct PS4Btn*>(deviceInfo->prev_btn_state);
+
+		checkbtnstate(prev_btn_state, new_btn_state, LX, 1, BINDINGTARGET::KEYTYPE::AXIS);
+		checkbtnstate(prev_btn_state, new_btn_state, LY, 2, BINDINGTARGET::KEYTYPE::AXIS);
+		checkbtnstate(prev_btn_state, new_btn_state, RX, 3, BINDINGTARGET::KEYTYPE::AXIS);
+		checkbtnstate(prev_btn_state, new_btn_state, RY, 4, BINDINGTARGET::KEYTYPE::AXIS);
+
+		checkbtnstate(prev_btn_state, new_btn_state, DPad, 5, BINDINGTARGET::KEYTYPE::POVHAT);
+		checkbtnstate(prev_btn_state, new_btn_state, Triangle, 6, BINDINGTARGET::KEYTYPE::BUTTON);
+		checkbtnstate(prev_btn_state, new_btn_state, Circle, 7, BINDINGTARGET::KEYTYPE::BUTTON);
+		checkbtnstate(prev_btn_state, new_btn_state, Cross, 8, BINDINGTARGET::KEYTYPE::BUTTON);
+		checkbtnstate(prev_btn_state, new_btn_state, Square, 9, BINDINGTARGET::KEYTYPE::BUTTON);
+
+		checkbtnstate(prev_btn_state, new_btn_state, L1, 10, BINDINGTARGET::KEYTYPE::BUTTON);
+		checkbtnstate(prev_btn_state, new_btn_state, R1, 11, BINDINGTARGET::KEYTYPE::BUTTON);
+		//checkbtnstate(prev_btn_state, new_btn_state, L2, 12, 1);
+		//checkbtnstate(prev_btn_state, new_btn_state, R2, 13, 1);
+
+		checkbtnstate(prev_btn_state, new_btn_state, Share, 14, BINDINGTARGET::KEYTYPE::BUTTON);
+		checkbtnstate(prev_btn_state, new_btn_state, Option, 15, BINDINGTARGET::KEYTYPE::BUTTON);
+		checkbtnstate(prev_btn_state, new_btn_state, L3, 16, BINDINGTARGET::KEYTYPE::BUTTON);
+		checkbtnstate(prev_btn_state, new_btn_state, R3, 17, BINDINGTARGET::KEYTYPE::BUTTON);
+
+		checkbtnstate(prev_btn_state, new_btn_state, PSHome, 18, BINDINGTARGET::KEYTYPE::BUTTON);
+		checkbtnstate(prev_btn_state, new_btn_state, TouchPad, 19, BINDINGTARGET::KEYTYPE::BUTTON);
+		checkbtnstate(prev_btn_state, new_btn_state, LT, 20, BINDINGTARGET::KEYTYPE::AXIS);
+		checkbtnstate(prev_btn_state, new_btn_state, RT, 21, BINDINGTARGET::KEYTYPE::AXIS);
+
+		if(is_change > 0)
+		{
+			memcpy(deviceInfo->prev_btn_state, new_btn_state, sizeof(struct PS4Btn));
+		}
 	}
+	else
+	{
+		struct PS5Btn* new_btn_state = reinterpret_cast<struct PS5Btn*>(&report[offset]);
+		struct PS5Btn* prev_btn_state = reinterpret_cast<struct PS5Btn*>(deviceInfo->prev_btn_state);
+
+		checkbtnstate(prev_btn_state, new_btn_state, LX, 1, BINDINGTARGET::KEYTYPE::AXIS);
+		checkbtnstate(prev_btn_state, new_btn_state, LY, 2, BINDINGTARGET::KEYTYPE::AXIS);
+		checkbtnstate(prev_btn_state, new_btn_state, RX, 3, BINDINGTARGET::KEYTYPE::AXIS);
+		checkbtnstate(prev_btn_state, new_btn_state, RY, 4, BINDINGTARGET::KEYTYPE::AXIS);
+
+		checkbtnstate(prev_btn_state, new_btn_state, DPad, 5, BINDINGTARGET::KEYTYPE::POVHAT);
+		checkbtnstate(prev_btn_state, new_btn_state, Triangle, 6, BINDINGTARGET::KEYTYPE::BUTTON);
+		checkbtnstate(prev_btn_state, new_btn_state, Circle, 7, BINDINGTARGET::KEYTYPE::BUTTON);
+		checkbtnstate(prev_btn_state, new_btn_state, Cross, 8, BINDINGTARGET::KEYTYPE::BUTTON);
+		checkbtnstate(prev_btn_state, new_btn_state, Square, 9, BINDINGTARGET::KEYTYPE::BUTTON);
+
+		checkbtnstate(prev_btn_state, new_btn_state, L1, 10, BINDINGTARGET::KEYTYPE::BUTTON);
+		checkbtnstate(prev_btn_state, new_btn_state, R1, 11, BINDINGTARGET::KEYTYPE::BUTTON);
+		//checkbtnstate(prev_btn_state, new_btn_state, L2, 12, 1);
+		//checkbtnstate(prev_btn_state, new_btn_state, R2, 13, 1);
+
+		checkbtnstate(prev_btn_state, new_btn_state, Share, 14, BINDINGTARGET::KEYTYPE::BUTTON);
+		checkbtnstate(prev_btn_state, new_btn_state, Option, 15, BINDINGTARGET::KEYTYPE::BUTTON);
+		checkbtnstate(prev_btn_state, new_btn_state, L3, 16, BINDINGTARGET::KEYTYPE::BUTTON);
+		checkbtnstate(prev_btn_state, new_btn_state, R3, 17, BINDINGTARGET::KEYTYPE::BUTTON);
+
+		checkbtnstate(prev_btn_state, new_btn_state, PSHome, 18, BINDINGTARGET::KEYTYPE::BUTTON);
+		checkbtnstate(prev_btn_state, new_btn_state, TouchPad, 19, BINDINGTARGET::KEYTYPE::BUTTON);
+		checkbtnstate(prev_btn_state, new_btn_state, LT, 20, BINDINGTARGET::KEYTYPE::AXIS);
+		checkbtnstate(prev_btn_state, new_btn_state, RT, 21, BINDINGTARGET::KEYTYPE::AXIS);
+
+		if(is_change > 0)
+		{
+			memcpy(deviceInfo->prev_btn_state, new_btn_state, sizeof(struct PS5Btn));
+		}
+	}
+#undef checkbtnstate
 }
 
 IOHIDReportCallback CInputProviderMacOsHid::GetCallback(IOHIDDeviceRef device)
