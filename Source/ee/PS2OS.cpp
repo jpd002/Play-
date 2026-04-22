@@ -2731,6 +2731,14 @@ void CPS2OS::sc_SignalSema()
 	bool isInt = m_ee.m_State.nGPR[3].nV[0] == 0x43;
 	uint32 id = m_ee.m_State.nGPR[SC_PARAM0].nV[0];
 
+	{
+		//Tales of Destiny fails to initialize some local variables and expects
+		//a zero to be present in a specific spot. I assume the stack gets modified
+		//by syscalls since the context is saved before executing them, let's do the same here.
+		uint32 contextPtr = m_ee.m_State.nGPR[CMIPS::SP].nV0 - STACKRES;
+		memset(m_ram + contextPtr, 0, STACKRES);
+	}
+
 	auto sema = m_semaphores[id];
 	if(sema == nullptr)
 	{
