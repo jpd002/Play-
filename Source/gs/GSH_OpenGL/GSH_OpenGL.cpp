@@ -674,6 +674,12 @@ void CGSH_OpenGL::SetRenderingContext(uint64 primReg)
 	m_nPrimOfsX = offset.GetX();
 	m_nPrimOfsY = offset.GetY();
 
+	// Account for the fact that PS2 assumes the pixel center at the bottom left,
+	// but OpenGL at the center of the screen. On even resolutions this causes a slight
+	// discrepancy.
+	m_nPrimOfsX -= 0.5f;
+	m_nPrimOfsY -= 0.5f;
+
 	CHECKGLERROR();
 
 	m_renderState.isValid = true;
