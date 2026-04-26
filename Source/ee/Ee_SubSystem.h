@@ -41,6 +41,13 @@ namespace Ee
 		void SetVpu0(std::shared_ptr<CVpu>);
 		void SetVpu1(std::shared_ptr<CVpu>);
 
+		// When true, T1_COUNT reads won't trigger the idle loop detector.
+		// Use this for games (e.g. Battle Gear 3) that idle-loop
+		// on T1_COUNT but whose idle-loop address varies across ROM versions.
+		void SetSuppressT1CountForIdle(bool suppress)
+		{
+			m_suppressT1CountForIdle = suppress;
+		}
 		uint8* m_ram = nullptr;
 		uint8* m_bios = nullptr;
 		uint8* m_spr = nullptr;
@@ -112,6 +119,7 @@ namespace Ee
 
 		StatusRegisterCheckerMap m_statusRegisterCheckers;
 		bool m_isIdle = false;
+		bool m_suppressT1CountForIdle = false;
 
 		CMA_VU m_MAVU0;
 		CMA_VU m_MAVU1;

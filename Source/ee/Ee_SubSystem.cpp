@@ -233,6 +233,11 @@ void CSubSystem::Reset(uint32 ramSize)
 
 	m_statusRegisterCheckers.clear();
 	m_isIdle = false;
+	// NOTE: m_suppressT1CountForIdle is intentionally NOT reset here.
+	// It is a per-game configuration flag set by the arcade driver before
+	// booting and must survive internal EXE reloads (e.g. course selection
+	// in Battle Gear 3). The caller (ArcadeUtils) is responsible for
+	// setting/clearing this flag.
 }
 
 int CSubSystem::ExecuteCpu(int quota)
@@ -479,7 +484,8 @@ uint32 CSubSystem::IOPortReadHandler(uint32 nAddress)
 		                         nAddress, m_EE.m_State.nPC);
 	}
 
-	if((nAddress == CINTC::INTC_STAT) || (nAddress == CGSHandler::GS_CSR) || (nAddress == CTimer::T1_COUNT))
+	if((nAddress == CINTC::INTC_STAT) || (nAddress == CGSHandler::GS_CSR) ||
+	   (nAddress == CTimer::T1_COUNT && !m_suppressT1CountForIdle))
 	{
 		//Some games will loop checking for the vblank start interrupt or vblank event
 		//This is usually a good sign indicating that the game is idling
