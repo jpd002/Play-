@@ -132,6 +132,9 @@
 	<GameConfig Executable="SLPS_250.02;1" Title="Dead or Alive 2">
 		<Patch Address="0x00290408" Value="0x24060000" Description="Make the file reading RPC call synchronous. Requires proper data cache handling to avoid issue." />
 	</GameConfig>
+	<GameConfig Executable="SLPS_258.42;1" Title="Tales of Destiny: Director's Cut">
+		<BlockFpRoundingMode Address="0x001C7B7C" Mode="PLUSINFINITY" Description="Fixes softlock issues in various parts of the game." />
+	</GameConfig>
 	<GameConfig Executable="SWBFRNT2.ELF;1" Title="Star Wars: Battlefront II">
 		<!-- SLUS-21240 Version 2.01 -->
 		<IdleLoopBlock Address="0x00427F40" CheckBlockKey="6D8515A293E38030EE880D6C915CEAA2;12"/>
