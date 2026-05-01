@@ -275,7 +275,7 @@ void CGSH_Vulkan::ResetImpl()
 	m_pendingPrim = false;
 	m_pendingPrimValue = 0;
 	m_regState.isValid = false;
-	memset(&m_clutStates, 0, sizeof(m_clutStates));
+	ClearClutCache();
 	memset(m_memoryCache, 0, RAMSIZE);
 	WriteBackMemoryCache();
 }
@@ -1330,6 +1330,12 @@ void CGSH_Vulkan::Prim_Sprite()
 	m_draw->AddVertices(std::begin(vertices), std::end(vertices));
 }
 
+void CGSH_Vulkan::ClearClutCache()
+{
+	memset(&m_clutStates, 0, sizeof(m_clutStates));
+	m_lastClutFillCacheIndex = -1;
+}
+
 int32 CGSH_Vulkan::FindCachedClut(const CLUTKEY& key) const
 {
 	for(uint32 i = 0; i < CLUT_CACHE_SIZE; i++)
@@ -1416,7 +1422,7 @@ void CGSH_Vulkan::WriteRegisterImpl(uint8 registerId, uint64 data)
 			    (m_clutLineU != m_lastLineU) ||
 			    (m_clutLineV != m_lastLineV))
 			{
-				memset(&m_clutStates, 0, sizeof(m_clutStates));
+				ClearClutCache();
 			}
 			m_clutLineU = m_lastLineU;
 			m_clutLineV = m_lastLineV;
@@ -1437,7 +1443,7 @@ void CGSH_Vulkan::WriteRegisterImpl(uint8 registerId, uint64 data)
 void CGSH_Vulkan::ProcessHostToLocalTransfer()
 {
 	//Flush previous cached info
-	memset(&m_clutStates, 0, sizeof(m_clutStates));
+	ClearClutCache();
 	m_draw->FlushRenderPass();
 
 	auto bltBuf = make_convertible<BITBLTBUF>(m_nReg[GS_REG_BITBLTBUF]);
@@ -1529,7 +1535,7 @@ void CGSH_Vulkan::ProcessLocalToHostTransfer()
 void CGSH_Vulkan::ProcessLocalToLocalTransfer()
 {
 	//Flush previous cached info
-	memset(&m_clutStates, 0, sizeof(m_clutStates));
+	ClearClutCache();
 	m_draw->FlushRenderPass();
 
 	auto bltBuf = make_convertible<BITBLTBUF>(m_nReg[GS_REG_BITBLTBUF]);
@@ -1620,7 +1626,17 @@ void CGSH_Vulkan::SyncMemoryCache()
 void CGSH_Vulkan::SyncCLUT(const TEX0& tex0)
 {
 	if(!CGsPixelFormats::IsPsmIDTEX(tex0.nPsm)) return;
-	if(!ProcessCLD(tex0)) return;
+	if(!ProcessCLD(tex0))
+	{
+		//We haven't loaded anything, but it's possible that this draw call will reference data from a previous load.
+		//Tales of Destiny games will do that, loading 256 CLUT entries and then not loading but referencing the entries.
+		if((tex0.nCSM == 0) && CGsPixelFormats::IsPsmIDTEX4(tex0.nPsm) && (m_lastClutFillCacheIndex != -1))
+		{
+			uint32 clutBufferOffset = sizeof(uint32) * CLUTENTRYCOUNT * m_lastClutFillCacheIndex;
+			m_draw->SetClutBufferOffset(clutBufferOffset);
+		}
+		return;
+	}
 
 	auto texClut = make_convertible<TEXCLUT>(m_nReg[GS_REG_TEXCLUT]);
 
@@ -1639,6 +1655,11 @@ void CGSH_Vulkan::SyncCLUT(const TEX0& tex0)
 
 	uint32 clutBufferOffset = sizeof(uint32) * CLUTENTRYCOUNT * clutCacheIndex;
 	m_draw->SetClutBufferOffset(clutBufferOffset);
+	
+	if((tex0.nCSM == 0) && CGsPixelFormats::IsPsmIDTEX8(tex0.nPsm))
+	{
+		m_lastClutFillCacheIndex = clutCacheIndex;
+	}
 }
 
 uint8* CGSH_Vulkan::GetRam() const

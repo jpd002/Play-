@@ -159,6 +159,7 @@ private:
 	void Prim_Sprite();
 
 	int32 FindCachedClut(const CLUTKEY&) const;
+	void ClearClutCache();
 	void CheckSpriteCachedClutInvalidation(const CGsSpriteRect&);
 	static CLUTKEY MakeCachedClutKey(const TEX0&, const TEXCLUT&);
 
@@ -252,6 +253,7 @@ private:
 	uint32 m_texHeight = 0;
 	CLUTKEY m_clutStates[CLUT_CACHE_SIZE];
 	uint32 m_nextClutCacheIndex = 0;
+	uint32 m_lastClutFillCacheIndex = -1;
 	std::vector<uint8> m_xferBuffer;
 	std::map<uint64, LOCAL_TO_HOST_XFER_HISTORY> m_xferHistory;
 
