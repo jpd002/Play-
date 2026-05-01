@@ -9,9 +9,12 @@
 
 using namespace GSH_Vulkan;
 
-#define DESCRIPTOR_LOCATION_MEMORY 0
-#define DESCRIPTOR_LOCATION_CLUT 1
-#define DESCRIPTOR_LOCATION_SWIZZLETABLE 2
+enum
+{
+	DESCRIPTOR_LOCATION_MEMORY,
+	DESCRIPTOR_LOCATION_CLUT,
+	DESCRIPTOR_LOCATION_SWIZZLETABLE,
+};
 
 CClutLoad::CClutLoad(const ContextPtr& context, const FrameCommandBufferPtr& frameCommandBuffer)
     : m_context(context)
