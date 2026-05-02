@@ -232,19 +232,19 @@ private:
 	{
 	public:
 		CFramebuffer(uint32, uint32, uint32, uint32, uint32, bool);
-		~CFramebuffer();
+		~CFramebuffer() = default;
 
 		uint32 m_basePtr;
 		uint32 m_width;
 		uint32 m_height;
 		uint32 m_psm;
 
-		GLuint m_framebuffer = 0;
-		GLuint m_texture = 0;
+		Framework::OpenGl::CFramebuffer m_framebuffer;
+		Framework::OpenGl::CTexture m_texture;
 
-		GLuint m_resolveFramebuffer = 0;
+		Framework::OpenGl::CFramebuffer m_resolveFramebuffer;
 		bool m_resolveNeeded = false;
-		GLuint m_colorBufferMs = 0;
+		Framework::OpenGl::CRenderbuffer m_colorBufferMs;
 
 		CGsCachedArea m_cachedArea;
 	};
@@ -255,13 +255,13 @@ private:
 	{
 	public:
 		CDepthbuffer(uint32, uint32, uint32, uint32, uint32, bool);
-		~CDepthbuffer();
+		~CDepthbuffer() = default;
 
 		uint32 m_basePtr;
 		uint32 m_width;
 		uint32 m_height;
 		uint32 m_psm;
-		GLuint m_depthBuffer;
+		Framework::OpenGl::CRenderbuffer m_depthBuffer;
 	};
 	typedef std::shared_ptr<CDepthbuffer> DepthbufferPtr;
 	typedef std::vector<DepthbufferPtr> DepthbufferList;
