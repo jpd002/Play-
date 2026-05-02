@@ -2451,7 +2451,7 @@ CGSH_OpenGL::CFramebuffer::CFramebuffer(uint32 basePtr, uint32 width, uint32 hei
 	m_cachedArea.SetArea(psm, basePtr, width, height);
 
 	//Build color attachment
-	glGenTextures(1, &m_texture);
+	m_texture = Framework::OpenGl::CTexture::Create();
 	glBindTexture(GL_TEXTURE_2D, m_texture);
 	glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA8, m_width * scale, m_height * scale);
 	CHECKGLERROR();
@@ -2459,14 +2459,14 @@ CGSH_OpenGL::CFramebuffer::CFramebuffer(uint32 basePtr, uint32 width, uint32 hei
 	if(multisampled)
 	{
 		//We also need an attachment for multisampled color
-		glGenRenderbuffers(1, &m_colorBufferMs);
+		m_colorBufferMs = Framework::OpenGl::CRenderbuffer::Create();
 		glBindRenderbuffer(GL_RENDERBUFFER, m_colorBufferMs);
 		glRenderbufferStorageMultisample(GL_RENDERBUFFER, NUM_SAMPLES, GL_RGBA8, m_width * scale, m_height * scale);
 		CHECKGLERROR();
 	}
 
 	//Build framebuffer
-	glGenFramebuffers(1, &m_framebuffer);
+	m_framebuffer = Framework::OpenGl::CFramebuffer::Create();
 	glBindFramebuffer(GL_FRAMEBUFFER, m_framebuffer);
 	if(multisampled)
 	{
@@ -2480,7 +2480,7 @@ CGSH_OpenGL::CFramebuffer::CFramebuffer(uint32 basePtr, uint32 width, uint32 hei
 
 	if(multisampled)
 	{
-		glGenFramebuffers(1, &m_resolveFramebuffer);
+		m_resolveFramebuffer = Framework::OpenGl::CFramebuffer::Create();
 		glBindFramebuffer(GL_FRAMEBUFFER, m_resolveFramebuffer);
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_texture, 0);
 		CHECKGLERROR();
@@ -2489,26 +2489,6 @@ CGSH_OpenGL::CFramebuffer::CFramebuffer(uint32 basePtr, uint32 width, uint32 hei
 	}
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-}
-
-CGSH_OpenGL::CFramebuffer::~CFramebuffer()
-{
-	if(m_framebuffer != 0)
-	{
-		glDeleteFramebuffers(1, &m_framebuffer);
-	}
-	if(m_resolveFramebuffer != 0)
-	{
-		glDeleteFramebuffers(1, &m_resolveFramebuffer);
-	}
-	if(m_texture != 0)
-	{
-		glDeleteTextures(1, &m_texture);
-	}
-	if(m_colorBufferMs != 0)
-	{
-		glDeleteRenderbuffers(1, &m_colorBufferMs);
-	}
 }
 
 void CGSH_OpenGL::PopulateFramebuffer(const FramebufferPtr& framebuffer)
@@ -2649,10 +2629,9 @@ CGSH_OpenGL::CDepthbuffer::CDepthbuffer(uint32 basePtr, uint32 width, uint32 hei
     , m_width(width)
     , m_height(height)
     , m_psm(psm)
-    , m_depthBuffer(0)
 {
 	//Build depth attachment
-	glGenRenderbuffers(1, &m_depthBuffer);
+	m_depthBuffer = Framework::OpenGl::CRenderbuffer::Create();
 	glBindRenderbuffer(GL_RENDERBUFFER, m_depthBuffer);
 	if(multisampled)
 	{
@@ -2663,12 +2642,4 @@ CGSH_OpenGL::CDepthbuffer::CDepthbuffer(uint32 basePtr, uint32 width, uint32 hei
 		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT32F, m_width * scale, m_height * scale);
 	}
 	CHECKGLERROR();
-}
-
-CGSH_OpenGL::CDepthbuffer::~CDepthbuffer()
-{
-	if(m_depthBuffer != 0)
-	{
-		glDeleteRenderbuffers(1, &m_depthBuffer);
-	}
 }
