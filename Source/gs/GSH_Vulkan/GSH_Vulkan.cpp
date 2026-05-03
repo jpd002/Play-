@@ -1656,10 +1656,14 @@ void CGSH_Vulkan::SyncCLUT(const TEX0& tex0)
 
 	uint32 clutBufferOffset = sizeof(uint32) * CLUTENTRYCOUNT * clutCacheIndex;
 	m_draw->SetClutBufferOffset(clutBufferOffset);
-	
+
 	if((tex0.nCSM == 0) && CGsPixelFormats::IsPsmIDTEX8(tex0.nPsm))
 	{
 		m_lastClutFillCacheIndex = clutCacheIndex;
+	}
+	else
+	{
+		m_lastClutFillCacheIndex = -1;
 	}
 }
 
