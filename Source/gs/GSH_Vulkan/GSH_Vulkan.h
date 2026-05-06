@@ -254,6 +254,7 @@ private:
 	CLUTKEY m_clutStates[CLUT_CACHE_SIZE];
 	uint32 m_nextClutCacheIndex = 0;
 	uint32 m_lastClutFillCacheIndex = -1;
+	uint32 m_lastClutFillPointer = 0;
 	std::vector<uint8> m_xferBuffer;
 	std::map<uint64, LOCAL_TO_HOST_XFER_HISTORY> m_xferHistory;
 

@@ -1334,6 +1334,7 @@ void CGSH_Vulkan::ClearClutCache()
 {
 	memset(&m_clutStates, 0, sizeof(m_clutStates));
 	m_lastClutFillCacheIndex = -1;
+	m_lastClutFillPointer = -1;
 }
 
 int32 CGSH_Vulkan::FindCachedClut(const CLUTKEY& key) const
@@ -1630,7 +1631,8 @@ void CGSH_Vulkan::SyncCLUT(const TEX0& tex0)
 	{
 		//We haven't loaded anything, but it's possible that this draw call will reference data from a previous load.
 		//Tales of Destiny games will do that, loading 256 CLUT entries and then not loading but referencing the entries.
-		if((tex0.nCSM == 0) && CGsPixelFormats::IsPsmIDTEX4(tex0.nPsm) && (m_lastClutFillCacheIndex != -1))
+		if((tex0.nCSM == 0) && CGsPixelFormats::IsPsmIDTEX4(tex0.nPsm) &&
+		   (m_lastClutFillCacheIndex != -1) && (m_lastClutFillPointer == tex0.nCBP))
 		{
 			uint32 clutBufferOffset = sizeof(uint32) * CLUTENTRYCOUNT * m_lastClutFillCacheIndex;
 			m_draw->SetClutBufferOffset(clutBufferOffset);
@@ -1656,9 +1658,18 @@ void CGSH_Vulkan::SyncCLUT(const TEX0& tex0)
 	uint32 clutBufferOffset = sizeof(uint32) * CLUTENTRYCOUNT * clutCacheIndex;
 	m_draw->SetClutBufferOffset(clutBufferOffset);
 
-	if((tex0.nCSM == 0) && CGsPixelFormats::IsPsmIDTEX8(tex0.nPsm))
+	if(tex0.nCSM == 0)
 	{
-		m_lastClutFillCacheIndex = clutCacheIndex;
+		if(CGsPixelFormats::IsPsmIDTEX8(tex0.nPsm))
+		{
+			m_lastClutFillCacheIndex = clutCacheIndex;
+			m_lastClutFillPointer = tex0.nCBP;
+		}
+		else if(m_lastClutFillPointer != tex0.nCBP)
+		{
+			//If we have a IDTEX4 texture, but it's from a different place, invalidate
+			m_lastClutFillCacheIndex = -1;
+		}
 	}
 	else
 	{
