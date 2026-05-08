@@ -1794,8 +1794,7 @@ void CDrawMobile::CreateDrawImages()
 	                                             VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT,
 	                                             VK_FORMAT_R32_UINT, DRAW_AREA_SIZE, DRAW_AREA_SIZE, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
-	m_drawColorImage.SetLayout(m_context->queue, m_context->commandBufferPool,
-	                           VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT);
+	m_drawColorImage.SetLayout(m_context->queue, m_context->commandBufferPool, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
 
 	m_drawColorImageView = m_drawColorImage.CreateImageView();
 
@@ -1803,8 +1802,7 @@ void CDrawMobile::CreateDrawImages()
 	                                             VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT,
 	                                             VK_FORMAT_R32_UINT, DRAW_AREA_SIZE, DRAW_AREA_SIZE, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
-	m_drawDepthImage.SetLayout(m_context->queue, m_context->commandBufferPool,
-	                           VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT);
+	m_drawDepthImage.SetLayout(m_context->queue, m_context->commandBufferPool, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
 
 	m_drawDepthImageView = m_drawDepthImage.CreateImageView();
 }

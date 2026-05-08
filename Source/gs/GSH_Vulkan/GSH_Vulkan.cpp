@@ -42,8 +42,7 @@ static Framework::Vulkan::CImage CreateSwizzleTable(Framework::Vulkan::CDevice& 
 	                                        VK_FORMAT_R32_UINT, StorageFormat::PAGEWIDTH, StorageFormat::PAGEHEIGHT);
 	result.Fill(queue, commandBufferPool, memoryProperties,
 	            CGsPixelFormats::CPixelIndexor<StorageFormat>::GetPageOffsets());
-	result.SetLayout(queue, commandBufferPool,
-	                 VK_IMAGE_LAYOUT_GENERAL, VK_ACCESS_SHADER_READ_BIT);
+	result.SetLayout(queue, commandBufferPool, VK_IMAGE_LAYOUT_GENERAL);
 	return result;
 }
 
