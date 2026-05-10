@@ -59,4 +59,5 @@ struct ARCADE_MACHINE_DEF
 	uint32 eeFreqScaleDenominator = 1;
 	std::string boot;
 	std::vector<PATCH> patches;
+	std::vector<uint32> idleLoopBlocks;
 };
