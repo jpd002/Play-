@@ -11,6 +11,10 @@ CDirectoryRecord::CDirectoryRecord()
 CDirectoryRecord::CDirectoryRecord(Framework::CStream* stream)
 {
 	m_length = stream->Read8();
+	if(m_length == 0)
+	{
+		return;
+	}
 	m_exLength = stream->Read8();
 	m_position = stream->Read32();
 	stream->Seek(4, Framework::STREAM_SEEK_CUR);

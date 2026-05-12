@@ -36,7 +36,7 @@ public class GameInfo
 		NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
 		if(mMobile != null && mWifi != null)
 		{
-			return mMobile.isAvailable() || mWifi.isAvailable();
+			return mMobile.isConnected() || mWifi.isConnected();
 		}
 		return activeNetworkInfo != null && activeNetworkInfo.isConnected();
 	}
@@ -105,13 +105,17 @@ public class GameInfo
 
 	public void saveImage(String key, String custom, Bitmap image)
 	{
+		if(image == null)
+		{
+			return;
+		}
 		addBitmapToMemoryCache(key, image);
 		String path = mContext.getExternalFilesDir(null) + "/covers/";
 		OutputStream fOut = null;
 		File file = new File(path, key + custom + ".jpg"); // the File to save to
 		if(!file.getParentFile().exists())
 		{
-			file.getParentFile().mkdir();
+			file.getParentFile().mkdirs();
 		}
 		try
 		{
@@ -127,7 +131,10 @@ public class GameInfo
 		{
 			try
 			{
-				fOut.close();
+				if(fOut != null)
+				{
+					fOut.close();
+				}
 			}
 			catch(IOException ignored)
 			{
@@ -223,14 +230,7 @@ public class GameInfo
 						return null;
 					}
 
-					if(boxart.startsWith("https://cdn.thegamesdb.net/images/original/"))
-					{
-						api = "https://cdn.thegamesdb.net/images/original/" + boxart;
-					}
-					else
-					{
-						api = boxart;
-					}
+					api = boxart;
 					InputStream im = null;
 					try
 					{
@@ -239,6 +239,10 @@ public class GameInfo
 
 						im = conn1.getInputStream();
 						Bitmap bitmap = ImageUtils.getSampledImage(mContext, im);
+						if(bitmap == null)
+						{
+							return null;
+						}
 
 						saveImage(key, bitmap);
 						return bitmap;
