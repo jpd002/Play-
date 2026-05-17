@@ -94,9 +94,6 @@
 	<string name="pref_ui_reset_cache_title">캐시 재설정</string>
 	<string name="pref_ui_reset_cache_summary">저장된 표지 이미지 지우기</string>
 
-	<string name="pref_ui_migrate_datafiles_title">데이터 파일 마이그레이션</string>
-	<string name="pref_ui_migrate_datafiles_summary">장치의 폴더에서 데이터 파일 마이그레이션</string>
-
 	<string name="preferences_theme">테마 설정</string>
 
 	<string name="pref_title_theme_selection">테마 선택</string>

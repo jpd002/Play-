@@ -94,9 +94,6 @@
 	<string name="pref_ui_reset_cache_title">Reset Cache</string>
 	<string name="pref_ui_reset_cache_summary">Hapus cache gambar yg tersedia</string>
 
-	<string name="pref_ui_migrate_datafiles_title">Migrate Data Files</string>
-	<string name="pref_ui_migrate_datafiles_summary">Migrasikan File Data dari folder di perangkat</string>
-
 	<string name="preferences_theme">Pengaturan Tema</string>
 
 	<string name="pref_title_theme_selection">Pilihan tema</string>

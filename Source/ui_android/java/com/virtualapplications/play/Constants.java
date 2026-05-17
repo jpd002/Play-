@@ -15,6 +15,7 @@ public class Constants
 	public static final String PREF_UI_RESCAN = "ui.rescan";
 	public static final String PREF_UI_CLEAR_UNAVAILABLE = "ui.clear_unavailable";
 	public static final String PREF_UI_CLEAR_CACHE = "ui.clearcache";
-	public static final String PREF_UI_MIGRATE_DATA_FILES = "ui.datafiles.migrate";
+	public static final String PREF_UI_EXPORT_DATA_FILES = "ui.datafiles.export";
+	public static final String PREF_UI_IMPORT_DATA_FILES = "ui.datafiles.import";
 	public static final String PREF_UI_THEME_SELECTION = "ui.theme_selection";
 }

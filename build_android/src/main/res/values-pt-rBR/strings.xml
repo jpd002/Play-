@@ -94,9 +94,6 @@
 	<string name="pref_ui_reset_cache_title">Restaurar cache</string>
 	<string name="pref_ui_reset_cache_summary">Limpa as imagens de capa armazenadas</string>
 
-	<string name="pref_ui_migrate_datafiles_title">Migrar arquivos de dados</string>
-	<string name="pref_ui_migrate_datafiles_summary">Migra os arquivos de dados a partir de uma pasta no dispositivo</string>
-
 	<string name="preferences_theme">Configurações de tema</string>
 
 	<string name="pref_title_theme_selection">Seleção de tema</string>

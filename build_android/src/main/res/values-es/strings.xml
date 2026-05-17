@@ -94,9 +94,6 @@
 	<string name="pref_ui_reset_cache_title">Resetear Caché</string>
 	<string name="pref_ui_reset_cache_summary">Elimina las carátulas de juegos que estén almacenadas en el dispositivo.</string>
 
-	<string name="pref_ui_migrate_datafiles_title">Migrar Archivos de Datos</string>
-	<string name="pref_ui_migrate_datafiles_summary">Migra los archivos de datos desde una carpeta en el dispositivo a seleccionar</string>
-
 	<string name="preferences_theme">Ajustes de Estilos</string>
 
 	<string name="pref_title_theme_selection">Selección de Estilo</string>

@@ -94,9 +94,6 @@
 	<string name="pref_ui_reset_cache_title">Очистить кэш</string>
 	<string name="pref_ui_reset_cache_summary">Удалить сохранённые обложки</string>
 
-	<string name="pref_ui_migrate_datafiles_title">Перенос Data Files</string>
-	<string name="pref_ui_migrate_datafiles_summary">Переместить Data Files из каталога на устройстве</string>	
-	
 	<string name="preferences_theme">Настройки темы</string>
 
 	<string name="pref_title_theme_selection">Выбор темы</string>

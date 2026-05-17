@@ -43,7 +43,8 @@ import static com.virtualapplications.play.BootablesInterop.SORT_RECENT;
 import static com.virtualapplications.play.BootablesInterop.SORT_HOMEBREW;
 import static com.virtualapplications.play.BootablesInterop.SORT_NONE;
 import static com.virtualapplications.play.Constants.PREF_UI_CLEAR_UNAVAILABLE;
-import static com.virtualapplications.play.Constants.PREF_UI_MIGRATE_DATA_FILES;
+import static com.virtualapplications.play.Constants.PREF_UI_EXPORT_DATA_FILES;
+import static com.virtualapplications.play.Constants.PREF_UI_IMPORT_DATA_FILES;
 import static com.virtualapplications.play.Constants.PREF_UI_RESCAN;
 import static com.virtualapplications.play.ThemeManager.getThemeColor;
 
@@ -411,12 +412,20 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 				prepareFileListView(false);
 			}
 		}
-		else if(key.equals(PREF_UI_MIGRATE_DATA_FILES))
+		else if(key.equals(PREF_UI_EXPORT_DATA_FILES))
 		{
-			if(sharedPreferences.getBoolean(PREF_UI_MIGRATE_DATA_FILES, false))
+			if(sharedPreferences.getBoolean(PREF_UI_EXPORT_DATA_FILES, false))
 			{
-				sharedPreferences.edit().putBoolean(PREF_UI_MIGRATE_DATA_FILES, false).apply();
-				selectDataFilesFolderToMigrate();
+				sharedPreferences.edit().putBoolean(PREF_UI_EXPORT_DATA_FILES, false).apply();
+				//selectDataFilesFolderToMigrate();
+			}
+		}
+		else if(key.equals(PREF_UI_IMPORT_DATA_FILES))
+		{
+			if(sharedPreferences.getBoolean(PREF_UI_IMPORT_DATA_FILES, false))
+			{
+				sharedPreferences.edit().putBoolean(PREF_UI_IMPORT_DATA_FILES, false).apply();
+				//selectDataFilesFolderToMigrate();
 			}
 		}
 	}

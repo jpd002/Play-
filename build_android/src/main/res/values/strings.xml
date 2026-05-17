@@ -94,8 +94,11 @@
 	<string name="pref_ui_reset_cache_title">Reset Cache</string>
 	<string name="pref_ui_reset_cache_summary">Clear stored cover images</string>
 
-	<string name="pref_ui_migrate_datafiles_title">Migrate Data Files</string>
-	<string name="pref_ui_migrate_datafiles_summary">Migrate Data Files from a folder on the device</string>
+	<string name="pref_ui_export_datafiles_title">Export Data Files</string>
+	<string name="pref_ui_export_datafiles_summary">Export Data Files to a folder on the device</string>
+
+	<string name="pref_ui_import_datafiles_title">Import Data Files</string>
+	<string name="pref_ui_import_datafiles_summary">Import Data Files from a folder on the device</string>
 
 	<string name="preferences_theme">Theme Settings</string>
 
