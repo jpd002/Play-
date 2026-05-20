@@ -163,10 +163,4 @@
 	
 	<string name="permission_dialog_title">權限請求</string>
 	<string name="permission_dialog_summary">Play! 需要存儲訪問（讀/寫）的權限。否則Play! 將無法找到您的遊戲或保存進度。</string>
-
-	<!-- Data Files Migration -->
-	<string name="migration_title">數據檔案轉移</string>
-	<string name="migration_selectfolder">請選擇之前的數據檔案資料夾的位置（通常位於設備存儲的根目錄，並名為\“Play Data Files\”）。</string>
-	<string name="migration_task_msg">請稍後&#8230;</string>
-
 </resources>

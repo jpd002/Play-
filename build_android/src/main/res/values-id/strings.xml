@@ -156,10 +156,4 @@
 
 	<string name="permission_dialog_title">Permintaan Izin</string>
 	<string name="permission_dialog_summary">Play! membutuhkan akses penyimpanan (read/write). Tanpa itu, Play! tdk akan bisa mencari permainan atau menyimpan progressmu.</string>
-
-	<!-- Data Files Migration -->
-	<string name="migration_title">Migrasi Berkas Data</string>
-	<string name="migration_selectfolder">Pilih lokasi folder File Data sebelumnya (biasanya terletak di root penyimpanan perangkatmu dan diberi nama \'Play Data Files\').</string>
-	<string name="migration_task_msg">Tunggu Sebentar&#8230;</string>
-
 </resources>

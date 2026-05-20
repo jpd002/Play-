@@ -163,10 +163,4 @@
 	
 	<string name="permission_dialog_title">权限请求</string>
 	<string name="permission_dialog_summary">Play! 需要存储访问（读/写）的权限。否则Play! 将无法找到您的游戏或保存进度。</string>
-
-	<!-- Data Files Migration -->
-	<string name="migration_title">数据文件迁移</string>
-	<string name="migration_selectfolder">请选择之前的数据文件文件夹的位置（通常位于设备存储的根目录，并名为\“Play Data Files\”）。</string>
-	<string name="migration_task_msg">请稍候&#8230;</string>
-
 </resources>

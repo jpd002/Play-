@@ -163,10 +163,4 @@
 	
 	<string name="permission_dialog_title">Запрос разрешения</string>
 	<string name="permission_dialog_summary">Play! требуется доступ к хранилищу (чтение/запись). Без него Play! не сможет найти игры или сохранить прогресс.</string>
-
-	<!-- Data Files Migration -->	
-	<string name="migration_title">Перенос Data Files</string>
-	<string name="migration_selectfolder">Пожалуйста, укажите расположение предыдущего каталога Data Files (обычно он находится в корне памяти и имеет название \'Play Data Files\').</string>
-	<string name="migration_task_msg">Пожалуйста, подождите&#8230;</string>	
-
 </resources>

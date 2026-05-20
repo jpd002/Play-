@@ -60,7 +60,8 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 
 	static final int g_settingsRequestCode = 0xDEAD;
 	static final int g_folderPickerRequestCode = 0xBEEF;
-	static final int g_dataFilesFolderPickerRequestCode = 0xBEF0;
+	static final int g_dataFilesExportFolderPickerRequestCode = 0xBEF0;
+	static final int g_dataFilesImportFolderPickerRequestCode = 0xBEF1;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -279,10 +280,20 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 			prepareFileListView(false);
 		}
 
-		if(requestCode == g_dataFilesFolderPickerRequestCode && resultCode == RESULT_OK)
+		if(requestCode == g_dataFilesExportFolderPickerRequestCode && resultCode == RESULT_OK)
 		{
 			Uri folderUri = data.getData();
-			executeDataFilesMigration(folderUri);
+			DataFilesImpExpProcessTask task = new DataFilesImpExpProcessTask(this,
+					DataFilesImpExpProcess.ImpExpAction.Export, folderUri);
+			task.execute();
+		}
+
+		if(requestCode == g_dataFilesImportFolderPickerRequestCode && resultCode == RESULT_OK)
+		{
+			Uri folderUri = data.getData();
+			DataFilesImpExpProcessTask task = new DataFilesImpExpProcessTask(this,
+					DataFilesImpExpProcess.ImpExpAction.Import, folderUri);
+			task.execute();
 		}
 	}
 
@@ -417,7 +428,10 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 			if(sharedPreferences.getBoolean(PREF_UI_EXPORT_DATA_FILES, false))
 			{
 				sharedPreferences.edit().putBoolean(PREF_UI_EXPORT_DATA_FILES, false).apply();
-				//selectDataFilesFolderToMigrate();
+				selectDataFilesFolder(
+						getString(R.string.datafiles_export_title),
+						getString(R.string.datafiles_export_selectfolder),
+						g_dataFilesExportFolderPickerRequestCode);
 			}
 		}
 		else if(key.equals(PREF_UI_IMPORT_DATA_FILES))
@@ -425,7 +439,10 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 			if(sharedPreferences.getBoolean(PREF_UI_IMPORT_DATA_FILES, false))
 			{
 				sharedPreferences.edit().putBoolean(PREF_UI_IMPORT_DATA_FILES, false).apply();
-				//selectDataFilesFolderToMigrate();
+				selectDataFilesFolder(
+						getString(R.string.datafiles_import_title),
+						getString(R.string.datafiles_import_selectfolder),
+						g_dataFilesImportFolderPickerRequestCode);
 			}
 		}
 	}
@@ -632,26 +649,20 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 		}
 	}
 
-	private void selectDataFilesFolderToMigrate()
+	private void selectDataFilesFolder(String title, String message, int activityRequestCode)
 	{
 		new AlertDialog.Builder(this)
-				.setTitle(getString(R.string.migration_title))
-				.setMessage(getString(R.string.migration_selectfolder))
+				.setTitle(title)
+				.setMessage(message)
 				.setPositiveButton(android.R.string.ok, (dialog, id) -> {
 					Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
 					intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
 					intent.addFlags(Intent.FLAG_GRANT_PREFIX_URI_PERMISSION);
 					intent.addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION);
 					intent.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
-					startActivityForResult(intent, g_dataFilesFolderPickerRequestCode);
+					startActivityForResult(intent, activityRequestCode);
 				})
 				.create()
 				.show();
-	}
-
-	private void executeDataFilesMigration(Uri dataFilesFolderUri)
-	{
-		DataFilesMigrationProcessTask task = new DataFilesMigrationProcessTask(this, dataFilesFolderUri);
-		task.execute();
 	}
 }

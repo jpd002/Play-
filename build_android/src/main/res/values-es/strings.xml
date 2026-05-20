@@ -171,10 +171,4 @@
 
 	<string name="permission_dialog_title">Solicitud de Permisos</string>
 	<string name="permission_dialog_summary">Play! necesita acceso al almacenamiento del dispositivo (escritura/lectura). Sin él, Play! no podrá encontrar tus juegos o guardar tu progreso en ellos.</string>
-
-	<!-- Data Files Migration -->
-	<string name="migration_title">Migración de archivos</string>
-	<string name="migration_selectfolder">Porfavor selecciona la ubicación de la carpeta anterior de Datos (usualmente ubicada en la carpeta root del almacenamiento de tu dispositivo, con el nombre \'Play Data Files\').</string>
-	<string name="migration_task_msg">Porfavor espera&#8230;</string>
-
 </resources>
