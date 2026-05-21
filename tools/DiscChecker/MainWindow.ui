@@ -16,7 +16,7 @@
   <widget class="QWidget" name="verticalLayoutWidget">
    <layout class="QVBoxLayout" name="verticalLayout">
     <item>
-     <widget class="QLabel" name="label_4">
+     <widget class="QLabel" name="filenameLabel">
       <property name="text">
        <string>Filename:</string>
       </property>
@@ -26,7 +26,7 @@
      <widget class="QLineEdit" name="filenameEdit"/>
     </item>
     <item>
-     <widget class="QLabel" name="label_3">
+     <widget class="QLabel" name="discIdLabel">
       <property name="text">
        <string>Disc ID</string>
       </property>
@@ -40,7 +40,7 @@
      </widget>
     </item>
     <item>
-     <widget class="QLabel" name="label_2">
+     <widget class="QLabel" name="sectorsLabel">
       <property name="text">
        <string>Sectors</string>
       </property>
@@ -54,7 +54,7 @@
      </widget>
     </item>
     <item>
-     <widget class="QLabel" name="label_5">
+     <widget class="QLabel" name="layerBreakLabel">
       <property name="text">
        <string>Layer Break</string>
       </property>
@@ -68,7 +68,7 @@
      </widget>
     </item>
     <item>
-     <widget class="QLabel" name="label">
+     <widget class="QLabel" name="checksumLabel">
       <property name="text">
        <string>Checksum</string>
       </property>
@@ -93,7 +93,7 @@
      </layout>
     </item>
     <item>
-     <widget class="QLabel" name="label">
+     <widget class="QLabel" name="tracksLabel">
       <property name="text">
        <string>Tracks</string>
       </property>
