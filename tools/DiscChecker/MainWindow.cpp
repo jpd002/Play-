@@ -82,6 +82,18 @@ void CMainWindow::FillDiscInfo(const fs::path& path)
 	{
 		ui->discIdEdit->setText("(Could not obtain disc id)");
 	}
+	switch(opticalMedia->GetMediaBlockType())
+	{
+	case COpticalMedia::MEDIA_BLOCK_TYPE_2352:
+		ui->mediaTypeEdit->setText("CD");
+		break;
+	case COpticalMedia::MEDIA_BLOCK_TYPE_2048:
+		ui->mediaTypeEdit->setText("DVD/UMD/BD");
+		break;
+	default:
+		ui->mediaTypeEdit->setText("(Unknown)");
+		break;
+	}
 	if(opticalMedia->GetDvdIsDualLayer())
 	{
 		ui->layerBreakEdit->setText(string_format("%d", opticalMedia->GetDvdSecondLayerStart() + 0x10).c_str());

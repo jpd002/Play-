@@ -40,6 +40,20 @@
      </widget>
     </item>
     <item>
+     <widget class="QLabel" name="mediaTypeLabel">
+      <property name="text">
+       <string>Media Type</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QLineEdit" name="mediaTypeEdit">
+      <property name="readOnly">
+       <bool>true</bool>
+      </property>
+     </widget>
+    </item>
+    <item>
      <widget class="QLabel" name="sectorsLabel">
       <property name="text">
        <string>Sectors</string>
