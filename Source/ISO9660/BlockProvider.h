@@ -85,7 +85,7 @@ namespace ISO9660
 		void ReadMediaBlock(uint32 address, void* block) override
 		{
 			m_stream->Seek(static_cast<uint64>(address) * INTERNAL_BLOCKSIZE, Framework::STREAM_SEEK_SET);
-			m_stream->Read(block, INTERNAL_BLOCKSIZE);
+			m_stream->Read(block, MEDIA_BLOCKSIZE);
 		}
 
 		uint32 GetBlockCount() override
