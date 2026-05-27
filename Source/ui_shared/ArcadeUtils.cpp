@@ -9,7 +9,6 @@
 #include "BootablesDbClient.h"
 #include "BootablesProcesses.h"
 #include "ArcadeDefinition.h"
-#include "ee/EeExecutor.h"
 
 #include "arcadedrivers/NamcoSys246Driver.h"
 #include "arcadedrivers/NamcoSys147Driver.h"
@@ -86,18 +85,6 @@ void ApplyPatchesFromArcadeDefinition(CPS2VM* virtualMachine, const ARCADE_MACHI
 	}
 }
 
-void ApplyIdleLoopBlocksFromArcadeDefinition(CPS2VM* virtualMachine, const ARCADE_MACHINE_DEF& def)
-{
-	CEeExecutor::IdleLoopBlockMap idleLoopBlocks;
-	for(const auto& idleLoopBlock : def.idleLoopBlocks)
-	{
-		idleLoopBlocks.insert(std::make_pair(idleLoopBlock, std::optional<CEeExecutor::CachedBlockKey>()));
-	}
-
-	auto eeExecutor = static_cast<CEeExecutor*>(virtualMachine->m_ee->m_EE.m_executor.get());
-	eeExecutor->SetIdleLoopBlocks(std::move(idleLoopBlocks));
-}
-
 ARCADE_MACHINE_DEF ReadArcadeMachineDefinition(const fs::path& arcadeDefPath)
 {
 	auto parseButtons =
@@ -144,17 +131,6 @@ ARCADE_MACHINE_DEF ReadArcadeMachineDefinition(const fs::path& arcadeDefPath)
 			    patches.emplace_back(std::move(patch));
 		    }
 		    return patches;
-	    };
-
-	auto parseIdleLoopBlocks =
-	    [](const nlohmann::json& idleLoopBlocksArray) {
-		    std::vector<uint32> idleLoopBlocks;
-		    for(const auto& jsonIdleLoopBlock : idleLoopBlocksArray)
-		    {
-			    uint32 address = ParseHexStringValue(jsonIdleLoopBlock);
-			    idleLoopBlocks.emplace_back(address);
-		    }
-		    return idleLoopBlocks;
 	    };
 
 	auto defString =
@@ -251,9 +227,9 @@ ARCADE_MACHINE_DEF ReadArcadeMachineDefinition(const fs::path& arcadeDefPath)
 	{
 		def.patches = parsePatches(defJson["patches"]);
 	}
-	if(defJson.contains("idleLoopBlocks"))
+	if(defJson.contains("suppressT1CountForIdle"))
 	{
-		def.idleLoopBlocks = parseIdleLoopBlocks(defJson["idleLoopBlocks"]);
+		def.suppressT1CountForIdle = defJson["suppressT1CountForIdle"].get<bool>();
 	}
 	return def;
 }
@@ -356,7 +332,7 @@ void ArcadeUtils::BootArcadeMachine(CPS2VM* virtualMachine, const fs::path& arca
 	driver->Launch(virtualMachine, def);
 
 	ApplyPatchesFromArcadeDefinition(virtualMachine, def);
-	ApplyIdleLoopBlocksFromArcadeDefinition(virtualMachine, def);
+	virtualMachine->m_ee->SetSuppressT1CountForIdle(def.suppressT1CountForIdle);
 
 	virtualMachine->BeforeExecutableReloaded =
 	    [def](CPS2VM* virtualMachine) {
@@ -367,7 +343,7 @@ void ArcadeUtils::BootArcadeMachine(CPS2VM* virtualMachine, const fs::path& arca
 	virtualMachine->AfterExecutableReloaded =
 	    [def](CPS2VM* virtualMachine) {
 		    ApplyPatchesFromArcadeDefinition(virtualMachine, def);
-		    ApplyIdleLoopBlocksFromArcadeDefinition(virtualMachine, def);
+		    virtualMachine->m_ee->SetSuppressT1CountForIdle(def.suppressT1CountForIdle);
 	    };
 
 #ifndef DEBUGGER_INCLUDED
