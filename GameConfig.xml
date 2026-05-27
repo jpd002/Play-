@@ -1,4 +1,11 @@
 <GameConfigs>
+	<GameConfig Executable="SCUS_973.16;1" Title="Sly 2: Band of Thieves">
+		<Vu1BlockNoClamping BlockKey="36605D29AD96FFFE30895C24E0016A2B;40" />
+		<Vu1BlockNoClamping BlockKey="D28BFBE4C726F016DCA80BECE7C4114B;40" />
+		<Vu1BlockNoClamping BlockKey="4E7ED78F963A2076ECF775BFAA3D8AFB;40" />
+		<Vu1BlockNoClamping BlockKey="2BBED1DEDFAAA676D34A4B8975CFD17D;40" />
+		<Vu1BlockNoClamping BlockKey="C2A5656FA61988893D4F67239AB837FC;64" />
+	</GameConfig>
 	<GameConfig Executable="SLUS_200.18;1" Title="Onimusha: Warlords">
 		<BlockFpRoundingMode Address="0x001025D8" Mode="NEAREST" Description="Fixes inability to go inside the hole." />
 	</GameConfig>
@@ -8,6 +15,21 @@
 	</GameConfig>
 	<GameConfig Executable="SLUS_201.60;1" Title="WinBack: Covert Operations">
 		<IdleLoopBlock Address="0x00234E58" />
+	</GameConfig>
+	<GameConfig Executable="SLUS_206.98;1" Title="SD Gundam Force - Showdown!">
+		<IdleLoopBlock Address="0x001F8BB0" />
+	</GameConfig>
+	<GameConfig Executable="SLPM_663.59;1" Title="Mutsu-boshi Kirari - Hoshifuru Miyako">
+		<IdleLoopBlock Address="0x001009E4" />
+	</GameConfig>
+	<GameConfig Executable="SLPS_204.20;1" Title="Ultraman Nexus">
+		<IdleLoopBlock Address="0x00292DE0" />
+	</GameConfig>
+	<GameConfig Executable="SLPM_654.81;1" Title="After... - Wasure Enu Kizuna">
+		<IdleLoopBlock Address="0x00106F18" />
+	</GameConfig>
+	<GameConfig Executable="SLUS_203.05;1" Title="Simpsons Road Rage">
+		<IdleLoopBlock Address="0x0027C708" />
 	</GameConfig>
 	<GameConfig Executable="SLUS_203.07;1" Title="Burnout">
 		<IdleLoopBlock Address="0x0021B980" />
@@ -124,6 +146,9 @@
 	</GameConfig>
 	<GameConfig Executable="SLPS_250.02;1" Title="Dead or Alive 2">
 		<Patch Address="0x00290408" Value="0x24060000" Description="Make the file reading RPC call synchronous. Requires proper data cache handling to avoid issue." />
+	</GameConfig>
+	<GameConfig Executable="SLPS_258.42;1" Title="Tales of Destiny: Director's Cut">
+		<BlockFpRoundingMode Address="0x001C7B7C" Mode="PLUSINFINITY" Description="Fixes softlock issues in various parts of the game." />
 	</GameConfig>
 	<GameConfig Executable="SWBFRNT2.ELF;1" Title="Star Wars: Battlefront II">
 		<!-- SLUS-21240 Version 2.01 -->

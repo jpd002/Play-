@@ -4,7 +4,7 @@
 
 #define DVD_LAYER_MAX_BLOCKS 2295104
 
-std::unique_ptr<COpticalMedia> COpticalMedia::CreateAuto(StreamPtr& stream, uint32 createFlags)
+std::unique_ptr<COpticalMedia> COpticalMedia::CreateAuto(const StreamPtr& stream, uint32 createFlags)
 {
 	auto result = std::make_unique<COpticalMedia>();
 	//Simulate a disk with only one data track
@@ -12,20 +12,20 @@ std::unique_ptr<COpticalMedia> COpticalMedia::CreateAuto(StreamPtr& stream, uint
 	{
 		auto blockProvider = std::make_shared<ISO9660::CBlockProvider2048>(stream);
 		result->m_fileSystem = std::make_unique<CISO9660>(blockProvider);
-		result->m_track0DataType = TRACK_DATA_TYPE_MODE1_2048;
-		result->m_track0BlockProvider = blockProvider;
+		result->m_mediaBlockType = MEDIA_BLOCK_TYPE_2048;
+		result->m_blockProvider = blockProvider;
 	}
 	catch(...)
 	{
 		//Failed with block size 2048, try with CD-ROM XA
 		auto blockProvider = std::make_shared<ISO9660::CBlockProviderCDROMXA>(stream);
 		result->m_fileSystem = std::make_unique<CISO9660>(blockProvider);
-		result->m_track0DataType = TRACK_DATA_TYPE_MODE2_2352;
-		result->m_track0BlockProvider = blockProvider;
+		result->m_mediaBlockType = MEDIA_BLOCK_TYPE_2352;
+		result->m_blockProvider = blockProvider;
 	}
 
 	if(
-	    (result->m_track0DataType == TRACK_DATA_TYPE_MODE1_2048) &&
+	    (result->m_mediaBlockType == MEDIA_BLOCK_TYPE_2048) &&
 	    !(createFlags & CREATE_AUTO_DISABLE_DL_DETECT))
 	{
 		try
@@ -38,41 +38,63 @@ std::unique_ptr<COpticalMedia> COpticalMedia::CreateAuto(StreamPtr& stream, uint
 			//Failed to check if we got a dual layer DVD (ex.: Couldn't get stream size of physical disc)
 		}
 	}
+
+	if(!(createFlags & CREATE_AUTO_NO_FIRST_TRACK))
+	{
+		TRACK track = {};
+		track.size = result->m_blockProvider->GetBlockCount();
+		result->AddTrack(track);
+	}
+
 	return result;
 }
 
-std::unique_ptr<COpticalMedia> COpticalMedia::CreateDvd(StreamPtr& stream, bool isDualLayer, uint32 secondLayerStart)
+std::unique_ptr<COpticalMedia> COpticalMedia::CreateDvd(const StreamPtr& stream, bool isDualLayer, uint32 secondLayerStart)
 {
 	auto result = std::make_unique<COpticalMedia>();
 	auto blockProvider = std::make_shared<ISO9660::CBlockProvider2048>(stream);
 	result->m_fileSystem = std::make_unique<CISO9660>(blockProvider);
-	result->m_track0DataType = TRACK_DATA_TYPE_MODE1_2048;
-	result->m_track0BlockProvider = blockProvider;
+	result->m_mediaBlockType = MEDIA_BLOCK_TYPE_2048;
+	result->m_blockProvider = blockProvider;
 	result->m_dvdIsDualLayer = isDualLayer;
 	result->m_dvdSecondLayerStart = secondLayerStart;
 	result->SetupSecondLayer(stream);
 	return result;
 }
 
-std::unique_ptr<COpticalMedia> COpticalMedia::CreateCustomSingleTrack(BlockProviderPtr blockProvider, TRACK_DATA_TYPE trackDataType)
+std::unique_ptr<COpticalMedia> COpticalMedia::CreateCustom(BlockProviderPtr blockProvider, MEDIA_BLOCK_TYPE mediaBlockType, std::vector<TRACK> tracks)
 {
 	auto result = std::make_unique<COpticalMedia>();
 	result->m_fileSystem = std::make_unique<CISO9660>(blockProvider);
-	result->m_track0DataType = trackDataType;
-	result->m_track0BlockProvider = blockProvider;
+	result->m_mediaBlockType = mediaBlockType;
+	result->m_blockProvider = std::move(blockProvider);
+	result->m_tracks = std::move(tracks);
 	return result;
 }
 
-COpticalMedia::TRACK_DATA_TYPE COpticalMedia::GetTrackDataType(uint32 trackIndex) const
+void COpticalMedia::AddTrack(const TRACK& track)
 {
-	assert(trackIndex == 0);
-	return m_track0DataType;
+	m_tracks.push_back(track);
 }
 
-ISO9660::CBlockProvider* COpticalMedia::GetTrackBlockProvider(uint32 trackIndex) const
+uint32 COpticalMedia::GetTrackCount() const
 {
-	assert(trackIndex == 0);
-	return m_track0BlockProvider.get();
+	return static_cast<uint32>(m_tracks.size());
+}
+
+const COpticalMedia::TRACK& COpticalMedia::GetTrack(uint32 trackIndex) const
+{
+	return m_tracks[trackIndex];
+}
+
+COpticalMedia::MEDIA_BLOCK_TYPE COpticalMedia::GetMediaBlockType() const
+{
+	return m_mediaBlockType;
+}
+
+ISO9660::CBlockProvider* COpticalMedia::GetBlockProvider() const
+{
+	return m_blockProvider.get();
 }
 
 CISO9660* COpticalMedia::GetFileSystem()

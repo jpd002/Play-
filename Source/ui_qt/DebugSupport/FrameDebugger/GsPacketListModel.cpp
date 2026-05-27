@@ -134,8 +134,6 @@ void PacketTreeModel::setupModelData(CFrameDump& m_frameDump)
 		auto parent = new GsPacketData(packetDescription.c_str(), cmdIndex, m_rootItem);
 		m_rootItem->appendChild(parent);
 
-		QVector<QVariant> columnData;
-		columnData.reserve(packet.registerWrites.size());
 		auto cmdIndexStart = cmdIndex;
 		for(const auto& registerWrite : packet.registerWrites)
 		{

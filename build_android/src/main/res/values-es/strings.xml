@@ -94,9 +94,6 @@
 	<string name="pref_ui_reset_cache_title">Resetear Caché</string>
 	<string name="pref_ui_reset_cache_summary">Elimina las carátulas de juegos que estén almacenadas en el dispositivo.</string>
 
-	<string name="pref_ui_migrate_datafiles_title">Migrar Archivos de Datos</string>
-	<string name="pref_ui_migrate_datafiles_summary">Migra los archivos de datos desde una carpeta en el dispositivo a seleccionar</string>
-
 	<string name="preferences_theme">Ajustes de Estilos</string>
 
 	<string name="pref_title_theme_selection">Selección de Estilo</string>
@@ -174,10 +171,4 @@
 
 	<string name="permission_dialog_title">Solicitud de Permisos</string>
 	<string name="permission_dialog_summary">Play! necesita acceso al almacenamiento del dispositivo (escritura/lectura). Sin él, Play! no podrá encontrar tus juegos o guardar tu progreso en ellos.</string>
-
-	<!-- Data Files Migration -->
-	<string name="migration_title">Migración de archivos</string>
-	<string name="migration_selectfolder">Porfavor selecciona la ubicación de la carpeta anterior de Datos (usualmente ubicada en la carpeta root del almacenamiento de tu dispositivo, con el nombre \'Play Data Files\').</string>
-	<string name="migration_task_msg">Porfavor espera&#8230;</string>
-
 </resources>

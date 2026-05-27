@@ -107,12 +107,12 @@ uint32 CCdvdman::CdGetDiskTypeDirect(COpticalMedia* opticalMedia)
 	//Assert just to make sure that we're not handling different optical medias
 	//(Only one can be inserted at once)
 	assert(m_opticalMedia == opticalMedia);
-	switch(m_opticalMedia->GetTrackDataType(0))
+	switch(m_opticalMedia->GetMediaBlockType())
 	{
-	case COpticalMedia::TRACK_DATA_TYPE_MODE2_2352:
+	case COpticalMedia::MEDIA_BLOCK_TYPE_2352:
 		return CCdvdman::CDVD_DISKTYPE_PS2CD;
 		break;
-	case COpticalMedia::TRACK_DATA_TYPE_MODE1_2048:
+	case COpticalMedia::MEDIA_BLOCK_TYPE_2048:
 	default:
 		return CCdvdman::CDVD_DISKTYPE_PS2DVD;
 		break;

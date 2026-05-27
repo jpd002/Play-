@@ -94,9 +94,6 @@
 	<string name="pref_ui_reset_cache_title">重置缓存</string>
 	<string name="pref_ui_reset_cache_summary">清除存储的封面图片</string>
 
-	<string name="pref_ui_migrate_datafiles_title">迁移数据文件</string>
-	<string name="pref_ui_migrate_datafiles_summary">从设备上的文件夹中迁移数据文件</string>
-
 	<string name="preferences_theme">主题设置</string>
 
 	<string name="pref_title_theme_selection">主题选择</string>
@@ -166,10 +163,4 @@
 	
 	<string name="permission_dialog_title">权限请求</string>
 	<string name="permission_dialog_summary">Play! 需要存储访问（读/写）的权限。否则Play! 将无法找到您的游戏或保存进度。</string>
-
-	<!-- Data Files Migration -->
-	<string name="migration_title">数据文件迁移</string>
-	<string name="migration_selectfolder">请选择之前的数据文件文件夹的位置（通常位于设备存储的根目录，并名为\“Play Data Files\”）。</string>
-	<string name="migration_task_msg">请稍候&#8230;</string>
-
 </resources>

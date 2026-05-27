@@ -61,6 +61,7 @@
 #define SYSCALL_CUSTOM_RESCHEDULE 0x666
 #define SYSCALL_CUSTOM_EXITINTERRUPT 0x667
 
+#define SYSCALL_NAME_GSSETCRT "osGsSetCrt"
 #define SYSCALL_NAME_EXIT "osExit"
 #define SYSCALL_NAME_LOADEXECPS2 "osLoadExecPS2"
 #define SYSCALL_NAME_EXECPS2 "osExecPS2"
@@ -133,6 +134,7 @@
 // clang-format off
 const CPS2OS::SYSCALL_NAME CPS2OS::g_syscallNames[] =
 {
+	{0x0002, SYSCALL_NAME_GSSETCRT},
 	{0x0004, SYSCALL_NAME_EXIT},
 	{0x0006, SYSCALL_NAME_LOADEXECPS2},
 	{0x0007, SYSCALL_NAME_EXECPS2},
@@ -2729,6 +2731,15 @@ void CPS2OS::sc_SignalSema()
 	bool isInt = m_ee.m_State.nGPR[3].nV[0] == 0x43;
 	uint32 id = m_ee.m_State.nGPR[SC_PARAM0].nV[0];
 
+	{
+		//Tales of Destiny fails to initialize some local variables and expects
+		//a zero to be present in a specific spot. I assume the stack gets modified
+		//by syscalls since the context is saved before executing them, let's do the same here.
+		uint32 contextPtr = m_ee.m_State.nGPR[CMIPS::SP].nV0 - STACKRES;
+		auto context = GetStructPtr(contextPtr);
+		memset(context, 0, STACKRES);
+	}
+
 	auto sema = m_semaphores[id];
 	if(sema == nullptr)
 	{
@@ -3264,7 +3275,7 @@ std::string CPS2OS::GetSysCallDescription(uint8 function)
 	switch(function)
 	{
 	case 0x02:
-		description = string_format("GsSetCrt(interlace = %i, mode = %i, field = %i);",
+		description = string_format(SYSCALL_NAME_GSSETCRT "(interlace = %i, mode = %i, field = %i);",
 		                            m_ee.m_State.nGPR[SC_PARAM0].nV[0],
 		                            m_ee.m_State.nGPR[SC_PARAM1].nV[0],
 		                            m_ee.m_State.nGPR[SC_PARAM2].nV[0]);

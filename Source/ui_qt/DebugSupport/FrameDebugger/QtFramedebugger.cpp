@@ -10,7 +10,7 @@
 #include "GsPacketListModel.h"
 #include "GsStateUtils.h"
 #include "DebugUtils.h"
-
+#include "../../QStringUtils.h"
 #include "../../GSH_OpenGLQt.h"
 #include "../../openglwindow.h"
 
@@ -440,9 +440,12 @@ void QtFramedebugger::on_context1Buffer_currentIndexChanged(int index)
 
 void QtFramedebugger::on_actionLoad_Dump_triggered()
 {
+	auto frameDumpsPath = CAppConfig::GetInstance().GetBasePath() / fs::path("framedumps/");
+
 	QFileDialog dialog(this);
 	dialog.setFileMode(QFileDialog::ExistingFile);
 	dialog.setNameFilter(tr("Play! Frame Dumps (*.dmp.zip);;All files (*.*)"));
+	dialog.setDirectory(PathToQString(frameDumpsPath));
 	if(dialog.exec())
 	{
 		auto filePath = dialog.selectedFiles().first();

@@ -2,6 +2,7 @@
 #include <cassert>
 #include <cstring>
 #include "string_cast.h"
+#include "string_format.h"
 #include "stricmp.h"
 #include "DiskUtils.h"
 #include "discimages/ChdCdImageStream.h"
@@ -9,6 +10,7 @@
 #include "discimages/CueSheet.h"
 #include "discimages/IszImageStream.h"
 #include "discimages/MdsDiscImage.h"
+#include "discimages/MultiImageStream.h"
 #include "StdStream.h"
 #include "StdStreamUtils.h"
 #include "StringUtils.h"
@@ -74,23 +76,97 @@ static DiskUtils::OpticalMediaPtr CreateOpticalMediaFromCueSheet(const fs::path&
 {
 	auto currentPath = imagePath.parent_path();
 	auto imageStream = std::unique_ptr<Framework::CStream>(CreateImageStream(imagePath));
-	auto fileStream = std::shared_ptr<Framework::CStream>();
 	CCueSheet cueSheet(*imageStream);
+	struct TRACK
+	{
+		std::shared_ptr<Framework::CStream> stream;
+		uint64 size = 0;
+	};
+	std::vector<TRACK> tracks;
+	auto currentStream = std::shared_ptr<Framework::CStream>();
+	int currentTrackIndex = -1;
 	for(const auto& command : cueSheet.GetCommands())
 	{
 		if(auto fileCommand = dynamic_cast<CCueSheet::COMMAND_FILE*>(command.get()))
 		{
-			assert(fileCommand->filetype == "BINARY");
+			if(fileCommand->filetype != "BINARY")
+			{
+				throw std::runtime_error(string_format("Unsupported FILE type: %s.", fileCommand->filetype.c_str()));
+			}
 			auto filePath = currentPath / fileCommand->filename;
-			fileStream = std::shared_ptr<Framework::CStream>(CreateImageStream(filePath));
-			break;
+			currentStream = std::shared_ptr<Framework::CStream>(CreateImageStream(filePath));
+			currentTrackIndex = -1;
+		}
+		else if(auto trackCommand = dynamic_cast<CCueSheet::COMMAND_TRACK*>(command.get()))
+		{
+			if(trackCommand->number != (tracks.size() + 1))
+			{
+				throw std::runtime_error("Unexpected track command encountered.");
+			}
+			if(currentTrackIndex != -1)
+			{
+				throw std::runtime_error("Multiple tracks per file not supported.");
+			}
+			currentTrackIndex = trackCommand->number - 1;
+			TRACK newTrack = {};
+			newTrack.stream = currentStream;
+			tracks.push_back(std::move(newTrack));
+		}
+		else if(auto indexCommand = dynamic_cast<CCueSheet::COMMAND_INDEX*>(command.get()))
+		{
+			if(currentTrackIndex == -1)
+			{
+				throw std::runtime_error("Got an index without defining a track.");
+			}
+			if(indexCommand->number == 1)
+			{
+				auto& track = tracks[currentTrackIndex];
+				//Store pregap
+			}
+		}
+		//TODO: Handle PREGAP commands
+	}
+	DiskUtils::OpticalMediaPtr result;
+	if(tracks.size() == 1)
+	{
+		//If we have one track, let's not worry too much and just use auto-detect.
+		//Most likely a CD, but since we don't check the track mode, we could have
+		//some other data type (ex.: cooked 2048 bytes per sector file) that we still
+		//want to be able to read.
+		result = COpticalMedia::CreateAuto(tracks[0].stream);
+	}
+	else if(tracks.size() > 1)
+	{
+		//We need to create some unified "file" using all the tracks files.
+		//All the files need to have the same block size. We assume CD type blocks.
+		std::vector<CMultiImageStream::StreamPtr> streams;
+		for(auto& track : tracks)
+		{
+			uint64 trackSize = track.stream->GetLength();
+			if((trackSize % COpticalMedia::MEDIA_BLOCK_SIZE_2352) != 0)
+			{
+				throw std::runtime_error("Inconsistent track block size.");
+			}
+			streams.push_back(track.stream);
+			track.size = trackSize;
+		}
+		auto discStream = std::make_shared<CMultiImageStream>(streams);
+		result = COpticalMedia::CreateAuto(discStream, COpticalMedia::CREATE_AUTO_NO_FIRST_TRACK);
+		uint64 currentTrackPosition = 0;
+		for(const auto& track : tracks)
+		{
+			COpticalMedia::TRACK newTrack = {};
+			newTrack.start = static_cast<uint32>(currentTrackPosition / COpticalMedia::MEDIA_BLOCK_SIZE_2352);
+			newTrack.size = static_cast<uint32>(track.size / COpticalMedia::MEDIA_BLOCK_SIZE_2352);
+			result->AddTrack(newTrack);
+			currentTrackPosition += track.size;
 		}
 	}
-	if(!fileStream)
+	if(!result)
 	{
 		throw std::runtime_error("Could not build media from cuesheet.");
 	}
-	return COpticalMedia::CreateAuto(fileStream);
+	return result;
 }
 
 static DiskUtils::OpticalMediaPtr CreateOpticalMediaFromMds(const fs::path& imagePath)
@@ -108,24 +184,47 @@ static DiskUtils::OpticalMediaPtr CreateOpticalMediaFromMds(const fs::path& imag
 
 static DiskUtils::OpticalMediaPtr CreateOpticalMediaFromChd(const fs::path& imagePath)
 {
-	//Some notes about CHD support:
-	//- We don't support multi track CDs
 	auto imageStream = std::make_shared<CChdCdImageStream>(CreateImageStream(imagePath));
-	auto trackInfo = [&imageStream]() -> std::pair<COpticalMedia::BlockProviderPtr, COpticalMedia::TRACK_DATA_TYPE> {
-		switch(imageStream->GetTrack0Type())
+	auto trackInfo = [&imageStream]() -> std::pair<COpticalMedia::BlockProviderPtr, COpticalMedia::MEDIA_BLOCK_TYPE> {
+		static constexpr uint64 CHD_CD_UNITSIZE = 2448;
+		static constexpr uint64 CD_MEDIA_UNIT_SIZE = COpticalMedia::MEDIA_BLOCK_SIZE_2352;
+		switch(imageStream->GetDataType())
 		{
 		default:
 			assert(false);
 			[[fallthrough]];
-		case CChdCdImageStream::TRACK_TYPE_CD_MODE1:
-			return std::make_pair(std::make_shared<ISO9660::CBlockProviderCustom<0x990, 0>>(imageStream), COpticalMedia::TRACK_DATA_TYPE_MODE1_2048);
-		case CChdCdImageStream::TRACK_TYPE_CD_MODE2_RAW:
-			return std::make_pair(std::make_shared<ISO9660::CBlockProviderCustom<0x990, 0x18>>(imageStream), COpticalMedia::TRACK_DATA_TYPE_MODE2_2352);
-		case CChdCdImageStream::TRACK_TYPE_DVD:
-			return std::make_pair(std::make_shared<ISO9660::CBlockProvider2048>(imageStream), COpticalMedia::TRACK_DATA_TYPE_MODE1_2048);
+		case CChdCdImageStream::DATA_TYPE_CD_MODE1:
+			return std::make_pair(std::make_shared<ISO9660::CBlockProviderCustom<CHD_CD_UNITSIZE, CD_MEDIA_UNIT_SIZE, 0>>(imageStream), COpticalMedia::MEDIA_BLOCK_TYPE_2352);
+		case CChdCdImageStream::DATA_TYPE_CD_MODE1_RAW:
+			return std::make_pair(std::make_shared<ISO9660::CBlockProviderCustom<CHD_CD_UNITSIZE, CD_MEDIA_UNIT_SIZE, 0x10>>(imageStream), COpticalMedia::MEDIA_BLOCK_TYPE_2352);
+		case CChdCdImageStream::DATA_TYPE_CD_MODE2_RAW:
+			return std::make_pair(std::make_shared<ISO9660::CBlockProviderCustom<CHD_CD_UNITSIZE, CD_MEDIA_UNIT_SIZE, 0x18>>(imageStream), COpticalMedia::MEDIA_BLOCK_TYPE_2352);
+		case CChdCdImageStream::DATA_TYPE_DVD:
+			return std::make_pair(std::make_shared<ISO9660::CBlockProvider2048>(imageStream), COpticalMedia::MEDIA_BLOCK_TYPE_2048);
 		}
 	}();
-	return COpticalMedia::CreateCustomSingleTrack(std::move(trackInfo.first), trackInfo.second);
+	std::vector<COpticalMedia::TRACK> tracks;
+	const auto& chdTracks = imageStream->GetTracks();
+	if(!chdTracks.empty())
+	{
+		for(int i = 0; i < chdTracks.size(); i++)
+		{
+			const auto& chdTrack = chdTracks[i];
+			COpticalMedia::TRACK track = {};
+			track.start = chdTrack.startFrame;
+			track.size = chdTrack.frames;
+			tracks.push_back(track);
+		}
+	}
+	else
+	{
+		//Create first track
+		COpticalMedia::TRACK track = {};
+		track.size = trackInfo.first->GetBlockCount();
+		tracks.push_back(track);
+	}
+	auto result = COpticalMedia::CreateCustom(std::move(trackInfo.first), trackInfo.second, std::move(tracks));
+	return result;
 }
 
 const DiskUtils::ExtensionList& DiskUtils::GetSupportedExtensions()

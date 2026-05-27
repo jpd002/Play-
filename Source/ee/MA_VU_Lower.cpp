@@ -59,15 +59,19 @@ void CMA_VU::CLower::SetRelativePipeTime(uint32 relativePipeTime)
 	m_relativePipeTime = relativePipeTime;
 }
 
-void CMA_VU::CLower::SetBranchAddress(bool nCondition, int32 nOffset)
+void CMA_VU::CLower::SetBranchAddress(int32 nOffset)
 {
-	m_codeGen->PushCst(0);
-	m_codeGen->BeginIf(nCondition ? Jitter::CONDITION_NE : Jitter::CONDITION_EQ);
+	m_codeGen->PushRel(offsetof(CMIPS, m_State.nPC));
+	m_codeGen->PushCst(m_instrPosition + nOffset + 4);
+	m_codeGen->Add();
+	m_codeGen->PullRel(offsetof(CMIPS, m_State.nDelayedJumpAddr));
+}
+
+void CMA_VU::CLower::SetBranchAddressConditional(Jitter::CONDITION condition, int32 nOffset)
+{
+	m_codeGen->BeginIf(condition);
 	{
-		m_codeGen->PushRel(offsetof(CMIPS, m_State.nPC));
-		m_codeGen->PushCst(m_instrPosition + nOffset + 4);
-		m_codeGen->Add();
-		m_codeGen->PullRel(offsetof(CMIPS, m_State.nDelayedJumpAddr));
+		SetBranchAddress(nOffset);
 	}
 	m_codeGen->EndIf();
 }
@@ -380,8 +384,7 @@ void CMA_VU::CLower::FCGET()
 //20
 void CMA_VU::CLower::B()
 {
-	m_codeGen->PushCst(1);
-	SetBranchAddress(true, VUShared::GetBranch(m_nImm11) + 4);
+	SetBranchAddress(VUShared::GetBranch(m_nImm11) + 4);
 }
 
 //21
@@ -394,8 +397,7 @@ void CMA_VU::CLower::BAL()
 	m_codeGen->Sra(3);
 	m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
 
-	m_codeGen->PushCst(1);
-	SetBranchAddress(true, VUShared::GetBranch(m_nImm11) + 4);
+	SetBranchAddress(VUShared::GetBranch(m_nImm11) + 4);
 }
 
 //24
@@ -440,9 +442,7 @@ void CMA_VU::CLower::IBEQ()
 	m_codeGen->PushCst(0xFFFF);
 	m_codeGen->And();
 
-	m_codeGen->Cmp(Jitter::CONDITION_EQ);
-
-	SetBranchAddress(true, VUShared::GetBranch(m_nImm11) + 4);
+	SetBranchAddressConditional(Jitter::CONDITION_EQ, VUShared::GetBranch(m_nImm11) + 4);
 }
 
 //29
@@ -458,9 +458,7 @@ void CMA_VU::CLower::IBNE()
 	m_codeGen->PushCst(0xFFFF);
 	m_codeGen->And();
 
-	m_codeGen->Cmp(Jitter::CONDITION_EQ);
-
-	SetBranchAddress(false, VUShared::GetBranch(m_nImm11) + 4);
+	SetBranchAddressConditional(Jitter::CONDITION_NE, VUShared::GetBranch(m_nImm11) + 4);
 }
 
 //2C
@@ -473,9 +471,7 @@ void CMA_VU::CLower::IBLTZ()
 	m_codeGen->PushCst(0x8000);
 	m_codeGen->And();
 
-	m_codeGen->Cmp(Jitter::CONDITION_EQ);
-
-	SetBranchAddress(false, VUShared::GetBranch(m_nImm11) + 4);
+	SetBranchAddressConditional(Jitter::CONDITION_NE, VUShared::GetBranch(m_nImm11) + 4);
 }
 
 //2D
@@ -486,9 +482,8 @@ void CMA_VU::CLower::IBGTZ()
 	m_codeGen->SignExt16();
 
 	m_codeGen->PushCst(0);
-	m_codeGen->Cmp(Jitter::CONDITION_GT);
 
-	SetBranchAddress(true, VUShared::GetBranch(m_nImm11) + 4);
+	SetBranchAddressConditional(Jitter::CONDITION_GT, VUShared::GetBranch(m_nImm11) + 4);
 }
 
 //2E
@@ -498,9 +493,8 @@ void CMA_VU::CLower::IBLEZ()
 	m_codeGen->SignExt16();
 
 	m_codeGen->PushCst(0);
-	m_codeGen->Cmp(Jitter::CONDITION_GT);
 
-	SetBranchAddress(false, VUShared::GetBranch(m_nImm11) + 4);
+	SetBranchAddressConditional(Jitter::CONDITION_LE, VUShared::GetBranch(m_nImm11) + 4);
 }
 
 //2F
@@ -512,9 +506,7 @@ void CMA_VU::CLower::IBGEZ()
 	m_codeGen->PushCst(0x8000);
 	m_codeGen->And();
 
-	m_codeGen->Cmp(Jitter::CONDITION_EQ);
-
-	SetBranchAddress(true, VUShared::GetBranch(m_nImm11) + 4);
+	SetBranchAddressConditional(Jitter::CONDITION_EQ, VUShared::GetBranch(m_nImm11) + 4);
 }
 
 //40

@@ -216,7 +216,8 @@ private:
 		uint32 m_relativePipeTime = 0;
 		uint32 m_vuMemAddressMask;
 
-		void SetBranchAddress(bool, int32);
+		void SetBranchAddress(int32);
+		void SetBranchAddressConditional(Jitter::CONDITION, int32);
 		static bool IsLOI(CMIPS*, uint32);
 
 		static void ReflOpIs(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);

@@ -11,7 +11,8 @@
 		"name": "zoidsinf.chd"
 	},
 	"boot": "ac0:ZOILOAD",
-	"patches":
+	"idleLoopBlocks":
 	[
+		"0x001A0500"
 	]
 }

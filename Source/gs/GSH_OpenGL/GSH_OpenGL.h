@@ -61,6 +61,7 @@ protected:
 	void ReleaseImpl() override;
 	void ResetImpl() override;
 	void NotifyPreferencesChangedImpl() override;
+	void MarkNewFrame() override;
 	void FlipImpl(const DISPLAY_INFO&) override;
 
 	GLuint m_presentFramebuffer = 0;

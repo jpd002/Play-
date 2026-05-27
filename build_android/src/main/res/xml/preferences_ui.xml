@@ -30,10 +30,17 @@
             app:iconSpaceReserved="false" />
 
         <Preference
-            android:key="ui.datafiles.migrate"
+            android:key="ui.datafiles.export"
             android:persistent="false"
-            android:summary="@string/pref_ui_migrate_datafiles_summary"
-            android:title="@string/pref_ui_migrate_datafiles_title"
+            android:summary="@string/pref_ui_export_datafiles_summary"
+            android:title="@string/pref_ui_export_datafiles_title"
+            app:iconSpaceReserved="false" />
+
+        <Preference
+            android:key="ui.datafiles.import"
+            android:persistent="false"
+            android:summary="@string/pref_ui_import_datafiles_summary"
+            android:title="@string/pref_ui_import_datafiles_title"
             app:iconSpaceReserved="false" />
     </PreferenceCategory>
 

@@ -17,9 +17,9 @@ namespace ISO9660
 
 		virtual ~CBlockProvider() = default;
 		virtual void ReadBlock(uint32, void*) = 0;
-		virtual void ReadRawBlock(uint32, void*) = 0;
+		virtual void ReadMediaBlock(uint32, void*) = 0;
 		virtual uint32 GetBlockCount() = 0;
-		virtual uint32 GetRawBlockSize() const = 0;
+		virtual uint32 GetMediaBlockSize() const = 0;
 	};
 
 	class CBlockProvider2048 : public CBlockProvider
@@ -39,7 +39,7 @@ namespace ISO9660
 			m_stream->Read(block, BLOCKSIZE);
 		}
 
-		void ReadRawBlock(uint32 address, void* block) override
+		void ReadMediaBlock(uint32 address, void* block) override
 		{
 			ReadBlock(address, block);
 		}
@@ -51,7 +51,7 @@ namespace ISO9660
 			return static_cast<uint32>(imageSize / BLOCKSIZE);
 		}
 
-		uint32 GetRawBlockSize() const override
+		uint32 GetMediaBlockSize() const override
 		{
 			return BLOCKSIZE;
 		}
@@ -61,10 +61,14 @@ namespace ISO9660
 		uint32 m_offset = 0;
 	};
 
-	template <uint64 INTERNAL_BLOCKSIZE, uint64 BLOCKHEADER_SIZE>
+	template <uint64 INTERNAL_BLOCKSIZE, uint64 MEDIA_BLOCKSIZE, uint64 BLOCKHEADER_SIZE>
 	class CBlockProviderCustom : public CBlockProvider
 	{
 	public:
+		//INTERNAL_BLOCKSIZE = Unit size of the stream (ex.: CHD uses 2448)
+		//MEDIA_BLOCKSIZE = Unit size of the media (ex.: CD has 2352 bytes sectors)
+		//BLOCKHEADER_SIZE = Size of the header before the data (CD MODE1 & MODE2 = 16 bytes, CD MODE 2/XA = 24 bytes)
+
 		typedef std::shared_ptr<Framework::CStream> StreamPtr;
 
 		CBlockProviderCustom(const StreamPtr& stream)
@@ -78,10 +82,10 @@ namespace ISO9660
 			m_stream->Read(block, BLOCKSIZE);
 		}
 
-		void ReadRawBlock(uint32 address, void* block) override
+		void ReadMediaBlock(uint32 address, void* block) override
 		{
 			m_stream->Seek(static_cast<uint64>(address) * INTERNAL_BLOCKSIZE, Framework::STREAM_SEEK_SET);
-			m_stream->Read(block, INTERNAL_BLOCKSIZE);
+			m_stream->Read(block, MEDIA_BLOCKSIZE);
 		}
 
 		uint32 GetBlockCount() override
@@ -91,14 +95,14 @@ namespace ISO9660
 			return static_cast<uint32>(imageSize / INTERNAL_BLOCKSIZE);
 		}
 
-		uint32 GetRawBlockSize() const override
+		uint32 GetMediaBlockSize() const override
 		{
-			return INTERNAL_BLOCKSIZE;
+			return MEDIA_BLOCKSIZE;
 		}
 
 	private:
 		StreamPtr m_stream;
 	};
 
-	typedef CBlockProviderCustom<0x930ULL, 0x18ULL> CBlockProviderCDROMXA;
+	typedef CBlockProviderCustom<0x930ULL, 0x930ULL, 0x18ULL> CBlockProviderCDROMXA;
 }

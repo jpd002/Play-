@@ -94,9 +94,6 @@
 	<string name="pref_ui_reset_cache_title">캐시 재설정</string>
 	<string name="pref_ui_reset_cache_summary">저장된 표지 이미지 지우기</string>
 
-	<string name="pref_ui_migrate_datafiles_title">데이터 파일 마이그레이션</string>
-	<string name="pref_ui_migrate_datafiles_summary">장치의 폴더에서 데이터 파일 마이그레이션</string>
-
 	<string name="preferences_theme">테마 설정</string>
 
 	<string name="pref_title_theme_selection">테마 선택</string>
@@ -166,10 +163,4 @@
 
 	<string name="permission_dialog_title">권한 요청</string>
 	<string name="permission_dialog_summary">Play! 저장소 접속(읽기/쓰기)가 필요합니다. 이 권한이 없으면 Play! 에서 게임을 찾거나 진행 상황을 저장할 수 없습니다.</string>
-
-	<!-- Data Files Migration -->
-	<string name="migration_title">데이터 파일 마이그레이션</string>
-	<string name="migration_selectfolder">이전 데이터 파일 폴더의 위치 (일반적으로 장치 저장소의 루트에 있으며 \'데이터 파일 재생\'이라는 이름이 지정됨)를 선택하세요.</string>
-	<string name="migration_task_msg">잠시만 기다려주세요&#8230;</string>
-
 </resources>

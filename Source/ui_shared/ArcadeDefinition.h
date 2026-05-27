@@ -63,4 +63,5 @@ struct ARCADE_MACHINE_DEF
 	// Use for system 246 games that idle-loop on T1_COUNT but whose loop address varies
 	// across ROM versions (e.g. Battle Gear 3).
 	bool suppressT1CountForIdle = false;
+	std::vector<uint32> idleLoopBlocks;
 };

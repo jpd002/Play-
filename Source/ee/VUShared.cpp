@@ -228,34 +228,25 @@ void VUShared::MakeComparableFromFloat(CMipsJitter* codeGen)
 {
 	uint32 valueCursor = codeGen->GetTopCursor();
 
-	//Compute mask
-	codeGen->PushCursor(valueCursor);
-	codeGen->MD_SraW(31);
-	uint32 maskCursor = codeGen->GetTopCursor();
-
 	//Make neg
 	codeGen->MD_PushCstExpandW(0xFFFFFFFFU);
 	codeGen->PushCursor(valueCursor);
 	codeGen->MD_SubW();
-	codeGen->PushCursor(maskCursor);
-	codeGen->MD_And();
 
 	//Make pos
 	codeGen->MD_PushCstExpandW(0x7FFFFFFFU);
 	codeGen->PushCursor(valueCursor);
 	codeGen->MD_AddW();
-	codeGen->PushCursor(maskCursor);
-	codeGen->MD_Not();
-	codeGen->MD_And();
 
-	codeGen->MD_Or();
+	//Compute selector
+	codeGen->PushCursor(valueCursor);
+	codeGen->MD_SraW(31);
+
+	codeGen->MD_BitSelect();
 
 	//Make it signed comparable
 	codeGen->MD_PushCstExpandW(0x80000000U);
 	codeGen->MD_SubW();
-
-	codeGen->Swap();
-	codeGen->PullTop();
 
 	codeGen->Swap();
 	codeGen->PullTop();
@@ -427,7 +418,10 @@ void VUShared::SetStatus(CMipsJitter* codeGen, size_t srcOffset)
 void VUShared::ADD_base(CMipsJitter* codeGen, uint8 dest, size_t fd, size_t fs, size_t ft, bool expand, uint32 relativePipeTime, uint32 compileHints)
 {
 	codeGen->MD_PushRel(fs);
-	codeGen->MD_ClampS();
+	if(UseClamping(compileHints))
+	{
+		codeGen->MD_ClampS();
+	}
 	if(expand)
 	{
 		PushBcElement(codeGen, ft);
@@ -462,11 +456,17 @@ void VUShared::MADD_base(CMipsJitter* codeGen, uint8 dest, size_t fd, size_t fs,
 	codeGen->MD_PushRel(offsetof(CMIPS, m_State.nCOP2A));
 	codeGen->MD_PushRel(fs);
 	//Clamping is needed by Baldur's Gate Deadly Alliance here because it multiplies junk values (potentially NaN/INF) by 0
-	codeGen->MD_ClampS();
+	if(UseClamping(compileHints))
+	{
+		codeGen->MD_ClampS();
+	}
 	if(expand)
 	{
 		PushBcElement(codeGen, ft);
-		codeGen->MD_ClampS(); //Fatal Frame 1's door-blocking bug can be fixed by this
+		if(UseClamping(compileHints))
+		{
+			codeGen->MD_ClampS(); //Fatal Frame 1's door-blocking bug can be fixed by this
+		}
 	}
 	else
 	{
@@ -482,8 +482,11 @@ void VUShared::MADDA_base(CMipsJitter* codeGen, uint8 dest, size_t fs, size_t ft
 {
 	codeGen->MD_PushRel(offsetof(CMIPS, m_State.nCOP2A));
 	codeGen->MD_PushRel(fs);
-	//Clamping is needed by Dynasty Warriors 2 here because it multiplies junk values (potentially NaN/INF) by some other value
-	codeGen->MD_ClampS();
+	if(UseClamping(compileHints))
+	{
+		//Clamping is needed by Dynasty Warriors 2 here because it multiplies junk values (potentially NaN/INF) by some other value
+		codeGen->MD_ClampS();
+	}
 	if(expand)
 	{
 		PushBcElement(codeGen, ft);
@@ -492,7 +495,10 @@ void VUShared::MADDA_base(CMipsJitter* codeGen, uint8 dest, size_t fs, size_t ft
 	{
 		codeGen->MD_PushRel(ft);
 	}
-	codeGen->MD_ClampS();
+	if(UseClamping(compileHints))
+	{
+		codeGen->MD_ClampS();
+	}
 	codeGen->MD_MulS();
 	codeGen->MD_AddS();
 	PullVector(codeGen, dest, offsetof(CMIPS, m_State.nCOP2A));
@@ -502,7 +508,10 @@ void VUShared::MADDA_base(CMipsJitter* codeGen, uint8 dest, size_t fs, size_t ft
 void VUShared::SUB_base(CMipsJitter* codeGen, uint8 dest, size_t fd, size_t fs, size_t ft, bool expand, uint32 relativePipeTime, uint32 compileHints)
 {
 	codeGen->MD_PushRel(fs);
-	codeGen->MD_ClampS();
+	if(UseClamping(compileHints))
+	{
+		codeGen->MD_ClampS();
+	}
 	if(expand)
 	{
 		PushBcElement(codeGen, ft);
@@ -511,7 +520,10 @@ void VUShared::SUB_base(CMipsJitter* codeGen, uint8 dest, size_t fd, size_t fs, 
 	{
 		codeGen->MD_PushRel(ft);
 	}
-	codeGen->MD_ClampS();
+	if(UseClamping(compileHints))
+	{
+		codeGen->MD_ClampS();
+	}
 	codeGen->MD_SubS();
 	PullVector(codeGen, dest, fd);
 	TestSZFlags(codeGen, dest, fd, relativePipeTime, compileHints);
@@ -572,7 +584,10 @@ void VUShared::MSUBA_base(CMipsJitter* codeGen, uint8 dest, size_t fs, size_t ft
 void VUShared::MUL_base(CMipsJitter* codeGen, uint8 dest, size_t fd, size_t fs, size_t ft, bool expand, uint32 relativePipeTime, uint32 compileHints)
 {
 	codeGen->MD_PushRel(fs);
-	codeGen->MD_ClampS();
+	if(UseClamping(compileHints))
+	{
+		codeGen->MD_ClampS();
+	}
 	if(expand)
 	{
 		PushBcElement(codeGen, ft);
@@ -581,7 +596,10 @@ void VUShared::MUL_base(CMipsJitter* codeGen, uint8 dest, size_t fd, size_t fs, 
 	{
 		codeGen->MD_PushRel(ft);
 	}
-	codeGen->MD_ClampS();
+	if(UseClamping(compileHints))
+	{
+		codeGen->MD_ClampS();
+	}
 	codeGen->MD_MulS();
 	PullVector(codeGen, dest, fd);
 	TestSZFlags(codeGen, dest, fd, relativePipeTime, compileHints);
@@ -590,7 +608,10 @@ void VUShared::MUL_base(CMipsJitter* codeGen, uint8 dest, size_t fd, size_t fs, 
 void VUShared::MULA_base(CMipsJitter* codeGen, uint8 dest, size_t fs, size_t ft, bool expand, uint32 relativePipeTime, uint32 compileHints)
 {
 	codeGen->MD_PushRel(fs);
-	codeGen->MD_ClampS();
+	if(UseClamping(compileHints))
+	{
+		codeGen->MD_ClampS();
+	}
 	if(expand)
 	{
 		PushBcElement(codeGen, ft);
@@ -617,30 +638,23 @@ void VUShared::MINI_base(CMipsJitter* codeGen, uint8 dest, size_t fd, size_t fs,
 		}
 	};
 
-	pushFt();
-	MakeComparableFromFloat(codeGen);
+	//Operand A
 	codeGen->MD_PushRel(fs);
-	MakeComparableFromFloat(codeGen);
 
+	//Operand B
+	pushFt();
+
+	//Selector
 	//Since we don't have a less-than operator, operands are reversed (ft > fs instead of fs < ft)
-	codeGen->MD_CmpGtW();
-	auto cmp = codeGen->GetTopCursor();
-
-	//Mask FT
-	codeGen->PushTop();
-	codeGen->MD_Not();
 	pushFt();
-	codeGen->MD_And();
-
-	//Mask FS
-	codeGen->PushCursor(cmp);
+	MakeComparableFromFloat(codeGen);
 	codeGen->MD_PushRel(fs);
-	codeGen->MD_And();
+	MakeComparableFromFloat(codeGen);
+	codeGen->MD_CmpGtW();
 
-	codeGen->MD_Or();
+	codeGen->MD_BitSelect();
+
 	PullVector(codeGen, dest, fd);
-
-	codeGen->PullTop();
 }
 
 void VUShared::MAX_base(CMipsJitter* codeGen, uint8 dest, size_t fd, size_t fs, size_t ft, bool expand)
@@ -656,29 +670,22 @@ void VUShared::MAX_base(CMipsJitter* codeGen, uint8 dest, size_t fd, size_t fs, 
 		}
 	};
 
+	//Operand A
+	codeGen->MD_PushRel(fs);
+
+	//Operand B
+	pushFt();
+
+	//Selector
 	codeGen->MD_PushRel(fs);
 	MakeComparableFromFloat(codeGen);
 	pushFt();
 	MakeComparableFromFloat(codeGen);
-
 	codeGen->MD_CmpGtW();
-	auto cmp = codeGen->GetTopCursor();
 
-	//Mask FT
-	codeGen->PushTop();
-	codeGen->MD_Not();
-	pushFt();
-	codeGen->MD_And();
+	codeGen->MD_BitSelect();
 
-	//Mask FS
-	codeGen->PushCursor(cmp);
-	codeGen->MD_PushRel(fs);
-	codeGen->MD_And();
-
-	codeGen->MD_Or();
 	PullVector(codeGen, dest, fd);
-
-	codeGen->PullTop();
 }
 
 void VUShared::ABS(CMipsJitter* codeGen, uint8 nDest, uint8 nFt, uint8 nFs)

@@ -97,7 +97,13 @@ namespace VUShared
 	{
 		COMPILEHINT_SKIP_FMAC_UPDATE = (1 << 0),
 		COMPILEHINT_USE_ACCURATE_ADDI = (1 << 1), //For decompression in Tri-Ace games
+		COMPILEHINT_NO_CLAMPING = (1 << 2),
 	};
+
+	static bool UseClamping(uint32 compileHints)
+	{
+		return (compileHints & COMPILEHINT_NO_CLAMPING) == 0;
+	}
 
 	uint32 MakeDestFromComponent(uint32);
 	int32 GetImm11Offset(uint16);

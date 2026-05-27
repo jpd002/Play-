@@ -106,8 +106,7 @@ void CDrawDesktop::CreateDrawImage()
 	m_drawImage = Framework::Vulkan::CImage(m_context->device, m_context->physicalDeviceMemoryProperties,
 	                                        VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, VK_FORMAT_R8G8B8A8_UNORM, DRAW_AREA_SIZE, DRAW_AREA_SIZE);
 
-	m_drawImage.SetLayout(m_context->queue, m_context->commandBufferPool,
-	                      VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT);
+	m_drawImage.SetLayout(m_context->queue, m_context->commandBufferPool, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
 
 	m_drawImageView = m_drawImage.CreateImageView();
 }

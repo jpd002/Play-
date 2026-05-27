@@ -94,8 +94,11 @@
 	<string name="pref_ui_reset_cache_title">Reset Cache</string>
 	<string name="pref_ui_reset_cache_summary">Clear stored cover images</string>
 
-	<string name="pref_ui_migrate_datafiles_title">Migrate Data Files</string>
-	<string name="pref_ui_migrate_datafiles_summary">Migrate Data Files from a folder on the device</string>
+	<string name="pref_ui_export_datafiles_title">Export Data Files</string>
+	<string name="pref_ui_export_datafiles_summary">Export Data Files to a folder on the device</string>
+
+	<string name="pref_ui_import_datafiles_title">Import Data Files</string>
+	<string name="pref_ui_import_datafiles_summary">Import Data Files from a folder on the device</string>
 
 	<string name="preferences_theme">Theme Settings</string>
 
@@ -175,9 +178,12 @@
 	<string name="permission_dialog_title">Permission Request</string>
 	<string name="permission_dialog_summary">Play! needs storage access (read/write). Without it, Play! won\'t be able to find your games or save your progress.</string>
 
-	<!-- Data Files Migration -->
-	<string name="migration_title">Data Files Migration</string>
-	<string name="migration_selectfolder">Please select the location of the previous Data Files folder (usually located at the root of your device\'s storage and named \'Play Data Files\').</string>
-	<string name="migration_task_msg">Please wait&#8230;</string>
-
+	<!-- Data Files Import/Export -->
+	<string name="datafiles_export_title">Data Files Export</string>
+	<string name="datafiles_import_title">Data Files Import</string>
+	<string name="datafiles_export_complete">Data Files export complete</string>
+	<string name="datafiles_import_complete">Data Files import complete</string>
+	<string name="datafiles_export_selectfolder">Please select the destination folder where Data Files will be exported to.</string>
+	<string name="datafiles_import_selectfolder">Please select the source folder where Data Files will be imported from.</string>
+	<string name="datafiles_impexp_task_msg">Please wait&#8230;</string>
 </resources>

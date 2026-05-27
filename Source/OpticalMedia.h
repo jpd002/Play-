@@ -1,5 +1,6 @@
 #pragma once
 
+#include <vector>
 #include "Stream.h"
 #include "ISO9660/ISO9660.h"
 
@@ -11,32 +12,42 @@ namespace ISO9660
 class COpticalMedia
 {
 public:
-	typedef std::shared_ptr<ISO9660::CBlockProvider> BlockProviderPtr;
+	constexpr static uint64 MEDIA_BLOCK_SIZE_2352 = 2352;
 
-	COpticalMedia() = default;
+	enum MEDIA_BLOCK_TYPE
+	{
+		MEDIA_BLOCK_TYPE_2352, //CD
+		MEDIA_BLOCK_TYPE_2048, //DVD, UMD, BD
+	};
 
 	enum CREATE_FLAGS
 	{
 		CREATE_AUTO_DISABLE_DL_DETECT = 0x01,
+		CREATE_AUTO_NO_FIRST_TRACK = 0x02,
 	};
 
-	enum TRACK_DATA_TYPE
+	struct TRACK
 	{
-		TRACK_DATA_TYPE_AUDIO,
-		TRACK_DATA_TYPE_MODE1_2048,
-		TRACK_DATA_TYPE_MODE2_2352,
+		uint32 start = 0;
+		uint32 pregap = 0; //Track Index 1
+		uint32 size = 0;
 	};
 
 	typedef std::shared_ptr<Framework::CStream> StreamPtr;
+	typedef std::shared_ptr<ISO9660::CBlockProvider> BlockProviderPtr;
 
-	static std::unique_ptr<COpticalMedia> CreateAuto(StreamPtr&, uint32 = 0);
-	static std::unique_ptr<COpticalMedia> CreateDvd(StreamPtr&, bool = false, uint32 = 0);
-	static std::unique_ptr<COpticalMedia> CreateCustomSingleTrack(BlockProviderPtr, TRACK_DATA_TYPE);
+	COpticalMedia() = default;
 
-	//TODO: Get Track Count
-	TRACK_DATA_TYPE GetTrackDataType(uint32) const;
+	static std::unique_ptr<COpticalMedia> CreateAuto(const StreamPtr&, uint32 = 0);
+	static std::unique_ptr<COpticalMedia> CreateDvd(const StreamPtr&, bool = false, uint32 = 0);
+	static std::unique_ptr<COpticalMedia> CreateCustom(BlockProviderPtr, MEDIA_BLOCK_TYPE, std::vector<TRACK>);
 
-	ISO9660::CBlockProvider* GetTrackBlockProvider(uint32) const;
+	ISO9660::CBlockProvider* GetBlockProvider() const;
+	MEDIA_BLOCK_TYPE GetMediaBlockType() const;
+
+	void AddTrack(const TRACK&);
+	uint32 GetTrackCount() const;
+	const TRACK& GetTrack(uint32) const;
 
 	CISO9660* GetFileSystem();
 	CISO9660* GetFileSystemL1();
@@ -50,8 +61,9 @@ private:
 	void CheckDualLayerDvd(const StreamPtr&);
 	void SetupSecondLayer(const StreamPtr&);
 
-	TRACK_DATA_TYPE m_track0DataType = TRACK_DATA_TYPE_MODE1_2048;
-	BlockProviderPtr m_track0BlockProvider;
+	MEDIA_BLOCK_TYPE m_mediaBlockType = MEDIA_BLOCK_TYPE_2048;
+	BlockProviderPtr m_blockProvider;
+	std::vector<TRACK> m_tracks;
 	bool m_dvdIsDualLayer = false;
 	uint32 m_dvdSecondLayerStart = 0;
 	Iso9660Ptr m_fileSystem;

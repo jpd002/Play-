@@ -63,6 +63,7 @@ if(BUILD_PLAY)
 	if(TARGET_PLATFORM_UNIX OR TARGET_PLATFORM_MACOS OR TARGET_PLATFORM_WIN32 OR USE_QT)
 		add_subdirectory(Source/ui_qt/)
 		add_subdirectory(tools/ElfView)
+		add_subdirectory(tools/DiscChecker)
 	endif(TARGET_PLATFORM_UNIX OR TARGET_PLATFORM_MACOS OR TARGET_PLATFORM_WIN32 OR USE_QT)
 
 	if(NOT USE_QT)

@@ -125,6 +125,14 @@ void CGSH_OpenGL::ResetImpl()
 	m_pendingPrimValue = 0;
 }
 
+void CGSH_OpenGL::MarkNewFrame()
+{
+	FlushVertexBuffer();
+	m_renderState.isValid = false;
+	m_validGlState = 0;
+	CGSHandler::MarkNewFrame();
+}
+
 void CGSH_OpenGL::FlipImpl(const DISPLAY_INFO& dispInfo)
 {
 	FlushVertexBuffer();
