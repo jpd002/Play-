@@ -195,7 +195,7 @@ INSTRUCTION CCOP_VU::m_cReflBc2[4] =
 	{	"BC2F",		NULL,			CopyMnemonic,		ReflOpOff,			MIPSReflection::IsBranch,	ReflEaOffset	},
 	{	"BC2T",		NULL,			CopyMnemonic,		ReflOpOff,			MIPSReflection::IsBranch,	ReflEaOffset	},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,						NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,						NULL			},
+	{	"BC2TL",	NULL,			CopyMnemonic,		ReflOpOff,			MIPSReflection::IsBranch,	ReflEaOffset	},
 };
 
 INSTRUCTION CCOP_VU::m_cReflV[64] =
