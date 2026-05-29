@@ -1,6 +1,6 @@
 #include "AmazonS3Utils.h"
 
-ListObjectsResult AmazonS3Utils::GetListObjects(const CAmazonCredentials& credentials, std::string bucketName)
+ListObjectsResult AmazonS3Utils::GetListObjects(const CAmazonConfigs& credentials, std::string bucketName)
 {
 	std::string bucketRegion;
 
