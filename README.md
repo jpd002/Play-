@@ -140,8 +140,8 @@ First you'll need to clone this repo which contains the emulator source code, al
  ```
 
 ### Building for Windows ###
-The easiest way to build the project on Windows is to open Qt Creator and direct it to the Cmake file in `/project/dir/Play-/CMakeLists.txt`.
-QT6 or 5 should be installed before start building. Registration required.  
+The easiest way to build the project on Windows is to open Qt Creator and direct it to the CMake file in `/project/dir/Play-/CMakeLists.txt`.
+Qt6 or 5 should be installed before start building. Registration required.  
 You can also build the project using Visual Studio or cmdline, for that you must follow these instructions:
 
 To build for Windows you will need to have CMake installed on your system.
@@ -153,14 +153,14 @@ To build for Windows you will need to have CMake installed on your system.
  # Not specifying -G will automatically generate 32-bit projects.
  cmake .. -G "Visual Studio 18 2026 Win64" -DCMAKE_PREFIX_PATH="C:\Qt\6.10.2\msvc2022_64"
  ```
-For Visual Studio 2026 solution, just double click on `play.slnx` in "build" folder and follow GUI instruction.  
+
+For Visual Studio 2026 solution, just double click on `Play.slnx` in "build" folder and follow GUI instructions.
+
 You can now build the project by opening the generated Visual Studio Solution or continue through cmdline:
  ```cmd
  cmake --build . --config Release
  ```
 Note: `--config` can be `Release`, `Debug`, or `RelWithDebInfo`.
-
-
 
 ### Building for macOS & iOS ###
 If you don't have CMake installed, you can install it using [Homebrew](https://brew.sh) with the following command:
@@ -211,7 +211,7 @@ if you don't have Cmake or OpenAL lib installed, you'll also require Qt. (prefer
 You can install it using your OS packaging tool, e.g Ubuntu: `apt install cmake libalut-dev qt5-default libevdev-dev libqt5x11extras5-dev libsqlite3-dev`
 
 On UNIX systems there are 3 ways to setup a build. Using Qt creator, makefile or Ninja:
- - QT Creator
+ - Qt Creator
     - Open Project -> `Play/CMakeLists.txt`
 
  - Makefile/Ninja:
