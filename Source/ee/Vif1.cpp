@@ -145,6 +145,11 @@ void CVif1::ExecuteCommand(StreamType& stream, CODE nCommand)
 		break;
 	case CODE_CMD_DIRECT:
 	case CODE_CMD_DIRECTHL:
+		if(ResumeDelayedMicroProgram())
+		{
+			m_STAT.nVEW = 1;
+			return;
+		}
 		Cmd_DIRECT(stream, nCommand);
 		break;
 	default:
