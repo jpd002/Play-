@@ -108,7 +108,7 @@ void CVuExecutor::PartitionFunction(uint32 startAddress)
 			endAddress = address + 0xC;
 			break;
 		}
-		else if(upperOp & (VUShared::VU_UPPEROP_BIT_D | VUShared::VU_UPPEROP_BIT_T))
+		else if((branchType == MIPS_BRANCH_NONE) && (upperOp & (VUShared::VU_UPPEROP_BIT_D | VUShared::VU_UPPEROP_BIT_T)))
 		{
 			endAddress = address + 0x04;
 			break;
