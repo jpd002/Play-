@@ -41,7 +41,7 @@ android {
 	defaultConfig {
 		versionCode (100 + gitVersionCode)
 		versionName gitVersionName
-		minSdkVersion 19
+		minSdkVersion 21
 		targetSdkVersion 35
 		externalNativeBuild {
 			cmake {
@@ -50,7 +50,7 @@ android {
 				cppFlags "-frtti"
 				targets "Play"
 			}
-			ndkVersion "25.2.9519653"
+			ndkVersion "29.0.14206865"
 			ndk {
 				abiFilters 'armeabi-v7a', 'x86', 'x86_64', 'arm64-v8a'
 			}
