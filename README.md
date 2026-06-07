@@ -138,6 +138,12 @@ First you'll need to clone this repo which contains the emulator source code, al
  git clone --recurse-submodules https://github.com/jpd002/Play-.git
  cd Play-
  ```
+Update all submodule before build to avoid any compatibility issues.
+
+```
+git submodule update --init --recursive
+```
+
 
 ### Building for Windows ###
 The easiest way to build the project on Windows is to open Qt Creator and direct it to the CMake file in `/project/dir/Play-/CMakeLists.txt`.
@@ -180,6 +186,10 @@ There are two ways to generate a build for macOS. Either by using Makefiles, or 
  ```
  # Not specifying -G will automatically pick Makefiles
  cmake .. -G Xcode -DCMAKE_PREFIX_PATH=~/Qt/5.1.0/clang_64/
+ cmake --build . --config Release
+ # OR
+ cd build_cmake/build/macos-xcode
+ cmake --preset macos-xcode -DCMAKE_PREFIX_PATH=~/Qt/6.11.1/macos/
  cmake --build . --config Release
  # OR
  cmake .. -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=~/Qt/5.1.0/clang_64/
