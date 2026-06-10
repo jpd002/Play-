@@ -111,6 +111,10 @@ Framework::CStream* CHardDiskDumpPartitionDevice::GetFile(uint32 accessType, con
 DirectoryIteratorPtr CHardDiskDumpPartitionDevice::GetDirectory(const char* path)
 {
 	auto reader = m_pfsReader.GetDirectoryReader(path);
+	if(!reader)
+	{
+		return DirectoryIteratorPtr();
+	}
 	return std::make_unique<CHardDiskDumpPartitionDirectoryIterator>(reader);
 }
 
@@ -131,6 +135,7 @@ void CHardDiskDumpPartitionDirectoryIterator::ReadEntry(DIRENTRY* entry)
 	m_reader->ReadEntry(entryName, entryInode);
 	*entry = {};
 	strncpy(entry->name, entryName.c_str(), DIRENTRY::NAME_SIZE);
+	entry->name[DIRENTRY::NAME_SIZE - 1] = 0;
 	entry->stat.mode = entryInode.mode;
 	entry->stat.loSize = entryInode.size;
 	entry->stat.attr = entryInode.attr;

@@ -398,6 +398,10 @@ int32 CIoman::Dopen(const char* path)
 			throw std::runtime_error("Device not found.");
 		}
 		auto directory = deviceIterator->second->GetDirectory(pathInfo.devicePath.c_str());
+		if(!directory)
+		{
+			throw std::runtime_error("Directory not found.");
+		}
 		handle = m_nextFileHandle++;
 		m_directories[handle] = std::move(directory);
 	}
@@ -435,6 +439,10 @@ int32 CIoman::Dread(uint32 handle, Ioman::DIRENTRY* dirEntry)
 	}
 
 	auto& directory = directoryIterator->second;
+	if(!directory)
+	{
+		return -1;
+	}
 	if(directory->IsDone())
 	{
 		return 0;
