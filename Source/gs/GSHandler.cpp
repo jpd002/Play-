@@ -755,6 +755,9 @@ void CGSHandler::WriteRegisterImpl(uint8 nRegister, uint64 nData)
 
 	switch(nRegister)
 	{
+	case GS_REG_ST:
+		m_nReg[nRegister] &= 0xFFFFFF00FFFFFF00;
+		break;
 	case GS_REG_TEX0_1:
 	case GS_REG_TEX0_2:
 	{
