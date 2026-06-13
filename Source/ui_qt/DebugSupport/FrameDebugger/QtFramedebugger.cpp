@@ -161,11 +161,10 @@ void QtFramedebugger::ReleaseGsHandler()
 	m_gs.reset();
 }
 
-void QtFramedebugger::LoadFrameDump(std::string path)
+void QtFramedebugger::LoadFrameDump(fs::path dumpPath)
 {
 	try
 	{
-		fs::path dumpPath(path);
 		auto inputStream = Framework::CreateInputStdStream(dumpPath.native());
 		m_frameDump.Read(inputStream);
 		m_frameDump.IdentifyDrawingKicks();
@@ -449,7 +448,7 @@ void QtFramedebugger::on_actionLoad_Dump_triggered()
 	if(dialog.exec())
 	{
 		auto filePath = dialog.selectedFiles().first();
-		LoadFrameDump(filePath.toStdString());
+		LoadFrameDump(QStringToPath(filePath));
 	}
 }
 
