@@ -60,7 +60,6 @@ private:
 	};
 
 	void selectionChanged();
-	void ShowContextMenu(const QPoint&);
 
 	void UpdateDisplay(int32);
 	void UpdateCurrentTab();
