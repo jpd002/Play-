@@ -60,6 +60,7 @@ private:
 	};
 
 	void selectionChanged();
+	void ReleaseTreeViewModel();
 
 	void UpdateDisplay(int32);
 	void UpdateCurrentTab();

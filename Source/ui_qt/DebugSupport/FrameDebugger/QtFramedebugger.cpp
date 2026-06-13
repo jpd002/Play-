@@ -111,6 +111,7 @@ QtFramedebugger::QtFramedebugger()
 QtFramedebugger::~QtFramedebugger()
 {
 	ReleaseGsHandler();
+	ReleaseTreeViewModel();
 	delete ui;
 }
 
@@ -180,12 +181,21 @@ void QtFramedebugger::LoadFrameDump(fs::path dumpPath)
 
 	m_vu1vm.Reset();
 
+	ReleaseTreeViewModel();
+
 	auto model = new PacketTreeModel(this);
 	model->setupModelData(m_frameDump);
 	ui->treeView->setModel(model);
 	connect(ui->treeView->selectionModel(), &QItemSelectionModel::selectionChanged, this, &QtFramedebugger::selectionChanged);
 
 	UpdateDisplay(0);
+}
+
+void QtFramedebugger::ReleaseTreeViewModel()
+{
+	auto prevModel = ui->treeView->model();
+	ui->treeView->setModel(nullptr);
+	delete prevModel;
 }
 
 void QtFramedebugger::UpdateDisplay(int32 targetCmdIndex)
