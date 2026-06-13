@@ -2,6 +2,7 @@
 
 #include <QMainWindow>
 
+#include "filesystem_def.h"
 #include "gs/GSHandler.h"
 #include "GsContextView.h"
 #include "FrameDump.h"
@@ -65,7 +66,7 @@ private:
 	void UpdateCurrentTab();
 	int GetCurrentCmdIndex();
 
-	void LoadFrameDump(std::string);
+	void LoadFrameDump(fs::path);
 
 	void CreateGsHandler();
 	void ReleaseGsHandler();
