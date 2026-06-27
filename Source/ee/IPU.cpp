@@ -1429,16 +1429,32 @@ bool CIPU::CBDECCommand::Execute()
 		case STATE_DONE:
 		{
 			//Write blocks into out FIFO
-			for(unsigned int i = 0; i < 8; i++)
+			if(m_command.dt == 1)
 			{
-				m_OUT_FIFO->Write(m_blocks[0].block + (i * 8), sizeof(int16) * 0x8);
-				m_OUT_FIFO->Write(m_blocks[1].block + (i * 8), sizeof(int16) * 0x8);
-			}
+				//Field DCT
+				for(unsigned int i = 0; i < 8; i++)
+				{
+					m_OUT_FIFO->Write(m_blocks[0].block + (i * 8), sizeof(int16) * 0x8);
+					m_OUT_FIFO->Write(m_blocks[1].block + (i * 8), sizeof(int16) * 0x8);
 
-			for(unsigned int i = 0; i < 8; i++)
+					m_OUT_FIFO->Write(m_blocks[2].block + (i * 8), sizeof(int16) * 0x8);
+					m_OUT_FIFO->Write(m_blocks[3].block + (i * 8), sizeof(int16) * 0x8);
+				}
+			}
+			else
 			{
-				m_OUT_FIFO->Write(m_blocks[2].block + (i * 8), sizeof(int16) * 0x8);
-				m_OUT_FIFO->Write(m_blocks[3].block + (i * 8), sizeof(int16) * 0x8);
+				//Frame DCT
+				for(unsigned int i = 0; i < 8; i++)
+				{
+					m_OUT_FIFO->Write(m_blocks[0].block + (i * 8), sizeof(int16) * 0x8);
+					m_OUT_FIFO->Write(m_blocks[1].block + (i * 8), sizeof(int16) * 0x8);
+				}
+
+				for(unsigned int i = 0; i < 8; i++)
+				{
+					m_OUT_FIFO->Write(m_blocks[2].block + (i * 8), sizeof(int16) * 0x8);
+					m_OUT_FIFO->Write(m_blocks[3].block + (i * 8), sizeof(int16) * 0x8);
+				}
 			}
 
 			m_OUT_FIFO->Write(m_blocks[4].block, sizeof(int16) * 0x40);
