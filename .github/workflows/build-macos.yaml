@@ -19,6 +19,7 @@ jobs:
       with:
         cache: true
         cache-key-prefix: ${{ runner.os }}-${{ matrix.qt-arch }}-QtCache
+        version: 6.10.*
     - name: Install AppDmg
       run: npm install -g appdmg
     - name: Checkout
