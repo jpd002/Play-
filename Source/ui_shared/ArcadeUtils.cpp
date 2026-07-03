@@ -355,6 +355,22 @@ void ArcadeUtils::BootArcadeMachine(CPS2VM* virtualMachine, const fs::path& arca
 	driver->PrepareEnvironment(virtualMachine, def);
 	driver->Launch(virtualMachine, def);
 
+	// --- define specific titles to delete vertical lines 
+	{
+		bool spriteRoundingHackEnabled =
+		    (def.id.rfind("tekken4", 0) == 0) ||
+		    (def.id.rfind("tekken5", 0) == 0) ||
+		    (def.id.rfind("soulclb3", 0) == 0) ||
+		    (def.id.rfind("taiko", 0) == 0);
+
+		if(auto gsHandler = virtualMachine->GetGSHandler())
+		{
+			gsHandler->SetSpriteRoundingHackEnabled(spriteRoundingHackEnabled);
+		}
+	}
+
+
+
 	ApplyPatchesFromArcadeDefinition(virtualMachine, def);
 	ApplyIdleLoopBlocksFromArcadeDefinition(virtualMachine, def);
 
