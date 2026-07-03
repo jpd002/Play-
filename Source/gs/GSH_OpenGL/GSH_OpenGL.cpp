@@ -335,8 +335,6 @@ void CGSH_OpenGL::SetSpriteRoundingHackEnabled(bool enabled)
 	    });
 }
 
-
-
 Framework::OpenGl::CBuffer CGSH_OpenGL::GeneratePresentVertexBuffer()
 {
 	auto buffer = Framework::OpenGl::CBuffer::Create();
