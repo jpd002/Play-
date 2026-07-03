@@ -362,8 +362,6 @@ void ArcadeUtils::BootArcadeMachine(CPS2VM* virtualMachine, const fs::path& arca
 		}
 	}
 
-
-
 	ApplyPatchesFromArcadeDefinition(virtualMachine, def);
 	ApplyIdleLoopBlocksFromArcadeDefinition(virtualMachine, def);
 
