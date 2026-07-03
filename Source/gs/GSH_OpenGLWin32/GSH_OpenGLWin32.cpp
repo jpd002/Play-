@@ -69,7 +69,7 @@ void CGSH_OpenGLWin32::InitializeImpl()
 
 	if(wglSwapIntervalEXT)
 	{
-		wglSwapIntervalEXT(-1);
+		wglSwapIntervalEXT(1);
 	}
 
 	CGSH_OpenGL::InitializeImpl();
