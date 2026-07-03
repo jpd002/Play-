@@ -282,10 +282,8 @@ void ArcadeUtils::RegisterArcadeMachines()
 		return;
 	}
 
-	//This set is used to track inactive arcadedefs we might have in the database
 	std::set<fs::path> inactiveArcadeDefs;
 
-	//Collect all arcadedef files we have registered in the database
 	{
 		auto arcadeBootables = BootablesDb::CClient::GetInstance().GetBootables(BootablesDb::CClient::SORT_METHOD_ARCADE);
 		for(const auto& bootable : arcadeBootables)
@@ -298,7 +296,6 @@ void ArcadeUtils::RegisterArcadeMachines()
 	{
 		auto arcadeDefPath = entry.path();
 		auto arcadeDefFilename = arcadeDefPath.filename();
-		//Remove this arcadedef from the inactive set
 		inactiveArcadeDefs.erase(arcadeDefFilename);
 		try
 		{
@@ -313,7 +310,6 @@ void ArcadeUtils::RegisterArcadeMachines()
 		}
 	}
 
-	//Prune any remaining arcadedef
 	for(const auto& inactiveArcadeDef : inactiveArcadeDefs)
 	{
 		BootablesDb::CClient::GetInstance().UnregisterBootable(inactiveArcadeDef);
@@ -322,14 +318,12 @@ void ArcadeUtils::RegisterArcadeMachines()
 
 static CNamcoSys246Driver g_sys246Driver;
 static CNamcoSys147Driver g_sys147Driver;
-// clang-format off
 static CArcadeDriver* g_drivers[] =
 {
 	nullptr,
 	&g_sys246Driver,
 	&g_sys147Driver,
 };
-// clang-format on
 
 void ArcadeUtils::BootArcadeMachine(CPS2VM* virtualMachine, const fs::path& arcadeDefFilename)
 {
@@ -355,7 +349,6 @@ void ArcadeUtils::BootArcadeMachine(CPS2VM* virtualMachine, const fs::path& arca
 	driver->PrepareEnvironment(virtualMachine, def);
 	driver->Launch(virtualMachine, def);
 
-	// --- define specific titles to delete vertical lines 
 	{
 		bool spriteRoundingHackEnabled =
 		    (def.id.rfind("tekken4", 0) == 0) ||
