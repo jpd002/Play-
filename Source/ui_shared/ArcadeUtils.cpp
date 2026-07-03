@@ -319,10 +319,10 @@ void ArcadeUtils::RegisterArcadeMachines()
 static CNamcoSys246Driver g_sys246Driver;
 static CNamcoSys147Driver g_sys147Driver;
 static CArcadeDriver* g_drivers[] =
-{
-	nullptr,
-	&g_sys246Driver,
-	&g_sys147Driver,
+    {
+        nullptr,
+        &g_sys246Driver,
+        &g_sys147Driver,
 };
 
 void ArcadeUtils::BootArcadeMachine(CPS2VM* virtualMachine, const fs::path& arcadeDefFilename)
