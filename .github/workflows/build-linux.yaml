@@ -52,7 +52,7 @@ jobs:
       run: |
         mkdir build
         cd build
-        cmake .. -G"Unix Makefiles" -DCMAKE_INSTALL_PREFIX=./appdir/usr -DBUILD_LIBRETRO_CORE=yes
+        cmake .. -G"Unix Makefiles" -DCMAKE_INSTALL_PREFIX=./appdir/usr -DBUILD_LIBRETRO_CORE=yes -DBUILD_PSFPLAYER=yes
       env:
         CC: "gcc-9"
         CXX: "g++-9"
