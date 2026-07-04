@@ -1,6 +1,7 @@
 #include <QApplication>
 #include <QCommandLineParser>
 #include "mainwindow.h"
+#include "PsfPlayerAppConfig.h"
 
 int main(int argc, char* argv[])
 {

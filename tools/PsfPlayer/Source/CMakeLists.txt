@@ -31,8 +31,6 @@ endif()
 
 ##PsfPlayerCore
 set(PSFCORE_SRC_FILES
-	AppDef.cpp
-	AppDef.h
 	Iop_PsfSubSystem.cpp
 	Iop_PsfSubSystem.h
 	PlaybackController.cpp
@@ -53,6 +51,7 @@ set(PSFCORE_SRC_FILES
 	PsfLoader.h
 	PsfPathToken.cpp
 	PsfPathToken.h
+	PsfPlayerAppConfig.h
 	PsfStreamProvider.cpp
 	PsfStreamProvider.h
 	PsfTags.cpp

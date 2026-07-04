@@ -1,5 +1,9 @@
-#include "AppConfig.h"
+#pragma once
+
+//Include this file in your app's main.cpp file to obtain a default AppConfig base path.
+
 #include "PathUtils.h"
+#include "AppConfig.h"
 
 fs::path CAppConfig::GetBasePath() const
 {

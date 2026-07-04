@@ -6,6 +6,7 @@
 #include "SH_FileOutput.h"
 #include "sound/SH_OpenAL/SH_OpenALProxy.h"
 #include <emscripten/bind.h>
+#include "PsfPlayerAppConfig.h"
 
 CPsfVmJs* g_virtualMachine = nullptr;
 CSH_OpenAL* g_soundHandler = nullptr;
