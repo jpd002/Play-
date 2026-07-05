@@ -194,7 +194,8 @@ static DiskUtils::OpticalMediaPtr CreateOpticalMediaFromChd(const fs::path& imag
 			assert(false);
 			[[fallthrough]];
 		case CChdCdImageStream::DATA_TYPE_CD_MODE1:
-			return std::make_pair(std::make_shared<ISO9660::CBlockProviderCustom<CHD_CD_UNITSIZE, CD_MEDIA_UNIT_SIZE, 0>>(imageStream), COpticalMedia::MEDIA_BLOCK_TYPE_2352);
+			//We return MEDIA_BLOCK_TYPE_2048 here to accomodate some arcade disc CHDs that are supposed to be DVDs
+			return std::make_pair(std::make_shared<ISO9660::CBlockProviderCustom<CHD_CD_UNITSIZE, CD_MEDIA_UNIT_SIZE, 0>>(imageStream), COpticalMedia::MEDIA_BLOCK_TYPE_2048);
 		case CChdCdImageStream::DATA_TYPE_CD_MODE1_RAW:
 			return std::make_pair(std::make_shared<ISO9660::CBlockProviderCustom<CHD_CD_UNITSIZE, CD_MEDIA_UNIT_SIZE, 0x10>>(imageStream), COpticalMedia::MEDIA_BLOCK_TYPE_2352);
 		case CChdCdImageStream::DATA_TYPE_CD_MODE2_RAW:
