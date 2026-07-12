@@ -138,6 +138,12 @@ First you'll need to clone this repo which contains the emulator source code, al
  git clone --recurse-submodules https://github.com/jpd002/Play-.git
  cd Play-
  ```
+Update all submodule before build to avoid any compatibility issues.
+
+```
+git submodule update --init --recursive
+```
+
 
 ### Building for Windows ###
 The easiest way to build the project on Windows is to open Qt Creator and direct it to the CMake file in `/project/dir/Play-/CMakeLists.txt`.
@@ -151,16 +157,20 @@ To build for Windows you will need to have CMake installed on your system.
  ```
  ```
  # Not specifying -G will automatically generate 32-bit projects.
- cmake .. -G "Visual Studio 18 2026 Win64" -DCMAKE_PREFIX_PATH="C:\Qt\6.10.2\msvc2022_64"
+ cmake .. -G "Visual Studio 18 2026" -DCMAKE_PREFIX_PATH="C:\Qt\6.xx.x\msvc2022_64"
  ```
-
-For Visual Studio 2026 solution, just double click on `Play.slnx` in "build" folder and follow GUI instructions.
 
 You can now build the project by opening the generated Visual Studio Solution or continue through cmdline:
  ```cmd
  cmake --build . --config Release
  ```
 Note: `--config` can be `Release`, `Debug`, or `RelWithDebInfo`.
+
+### For Visual Studio 2026 solution ###
+* Make sure you have installed msvc2022 plugin in `C:\QT\6.xx\msvc2022_64` and remember your Qt6 version.
+* Open `CMakePresets.json` and overwrite your Qt6 version in "CMAKE_PREFIX_PATH" (line 48).
+* After VS2026 configured and loaded cmake, `Play.slnx` automatically generated.
+* Select `Play.exe` and follow GUI instructions.
 
 ### Building for macOS & iOS ###
 If you don't have CMake installed, you can install it using [Homebrew](https://brew.sh) with the following command:
@@ -176,6 +186,10 @@ There are two ways to generate a build for macOS. Either by using Makefiles, or 
  ```
  # Not specifying -G will automatically pick Makefiles
  cmake .. -G Xcode -DCMAKE_PREFIX_PATH=~/Qt/5.1.0/clang_64/
+ cmake --build . --config Release
+ # OR
+ cd build_cmake/build/macos-xcode
+ cmake --preset macos-xcode -DCMAKE_PREFIX_PATH=~/Qt/6.11.1/macos/
  cmake --build . --config Release
  # OR
  cmake .. -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=~/Qt/5.1.0/clang_64/
