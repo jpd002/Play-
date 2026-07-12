@@ -824,6 +824,13 @@ public:
 	static void RegisterPreferences();
 	void NotifyPreferencesChanged();
 
+	// Default no-op. Only overridden by renderer backends (e.g. CGSH_OpenGL)
+	// that implement the sprite boundary rounding hack for specific arcade
+	// titles (tekken4/tekken5/taiko series) to fix vertical line seams.
+	virtual void SetSpriteRoundingHackEnabled(bool enabled)
+	{
+	}
+
 	void SetIntc(CINTC*);
 	void Reset();
 	virtual void SetPresentationParams(const PRESENTATION_PARAMS&);
