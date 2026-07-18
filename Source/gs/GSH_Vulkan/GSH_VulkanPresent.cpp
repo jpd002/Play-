@@ -732,33 +732,67 @@ Framework::Vulkan::CShaderModule CPresent::CreateFragmentShader(const PIPELINE_C
 		auto bufAddress = presentBufParams->x();
 		auto bufWidth = presentBufParams->y();
 		auto layerSize = presentRectParams->zw();
+		auto maxPos = NewInt2(layerSize->x() - NewInt(b, 1), layerSize->y() - NewInt(b, 1));
+		auto ReadTexel = [&](Nuanceur::CInt2Value rawPos) -> Nuanceur::CFloat4Rvalue {
+			auto pos = NewInt2(
+			    Clamp(rawPos->x(), NewInt(b, 0), maxPos->x()),
+			    Clamp(rawPos->y(), NewInt(b, 0), maxPos->y()));
+			switch(caps.bufPsm)
+			{
+			default:
+				assert(false);
+				[[fallthrough]];
+			case CGSHandler::PSMCT32:
+			case CGSHandler::PSMCT24:
+			{
+				auto address = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT32>(
+				    b, swizzleTable, bufAddress, bufWidth, pos);
+				auto imageColor = CMemoryUtils::Memory_Read32(b, memoryBuffer, address);
+				return CMemoryUtils::PSM32ToVec4(b, imageColor);
+			}
+			case CGSHandler::PSMCT16:
+			case CGSHandler::PSMCT16S:
+			{
+				auto address = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT16>(
+				    b, swizzleTable, bufAddress, bufWidth, pos);
+				auto imageColor = CMemoryUtils::Memory_Read16(b, memoryBuffer, address);
+				return CMemoryUtils::PSM16ToVec4(b, imageColor);
+			}
+			}
+		};
 
-		auto screenPos = ToInt(inputTexCoord->xy() * ToFloat(layerSize));
+		auto rawPosF = inputTexCoord->xy() * ToFloat(layerSize);
+		auto half = NewFloat(b, 0.5f);
+		auto srcPosF = NewFloat2(rawPosF->x() - half, rawPosF->y() - half);
+		auto basePos = ToInt(srcPosF);
+		auto frac = Fract(srcPosF);
+		auto fx = frac->x();
+		auto fy = frac->y();
 
-		switch(caps.bufPsm)
-		{
-		default:
-			assert(false);
-			[[fallthrough]];
-		case CGSHandler::PSMCT32:
-		case CGSHandler::PSMCT24:
-		{
-			auto address = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT32>(
-			    b, swizzleTable, bufAddress, bufWidth, screenPos);
-			auto imageColor = CMemoryUtils::Memory_Read32(b, memoryBuffer, address);
-			outputColor = CMemoryUtils::PSM32ToVec4(b, imageColor);
-		}
-		break;
-		case CGSHandler::PSMCT16:
-		case CGSHandler::PSMCT16S:
-		{
-			auto address = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT16>(
-			    b, swizzleTable, bufAddress, bufWidth, screenPos);
-			auto imageColor = CMemoryUtils::Memory_Read16(b, memoryBuffer, address);
-			outputColor = CMemoryUtils::PSM16ToVec4(b, imageColor);
-		}
-		break;
-		}
+		auto posX1Y0 = NewInt2(basePos->x() + NewInt(b, 1), basePos->y());
+		auto posX0Y1 = NewInt2(basePos->x(), basePos->y() + NewInt(b, 1));
+		auto posX1Y1 = NewInt2(basePos->x() + NewInt(b, 1), basePos->y() + NewInt(b, 1));
+
+		auto c00 = ReadTexel(basePos);
+		auto c10 = ReadTexel(posX1Y0);
+		auto c01 = ReadTexel(posX0Y1);
+		auto c11 = ReadTexel(posX1Y1);
+
+		auto one = NewFloat(b, 1.0f);
+		auto oneMinusFx = one - fx;
+		auto oneMinusFy = one - fy;
+
+		auto w00 = oneMinusFx * oneMinusFy;
+		auto w10 = fx * oneMinusFy;
+		auto w01 = oneMinusFx * fy;
+		auto w11 = fx * fy;
+
+		auto Broadcast4 = [&](Nuanceur::CFloatValue w) -> Nuanceur::CFloat4Rvalue {
+			return NewFloat4(w, w, w, w);
+		};
+
+		outputColor = (c00 * Broadcast4(w00)) + (c10 * Broadcast4(w10)) +
+		              (c01 * Broadcast4(w01)) + (c11 * Broadcast4(w11));
 	}
 
 	Framework::CMemStream shaderStream;
