@@ -113,6 +113,7 @@ public:
 	void Reset();
 
 	void SetChannelTransferFunction(unsigned int, const Dmac::DmaReceiveHandler&);
+	void SetChannelStartFunction(unsigned int, const Dmac::DmaStartHandler&);
 
 	uint32 GetRegister(uint32);
 	void SetRegister(uint32, uint32);
