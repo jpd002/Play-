@@ -434,7 +434,7 @@ uint32 CGIF::ProcessMultiplePackets(const uint8* memory, uint32 memorySize, uint
 		{
 			//Eurocom games will check if PATH3 is outputting right after starting a DMA transfer
 			//So, this doesn't need to be a huge number
-			m_path3XferActiveTicks = 0x100;
+			m_path3XferActiveTicks = PATH3_XFER_ACTIVE_TICKS;
 		}
 
 		address += ProcessSinglePacket(memory, memorySize, address, end, packetMetadata);
@@ -537,6 +537,22 @@ uint32 CGIF::ReceiveDMA(uint32 address, uint32 qwc, uint32 unused, bool tagInclu
 void CGIF::CountTicks(uint32 cycles)
 {
 	m_path3XferActiveTicks = std::max<int32>(m_path3XferActiveTicks - cycles, 0);
+}
+
+void CGIF::NotifyPath3XferStart()
+{
+	//Batman Begins (Eurocom) kicks the GIF channel and then spins on
+	//GIF_STAT.OPH. Once a frame the chain it kicks begins with a CALL tag whose
+	//ADDR field was never filled in, so QWC is 0 and the tag points at address
+	//0. No data reaches us, ProcessMultiplePackets is never called, OPH stays
+	//low, and the game spins there forever with nothing logged.
+	//
+	//Reporting output from the moment the DMAC starts is also closer to the
+	//hardware: OPH follows the active path, and the path becomes active on the
+	//STR write, before the first qword is read. Setting it here rather than
+	//only on a processed packet costs nothing for the games that already
+	//worked — they set it again immediately with real data.
+	m_path3XferActiveTicks = PATH3_XFER_ACTIVE_TICKS;
 }
 
 uint32 CGIF::GetRegister(uint32 address)

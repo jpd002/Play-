@@ -98,6 +98,12 @@ void CChannel::WriteCHCR(uint32 nValue)
 			m_nSCCTRL |= SCCTRL_INITXFER;
 		}
 		m_nSCCTRL &= ~SCCTRL_RETTOP;
+		if(m_start)
+		{
+			//Before Execute(), because the transfer can finish inside it and the
+			//device still has to have seen the start.
+			m_start();
+		}
 		Execute();
 	}
 }
@@ -511,6 +517,11 @@ void CChannel::ExecuteDestinationChain()
 void CChannel::SetReceiveHandler(const DmaReceiveHandler& handler)
 {
 	m_receive = handler;
+}
+
+void CChannel::SetStartHandler(const DmaStartHandler& handler)
+{
+	m_start = handler;
 }
 
 void CChannel::ExecuteSourceChainTransfer(bool isMfifo)
