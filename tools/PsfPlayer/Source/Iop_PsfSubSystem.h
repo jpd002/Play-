@@ -36,14 +36,22 @@ namespace Iop
 		int m_frameCounter;
 		int m_spuUpdateCounter;
 
+		int SAMPLE_COUNT;
+		int BLOCK_SIZE;
+		int SAMPLING_RATE;
+
 		enum
 		{
-			SAMPLE_COUNT = 44,
-			BLOCK_SIZE = SAMPLE_COUNT * 2,
+			PS1_SAMPLE_COUNT = 44,
+			PS1_BLOCK_SIZE = PS1_SAMPLE_COUNT * 2,
+
+			PS2_SAMPLE_COUNT = 48,
+			PS2_BLOCK_SIZE = PS2_SAMPLE_COUNT * 2,
+
 			BLOCK_COUNT = 10,
 		};
 
-		int16 m_samples[BLOCK_SIZE * BLOCK_COUNT];
+		int16 m_samples[PS2_BLOCK_SIZE * BLOCK_COUNT];
 		int m_currentBlock;
 	};
 
