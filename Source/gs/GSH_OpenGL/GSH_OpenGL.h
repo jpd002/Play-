@@ -54,6 +54,8 @@ public:
 
 	const VERTEX* GetInputVertices() const override;
 
+	void SetSpriteRoundingHackEnabled(bool enabled) override;
+
 protected:
 	void PalCache_Flush();
 	void LoadPreferences();
@@ -400,6 +402,7 @@ private:
 	bool m_forceBilinearTextures = false;
 	unsigned int m_fbScale = 1;
 	bool m_multisampleEnabled = false;
+	bool m_spriteRoundingHackEnabled = false;
 	bool m_depthTestingEnabled = true;
 	bool m_alphaBlendingEnabled = true;
 	bool m_alphaTestingEnabled = true;
