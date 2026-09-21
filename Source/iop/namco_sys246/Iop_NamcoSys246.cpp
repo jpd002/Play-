@@ -58,7 +58,7 @@ static const std::array<uint16, PS2::CControllerInfo::MAX_BUTTONS> g_defaultJvsB
 	0x0040, //SELECT,
 	0x0080, //START,
 	0x4000, //SQUARE,
-	0x8000, //TRIANGLE,
+	0x2000, //TRIANGLE,
 	0x0001, //CIRCLE (Motor Sensor),
 	0x0002, //CROSS,
 	0x0100, //L1,
@@ -66,7 +66,7 @@ static const std::array<uint16, PS2::CControllerInfo::MAX_BUTTONS> g_defaultJvsB
 	0x0400, //L3,
 	0x0800, //R1,
 	0x1000, //R2,
-	0x2000, //R3,
+	0x8000, //R3,
 };
 
 static const std::array<uint16, PS2::CControllerInfo::MAX_BUTTONS> g_defaultJvsSystemButtonBits =
@@ -331,14 +331,16 @@ void CSys246::ProcessJvsPacket(const uint8* input, uint8* output)
 			(*output++) = m_testButtonState;
 
 			//(*output++) = (m_jvsSystemButtonState == 0x03) ? 0x80 : 0;  //Test
-			(*output++) = static_cast<uint8>(m_jvsButtonState[0]);      //Player 1
-			(*output++) = static_cast<uint8>(m_jvsButtonState[0] >> 8); //Player 1
+			auto player1ButtonState = m_jvsButtonState[0] | m_jvsAxisButtonState[0];
+			(*output++) = static_cast<uint8>(player1ButtonState);      //Player 1
+			(*output++) = static_cast<uint8>(player1ButtonState >> 8); //Player 1
 			(*dstSize) += 4;
 
 			if(playerCount == 2)
 			{
-				(*output++) = static_cast<uint8>(m_jvsButtonState[1]);      //Player 2
-				(*output++) = static_cast<uint8>(m_jvsButtonState[1] >> 8); //Player 2
+				auto player2ButtonState = m_jvsButtonState[1] | m_jvsAxisButtonState[1];
+				(*output++) = static_cast<uint8>(player2ButtonState);      //Player 2
+				(*output++) = static_cast<uint8>(player2ButtonState >> 8); //Player 2
 				(*dstSize) += 2;
 			}
 		}
@@ -645,25 +647,47 @@ void CSys246::SetButtonState(unsigned int padNumber, PS2::CControllerInfo::BUTTO
 
 void CSys246::SetAxisState(unsigned int padNumber, PS2::CControllerInfo::BUTTON button, uint8 axisValue, uint8* ram)
 {
-	switch(button)
+	if((m_jvsMode == JVS_MODE::DEFAULT) && (padNumber < JVS_PLAYER_COUNT))
 	{
-	case PS2::CControllerInfo::BUTTON::ANALOG_LEFT_X:
-		if(axisValue >= 0 || axisValue < 128) m_jvsWheel = axisValue + 128;
-		if(axisValue > 128 || axisValue < 256) m_jvsWheel = axisValue - 128;
-		m_jvsWheel = axisValue;
-		break;
-	case PS2::CControllerInfo::BUTTON::ANALOG_LEFT_Y:
-		if(axisValue >= 128) axisValue = 127; // limit Left stick Y axis to Y+
-		m_jvsGaz = -axisValue + 127;
-		break;
-	case PS2::CControllerInfo::BUTTON::ANALOG_RIGHT_X:
-		if(axisValue < 128) axisValue = 128; // limit Right stick X axis to X+
-		m_jvsBrake = axisValue - 128;
-		break;
-	case PS2::CControllerInfo::BUTTON::ANALOG_RIGHT_Y:
-		break;
-	default:
-		break;
+		constexpr uint8 ANALOG_DPAD_LOW_THRESHOLD = 0x60;
+		constexpr uint8 ANALOG_DPAD_HIGH_THRESHOLD = 0xA0;
+		auto& axisButtonState = m_jvsAxisButtonState[padNumber];
+
+		switch(button)
+		{
+		case PS2::CControllerInfo::BUTTON::ANALOG_LEFT_X:
+		{
+			auto axisMask = m_jvsButtonBits[PS2::CControllerInfo::DPAD_LEFT] |
+			                m_jvsButtonBits[PS2::CControllerInfo::DPAD_RIGHT];
+			axisButtonState &= ~axisMask;
+			if(axisValue < ANALOG_DPAD_LOW_THRESHOLD)
+			{
+				axisButtonState |= m_jvsButtonBits[PS2::CControllerInfo::DPAD_LEFT];
+			}
+			else if(axisValue > ANALOG_DPAD_HIGH_THRESHOLD)
+			{
+				axisButtonState |= m_jvsButtonBits[PS2::CControllerInfo::DPAD_RIGHT];
+			}
+			break;
+		}
+		case PS2::CControllerInfo::BUTTON::ANALOG_LEFT_Y:
+		{
+			auto axisMask = m_jvsButtonBits[PS2::CControllerInfo::DPAD_UP] |
+			                m_jvsButtonBits[PS2::CControllerInfo::DPAD_DOWN];
+			axisButtonState &= ~axisMask;
+			if(axisValue < ANALOG_DPAD_LOW_THRESHOLD)
+			{
+				axisButtonState |= m_jvsButtonBits[PS2::CControllerInfo::DPAD_UP];
+			}
+			else if(axisValue > ANALOG_DPAD_HIGH_THRESHOLD)
+			{
+				axisButtonState |= m_jvsButtonBits[PS2::CControllerInfo::DPAD_DOWN];
+			}
+			break;
+		}
+		default:
+			break;
+		}
 	}
 }
 
