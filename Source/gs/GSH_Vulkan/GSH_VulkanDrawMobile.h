@@ -20,6 +20,11 @@ namespace GSH_Vulkan
 		void FlushRenderPass() override;
 
 	private:
+		//Closes the render pass without flushing vertices, so it can be called
+		//from FlushVertices() itself without recursing.
+		void EndRenderPass();
+
+	private:
 		VkDescriptorSet PrepareDescriptorSet(VkDescriptorSetLayout, const DESCRIPTORSET_CAPS&);
 
 		void CreateFramebuffer();

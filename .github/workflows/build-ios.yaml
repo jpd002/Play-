@@ -12,11 +12,15 @@ jobs:
       run: |
         cd $RUNNER_WORKSPACE
         curl -L --show-error --output vulkansdk.zip https://sdk.lunarg.com/sdk/download/${VULKAN_SDK_VERSION}/mac/vulkansdk-macos-${VULKAN_SDK_VERSION}.zip?Human=true
-        unzip vulkansdk.zip
-        sudo ./InstallVulkan-${VULKAN_SDK_VERSION}.app/Contents/MacOS/InstallVulkan-${VULKAN_SDK_VERSION} in --al --c com.lunarg.vulkan.ios
+        unzip -q vulkansdk.zip
+        # LunarG renamed the installer bundle from InstallVulkan-<ver>.app to
+        # vulkansdk-macOS-<ver>.app, so locate it instead of hardcoding a name.
+        INSTALLER_APP=$(ls -d ./*.app | head -n 1)
+        sudo "${INSTALLER_APP}/Contents/MacOS/$(basename "${INSTALLER_APP}" .app)" in --al --c com.lunarg.vulkan.ios
+        test -d "${HOME}/VulkanSDK/${VULKAN_SDK_VERSION}/iOS" || { echo "::error::Vulkan SDK iOS component missing after install"; ls -la "${HOME}/VulkanSDK" || true; exit 1; }
         echo "VULKAN_SDK=${HOME}/VulkanSDK/${VULKAN_SDK_VERSION}/iOS" >> $GITHUB_ENV
       env:
-        VULKAN_SDK_VERSION: '1.4.309.0'
+        VULKAN_SDK_VERSION: '1.4.357.1'
     - name: Checkout
       uses: actions/checkout@v7
       with:
@@ -24,6 +28,38 @@ jobs:
         fetch-depth: 0
     - name: Force Fetch Git Tags
       run: git fetch --tags --force
+    - name: Restore patched MoltenVK
+      id: moltenvk-cache
+      uses: actions/cache/restore@v4
+      with:
+        path: ~/moltenvk-patched/MoltenVK.xcframework
+        key: moltenvk-v1.4.2-fbfetch-1
+    - name: Build patched MoltenVK
+      if: steps.moltenvk-cache.outputs.cache-hit != 'true'
+      run: |
+        PATCH=$GITHUB_WORKSPACE/.github/moltenvk-patches/0001-enable-framebuffer-fetch-subpasses.patch
+        cd $RUNNER_WORKSPACE
+        git clone --depth 1 --branch v1.4.2 https://github.com/KhronosGroup/MoltenVK.git moltenvk-src
+        cd moltenvk-src
+        git apply --verbose "$PATCH"
+        ./fetchDependencies --ios
+        make ios
+        mkdir -p ~/moltenvk-patched
+        cp -R Package/Latest/MoltenVK/dynamic/MoltenVK.xcframework ~/moltenvk-patched/
+    - name: Save patched MoltenVK
+      if: steps.moltenvk-cache.outputs.cache-hit != 'true'
+      uses: actions/cache/save@v4
+      with:
+        path: ~/moltenvk-patched/MoltenVK.xcframework
+        key: moltenvk-v1.4.2-fbfetch-1
+    - name: Install patched MoltenVK over the SDK copy
+      run: |
+        test -d ~/moltenvk-patched/MoltenVK.xcframework || { echo '::error::patched MoltenVK.xcframework missing'; exit 1; }
+        # The SDK is installed with sudo, so its files are root owned.
+        sudo rm -rf "$VULKAN_SDK/lib/MoltenVK.xcframework"
+        sudo cp -R ~/moltenvk-patched/MoltenVK.xcframework "$VULKAN_SDK/lib/"
+        test -d "$VULKAN_SDK/lib/MoltenVK.xcframework/ios-arm64" || { echo '::error::patched MoltenVK missing ios-arm64 slice'; ls -la "$VULKAN_SDK/lib/MoltenVK.xcframework" || true; exit 1; }
+        echo "Installed patched MoltenVK into $VULKAN_SDK/lib"
     - name: Set SHORT_HASH
       run: echo "VALUE=${LONG_HASH:0:8}" >> $GITHUB_OUTPUT
       id: short_hash
@@ -33,28 +69,34 @@ jobs:
       run: |
         mkdir build
         cd build
-        cmake .. -G"Xcode" -DCMAKE_TOOLCHAIN_FILE=../deps/Dependencies/cmake-ios/ios.cmake -DTARGET_IOS=ON -DCMAKE_PREFIX_PATH=$VULKAN_SDK -DBUILD_PSFPLAYER=ON -DBUILD_LIBRETRO_CORE=yes
+        cmake .. -G"Xcode" -DCMAKE_TOOLCHAIN_FILE=../deps/Dependencies/cmake-ios/ios.cmake -DTARGET_IOS=ON -DCMAKE_PREFIX_PATH=$VULKAN_SDK -DBUILD_PSFPLAYER=ON -DBUILD_LIBRETRO_CORE=yes 2>&1 | tee cmake-configure.log
+        # find_package(Vulkan) failing only prints a message and silently drops the
+        # Vulkan renderer, which would ship an OpenGL-only build. Catch that here.
+        if grep -q "Building without Vulkan support" cmake-configure.log; then
+          echo "::error::Vulkan SDK was not picked up ($VULKAN_SDK) - refusing to ship a build without the Vulkan renderer."
+          exit 1
+        fi
     - name: Build
       run: |
         cd build
         cmake --build . --config Release
-        codesign -s "-" Source/ui_ios/Release-iphoneos/Play.app
+        codesign -s "-" --entitlements ../Source/ui_ios/Play.entitlements --generate-entitlement-der Source/ui_ios/Release-iphoneos/Play.app
     - name: Generate IPA
       run: |
         cd installer_ios
         ./build_ipa.sh
     - name: Generate Cydia Package
+      continue-on-error: true
       run: |
         cd installer_ios
         ./build_cydia.sh
-    - name: Upload a Build Artifact ipa/deb/bz2
+    - name: Upload a Build Artifact ipa
       uses: actions/upload-artifact@v7
       with:
         name: Play_iOS
+        if-no-files-found: error
         path: |
           installer_ios/Play.ipa
-          installer_ios/Play.deb
-          installer_ios/Packages.bz2
     - name: Upload a Build Artifact libretro
       uses: actions/upload-artifact@v7
       with:

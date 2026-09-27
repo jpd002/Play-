@@ -1,3 +1,4 @@
+#include <cmath>
 #include "GSH_VulkanDrawMobile.h"
 #include "GSH_VulkanDrawUtils.h"
 #include "GSH_VulkanMemoryUtils.h"
@@ -25,6 +26,7 @@ using namespace GSH_Vulkan;
 #define DESCRIPTOR_LOCATION_IMAGE_SWIZZLETABLE_DEPTH 4
 #define DESCRIPTOR_LOCATION_IMAGE_INPUT_COLOR 5
 #define DESCRIPTOR_LOCATION_IMAGE_INPUT_DEPTH 6
+#define DESCRIPTOR_LOCATION_BUFFER_MEMORY_COPY 7
 
 #define DRAW_AREA_SIZE 2048
 #define MAX_VERTEX_COUNT 1024 * 512
@@ -122,18 +124,30 @@ void CDrawMobile::FlushVertices()
 	auto& frame = m_frames[m_frameCommandBuffer->GetCurrentFrame()];
 	auto commandBuffer = m_frameCommandBuffer->GetCommandBuffer();
 
+	if(m_pipelineCaps.textureUseMemoryCopy)
+	{
+		//This draw samples the framebuffer it is drawing into, so it needs a stable
+		//snapshot of GS memory to sample from. The copy can't be recorded inside a
+		//render pass, and the framebuffer only reaches memory once the store subpass
+		//has run, so close the current render pass before taking it.
+		EndRenderPass();
+
+		VkBufferCopy bufferCopy = {};
+		bufferCopy.srcOffset = m_memoryCopyAddress;
+		bufferCopy.dstOffset = m_memoryCopyAddress;
+		bufferCopy.size = m_memoryCopySize;
+
+		m_context->device.vkCmdCopyBuffer(commandBuffer, m_context->memoryBuffer, m_context->memoryBufferCopy, 1, &bufferCopy);
+
+		m_memoryCopyRegion.Reset();
+	}
+
 	for(auto vertex = frame.vertexBufferPtr + m_passVertexStart; vertex != frame.vertexBufferPtr + m_passVertexEnd; vertex++)
 	{
 		m_renderPassMinX = std::min(vertex->x, m_renderPassMinX);
 		m_renderPassMinY = std::min(vertex->y, m_renderPassMinY);
 		m_renderPassMaxX = std::max(vertex->x, m_renderPassMaxX);
 		m_renderPassMaxY = std::max(vertex->y, m_renderPassMaxY);
-	}
-
-	if(m_pipelineCaps.textureUseMemoryCopy)
-	{
-		assert(!m_renderPassBegun);
-		m_memoryCopyRegion.Reset();
 	}
 
 	{
@@ -241,45 +255,59 @@ void CDrawMobile::FlushVertices()
 void CDrawMobile::FlushRenderPass()
 {
 	FlushVertices();
+	EndRenderPass();
+}
+
+void CDrawMobile::EndRenderPass()
+{
 	if(m_renderPassBegun)
 	{
 		auto commandBuffer = m_frameCommandBuffer->GetCommandBuffer();
 		m_context->device.vkCmdNextSubpass(commandBuffer, VK_SUBPASS_CONTENTS_INLINE);
 
-		//Store to memory
-
-		int32 clippedX0 = std::clamp<int32>(m_renderPassMinX, m_scissorX, m_scissorX + m_scissorWidth);
-		int32 clippedX1 = std::clamp<int32>(m_renderPassMaxX, m_scissorX, m_scissorX + m_scissorWidth);
-		int32 clippedY0 = std::clamp<int32>(m_renderPassMinY, m_scissorY, m_scissorY + m_scissorHeight);
-		int32 clippedY1 = std::clamp<int32>(m_renderPassMaxY, m_scissorY, m_scissorY + m_scissorHeight);
-
-		VkRect2D scissor = {};
-		scissor.offset.x = clippedX0;
-		scissor.offset.y = clippedY0;
-		scissor.extent.width = clippedX1 - clippedX0;
-		scissor.extent.height = clippedY1 - clippedY0;
-		m_context->device.vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
-
-		//Find pipeline and create it if we've never encountered it before
-		auto strippedCaps = MakeLoadStorePipelineCaps(m_pipelineCaps);
-		auto storePipeline = m_storePipelineCache.TryGetPipeline(strippedCaps);
-		if(!storePipeline)
+		//Store to memory. An empty bounding box means nothing was drawn in this pass,
+		//and converting FLT_MAX to int32 for the scissor below would be undefined, so
+		//skip the store. The render pass still has to be ended either way.
+		bool hasDrawnArea = (m_renderPassMinX <= m_renderPassMaxX) && (m_renderPassMinY <= m_renderPassMaxY);
+		if(hasDrawnArea)
 		{
-			storePipeline = m_storePipelineCache.RegisterPipeline(strippedCaps, CreateStorePipeline(strippedCaps));
+			//These bounds are floating point primitive coordinates. Converting them to
+			//int32 truncates, which drops the last row and column of rasterized pixels
+			//from the stored region and leaves thin lines of stale framebuffer content
+			//along primitive edges. Round outwards instead.
+			int32 clippedX0 = std::clamp<int32>(std::floor(m_renderPassMinX), m_scissorX, m_scissorX + m_scissorWidth);
+			int32 clippedX1 = std::clamp<int32>(std::ceil(m_renderPassMaxX), m_scissorX, m_scissorX + m_scissorWidth);
+			int32 clippedY0 = std::clamp<int32>(std::floor(m_renderPassMinY), m_scissorY, m_scissorY + m_scissorHeight);
+			int32 clippedY1 = std::clamp<int32>(std::ceil(m_renderPassMaxY), m_scissorY, m_scissorY + m_scissorHeight);
+
+			VkRect2D scissor = {};
+			scissor.offset.x = clippedX0;
+			scissor.offset.y = clippedY0;
+			scissor.extent.width = clippedX1 - clippedX0;
+			scissor.extent.height = clippedY1 - clippedY0;
+			m_context->device.vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
+
+			//Find pipeline and create it if we've never encountered it before
+			auto strippedCaps = MakeLoadStorePipelineCaps(m_pipelineCaps);
+			auto storePipeline = m_storePipelineCache.TryGetPipeline(strippedCaps);
+			if(!storePipeline)
+			{
+				storePipeline = m_storePipelineCache.RegisterPipeline(strippedCaps, CreateStorePipeline(strippedCaps));
+			}
+
+			auto descriptorSetCaps = make_convertible<DESCRIPTORSET_CAPS>(0);
+			descriptorSetCaps.framebufferFormat = m_pipelineCaps.framebufferFormat;
+			descriptorSetCaps.depthbufferFormat = m_pipelineCaps.depthbufferFormat;
+
+			auto descriptorSet = PrepareDescriptorSet(storePipeline->descriptorSetLayout, descriptorSetCaps);
+
+			m_context->device.vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, storePipeline->pipelineLayout,
+			                                          0, 1, &descriptorSet, 0, nullptr);
+			m_context->device.vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, storePipeline->pipeline);
+			m_context->device.vkCmdPushConstants(commandBuffer, storePipeline->pipelineLayout, VK_SHADER_STAGE_FRAGMENT_BIT,
+			                                     0, sizeof(DRAW_PIPELINE_PUSHCONSTANTS), &m_pushConstants);
+			m_context->device.vkCmdDraw(commandBuffer, 3, 1, 0, 0);
 		}
-
-		auto descriptorSetCaps = make_convertible<DESCRIPTORSET_CAPS>(0);
-		descriptorSetCaps.framebufferFormat = m_pipelineCaps.framebufferFormat;
-		descriptorSetCaps.depthbufferFormat = m_pipelineCaps.depthbufferFormat;
-
-		auto descriptorSet = PrepareDescriptorSet(storePipeline->descriptorSetLayout, descriptorSetCaps);
-
-		m_context->device.vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, storePipeline->pipelineLayout,
-		                                          0, 1, &descriptorSet, 0, nullptr);
-		m_context->device.vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, storePipeline->pipeline);
-		m_context->device.vkCmdPushConstants(commandBuffer, storePipeline->pipelineLayout, VK_SHADER_STAGE_FRAGMENT_BIT,
-		                                     0, sizeof(DRAW_PIPELINE_PUSHCONSTANTS), &m_pushConstants);
-		m_context->device.vkCmdDraw(commandBuffer, 3, 1, 0, 0);
 
 		m_context->device.vkCmdEndRenderPass(commandBuffer);
 		m_context->annotations.PopCommandLabel(commandBuffer);
@@ -319,6 +347,10 @@ VkDescriptorSet CDrawMobile::PrepareDescriptorSet(VkDescriptorSetLayout descript
 		descriptorMemoryBufferInfo.buffer = m_context->memoryBuffer;
 		descriptorMemoryBufferInfo.range = VK_WHOLE_SIZE;
 
+		VkDescriptorBufferInfo descriptorMemoryBufferCopyInfo = {};
+		descriptorMemoryBufferCopyInfo.buffer = m_context->memoryBufferCopy;
+		descriptorMemoryBufferCopyInfo.range = VK_WHOLE_SIZE;
+
 		VkDescriptorBufferInfo descriptorClutBufferInfo = {};
 		descriptorClutBufferInfo.buffer = m_context->clutBuffer;
 		descriptorClutBufferInfo.range = sizeof(uint32) * CGSHandler::CLUTENTRYCOUNT;
@@ -352,6 +384,16 @@ VkDescriptorSet CDrawMobile::PrepareDescriptorSet(VkDescriptorSetLayout descript
 			writeSet.descriptorCount = 1;
 			writeSet.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
 			writeSet.pBufferInfo = &descriptorMemoryBufferInfo;
+			writes.push_back(writeSet);
+		}
+
+		{
+			auto writeSet = Framework::Vulkan::WriteDescriptorSet();
+			writeSet.dstSet = descriptorSet;
+			writeSet.dstBinding = DESCRIPTOR_LOCATION_BUFFER_MEMORY_COPY;
+			writeSet.descriptorCount = 1;
+			writeSet.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+			writeSet.pBufferInfo = &descriptorMemoryBufferCopyInfo;
 			writes.push_back(writeSet);
 		}
 
@@ -624,6 +666,18 @@ PIPELINE CDrawMobile::CreateDrawPipeline(const PIPELINE_CAPS& caps)
 		}
 
 		{
+			//Only the draw shader samples this, but every layout declares it so that
+			//the descriptor sets cached in PrepareDescriptorSet stay compatible with
+			//all three pipelines.
+			VkDescriptorSetLayoutBinding setLayoutBinding = {};
+			setLayoutBinding.binding = DESCRIPTOR_LOCATION_BUFFER_MEMORY_COPY;
+			setLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+			setLayoutBinding.descriptorCount = 1;
+			setLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+			setLayoutBindings.push_back(setLayoutBinding);
+		}
+
+		{
 			VkDescriptorSetLayoutBinding setLayoutBinding = {};
 			setLayoutBinding.binding = DESCRIPTOR_LOCATION_IMAGE_SWIZZLETABLE_FB;
 			setLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
@@ -859,6 +913,7 @@ Framework::Vulkan::CShaderModule CDrawMobile::CreateDrawFragmentShader(const PIP
 		auto outputDepth = CUintLvalue(b.CreateOutputUint(Nuanceur::SEMANTIC_SYSTEM_COLOR, 1));
 
 		auto memoryBuffer = CArrayUintValue(b.CreateUniformArrayUint("memoryBuffer", DESCRIPTOR_LOCATION_BUFFER_MEMORY, Nuanceur::SYMBOL_ATTRIBUTE_COHERENT));
+		auto memoryBufferCopy = CArrayUintValue(b.CreateUniformArrayUint("memoryBufferCopy", DESCRIPTOR_LOCATION_BUFFER_MEMORY_COPY));
 		auto clutBuffer = CArrayUintValue(b.CreateUniformArrayUint("clutBuffer", DESCRIPTOR_LOCATION_IMAGE_CLUT));
 		auto texSwizzleTable = CImageUint2DValue(b.CreateImage2DUint(DESCRIPTOR_LOCATION_IMAGE_SWIZZLETABLE_TEX));
 		auto fbSwizzleTable = CImageUint2DValue(b.CreateImage2DUint(DESCRIPTOR_LOCATION_IMAGE_SWIZZLETABLE_FB));
@@ -913,8 +968,9 @@ Framework::Vulkan::CShaderModule CDrawMobile::CreateDrawFragmentShader(const PIP
 
 			auto getTextureColor =
 			    [&](CInt2Value textureIuv, CFloat4Lvalue& textureColor) {
+				    auto textureSource = caps.textureUseMemoryCopy ? memoryBufferCopy : memoryBuffer;
 				    textureColor = CDrawUtils::GetTextureColor(b, caps.textureFormat, caps.clutFormat, textureIuv,
-				                                               memoryBuffer, clutBuffer, texSwizzleTable, texBufAddress, texBufWidth, texCsa);
+				                                               textureSource, clutBuffer, texSwizzleTable, texBufAddress, texBufWidth, texCsa);
 				    if(caps.textureHasAlpha)
 				    {
 					    CDrawUtils::ExpandAlpha(b, caps.textureFormat, caps.clutFormat, caps.textureBlackIsTransparent, textureColor, texA0, texA1);
@@ -1260,6 +1316,18 @@ PIPELINE CDrawMobile::CreateLoadPipeline(const PIPELINE_CAPS& caps)
 		}
 
 		{
+			//Only the draw shader samples this, but every layout declares it so that
+			//the descriptor sets cached in PrepareDescriptorSet stay compatible with
+			//all three pipelines.
+			VkDescriptorSetLayoutBinding setLayoutBinding = {};
+			setLayoutBinding.binding = DESCRIPTOR_LOCATION_BUFFER_MEMORY_COPY;
+			setLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+			setLayoutBinding.descriptorCount = 1;
+			setLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+			setLayoutBindings.push_back(setLayoutBinding);
+		}
+
+		{
 			VkDescriptorSetLayoutBinding setLayoutBinding = {};
 			setLayoutBinding.binding = DESCRIPTOR_LOCATION_IMAGE_SWIZZLETABLE_FB;
 			setLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
@@ -1412,6 +1480,18 @@ PIPELINE CDrawMobile::CreateStorePipeline(const PIPELINE_CAPS& caps)
 		{
 			VkDescriptorSetLayoutBinding setLayoutBinding = {};
 			setLayoutBinding.binding = DESCRIPTOR_LOCATION_BUFFER_MEMORY;
+			setLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+			setLayoutBinding.descriptorCount = 1;
+			setLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+			setLayoutBindings.push_back(setLayoutBinding);
+		}
+
+		{
+			//Only the draw shader samples this, but every layout declares it so that
+			//the descriptor sets cached in PrepareDescriptorSet stay compatible with
+			//all three pipelines.
+			VkDescriptorSetLayoutBinding setLayoutBinding = {};
+			setLayoutBinding.binding = DESCRIPTOR_LOCATION_BUFFER_MEMORY_COPY;
 			setLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
 			setLayoutBinding.descriptorCount = 1;
 			setLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;

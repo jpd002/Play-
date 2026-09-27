@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!-- Gates MAP_JIT on iOS: lets the process create executable (JIT) memory.
+	     Required for the recompiler; DolphiniOS/UTM ship this too. Honored when
+	     the app is JIT-enabled (StikDebug) or run under LiveContainer. -->
+	<key>dynamic-codesigning</key>
+	<true/>
+	<!-- Allow a debugger (StikDebug) to attach and grant JIT. -->
+	<key>get-task-allow</key>
+	<true/>
+</dict>
+</plist>
