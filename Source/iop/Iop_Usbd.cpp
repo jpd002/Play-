@@ -5,6 +5,7 @@
 #include "string_format.h"
 #include "lexical_cast_ex.h"
 #include "UsbBuzzerDevice.h"
+#include "UsbGunCon2Device.h"
 #include "states/RegisterStateCollectionFile.h"
 
 using namespace Iop;
@@ -24,6 +25,7 @@ CUsbd::CUsbd(CIopBios& bios, uint8* ram)
     , m_ram(ram)
 {
 	RegisterDevice(std::make_unique<CBuzzerUsbDevice>(bios, ram));
+	RegisterDevice(std::make_unique<CGunCon2UsbDevice>(bios, ram));
 }
 
 std::string CUsbd::GetId() const

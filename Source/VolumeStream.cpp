@@ -3,6 +3,10 @@
 #include "tcharx.h"
 #include "VolumeStream.h"
 
+#ifndef _MSC_VER
+# define min std::min
+#endif
+
 using namespace Framework;
 using namespace Framework::Win32;
 
@@ -46,7 +50,7 @@ void CVolumeStream::Seek(int64 nDistance, STREAM_SEEK_DIRECTION nFrom)
 		m_nPosition += nDistance;
 		break;
 	case STREAM_SEEK_END:
-		throw std::exception("Operation not supported.");
+		throw std::runtime_error("Operation not supported.");
 		break;
 	}
 }
@@ -82,7 +86,7 @@ uint64 CVolumeStream::Read(void* pBuffer, uint64 nSize)
 
 uint64 CVolumeStream::Write(const void* pBuffer, uint64 nSize)
 {
-	throw std::exception("Operation not-supported.");
+	throw std::runtime_error("Operation not supported.");
 }
 
 bool CVolumeStream::IsEOF()
