@@ -2,8 +2,6 @@
 
 #include "UsbDevice.h"
 
-#define MAX_GUNS 1
-
 class CIopBios;
 
 namespace Iop

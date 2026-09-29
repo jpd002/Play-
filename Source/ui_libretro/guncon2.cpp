@@ -15,6 +15,7 @@ struct lightgun_info_s {
     int center_x;
     int center_y;
 };
+static int registered = 0;
 
 static const struct lightgun_info_s lightgun_defaults = { "default__", 640,240,10000,10000,320,120 };
 
@@ -92,12 +93,34 @@ void load_gun_info(const char* gameName)
     lightgun_info = &lightgun_defaults;
 }
 
+static int get_gun_instance(unsigned port)
+{
+    if (port >= MAX_GUNS)
+        return -1;
+    
+#if MAX_GUNS == 1
+    return 0;
+#else
+    // up two guns are possible; they should be accessed in reverse order
+    // dynamic gun insertion is likely to be problematic
+    if (port_is_gun[0] && port_is_gun[1]) 
+        return 1-port;
+    else if (port_is_gun[0])
+        return registered-1;
+    else 
+        return 0;
+#endif
+    }
+
 static void update_gun(CPS2VM* vm, unsigned port) 
 {
-    // TODO: support more than one gun device
+    int instance = get_gun_instance(port);
+    if (instance < 0)
+        return;
+    
 	auto iopOs = dynamic_cast<CIopBios*>(vm->m_iop->m_bios.get());
-    auto device = iopOs->GetUsbd()->GetDevice<Iop::CGunCon2UsbDevice>(port);
-    if (device == nullptr)
+    auto device = iopOs->GetUsbd()->GetDevice<Iop::CGunCon2UsbDevice>(instance);
+    if (!device)
         return;
     
     uint32_t buttons = 0;
@@ -151,7 +174,30 @@ static void update_gun(CPS2VM* vm, unsigned port)
 
 void update_guns(CPS2VM* vm) 
 {
-    for (unsigned i=0; i<MAX_GUNS; i++)
-        if (port_is_gun[i])
-            update_gun(vm, i);
+    for (unsigned port=0; port<MAX_GUNS; port++)
+        if (port_is_gun[port])
+            update_gun(vm, port);
+}
+
+void register_guns(CPS2VM* vm) 
+{
+    int needed = 0;
+    for (int port=0; port<MAX_GUNS; port++)
+        if (port_is_gun[port]) 
+            needed++;
+        
+    // TODO: if a gun is unregistered, remove it somehow
+    auto bios = vm->m_iop->m_bios.get();
+    auto usbd = dynamic_cast<CIopBios*>(bios)->GetUsbd();
+    auto ram = vm->m_iop->m_ram;
+
+    for (int i=0; i<needed; i++) 
+    {
+        auto device = usbd->GetDevice<Iop::CGunCon2UsbDevice>(i);
+        if (!device) 
+            usbd->RegisterDevice(std::make_unique<Iop::CGunCon2UsbDevice>(*dynamic_cast<CIopBios*>(bios), ram, i));
+    }
+    
+    if (registered < needed)
+        registered = needed;
 }

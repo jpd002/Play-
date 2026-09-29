@@ -230,6 +230,8 @@ void retro_set_controller_port_device(unsigned port, unsigned device)
     if ((device & RETRO_DEVICE_MASK) == RETRO_DEVICE_LIGHTGUN) 
     {
         set_gun(port, true);
+        if (m_virtualMachine)
+            register_guns(m_virtualMachine);
     }
     else {
         set_gun(port, false);
@@ -456,6 +458,7 @@ void retro_run()
 			m_virtualMachine->Resume();
             
             load_gun_info(m_virtualMachine->m_ee->m_os->GetExecutableName());
+            register_guns(m_virtualMachine);
 			first_run = true;
 			CLog::GetInstance().Print(LOG_NAME, "%s\n", "Start Game");
 		}
