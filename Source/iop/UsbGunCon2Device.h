@@ -2,6 +2,8 @@
 
 #include "UsbDevice.h"
 
+#define MAX_GUNS 1
+
 class CIopBios;
 
 namespace Iop
@@ -33,7 +35,7 @@ namespace Iop
             GUN_OFFSCREEN = 0x20000
         };
 
-		CGunCon2UsbDevice(CIopBios&, uint8*);
+		CGunCon2UsbDevice(CIopBios&, uint8*, int);
 
 		uint16 GetId() const override;
 		const char* GetLldName() const override;
@@ -68,6 +70,7 @@ namespace Iop
 		uint32 m_transferCbArg = 0;
         int32 m_dx = 0;
         int32 m_dy = 0;
+        int m_instance = 0;
         bool m_progressive = 0;
 	};
 }

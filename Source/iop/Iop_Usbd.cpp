@@ -25,7 +25,10 @@ CUsbd::CUsbd(CIopBios& bios, uint8* ram)
     , m_ram(ram)
 {
 	RegisterDevice(std::make_unique<CBuzzerUsbDevice>(bios, ram));
-	RegisterDevice(std::make_unique<CGunCon2UsbDevice>(bios, ram));
+	RegisterDevice(std::make_unique<CGunCon2UsbDevice>(bios, ram, 0));
+#if MAX_GUNS > 1    
+	RegisterDevice(std::make_unique<CGunCon2UsbDevice>(bios, ram, 1));
+#endif    
 }
 
 std::string CUsbd::GetId() const

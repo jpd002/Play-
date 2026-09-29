@@ -13,10 +13,11 @@ using namespace Iop;
 #define STATE_REG_TRANSFERCB ("transferCb")
 #define STATE_REG_TRANSFERCBARG ("transferCbArg")
 
-CGunCon2UsbDevice::CGunCon2UsbDevice(CIopBios& bios, uint8* ram)
+CGunCon2UsbDevice::CGunCon2UsbDevice(CIopBios& bios, uint8* ram, int instance)
     : m_bios(bios)
     , m_ram(ram)
 {
+    m_instance = instance;
 }
 
 void CGunCon2UsbDevice::SaveState(CRegisterState& state) const
@@ -41,7 +42,7 @@ void CGunCon2UsbDevice::LoadState(const CRegisterState& state)
 
 uint16 CGunCon2UsbDevice::GetId() const
 {
-	return DEVICE_ID;
+	return DEVICE_ID + m_instance;
 }
 
 const char* CGunCon2UsbDevice::GetLldName() const
@@ -115,7 +116,7 @@ void CGunCon2UsbDevice::OnLldRegistered()
 
 uint32 CGunCon2UsbDevice::ScanStaticDescriptor(uint32 deviceId, uint32 descriptorPtr, uint32 descriptorType)
 {
-	assert(deviceId == DEVICE_ID);
+	assert(deviceId == DEVICE_ID + m_instance);
 	uint32 result = 0;
 	switch(descriptorType)
 	{
@@ -163,15 +164,15 @@ uint32 CGunCon2UsbDevice::ScanStaticDescriptor(uint32 deviceId, uint32 descripto
 
 int32 CGunCon2UsbDevice::OpenPipe(uint32 deviceId, uint32 descriptorPtr)
 {
-	assert(deviceId == DEVICE_ID);
+	assert(deviceId == DEVICE_ID + m_instance);
 	if(descriptorPtr != 0)
 	{
 		assert(descriptorPtr == m_descriptorMemPtr);
-		return PIPE_ID;
+		return PIPE_ID + m_instance;
 	}
 	else
 	{
-		return CONTROL_PIPE_ID;
+		return CONTROL_PIPE_ID + m_instance;
 	}
 }
 
@@ -192,8 +193,9 @@ int32 CGunCon2UsbDevice::TransferPipe(uint32 pipeId, uint32 bufferPtr, uint32 si
 {
 	uint16 deviceId = (pipeId & 0xFFFF);
 	uint16 internalPipeId = (pipeId >> 16) & 0xFFF;
-	assert(deviceId == DEVICE_ID);
-	switch(internalPipeId)
+	assert(deviceId == DEVICE_ID + m_instance);
+
+	switch(internalPipeId-m_instance)
 	{
 	case CONTROL_PIPE_ID:
         if (size == 6 && *(unsigned char*)(m_ram+optionPtr) == 0x21 && *(unsigned char*)(m_ram+optionPtr+1) == 0x09) {

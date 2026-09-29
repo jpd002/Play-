@@ -23,9 +23,9 @@ namespace Iop
 		void CountTicks(uint32);
 
 		template <typename DeviceType>
-		DeviceType* GetDevice()
+		DeviceType* GetDevice(int instance=0)
 		{
-			auto devicePairIterator = m_devices.find(DeviceType::DEVICE_ID);
+			auto devicePairIterator = m_devices.find(DeviceType::DEVICE_ID + instance);
 			if(devicePairIterator == std::end(m_devices))
 			{
 				return nullptr;

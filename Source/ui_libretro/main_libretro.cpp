@@ -156,6 +156,9 @@ void SetupInputHandler()
 
 		static const struct retro_controller_info ports[] = {
 		    {controllers, 2},
+#if MAX_GUNS > 1            
+		    {controllers, 2},
+#endif            
 		    {NULL, 0},
 		};
 

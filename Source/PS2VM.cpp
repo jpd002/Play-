@@ -859,7 +859,8 @@ void CPS2VM::RegisterModulesInPadHandler()
 
 	{
 		auto device = iopOs->GetUsbd()->GetDevice<Iop::CBuzzerUsbDevice>();
-		device->SetPadHandler(m_pad);
+        if (device != nullptr)
+            device->SetPadHandler(m_pad);
 	}
 }
 

@@ -4,8 +4,6 @@
 #include "iop/Iop_Usbd.h"
 #include "iop/UsbGunCon2Device.h"
 
-#define MAX_GUNS 1 // TODO: support more than one
-
 extern retro_input_state_t g_input_state_cb;
 static bool port_is_gun[MAX_GUNS];
 struct lightgun_info_s {
@@ -98,7 +96,9 @@ static void update_gun(CPS2VM* vm, unsigned port)
 {
     // TODO: support more than one gun device
 	auto iopOs = dynamic_cast<CIopBios*>(vm->m_iop->m_bios.get());
-    auto device = iopOs->GetUsbd()->GetDevice<Iop::CGunCon2UsbDevice>();
+    auto device = iopOs->GetUsbd()->GetDevice<Iop::CGunCon2UsbDevice>(port);
+    if (device == nullptr)
+        return;
     
     uint32_t buttons = 0;
     if (g_input_state_cb(port, RETRO_DEVICE_LIGHTGUN, 0, RETRO_DEVICE_ID_LIGHTGUN_AUX_A)) 
