@@ -16,6 +16,8 @@
 
 #include "filesystem_def.h"
 #include "DefaultAppConfig.h"
+#include "input/GunCon2Utils.h"
+#include "guncon2.h"
 
 #include <vector>
 #include <cstdlib>
@@ -142,7 +144,7 @@ void SetupInputHandler()
 		        {0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_L3, "L3"},
 		        {0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_R, "R1"},
 		        {0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_R2, "R2"},
-		        {0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_R3, "R3"},
+		        {0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_R3, "R3 / Calibrate Gun"},
 		        {0},
 		    };
 
@@ -150,10 +152,14 @@ void SetupInputHandler()
 
 		static const struct retro_controller_description controllers[] = {
 		    {"PS2 DualShock2", RETRO_DEVICE_SUBCLASS(RETRO_DEVICE_JOYPAD, 0)},
+		    {"PS2 GunCon2", RETRO_DEVICE_SUBCLASS(RETRO_DEVICE_LIGHTGUN, 0)},
 		};
 
 		static const struct retro_controller_info ports[] = {
-		    {controllers, 1},
+		    {controllers, 2},
+#if MAX_GUNS > 1            
+		    {controllers, 2},
+#endif            
 		    {NULL, 0},
 		};
 
@@ -199,6 +205,8 @@ void retro_set_video_refresh(retro_video_refresh_t cb)
 	g_video_cb = cb;
 }
 
+static retro_log_printf_t log_cb = NULL;
+
 void retro_set_environment(retro_environment_t cb)
 {
 	g_environ_cb = cb;
@@ -219,6 +227,16 @@ void retro_set_input_state(retro_input_state_t cb)
 void retro_set_controller_port_device(unsigned port, unsigned device)
 {
 	CLog::GetInstance().Print(LOG_NAME, "%s\n", __FUNCTION__);
+            
+    if ((device & RETRO_DEVICE_MASK) == RETRO_DEVICE_LIGHTGUN) 
+    {
+        set_gun(port, true);
+        if (m_virtualMachine)
+            register_guns(m_virtualMachine, false);
+    }
+    else {
+        set_gun(port, false);
+    }
 }
 
 void retro_set_audio_sample_batch(retro_audio_sample_batch_t cb)
@@ -439,6 +457,9 @@ void retro_run()
 				m_virtualMachine->m_ee->m_os->BootFromFile(m_bootCommand.path);
 			}
 			m_virtualMachine->Resume();
+            
+            load_gun_info(m_virtualMachine->m_ee->m_os->GetExecutableName());
+            register_guns(m_virtualMachine, false);
 			first_run = true;
 			CLog::GetInstance().Print(LOG_NAME, "%s\n", "Start Game");
 		}
@@ -455,6 +476,8 @@ void retro_run()
 
 		if(m_virtualMachine->GetGSHandler())
 			m_virtualMachine->GetGSHandler()->ProcessSingleFrame();
+        
+        update_guns(m_virtualMachine);
 	}
 }
 

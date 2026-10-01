@@ -13,6 +13,8 @@
 #include "Ps2Const.h"
 #include "iop/Iop_SifManPs2.h"
 #include "iop/UsbBuzzerDevice.h"
+#include "iop/UsbGunCon2Device.h"
+#include "input/GunCon2Utils.h"
 #include "StdStream.h"
 #include "StdStreamUtils.h"
 #include "states/MemoryStateFile.h"
@@ -859,8 +861,24 @@ void CPS2VM::RegisterModulesInPadHandler()
 
 	{
 		auto device = iopOs->GetUsbd()->GetDevice<Iop::CBuzzerUsbDevice>();
-		device->SetPadHandler(m_pad);
+        if (device != nullptr)
+            device->SetPadHandler(m_pad);
 	}
+}
+
+void CPS2VM::RegisterGunCon2PadHandler(bool state)
+{
+	if(m_pad == nullptr) return;
+
+	auto iopOs = dynamic_cast<CIopBios*>(m_iop->m_bios.get());
+	assert(iopOs);
+
+    for (int i=0; i<MAX_GUNS; i++) 
+    {
+        auto device = iopOs->GetUsbd()->GetDevice<Iop::CGunCon2UsbDevice>(i);
+        if (device != nullptr)
+            device->SetPadHandler(state ? m_pad : nullptr);
+    }
 }
 
 void CPS2VM::ReloadExecutable(const char* executablePath, const CPS2OS::ArgumentList& arguments)

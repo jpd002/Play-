@@ -42,6 +42,8 @@ set(SRC
 	PH_Libretro_Input.h
 	SH_LibreAudio.cpp
 	SH_LibreAudio.h
+	guncon2.cpp
+    guncon2.h
 )
 
 if(TARGET_PLATFORM_ANDROID)

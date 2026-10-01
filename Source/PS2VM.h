@@ -104,6 +104,7 @@ public:
 
 	ExecutableReloadedHandler BeforeExecutableReloaded;
 	ExecutableReloadedHandler AfterExecutableReloaded;
+    void RegisterGunCon2PadHandler(bool state);
 
 protected:
 	virtual void CreateVM();
