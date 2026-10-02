@@ -115,9 +115,8 @@ private:
 	std::shared_ptr<CInputProviderQtMouse> m_qtMouseInputProvider;
 	LastOpenCommand m_lastOpenCommand;
 	fs::path m_lastPath;
-    bool m_guncon2_game = false;
-    int32_t m_guncon2_x = 0;
-    int32_t m_guncon2_y = 0;
+    bool m_gunCon2Game = false;
+    bool m_isArcade = false;
     bool m_showCursor = true;
 
 	Framework::CSignal<void()>::Connection m_OnExecutableChangeConnection;

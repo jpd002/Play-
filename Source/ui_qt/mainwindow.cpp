@@ -419,6 +419,7 @@ void MainWindow::BootElf(fs::path filePath)
 		TryRegisterBootable(filePath);
 		TryUpdateLastBootedTime(filePath);
 		m_lastOpenCommand = LastOpenCommand(BootType::ELF, filePath);
+        m_isArcade = false;
 		UpdateUI();
 	}
 	m_msgLabel->setText(QString("Loaded executable '%1'.")
@@ -444,6 +445,7 @@ void MainWindow::BootCDROM()
 		TryRegisterBootable(filePath);
 		TryUpdateLastBootedTime(filePath);
 		m_lastOpenCommand = LastOpenCommand(BootType::CD, filePath);
+        m_isArcade = false;
 		UpdateUI();
 	}
 	m_msgLabel->setText(QString("Loaded executable '%1' from cdrom0.")
@@ -457,6 +459,7 @@ void MainWindow::BootArcadeMachine(fs::path arcadeDefPath)
 		ArcadeUtils::BootArcadeMachine(m_virtualMachine, arcadeDefPath);
 		m_lastOpenCommand = LastOpenCommand(BootType::ARCADE, arcadeDefPath);
 		m_msgLabel->setText(QString("Started arcade machine '%1'.").arg(arcadeDefPath.filename().c_str()));
+        m_isArcade = true;
 		UpdateUI();
 	}
 	catch(const std::exception& e)
@@ -847,8 +850,15 @@ void MainWindow::HandleOnExecutableChange()
 	auto titleString = QString("Play! - [ %1 ] - %2").arg(m_virtualMachine->m_ee->m_os->GetExecutableName(), QString(PLAY_VERSION));
 	setWindowTitle(titleString);
 	ui->bootablesView->AsyncResetModel(true);
-    m_guncon2_game = load_gun_info(m_virtualMachine->m_ee->m_os->GetExecutableName());
-    register_guncon2(m_virtualMachine, 0, true); 
+    if (m_isArcade) 
+    {
+        m_gunCon2Game = false;
+    }
+    else 
+    {
+        m_gunCon2Game = load_gun_info(m_virtualMachine->m_ee->m_os->GetExecutableName());
+        register_guncon2(m_virtualMachine, 0, true); 
+    }
 }
 
 bool MainWindow::IsExecutableLoaded() const
@@ -912,7 +922,7 @@ void MainWindow::focusInEvent(QFocusEvent* event)
 
 void MainWindow::outputWindow_doubleClickEvent(QMouseEvent* ev)
 {
-	if((!m_virtualMachine->HasGunListener() && !m_virtualMachine->HasTouchListener() && !m_guncon2_game) && (ev->button() == Qt::LeftButton))
+	if((!m_virtualMachine->HasGunListener() && !m_virtualMachine->HasTouchListener() && !m_gunCon2Game) && (ev->button() == Qt::LeftButton))
 	{
 		on_actionToggleFullscreen_triggered();
 	}
@@ -922,30 +932,36 @@ void MainWindow::outputWindow_mouseMoveEvent(QMouseEvent* ev)
 {
     auto gsHandler = m_virtualMachine->GetGSHandler();
     if(!gsHandler) return;
-    qreal scale = 1.0;
-#if QT_VERSION >= QT_VERSION_CHECK(5, 6, 0)
-    scale = devicePixelRatioF();
-#endif
-    auto presentationViewport = gsHandler->GetPresentationViewport();
-    float vpOfsX = static_cast<float>(presentationViewport.offsetX) / scale;
-    float vpOfsY = static_cast<float>(presentationViewport.offsetY) / scale;
-    float vpWidth = static_cast<float>(presentationViewport.width) / scale;
-    float vpHeight = static_cast<float>(presentationViewport.height) / scale;
-    float mouseX = ev->x();
-    float mouseY = ev->y();
-    mouseX -= vpOfsX;
-    mouseY -= vpOfsY;
-    mouseX = std::clamp<float>(mouseX, 0, vpWidth) / static_cast<float>(vpWidth);
-    mouseY = std::clamp<float>(mouseY, 0, vpHeight) / static_cast<float>(vpHeight);
 
-    m_guncon2_x = static_cast<int32>( ( mouseX * g_lightgun_info->width * g_lightgun_info->scale_x) / 10000 + g_lightgun_info->center_x + .5f );
-    m_guncon2_y = static_cast<int32>( ( mouseY * g_lightgun_info->height * g_lightgun_info->scale_y) / 10000 + g_lightgun_info->center_y + .5f );
-    // todo: offscreen support
-    guncon2_set_position(m_virtualMachine, 0, m_guncon2_x, m_guncon2_y, false);
-
-    if(m_virtualMachine->HasGunListener())
+    if(m_virtualMachine->HasGunListener() || ! m_isArcade)
     {
-        m_virtualMachine->ReportGunPosition(mouseX, mouseY);
+        qreal scale = 1.0;
+#if QT_VERSION >= QT_VERSION_CHECK(5, 6, 0)
+        scale = devicePixelRatioF();
+#endif
+        auto presentationViewport = gsHandler->GetPresentationViewport();
+        float vpOfsX = static_cast<float>(presentationViewport.offsetX) / scale;
+        float vpOfsY = static_cast<float>(presentationViewport.offsetY) / scale;
+        float vpWidth = static_cast<float>(presentationViewport.width) / scale;
+        float vpHeight = static_cast<float>(presentationViewport.height) / scale;
+        float mouseX = ev->x();
+        float mouseY = ev->y();
+        mouseX -= vpOfsX;
+        mouseY -= vpOfsY;
+        
+        bool offscreen = mouseX < -1 || mouseY < -1 || mouseX >= vpWidth + 1 || mouseY >= vpHeight + 1;
+        
+        mouseX = std::clamp<float>(mouseX, 0, vpWidth) / static_cast<float>(vpWidth);
+        mouseY = std::clamp<float>(mouseY, 0, vpHeight) / static_cast<float>(vpHeight);
+
+        int32 gunX = static_cast<int32>( ( mouseX * g_lightgun_info->width * g_lightgun_info->scale_x) / 10000 + g_lightgun_info->center_x + .5f );
+        int32 gunY = static_cast<int32>( ( mouseY * g_lightgun_info->height * g_lightgun_info->scale_y) / 10000 + g_lightgun_info->center_y + .5f );
+
+        if (!m_isArcade)
+            guncon2_set_position(m_virtualMachine, 0, gunX, gunY, offscreen);
+
+        if(m_virtualMachine->HasGunListener())
+            m_virtualMachine->ReportGunPosition(mouseX, mouseY);
     }
 }
 
