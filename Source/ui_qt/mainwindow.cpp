@@ -24,7 +24,6 @@
 
 #include <ctime>
 
-#include <QDebug>
 #include <QDateTime>
 #include <QFileDialog>
 #include <QTimer>
