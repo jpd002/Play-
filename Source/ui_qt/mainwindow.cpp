@@ -856,8 +856,9 @@ void MainWindow::HandleOnExecutableChange()
     }
     else 
     {
-        m_gunCon2Game = load_gun_info(m_virtualMachine->m_ee->m_os->GetExecutableName());
-        register_guncon2(m_virtualMachine, 0, true); 
+        const struct Iop::LightgunInfo* infoP  = GetLightgunInfo(m_virtualMachine->m_ee->m_os->GetExecutableName());
+        m_gunCon2Game = (infoP == nullptr); // don't specialize UI to guncon2 if not on whitelist, but still register
+        m_virtualMachine->RegisterGunCon2(0, infoP, true);
     }
 }
 
@@ -933,7 +934,7 @@ void MainWindow::outputWindow_mouseMoveEvent(QMouseEvent* ev)
     auto gsHandler = m_virtualMachine->GetGSHandler();
     if(!gsHandler) return;
 
-    if(m_virtualMachine->HasGunListener() || ! m_isArcade)
+    if(m_virtualMachine->HasGunListener())
     {
         qreal scale = 1.0;
 #if QT_VERSION >= QT_VERSION_CHECK(5, 6, 0)
@@ -949,19 +950,7 @@ void MainWindow::outputWindow_mouseMoveEvent(QMouseEvent* ev)
         mouseX -= vpOfsX;
         mouseY -= vpOfsY;
         
-        bool offscreen = mouseX < -1 || mouseY < -1 || mouseX >= vpWidth + 1 || mouseY >= vpHeight + 1;
-        
-        mouseX = std::clamp<float>(mouseX, 0, vpWidth) / static_cast<float>(vpWidth);
-        mouseY = std::clamp<float>(mouseY, 0, vpHeight) / static_cast<float>(vpHeight);
-
-        int32 gunX = static_cast<int32>( ( mouseX * g_lightgun_info->width * g_lightgun_info->scale_x) / 10000 + g_lightgun_info->center_x + .5f );
-        int32 gunY = static_cast<int32>( ( mouseY * g_lightgun_info->height * g_lightgun_info->scale_y) / 10000 + g_lightgun_info->center_y + .5f );
-
-        if (!m_isArcade)
-            guncon2_set_position(m_virtualMachine, 0, gunX, gunY, offscreen);
-
-        if(m_virtualMachine->HasGunListener())
-            m_virtualMachine->ReportGunPosition(mouseX, mouseY);
+        m_virtualMachine->ReportGunPosition(mouseX / static_cast<float>(vpWidth), mouseY / static_cast<float>(vpHeight));
     }
 }
 

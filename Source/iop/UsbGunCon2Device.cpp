@@ -19,6 +19,7 @@ CGunCon2UsbDevice::CGunCon2UsbDevice(CIopBios& bios, uint8* ram, int instance)
     , m_ram(ram)
 {
     m_instance = instance;
+    SetGunInfo(nullptr);
 }
 
 void CGunCon2UsbDevice::SaveState(CRegisterState& state) const
@@ -104,6 +105,22 @@ void CGunCon2UsbDevice::CountTicks(uint32 ticks)
 	}
 }
 
+void CGunCon2UsbDevice::SetScreenPosition(float x, float y)
+{
+    if (x < -.001f || x >= 1.001f || y < -.001f || y > 1.001f)
+    {
+        m_x = 0;
+        m_y = 0;
+        return;
+    }
+    x = std::clamp(x,0.0f,1.0f);
+    y = std::clamp(y,0.0f,1.0f);
+    m_x = static_cast<int32>( ( x * m_info.width * m_info.scaleX) + m_info.centerX + 0.5f ) - m_dx;
+    m_y = static_cast<int32>( ( y * m_info.height * m_info.scaleY) + m_info.centerY + 0.5f ) - m_dy;
+    if (m_x == 0 && m_y == 0)
+        m_x = 1; // 0,0 means offscreen
+}
+
 void CGunCon2UsbDevice::SetButtonState(unsigned int padNumber, PS2::CControllerInfo::BUTTON button, bool pressed, uint8* ram)
 {
 	if(padNumber != m_instance)
@@ -154,30 +171,22 @@ void CGunCon2UsbDevice::SetButtonState(unsigned int padNumber, PS2::CControllerI
         m_buttonState &= ~mask;
 }
 
-void CGunCon2UsbDevice::SetGunPosition(int32 x, int32 y, bool offscreen)
-{
-    if (offscreen) 
-    {
-        m_x = 0;
-        m_y = 0;
-    }
-    else 
-    {
-        m_x = x - m_dx;
-        m_y = y - m_dy;
-        if (m_x < 0)
-            m_x = 0;
-        if (m_y < 0)
-            m_y = 0;
-        if (m_x == 0 && m_y == 0)
-            m_x = 1;
-    }
-}
 
-void CGunCon2UsbDevice::SetGunState(uint32 buttons, int32 x, int32 y, bool offscreen)
+void CGunCon2UsbDevice::SetGunButtons(uint32 buttons)
 {
     m_buttonState = buttons;
-    SetGunPosition(x,y,offscreen);
+}
+
+void CGunCon2UsbDevice::SetGunInfo(const struct LightgunInfo* infoP)
+{
+    if (infoP)
+    {
+        m_info = *infoP;
+    }
+    else
+    {
+        m_info = {640,240,1.0f,1.0f,320,120};
+    }
 }
 
 void CGunCon2UsbDevice::OnLldRegistered()

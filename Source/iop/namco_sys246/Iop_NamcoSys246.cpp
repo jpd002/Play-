@@ -669,6 +669,9 @@ void CSys246::SetAxisState(unsigned int padNumber, PS2::CControllerInfo::BUTTON 
 
 void CSys246::SetScreenPosition(float x, float y)
 {
+    x = std::clamp(x,0.0f,1.0f);
+    y = std::clamp(y,0.0f,1.0f);
+    
 	m_jvsScreenPosX = static_cast<int16>((x * m_screenPosXform[0]) + m_screenPosXform[1]);
 	m_jvsScreenPosY = static_cast<int16>((y * m_screenPosXform[2]) + m_screenPosXform[3]);
 }

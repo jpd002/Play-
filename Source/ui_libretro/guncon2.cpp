@@ -76,19 +76,17 @@ static void update_gun(CPS2VM* vm, unsigned port)
     
     if (offscreen || offscreen_shot) 
     {
-        guncon2_set_state(vm,instance,buttons,0,0,true);
+        GunCon2SetState(vm,instance,buttons,-1.0f,-1.0f);
         return;
     }
     
 	int32 screenX = static_cast<int32>(g_input_state_cb(port, RETRO_DEVICE_LIGHTGUN, 0, RETRO_DEVICE_ID_LIGHTGUN_SCREEN_X));
 	int32 screenY = static_cast<int32>(g_input_state_cb(port, RETRO_DEVICE_LIGHTGUN, 0, RETRO_DEVICE_ID_LIGHTGUN_SCREEN_Y));
     
-	int32 x = ( (screenX * g_lightgun_info->width) / 0x100 * g_lightgun_info->scale_x + 0x100 * 5000) / (0x100 * 10000)
-                    + g_lightgun_info->center_x;
-	int32 y = ( (screenY * g_lightgun_info->height) / 0x100 * g_lightgun_info->scale_y + 0x100 * 5000) / (0x100 * 10000)
-                    + g_lightgun_info->center_y;
-                    
-    guncon2_set_state(vm,instance,buttons,x,y,false);
+	float x = ( screenX + 0x7FFF ) / static_cast<float>(0x10000);
+	float y = ( screenY + 0x7FFF ) / static_cast<float>(0x10000);
+    
+    GunCon2SetState(vm,instance,buttons,x,y);
 }
 
 void update_guns(CPS2VM* vm) 
@@ -98,16 +96,18 @@ void update_guns(CPS2VM* vm)
             update_gun(vm, port);
 }
 
-void register_guns(CPS2VM* vm, bool padMode) 
+void register_guns(CPS2VM* vm) 
 {
     int needed = 0;
     for (int port=0; port<MAX_GUNS; port++)
         if (port_is_gun[port]) 
             needed++;
         
+    const struct Iop::LightgunInfo* infoP = GetLightgunInfo(vm->m_ee->m_os->GetExecutableName());
     // TODO: if a gun is unregistered, remove it somehow
+
     for (int i=0; i<needed; i++) 
-        register_guncon2(vm, i, padMode);
+        vm->RegisterGunCon2(i, infoP, false);
     
     if (registered < needed)
         registered = needed;

@@ -866,18 +866,30 @@ void CPS2VM::RegisterModulesInPadHandler()
 	}
 }
 
-void CPS2VM::RegisterGunCon2PadHandler(bool state)
+void CPS2VM::RegisterGunCon2(int instance, const struct Iop::LightgunInfo* info, boolean useListeners)
+// only one gun can be set to useListeners at present
 {
-	if(m_pad == nullptr) return;
-
 	auto iopOs = dynamic_cast<CIopBios*>(m_iop->m_bios.get());
 	assert(iopOs);
 
-    for (int i=0; i<MAX_GUNS; i++) 
+    auto usbd = iopOs->GetUsbd();
+    
+    auto device = usbd->GetDevice<Iop::CGunCon2UsbDevice>(instance);
+    if (device == nullptr) 
     {
-        auto device = iopOs->GetUsbd()->GetDevice<Iop::CGunCon2UsbDevice>(i);
-        if (device != nullptr)
-            device->SetPadHandler(state ? m_pad : nullptr);
+        auto ram = m_iop->m_ram;
+        usbd->RegisterDevice(std::make_unique<Iop::CGunCon2UsbDevice>(*iopOs, ram, instance));
+        device = usbd->GetDevice<Iop::CGunCon2UsbDevice>(instance);
+    }
+    device->SetGunInfo(info);
+    if (useListeners)
+    {
+        device->SetPadHandler(m_pad);
+        SetGunListener(device);
+    }
+    else
+    {
+        device->SetPadHandler(nullptr);
     }
 }
 

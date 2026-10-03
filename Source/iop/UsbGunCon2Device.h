@@ -2,13 +2,25 @@
 
 #include "UsbDevice.h"
 #include "PadInterface.h"
+#include "ScreenPositionListener.h"
+
+#define MAX_GUNS 2 // can be 1 or 2
 
 class CIopBios;
 class CPadHandler;
 
 namespace Iop
 {
-	class CGunCon2UsbDevice : public CUsbDevice, public CPadInterface
+    struct LightgunInfo {
+        int width;
+        int height;    
+        float scaleX;
+        float scaleY;
+        int centerX;
+        int centerY;
+    };
+
+	class CGunCon2UsbDevice : public CUsbDevice, public CPadInterface, public CScreenPositionListener
 	{
 	public:
 		enum
@@ -55,13 +67,19 @@ namespace Iop
         
         void SetParameters(unsigned char*);
 
-		void SetGunState(uint32, int32, int32, bool);
+		void SetGunButtons(uint32);
+        void SetGunInfo(const struct LightgunInfo* infoP);
         
 		void SetGunPosition(int32, int32, bool);
-		//CPadInterface
+		//CScreenPositionListener
+        void SetScreenPosition(float, float) override;
+        void ReleaseScreenPosition() override{};
+        
+        //CPadInterface
 		void SetButtonState(unsigned int, PS2::CControllerInfo::BUTTON, bool, uint8*) override;
 		void SetAxisState(unsigned int, PS2::CControllerInfo::BUTTON, uint8, uint8*) override{};
 		void GetVibration(unsigned int, uint8& largeMotor, uint8& smallMotor) override{};
+        
 		CPadHandler* m_padHandler = nullptr;
 
 	private:
@@ -82,5 +100,7 @@ namespace Iop
         int32 m_dy = 0;
         int m_instance = 0;
         bool m_progressive = false;
+
+        struct LightgunInfo m_info;
 	};
 }

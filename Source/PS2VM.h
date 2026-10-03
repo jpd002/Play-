@@ -8,6 +8,7 @@
 #include "MailBox.h"
 #include "PadHandler.h"
 #include "ScreenPositionListener.h"
+#include "iop/UsbGunCon2Device.h"
 #include "OpticalMedia.h"
 #include "VirtualMachine.h"
 #include "ee/Ee_SubSystem.h"
@@ -93,6 +94,7 @@ public:
 	bool HasTouchListener() const;
 	void SetTouchListener(CScreenPositionListener*);
 	void ReleaseScreenPosition();
+    void RegisterGunCon2(int, const struct Iop::LightgunInfo*, boolean);
 
 	OpticalMediaPtr m_cdrom0;
 	CPadHandler* m_pad = nullptr;
