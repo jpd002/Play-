@@ -9,6 +9,7 @@ public:
 	virtual ~CVuBasicBlock() = default;
 
 	bool IsLinkable() const;
+	void CopyLinkableFrom(const CVuBasicBlock&);
 
 protected:
 	void CompileRange(CMipsJitter*) override;
