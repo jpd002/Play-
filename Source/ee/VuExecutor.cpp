@@ -64,6 +64,8 @@ BasicBlockPtr CVuExecutor::BlockFactory(CMIPS& context, uint32 begin, uint32 end
 		{
 			auto result = std::make_shared<CVuBasicBlock>(context, begin, end, m_blockCategory);
 			result->CopyFunctionFrom(beginBlockIterator->second);
+			//The code is the same, so must be what can be linked
+			result->CopyLinkableFrom(static_cast<const CVuBasicBlock&>(*beginBlockIterator->second));
 			m_cachedBlocks.insert(std::make_pair(blockKey, result));
 			return result;
 		}
