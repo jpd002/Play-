@@ -13,6 +13,8 @@
 #include "Ps2Const.h"
 #include "iop/Iop_SifManPs2.h"
 #include "iop/UsbBuzzerDevice.h"
+#include "iop/UsbGunCon2Device.h"
+#include "input/GunCon2Utils.h"
 #include "StdStream.h"
 #include "StdStreamUtils.h"
 #include "states/MemoryStateFile.h"
@@ -859,8 +861,36 @@ void CPS2VM::RegisterModulesInPadHandler()
 
 	{
 		auto device = iopOs->GetUsbd()->GetDevice<Iop::CBuzzerUsbDevice>();
-		device->SetPadHandler(m_pad);
+        if (device != nullptr)
+            device->SetPadHandler(m_pad);
 	}
+}
+
+void CPS2VM::RegisterGunCon2(int instance, const struct Iop::LightgunInfo* info, boolean useListeners)
+// only one gun can be set to useListeners at present
+{
+	auto iopOs = dynamic_cast<CIopBios*>(m_iop->m_bios.get());
+	assert(iopOs);
+
+    auto usbd = iopOs->GetUsbd();
+    
+    auto device = usbd->GetDevice<Iop::CGunCon2UsbDevice>(instance);
+    if (device == nullptr) 
+    {
+        auto ram = m_iop->m_ram;
+        usbd->RegisterDevice(std::make_unique<Iop::CGunCon2UsbDevice>(*iopOs, ram, instance));
+        device = usbd->GetDevice<Iop::CGunCon2UsbDevice>(instance);
+    }
+    device->SetGunInfo(info);
+    if (useListeners)
+    {
+        device->SetPadHandler(m_pad);
+        SetGunListener(device);
+    }
+    else
+    {
+        device->SetPadHandler(nullptr);
+    }
 }
 
 void CPS2VM::ReloadExecutable(const char* executablePath, const CPS2OS::ArgumentList& arguments)

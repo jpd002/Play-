@@ -4,5 +4,6 @@
 #define PREF_UI_SHOWEECPUUSAGE "ui.showeecpuusage"
 #define PREF_UI_PAUSEWHENFOCUSLOST "ui.pausewhenfocuslost"
 #define PREF_UI_SHOWEXITCONFIRMATION "ui.showexitconfirmation"
+#define PREF_UI_SHOWCURSOR "ui.showcursor"
 #define PREF_VIDEO_GS_HANDLER "video.gshandler"
 #define PREF_INPUT_PAD1_PROFILE "input.pad1.profile"

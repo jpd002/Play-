@@ -122,6 +122,7 @@
     <addaction name="separator"/>
     <addaction name="menuResizeWindow"/>
     <addaction name="actionToggleFullscreen"/>
+    <addaction name="actionToggleCursor"/>
     <addaction name="actionCapture_Screen"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
@@ -222,6 +223,14 @@
   <action name="actionToggleFullscreen">
     <property name="text">
       <string>Fullscreen Mode</string>
+    </property>
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+  </action>
+  <action name="actionToggleCursor">
+    <property name="text">
+      <string>Show Cursor</string>
     </property>
    <property name="checkable">
     <bool>true</bool>

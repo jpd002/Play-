@@ -82,9 +82,14 @@ Some arcade specific actions are mapped to these buttons on the PS2 controller m
 For games that support light guns, the following buttons are mapped:
 
 - Gun Trigger: CIRCLE
-- Pedal: TRIANGLE
+- Arcade Pedal: TRIANGLE
+- PS2 Calibrate Shot: R3
+- PS2 Gun A: TRIANGLE
+- PS2 Gun B: SQUARE
+- PS2 Gun C: CROSS
+- PS2 Gun SELECT/START/DPAD: SELECT/START/DPAD
 
-The mouse's cursor position on the emulator's window will be used for the gun's position. It's also possible to map mouse buttons to CIRCLE or TRIANGLE in controller settings for a better experience.
+The mouse's cursor position on the emulator's window will be used for the gun's position. It's also possible to map mouse buttons to CIRCLE or TRIANGLE in controller pad 1 settings for a better experience.
 
 **Note for Time Crisis 3**: This game requires prior calibration of the light gun in service menu. Hold the Test buttons, go in "I/O Test" then "Gun Initialize" and press the Pedal button to calibrate the gun (shoot at the center). This only needs to be done once.
 
