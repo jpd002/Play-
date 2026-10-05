@@ -99,6 +99,7 @@ MainWindow::MainWindow(QWidget* parent)
 #endif
 
 	m_pauseFocusLost = CAppConfig::GetInstance().GetPreferenceBoolean(PREF_UI_PAUSEWHENFOCUSLOST);
+    m_showCursor = CAppConfig::GetInstance().GetPreferenceBoolean(PREF_UI_SHOWCURSOR);
 	auto lastPath = CAppConfig::GetInstance().GetPreferencePath(PREF_PS2_CDROM0_PATH);
 	std::error_code lastPathExistsErrorCode;
 	if(fs::exists(lastPath, lastPathExistsErrorCode))
@@ -118,9 +119,9 @@ MainWindow::MainWindow(QWidget* parent)
 	addAction(ui->actionPause_Resume);
 	addAction(ui->actionToggleFullscreen);
 	addAction(ui->actionToggleCursor);
-    ui->actionToggleCursor->setChecked(true);
+    ui->actionToggleCursor->setChecked(m_showCursor);
 	ui->actionToggleCursor->setShortcut(QKeySequence(Qt::Key_F11));
-
+    
 #ifdef WIN32
 	ui->actionToggleFullscreen->setShortcut(QKeySequence(Qt::ALT + Qt::Key_Return));
 #endif
@@ -263,6 +264,11 @@ void MainWindow::SetupGsHandler()
 
 	m_OnNewFrameConnection = m_virtualMachine->OnNewFrame.Connect(std::bind(&CStatsManager::OnNewFrame, &CStatsManager::GetInstance(), m_virtualMachine));
 	m_OnGsNewFrameConnection = m_virtualMachine->m_ee->m_gs->OnNewFrame.Connect(std::bind(&CStatsManager::OnGsNewFrame, &CStatsManager::GetInstance(), std::placeholders::_1));
+
+    if (m_showCursor)
+        m_outputwindow->unsetCursor();
+    else
+        m_outputwindow->setCursor(Qt::BlankCursor);
 }
 
 void MainWindow::SetupSoundHandler()
@@ -888,6 +894,7 @@ void MainWindow::RegisterPreferences()
 	CAppConfig::GetInstance().RegisterPreferenceBoolean(PREF_UI_PAUSEWHENFOCUSLOST, true);
 	CAppConfig::GetInstance().RegisterPreferenceBoolean(PREF_UI_SHOWEECPUUSAGE, false);
 	CAppConfig::GetInstance().RegisterPreferenceBoolean(PREF_UI_SHOWEXITCONFIRMATION, true);
+	CAppConfig::GetInstance().RegisterPreferenceBoolean(PREF_UI_SHOWCURSOR, true);
 	CAppConfig::GetInstance().RegisterPreferenceInteger(PREF_VIDEO_GS_HANDLER, SettingsDialog::GS_HANDLERS::OPENGL);
 	CAppConfig::GetInstance().RegisterPreferenceString(PREF_INPUT_PAD1_PROFILE, "default");
 }
@@ -1000,6 +1007,7 @@ void MainWindow::on_actionToggleCursor_triggered()
         m_outputwindow->unsetCursor();
     else
         m_outputwindow->setCursor(Qt::BlankCursor);
+	CAppConfig::GetInstance().SetPreferenceBoolean(PREF_UI_SHOWCURSOR, m_showCursor);
 }
 
 void MainWindow::on_actionToggleFullscreen_triggered()
