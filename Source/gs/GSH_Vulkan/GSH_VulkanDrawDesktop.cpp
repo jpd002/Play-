@@ -538,7 +538,7 @@ Framework::Vulkan::CShaderModule CDrawDesktop::CreateFragmentShader(const PIPELI
 				    auto fraction = Mix(Fract(textureSt * ToFloat(texSize) / mipScale), NewFloat2(b, 0, 0), IsInf(textureSt));
 				    auto subpixelPos = ToInt(fraction * NewFloat2(b, m_context->framebufferScale, m_context->framebufferScale));
 				    auto subpixel = NewInt2(Min(subpixelPos->x(), NewInt(b, m_context->framebufferScale - 1)),
-				                           Min(subpixelPos->y(), NewInt(b, m_context->framebufferScale - 1)));
+				                            Min(subpixelPos->y(), NewInt(b, m_context->framebufferScale - 1)));
 				    auto memoryOffset = (subpixel->x() + subpixel->y() * NewInt(b, m_context->framebufferScale)) * NewInt(b, CGSHandler::RAMSIZE);
 				    textureColor = CDrawUtils::GetTextureColorWithOffset(b, caps.textureFormat, caps.clutFormat, mipIuv,
 				                                                         textureSource, clutBuffer, texSwizzleTable, texBufAddress, texBufWidth, texCsa, memoryOffset);
@@ -982,7 +982,7 @@ void CDrawDesktop::FlushVertices()
 			copies[sample].dstOffset += VkDeviceSize(sample) * CGSHandler::RAMSIZE;
 		}
 		m_context->device.vkCmdCopyBuffer(commandBuffer, m_context->memoryBuffer, m_context->memoryBufferCopy,
-		                                   static_cast<uint32>(copies.size()), copies.data());
+		                                  static_cast<uint32>(copies.size()), copies.data());
 
 		m_memoryCopyRegion.Reset();
 	}

@@ -97,9 +97,9 @@ Nuanceur::CFloat4Rvalue CDrawUtils::GetTextureColor(Nuanceur::CShaderBuilder& b,
 }
 
 Nuanceur::CFloat4Rvalue CDrawUtils::GetTextureColorWithOffset(Nuanceur::CShaderBuilder& b, uint32 textureFormat, uint32 clutFormat,
-                                                    Nuanceur::CInt2Value texelPos, Nuanceur::CArrayUintValue memoryBuffer, Nuanceur::CArrayUintValue clutBuffer,
-                                                    Nuanceur::CImageUint2DValue texSwizzleTable, Nuanceur::CIntValue texBufAddress, Nuanceur::CIntValue texBufWidth,
-                                                    Nuanceur::CIntValue texCsa, Nuanceur::CIntValue memoryOffset)
+                                                              Nuanceur::CInt2Value texelPos, Nuanceur::CArrayUintValue memoryBuffer, Nuanceur::CArrayUintValue clutBuffer,
+                                                              Nuanceur::CImageUint2DValue texSwizzleTable, Nuanceur::CIntValue texBufAddress, Nuanceur::CIntValue texBufWidth,
+                                                              Nuanceur::CIntValue texCsa, Nuanceur::CIntValue memoryOffset)
 {
 	using namespace Nuanceur;
 

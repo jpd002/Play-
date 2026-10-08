@@ -38,7 +38,8 @@ public:
 			info.layers[0].psm = format;
 			FlipImpl(info);
 			m_context->device.vkQueueWaitIdle(m_context->queue);
-		}, true);
+		},
+		           true);
 	}
 	void Write(uint8 reg, uint64 value)
 	{
@@ -69,7 +70,8 @@ public:
 		SendGSCall([&]() {
 			SyncMemoryCache();
 			memory.assign(GetRam(), GetRam() + m_context->GetMemorySize());
-		}, true);
+		},
+		           true);
 		return memory;
 	}
 
@@ -90,7 +92,8 @@ public:
 			host.DoTransfer(data);
 			commands->EndFrame();
 			m_context->device.vkQueueWaitIdle(m_context->queue);
-		}, true);
+		},
+		           true);
 	}
 
 	void CopyTransfer(uint32 format)
@@ -113,7 +116,8 @@ public:
 			local.DoTransfer();
 			commands->EndFrame();
 			m_context->device.vkQueueWaitIdle(m_context->queue);
-		}, true);
+		},
+		           true);
 	}
 
 protected:
@@ -288,7 +292,8 @@ static void TestTransfer(CTestHandler& gs, uint32 format, uint32 bytesPerPixel, 
 		}
 		else
 		{
-			for(uint32 byte = 0; byte < bytesPerPixel; byte++) data.push_back(value >> (byte * 8));
+			for(uint32 byte = 0; byte < bytesPerPixel; byte++)
+				data.push_back(value >> (byte * 8));
 		}
 	}
 	gs.Transfer(format, data);

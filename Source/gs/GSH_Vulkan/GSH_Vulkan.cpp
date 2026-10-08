@@ -296,7 +296,8 @@ uint32 CGSH_Vulkan::GetRequestedFramebufferScale() const
 	auto requested = CAppConfig::GetInstance().GetPreferenceInteger(PREF_CGSHANDLER_RESOLUTION_FACTOR);
 	if(requested <= 1) return 1;
 	uint32 scale = 1;
-	while(scale < m_context->maxFramebufferScale && (scale * 2) <= static_cast<uint32>(requested)) scale *= 2;
+	while(scale < m_context->maxFramebufferScale && (scale * 2) <= static_cast<uint32>(requested))
+		scale *= 2;
 	return scale;
 }
 
@@ -1662,7 +1663,7 @@ void CGSH_Vulkan::ProcessLocalToLocalTransfer()
 			copies[sample].dstOffset += VkDeviceSize(sample) * CGSHandler::RAMSIZE;
 		}
 		m_context->device.vkCmdCopyBuffer(commandBuffer, m_context->memoryBuffer, m_context->memoryBufferCopy,
-		                                   static_cast<uint32>(copies.size()), copies.data());
+		                                  static_cast<uint32>(copies.size()), copies.data());
 
 		pipelineCaps.srcUseMemoryCopy = true;
 	}
