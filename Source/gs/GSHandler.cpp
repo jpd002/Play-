@@ -126,6 +126,7 @@ CGSHandler::~CGSHandler()
 
 void CGSHandler::RegisterPreferences()
 {
+	CAppConfig::GetInstance().RegisterPreferenceInteger(PREF_CGSHANDLER_RESOLUTION_FACTOR, 1);
 	CAppConfig::GetInstance().RegisterPreferenceInteger(PREF_CGSHANDLER_PRESENTATION_MODE, CGSHandler::PRESENTATION_MODE_FIT);
 	CAppConfig::GetInstance().RegisterPreferenceBoolean(PREF_CGSHANDLER_GS_RAM_READS_ENABLED, true);
 	CAppConfig::GetInstance().RegisterPreferenceBoolean(PREF_CGSHANDLER_WIDESCREEN, false);

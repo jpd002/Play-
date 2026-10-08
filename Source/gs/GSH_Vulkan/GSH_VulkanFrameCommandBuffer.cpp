@@ -26,6 +26,7 @@ CFrameCommandBuffer::~CFrameCommandBuffer()
 	for(auto& frame : m_frames)
 	{
 		m_context->device.vkDestroyFence(m_context->device, frame.execCompleteFence, nullptr);
+		m_context->commandBufferPool.FreeBuffer(frame.commandBuffer);
 	}
 }
 

@@ -59,6 +59,7 @@ protected:
 	void InitializeImpl() override;
 	void ReleaseImpl() override;
 	void ResetImpl() override;
+	void NotifyPreferencesChangedImpl() override;
 	void MarkNewFrame() override;
 	void FlipImpl(const DISPLAY_INFO&) override;
 	void BeginTransferWrite() override;
@@ -148,6 +149,9 @@ private:
 	void CreateDescriptorPool();
 	void CreateMemoryBuffer();
 	void CreateClutBuffer();
+	void CreateRenderingResources();
+	void ReleaseRenderingResources();
+	uint32 GetRequestedFramebufferScale() const;
 
 	void ProcessPrim(uint64);
 	void VertexKick(uint8, uint64);
@@ -168,16 +172,20 @@ private:
 	Framework::CBitmap GetTextureImpl(uint64, uint32, uint64, uint64, uint32);
 
 	template <typename PixelIndexor, uint32 mask = ~0U>
-	static Framework::CBitmap ReadImage32(uint8* ram, uint32 bufferPtr, uint32 bufferWidth, uint32 width, uint32 height)
+	static Framework::CBitmap ReadImage32(uint8* ram, uint32 bufferPtr, uint32 bufferWidth, uint32 width, uint32 height, uint32 scale = 1)
 	{
-		auto bitmap = Framework::CBitmap(width, height, 32);
+		auto bitmap = Framework::CBitmap(width * scale, height * scale, 32);
 		auto bitmapPixels = reinterpret_cast<uint32*>(bitmap.GetPixels());
-		PixelIndexor indexor(ram, bufferPtr, bufferWidth);
-		for(unsigned int y = 0; y < height; y++)
+		std::vector<PixelIndexor> indexors;
+		for(uint32 sample = 0; sample < scale * scale; sample++)
 		{
-			for(unsigned int x = 0; x < width; x++)
+			indexors.emplace_back(ram + VkDeviceSize(sample) * RAMSIZE, bufferPtr, bufferWidth);
+		}
+		for(unsigned int y = 0; y < height * scale; y++)
+		{
+			for(unsigned int x = 0; x < width * scale; x++)
 			{
-				uint32 pixel = indexor.GetPixel(x, y) & mask;
+				uint32 pixel = indexors[(x % scale) + (y % scale) * scale].GetPixel(x / scale, y / scale) & mask;
 				uint32 r = (pixel & 0x000000FF) >> 0;
 				uint32 g = (pixel & 0x0000FF00) >> 8;
 				uint32 b = (pixel & 0x00FF0000) >> 16;
@@ -190,16 +198,20 @@ private:
 	}
 
 	template <typename PixelIndexor>
-	static Framework::CBitmap ReadImage16(uint8* ram, uint32 bufferPtr, uint32 bufferWidth, uint32 width, uint32 height)
+	static Framework::CBitmap ReadImage16(uint8* ram, uint32 bufferPtr, uint32 bufferWidth, uint32 width, uint32 height, uint32 scale = 1)
 	{
-		auto bitmap = Framework::CBitmap(width, height, 32);
+		auto bitmap = Framework::CBitmap(width * scale, height * scale, 32);
 		auto bitmapPixels = reinterpret_cast<uint32*>(bitmap.GetPixels());
-		PixelIndexor indexor(ram, bufferPtr, bufferWidth);
-		for(unsigned int y = 0; y < height; y++)
+		std::vector<PixelIndexor> indexors;
+		for(uint32 sample = 0; sample < scale * scale; sample++)
 		{
-			for(unsigned int x = 0; x < width; x++)
+			indexors.emplace_back(ram + VkDeviceSize(sample) * RAMSIZE, bufferPtr, bufferWidth);
+		}
+		for(unsigned int y = 0; y < height * scale; y++)
+		{
+			for(unsigned int x = 0; x < width * scale; x++)
 			{
-				uint16 pixel = indexor.GetPixel(x, y);
+				uint16 pixel = indexors[(x % scale) + (y % scale) * scale].GetPixel(x / scale, y / scale);
 				uint32 r = ((pixel & 0x001F) >> 0) << 3;
 				uint32 g = ((pixel & 0x03E0) >> 5) << 3;
 				uint32 b = ((pixel & 0x7C00) >> 10) << 3;
@@ -237,6 +249,7 @@ private:
 	GSH_Vulkan::TransferLocalPtr m_transferLocal;
 
 	uint8* m_memoryCache = nullptr;
+	std::atomic<uint32> m_framebufferScale = 1;
 
 	//Draw context
 	VERTEX m_vtxBuffer[3];

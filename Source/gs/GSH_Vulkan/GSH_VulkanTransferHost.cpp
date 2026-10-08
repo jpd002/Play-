@@ -132,7 +132,7 @@ void CTransferHost::DoTransfer(const XferBuffer& inputData)
 	m_context->device.vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, xferPipeline->pipelineLayout, 0, 1, &descriptorSet, 0, nullptr);
 	m_context->device.vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, xferPipeline->pipeline);
 	m_context->device.vkCmdPushConstants(commandBuffer, xferPipeline->pipelineLayout, VK_SHADER_STAGE_COMPUTE_BIT, 0, sizeof(XFERPARAMS), &Params);
-	m_context->device.vkCmdDispatch(commandBuffer, workUnits, 1, 1);
+	m_context->device.vkCmdDispatch(commandBuffer, workUnits, 1, m_context->GetSampleCount());
 
 	m_xferBufferOffset += inputData.size();
 	m_xferBufferOffset = (m_xferBufferOffset + (m_context->storageBufferAlignment - 1)) & -m_context->storageBufferAlignment;
@@ -299,8 +299,9 @@ Framework::Vulkan::CShaderModule CTransferHost::CreateXferShader(const PIPELINE_
 		case CGSHandler::PSMZ32:
 		{
 			auto input = XferStream_Read32(b, xferBuffer, xferBufferOffset, pixelIndex);
-			auto address = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT32>(
+			auto nativeAddress = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT32>(
 			    b, dstSwizzleTable, bufAddress, bufWidth, NewInt2(trxX, trxY));
+			auto address = (nativeAddress & NewInt(b, CGSHandler::RAMSIZE - 1)) + inputInvocationId->z() * NewInt(b, CGSHandler::RAMSIZE);
 			CMemoryUtils::Memory_Write32(b, memoryBuffer, address, input);
 		}
 		break;
@@ -308,8 +309,9 @@ Framework::Vulkan::CShaderModule CTransferHost::CreateXferShader(const PIPELINE_
 		case CGSHandler::PSMZ24:
 		{
 			auto input = XferStream_Read24(b, xferBuffer, xferBufferOffset, pixelIndex);
-			auto address = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT32>(
+			auto nativeAddress = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT32>(
 			    b, dstSwizzleTable, bufAddress, bufWidth, NewInt2(trxX, trxY));
+			auto address = (nativeAddress & NewInt(b, CGSHandler::RAMSIZE - 1)) + inputInvocationId->z() * NewInt(b, CGSHandler::RAMSIZE);
 #if TRANSFER_USE_8_16_BIT
 			CMemoryUtils::Memory_Write24(b, memoryBuffer8, memoryBuffer16, address, input);
 #else
@@ -322,8 +324,9 @@ Framework::Vulkan::CShaderModule CTransferHost::CreateXferShader(const PIPELINE_
 		case CGSHandler::PSMZ16S:
 		{
 			auto input = XferStream_Read16(b, xferBuffer, xferBufferOffset, pixelIndex);
-			auto address = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT16>(
+			auto nativeAddress = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT16>(
 			    b, dstSwizzleTable, bufAddress, bufWidth, NewInt2(trxX, trxY));
+			auto address = (nativeAddress & NewInt(b, CGSHandler::RAMSIZE - 1)) + inputInvocationId->z() * NewInt(b, CGSHandler::RAMSIZE);
 #if TRANSFER_USE_8_16_BIT
 			CMemoryUtils::Memory_Write16(b, memoryBuffer16, address, input);
 #else
@@ -334,8 +337,9 @@ Framework::Vulkan::CShaderModule CTransferHost::CreateXferShader(const PIPELINE_
 		case CGSHandler::PSMT8:
 		{
 			auto input = XferStream_Read8(b, xferBuffer, xferBufferOffset, pixelIndex);
-			auto address = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMT8>(
+			auto nativeAddress = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMT8>(
 			    b, dstSwizzleTable, bufAddress, bufWidth, NewInt2(trxX, trxY));
+			auto address = (nativeAddress & NewInt(b, CGSHandler::RAMSIZE - 1)) + inputInvocationId->z() * NewInt(b, CGSHandler::RAMSIZE);
 #if TRANSFER_USE_8_16_BIT
 			CMemoryUtils::Memory_Write8(b, memoryBuffer8, address, input);
 #else
@@ -346,16 +350,18 @@ Framework::Vulkan::CShaderModule CTransferHost::CreateXferShader(const PIPELINE_
 		case CGSHandler::PSMT4:
 		{
 			auto input = XferStream_Read4(b, xferBuffer, xferBufferOffset, pixelIndex);
-			auto address = CMemoryUtils::GetPixelAddress_PSMT4(
+			auto nativeAddress = CMemoryUtils::GetPixelAddress_PSMT4(
 			    b, dstSwizzleTable, bufAddress, bufWidth, NewInt2(trxX, trxY));
+			auto address = (nativeAddress & NewInt(b, CGSHandler::RAMSIZE * 2 - 1)) + inputInvocationId->z() * NewInt(b, CGSHandler::RAMSIZE * 2);
 			CMemoryUtils::Memory_Write4(b, memoryBuffer, address, input);
 		}
 		break;
 		case CGSHandler::PSMT8H:
 		{
 			auto input = XferStream_Read8(b, xferBuffer, xferBufferOffset, pixelIndex);
-			auto address = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT32>(
+			auto nativeAddress = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT32>(
 			    b, dstSwizzleTable, bufAddress, bufWidth, NewInt2(trxX, trxY));
+			auto address = (nativeAddress & NewInt(b, CGSHandler::RAMSIZE - 1)) + inputInvocationId->z() * NewInt(b, CGSHandler::RAMSIZE);
 #if TRANSFER_USE_8_16_BIT
 			CMemoryUtils::Memory_Write8(b, memoryBuffer8, address + NewInt(b, 3), input);
 #else
@@ -366,8 +372,9 @@ Framework::Vulkan::CShaderModule CTransferHost::CreateXferShader(const PIPELINE_
 		case CGSHandler::PSMT4HL:
 		{
 			auto input = XferStream_Read4(b, xferBuffer, xferBufferOffset, pixelIndex);
-			auto address = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT32>(
+			auto nativeAddress = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT32>(
 			    b, dstSwizzleTable, bufAddress, bufWidth, NewInt2(trxX, trxY));
+			auto address = (nativeAddress & NewInt(b, CGSHandler::RAMSIZE - 1)) + inputInvocationId->z() * NewInt(b, CGSHandler::RAMSIZE);
 			auto nibAddress = (address + NewInt(b, 3)) * NewInt(b, 2);
 			CMemoryUtils::Memory_Write4(b, memoryBuffer, nibAddress, input);
 		}
@@ -375,8 +382,9 @@ Framework::Vulkan::CShaderModule CTransferHost::CreateXferShader(const PIPELINE_
 		case CGSHandler::PSMT4HH:
 		{
 			auto input = XferStream_Read4(b, xferBuffer, xferBufferOffset, pixelIndex);
-			auto address = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT32>(
+			auto nativeAddress = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT32>(
 			    b, dstSwizzleTable, bufAddress, bufWidth, NewInt2(trxX, trxY));
+			auto address = (nativeAddress & NewInt(b, CGSHandler::RAMSIZE - 1)) + inputInvocationId->z() * NewInt(b, CGSHandler::RAMSIZE);
 			auto nibAddress = ((address + NewInt(b, 3)) * NewInt(b, 2)) | NewInt(b, 1);
 			CMemoryUtils::Memory_Write4(b, memoryBuffer, nibAddress, input);
 		}

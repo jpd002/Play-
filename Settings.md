@@ -22,6 +22,12 @@ Enables display of on-screen virtual controller pad.
 
 Enables usage of 2x sized framebuffers for rendering.
 
+The desktop OpenGL and Vulkan renderers support resolution multipliers. Vulkan
+keeps separate color and depth samples for the higher resolution and limits the
+effective multiplier to the device's buffer, framebuffer, point, and line limits.
+The status bar shows the effective Vulkan multiplier. The Android Vulkan renderer
+currently renders at native resolution.
+
 ### Force Bilinear Filtering
 
 Forces usage of bilinear filtering on all textures.
