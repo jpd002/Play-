@@ -71,7 +71,7 @@ void CTransferLocal::DoTransfer()
 	m_context->device.vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, xferPipeline->pipelineLayout, 0, 1, &descriptorSet, 0, nullptr);
 	m_context->device.vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, xferPipeline->pipeline);
 	m_context->device.vkCmdPushConstants(commandBuffer, xferPipeline->pipelineLayout, VK_SHADER_STAGE_COMPUTE_BIT, 0, sizeof(XFERPARAMS), &Params);
-	m_context->device.vkCmdDispatch(commandBuffer, workUnitsX, workUnitsY, 1);
+	m_context->device.vkCmdDispatch(commandBuffer, workUnitsX, workUnitsY, m_context->GetSampleCount());
 }
 
 VkDescriptorSet CTransferLocal::PrepareDescriptorSet(VkDescriptorSetLayout descriptorSetLayout, const DESCRIPTORSET_CAPS& caps)
@@ -251,29 +251,33 @@ Framework::Vulkan::CShaderModule CTransferLocal::CreateShader(const PIPELINE_CAP
 		case CGSHandler::PSMCT32:
 		case CGSHandler::PSMCT24:
 		{
-			auto address = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT32>(
+			auto nativeAddress = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT32>(
 			    b, srcSwizzleTable, srcBufAddress, srcBufWidth, srcPos);
+			auto address = (nativeAddress & NewInt(b, CGSHandler::RAMSIZE - 1)) + inputInvocationId->z() * NewInt(b, CGSHandler::RAMSIZE);
 			pixel = CMemoryUtils::Memory_Read32(b, srcBuffer, address);
 		}
 		break;
 		case CGSHandler::PSMCT16:
 		{
-			auto address = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT16>(
+			auto nativeAddress = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT16>(
 			    b, srcSwizzleTable, srcBufAddress, srcBufWidth, srcPos);
+			auto address = (nativeAddress & NewInt(b, CGSHandler::RAMSIZE - 1)) + inputInvocationId->z() * NewInt(b, CGSHandler::RAMSIZE);
 			pixel = CMemoryUtils::Memory_Read16(b, srcBuffer, address);
 		}
 		break;
 		case CGSHandler::PSMT8:
 		{
-			auto address = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMT8>(
+			auto nativeAddress = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMT8>(
 			    b, srcSwizzleTable, srcBufAddress, srcBufWidth, srcPos);
+			auto address = (nativeAddress & NewInt(b, CGSHandler::RAMSIZE - 1)) + inputInvocationId->z() * NewInt(b, CGSHandler::RAMSIZE);
 			pixel = CMemoryUtils::Memory_Read8(b, srcBuffer, address);
 		}
 		break;
 		case CGSHandler::PSMT4:
 		{
-			auto texAddress = CMemoryUtils::GetPixelAddress_PSMT4(
+			auto nativeAddress = CMemoryUtils::GetPixelAddress_PSMT4(
 			    b, srcSwizzleTable, srcBufAddress, srcBufWidth, srcPos);
+			auto texAddress = (nativeAddress & NewInt(b, CGSHandler::RAMSIZE * 2 - 1)) + inputInvocationId->z() * NewInt(b, CGSHandler::RAMSIZE * 2);
 			pixel = CMemoryUtils::Memory_Read4(b, srcBuffer, texAddress);
 		}
 		break;
@@ -286,23 +290,26 @@ Framework::Vulkan::CShaderModule CTransferLocal::CreateShader(const PIPELINE_CAP
 		{
 		case CGSHandler::PSMCT32:
 		{
-			auto address = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT32>(
+			auto nativeAddress = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT32>(
 			    b, dstSwizzleTable, dstBufAddress, dstBufWidth, dstPos);
+			auto address = (nativeAddress & NewInt(b, CGSHandler::RAMSIZE - 1)) + inputInvocationId->z() * NewInt(b, CGSHandler::RAMSIZE);
 			CMemoryUtils::Memory_Write32(b, memoryBuffer, address, pixel);
 		}
 		break;
 		case CGSHandler::PSMCT24:
 		{
 			auto dstPixel = pixel & NewUint(b, 0xFFFFFF);
-			auto address = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT32>(
+			auto nativeAddress = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT32>(
 			    b, dstSwizzleTable, dstBufAddress, dstBufWidth, dstPos);
+			auto address = (nativeAddress & NewInt(b, CGSHandler::RAMSIZE - 1)) + inputInvocationId->z() * NewInt(b, CGSHandler::RAMSIZE);
 			CMemoryUtils::Memory_Write24(b, memoryBuffer, address, dstPixel);
 		}
 		break;
 		case CGSHandler::PSMCT16:
 		{
-			auto address = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT16>(
+			auto nativeAddress = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT16>(
 			    b, dstSwizzleTable, dstBufAddress, dstBufWidth, dstPos);
+			auto address = (nativeAddress & NewInt(b, CGSHandler::RAMSIZE - 1)) + inputInvocationId->z() * NewInt(b, CGSHandler::RAMSIZE);
 #if TRANSFER_USE_8_16_BIT
 			CMemoryUtils::Memory_Write16(b, memoryBuffer16, address, pixel);
 #else
@@ -312,8 +319,9 @@ Framework::Vulkan::CShaderModule CTransferLocal::CreateShader(const PIPELINE_CAP
 		break;
 		case CGSHandler::PSMT8:
 		{
-			auto address = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMT8>(
+			auto nativeAddress = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMT8>(
 			    b, dstSwizzleTable, dstBufAddress, dstBufWidth, dstPos);
+			auto address = (nativeAddress & NewInt(b, CGSHandler::RAMSIZE - 1)) + inputInvocationId->z() * NewInt(b, CGSHandler::RAMSIZE);
 #if TRANSFER_USE_8_16_BIT
 			CMemoryUtils::Memory_Write8(b, memoryBuffer8, address, pixel);
 #else
@@ -323,15 +331,17 @@ Framework::Vulkan::CShaderModule CTransferLocal::CreateShader(const PIPELINE_CAP
 		break;
 		case CGSHandler::PSMT4:
 		{
-			auto address = CMemoryUtils::GetPixelAddress_PSMT4(
+			auto nativeAddress = CMemoryUtils::GetPixelAddress_PSMT4(
 			    b, dstSwizzleTable, dstBufAddress, dstBufWidth, dstPos);
+			auto address = (nativeAddress & NewInt(b, CGSHandler::RAMSIZE * 2 - 1)) + inputInvocationId->z() * NewInt(b, CGSHandler::RAMSIZE * 2);
 			CMemoryUtils::Memory_Write4(b, memoryBuffer, address, pixel);
 		}
 		break;
 		case CGSHandler::PSMT4HL:
 		{
-			auto address = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT32>(
+			auto nativeAddress = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT32>(
 			    b, dstSwizzleTable, dstBufAddress, dstBufWidth, dstPos);
+			auto address = (nativeAddress & NewInt(b, CGSHandler::RAMSIZE - 1)) + inputInvocationId->z() * NewInt(b, CGSHandler::RAMSIZE);
 			auto nibAddress = (address + NewInt(b, 3)) * NewInt(b, 2);
 			CMemoryUtils::Memory_Write4(b, memoryBuffer, nibAddress, pixel);
 		}

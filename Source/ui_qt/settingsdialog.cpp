@@ -89,7 +89,7 @@ void SettingsDialog::LoadPreferences()
 	ui->checkBox_enableArcadeIOServer->setChecked(CAppConfig::GetInstance().GetPreferenceBoolean(PREF_PS2_ARCADE_IO_SERVER_ENABLED));
 	ui->lineEdit_arcadeIOServerPort->setText(QString::number(CAppConfig::GetInstance().GetPreferenceInteger(PREF_PS2_ARCADE_IO_SERVER_PORT)));
 
-	int factor = CAppConfig::GetInstance().GetPreferenceInteger(PREF_CGSH_OPENGL_RESOLUTION_FACTOR);
+	int factor = CAppConfig::GetInstance().GetPreferenceInteger(PREF_CGSHANDLER_RESOLUTION_FACTOR);
 	int factor_index = std::log2(factor);
 	ui->comboBox_res_multiplyer->setCurrentIndex(factor_index);
 	ui->checkBox_widescreenOutput->setChecked(CAppConfig::GetInstance().GetPreferenceBoolean(PREF_CGSHANDLER_WIDESCREEN));
@@ -189,7 +189,7 @@ void SettingsDialog::on_comboBox_presentation_mode_currentIndexChanged(int index
 void SettingsDialog::on_comboBox_res_multiplyer_currentIndexChanged(int index)
 {
 	int factor = pow(2, index);
-	CAppConfig::GetInstance().SetPreferenceInteger(PREF_CGSH_OPENGL_RESOLUTION_FACTOR, factor);
+	CAppConfig::GetInstance().SetPreferenceInteger(PREF_CGSHANDLER_RESOLUTION_FACTOR, factor);
 }
 
 //Audio Page ---------------------------------

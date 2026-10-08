@@ -506,7 +506,7 @@ void MainWindow::CreateStatusBar()
 		}
 	});
 
-	int factor = CAppConfig::GetInstance().GetPreferenceInteger(PREF_CGSH_OPENGL_RESOLUTION_FACTOR);
+	int factor = CAppConfig::GetInstance().GetPreferenceInteger(PREF_CGSHANDLER_RESOLUTION_FACTOR);
 	m_scaleFactorLabel = new QLabel();
 	m_scaleFactorLabel->setAlignment(Qt::AlignHCenter);
 	m_scaleFactorLabel->setMinimumSize(m_scaleFactorLabel->sizeHint());
@@ -516,7 +516,7 @@ void MainWindow::CreateStatusBar()
 	connect(m_scaleFactorLabel, &QLabel::customContextMenuRequested, [&](const QPoint& pos) {
 		QMenu contextMenu(this);
 
-		int factor = CAppConfig::GetInstance().GetPreferenceInteger(PREF_CGSH_OPENGL_RESOLUTION_FACTOR);
+		int factor = CAppConfig::GetInstance().GetPreferenceInteger(PREF_CGSHANDLER_RESOLUTION_FACTOR);
 		for(int index = 0; index < 5; ++index)
 		{
 			int value = 1 << index;
@@ -525,7 +525,7 @@ void MainWindow::CreateStatusBar()
 			action->setChecked(factor == value);
 
 			connect(action, &QAction::triggered, [this, index, value, factor]() mutable {
-				CAppConfig::GetInstance().SetPreferenceInteger(PREF_CGSH_OPENGL_RESOLUTION_FACTOR, value);
+				CAppConfig::GetInstance().SetPreferenceInteger(PREF_CGSHANDLER_RESOLUTION_FACTOR, value);
 				m_scaleFactorLabel->setText(QString("%1x").arg(value));
 
 				if(m_virtualMachine && factor != value)
@@ -592,6 +592,7 @@ void MainWindow::CreateStatusBar()
 
 void MainWindow::updateStats()
 {
+	UpdateGSHandlerLabel();
 	auto unlockedFps = !CAppConfig::GetInstance().GetPreferenceBoolean(PREF_PS2_LIMIT_FRAMERATE);
 	uint32 frames = CStatsManager::GetInstance().GetFrames();
 	uint32 drawCalls = CStatsManager::GetInstance().GetDrawCalls();
@@ -1189,7 +1190,16 @@ void MainWindow::UpdateGSHandlerLabel()
 	}
 #endif
 
-	int factor = CAppConfig::GetInstance().GetPreferenceInteger(PREF_CGSH_OPENGL_RESOLUTION_FACTOR);
+	int factor = CAppConfig::GetInstance().GetPreferenceInteger(PREF_CGSHANDLER_RESOLUTION_FACTOR);
+#ifdef HAS_GSH_VULKAN
+	if(m_virtualMachine)
+	{
+		if(auto vulkan = dynamic_cast<CGSH_Vulkan*>(m_virtualMachine->GetGSHandler()))
+		{
+			factor = vulkan->GetFramebufferScale();
+		}
+	}
+#endif
 	m_scaleFactorLabel->setText(QString("%1x").arg(factor));
 }
 

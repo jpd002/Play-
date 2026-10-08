@@ -88,8 +88,8 @@ void CDrawDesktop::CreateFramebuffer()
 
 	auto frameBufferCreateInfo = Framework::Vulkan::FramebufferCreateInfo();
 	frameBufferCreateInfo.renderPass = m_renderPass;
-	frameBufferCreateInfo.width = DRAW_AREA_SIZE;
-	frameBufferCreateInfo.height = DRAW_AREA_SIZE;
+	frameBufferCreateInfo.width = DRAW_AREA_SIZE * m_context->framebufferScale;
+	frameBufferCreateInfo.height = DRAW_AREA_SIZE * m_context->framebufferScale;
 	frameBufferCreateInfo.layers = 1;
 	frameBufferCreateInfo.attachmentCount = 1;
 	frameBufferCreateInfo.pAttachments = &m_drawImageView;
@@ -104,7 +104,7 @@ void CDrawDesktop::CreateDrawImage()
 	//that don't write to any color attachment
 
 	m_drawImage = Framework::Vulkan::CImage(m_context->device, m_context->physicalDeviceMemoryProperties,
-	                                        VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, VK_FORMAT_R8G8B8A8_UNORM, DRAW_AREA_SIZE, DRAW_AREA_SIZE);
+	                                        VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, VK_FORMAT_R8G8B8A8_UNORM, DRAW_AREA_SIZE * m_context->framebufferScale, DRAW_AREA_SIZE * m_context->framebufferScale);
 
 	m_drawImage.SetLayout(m_context->queue, m_context->commandBufferPool, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
 
@@ -246,7 +246,7 @@ PIPELINE CDrawDesktop::CreateDrawPipeline(const PIPELINE_CAPS& caps)
 	auto rasterStateInfo = Framework::Vulkan::PipelineRasterizationStateCreateInfo();
 	rasterStateInfo.polygonMode = VK_POLYGON_MODE_FILL;
 	rasterStateInfo.cullMode = VK_CULL_MODE_NONE;
-	rasterStateInfo.lineWidth = 1.0f;
+	rasterStateInfo.lineWidth = static_cast<float>(m_context->framebufferScale);
 
 	// Our attachment will write to all color channels, but no blending is enabled.
 	VkPipelineColorBlendAttachmentState blendAttachment = {};
@@ -527,20 +527,26 @@ Framework::Vulkan::CShaderModule CDrawDesktop::CreateFragmentShader(const PIPELI
 				    return NewInt2(clampU, clampV);
 			    };
 
+			auto textureSt = CFloat2Lvalue(b.CreateVariableFloat("textureSt"));
+			textureSt = inputTexCoord->xy() / inputTexCoord->zz();
+
 			auto getTextureColor =
 			    [&](CInt2Value textureIuv, CIntValue texMipLevel, CFloat4Lvalue& textureColor) {
 				    auto mipIuv = textureIuv->xy() / (NewInt2(b, 1, 1) << texMipLevel->xx());
 				    auto textureSource = caps.textureUseMemoryCopy ? memoryBufferCopy : memoryBuffer;
-				    textureColor = CDrawUtils::GetTextureColor(b, caps.textureFormat, caps.clutFormat, mipIuv,
-				                                               textureSource, clutBuffer, texSwizzleTable, texBufAddress, texBufWidth, texCsa);
+				    auto mipScale = ToFloat(NewInt2(b, 1, 1) << texMipLevel->xx());
+				    auto fraction = Mix(Fract(textureSt * ToFloat(texSize) / mipScale), NewFloat2(b, 0, 0), IsInf(textureSt));
+				    auto subpixelPos = ToInt(fraction * NewFloat2(b, m_context->framebufferScale, m_context->framebufferScale));
+				    auto subpixel = NewInt2(Min(subpixelPos->x(), NewInt(b, m_context->framebufferScale - 1)),
+				                            Min(subpixelPos->y(), NewInt(b, m_context->framebufferScale - 1)));
+				    auto memoryOffset = (subpixel->x() + subpixel->y() * NewInt(b, m_context->framebufferScale)) * NewInt(b, CGSHandler::RAMSIZE);
+				    textureColor = CDrawUtils::GetTextureColorWithOffset(b, caps.textureFormat, caps.clutFormat, mipIuv,
+				                                                         textureSource, clutBuffer, texSwizzleTable, texBufAddress, texBufWidth, texCsa, memoryOffset);
 				    if(caps.textureHasAlpha)
 				    {
 					    CDrawUtils::ExpandAlpha(b, caps.textureFormat, caps.clutFormat, caps.textureBlackIsTransparent, textureColor, texA0, texA1);
 				    }
 			    };
-
-			auto textureSt = CFloat2Lvalue(b.CreateVariableFloat("textureSt"));
-			textureSt = inputTexCoord->xy() / inputTexCoord->zz();
 
 			if(caps.textureUseDynamicMipLOD)
 			{
@@ -696,7 +702,10 @@ Framework::Vulkan::CShaderModule CDrawDesktop::CreateFragmentShader(const PIPELI
 		writeDepth = NewBool(b, true);
 		writeAlpha = NewBool(b, true);
 
-		auto screenPos = ToInt(inputPosition->xy());
+		auto scale = NewInt(b, m_context->framebufferScale);
+		auto samplePos = ToInt(inputPosition->xy());
+		auto screenPos = samplePos / NewInt2(b, m_context->framebufferScale, m_context->framebufferScale);
+		auto sampleIndex = (samplePos->x() % scale) + (samplePos->y() % scale) * scale;
 
 		switch(caps.scanMask)
 		{
@@ -765,6 +774,8 @@ Framework::Vulkan::CShaderModule CDrawDesktop::CreateFragmentShader(const PIPELI
 		//on Intel GPUs with games such as SNK vs. Capcom: SVC Chaos)
 		fbAddress = fbAddress & NewInt(b, CGSHandler::RAMSIZE - 1);
 		depthAddress = depthAddress & NewInt(b, CGSHandler::RAMSIZE - 1);
+		fbAddress = fbAddress + sampleIndex * NewInt(b, CGSHandler::RAMSIZE);
+		depthAddress = depthAddress + sampleIndex * NewInt(b, CGSHandler::RAMSIZE);
 
 		auto srcIColor = CInt4Lvalue(b.CreateVariableInt("srcIColor"));
 		srcIColor = ToInt(textureColor->xyzw() * NewFloat4(b, 255.f, 255.f, 255.f, 255.f));
@@ -964,7 +975,14 @@ void CDrawDesktop::FlushVertices()
 		bufferCopy.dstOffset = m_memoryCopyAddress;
 		bufferCopy.size = m_memoryCopySize;
 
-		m_context->device.vkCmdCopyBuffer(commandBuffer, m_context->memoryBuffer, m_context->memoryBufferCopy, 1, &bufferCopy);
+		std::vector<VkBufferCopy> copies(m_context->GetSampleCount(), bufferCopy);
+		for(uint32 sample = 0; sample < copies.size(); sample++)
+		{
+			copies[sample].srcOffset += VkDeviceSize(sample) * CGSHandler::RAMSIZE;
+			copies[sample].dstOffset += VkDeviceSize(sample) * CGSHandler::RAMSIZE;
+		}
+		m_context->device.vkCmdCopyBuffer(commandBuffer, m_context->memoryBuffer, m_context->memoryBufferCopy,
+		                                  static_cast<uint32>(copies.size()), copies.data());
 
 		m_memoryCopyRegion.Reset();
 	}
@@ -978,16 +996,16 @@ void CDrawDesktop::FlushVertices()
 
 	{
 		VkViewport viewport = {};
-		viewport.width = DRAW_AREA_SIZE;
-		viewport.height = DRAW_AREA_SIZE;
+		viewport.width = DRAW_AREA_SIZE * m_context->framebufferScale;
+		viewport.height = DRAW_AREA_SIZE * m_context->framebufferScale;
 		viewport.maxDepth = 1.0f;
 		m_context->device.vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
 
 		VkRect2D scissor = {};
-		scissor.offset.x = m_scissorX;
-		scissor.offset.y = m_scissorY;
-		scissor.extent.width = m_scissorWidth;
-		scissor.extent.height = m_scissorHeight;
+		scissor.offset.x = m_scissorX * m_context->framebufferScale;
+		scissor.offset.y = m_scissorY * m_context->framebufferScale;
+		scissor.extent.width = m_scissorWidth * m_context->framebufferScale;
+		scissor.extent.height = m_scissorHeight * m_context->framebufferScale;
 		m_context->device.vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 	}
 
@@ -1006,8 +1024,8 @@ void CDrawDesktop::FlushVertices()
 
 		auto renderPassBeginInfo = Framework::Vulkan::RenderPassBeginInfo();
 		renderPassBeginInfo.renderPass = m_renderPass;
-		renderPassBeginInfo.renderArea.extent.width = DRAW_AREA_SIZE;
-		renderPassBeginInfo.renderArea.extent.height = DRAW_AREA_SIZE;
+		renderPassBeginInfo.renderArea.extent.width = DRAW_AREA_SIZE * m_context->framebufferScale;
+		renderPassBeginInfo.renderArea.extent.height = DRAW_AREA_SIZE * m_context->framebufferScale;
 		renderPassBeginInfo.framebuffer = m_framebuffer;
 		m_context->device.vkCmdBeginRenderPass(commandBuffer, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
 

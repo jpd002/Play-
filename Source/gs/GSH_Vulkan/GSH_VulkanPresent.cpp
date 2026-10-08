@@ -39,6 +39,7 @@ CPresent::~CPresent()
 	for(const auto& presentCommandBuffer : m_presentCommandBuffers)
 	{
 		m_context->device.vkDestroyFence(m_context->device, presentCommandBuffer.execCompleteFence, nullptr);
+		m_context->commandBufferPool.FreeBuffer(presentCommandBuffer.commandBuffer);
 	}
 	m_context->device.vkDestroyRenderPass(m_context->device, m_renderPass, nullptr);
 }
@@ -733,7 +734,10 @@ Framework::Vulkan::CShaderModule CPresent::CreateFragmentShader(const PIPELINE_C
 		auto bufWidth = presentBufParams->y();
 		auto layerSize = presentRectParams->zw();
 
-		auto screenPos = ToInt(inputTexCoord->xy() * ToFloat(layerSize));
+		auto scale = NewInt(b, m_context->framebufferScale);
+		auto samplePos = ToInt(inputTexCoord->xy() * ToFloat(layerSize) * NewFloat2(b, m_context->framebufferScale, m_context->framebufferScale));
+		auto screenPos = samplePos / NewInt2(b, m_context->framebufferScale, m_context->framebufferScale);
+		auto sampleIndex = (samplePos->x() % scale) + (samplePos->y() % scale) * scale;
 
 		switch(caps.bufPsm)
 		{
@@ -743,8 +747,9 @@ Framework::Vulkan::CShaderModule CPresent::CreateFragmentShader(const PIPELINE_C
 		case CGSHandler::PSMCT32:
 		case CGSHandler::PSMCT24:
 		{
-			auto address = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT32>(
+			auto nativeAddress = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT32>(
 			    b, swizzleTable, bufAddress, bufWidth, screenPos);
+			auto address = (nativeAddress & NewInt(b, CGSHandler::RAMSIZE - 1)) + sampleIndex * NewInt(b, CGSHandler::RAMSIZE);
 			auto imageColor = CMemoryUtils::Memory_Read32(b, memoryBuffer, address);
 			outputColor = CMemoryUtils::PSM32ToVec4(b, imageColor);
 		}
@@ -752,8 +757,9 @@ Framework::Vulkan::CShaderModule CPresent::CreateFragmentShader(const PIPELINE_C
 		case CGSHandler::PSMCT16:
 		case CGSHandler::PSMCT16S:
 		{
-			auto address = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT16>(
+			auto nativeAddress = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT16>(
 			    b, swizzleTable, bufAddress, bufWidth, screenPos);
+			auto address = (nativeAddress & NewInt(b, CGSHandler::RAMSIZE - 1)) + sampleIndex * NewInt(b, CGSHandler::RAMSIZE);
 			auto imageColor = CMemoryUtils::Memory_Read16(b, memoryBuffer, address);
 			outputColor = CMemoryUtils::PSM16ToVec4(b, imageColor);
 		}

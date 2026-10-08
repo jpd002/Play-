@@ -92,6 +92,15 @@ Nuanceur::CFloat4Rvalue CDrawUtils::GetTextureColor(Nuanceur::CShaderBuilder& b,
                                                     Nuanceur::CImageUint2DValue texSwizzleTable, Nuanceur::CIntValue texBufAddress, Nuanceur::CIntValue texBufWidth,
                                                     Nuanceur::CIntValue texCsa)
 {
+	return GetTextureColorWithOffset(b, textureFormat, clutFormat, texelPos, memoryBuffer, clutBuffer,
+	                                 texSwizzleTable, texBufAddress, texBufWidth, texCsa, NewInt(b, 0));
+}
+
+Nuanceur::CFloat4Rvalue CDrawUtils::GetTextureColorWithOffset(Nuanceur::CShaderBuilder& b, uint32 textureFormat, uint32 clutFormat,
+                                                              Nuanceur::CInt2Value texelPos, Nuanceur::CArrayUintValue memoryBuffer, Nuanceur::CArrayUintValue clutBuffer,
+                                                              Nuanceur::CImageUint2DValue texSwizzleTable, Nuanceur::CIntValue texBufAddress, Nuanceur::CIntValue texBufWidth,
+                                                              Nuanceur::CIntValue texCsa, Nuanceur::CIntValue memoryOffset)
+{
 	using namespace Nuanceur;
 
 	switch(textureFormat)
@@ -102,8 +111,9 @@ Nuanceur::CFloat4Rvalue CDrawUtils::GetTextureColor(Nuanceur::CShaderBuilder& b,
 	case CGSHandler::PSMCT32:
 	case CGSHandler::PSMZ32:
 	{
-		auto texAddress = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT32>(
+		auto nativeAddress = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT32>(
 		    b, texSwizzleTable, texBufAddress, texBufWidth, texelPos);
+		auto texAddress = (nativeAddress & NewInt(b, CGSHandler::RAMSIZE - 1)) + memoryOffset;
 		auto texPixel = CMemoryUtils::Memory_Read32(b, memoryBuffer, texAddress);
 		return CMemoryUtils::PSM32ToVec4(b, texPixel);
 	}
@@ -111,8 +121,9 @@ Nuanceur::CFloat4Rvalue CDrawUtils::GetTextureColor(Nuanceur::CShaderBuilder& b,
 	case CGSHandler::PSMCT24_UNK:
 	case CGSHandler::PSMZ24:
 	{
-		auto texAddress = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT32>(
+		auto nativeAddress = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT32>(
 		    b, texSwizzleTable, texBufAddress, texBufWidth, texelPos);
+		auto texAddress = (nativeAddress & NewInt(b, CGSHandler::RAMSIZE - 1)) + memoryOffset;
 		auto texPixel = CMemoryUtils::Memory_Read24(b, memoryBuffer, texAddress);
 		return CMemoryUtils::PSM32ToVec4(b, texPixel);
 	}
@@ -121,44 +132,50 @@ Nuanceur::CFloat4Rvalue CDrawUtils::GetTextureColor(Nuanceur::CShaderBuilder& b,
 	case CGSHandler::PSMZ16:
 	case CGSHandler::PSMZ16S:
 	{
-		auto texAddress = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT16>(
+		auto nativeAddress = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT16>(
 		    b, texSwizzleTable, texBufAddress, texBufWidth, texelPos);
+		auto texAddress = (nativeAddress & NewInt(b, CGSHandler::RAMSIZE - 1)) + memoryOffset;
 		auto texPixel = CMemoryUtils::Memory_Read16(b, memoryBuffer, texAddress);
 		return CMemoryUtils::PSM16ToVec4(b, texPixel);
 	}
 	case CGSHandler::PSMT8:
 	{
-		auto texAddress = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMT8>(
+		auto nativeAddress = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMT8>(
 		    b, texSwizzleTable, texBufAddress, texBufWidth, texelPos);
+		auto texAddress = (nativeAddress & NewInt(b, CGSHandler::RAMSIZE - 1)) + memoryOffset;
 		auto texPixel = CMemoryUtils::Memory_Read8(b, memoryBuffer, texAddress);
 		return GetClutColor(b, textureFormat, clutFormat, texPixel, clutBuffer, texCsa);
 	}
 	case CGSHandler::PSMT4:
 	{
-		auto texAddress = CMemoryUtils::GetPixelAddress_PSMT4(
+		auto nativeAddress = CMemoryUtils::GetPixelAddress_PSMT4(
 		    b, texSwizzleTable, texBufAddress, texBufWidth, texelPos);
+		auto texAddress = (nativeAddress & NewInt(b, CGSHandler::RAMSIZE * 2 - 1)) + memoryOffset * NewInt(b, 2);
 		auto texPixel = CMemoryUtils::Memory_Read4(b, memoryBuffer, texAddress);
 		return GetClutColor(b, textureFormat, clutFormat, texPixel, clutBuffer, texCsa);
 	}
 	case CGSHandler::PSMT8H:
 	{
-		auto texAddress = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT32>(
+		auto nativeAddress = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT32>(
 		    b, texSwizzleTable, texBufAddress, texBufWidth, texelPos);
+		auto texAddress = (nativeAddress & NewInt(b, CGSHandler::RAMSIZE - 1)) + memoryOffset;
 		auto texPixel = CMemoryUtils::Memory_Read8(b, memoryBuffer, texAddress + NewInt(b, 3));
 		return GetClutColor(b, textureFormat, clutFormat, texPixel, clutBuffer, texCsa);
 	}
 	case CGSHandler::PSMT4HL:
 	{
-		auto texAddress = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT32>(
+		auto nativeAddress = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT32>(
 		    b, texSwizzleTable, texBufAddress, texBufWidth, texelPos);
+		auto texAddress = (nativeAddress & NewInt(b, CGSHandler::RAMSIZE - 1)) + memoryOffset;
 		auto texNibAddress = (texAddress + NewInt(b, 3)) * NewInt(b, 2);
 		auto texPixel = CMemoryUtils::Memory_Read4(b, memoryBuffer, texNibAddress);
 		return GetClutColor(b, textureFormat, clutFormat, texPixel, clutBuffer, texCsa);
 	}
 	case CGSHandler::PSMT4HH:
 	{
-		auto texAddress = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT32>(
+		auto nativeAddress = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT32>(
 		    b, texSwizzleTable, texBufAddress, texBufWidth, texelPos);
+		auto texAddress = (nativeAddress & NewInt(b, CGSHandler::RAMSIZE - 1)) + memoryOffset;
 		auto texNibAddress = ((texAddress + NewInt(b, 3)) * NewInt(b, 2)) | NewInt(b, 1);
 		auto texPixel = CMemoryUtils::Memory_Read4(b, memoryBuffer, texNibAddress);
 		return GetClutColor(b, textureFormat, clutFormat, texPixel, clutBuffer, texCsa);

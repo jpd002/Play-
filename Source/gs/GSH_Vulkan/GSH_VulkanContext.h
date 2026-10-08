@@ -27,6 +27,18 @@ namespace GSH_Vulkan
 		VkSurfaceFormatKHR surfaceFormat = {VK_FORMAT_UNDEFINED, VK_COLOR_SPACE_SRGB_NONLINEAR_KHR};
 		VkDeviceSize storageBufferAlignment = 0;
 		uint32 computeWorkgroupInvocations = 0;
+		uint32 framebufferScale = 1;
+		uint32 maxFramebufferScale = 1;
+
+		uint32 GetSampleCount() const
+		{
+			return framebufferScale * framebufferScale;
+		}
+
+		VkDeviceSize GetMemorySize() const
+		{
+			return VkDeviceSize(CGSHandler::RAMSIZE) * GetSampleCount();
+		}
 		Framework::Vulkan::CCommandBufferPool commandBufferPool;
 		VkQueue queue = VK_NULL_HANDLE;
 		VkDescriptorPool descriptorPool = VK_NULL_HANDLE;

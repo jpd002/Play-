@@ -1,5 +1,8 @@
 #pragma once
 
+//Keep the existing configuration key so saved resolution settings remain compatible.
+#define PREF_CGSHANDLER_RESOLUTION_FACTOR "renderer.opengl.resfactor"
+
 #include <thread>
 #include <vector>
 #include <functional>

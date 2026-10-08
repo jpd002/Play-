@@ -15,6 +15,10 @@ namespace GSH_Vulkan
 		                                               Nuanceur::CInt2Value texelPos, Nuanceur::CArrayUintValue memoryBuffer, Nuanceur::CArrayUintValue clutBuffer,
 		                                               Nuanceur::CImageUint2DValue texSwizzleTable, Nuanceur::CIntValue texBufAddress, Nuanceur::CIntValue texBufWidth,
 		                                               Nuanceur::CIntValue texCsa);
+		static Nuanceur::CFloat4Rvalue GetTextureColorWithOffset(Nuanceur::CShaderBuilder&, uint32, uint32,
+		                                                         Nuanceur::CInt2Value, Nuanceur::CArrayUintValue, Nuanceur::CArrayUintValue,
+		                                                         Nuanceur::CImageUint2DValue, Nuanceur::CIntValue, Nuanceur::CIntValue,
+		                                                         Nuanceur::CIntValue, Nuanceur::CIntValue);
 		static void ExpandAlpha(Nuanceur::CShaderBuilder& b, uint32 textureFormat, uint32 clutFormat,
 		                        uint32 texBlackIsTransparent, Nuanceur::CFloat4Lvalue& textureColor,
 		                        Nuanceur::CFloatValue textureA0, Nuanceur::CFloatValue textureA1);
