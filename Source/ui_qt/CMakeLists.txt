@@ -381,3 +381,7 @@ if(TARGET_PLATFORM_WIN32)
 									 "$<TARGET_FILE:Play>"
 	)
 endif()
+
+if(TARGET_PLATFORM_MACOS)
+    target_link_libraries(Play "-framework QuartzCore" "-framework Metal")
+endif()
