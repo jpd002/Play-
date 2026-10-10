@@ -157,6 +157,7 @@ namespace Iop
 			uint16 m_jvsBrake = 0x0;
 			uint16 m_coin1 = 0;
 			uint16 m_coin2 = 0;
+			bool m_coinButtonState[JVS_PLAYER_COUNT] = {};
 			uint8 m_testButtonState = 0;
 			uint8 m_counter = 0;
 

@@ -18,6 +18,10 @@ using namespace Iop::Namco;
 #define STATE_FILE ("iop_namcoarcade/state.xml")
 #define STATE_RECV_ADDR ("recvAddr")
 #define STATE_SEND_ADDR ("sendAddr")
+#define STATE_COIN1 ("coin1")
+#define STATE_COIN2 ("coin2")
+#define STATE_COIN_BUTTON1 ("coinButton1")
+#define STATE_COIN_BUTTON2 ("coinButton2")
 
 //Ref: http://daifukkat.su/files/jvs_wip.pdf
 enum
@@ -55,7 +59,7 @@ static const std::array<uint16, PS2::CControllerInfo::MAX_BUTTONS> g_defaultJvsB
 	0x0010, //DPAD_DOWN,
 	0x0008, //DPAD_LEFT (Shutter Sensor Top),
 	0x0004, //DPAD_RIGHT (Shutter Sensor Down),
-	0x0040, //SELECT,
+	0x0000, //SELECT (Coin),
 	0x0080, //START,
 	0x4000, //SQUARE,
 	0x8000, //TRIANGLE,
@@ -63,7 +67,7 @@ static const std::array<uint16, PS2::CControllerInfo::MAX_BUTTONS> g_defaultJvsB
 	0x0002, //CROSS,
 	0x0100, //L1,
 	0x0200, //L2,
-	0x0400, //L3,
+	0x0040, //L3 (Service),
 	0x0800, //R1,
 	0x1000, //R2,
 	0x2000, //R3,
@@ -374,40 +378,40 @@ void CSys246::ProcessJvsPacket(const uint8* input, uint8* output)
 			}
 		}
 		break;
-		case JVS_CMD_COININC: // actually never received this jvs cmd
+		case JVS_CMD_COININC:
 		{
-			assert(inSize != 3);
+			assert(inSize >= 3);
 			uint8 slotCount = (*input++);
 			uint8 amountMSB = (*input++);
 			uint8 amountLSB = (*input++);
 
 			assert(slotCount >= 1);
 			assert(slotCount <= 2);
-			//inWorkChecksum += slotCount;
+			inWorkChecksum += slotCount + amountMSB + amountLSB;
 			inSize -= 3;
 
-			if(slotCount == 1) m_coin1 += (amountMSB << 8) + amountLSB;
-			if(slotCount == 2) m_coin2 += (amountMSB << 8) + amountLSB;
+			auto& coinCount = (slotCount == 1) ? m_coin1 : m_coin2;
+			coinCount = (coinCount + (amountMSB << 8) + amountLSB) & 0x3FFF;
 
 			(*output++) = 0x01; //Command success
 
 			(*dstSize) += 1;
 		}
 		break;
-		case JVS_CMD_COINDEC: // actually never received this jvs cmd
+		case JVS_CMD_COINDEC:
 		{
-			assert(inSize != 3);
+			assert(inSize >= 3);
 			uint8 slotCount = (*input++);
 			uint8 amountMSB = (*input++);
 			uint8 amountLSB = (*input++);
 
 			assert(slotCount >= 1);
 			assert(slotCount <= 2);
-			//inWorkChecksum += slotCount;
+			inWorkChecksum += slotCount + amountMSB + amountLSB;
 			inSize -= 3;
 
-			if(slotCount == 1) m_coin1 -= (amountMSB << 8) + amountLSB;
-			if(slotCount == 2) m_coin2 -= (amountMSB << 8) + amountLSB;
+			auto& coinCount = (slotCount == 1) ? m_coin1 : m_coin2;
+			coinCount = (coinCount - ((amountMSB << 8) + amountLSB)) & 0x3FFF;
 
 			(*output++) = 0x01; //Command success
 
@@ -522,6 +526,10 @@ void CSys246::SaveState(Framework::CZipArchiveWriter& archive) const
 	auto registerFile = std::make_unique<CRegisterStateFile>(STATE_FILE);
 	registerFile->SetRegister32(STATE_RECV_ADDR, m_recvAddr);
 	registerFile->SetRegister32(STATE_SEND_ADDR, m_sendAddr);
+	registerFile->SetRegister32(STATE_COIN1, m_coin1);
+	registerFile->SetRegister32(STATE_COIN2, m_coin2);
+	registerFile->SetRegister32(STATE_COIN_BUTTON1, m_coinButtonState[0]);
+	registerFile->SetRegister32(STATE_COIN_BUTTON2, m_coinButtonState[1]);
 	archive.InsertFile(std::move(registerFile));
 }
 
@@ -530,6 +538,10 @@ void CSys246::LoadState(Framework::CZipArchiveReader& archive)
 	auto registerFile = CRegisterStateFile(*archive.BeginReadFile(STATE_FILE));
 	m_recvAddr = registerFile.GetRegister32(STATE_RECV_ADDR);
 	m_sendAddr = registerFile.GetRegister32(STATE_SEND_ADDR);
+	m_coin1 = registerFile.GetRegister32(STATE_COIN1) & 0x3FFF;
+	m_coin2 = registerFile.GetRegister32(STATE_COIN2) & 0x3FFF;
+	m_coinButtonState[0] = registerFile.GetRegister32(STATE_COIN_BUTTON1) != 0;
+	m_coinButtonState[1] = registerFile.GetRegister32(STATE_COIN_BUTTON2) != 0;
 }
 
 void CSys246::SetJvsMode(JVS_MODE jvsMode)
@@ -554,14 +566,20 @@ void CSys246::SetScreenPosXform(const std::array<float, 4>& screenPosXform)
 
 void CSys246::SetButtonState(unsigned int padNumber, PS2::CControllerInfo::BUTTON button, bool pressed, uint8* ram)
 {
-	//For Ridge Racer V (coin button)
-	//if(pressed && (m_recvAddr != 0))
-	//{
-	//	*reinterpret_cast<uint16*>(ram + m_recvAddr + 0xC0) += 1;
-	//}
 	if(padNumber < JVS_PLAYER_COUNT)
 	{
 		static const uint16 drumPressValue = 0x200;
+
+		//Input handlers report held buttons every frame. Count only new presses.
+		if(button == PS2::CControllerInfo::SELECT)
+		{
+			if(pressed && !m_coinButtonState[padNumber])
+			{
+				auto& coinCount = (padNumber == 0) ? m_coin1 : m_coin2;
+				coinCount = (coinCount + 1) & 0x3FFF;
+			}
+			m_coinButtonState[padNumber] = pressed;
+		}
 
 		m_jvsButtonState[padNumber] &= ~m_jvsButtonBits[button];
 		m_jvsButtonState[padNumber] |= (pressed ? m_jvsButtonBits[button] : 0);
