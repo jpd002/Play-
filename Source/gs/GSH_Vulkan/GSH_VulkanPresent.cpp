@@ -738,14 +738,15 @@ Framework::Vulkan::CShaderModule CPresent::CreateFragmentShader(const PIPELINE_C
 		// Match OpenGL's final linear filtering. Filter the actual high-resolution
 		// samples, rather than magnifying a single native pixel into a hard block.
 		auto samplePosition = inputTexCoord->xy() * ToFloat(layerSize) *
-		                      NewFloat2(b, m_context->framebufferScale, m_context->framebufferScale) + NewFloat2(b, -0.5f, -0.5f);
+		                          NewFloat2(b, m_context->framebufferScale, m_context->framebufferScale) +
+		                      NewFloat2(b, -0.5f, -0.5f);
 		auto fraction = Fract(samplePosition);
 		auto sample0 = ToInt(samplePosition + fraction * NewFloat2(b, -1, -1));
 		auto sample1 = sample0 + NewInt2(b, 1, 1);
 		auto sampleMax = layerSize * NewInt2(b, m_context->framebufferScale, m_context->framebufferScale) + NewInt2(b, -1, -1);
 		auto readSample = [&](CInt2Value sample) {
 			auto clamped = NewInt2(Clamp(sample->x(), NewInt(b, 0), sampleMax->x()),
-			                      Clamp(sample->y(), NewInt(b, 0), sampleMax->y()));
+			                       Clamp(sample->y(), NewInt(b, 0), sampleMax->y()));
 			auto screenPos = clamped / NewInt2(b, m_context->framebufferScale, m_context->framebufferScale);
 			auto sampleIndex = (clamped->x() % scale) + (clamped->y() % scale) * scale;
 			if((caps.bufPsm == CGSHandler::PSMCT16) || (caps.bufPsm == CGSHandler::PSMCT16S))

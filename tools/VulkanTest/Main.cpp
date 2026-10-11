@@ -138,13 +138,16 @@ public:
 				auto ram = GetRam() + sample * CGSHandler::RAMSIZE;
 				CGsPixelFormats::CPixelIndexorPSMT8 texture(ram, 0x80000, 2);
 				for(int y = 0; y < 64; y++)
-					for(int x = 0; x < 128; x++) texture.SetPixel(x, y, (x + 17 * y + 23 * sample) & 255);
+					for(int x = 0; x < 128; x++)
+						texture.SetPixel(x, y, (x + 17 * y + 23 * sample) & 255);
 				CGsPixelFormats::CPixelIndexorPSMCT32 palette(ram, 0x90000, 1);
-				for(int i = 0; i < 256; i++) palette.SetPixel(i, 0, 0xFF000000 | i);
+				for(int i = 0; i < 256; i++)
+					palette.SetPixel(i, 0, 0xFF000000 | i);
 			}
 			m_context->memoryBuffer.Write(m_context->queue, m_context->commandBufferPool,
 			                              m_context->physicalDeviceMemoryProperties, GetRam());
-		}, true);
+		},
+		           true);
 	}
 
 protected:
@@ -369,56 +372,56 @@ static void TestSpriteLinearBorder(CTestHandler& gs, int scale)
 static void TestArcadeSpriteAlignment(CTestHandler& gs, int scale)
 {
 	for(bool vertical : {false, true})
-	for(int mode : {0, 1, 2})
-	{
-		gs.Reset();
-		auto frame = SetupDraw(gs, CGSHandler::PSMCT32);
-		bool enabled = (mode == 1);
-		bool extended = enabled && !vertical;
-		// The last case represents a normal boot after an enabled arcade game.
-		if(mode != 2) gs.SetSpriteAlignmentEnabled(enabled);
-		std::vector<uint8> texture;
-		for(int y = 0; y < 4; y++)
+		for(int mode : {0, 1, 2})
 		{
-			for(int x = 0; x < 4; x++)
+			gs.Reset();
+			auto frame = SetupDraw(gs, CGSHandler::PSMCT32);
+			bool enabled = (mode == 1);
+			bool extended = enabled && !vertical;
+			// The last case represents a normal boot after an enabled arcade game.
+			if(mode != 2) gs.SetSpriteAlignmentEnabled(enabled);
+			std::vector<uint8> texture;
+			for(int y = 0; y < 4; y++)
 			{
-				auto red = static_cast<uint8>(16 + 64 * (vertical ? y : x));
-				texture.insert(texture.end(), {red, 0, 0, 255});
+				for(int x = 0; x < 4; x++)
+				{
+					auto red = static_cast<uint8>(16 + 64 * (vertical ? y : x));
+					texture.insert(texture.end(), {red, 0, 0, 255});
+				}
+			}
+			gs.Transfer(CGSHandler::PSMCT32, texture);
+			auto tex = make_convertible<CGSHandler::TEX0>(0);
+			tex.nBufPtr = 0x80000 / 0x100;
+			tex.nBufWidth = 1;
+			tex.nWidth = 2;
+			tex.nPad0 = 2; // TEX0.TH: log2(height), split into the historical pad fields.
+			tex.nColorComp = 1;
+			tex.nFunction = CGSHandler::TEX0_FUNCTION_DECAL;
+			gs.Write(GS_REG_TEX0_1, tex);
+			auto prim = make_convertible<CGSHandler::PRIM>(0);
+			prim.nType = CGSHandler::PRIM_SPRITE;
+			prim.nTexture = 1;
+			prim.nUseUV = 1;
+			gs.Write(GS_REG_PRIM, prim);
+			gs.Write(GS_REG_UV, vertical ? uint64(8) : (uint64(8) << 16));
+			gs.Write(GS_REG_XYZ2, 0x4000000000000000ULL | uint64(64) | (uint64(64) << 16));
+			gs.Write(GS_REG_UV, vertical ? (uint64(8) | (uint64(128) << 16)) : (uint64(128) | (uint64(8) << 16)));
+			gs.Write(GS_REG_XYZ2, 0x4000000000000000ULL | uint64(vertical ? 192 : 200) | (uint64(vertical ? 200 : 192) << 16));
+			auto image = gs.GetFramebuffer(frame);
+			auto pixel = [&](int along, int across) { return image.GetPixel(vertical ? across : along, vertical ? along : across); };
+			Verify(pixel(4 * scale, 6 * scale).a != 0, "Sprite alignment moved the starting edge");
+			if(scale > 1)
+			{
+				int boundary = 25 * scale / 2;
+				Verify((pixel(boundary, 6 * scale).a != 0) == extended, "Sprite alignment changed unexpected edge coverage");
+				if(extended) Verify(pixel(boundary, 6 * scale).b == 16, "Sprite alignment changed position without extending UV");
+			}
+			else
+			{
+				Verify(pixel(12, 6).b == 208, "Sprite alignment changed native UV interpolation");
+				Verify(pixel(13, 6).a == 0, "Sprite alignment changed native coverage");
 			}
 		}
-		gs.Transfer(CGSHandler::PSMCT32, texture);
-		auto tex = make_convertible<CGSHandler::TEX0>(0);
-		tex.nBufPtr = 0x80000 / 0x100;
-		tex.nBufWidth = 1;
-		tex.nWidth = 2;
-		tex.nPad0 = 2; // TEX0.TH: log2(height), split into the historical pad fields.
-		tex.nColorComp = 1;
-		tex.nFunction = CGSHandler::TEX0_FUNCTION_DECAL;
-		gs.Write(GS_REG_TEX0_1, tex);
-		auto prim = make_convertible<CGSHandler::PRIM>(0);
-		prim.nType = CGSHandler::PRIM_SPRITE;
-		prim.nTexture = 1;
-		prim.nUseUV = 1;
-		gs.Write(GS_REG_PRIM, prim);
-		gs.Write(GS_REG_UV, vertical ? uint64(8) : (uint64(8) << 16));
-		gs.Write(GS_REG_XYZ2, 0x4000000000000000ULL | uint64(64) | (uint64(64) << 16));
-		gs.Write(GS_REG_UV, vertical ? (uint64(8) | (uint64(128) << 16)) : (uint64(128) | (uint64(8) << 16)));
-		gs.Write(GS_REG_XYZ2, 0x4000000000000000ULL | uint64(vertical ? 192 : 200) | (uint64(vertical ? 200 : 192) << 16));
-		auto image = gs.GetFramebuffer(frame);
-		auto pixel = [&](int along, int across) { return image.GetPixel(vertical ? across : along, vertical ? along : across); };
-		Verify(pixel(4 * scale, 6 * scale).a != 0, "Sprite alignment moved the starting edge");
-		if(scale > 1)
-		{
-			int boundary = 25 * scale / 2;
-			Verify((pixel(boundary, 6 * scale).a != 0) == extended, "Sprite alignment changed unexpected edge coverage");
-			if(extended) Verify(pixel(boundary, 6 * scale).b == 16, "Sprite alignment changed position without extending UV");
-		}
-		else
-		{
-			Verify(pixel(12, 6).b == 208, "Sprite alignment changed native UV interpolation");
-			Verify(pixel(13, 6).a == 0, "Sprite alignment changed native coverage");
-		}
-	}
 	gs.Reset(); // A subsequent non-arcade boot must discard the opt-in flag.
 }
 
@@ -506,8 +509,10 @@ static void TestByteConversion(CTestHandler& gs, int scale)
 				if(image.GetPixel(x, y).b != expected) errors++;
 			}
 		}
-		if(enabled || scale == 1) Verify(errors == 0, "Byte conversion changed texel bytes or lost sample planes");
-		else Verify(errors != 0, "Byte conversion negative control did not expose subpixel interpolation");
+		if(enabled || scale == 1)
+			Verify(errors == 0, "Byte conversion changed texel bytes or lost sample planes");
+		else
+			Verify(errors != 0, "Byte conversion negative control did not expose subpixel interpolation");
 	}
 }
 

@@ -964,12 +964,12 @@ void CGSH_Vulkan::SetRenderingContext(uint64 primReg)
 	// Its texels represent bytes, so interpolation must remain on the native grid.
 #if GSH_VULKAN_IS_DESKTOP
 	bool nativeCoordinates = m_spriteAlignmentEnabled &&
-	    (m_context->framebufferScale > 1) && (m_primitiveType == PRIM_SPRITE) &&
-	    prim.nTexture && prim.nUseUV && !prim.nAlpha && !prim.nFog &&
-	    (tex0.nPsm == PSMT8) && (frame.nPsm == PSMCT32) && (frame.GetWidth() == 64) &&
-	    (tex0.GetWidth() == 128) && (tex0.GetHeight() == 64) &&
-	    ((frame.nMask == 0xFFFFFF00) || (frame.nMask == 0xFFFF00FF) || (frame.nMask == 0xFF00FFFF)) &&
-	    !pipelineCaps.textureUseLinearFiltering;
+	                         (m_context->framebufferScale > 1) && (m_primitiveType == PRIM_SPRITE) &&
+	                         prim.nTexture && prim.nUseUV && !prim.nAlpha && !prim.nFog &&
+	                         (tex0.nPsm == PSMT8) && (frame.nPsm == PSMCT32) && (frame.GetWidth() == 64) &&
+	                         (tex0.GetWidth() == 128) && (tex0.GetHeight() == 64) &&
+	                         ((frame.nMask == 0xFFFFFF00) || (frame.nMask == 0xFFFF00FF) || (frame.nMask == 0xFF00FFFF)) &&
+	                         !pipelineCaps.textureUseLinearFiltering;
 	if(nativeCoordinates) pipelineCaps.primitiveType = CDraw::PIPELINE_PRIMITIVE_NATIVE_SPRITE;
 #endif
 
