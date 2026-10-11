@@ -147,6 +147,7 @@ namespace Iop
 
 			std::array<uint16, PS2::CControllerInfo::MAX_BUTTONS> m_jvsButtonBits = {};
 			uint16 m_jvsButtonState[JVS_PLAYER_COUNT] = {};
+			uint16 m_jvsAxisButtonState[JVS_PLAYER_COUNT] = {};
 			uint16 m_jvsSystemButtonState = 0;
 			uint16 m_jvsScreenPosX = 0x7FFF;
 			uint16 m_jvsScreenPosY = 0x7FFF;
