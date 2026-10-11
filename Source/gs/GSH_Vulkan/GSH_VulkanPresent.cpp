@@ -735,36 +735,39 @@ Framework::Vulkan::CShaderModule CPresent::CreateFragmentShader(const PIPELINE_C
 		auto layerSize = presentRectParams->zw();
 
 		auto scale = NewInt(b, m_context->framebufferScale);
-		auto samplePos = ToInt(inputTexCoord->xy() * ToFloat(layerSize) * NewFloat2(b, m_context->framebufferScale, m_context->framebufferScale));
-		auto screenPos = samplePos / NewInt2(b, m_context->framebufferScale, m_context->framebufferScale);
-		auto sampleIndex = (samplePos->x() % scale) + (samplePos->y() % scale) * scale;
-
-		switch(caps.bufPsm)
-		{
-		default:
-			assert(false);
-			[[fallthrough]];
-		case CGSHandler::PSMCT32:
-		case CGSHandler::PSMCT24:
-		{
-			auto nativeAddress = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT32>(
-			    b, swizzleTable, bufAddress, bufWidth, screenPos);
+		// Match OpenGL's final linear filtering. Filter the actual high-resolution
+		// samples, rather than magnifying a single native pixel into a hard block.
+		auto samplePosition = inputTexCoord->xy() * ToFloat(layerSize) *
+		                      NewFloat2(b, m_context->framebufferScale, m_context->framebufferScale) + NewFloat2(b, -0.5f, -0.5f);
+		auto fraction = Fract(samplePosition);
+		auto sample0 = ToInt(samplePosition + fraction * NewFloat2(b, -1, -1));
+		auto sample1 = sample0 + NewInt2(b, 1, 1);
+		auto sampleMax = layerSize * NewInt2(b, m_context->framebufferScale, m_context->framebufferScale) + NewInt2(b, -1, -1);
+		auto readSample = [&](CInt2Value sample) {
+			auto clamped = NewInt2(Clamp(sample->x(), NewInt(b, 0), sampleMax->x()),
+			                      Clamp(sample->y(), NewInt(b, 0), sampleMax->y()));
+			auto screenPos = clamped / NewInt2(b, m_context->framebufferScale, m_context->framebufferScale);
+			auto sampleIndex = (clamped->x() % scale) + (clamped->y() % scale) * scale;
+			if((caps.bufPsm == CGSHandler::PSMCT16) || (caps.bufPsm == CGSHandler::PSMCT16S))
+			{
+				auto nativeAddress = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT16>(b, swizzleTable, bufAddress, bufWidth, screenPos);
+				auto address = (nativeAddress & NewInt(b, CGSHandler::RAMSIZE - 1)) + sampleIndex * NewInt(b, CGSHandler::RAMSIZE);
+				return CMemoryUtils::PSM16ToVec4(b, CMemoryUtils::Memory_Read16(b, memoryBuffer, address));
+			}
+			assert((caps.bufPsm == CGSHandler::PSMCT32) || (caps.bufPsm == CGSHandler::PSMCT24));
+			auto nativeAddress = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT32>(b, swizzleTable, bufAddress, bufWidth, screenPos);
 			auto address = (nativeAddress & NewInt(b, CGSHandler::RAMSIZE - 1)) + sampleIndex * NewInt(b, CGSHandler::RAMSIZE);
-			auto imageColor = CMemoryUtils::Memory_Read32(b, memoryBuffer, address);
-			outputColor = CMemoryUtils::PSM32ToVec4(b, imageColor);
-		}
-		break;
-		case CGSHandler::PSMCT16:
-		case CGSHandler::PSMCT16S:
-		{
-			auto nativeAddress = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT16>(
-			    b, swizzleTable, bufAddress, bufWidth, screenPos);
-			auto address = (nativeAddress & NewInt(b, CGSHandler::RAMSIZE - 1)) + sampleIndex * NewInt(b, CGSHandler::RAMSIZE);
-			auto imageColor = CMemoryUtils::Memory_Read16(b, memoryBuffer, address);
-			outputColor = CMemoryUtils::PSM16ToVec4(b, imageColor);
-		}
-		break;
-		}
+			return CMemoryUtils::PSM32ToVec4(b, CMemoryUtils::Memory_Read32(b, memoryBuffer, address));
+		};
+		auto a = readSample(sample0);
+		auto c = readSample(NewInt2(sample0->x(), sample1->y()));
+		auto d = readSample(sample1);
+		auto right = readSample(NewInt2(sample1->x(), sample0->y()));
+		auto one = NewFloat(b, 1);
+		outputColor = a * ((one - fraction->x()) * (one - fraction->y()))->xxxx() +
+		              right * (fraction->x() * (one - fraction->y()))->xxxx() +
+		              c * ((one - fraction->x()) * fraction->y())->xxxx() +
+		              d * (fraction->x() * fraction->y())->xxxx();
 	}
 
 	Framework::CMemStream shaderStream;

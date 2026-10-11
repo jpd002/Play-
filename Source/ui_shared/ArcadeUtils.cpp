@@ -355,6 +355,14 @@ void ArcadeUtils::BootArcadeMachine(CPS2VM* virtualMachine, const fs::path& arca
 	driver->PrepareEnvironment(virtualMachine, def);
 	driver->Launch(virtualMachine, def);
 
+	if(auto gsHandler = virtualMachine->GetGSHandler())
+	{
+		bool alignSprites = (def.id.rfind("taiko", 0) == 0) ||
+		                    (def.id.rfind("tekken4", 0) == 0) ||
+		                    (def.id.rfind("tekken5", 0) == 0);
+		gsHandler->SetSpriteAlignmentEnabled(alignSprites);
+	}
+
 	ApplyPatchesFromArcadeDefinition(virtualMachine, def);
 	ApplyIdleLoopBlocksFromArcadeDefinition(virtualMachine, def);
 

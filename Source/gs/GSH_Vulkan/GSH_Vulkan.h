@@ -53,6 +53,7 @@ public:
 	int GetFramebufferScale() override;
 
 	const VERTEX* GetInputVertices() const override;
+	void SetSpriteAlignmentEnabled(bool enabled) override;
 
 protected:
 	void WriteRegisterImpl(uint8, uint64) override;
@@ -72,6 +73,7 @@ protected:
 	GSH_Vulkan::ContextPtr m_context;
 
 private:
+	bool m_spriteAlignmentEnabled = false;
 	struct CLUTKEY : public convertible<uint64>
 	{
 		uint32 idx4 : 1;

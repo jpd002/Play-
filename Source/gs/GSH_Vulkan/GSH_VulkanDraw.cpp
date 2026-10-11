@@ -15,6 +15,7 @@ using namespace GSH_Vulkan;
 #define VERTEX_ATTRIB_LOCATION_COLOR 2
 #define VERTEX_ATTRIB_LOCATION_TEXCOORD 3
 #define VERTEX_ATTRIB_LOCATION_FOG 4
+#define VERTEX_ATTRIB_LOCATION_TEXSTEP 5
 
 #define MAX_VERTEX_COUNT 1024 * 512
 
@@ -267,7 +268,7 @@ void CDraw::PostFlushFrameCommandBuffer()
 	m_mipParamsIndex = 0;
 }
 
-std::vector<VkVertexInputAttributeDescription> CDraw::GetVertexAttributes()
+std::vector<VkVertexInputAttributeDescription> CDraw::GetVertexAttributes(const PIPELINE_CAPS& caps)
 {
 	std::vector<VkVertexInputAttributeDescription> vertexAttributes;
 
@@ -311,6 +312,14 @@ std::vector<VkVertexInputAttributeDescription> CDraw::GetVertexAttributes()
 		vertexAttributes.push_back(vertexAttributeDesc);
 	}
 
+	if(caps.primitiveType == PIPELINE_PRIMITIVE_NATIVE_SPRITE)
+	{
+		VkVertexInputAttributeDescription attribute = {};
+		attribute.format = VK_FORMAT_R32G32_SFLOAT;
+		attribute.offset = offsetof(PRIM_VERTEX, ds);
+		attribute.location = VERTEX_ATTRIB_LOCATION_TEXSTEP;
+		vertexAttributes.push_back(attribute);
+	}
 	return vertexAttributes;
 }
 
@@ -337,7 +346,8 @@ Framework::Vulkan::CShaderModule CDraw::CreateVertexShader(const PIPELINE_CAPS& 
 		auto outputFog = CFloat4Lvalue(b.CreateOutput(Nuanceur::SEMANTIC_TEXCOORD, 4));
 
 		//Triangle/sprite coordinates are offset by half a raster pixel, including at higher resolution.
-		float rasterOffset = (caps.primitiveType == PIPELINE_PRIMITIVE_TRIANGLE) ? (0.5f / m_context->framebufferScale) : 0.5f;
+		bool triangle = caps.primitiveType == PIPELINE_PRIMITIVE_TRIANGLE || caps.primitiveType == PIPELINE_PRIMITIVE_NATIVE_SPRITE;
+		float rasterOffset = triangle ? (0.5f / m_context->framebufferScale) : 0.5f;
 		auto position = ((inputPosition->xy() + NewFloat2(b, rasterOffset, rasterOffset)) * NewFloat2(b, 2.f / DRAW_AREA_SIZE, 2.f / DRAW_AREA_SIZE) + NewFloat2(b, -1, -1));
 
 		outputPosition = NewFloat4(position, NewFloat2(b, 0.f, 1.f));
@@ -348,6 +358,12 @@ Framework::Vulkan::CShaderModule CDraw::CreateVertexShader(const PIPELINE_CAPS& 
 		outputDepth = ToFloat(inputDepth) / NewFloat4(b, DEPTH_MAX, DEPTH_MAX, DEPTH_MAX, DEPTH_MAX);
 		outputColor = inputColor->xyzw();
 		outputTexCoord = inputTexCoord->xyzw();
+		if(caps.primitiveType == PIPELINE_PRIMITIVE_NATIVE_SPRITE)
+		{
+			auto step = CFloat4Lvalue(b.CreateInput(Nuanceur::SEMANTIC_TEXCOORD, VERTEX_ATTRIB_LOCATION_TEXSTEP - 1));
+			auto outputStep = CFloat4Lvalue(b.CreateOutput(Nuanceur::SEMANTIC_TEXCOORD, 5));
+			outputStep = step->xyzw();
+		}
 		outputFog = inputFog->xyzw();
 	}
 

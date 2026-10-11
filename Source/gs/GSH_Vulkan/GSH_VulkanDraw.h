@@ -27,6 +27,7 @@ namespace GSH_Vulkan
 			PIPELINE_PRIMITIVE_TRIANGLE = 0,
 			PIPELINE_PRIMITIVE_LINE = 1,
 			PIPELINE_PRIMITIVE_POINT = 2,
+			PIPELINE_PRIMITIVE_NATIVE_SPRITE = 3,
 		};
 
 		struct PIPELINE_CAPS : public convertible<PipelineCapsInt>
@@ -79,6 +80,7 @@ namespace GSH_Vulkan
 			uint32 color;
 			float s, t, q;
 			float f;
+			float ds = 0, dt = 0;
 		};
 
 		using MipBufs = std::array<std::pair<uint32, uint32>, 6>;
@@ -101,6 +103,10 @@ namespace GSH_Vulkan
 		void SetMemoryCopyParams(uint32, uint32);
 
 		void AddVertices(const PRIM_VERTEX*, const PRIM_VERTEX*);
+		bool UsesNativeSpriteCoordinates() const
+		{
+			return m_pipelineCaps.primitiveType == PIPELINE_PRIMITIVE_NATIVE_SPRITE;
+		}
 		virtual void FlushVertices() = 0;
 		virtual void FlushRenderPass() = 0;
 
@@ -195,7 +201,7 @@ namespace GSH_Vulkan
 			DRAW_PIPELINE_MIPPARAMS_UNIFORMS* mipParamsBufferPtr = nullptr;
 		};
 
-		static std::vector<VkVertexInputAttributeDescription> GetVertexAttributes();
+		static std::vector<VkVertexInputAttributeDescription> GetVertexAttributes(const PIPELINE_CAPS&);
 		Framework::Vulkan::CShaderModule CreateVertexShader(const PIPELINE_CAPS&);
 
 		static constexpr float DEPTH_MAX = 4294967296.0f;

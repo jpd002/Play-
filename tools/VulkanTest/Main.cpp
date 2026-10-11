@@ -1,5 +1,7 @@
 #include <cstdio>
 #include <stdexcept>
+#include <algorithm>
+#include <cmath>
 #include "AppConfig.h"
 #include "gs/GSH_Vulkan/GSH_VulkanOffscreen.h"
 #include "gs/GSH_Vulkan/GSH_VulkanDeviceInfo.h"
@@ -44,6 +46,13 @@ public:
 	void Write(uint8 reg, uint64 value)
 	{
 		SendGSCall([this, reg, value]() { WriteRegisterImpl(reg, value); }, true);
+	}
+
+	CGSHandler::PRESENTATION_VIEWPORT ReadViewport()
+	{
+		CGSHandler::PRESENTATION_VIEWPORT viewport;
+		SendGSCall([&]() { viewport = GetPresentationViewport(); }, true);
+		return viewport;
 	}
 
 	void ChangeScale(int scale)
@@ -118,6 +127,24 @@ public:
 			m_context->device.vkQueueWaitIdle(m_context->queue);
 		},
 		           true);
+	}
+
+	void FillByteConversionPattern()
+	{
+		SendGSCall([&]() {
+			SyncMemoryCache();
+			for(uint32 sample = 0; sample < m_context->GetSampleCount(); sample++)
+			{
+				auto ram = GetRam() + sample * CGSHandler::RAMSIZE;
+				CGsPixelFormats::CPixelIndexorPSMT8 texture(ram, 0x80000, 2);
+				for(int y = 0; y < 64; y++)
+					for(int x = 0; x < 128; x++) texture.SetPixel(x, y, (x + 17 * y + 23 * sample) & 255);
+				CGsPixelFormats::CPixelIndexorPSMCT32 palette(ram, 0x90000, 1);
+				for(int i = 0; i < 256; i++) palette.SetPixel(i, 0, 0xFF000000 | i);
+			}
+			m_context->memoryBuffer.Write(m_context->queue, m_context->commandBufferPool,
+			                              m_context->physicalDeviceMemoryProperties, GetRam());
+		}, true);
 	}
 
 protected:
@@ -279,6 +306,122 @@ static void TestRenderToTexture(CTestHandler& gs, int scale)
 	std::printf("Render-to-texture x%d passed\n", scale);
 }
 
+// A native-memory texture isolates UV interpolation from framebuffer sampling.
+// The half-texel border must select floor(u - 0.5), including negative values.
+static void TestSpriteLinearBorder(CTestHandler& gs, int scale)
+{
+	gs.Reset();
+	auto frame = SetupDraw(gs, CGSHandler::PSMCT32);
+	std::vector<uint8> texture;
+	for(uint8 red : {16, 80, 144, 208})
+	{
+		texture.insert(texture.end(), {red, 0, 0, 255});
+	}
+	gs.Transfer(CGSHandler::PSMCT32, texture);
+	{
+		auto memory = gs.ReadMemory();
+		CGsPixelFormats::CPixelIndexorPSMCT32 index(memory.data(), 0x80000, 1);
+		Verify((index.GetPixel(0, 0) & 0xFF) == 16, "Sprite test texture upload failed");
+	}
+	auto tex = make_convertible<CGSHandler::TEX0>(0);
+	tex.nBufPtr = 0x80000 / 0x100;
+	tex.nBufWidth = 1;
+	tex.nWidth = 2;
+	tex.nColorComp = 1;
+	tex.nFunction = CGSHandler::TEX0_FUNCTION_DECAL;
+	gs.Write(GS_REG_TEX0_1, tex);
+	auto filter = make_convertible<CGSHandler::TEX1>(0);
+	filter.nMagFilter = 1; // Linear magnification (no mip levels).
+	gs.Write(GS_REG_TEX1_1, filter);
+	auto prim = make_convertible<CGSHandler::PRIM>(0);
+	prim.nType = CGSHandler::PRIM_SPRITE;
+	prim.nTexture = 1;
+	prim.nUseUV = 1;
+	for(auto mode : {CGSHandler::CLAMP_MODE_CLAMP, CGSHandler::CLAMP_MODE_REPEAT})
+	{
+		auto clamp = make_convertible<CGSHandler::CLAMP>(0);
+		clamp.nWMS = mode;
+		clamp.nWMT = CGSHandler::CLAMP_MODE_CLAMP;
+		gs.Write(GS_REG_CLAMP_1, clamp);
+		gs.Write(GS_REG_PRIM, prim);
+		gs.Write(GS_REG_UV, uint64(8) << 16);
+		gs.Write(GS_REG_XYZ2, 0x4000000000000000ULL);
+		gs.Write(GS_REG_UV, uint64(64) | (uint64(8) << 16));
+		gs.Write(GS_REG_XYZ2, 0x4000000000000000ULL | uint64(64) | (uint64(64) << 16));
+		auto image = gs.GetFramebuffer(frame);
+		for(int x = 0; x < 4 * scale; x++)
+		{
+			float u = static_cast<float>(x) / scale - 0.5f;
+			int left = static_cast<int>(std::floor(u));
+			float fraction = u - left;
+			auto redAt = [mode](int index) {
+				index = (mode == CGSHandler::CLAMP_MODE_REPEAT) ? ((index % 4 + 4) % 4) : std::clamp(index, 0, 3);
+				return 16 + 64 * index;
+			};
+			int expected = std::lround(redAt(left) * (1 - fraction) + redAt(left + 1) * fraction);
+			// Vulkan framebuffer readback stores GS red in bitmap byte 2 (BGRA).
+			int actual = image.GetPixel(x, scale).b;
+			Verify(std::abs(actual - expected) <= 1, "Linear sprite texture border selected incorrect texels");
+		}
+	}
+}
+
+static void TestArcadeSpriteAlignment(CTestHandler& gs, int scale)
+{
+	for(bool vertical : {false, true})
+	for(int mode : {0, 1, 2})
+	{
+		gs.Reset();
+		auto frame = SetupDraw(gs, CGSHandler::PSMCT32);
+		bool enabled = (mode == 1);
+		bool extended = enabled && !vertical;
+		// The last case represents a normal boot after an enabled arcade game.
+		if(mode != 2) gs.SetSpriteAlignmentEnabled(enabled);
+		std::vector<uint8> texture;
+		for(int y = 0; y < 4; y++)
+		{
+			for(int x = 0; x < 4; x++)
+			{
+				auto red = static_cast<uint8>(16 + 64 * (vertical ? y : x));
+				texture.insert(texture.end(), {red, 0, 0, 255});
+			}
+		}
+		gs.Transfer(CGSHandler::PSMCT32, texture);
+		auto tex = make_convertible<CGSHandler::TEX0>(0);
+		tex.nBufPtr = 0x80000 / 0x100;
+		tex.nBufWidth = 1;
+		tex.nWidth = 2;
+		tex.nPad0 = 2; // TEX0.TH: log2(height), split into the historical pad fields.
+		tex.nColorComp = 1;
+		tex.nFunction = CGSHandler::TEX0_FUNCTION_DECAL;
+		gs.Write(GS_REG_TEX0_1, tex);
+		auto prim = make_convertible<CGSHandler::PRIM>(0);
+		prim.nType = CGSHandler::PRIM_SPRITE;
+		prim.nTexture = 1;
+		prim.nUseUV = 1;
+		gs.Write(GS_REG_PRIM, prim);
+		gs.Write(GS_REG_UV, vertical ? uint64(8) : (uint64(8) << 16));
+		gs.Write(GS_REG_XYZ2, 0x4000000000000000ULL | uint64(64) | (uint64(64) << 16));
+		gs.Write(GS_REG_UV, vertical ? (uint64(8) | (uint64(128) << 16)) : (uint64(128) | (uint64(8) << 16)));
+		gs.Write(GS_REG_XYZ2, 0x4000000000000000ULL | uint64(vertical ? 192 : 200) | (uint64(vertical ? 200 : 192) << 16));
+		auto image = gs.GetFramebuffer(frame);
+		auto pixel = [&](int along, int across) { return image.GetPixel(vertical ? across : along, vertical ? along : across); };
+		Verify(pixel(4 * scale, 6 * scale).a != 0, "Sprite alignment moved the starting edge");
+		if(scale > 1)
+		{
+			int boundary = 25 * scale / 2;
+			Verify((pixel(boundary, 6 * scale).a != 0) == extended, "Sprite alignment changed unexpected edge coverage");
+			if(extended) Verify(pixel(boundary, 6 * scale).b == 16, "Sprite alignment changed position without extending UV");
+		}
+		else
+		{
+			Verify(pixel(12, 6).b == 208, "Sprite alignment changed native UV interpolation");
+			Verify(pixel(13, 6).a == 0, "Sprite alignment changed native coverage");
+		}
+	}
+	gs.Reset(); // A subsequent non-arcade boot must discard the opt-in flag.
+}
+
 template <typename Indexor>
 static void TestTransfer(CTestHandler& gs, uint32 format, uint32 bytesPerPixel, uint32 mask)
 {
@@ -315,15 +458,93 @@ static void TestTransfer(CTestHandler& gs, uint32 format, uint32 bytesPerPixel, 
 	std::printf("Transfer PSM %u passed\n", format);
 }
 
+static void TestByteConversion(CTestHandler& gs, int scale)
+{
+	for(bool enabled : {false, true})
+	{
+		gs.Reset();
+		auto frame = SetupDraw(gs, CGSHandler::PSMCT32);
+		frame.nMask = 0xFFFFFF00;
+		gs.Write(GS_REG_FRAME_1, frame);
+		gs.SetSpriteAlignmentEnabled(enabled);
+		gs.FillByteConversionPattern();
+		auto tex = make_convertible<CGSHandler::TEX0>(0);
+		tex.nBufPtr = 0x80000 / 256;
+		tex.nBufWidth = 2;
+		tex.nPsm = CGSHandler::PSMT8;
+		tex.nWidth = 7;
+		tex.nPad0 = 2;
+		tex.nPad1 = 1; // TH = 6.
+		tex.nFunction = CGSHandler::TEX0_FUNCTION_DECAL;
+		tex.nCBP = 0x90000 / 256;
+		tex.nCSM = 1;
+		tex.nCLD = 1;
+		auto texClut = make_convertible<CGSHandler::TEXCLUT>(0);
+		texClut.nCBW = 1;
+		gs.Write(GS_REG_TEXCLUT, texClut);
+		gs.Write(GS_REG_TEX0_1, tex);
+		gs.Write(GS_REG_TEX1_1, 0);
+		auto prim = make_convertible<CGSHandler::PRIM>(0);
+		prim.nType = CGSHandler::PRIM_SPRITE;
+		prim.nTexture = 1;
+		prim.nUseUV = 1;
+		gs.Write(GS_REG_PRIM, prim);
+		gs.Write(GS_REG_UV, uint64(72) | (uint64(100) << 16));
+		gs.Write(GS_REG_XYZ2, 0x4000000000000000ULL | (uint64(32) << 16));
+		gs.Write(GS_REG_UV, uint64(200) | (uint64(436) << 16));
+		gs.Write(GS_REG_XYZ2, 0x4000000000000000ULL | uint64(128) | (uint64(256) << 16));
+		auto image = gs.GetFramebuffer(frame);
+		int errors = 0;
+		for(int y = 2 * scale; y < 16 * scale; y++)
+		{
+			for(int x = 0; x < 8 * scale; x++)
+			{
+				int u = 4 + x / scale;
+				int v = static_cast<int>(6.25f + 1.5f * (y / scale - 2));
+				int sample = x % scale + (y % scale) * scale;
+				int expected = (u + 17 * v + 23 * sample) & 255;
+				if(image.GetPixel(x, y).b != expected) errors++;
+			}
+		}
+		if(enabled || scale == 1) Verify(errors == 0, "Byte conversion changed texel bytes or lost sample planes");
+		else Verify(errors != 0, "Byte conversion negative control did not expose subpixel interpolation");
+	}
+}
+
 int main()
 {
 	try
 	{
-		CAppConfig::GetInstance().RegisterPreferenceInteger(PREF_CGSHANDLER_RESOLUTION_FACTOR, 1);
+		CGSHandler::RegisterPreferences();
 		CAppConfig::GetInstance().SetPreferenceInteger(PREF_CGSHANDLER_RESOLUTION_FACTOR, 1);
 		Verify(GSH_Vulkan::CDeviceInfo::GetInstance().HasAvailableDevices(), "No compatible Vulkan device");
 		CTestHandler gs(true);
 		gs.Initialize();
+		{
+			auto& config = CAppConfig::GetInstance();
+			bool savedWidescreen = config.GetPreferenceBoolean(PREF_CGSHANDLER_WIDESCREEN);
+			config.SetPreferenceBoolean(PREF_CGSHANDLER_WIDESCREEN, false);
+			CGSHandler::PRESENTATION_PARAMS params;
+			params.mode = CGSHandler::PRESENTATION_MODE_FIT;
+			params.windowWidth = 800;
+			params.windowHeight = 600;
+			gs.SetPresentationParams(params);
+			gs.SetCrt(false, 0x50, false); // HDTV 480p.
+			auto viewport = gs.ReadViewport();
+			Verify(viewport.width == 800 && viewport.height == 600 && viewport.offsetY == 0, "480p presentation is not 4:3");
+			Verify(gs.GetCrtWidth() == 720 && gs.GetCrtHeight() == 480, "480p aspect correction changed the emulated resolution");
+			Verify(!config.GetPreferenceBoolean(PREF_CGSHANDLER_WIDESCREEN), "480p aspect correction changed the global preference");
+			gs.Reset();
+			viewport = gs.ReadViewport();
+			Verify(viewport.height == 560 && viewport.offsetY == 20, "480p aspect correction affected NTSC presentation");
+			config.SetPreferenceBoolean(PREF_CGSHANDLER_WIDESCREEN, true);
+			gs.SetCrt(false, 0x50, false);
+			Verify(gs.ReadViewport().height == 450, "480p aspect correction ignored the user's widescreen preference");
+			config.SetPreferenceBoolean(PREF_CGSHANDLER_WIDESCREEN, savedWidescreen);
+			gs.Reset();
+			params.windowWidth = params.windowHeight = 128;
+			gs.SetPresentationParams(params);
+		}
 		std::printf("Device: %s\n", gs.GetDeviceName().c_str());
 		try
 		{
@@ -337,6 +558,9 @@ int main()
 					gs.Present(format);
 				}
 				TestRenderToTexture(gs, scale);
+				TestSpriteLinearBorder(gs, scale);
+				TestArcadeSpriteAlignment(gs, scale);
+				TestByteConversion(gs, scale);
 				TestTransfer<CGsPixelFormats::CPixelIndexorPSMCT32>(gs, CGSHandler::PSMCT32, 4, ~0U);
 				TestTransfer<CGsPixelFormats::CPixelIndexorPSMCT32>(gs, CGSHandler::PSMCT24, 3, 0xFFFFFF);
 				TestTransfer<CGsPixelFormats::CPixelIndexorPSMCT16>(gs, CGSHandler::PSMCT16, 2, 0xFFFF);

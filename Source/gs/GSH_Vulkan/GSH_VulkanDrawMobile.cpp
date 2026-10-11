@@ -941,7 +941,8 @@ Framework::Vulkan::CShaderModule CDrawMobile::CreateDrawFragmentShader(const PIP
 				textureLinearPos = (textureSt * ToFloat(texSize)) + NewFloat2(b, -0.5f, -0.5f);
 				textureLinearAb = Fract(textureLinearPos);
 
-				textureIuv0 = ToInt(textureLinearPos);
+				// Match the floor-based fraction at negative half-texel borders.
+				textureIuv0 = ToInt(textureLinearPos + textureLinearAb * NewFloat2(b, -1, -1));
 				textureIuv1 = textureIuv0 + NewInt2(b, 1, 1);
 
 				auto textureClampIuv0 = clampCoordinates(textureIuv0);

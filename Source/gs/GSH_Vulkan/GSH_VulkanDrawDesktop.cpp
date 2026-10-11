@@ -221,6 +221,7 @@ PIPELINE CDrawDesktop::CreateDrawPipeline(const PIPELINE_CAPS& caps)
 	default:
 		assert(false);
 	case PIPELINE_PRIMITIVE_TRIANGLE:
+	case PIPELINE_PRIMITIVE_NATIVE_SPRITE:
 		inputAssemblyInfo.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
 		break;
 	case PIPELINE_PRIMITIVE_LINE:
@@ -231,7 +232,7 @@ PIPELINE CDrawDesktop::CreateDrawPipeline(const PIPELINE_CAPS& caps)
 		break;
 	}
 
-	auto vertexAttributes = GetVertexAttributes();
+	auto vertexAttributes = GetVertexAttributes(caps);
 
 	VkVertexInputBindingDescription binding = {};
 	binding.stride = sizeof(PRIM_VERTEX);
@@ -529,6 +530,13 @@ Framework::Vulkan::CShaderModule CDrawDesktop::CreateFragmentShader(const PIPELI
 
 			auto textureSt = CFloat2Lvalue(b.CreateVariableFloat("textureSt"));
 			textureSt = inputTexCoord->xy() / inputTexCoord->zz();
+			if(caps.primitiveType == PIPELINE_PRIMITIVE_NATIVE_SPRITE)
+			{
+				auto step = CFloat4Lvalue(b.CreateInput(Nuanceur::SEMANTIC_TEXCOORD, 5));
+				auto raster = (inputPosition->xy() + NewFloat2(b, -0.5f, -0.5f)) /
+				              NewFloat2(b, m_context->framebufferScale, m_context->framebufferScale);
+				textureSt = textureSt + Fract(raster) * step->xy() * NewFloat2(b, -1, -1);
+			}
 
 			auto getTextureColor =
 			    [&](CInt2Value textureIuv, CIntValue texMipLevel, CFloat4Lvalue& textureColor) {
@@ -539,7 +547,14 @@ Framework::Vulkan::CShaderModule CDrawDesktop::CreateFragmentShader(const PIPELI
 				    auto subpixelPos = ToInt(fraction * NewFloat2(b, m_context->framebufferScale, m_context->framebufferScale));
 				    auto subpixel = NewInt2(Min(subpixelPos->x(), NewInt(b, m_context->framebufferScale - 1)),
 				                            Min(subpixelPos->y(), NewInt(b, m_context->framebufferScale - 1)));
-				    auto memoryOffset = (subpixel->x() + subpixel->y() * NewInt(b, m_context->framebufferScale)) * NewInt(b, CGSHandler::RAMSIZE);
+				    auto memoryOffset = CIntLvalue(b.CreateTemporaryInt());
+				    memoryOffset = (subpixel->x() + subpixel->y() * NewInt(b, m_context->framebufferScale)) * NewInt(b, CGSHandler::RAMSIZE);
+				    if(caps.primitiveType == PIPELINE_PRIMITIVE_NATIVE_SPRITE)
+				    {
+					    auto sample = ToInt(inputPosition->xy());
+					    auto scale = NewInt(b, m_context->framebufferScale);
+					    memoryOffset = ((sample->x() % scale) + (sample->y() % scale) * scale) * NewInt(b, CGSHandler::RAMSIZE);
+				    }
 				    textureColor = CDrawUtils::GetTextureColorWithOffset(b, caps.textureFormat, caps.clutFormat, mipIuv,
 				                                                         textureSource, clutBuffer, texSwizzleTable, texBufAddress, texBufWidth, texCsa, memoryOffset);
 				    if(caps.textureHasAlpha)
@@ -603,7 +618,9 @@ Framework::Vulkan::CShaderModule CDrawDesktop::CreateFragmentShader(const PIPELI
 				//Happens in map rendering for Simple 2000 Series Vol. 90 - The OneeChambara 2.
 				textureLinearAb = Mix(Fract(textureLinearPos), NewFloat2(b, 0, 0), IsInf(textureSt));
 
-				textureIuv0 = ToInt(textureLinearPos);
+				// Match the floor-based fraction, including the negative half-texel border.
+				// Float-to-int conversion alone truncates towards zero and selects the wrong pair.
+				textureIuv0 = ToInt(textureLinearPos + textureLinearAb * NewFloat2(b, -1, -1));
 				textureIuv1 = textureIuv0 + NewInt2(b, 1, 1);
 
 				auto textureClampIuv0 = clampCoordinates(textureIuv0);

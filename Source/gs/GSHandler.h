@@ -827,6 +827,11 @@ public:
 	static void RegisterPreferences();
 	void NotifyPreferencesChanged();
 
+	// Renderer-specific opt-in for upscaled arcade sprite boundaries.
+	virtual void SetSpriteAlignmentEnabled(bool enabled)
+	{
+	}
+
 	void SetIntc(CINTC*);
 	void Reset();
 	virtual void SetPresentationParams(const PRESENTATION_PARAMS&);

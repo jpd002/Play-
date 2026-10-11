@@ -281,6 +281,7 @@ void CGSH_Vulkan::ReleaseRenderingResources()
 
 void CGSH_Vulkan::ResetImpl()
 {
+	m_spriteAlignmentEnabled = false;
 	m_vtxCount = 0;
 	m_primitiveType = PRIM_INVALID;
 	m_pendingPrim = false;
@@ -289,6 +290,14 @@ void CGSH_Vulkan::ResetImpl()
 	ClearClutCache();
 	memset(m_memoryCache, 0, RAMSIZE);
 	WriteBackMemoryCache();
+}
+
+void CGSH_Vulkan::SetSpriteAlignmentEnabled(bool enabled)
+{
+	SendGSCall([this, enabled]() {
+		if(m_draw) m_draw->FlushVertices();
+		m_spriteAlignmentEnabled = enabled;
+	});
 }
 
 uint32 CGSH_Vulkan::GetRequestedFramebufferScale() const
@@ -951,6 +960,19 @@ void CGSH_Vulkan::SetRenderingContext(uint64 primReg)
 		pipelineCaps.textureUseLinearFiltering = (minLinear && magLinear);
 	}
 
+	// Namco's 8-bit channel conversion uses a 64x32 scratch framebuffer.
+	// Its texels represent bytes, so interpolation must remain on the native grid.
+#if GSH_VULKAN_IS_DESKTOP
+	bool nativeCoordinates = m_spriteAlignmentEnabled &&
+	    (m_context->framebufferScale > 1) && (m_primitiveType == PRIM_SPRITE) &&
+	    prim.nTexture && prim.nUseUV && !prim.nAlpha && !prim.nFog &&
+	    (tex0.nPsm == PSMT8) && (frame.nPsm == PSMCT32) && (frame.GetWidth() == 64) &&
+	    (tex0.GetWidth() == 128) && (tex0.GetHeight() == 64) &&
+	    ((frame.nMask == 0xFFFFFF00) || (frame.nMask == 0xFFFF00FF) || (frame.nMask == 0xFF00FFFF)) &&
+	    !pipelineCaps.textureUseLinearFiltering;
+	if(nativeCoordinates) pipelineCaps.primitiveType = CDraw::PIPELINE_PRIMITIVE_NATIVE_SPRITE;
+#endif
+
 	if(prim.nAlpha)
 	{
 		pipelineCaps.alphaA = alpha.nA;
@@ -1356,6 +1378,17 @@ void CGSH_Vulkan::Prim_Sprite()
 
 			t[0] = uv[0].GetV() / static_cast<float>(m_texHeight);
 			t[1] = uv[1].GetV() / static_cast<float>(m_texHeight);
+
+			// Opt-in Namco alignment: preserve native rendering and extend only
+			// a forward sprite's half-pixel right edge with an integer U endpoint.
+			// Extend U with X; rounding all XY endpoints changes texture mapping.
+			if(m_spriteAlignmentEnabled && (m_context->framebufferScale > 1) &&
+			   (x2 > x1) && ((static_cast<int32>(x2 * 16) & 0xF) == 8) &&
+			   ((static_cast<int32>(uv[1].GetU() * 16) & 0xF) == 0))
+			{
+				x2 += 0.5f;
+				s[1] += 0.5f / m_texWidth;
+			}
 		}
 		else
 		{
@@ -1393,6 +1426,15 @@ void CGSH_Vulkan::Prim_Sprite()
 		{x2, y2, z, color, s[1], t[1], 1, f},
 	};
 	// clang-format on
+
+	if(m_draw->UsesNativeSpriteCoordinates() && x2 != x1 && y2 != y1)
+	{
+		for(auto& vertex : vertices)
+		{
+			vertex.ds = (s[1] - s[0]) / (x2 - x1);
+			vertex.dt = (t[1] - t[0]) / (y2 - y1);
+		}
+	}
 
 	{
 		const auto topLeftCorner = vertices;
