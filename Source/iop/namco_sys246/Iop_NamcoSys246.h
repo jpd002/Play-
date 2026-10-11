@@ -122,7 +122,8 @@ namespace Iop
 
 			void ProcessAcFlashCommand(const SIFCMDHEADER*, CSifMan&);
 
-			void ProcessJvsPacket(const uint8*, uint8*);
+			void ProcessJvsPacket(const uint8*, uint8*, bool processCoinCommands = true);
+			void ProcessJvsRequests(const uint8*, uint8*, bool processCoinCommands = true);
 			void ProcessBgStrPacket(const uint8*, uint8*, int);
 
 			static fs::path GetArcadeSavePath();

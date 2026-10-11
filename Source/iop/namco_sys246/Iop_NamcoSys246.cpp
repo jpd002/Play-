@@ -142,7 +142,7 @@ void CSys246::Invoke(CMIPS& context, unsigned int functionId)
 	throw std::runtime_error("Not implemented.");
 }
 
-void CSys246::ProcessJvsPacket(const uint8* input, uint8* output)
+void CSys246::ProcessJvsPacket(const uint8* input, uint8* output, bool processCoinCommands)
 {
 	assert(*input == JVS_SYNC);
 	input++;
@@ -391,7 +391,10 @@ void CSys246::ProcessJvsPacket(const uint8* input, uint8* output)
 			inSize -= 3;
 
 			auto& coinCount = (slotCount == 1) ? m_coin1 : m_coin2;
-			coinCount = (coinCount + (amountMSB << 8) + amountLSB) & 0x3FFF;
+			if(processCoinCommands)
+			{
+				coinCount = (coinCount + (amountMSB << 8) + amountLSB) & 0x3FFF;
+			}
 
 			(*output++) = 0x01; //Command success
 
@@ -411,7 +414,11 @@ void CSys246::ProcessJvsPacket(const uint8* input, uint8* output)
 			inSize -= 3;
 
 			auto& coinCount = (slotCount == 1) ? m_coin1 : m_coin2;
-			coinCount = (coinCount - ((amountMSB << 8) + amountLSB)) & 0x3FFF;
+			if(processCoinCommands)
+			{
+				uint16 amount = (amountMSB << 8) + amountLSB;
+				coinCount = (amount > coinCount) ? 0 : coinCount - amount;
+			}
 
 			(*output++) = 0x01; //Command success
 
@@ -519,6 +526,37 @@ void CSys246::ProcessJvsPacket(const uint8* input, uint8* output)
 	}
 	FRAMEWORK_MAYBE_UNUSED uint8 inChecksum = (*input);
 	assert(inChecksum == (inWorkChecksum & 0xFF));
+}
+
+void CSys246::ProcessJvsRequests(const uint8* sendData, uint8* recvData, bool processCoinCommands)
+{
+	auto sendWords = reinterpret_cast<const uint16*>(sendData);
+	auto recvWords = reinterpret_cast<uint16*>(recvData);
+	bool primaryRequestChanged = (sendWords[0x0C] != recvWords[0x20]);
+	bool processPrimaryCoins = processCoinCommands && primaryRequestChanged;
+	bool processSecondaryCoins = processCoinCommands && (sendWords[0x0D] != recvWords[0x21]);
+	bool hasPollingPacket = (sendData[0x122] == JVS_SYNC);
+	//Taiko sends coin acknowledgements in the first packet while a polling
+	//packet is also present in the second slot. Neither may hide the other.
+	//Each slot has its own request ID: a completed acknowledgement can remain
+	//in the buffer while the other slot keeps polling for new input.
+	//With automatic polling enabled, the first slot is a one-shot request.
+	//Keep its completed reply until the next request instead of rewriting a
+	//coin acknowledgement's readback with coins inserted afterwards.
+	if(sendData[0x22] == JVS_SYNC && (!hasPollingPacket || primaryRequestChanged))
+	{
+		ProcessJvsPacket(sendData + 0x22, recvData + 0x5A, processPrimaryCoins);
+	}
+	if(hasPollingPacket)
+	{
+		ProcessJvsPacket(sendData + 0x122, recvData + 0x15A, processSecondaryCoins);
+	}
+	recvWords[0x20] = sendWords[0x0C];
+	recvWords[0x21] = sendWords[0x0D];
+	//The host advances this polling sequence every update. Taiko waits for
+	//the received sequence to change after acknowledging coins before it
+	//allows another acknowledgement, even when the request IDs stay fixed.
+	recvData[0x57] = sendData[0x1F];
 }
 
 void CSys246::SaveState(Framework::CZipArchiveWriter& archive) const
@@ -641,15 +679,13 @@ void CSys246::SetButtonState(unsigned int padNumber, PS2::CControllerInfo::BUTTO
 			uint16 pktId3 = sendData[0x08];
 			if(pktId != 0)
 			{
+				//This buffer is polled for every button. Apply counter changes only
+				//once per request, while still refreshing the switch input response.
+				bool processCoinCommands = (recvData[0x20] != pktId) ||
+				                           (recvData[0x21] != pktId2) ||
+				                           (recvData[0x14] != pktId3);
 				CLog::GetInstance().Warn(LOG_NAME, "PktId: 0x%04X\r\n", pktId);
-				if(reinterpret_cast<const uint8*>(sendData)[0x122] == JVS_SYNC)
-				{
-					ProcessJvsPacket(reinterpret_cast<const uint8*>(sendData) + 0x122, reinterpret_cast<uint8*>(recvData) + 0x15A);
-				}
-				else
-				{
-					ProcessJvsPacket(reinterpret_cast<const uint8*>(sendData) + 0x22, reinterpret_cast<uint8*>(recvData) + 0x5A);
-				}
+				ProcessJvsRequests(reinterpret_cast<const uint8*>(sendData), reinterpret_cast<uint8*>(recvData), processCoinCommands);
 				recvData[0x20] = pktId;
 				recvData[0x21] = pktId2;
 				recvData[0x14] = pktId3;
@@ -1044,7 +1080,6 @@ void CSys246::ProcessMemRequest(uint8* ram, uint32 infoPtr)
 		{
 			recvData[1] = 0x208;        //firmware version?
 			recvData[0x14] = rootPktId; //Xored with value at 0x10 in send packet, needs to be the same
-			recvData[0x21] = sendData[0x0D];
 
 			//Dipswitches (from https://www.arcade-projects.com/threads/yet-another-256-display-issue.2792/#post-37365):
 			//0x80 -> Test Mode
@@ -1061,14 +1096,7 @@ void CSys246::ProcessMemRequest(uint8* ram, uint32 infoPtr)
 			if(pktId != 0)
 			{
 				CLog::GetInstance().Warn(LOG_NAME, "PktId: 0x%04X\r\n", pktId);
-				if(reinterpret_cast<const uint8*>(sendData)[0x122] == JVS_SYNC)
-				{
-					ProcessJvsPacket(reinterpret_cast<const uint8*>(sendData) + 0x122, reinterpret_cast<uint8*>(recvData) + 0x15A);
-				}
-				else
-				{
-					ProcessJvsPacket(reinterpret_cast<const uint8*>(sendData) + 0x22, reinterpret_cast<uint8*>(recvData) + 0x5A);
-				}
+				ProcessJvsRequests(reinterpret_cast<const uint8*>(sendData), reinterpret_cast<uint8*>(recvData));
 				recvData[0x20] = pktId;
 			}
 			recvData[0x15] = 0x5210;
