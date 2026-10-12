@@ -20,7 +20,7 @@ class CPsfLoader
 public:
 	static void LoadPsf(CPsfVm&, const CPsfPathToken&, const fs::path&, CPsfBase::TagMap* = NULL);
 
-private:
+protected:
 	static void LoadPsx(CPsfVm&, const CPsfPathToken&, CPsfStreamProvider*, CPsfBase::TagMap* = NULL);
 	static void LoadPsxRecurse(CPsxBios*, CMIPS&, const CPsfPathToken&, CPsfStreamProvider*, CPsfBase::TagMap* = NULL);
 
