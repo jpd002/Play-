@@ -14,6 +14,11 @@ bool CVuBasicBlock::IsLinkable() const
 	return m_isLinkable;
 }
 
+void CVuBasicBlock::CopyLinkableFrom(const CVuBasicBlock& other)
+{
+	m_isLinkable = other.m_isLinkable;
+}
+
 void CVuBasicBlock::CompileRange(CMipsJitter* jitter)
 {
 	CompileProlog(jitter);
@@ -317,6 +322,14 @@ void CVuBasicBlock::CompileRange(CMipsJitter* jitter)
 		//Adjust pipeTime
 		relativePipeTime++;
 		instructionIndex++;
+
+		//Any branch in the delay slot can change where this block goes, ex.: Midnight Club
+		//(BAL in the delay slot of an IBNE). Links are set to the targets known when the
+		//block is partitioned, and would jump to the wrong block's code.
+		if((address == (m_end - 4)) && (arch->IsInstructionBranch(&m_context, addressLo, opcodeLo) != MIPS_BRANCH_NONE))
+		{
+			m_isLinkable = false;
+		}
 
 		//Handle some branch in delay slot situation (Star Ocean 3):
 		//B   $label1
