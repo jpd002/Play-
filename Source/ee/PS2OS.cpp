@@ -82,6 +82,7 @@
 #define SYSCALL_NAME_IDISABLEDMAC "osiDisableDmac"
 #define SYSCALL_NAME_ISETALARM "osiSetAlarm"
 #define SYSCALL_NAME_IRELEASEALARM "osiReleaseAlarm"
+#define SYSCALL_NAME_RELEASEALARM "osReleaseAlarm"
 #define SYSCALL_NAME_CREATETHREAD "osCreateThread"
 #define SYSCALL_NAME_DELETETHREAD "osDeleteThread"
 #define SYSCALL_NAME_STARTTHREAD "osStartThread"
@@ -149,6 +150,7 @@ const CPS2OS::SYSCALL_NAME CPS2OS::g_syscallNames[] =
 	{0x0016, SYSCALL_NAME_ENABLEDMAC},
 	{0x0017, SYSCALL_NAME_DISABLEDMAC},
 	{0x0018, SYSCALL_NAME_SETALARM},
+	{0x0019, SYSCALL_NAME_RELEASEALARM},
 	{0x001A, SYSCALL_NAME_IENABLEINTC},
 	{0x001B, SYSCALL_NAME_IDISABLEINTC},
 	{0x001C, SYSCALL_NAME_IENABLEDMAC},
@@ -1966,6 +1968,7 @@ void CPS2OS::sc_SetAlarm()
 	m_ee.m_State.nGPR[SC_RETURN].nD0 = alarmId;
 }
 
+//19
 //1F
 void CPS2OS::sc_ReleaseAlarm()
 {
@@ -3602,7 +3605,7 @@ CPS2OS::SystemCallHandler CPS2OS::m_sysCall[0x80] =
 	//0x10
 	&CPS2OS::sc_AddIntcHandler,		&CPS2OS::sc_RemoveIntcHandler,		&CPS2OS::sc_AddDmacHandler,			&CPS2OS::sc_RemoveDmacHandler,		&CPS2OS::sc_EnableIntc,			&CPS2OS::sc_DisableIntc,			&CPS2OS::sc_EnableDmac,			&CPS2OS::sc_DisableDmac,
 	//0x18
-	&CPS2OS::sc_SetAlarm,			&CPS2OS::sc_Unhandled,				&CPS2OS::sc_EnableIntc,				&CPS2OS::sc_DisableIntc,			&CPS2OS::sc_EnableDmac,			&CPS2OS::sc_DisableDmac,			&CPS2OS::sc_SetAlarm,			&CPS2OS::sc_ReleaseAlarm,
+	&CPS2OS::sc_SetAlarm,			&CPS2OS::sc_ReleaseAlarm,			&CPS2OS::sc_EnableIntc,				&CPS2OS::sc_DisableIntc,			&CPS2OS::sc_EnableDmac,			&CPS2OS::sc_DisableDmac,			&CPS2OS::sc_SetAlarm,			&CPS2OS::sc_ReleaseAlarm,
 	//0x20
 	&CPS2OS::sc_CreateThread,		&CPS2OS::sc_DeleteThread,			&CPS2OS::sc_StartThread,			&CPS2OS::sc_ExitThread,				&CPS2OS::sc_ExitDeleteThread,	&CPS2OS::sc_TerminateThread,		&CPS2OS::sc_Unhandled,			&CPS2OS::sc_Unhandled,
 	//0x28

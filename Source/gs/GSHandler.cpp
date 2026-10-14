@@ -515,7 +515,9 @@ void CGSHandler::WritePrivRegister(uint32 nAddress, uint32 nData)
 			//Some games (Soul Calibur 2, Crash Nitro Kart) will unmask interrupts
 			//right after starting a transfer that sets a SIGNAL... Let the
 			//interrupt go through even though it's not supposed to work that way
-			NotifyEvent(m_nCSR & 0x1F);
+			// Note: We previously re-asserted with 0x1F mask, however this breaks the MGS3 demo,
+			// as this causes FINISH events to be re-asserts which are expected to be masked
+			NotifyEvent(m_nCSR & 0x1);
 		}
 		break;
 	case GS_BUSDIR:
