@@ -9,8 +9,18 @@
 #import "CoverViewCell.h"
 #import "AltServerJitService.h"
 
+//iOS 26 JIT support, implemented in CodeGen's MemoryFunction.cpp. An executable
+//region can only be obtained from the attached debugger while its script is
+//still running, so it is requested as early as possible during launch.
+extern "C" void MemFunc_InitJitArena(void);
+extern "C" bool MemFunc_IsJitReady(void);
+
 static bool IsJitAvailable()
 {
+	//On iOS 26 an executable region can only come from the attached debugger,
+	//so having obtained one is the authoritative signal. The ppid check below
+	//doesn't detect debuggers that attach after launch (ie. StikDebug).
+	if(MemFunc_IsJitReady()) return true;
 	//If ppid != 1, it means we're being run in the debugger
 	if(getppid() != 1) return true;
 	if([[AltServerJitService sharedAltServerJitService] jitEnabled])
@@ -109,6 +119,10 @@ static NSString* const reuseIdentifier = @"coverCell";
 - (void)viewDidLoad
 {
 	[super viewDidLoad];
+
+	// Reserve + bless the JIT arena now, before any game is booted: the JIT
+	// script can only prepare regions while it is still attached.
+	MemFunc_InitJitArena();
 
 	CAGradientLayer* bgLayer = [BackgroundLayer blueGradient];
 	bgLayer.frame = self.view.bounds;
