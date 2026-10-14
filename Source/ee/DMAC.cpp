@@ -165,6 +165,21 @@ void CDMAC::SetChannelTransferFunction(unsigned int channel, const DmaReceiveHan
 	}
 }
 
+void CDMAC::SetChannelStartFunction(unsigned int channel, const Dmac::DmaStartHandler& handler)
+{
+	//Only the GIF needs this so far, and an unhandled channel is a wiring
+	//mistake rather than something to ignore.
+	switch(channel)
+	{
+	case CHANNEL_ID_GIF:
+		m_D2.SetStartHandler(handler);
+		break;
+	default:
+		assert(false);
+		break;
+	}
+}
+
 bool CDMAC::IsInterruptPending() const
 {
 	uint16 mask = static_cast<uint16>((m_D_STAT & 0x63FF0000) >> 16);
