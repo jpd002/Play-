@@ -74,8 +74,11 @@ arcaderoms/
 
 Some arcade specific actions are mapped to these buttons on the PS2 controller mappings:
 
-- Service/Coin: SELECT
+- Coin: SELECT (one coin per press, for the corresponding player's coin slot)
+- Service: L3
 - Test: L3 & R3 pressed at the same time
+
+Service remains available in test mode. Coin counters and coin button states are included in save states.
 
 ### Light Gun Support ###
 
