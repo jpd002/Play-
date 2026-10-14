@@ -21,7 +21,8 @@ using namespace Iop;
 #define STATE_STREAMPOS ("StreamPos")
 #define STATE_STREAMBUFFERSIZE ("StreamBufferSize")
 
-constexpr uint64 COMMAND_DEFAULT_DELAY = TimeUtils::UsecsToCycles(PS2::IOP_CLOCK_OVER_FREQ, 16666);
+constexpr uint64 COMMAND_DEFAULT_DELAY = TimeUtils::UsecsToCycles(PS2::IOP_CLOCK_OVER_FREQ, 16666);   // 16.666 ms
+constexpr uint64 COMMAND_DISK_READY_DELAY = TimeUtils::UsecsToCycles(PS2::IOP_CLOCK_OVER_FREQ, 1666); // 1.666 ms
 
 CCdvdfsv::CCdvdfsv(CSifMan& sif, CCdvdman& cdvdman, uint8* iopRam)
     : m_sifMan(sif)
@@ -551,7 +552,7 @@ bool CCdvdfsv::NDiskReady(uint32* args, uint32 argsSize, uint32* ret, uint32 ret
 	{
 		//Delay command (required by Downhill Domination)
 		m_pendingCommand = COMMAND_NDISKREADY;
-		m_pendingCommandDelay = COMMAND_DEFAULT_DELAY;
+		m_pendingCommandDelay = COMMAND_DISK_READY_DELAY;
 		ret[0x00] = 2;
 		return false;
 	}
