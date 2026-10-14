@@ -2881,6 +2881,15 @@ void CPS2OS::sc_GetCop0()
 void CPS2OS::sc_FlushCache()
 {
 	FRAMEWORK_MAYBE_UNUSED uint32 operationType = m_ee.m_State.nGPR[SC_PARAM0].nV[0];
+#ifdef __EMSCRIPTEN__
+	//There is no memory protection on WebAssembly (see CEeExecutor::SetMemoryProtected), so code a game
+	//loads over code that was already compiled (overlays loaded at stage start, for example) is never
+	//detected. Games must invalidate the instruction cache after loading code, use that as the signal.
+	if(operationType == 2)
+	{
+		m_ee.m_executor->ClearActiveBlocksInRange(0x100000, PS2::EE_RAM_SIZE, false);
+	}
+#endif
 }
 
 //70
