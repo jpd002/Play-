@@ -51,6 +51,12 @@ void CSH_OpenAL::Reset()
 
 void CSH_OpenAL::RecycleBuffers()
 {
+#ifdef __EMSCRIPTEN__
+	// In Emscripten, querying AL_SEC_OFFSET forces libopenal to update source playback time and increment bufsProcessed
+	float secOffset = 0.0f;
+	alGetSourcef(m_source, AL_SEC_OFFSET, &secOffset);
+#endif
+
 	unsigned int bufferCount = m_source.GetBuffersProcessed();
 	CHECK_AL_ERROR();
 	if(bufferCount != 0)
@@ -74,7 +80,8 @@ uint32 CSH_OpenAL::GetFreeBufferCount() const
 
 void CSH_OpenAL::Write(int16* samples, unsigned int sampleCount, unsigned int sampleRate)
 {
-	assert(m_availableBuffers.size() != 0);
+	RecycleBuffers();
+
 	if(m_availableBuffers.size() == 0) return;
 	ALuint buffer = *m_availableBuffers.begin();
 	m_availableBuffers.pop_front();

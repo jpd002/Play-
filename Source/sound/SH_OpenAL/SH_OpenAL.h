@@ -12,7 +12,7 @@ class CSH_OpenAL : public CSoundHandler
 public:
 	enum
 	{
-		MAX_BUFFERS = 25,
+		MAX_BUFFERS = 64,
 	};
 
 	CSH_OpenAL();
