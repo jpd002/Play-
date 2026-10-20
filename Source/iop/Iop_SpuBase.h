@@ -330,6 +330,8 @@ namespace Iop
 		private:
 			static constexpr int BUFFER_SAMPLES = 28;
 
+			static const uint16 g_gaussShuffledReverseTable[1024];
+
 			void SetParams(uint32, uint32);
 			void UnpackSamples(int16*);
 			void AdvanceBuffer();
@@ -346,7 +348,7 @@ namespace Iop
 			uint32 m_dstSamplingRate = 0;
 			uint32 m_nextSampleAddr = 0;
 			uint32 m_repeatAddr = 0;
-			int16 m_buffer[BUFFER_SAMPLES * 2];
+			int16 m_buffer[BUFFER_SAMPLES + 4];
 			uint16 m_pitch;
 			int32 m_s1;
 			int32 m_s2;
