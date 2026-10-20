@@ -2,17 +2,19 @@
 
 #include <deque>
 #include "../SoundHandler.h"
+#ifndef __EMSCRIPTEN__
 #include "openal/Device.h"
 #include "openal/Context.h"
 #include "openal/Source.h"
 #include "openal/Buffer.h"
+#endif
 
 class CSH_OpenAL : public CSoundHandler
 {
 public:
 	enum
 	{
-		MAX_BUFFERS = 25,
+		MAX_BUFFERS = 64,
 	};
 
 	CSH_OpenAL();
@@ -28,6 +30,7 @@ public:
 	uint32 GetFreeBufferCount() const;
 
 private:
+#ifndef __EMSCRIPTEN__
 	typedef std::deque<ALuint> BufferList;
 
 	OpenAl::CDevice m_device;
@@ -38,4 +41,5 @@ private:
 	uint64 m_lastUpdateTime;
 	bool m_mustSync;
 	ALuint m_bufferNames[MAX_BUFFERS];
+#endif
 };
