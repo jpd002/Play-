@@ -70,6 +70,8 @@ extern "C" JNIEXPORT jobjectArray Java_com_virtualapplications_play_BootablesInt
 
 	for(unsigned int i = 0; i < bootables.size(); i++)
 	{
+		env->PushLocalFrame(16);
+
 		const auto& bootable = bootables[i];
 		auto bootableJ = env->NewObject(bootableClassInfo.clazz, bootableClassInfo.init);
 
@@ -89,6 +91,8 @@ extern "C" JNIEXPORT jobjectArray Java_com_virtualapplications_play_BootablesInt
 		env->SetObjectField(bootableJ, bootableClassInfo.overview, overviewString);
 
 		env->SetObjectArrayElement(bootablesJ, i, bootableJ);
+
+		env->PopLocalFrame(NULL);
 	}
 
 	return bootablesJ;
