@@ -27,7 +27,7 @@ jobs:
     - name: Install Other Dependencies
       run: |
         sudo apt update
-        sudo apt install gcc-9 g++-9 libcurl4-openssl-dev libgl1-mesa-dev libglu1-mesa-dev libalut-dev libevdev-dev
+        sudo apt install build-essential libcurl4-openssl-dev libgl1-mesa-dev libglu1-mesa-dev libalut-dev libevdev-dev
         # The following packages are necessary for linuxdeployqt to work
         sudo apt install libfuse2 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-render-util0 libxcb-xinerama0
     - name: Checkout
@@ -53,9 +53,6 @@ jobs:
         mkdir build
         cd build
         cmake .. -G"Unix Makefiles" -DCMAKE_INSTALL_PREFIX=./appdir/usr -DBUILD_LIBRETRO_CORE=yes -DBUILD_PSFPLAYER=yes
-      env:
-        CC: "gcc-9"
-        CXX: "g++-9"
     - name: Build
       run: |
         cd build
