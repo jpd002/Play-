@@ -31,7 +31,7 @@ jobs:
       run: |
         cd $GITHUB_WORKSPACE/deps/CodeGen/js
         npm install
-        tsc
+        npx tsc
         cd $GITHUB_WORKSPACE/build_cmake/build/wasm-ninja/Source/ui_js/Source/CodeGen/Release
         node $GITHUB_WORKSPACE/deps/CodeGen/js/out/index.js
     - name: Build Play Browser
