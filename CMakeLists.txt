@@ -15,6 +15,13 @@ set(CMAKE_MODULE_PATH
 )
 include(Header)
 
+if(EMSCRIPTEN)
+	#Native wasm exception handling (Header adds -fexceptions, JS-based: every call that may throw from a
+	#frame with cleanups goes through a JS invoke_* trampoline). -fwasm-exceptions takes precedence over it.
+	add_compile_options(-fwasm-exceptions)
+	add_link_options(-fwasm-exceptions)
+endif()
+
 set(BUILD_PLAY ON CACHE BOOL "Build Play! Emulator")
 set(BUILD_PSFPLAYER OFF CACHE BOOL "Build PsfPlayer")
 set(BUILD_TESTS ON CACHE BOOL "Build Tests")
