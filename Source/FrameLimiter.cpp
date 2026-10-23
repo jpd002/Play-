@@ -32,6 +32,12 @@ void CFrameLimiter::BeginFrame()
 void CFrameLimiter::EndFrame()
 {
 	assert(m_frameStarted);
+#if defined(__EMSCRIPTEN__)
+	// On Emscripten, frame pacing is driven by WebGL presentation and browser requestAnimationFrame.
+	// Sleeping in WebAssembly workers introduces 15ms+ scheduling latencies and causes severe audio/video stutter.
+	m_frameStarted = false;
+	return;
+#endif
 
 	//Add current frame time to array
 	{
