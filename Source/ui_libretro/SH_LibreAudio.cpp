@@ -11,21 +11,33 @@ CSoundHandler* CSH_LibreAudio::HandlerFactory()
 	return new CSH_LibreAudio();
 }
 
+//The emulator writes on its own thread, and the frontend collects once a frame:
+//queue what was written in between, so a block that arrives before the last one
+//was collected is not lost. Hold no more than half a second, should the frontend
+//stop collecting.
+static const size_t MAX_QUEUED_SAMPLES = 44100;
+
 void CSH_LibreAudio::Write(int16* buffer, unsigned int sampleCount, unsigned int sampleRate)
 {
 	std::lock_guard<std::mutex> lock(m_buffer_lock);
-	m_buffer.resize(sampleCount * sizeof(int16));
-	memcpy(m_buffer.data(), buffer, sampleCount * sizeof(int16));
+	if(m_buffer.size() + sampleCount > MAX_QUEUED_SAMPLES)
+	{
+		m_buffer.clear();
+	}
+	m_buffer.insert(m_buffer.end(), buffer, buffer + sampleCount);
 }
 
 void CSH_LibreAudio::ProcessBuffer()
 {
-	if(!m_buffer.empty())
+	std::vector<int16> samples;
 	{
 		std::lock_guard<std::mutex> lock(m_buffer_lock);
-		if(g_set_audio_sample_batch_cb)
-			g_set_audio_sample_batch_cb(m_buffer.data(), m_buffer.size() / (2 * sizeof(int16)));
-		m_buffer.clear();
+		samples.swap(m_buffer);
+	}
+	if(!samples.empty() && g_set_audio_sample_batch_cb)
+	{
+		//Stereo: two samples to a frame
+		g_set_audio_sample_batch_cb(samples.data(), samples.size() / 2);
 	}
 }
 
