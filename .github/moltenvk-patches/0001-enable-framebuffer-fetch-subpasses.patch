@@ -1,0 +1,27 @@
+From: Play! iOS build
+Subject: [PATCH] SPIRVToMSLConverter: enable use_framebuffer_fetch_subpasses
+
+Stock MoltenVK lowers subpassLoad() to a texture read of the very attachment
+the render pass is drawing into. On Apple tile-based hardware that is undefined:
+the values just written are still in tile memory, not in the texture. MoltenVK's
+own source carries a TODO to use framebuffer fetch here instead, and DolphiniOS
+ships this same one-line change.
+
+Play!'s CDrawMobile renders through an Unswizzle -> Draw -> Store subpass chain
+in which the colour and depth attachments are both colour AND input attachments,
+read back on every single draw, so it depends on this being tile-local.
+---
+ MoltenVKShaderConverter/MoltenVKShaderConverter/SPIRVToMSLConverter.cpp | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/MoltenVKShaderConverter/MoltenVKShaderConverter/SPIRVToMSLConverter.cpp b/MoltenVKShaderConverter/MoltenVKShaderConverter/SPIRVToMSLConverter.cpp
+--- a/MoltenVKShaderConverter/MoltenVKShaderConverter/SPIRVToMSLConverter.cpp
++++ b/MoltenVKShaderConverter/MoltenVKShaderConverter/SPIRVToMSLConverter.cpp
+@@ -89,6 +89,7 @@ MVK_PUBLIC_SYMBOL SPIRVToMSLConversionOptions::SPIRVToMSLConversionOptions() {
+ #endif
+ 
+ 	mslOptions.pad_fragment_output_components = true;
++	mslOptions.use_framebuffer_fetch_subpasses = true;
+ }
+ 
+ MVK_PUBLIC_SYMBOL bool mvk::MSLShaderInterfaceVariable::matches(const mvk::MSLShaderInterfaceVariable& other) const {
