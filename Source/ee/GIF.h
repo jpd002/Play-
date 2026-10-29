@@ -26,6 +26,14 @@ public:
 
 	enum
 	{
+		//How long OPH and APATH3 keep reading as active after a PATH3 transfer
+		//starts. Games poll GIF_STAT immediately after kicking the DMA, so this
+		//only has to outlive a few instructions.
+		PATH3_XFER_ACTIVE_TICKS = 0x100,
+	};
+
+	enum
+	{
 		REGS_START = 0x10003000,
 		REGS_END = 0x100030B0,
 
@@ -65,6 +73,11 @@ public:
 
 	uint32 GetActivePath() const;
 	void SetPath3Masked(bool);
+
+	//The DMAC calls this when the GIF channel is started. Hardware raises OPH
+	//when the transfer begins, not when the first packet lands, and some games
+	//depend on the difference — see the comment on the implementation.
+	void NotifyPath3XferStart();
 
 	void LoadState(Framework::CZipArchiveReader&);
 	void SaveState(Framework::CZipArchiveWriter&);

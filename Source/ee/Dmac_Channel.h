@@ -12,6 +12,12 @@ namespace Dmac
 {
 	typedef std::function<uint32(uint32, uint32, uint32, bool)> DmaReceiveHandler;
 
+	//Called when a channel's STR bit is written to 1, before any data moves.
+	//The receive handler cannot stand in for this: a chain whose first tag
+	//carries no data never reaches it, and a device that reports "transfer in
+	//progress" to the guest has to report it from the moment the DMAC starts.
+	typedef std::function<void()> DmaStartHandler;
+
 	class CChannel
 	{
 	public:
@@ -79,6 +85,7 @@ namespace Dmac
 		void ExecuteSourceChain();
 		void ExecuteDestinationChain();
 		void SetReceiveHandler(const DmaReceiveHandler&);
+		void SetStartHandler(const DmaStartHandler&);
 
 		CHCR m_CHCR;
 		uint32 m_nMADR;
@@ -99,6 +106,7 @@ namespace Dmac
 		CDMAC& m_dmac;
 		unsigned int m_number = 0;
 		DmaReceiveHandler m_receive;
+		DmaStartHandler m_start;
 		uint32 m_nSCCTRL;
 	};
 };
