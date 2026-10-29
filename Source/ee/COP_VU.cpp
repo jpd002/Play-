@@ -105,7 +105,22 @@ void CCOP_VU::LQC2()
 		}
 		else
 		{
-			m_codeGen->Break();
+			//No 128-bit call operands (wasm): read the quad as 4 words
+			ComputeMemAccessAddrNoXlat();
+			m_codeGen->PushCst(~0x0F);
+			m_codeGen->And();
+
+			for(uint32 i = 0; i < 4; i++)
+			{
+				m_codeGen->PushCtx();
+				m_codeGen->PushIdx(1);
+				m_codeGen->PushCst(i * 4);
+				m_codeGen->Add();
+				m_codeGen->Call(reinterpret_cast<void*>(&MemoryUtils_GetWordProxy), 2, Jitter::CJitter::RETURN_VALUE_32);
+				m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2[m_nFT].nV[i]));
+			}
+
+			m_codeGen->PullTop();
 		}
 	}
 	m_codeGen->EndIf();
@@ -139,7 +154,23 @@ void CCOP_VU::SQC2()
 		}
 		else
 		{
-			m_codeGen->Break();
+			//No 128-bit call operands (wasm): write the quad as 4 words (also the path for
+			//write-protected EE code pages, which have no direct write mapping)
+			ComputeMemAccessAddrNoXlat();
+			m_codeGen->PushCst(~0x0F);
+			m_codeGen->And();
+
+			for(uint32 i = 0; i < 4; i++)
+			{
+				m_codeGen->PushCtx();
+				m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2[m_nFT].nV[i]));
+				m_codeGen->PushIdx(2);
+				m_codeGen->PushCst(i * 4);
+				m_codeGen->Add();
+				m_codeGen->Call(reinterpret_cast<void*>(&MemoryUtils_SetWordProxy), 3, Jitter::CJitter::RETURN_VALUE_NONE);
+			}
+
+			m_codeGen->PullTop();
 		}
 	}
 	m_codeGen->EndIf();
