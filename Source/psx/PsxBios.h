@@ -123,15 +123,27 @@ private:
 	void AssembleInterruptHandler();
 	void AssembleEventChecker();
 
+	int malloc_heap_grow(uint32 size);
+
 	//A0
 	void sc_setjmp();
 	void sc_longjmp();
+	void sc_strcat();
+	void sc_strncat();
+	void sc_strcmp();
+	void sc_strncmp();
 	void sc_strcpy();
+	void sc_strncpy();
+	void sc_strlen();
 	void sc_bzero();
 	void sc_memcpy();
 	void sc_memset();
 	void sc_rand();
 	void sc_srand();
+	void sc_malloc();
+	void sc_free();
+	void sc_calloc();
+	void sc_realloc();
 	void sc_InitHeap();
 	void sc_printf();
 	void sc_FlushCache();

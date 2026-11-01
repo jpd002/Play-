@@ -13,6 +13,7 @@
 #define SC_PARAM2 (CMIPS::A2)
 #define SC_PARAM3 (CMIPS::A3)
 #define SC_RETURN (CMIPS::V0)
+#define SC_RETURN1 (CMIPS::V1)
 
 using namespace Iop;
 
@@ -33,6 +34,13 @@ using namespace Iop;
 #define HEAP_START (C0_EXCEPTIONHANDLER_BEGIN + C0_EXCEPTIONHANDLER_SIZE)
 #define HEAP_SIZE (0x2000)
 #define BIOS_MEMORY_END (HEAP_START + HEAP_SIZE)
+
+#define A_HEAP_BASE (0x9000)
+#define A_HEAP_SIZE (0x9004)
+#define A_HEAP_END (0x9008)
+#define A_HEAP_INIT_FLG (0x900c)
+#define A_HEAP_FRSTCHNK (0xb060)
+#define A_HEAP_CURCHNK (0xb064)
 
 CPsxBios::CPsxBios(CMIPS& cpu, uint8* ram, uint32 ramSize)
     : m_cpu(cpu)
@@ -501,10 +509,42 @@ void CPsxBios::DisassembleSyscall(uint32 searchAddress)
 			                          m_cpu.m_State.nGPR[SC_PARAM0].nV0,
 			                          m_cpu.m_State.nGPR[SC_PARAM1].nV0);
 			break;
+		case 0x15:
+			CLog::GetInstance().Print(LOG_NAME, "strcat(dst = 0x%0.8X, src = 0x%0.8X);\r\n",
+			                          m_cpu.m_State.nGPR[SC_PARAM0].nV0,
+			                          m_cpu.m_State.nGPR[SC_PARAM1].nV0);
+			break;
+		case 0x16:
+			CLog::GetInstance().Print(LOG_NAME, "strncat(dst = 0x%0.8X, src = 0x%0.8X, n = %d);\r\n",
+			                          m_cpu.m_State.nGPR[SC_PARAM0].nV0,
+			                          m_cpu.m_State.nGPR[SC_PARAM1].nV0,
+			                          m_cpu.m_State.nGPR[SC_PARAM2].nV0);
+			break;
+		case 0x17:
+			CLog::GetInstance().Print(LOG_NAME, "strcmp(str0 = 0x%0.8X, str1 = 0x%0.8X);\r\n",
+			                          m_cpu.m_State.nGPR[SC_PARAM0].nV0,
+			                          m_cpu.m_State.nGPR[SC_PARAM1].nV0);
+			break;
+		case 0x18:
+			CLog::GetInstance().Print(LOG_NAME, "strncmp(str0 = 0x%0.8X, str1 = 0x%0.8X, n = %d);\r\n",
+			                          m_cpu.m_State.nGPR[SC_PARAM0].nV0,
+			                          m_cpu.m_State.nGPR[SC_PARAM1].nV0,
+			                          m_cpu.m_State.nGPR[SC_PARAM2].nV0);
+			break;
 		case 0x19:
 			CLog::GetInstance().Print(LOG_NAME, "strcpy(dst = 0x%0.8X, src = 0x%0.8X);\r\n",
 			                          m_cpu.m_State.nGPR[SC_PARAM0].nV0,
 			                          m_cpu.m_State.nGPR[SC_PARAM1].nV0);
+			break;
+		case 0x1A:
+			CLog::GetInstance().Print(LOG_NAME, "strncpy(dst = 0x%0.8X, src = 0x%0.8X, n = %d);\r\n",
+			                          m_cpu.m_State.nGPR[SC_PARAM0].nV0,
+			                          m_cpu.m_State.nGPR[SC_PARAM1].nV0,
+			                          m_cpu.m_State.nGPR[SC_PARAM2].nV0);
+			break;
+		case 0x1B:
+			CLog::GetInstance().Print(LOG_NAME, "strlen(str = 0x%0.8X);\r\n",
+			                          m_cpu.m_State.nGPR[SC_PARAM0].nV0);
 			break;
 		case 0x28:
 			CLog::GetInstance().Print(LOG_NAME, "bzero(address = 0x%0.8X, length = 0x%x);\r\n",
@@ -529,6 +569,24 @@ void CPsxBios::DisassembleSyscall(uint32 searchAddress)
 		case 0x30:
 			CLog::GetInstance().Print(LOG_NAME, "srand(seed = %d);\r\n",
 			                          m_cpu.m_State.nGPR[SC_PARAM0].nV0);
+			break;
+		case 0x33:
+			CLog::GetInstance().Print(LOG_NAME, "malloc(size = 0x%0.8X);\r\n",
+			                          m_cpu.m_State.nGPR[SC_PARAM0].nV0);
+			break;
+		case 0x34:
+			CLog::GetInstance().Print(LOG_NAME, "free(address = 0x%0.8X);\r\n",
+			                          m_cpu.m_State.nGPR[SC_PARAM0].nV0);
+			break;
+		case 0x37:
+			CLog::GetInstance().Print(LOG_NAME, "calloc(size = 0x%0.8X, count = 0x%0.8X);\r\n",
+			                          m_cpu.m_State.nGPR[SC_PARAM0].nV0,
+			                          m_cpu.m_State.nGPR[SC_PARAM1].nV0);
+			break;
+		case 0x38:
+			CLog::GetInstance().Print(LOG_NAME, "realloc(address = 0x%0.8X, size = 0x%0.8X);\r\n",
+			                          m_cpu.m_State.nGPR[SC_PARAM0].nV0,
+			                          m_cpu.m_State.nGPR[SC_PARAM1].nV0);
 			break;
 		case 0x39:
 			CLog::GetInstance().Print(LOG_NAME, "InitHeap(block = 0x%0.8X, n = 0x%0.8X);\r\n",
@@ -731,17 +789,231 @@ void CPsxBios::sc_longjmp()
 	LongJump(buffer, value);
 }
 
+//A0 - 15
+void CPsxBios::sc_strcat()
+{
+	uint32 a0 = m_cpu.m_State.nGPR[SC_PARAM0].nV0;
+	uint32 a1 = m_cpu.m_State.nGPR[SC_PARAM1].nV0;
+
+	if(a0 == 0 || a1 == 0)
+	{
+		m_cpu.m_State.nGPR[SC_RETURN].nV0 = 0;
+		return;
+	}
+
+	uint32 dst = m_cpu.m_pAddrTranslator(&m_cpu, a0);
+	uint32 src = m_cpu.m_pAddrTranslator(&m_cpu, a1);
+
+	strcat(
+		reinterpret_cast<char*>(m_ram + dst),
+		reinterpret_cast<char*>(m_ram + src));
+
+	m_cpu.m_State.nGPR[SC_PARAM1].nV0 += strlen(
+		reinterpret_cast<char*>(m_ram + src));
+
+	m_cpu.m_State.nGPR[SC_RETURN].nV0 = dst;
+}
+
+//A0 - 16
+void CPsxBios::sc_strncat()
+{
+	uint32 a0 = m_cpu.m_State.nGPR[SC_PARAM0].nV0;
+	uint32 a1 = m_cpu.m_State.nGPR[SC_PARAM1].nV0;
+
+	if(a0 == 0 || a1 == 0)
+	{
+		m_cpu.m_State.nGPR[SC_RETURN].nV0 = 0;
+		return;
+	}
+
+	uint32 dst = m_cpu.m_pAddrTranslator(&m_cpu, a0);
+	uint32 src = m_cpu.m_pAddrTranslator(&m_cpu, a1);
+	uint32 n   = m_cpu.m_State.nGPR[SC_PARAM2].nV0;
+
+	char* dstptr = reinterpret_cast<char*>(m_ram + dst);
+	char* srcptr = reinterpret_cast<char*>(m_ram + src);
+
+	for(; *dstptr; dstptr++);
+
+	for(; n-- > 0 && *srcptr;)
+	{
+		*dstptr++ = *srcptr++;
+		a1++;
+	}
+
+	m_cpu.m_State.nGPR[SC_PARAM1].nV0 = a1;
+	m_cpu.m_State.nGPR[SC_RETURN].nV0 = dst;
+}
+
+//A0 - 17
+void CPsxBios::sc_strcmp()
+{
+	uint32 a0 = m_cpu.m_State.nGPR[SC_PARAM0].nV0;
+	uint32 a1 = m_cpu.m_State.nGPR[SC_PARAM1].nV0;
+
+	if(a0 == 0 && a1 == 0)
+	{
+		m_cpu.m_State.nGPR[SC_RETURN].nV0 = 0;
+		return;
+	}
+	else if(a0 == 0 && a1 != 0)
+	{
+		m_cpu.m_State.nGPR[SC_RETURN].nV0 = -1;
+		return;
+	}
+	else if(a0 != 0 && a1 == 0)
+	{
+		m_cpu.m_State.nGPR[SC_RETURN].nV0 = 1;
+		return;
+	}
+
+	a0 = m_cpu.m_pAddrTranslator(&m_cpu, a0);
+	a1 = m_cpu.m_pAddrTranslator(&m_cpu, a1);
+
+	const char* p1 = reinterpret_cast<const char*>(m_ram + a0);
+	const char* p2 = reinterpret_cast<const char*>(m_ram + a1);
+	uint32 n = 0;
+
+	while (*p1 == *p2++)
+	{
+		n++;
+		if (*p1++ == '\0')
+		{
+			m_cpu.m_State.nGPR[SC_RETURN1].nV0 = n - 1;
+			m_cpu.m_State.nGPR[SC_PARAM0].nV0 += n;
+			m_cpu.m_State.nGPR[SC_PARAM1].nV0 += n;
+			m_cpu.m_State.nGPR[SC_RETURN].nV0 = 0;
+			return;
+		}
+	}
+
+	m_cpu.m_State.nGPR[SC_RETURN].nV0 = (*p1 - *--p2);
+	m_cpu.m_State.nGPR[SC_RETURN1].nV0 = n;
+	m_cpu.m_State.nGPR[SC_PARAM0].nV0 += n;
+	m_cpu.m_State.nGPR[SC_PARAM1].nV0 += n;
+}
+
+//A0 - 18
+void CPsxBios::sc_strncmp()
+{
+	uint32 a0 = m_cpu.m_State.nGPR[SC_PARAM0].nV0;
+	uint32 a1 = m_cpu.m_State.nGPR[SC_PARAM1].nV0;
+
+	if(a0 == 0 && a1 == 0)
+	{
+		m_cpu.m_State.nGPR[SC_RETURN].nV0 = 0;
+		return;
+	}
+	else if(a0 == 0 && a1 != 0)
+	{
+		m_cpu.m_State.nGPR[SC_RETURN].nV0 = -1;
+		return;
+	}
+	else if(a0 != 0 && a1 == 0)
+	{
+		m_cpu.m_State.nGPR[SC_RETURN].nV0 = 1;
+		return;
+	}
+
+	a0 = m_cpu.m_pAddrTranslator(&m_cpu, a0);
+	a1 = m_cpu.m_pAddrTranslator(&m_cpu, a1);
+
+	const char* p1 = reinterpret_cast<const char*>(m_ram + a0);
+	const char* p2 = reinterpret_cast<const char*>(m_ram + a1);
+	int32 a2 = m_cpu.m_State.nGPR[SC_PARAM2].nV0;
+	int32 n = a2;
+
+	while (--n >= 0 && *p1 == *p2++)
+	{
+		if (*p1++ == '\0')
+		{
+			m_cpu.m_State.nGPR[SC_RETURN].nV0 = 0;
+			m_cpu.m_State.nGPR[SC_RETURN1].nV0 = a2 - ((a2-n) - 1);
+			m_cpu.m_State.nGPR[SC_PARAM0].nV0 += (a2-n) - 1;
+			m_cpu.m_State.nGPR[SC_PARAM1].nV0 += (a2-n) - 1;
+			m_cpu.m_State.nGPR[SC_PARAM2].nV0 = n;
+			return;
+		}
+	}
+
+	m_cpu.m_State.nGPR[SC_RETURN].nV0 = (n < 0 ? 0 : *p1 - *--p2);
+	m_cpu.m_State.nGPR[SC_RETURN1].nV0 = a2 - ((a2-n) - 1);
+	m_cpu.m_State.nGPR[SC_PARAM0].nV0 += (a2-n) - 1;
+	m_cpu.m_State.nGPR[SC_PARAM1].nV0 += (a2-n) - 1;
+	m_cpu.m_State.nGPR[SC_PARAM2].nV0 = n;
+}
+
 //A0 - 19
 void CPsxBios::sc_strcpy()
 {
-	uint32 dst = m_cpu.m_pAddrTranslator(&m_cpu, m_cpu.m_State.nGPR[SC_PARAM0].nV0);
-	uint32 src = m_cpu.m_pAddrTranslator(&m_cpu, m_cpu.m_State.nGPR[SC_PARAM1].nV0);
+	uint32 a0 = m_cpu.m_State.nGPR[SC_PARAM0].nV0;
+	uint32 a1 = m_cpu.m_State.nGPR[SC_PARAM1].nV0;
+
+	if(a0 == 0 || a1 == 0)
+	{
+		m_cpu.m_State.nGPR[SC_RETURN].nV0 = 0;
+		return;
+	}
+
+	uint32 dst = m_cpu.m_pAddrTranslator(&m_cpu, a0);
+	uint32 src = m_cpu.m_pAddrTranslator(&m_cpu, a1);
 
 	strcpy(
 	    reinterpret_cast<char*>(m_ram + dst),
 	    reinterpret_cast<char*>(m_ram + src));
 
-	m_cpu.m_State.nGPR[SC_RETURN].nV0 = dst;
+	m_cpu.m_State.nGPR[SC_RETURN].nV0 = a0;
+}
+
+//A0 - 1A
+void CPsxBios::sc_strncpy()
+{
+	uint32 a0 = m_cpu.m_State.nGPR[SC_PARAM0].nV0;
+	uint32 a1 = m_cpu.m_State.nGPR[SC_PARAM1].nV0;
+
+	if(a0 == 0 || a1 == 0)
+	{
+		m_cpu.m_State.nGPR[SC_RETURN].nV0 = 0;
+		return;
+	}
+
+	uint32 dst = m_cpu.m_pAddrTranslator(&m_cpu, a0);
+	uint32 src = m_cpu.m_pAddrTranslator(&m_cpu, a1);
+	uint32 n   = m_cpu.m_State.nGPR[SC_PARAM2].nV0;
+
+	char* p1 = reinterpret_cast<char*>(m_ram + dst);
+	const char* p2 = reinterpret_cast<const char*>(m_ram + src);
+	uint32 i;
+
+	for (i = 0; i < n; i++) {
+		if ((*p1++ = *p2++) == '\0') {
+			while (++i < n) {
+				*p1++ = '\0';
+			}
+			m_cpu.m_State.nGPR[SC_RETURN].nV0 = a0;
+			return;
+		}
+	}
+
+	m_cpu.m_State.nGPR[SC_RETURN].nV0 = a0;
+}
+
+//A0 - 1B
+void CPsxBios::sc_strlen()
+{
+	uint32 a0 = m_cpu.m_State.nGPR[SC_PARAM0].nV0;
+
+	if(a0 == 0)
+	{
+		m_cpu.m_State.nGPR[SC_RETURN].nV0 = 0;
+		return;
+	}
+
+	uint32 src = m_cpu.m_pAddrTranslator(&m_cpu, a0);
+
+	const char* srcptr = reinterpret_cast<const char*>(m_ram + src);
+
+	m_cpu.m_State.nGPR[SC_RETURN].nV0 = strlen(srcptr);
 }
 
 //A0 - 28
@@ -796,11 +1068,183 @@ void CPsxBios::sc_srand()
 	srand(seed);
 }
 
+int CPsxBios::malloc_heap_grow(uint32 size) {
+	uint32 heap_addr, heap_end, heap_addr_new;
+
+	heap_addr = *(reinterpret_cast<uint32*>(m_ram + A_HEAP_BASE));
+	heap_end = *(reinterpret_cast<uint32*>(m_ram + A_HEAP_END));
+	heap_addr_new = heap_addr + size + 4;
+	if (heap_addr_new >= heap_end)
+		return -1;
+	*(reinterpret_cast<uint32*>(m_ram + A_HEAP_BASE)) = heap_addr_new;
+	heap_addr = m_cpu.m_pAddrTranslator(&m_cpu, heap_addr);
+	*(reinterpret_cast<uint32*>(m_ram + heap_addr - 4)) = size | 1;
+	*(reinterpret_cast<uint32*>(m_ram + heap_addr + size)) = ~1; // terminator
+	return 0;
+}
+
+//A0 - 33
+void CPsxBios::sc_malloc()
+{
+	uint32 a0 = m_cpu.m_State.nGPR[SC_PARAM0].nV0;
+
+	uint32 size = (a0 + 3) & ~3;
+	uint32 limit = 32*1024;
+	uint32 tries = 2, i;
+	uint32 ret;
+
+	if (!*(reinterpret_cast<uint32*>(m_ram + A_HEAP_INIT_FLG))) {
+		uint32 raw_heap_addr = *(reinterpret_cast<uint32*>(m_ram + A_HEAP_BASE));
+		uint32 heap_addr = m_cpu.m_pAddrTranslator(&m_cpu, raw_heap_addr);
+		*(reinterpret_cast<uint32*>(m_ram + heap_addr)) = ~1;
+		*(reinterpret_cast<uint32*>(m_ram + A_HEAP_FRSTCHNK)) = raw_heap_addr;
+		*(reinterpret_cast<uint32*>(m_ram + A_HEAP_CURCHNK)) = raw_heap_addr;
+		*(reinterpret_cast<uint32*>(m_ram + A_HEAP_BASE)) = raw_heap_addr + 4;
+		if (malloc_heap_grow(size)) {
+			CLog::GetInstance().Print(LOG_NAME, "malloc: init OOM\r\n");
+			m_cpu.m_State.nGPR[SC_RETURN].nV0 = 0;
+			return;
+		}
+		*(reinterpret_cast<uint32*>(m_ram + A_HEAP_INIT_FLG)) = 1;
+	}
+
+	for (i = 0; tries > 0 && i < limit; i++)
+	{
+		uint32 raw_chunk = *(reinterpret_cast<uint32*>(m_ram + A_HEAP_CURCHNK));
+		uint32 chunk = m_cpu.m_pAddrTranslator(&m_cpu, raw_chunk);
+		uint32 chunk_hdr = *(reinterpret_cast<uint32*>(m_ram + chunk));
+		uint32 next_chunk = chunk + 4 + (chunk_hdr & ~3);
+		uint32 raw_next_chunk = raw_chunk + 4 + (chunk_hdr & ~3);
+		uint32 next_chunk_hdr = *(reinterpret_cast<uint32*>(m_ram + next_chunk));
+		if (chunk_hdr & 1) {
+			// free chunk
+			if (chunk_hdr > (size | 1)) {
+				// split
+				uint32 p2size = (chunk_hdr & ~3) - size - 4;
+				*(reinterpret_cast<uint32*>(m_ram + chunk + 4 + size)) = p2size | 1;
+				chunk_hdr = size | 1;
+			}
+			if (chunk_hdr == (size | 1)) {
+				*(reinterpret_cast<uint32*>(m_ram + chunk)) = size;
+				break;
+			}
+			// chunk too small
+			if (next_chunk_hdr == ~1) {
+				// rm useless last free block
+				*(reinterpret_cast<uint32*>(m_ram + A_HEAP_BASE)) = raw_chunk + 4;
+				*(reinterpret_cast<uint32*>(m_ram + chunk)) = ~1;
+				continue;
+			}
+			if (next_chunk_hdr & 1) {
+				// merge
+				uint32 msize = (chunk_hdr & ~3) + 4 + (next_chunk_hdr & ~3);
+				*(reinterpret_cast<uint32*>(m_ram + chunk)) = msize | 1;
+				continue;
+			}
+		}
+		if (chunk_hdr == ~1) {
+			// last chunk
+			if (tries == 2)
+				*(reinterpret_cast<uint32*>(m_ram + A_HEAP_CURCHNK)) =
+					*(reinterpret_cast<uint32*>(m_ram + A_HEAP_FRSTCHNK));
+			tries--;
+		}
+		else {
+			// go to the next chunk
+			*(reinterpret_cast<uint32*>(m_ram + A_HEAP_CURCHNK)) = raw_next_chunk;
+		}
+	}
+
+	if (i == limit) {
+		CLog::GetInstance().Print(LOG_NAME, "malloc: limit OOM\r\n");
+		ret = 0;
+	}
+	else if (tries == 0 && malloc_heap_grow(size)) {
+		CLog::GetInstance().Print(LOG_NAME, "malloc: grow OOM s=%d end=0x%0.8X/0x%0.8X\r\n",
+			size, *(reinterpret_cast<uint32*>(m_ram + A_HEAP_BASE)),
+			*(reinterpret_cast<uint32*>(m_ram + A_HEAP_END)));
+		ret = 0;
+	}
+	else {
+		uint32 raw_chunk = *(reinterpret_cast<uint32*>(m_ram + A_HEAP_CURCHNK));
+		uint32 chunk = m_cpu.m_pAddrTranslator(&m_cpu, raw_chunk);
+		*(reinterpret_cast<uint32*>(m_ram + chunk)) =
+			*(reinterpret_cast<uint32*>(m_ram + chunk)) & ~3;
+		ret = raw_chunk + 4;
+	}
+
+	m_cpu.m_State.nGPR[SC_RETURN].nV0 = ret;
+}
+
+//A0 - 34
+void CPsxBios::sc_free()
+{
+	uint32 a0 = m_cpu.m_pAddrTranslator(&m_cpu, m_cpu.m_State.nGPR[SC_PARAM0].nV0);
+	*(reinterpret_cast<uint32*>(m_ram + a0 - 4)) =
+		*(reinterpret_cast<uint32*>(m_ram + a0 - 4)) | 1;
+}
+
+//A0 - 37
+void CPsxBios::sc_calloc()
+{
+	uint32 a0 = m_cpu.m_State.nGPR[SC_PARAM0].nV0;
+	uint32 a1 = m_cpu.m_State.nGPR[SC_PARAM1].nV0;
+
+	uint32 size = a0 * a1;
+
+	m_cpu.m_State.nGPR[SC_PARAM0].nV0 = size;
+	sc_malloc();
+	uint32 ret = m_cpu.m_State.nGPR[SC_RETURN].nV0;
+	if(ret)
+	{
+		m_cpu.m_State.nGPR[SC_PARAM0].nV0 = ret;
+		m_cpu.m_State.nGPR[SC_PARAM1].nV0 = size;
+		sc_bzero();
+	}
+	m_cpu.m_State.nGPR[SC_RETURN].nV0 = ret;
+}
+
+//A0 - 38
+void CPsxBios::sc_realloc()
+{
+	uint32 raw_block = m_cpu.m_State.nGPR[SC_PARAM0].nV0;
+	uint32 size = m_cpu.m_State.nGPR[SC_PARAM1].nV0;
+
+	m_cpu.m_State.nGPR[SC_PARAM0].nV0 = raw_block;
+	/* If "old_buf" is zero, executes malloc(new_size), and returns r2=new_buf (or 0=failed). */
+	if (raw_block == 0)
+	{
+		m_cpu.m_State.nGPR[SC_PARAM0].nV0 = size;
+		sc_malloc();
+	}
+	/* Else, if "new_size" is zero, executes free(old_buf), and returns r2=garbage. */
+	else if (size == 0)
+	{
+		sc_free();
+	}
+	/* Else, executes malloc(new_size), bcopy(old_buf,new_buf,new_size), and free(old_buf), and returns r2=new_buf (or 0=failed). */
+	/* Note that it is not quite implemented this way here. */
+	else
+	{
+		sc_free();
+		m_cpu.m_State.nGPR[SC_PARAM0].nV0 = size;
+		sc_malloc();
+	}
+}
+
 //A0 - 39
 void CPsxBios::sc_InitHeap()
 {
 	uint32 block = m_cpu.m_State.nGPR[SC_PARAM0].nV0;
 	uint32 n = m_cpu.m_State.nGPR[SC_PARAM1].nV0;
+
+	*(reinterpret_cast<uint32*>(m_ram + A_HEAP_BASE)) = block;
+	*(reinterpret_cast<uint32*>(m_ram + A_HEAP_SIZE)) = n;
+	*(reinterpret_cast<uint32*>(m_ram + A_HEAP_END)) = block + (n & ~3) + 4;
+	*(reinterpret_cast<uint32*>(m_ram + A_HEAP_INIT_FLG)) = 0;
+
+	block = m_cpu.m_pAddrTranslator(&m_cpu, block);
+	*(reinterpret_cast<uint32*>(m_ram + block)) = 0;
 }
 
 //A0 - 3F
@@ -1155,17 +1599,17 @@ CPsxBios::SyscallHandler CPsxBios::m_handlerA0[MAX_HANDLER_A0] =
 	//0x08
 	&CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,  &CPsxBios::sc_Illegal,   &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,    &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,
 	//0x10
-	&CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,  &CPsxBios::sc_Illegal,   &CPsxBios::sc_setjmp,  &CPsxBios::sc_longjmp,    &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,
+	&CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,  &CPsxBios::sc_Illegal,   &CPsxBios::sc_setjmp,  &CPsxBios::sc_longjmp,    &CPsxBios::sc_strcat,  &CPsxBios::sc_strncat, &CPsxBios::sc_strcmp,
 	//0x18
-	&CPsxBios::sc_Illegal, &CPsxBios::sc_strcpy,   &CPsxBios::sc_Illegal,   &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,    &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,
+	&CPsxBios::sc_strncmp, &CPsxBios::sc_strcpy,   &CPsxBios::sc_strncpy,   &CPsxBios::sc_strlen,  &CPsxBios::sc_Illegal,    &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,
 	//0x20
 	&CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,  &CPsxBios::sc_Illegal,   &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,    &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,
 	//0x28
 	&CPsxBios::sc_bzero,   &CPsxBios::sc_Illegal,  &CPsxBios::sc_memcpy,    &CPsxBios::sc_memset,  &CPsxBios::sc_Illegal,    &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_rand,
 	//0x30
-	&CPsxBios::sc_srand,   &CPsxBios::sc_Illegal,  &CPsxBios::sc_Illegal,   &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,    &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,
+	&CPsxBios::sc_srand,   &CPsxBios::sc_Illegal,  &CPsxBios::sc_Illegal,   &CPsxBios::sc_malloc,  &CPsxBios::sc_free,       &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_calloc,
 	//0x38
-	&CPsxBios::sc_Illegal, &CPsxBios::sc_InitHeap, &CPsxBios::sc_Illegal,   &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,    &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_printf,
+	&CPsxBios::sc_realloc, &CPsxBios::sc_InitHeap, &CPsxBios::sc_Illegal,   &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,    &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_printf,
 	//0x40
 	&CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,  &CPsxBios::sc_Illegal,   &CPsxBios::sc_Illegal, &CPsxBios::sc_FlushCache, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,
 	//0x48
