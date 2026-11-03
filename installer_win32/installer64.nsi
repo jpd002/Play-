@@ -5,7 +5,7 @@
 
 ; Get version info from git repo
 !tempfile GitDescribeOut
-!system '"git" describe > "${GitDescribeOut}"'
+!system '"git" describe --tags --always > "${GitDescribeOut}"'
 !searchparse /file  "${GitDescribeOut}" "" APP_VERSION
 !undef GitDescribeOut
 
