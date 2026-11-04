@@ -1,28 +1,19 @@
-# TC3 movie audio investigation (experimental)
+# Japanese TC3 movie audio bank and end handling
 
-The Japanese tst1vera opening reuses a movie bank before its audio producer has finished with the packet header. At movie frame 374 the selected bank contains packet 10 (14 audio blocks); at frame 377 it already contains packet 12 (17 blocks), while the audio producer still uses index 14. This sends earlier/future audio instead of switching to packet 11. The nominal audio rate is unchanged.
+The tst1vera movie loader can reuse an EE bank before audio releases its header. Packet 10's 14-block length becomes packet 12's 17-block length while the audio index is still 14. The patch in arcadedefs/timecrs3.arcadedef waits for bank release while pumping audio, then also drains the final packet and waits for the IOP half-buffer transition before the movie's normal end handler. It changes no playback frequency.
 
-## Changes
+The patch is specific to the Japanese tst1vera executable. It redirects read submission at 0x14c540 and movie-end handling at 0x14a984 to stubs at 0x000f0000..0x000f073c. This area was zero in the local RAM dump and is outside this HLE kernel's state/stack area; this is a game-specific workaround, not a general allocation mechanism. The copied audio-pump fragments preserve the original calling convention, omit video/queue advancement, and prevent a final bank switch.
 
-- Fix Namco CDVD streaming sector indexing: the stream position already increments inside the loop.
-- Preserve fractional PCM source position between DMA blocks (48 kHz input to 44.1 kHz output otherwise loses about 0.34%).
-- Add ROM-free regression tests for both corrections.
-- Include an opt-in diagnostic arcade definition and an MPS/PCM comparison script. The two core corrections alone do not fix the TC3 bank race.
+## Measurements
 
-## Experimental definition
+With the earlier bank guard alone, the source-matching capture stopped at 18,589,696 bytes, leaving 55,296 bytes (0.288 s). Waiting for video-end alone stalled further transfers; draining the packet alone still left 14,336 bytes in flight. The final patch waits for the IOP buffer transition as well.
 
-The preview definition is NOT installed by default. It is specific to the local Japanese tst1vera executable and redirects read submission at 0x14c540 to a diagnostic stub at 0x000f0000. While the destination bank is still owned by the audio producer, it pumps only the original audio-transfer portion before submitting the read. The code cave was checked as zero in the local opening RAM dump; it is not a general allocation mechanism or safe for other revisions. Review the machine-code patch before opting in. Use a separate portable profile, back up its timecrs3.arcadedef, and replace only that profile's definition with timecrs3-preview.arcadedef to reproduce. Restore the backup to disable it.
+The final 7500-VBlank null-renderer trace contains all 18,644,992 source PCM bytes exactly, with 2048 additional bytes of DMA read-ahead before stopping. The additional capture is not part of the source movie and is reported separately by the comparison script. A resampled comparison of the final 0.5 s of source audio with the mixed WAV finds correlation 0.99175 and a tail endpoint at capture time 121.896 s, confirming the source tail also reaches mixed output. Correlation is not bit-identical resampling validation.
 
-## Validation and outstanding work
+Playback starts within one VBlank: counters and first DMA become active between VBlanks 1487 and 1488. No 0.288 s initial delay was observed. Video counter reaches all 2911 pictures. Host monitor presentation and Windows device latency were not measured.
 
-On the existing local combined-branch Windows Release build, SpuTest, SpuPcmClockTest and NamcoAcCdvdTest passed (3/3); the GUI built successfully. These checks predate transplanting the changes onto this PR's master base; that exact base has not been rebuilt locally.
+The existing local combined-branch Windows Release build passes NamcoAcCdvdTest, SpuPcmClockTest and SpuTest. The core corrections preserve PCM fractional phase and fix sector indexing; neither alone fixes the TC3 bank/end race. The master-based PR transplant has not been rebuilt locally. Actual Vulkan synchronization, gameplay and other movies remain to be verified. No general fix for other games is claimed.
 
-A null-renderer VM trace ran for 7500 VBlanks. With the preview guard, all 18,589,696 captured PCM bytes match the original source prefix; the movie counter reaches all 2911 pictures. Without it, the first mismatch occurs at byte 2,392,064 (12.459 seconds). The source has 18,644,992 PCM bytes: the final 55,296 bytes (0.288 seconds) are still untransferred. The tail contains nonzero samples. A complete fix must resolve this truncation and verify real Vulkan/audio synchronization, gameplay and other movies.
+No ROM, BIOS, CHD, RAM dump, media capture or executable is distributed. timecrs3-preview.arcadedef mirrors the installed definition for portable-profile comparisons. To disable the workaround, restore the previous empty patches array.
 
-The MPS sequence headers indicate 640x320 at 30 fps. Gameplay frame rate and applicability to other titles remain unmeasured. Timing-only tweaks and semaphore-overflow hypotheses were rejected. No ROM, CHD, BIOS, RAM dump, captured media, executable or unrelated Vulkan changes are included.
-
-Compare locally extracted data with:
-
-```sh
-python tools/Tc3AudioInvestigation/analyze_tc3_audio.py attract.mps dma0.pcm
-```
+Compare local inputs: python tools/Tc3AudioInvestigation/analyze_tc3_audio.py attract.mps dma0.pcm
