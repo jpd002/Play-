@@ -1583,7 +1583,9 @@ bool CSpuBase::CBlockSampleReader::CanReadSamples() const
 void CSpuBase::CBlockSampleReader::FillBlock(const uint8* block)
 {
 	memcpy(m_blockBuffer, block, SOUND_INPUT_DATA_SIZE);
-	m_srcSampleIdx = 0;
+	//Keep the fractional source position across PCM input blocks.
+	const uint32 blockSamples = m_spdifBypass ? (SOUND_INPUT_DATA_SAMPLES / 2) : SOUND_INPUT_DATA_SAMPLES;
+	m_srcSampleIdx %= blockSamples * TIME_SCALE;
 }
 
 void CSpuBase::CBlockSampleReader::GetSamples(int32 samples[2])
