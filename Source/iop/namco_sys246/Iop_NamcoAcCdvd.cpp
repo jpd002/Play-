@@ -263,7 +263,7 @@ bool CAcCdvd::Invoke(uint32 method, uint32* args, uint32 argsSize, uint32* ret, 
 		auto fileSystem = m_opticalMedia->GetFileSystem();
 		for(unsigned int i = 0; i < sectorCount; i++)
 		{
-			fileSystem->ReadBlock(m_streamPos + i, ram + (dstAddr + (i * 0x800)));
+			fileSystem->ReadBlock(m_streamPos, ram + (dstAddr + (i * 0x800)));
 			m_streamPos++;
 		}
 		if(errAddr != 0)
