@@ -46,6 +46,14 @@ std::string CInputProviderEmscripten::GetTargetDescription(const BINDINGTARGET& 
 
 BINDINGTARGET CInputProviderEmscripten::MakeBindingTarget(const EM_UTF8* code)
 {
+	// Browsers report the number row as "Digit0".."Digit9" (KeyboardEvent.code), while the
+	// default bindings use "Key0".."Key9". Normalize so L1/L2/L3/R1/R2/R3 respond.
+	char normalized[5] = {'K', 'e', 'y', 0, 0};
+	if(!strncmp(code, "Digit", 5) && code[5] >= '0' && code[5] <= '9' && code[6] == 0)
+	{
+		normalized[3] = code[5];
+		code = normalized;
+	}
 	uint32 keyCode = 0;
 	if(!strcmp(code, "ArrowUp"))
 		keyCode = INPUT_ARROW_UP;
