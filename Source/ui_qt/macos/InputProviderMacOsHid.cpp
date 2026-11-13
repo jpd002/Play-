@@ -1,4 +1,5 @@
 #include "InputProviderMacOsHid.h"
+#include <algorithm>
 #include "string_format.h"
 
 #define PROVIDER_ID 'mHID'
@@ -39,6 +40,56 @@ static BINDINGTARGET::KEYTYPE GetKeyType(uint32 usage, IOHIDElementType type)
 		}
 	}
 	return keyType;
+}
+
+static bool IsSupportedUsagePage(uint32 usagePage)
+{
+	return (usagePage == kHIDPage_GenericDesktop) ||
+	       (usagePage == kHIDPage_Button) ||
+	       (usagePage == kHIDPage_Simulation);
+}
+
+static uint32 NormalizePovHatValue(CFIndex value, CFIndex minValue, CFIndex maxValue)
+{
+	static const CFIndex FOUR_WAY_POSITION_COUNT = 4;
+	if((value < minValue) || (value > maxValue))
+	{
+		return BINDINGTARGET::POVHAT_MAX;
+	}
+	CFIndex position = value - minValue;
+	if((maxValue - minValue + 1) == FOUR_WAY_POSITION_COUNT)
+	{
+		position *= 2;
+	}
+	//Some devices declare their neutral value inside the logical range (ex.: 0-8 with 8 as neutral)
+	return (position < BINDINGTARGET::POVHAT_MAX) ? static_cast<uint32>(position) : BINDINGTARGET::POVHAT_MAX;
+}
+
+static uint32 NormalizeAxisValue(CFIndex value, CFIndex minValue, CFIndex maxValue)
+{
+	if(maxValue <= minValue)
+	{
+		return static_cast<uint32>(std::clamp<CFIndex>(value, BINDINGTARGET::AXIS_MIN, BINDINGTARGET::AXIS_MAX));
+	}
+	CFIndex clamped = std::clamp(value, minValue, maxValue);
+	return static_cast<uint32>(((clamped - minValue) * BINDINGTARGET::AXIS_MAX) / (maxValue - minValue));
+}
+
+//HID devices report values in their own logical range (ex.: 0-65535 for Xbox controller sticks)
+//while bindings expect 0-255 for axes and 0-7 for pov hats.
+static uint32 NormalizeValue(IOHIDElementRef elementRef, BINDINGTARGET::KEYTYPE keyType, CFIndex value)
+{
+	CFIndex minValue = IOHIDElementGetLogicalMin(elementRef);
+	CFIndex maxValue = IOHIDElementGetLogicalMax(elementRef);
+	switch(keyType)
+	{
+	case BINDINGTARGET::KEYTYPE::POVHAT:
+		return NormalizePovHatValue(value, minValue, maxValue);
+	case BINDINGTARGET::KEYTYPE::AXIS:
+		return NormalizeAxisValue(value, minValue, maxValue);
+	default:
+		return static_cast<uint32>(value);
+	}
 }
 
 CInputProviderMacOsHid::CInputProviderMacOsHid()
@@ -144,9 +195,7 @@ void CInputProviderMacOsHid::InputValueCallback(DEVICE_INFO* deviceInfo, IORetur
 {
 	IOHIDElementRef elementRef = IOHIDValueGetElement(valueRef);
 	uint32 usagePage = IOHIDElementGetUsagePage(elementRef);
-	if(
-	    (usagePage != kHIDPage_GenericDesktop) &&
-	    (usagePage != kHIDPage_Button))
+	if(!IsSupportedUsagePage(usagePage))
 	{
 		return;
 	}
@@ -158,7 +207,7 @@ void CInputProviderMacOsHid::InputValueCallback(DEVICE_INFO* deviceInfo, IORetur
 	tgt.deviceId = deviceInfo->deviceId;
 	tgt.keyId = usage;
 	tgt.keyType = GetKeyType(usage, type);
-	OnInput(tgt, value);
+	OnInput(tgt, NormalizeValue(elementRef, tgt.keyType, value));
 }
 
 void CInputProviderMacOsHid::InputReportCallback_DS3(DEVICE_INFO* deviceInfo, IOReturn result, void* sender, IOHIDReportType type, uint32_t reportID, uint8_t* report, CFIndex reportLength)
@@ -408,9 +457,7 @@ void CInputProviderMacOsHid::SetInitialBindValues(IOHIDDeviceRef device)
 	{
 		IOHIDElementRef elementRef = (IOHIDElementRef)CFArrayGetValueAtIndex(elements, i);
 		uint32 usagePage = IOHIDElementGetUsagePage(elementRef);
-		if(
-		    (usagePage != kHIDPage_GenericDesktop) &&
-		    (usagePage != kHIDPage_Button))
+		if(!IsSupportedUsagePage(usagePage))
 		{
 			continue;
 		}
@@ -433,7 +480,7 @@ void CInputProviderMacOsHid::SetInitialBindValues(IOHIDDeviceRef device)
 		case kIOHIDElementTypeInput_Misc:
 		case kIOHIDElementTypeInput_Button:
 		case kIOHIDElementTypeInput_Axis:
-			OnInput(tgt, value);
+			OnInput(tgt, NormalizeValue(elementRef, tgt.keyType, value));
 			break;
 		default:
 			break;
