@@ -1,3 +1,4 @@
+#include <clocale>
 #include <QApplication>
 #include <QCommandLineParser>
 #include <QtGlobal>
@@ -13,6 +14,9 @@ int main(int argc, char* argv[])
 	QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 #endif
 	QApplication a(argc, argv);
+	//QApplication applies the system locale to the C runtime, which breaks parsing and writing
+	//floats in config files (ex.: "0.5" is read as 0 when the decimal separator is a comma)
+	setlocale(LC_NUMERIC, "C");
 
 	QCoreApplication::setApplicationName("Play!");
 	QCoreApplication::setApplicationVersion("Version: " PLAY_VERSION);
