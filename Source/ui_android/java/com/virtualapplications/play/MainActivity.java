@@ -286,7 +286,7 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 					UnregisterBootable(game.path);
 					prepareFileListView(false);
 				})
-				.setNegativeButton(R.string.cancel, null)
+				.setNegativeButton(android.R.string.cancel, null)
 				.create()
 				.show();
 	}
