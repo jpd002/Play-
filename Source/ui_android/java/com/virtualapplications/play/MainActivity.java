@@ -50,862 +50,907 @@ import static com.virtualapplications.play.ThemeManager.getThemeColor;
 
 public class MainActivity extends AppCompatActivity implements NavigationDrawerFragment.NavigationDrawerCallbacks, SharedPreferences.OnSharedPreferenceChangeListener
 {
-	private int currentOrientation;
-	private GameInfo gameInfo;
-	protected NavigationDrawerFragment mNavigationDrawerFragment;
-	private List<Bootable> currentGames = new ArrayList<>();
-	private int sortMethod = SORT_NONE;
-	private String navSubtitle;
-	private Toolbar toolbar;
-
-	static final int g_settingsRequestCode = 0xDEAD;
-	static final int g_folderPickerRequestCode = 0xBEEF;
-	static final int g_dataFilesExportFolderPickerRequestCode = 0xBEF0;
-	static final int g_dataFilesImportFolderPickerRequestCode = 0xBEF1;
-
-	@Override
-	protected void onCreate(Bundle savedInstanceState)
-	{
-		super.onCreate(savedInstanceState);
-
-		currentOrientation = getResources().getConfiguration().orientation;
-
-		ThemeManager.applyTheme(this, toolbar);
-
-		if(isAndroidTV(this))
-		{
-			setContentView(R.layout.tele);
-		}
-		else
-		{
-			setContentView(R.layout.main);
-		}
-
-		toolbar = findViewById(R.id.main_toolbar);
-		setSupportActionBar(toolbar);
-		toolbar.bringToFront();
-		setUIcolor();
-
-		mNavigationDrawerFragment = (NavigationDrawerFragment)
-				getFragmentManager().findFragmentById(R.id.navigation_drawer);
-
-		mNavigationDrawerFragment.setUp(
-				R.id.navigation_drawer,
-				findViewById(R.id.drawer_layout));
-
-		int attributeResourceId = getThemeColor(this, R.attr.colorPrimaryDark);
-
-		findViewById(R.id.navigation_drawer).setBackgroundColor(Color.parseColor(
-				("#" + Integer.toHexString(attributeResourceId)).replace("#ff", "#8e")
-		));
-
-		if((Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) &&
-		   (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED))
-		{
-			ActivityCompat.requestPermissions(
-					this,
-					new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-					Constants.READ_WRITE_PERMISSION);
-		}
-		else
-		{
-			Startup();
-		}
-	}
-
-	@Override
-	public void onDestroy()
-	{
-		SharedPreferences prefs =
-				PreferenceManager.getDefaultSharedPreferences(this);
-
-		prefs.unregisterOnSharedPreferenceChangeListener(this);
-
-		super.onDestroy();
-	}
-
-	/*
-	 * DIAGNOSTIC STARTUP
-	 *
-	 * Deliberately avoids:
-	 * - EmulatorActivity.RegisterPreferences()
-	 * - NativeInterop
-	 * - BootablesInterop game scanning
-	 *
-	 * This allows us to test whether the Android main screen
-	 * can open without loading libPlay.so.
-	 */
-	private void Startup()
-	{
-		gameInfo = new GameInfo(MainActivity.this);
-
-		SharedPreferences sp =
-				PreferenceManager.getDefaultSharedPreferences(this);
-
-		sortMethod = sp.getInt("sortMethod.v2", SORT_NONE);
-
-		switch(sortMethod)
-		{
-			case SORT_RECENT:
-				navSubtitle = getString(R.string.file_list_recent);
-				break;
-
-			case SORT_HOMEBREW:
-				navSubtitle = getString(R.string.file_list_homebrew);
-				break;
-
-			case SORT_NONE:
-			default:
-				navSubtitle = getString(R.string.file_list_default);
-				break;
-		}
-
-		ActionBar actionbar = getSupportActionBar();
-
-		if(actionbar != null)
-		{
-			actionbar.setSubtitle(
-					getString(R.string.menu_title_shut) +
-					" - " + navSubtitle
-			);
-		}
-
-		// Display an empty list without native game scanning.
-		currentGames = new ArrayList<>();
-		populateImages(currentGames);
-
-		sp.registerOnSharedPreferenceChangeListener(this);
-
-		// Keep external game-intent handling.
-		Intent intent = getIntent();
-
-		if(intent.getAction() != null &&
-		   intent.getAction().equals(Intent.ACTION_VIEW))
-		{
-			Uri uri = intent.getData();
-
-			if(uri != null)
-			{
-				VirtualMachineManager.launchGame(
-						this,
-						uri.toString(),
-						this::finish
-				);
-			}
-		}
-	}
-
-	@Override
-	public void onRequestPermissionsResult(
-			int requestCode,
-			@NonNull String[] permissions,
-			@NonNull int[] grantResults)
-	{
-		super.onRequestPermissionsResult(
-				requestCode,
-				permissions,
-				grantResults);
-
-		if(requestCode == Constants.READ_WRITE_PERMISSION)
-		{
-			if(grantResults.length > 0 &&
-			   grantResults[0] == PackageManager.PERMISSION_GRANTED)
-			{
-				Startup();
-			}
-			else
-			{
-				new AlertDialog.Builder(this)
-						.setTitle(R.string.permission_dialog_title)
-						.setMessage(R.string.permission_dialog_summary)
-						.setPositiveButton(android.R.string.ok, (dialog, id) ->
-								finish())
-						.create()
-						.show();
-			}
-		}
-	}
-
-	private void setUIcolor()
-	{
-		View content = findViewById(R.id.content_frame);
-
-		if(content != null)
-		{
-			int[] colors = new int[2];
-
-			int topgradientcolor =
-					getThemeColor(this, R.attr.colorPrimary);
-
-			float[] hsv = new float[3];
-
-			Color.colorToHSV(topgradientcolor, hsv);
-			hsv[2] *= 0.8f;
-
-			colors[0] = Color.HSVToColor(hsv);
-			colors[1] = Color.rgb(20, 20, 20);
-
-			GradientDrawable gradientbg =
-					new GradientDrawable(
-							GradientDrawable.Orientation.TOP_BOTTOM,
-							colors);
-
-			content.setBackground(gradientbg);
-		}
-
-		int attributeResourceId =
-				getThemeColor(this, R.attr.colorPrimaryDark);
-
-		View drawer = findViewById(R.id.navigation_drawer);
-
-		if(drawer != null)
-		{
-			drawer.setBackgroundColor(Color.parseColor(
-					("#" + Integer.toHexString(attributeResourceId))
-							.replace("#ff", "#8e")
-			));
-		}
-	}
-
-	private void displaySimpleMessage(String title, String message)
-	{
-		new AlertDialog.Builder(this)
-				.setTitle(title)
-				.setMessage(message)
-				.setPositiveButton(android.R.string.ok, null)
-				.create()
-				.show();
-	}
-
-	private void displayGameNotFound(final Bootable game)
-	{
-		new AlertDialog.Builder(this)
-				.setTitle(R.string.not_found)
-				.setMessage(R.string.game_unavailable)
-				.setPositiveButton(android.R.string.ok, (dialog, id) -> {
-					UnregisterBootable(game.path);
-					prepareFileListView(false);
-				})
-				.setNegativeButton(android.R.string.cancel, null)
-				.create()
-				.show();
-	}
-
-	private void displaySettingsActivity()
-	{
-		Intent intent = new Intent(
-				getApplicationContext(),
-				SettingsActivity.class);
-
-		startActivityForResult(intent, g_settingsRequestCode);
-	}
-
-	private void displayFolderPicker()
-	{
-		try
-		{
-			Intent intent =
-					new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
-
-			intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-			intent.addFlags(Intent.FLAG_GRANT_PREFIX_URI_PERMISSION);
-			intent.addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION);
-
-			intent.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
-
-			startActivityForResult(intent, g_folderPickerRequestCode);
-		}
-		catch(Exception ex)
-		{
-			displaySimpleMessage(
-					"Error",
-					String.format(
-							"Error occurred while trying to use ACTION_OPEN_DOCUMENT_TREE intent:\n%s",
-							ex.toString()));
-		}
-	}
-
-	@Override
-	protected void onActivityResult(
-			int requestCode,
-			int resultCode,
-			Intent data)
-	{
-		super.onActivityResult(requestCode, resultCode, data);
-
-		if(requestCode == g_settingsRequestCode)
-		{
-			ThemeManager.applyTheme(this, toolbar);
-			setUIcolor();
-		}
-
-		if(requestCode == 1 && resultCode == RESULT_OK)
-		{
-			if(data != null)
-			{
-				gameInfo.removeBitmapFromMemCache(
-						data.getStringExtra("indexid"));
-			}
-
-			prepareFileListView(false);
-		}
-
-		if(requestCode == g_folderPickerRequestCode &&
-		   resultCode == RESULT_OK)
-		{
-			Uri folderUri = data.getData();
-
-			getContentResolver().takePersistableUriPermission(
-					folderUri,
-					Intent.FLAG_GRANT_READ_URI_PERMISSION);
-
-			prepareFileListView(false);
-		}
-
-		if(requestCode == g_dataFilesExportFolderPickerRequestCode &&
-		   resultCode == RESULT_OK)
-		{
-			Uri folderUri = data.getData();
-
-			DataFilesImpExpProcessTask task =
-					new DataFilesImpExpProcessTask(
-							this,
-							DataFilesImpExpProcess.ImpExpAction.Export,
-							folderUri);
-
-			task.execute();
-		}
-
-		if(requestCode == g_dataFilesImportFolderPickerRequestCode &&
-		   resultCode == RESULT_OK)
-		{
-			Uri folderUri = data.getData();
-
-			DataFilesImpExpProcessTask task =
-					new DataFilesImpExpProcessTask(
-							this,
-							DataFilesImpExpProcess.ImpExpAction.Import,
-							folderUri);
-
-			task.execute();
-		}
-	}
-
-	private void displayAboutDialog()
-	{
-		Date buildDate = BuildConfig.buildTime;
-
-		String buildDateString =
-				new SimpleDateFormat(
-						"yyyy/MM/dd K:mm a",
-						Locale.getDefault()).format(buildDate);
-
-		String timestamp =
-				buildDateString.substring(11).startsWith("0:")
-						? buildDateString.replace("0:", "12:")
-						: buildDateString;
-
-		String aboutMessage = String.format(
-				getString(R.string.about_play_emu) + "\n\n" +
-				getString(R.string.about_play_version) + " %s\n" +
-				getString(R.string.about_play_date) + " %s\n\n" +
-				getString(R.string.about_play_founder) +
-				"\nJean-Philip Desjardins",
-				BuildConfig.VERSION_NAME,
-				timestamp);
-
-		displaySimpleMessage(
-				getString(R.string.about_play),
-				aboutMessage);
-	}
-
-	@Override
-	public void onConfigurationChanged(
-			@NonNull Configuration newConfig)
-	{
-		super.onConfigurationChanged(newConfig);
-
-		mNavigationDrawerFragment.onConfigurationChanged(newConfig);
-
-		if(newConfig.orientation != currentOrientation)
-		{
-			currentOrientation = newConfig.orientation;
-			setUIcolor();
-
-			prepareFileListView(
-					currentGames != null && !currentGames.isEmpty());
-		}
-	}
-
-	@Override
-	public void onNavigationDrawerItemSelected(int position)
-	{
-		switch(position)
-		{
-			case SORT_RECENT:
-				sortMethod = SORT_RECENT;
-				navSubtitle = getString(R.string.file_list_recent);
-				break;
-
-			case SORT_HOMEBREW:
-				sortMethod = SORT_HOMEBREW;
-				navSubtitle = getString(R.string.file_list_homebrew);
-				break;
-
-			case SORT_NONE:
-			default:
-				sortMethod = SORT_NONE;
-				navSubtitle = getString(R.string.file_list_default);
-				break;
-		}
-
-		ActionBar actionbar = getSupportActionBar();
-
-		if(actionbar != null)
-		{
-			actionbar.setSubtitle(
-					getString(R.string.menu_title_shut) +
-					" - " + navSubtitle);
-		}
-
-		prepareFileListView(false);
-
-		SharedPreferences sp =
-				PreferenceManager.getDefaultSharedPreferences(this);
-
-		sp.edit().putInt("sortMethod.v2", sortMethod).apply();
-	}
-
-	@Override
-	public void onNavigationDrawerBottomItemSelected(int position)
-	{
-		switch(position)
-		{
-			case 0:
-				displaySettingsActivity();
-				break;
-
-			case 1:
-				displayFolderPicker();
-				break;
-
-			case 2:
-				displayAboutDialog();
-				break;
-
-			case 3:
-				Intent diagnosticsIntent =
-						new Intent(this, DiagnosticsActivity.class);
-
-				startActivity(diagnosticsIntent);
-				break;
-		}
-	}
-
-	public void restoreActionBar()
-	{
-		ActionBar actionBar = getSupportActionBar();
-
-		actionBar.setDisplayShowTitleEnabled(true);
-		actionBar.setTitle(R.string.app_name);
-		actionBar.setSubtitle(
-				getString(R.string.menu_title_shut) +
-				" - " + navSubtitle);
-	}
-
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu)
-	{
-		if(!mNavigationDrawerFragment.isDrawerOpen())
-		{
-			restoreActionBar();
-			return true;
-		}
-
-		return super.onCreateOptionsMenu(menu);
-	}
-
-	@Override
-	public void onBackPressed()
-	{
-		if(NavigationDrawerFragment.mDrawerLayout != null &&
-		   mNavigationDrawerFragment.isDrawerOpen())
-		{
-			NavigationDrawerFragment.mDrawerLayout.closeDrawer(
-					NavigationDrawerFragment.mFragmentContainerView);
-
-			return;
-		}
-
-		super.onBackPressed();
-		finish();
-	}
-
-	@Override
-	public void onSharedPreferenceChanged(
-			SharedPreferences sharedPreferences,
-			String key)
-	{
-		if(key.equals(PREF_UI_RESCAN))
-		{
-			if(sharedPreferences.getBoolean(PREF_UI_RESCAN, false))
-			{
-				sharedPreferences.edit()
-						.putBoolean(PREF_UI_RESCAN, false)
-						.apply();
-
-				prepareFileListView(false, true);
-			}
-		}
-		else if(key.equals(PREF_UI_CLEAR_UNAVAILABLE))
-		{
-			if(sharedPreferences.getBoolean(
-					PREF_UI_CLEAR_UNAVAILABLE, false))
-			{
-				sharedPreferences.edit()
-						.putBoolean(PREF_UI_CLEAR_UNAVAILABLE, false)
-						.apply();
-
-				PurgeInexistingFiles();
-				prepareFileListView(false);
-			}
-		}
-		else if(key.equals(PREF_UI_EXPORT_DATA_FILES))
-		{
-			if(sharedPreferences.getBoolean(
-					PREF_UI_EXPORT_DATA_FILES, false))
-			{
-				sharedPreferences.edit()
-						.putBoolean(PREF_UI_EXPORT_DATA_FILES, false)
-						.apply();
-
-				selectDataFilesFolder(
-						getString(R.string.datafiles_export_title),
-						getString(R.string.datafiles_export_selectfolder),
-						g_dataFilesExportFolderPickerRequestCode);
-			}
-		}
-		else if(key.equals(PREF_UI_IMPORT_DATA_FILES))
-		{
-			if(sharedPreferences.getBoolean(
-					PREF_UI_IMPORT_DATA_FILES, false))
-			{
-				sharedPreferences.edit()
-						.putBoolean(PREF_UI_IMPORT_DATA_FILES, false)
-						.apply();
-
-				selectDataFilesFolder(
-						getString(R.string.datafiles_import_title),
-						getString(R.string.datafiles_import_selectfolder),
-						g_dataFilesImportFolderPickerRequestCode);
-			}
-		}
-	}
-	
-private void scanContentFolder(DocumentFile folderDoc)
-{
-    if(folderDoc == null || !folderDoc.isDirectory())
+    private int currentOrientation;
+    private GameInfo gameInfo;
+    protected NavigationDrawerFragment mNavigationDrawerFragment;
+    private List<Bootable> currentGames = new ArrayList<>();
+    private int sortMethod = SORT_NONE;
+    private String navSubtitle;
+    private Toolbar toolbar;
+
+    static final int g_settingsRequestCode = 0xDEAD;
+    static final int g_folderPickerRequestCode = 0xBEEF;
+    static final int g_dataFilesExportFolderPickerRequestCode = 0xBEF0;
+    static final int g_dataFilesImportFolderPickerRequestCode = 0xBEF1;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState)
     {
-        return;
+        super.onCreate(savedInstanceState);
+
+        currentOrientation = getResources().getConfiguration().orientation;
+
+        ThemeManager.applyTheme(this, toolbar);
+
+        if(isAndroidTV(this))
+        {
+            setContentView(R.layout.tele);
+        }
+        else
+        {
+            setContentView(R.layout.main);
+        }
+
+        toolbar = findViewById(R.id.main_toolbar);
+        setSupportActionBar(toolbar);
+        toolbar.bringToFront();
+        setUIcolor();
+
+        mNavigationDrawerFragment = (NavigationDrawerFragment)
+                getFragmentManager().findFragmentById(R.id.navigation_drawer);
+
+        mNavigationDrawerFragment.setUp(
+                R.id.navigation_drawer,
+                findViewById(R.id.drawer_layout));
+
+        int attributeResourceId = getThemeColor(this, R.attr.colorPrimaryDark);
+
+        findViewById(R.id.navigation_drawer).setBackgroundColor(Color.parseColor(
+                ("#" + Integer.toHexString(attributeResourceId)).replace("#ff", "#8e")
+        ));
+
+        if((Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) &&
+           (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED))
+        {
+            ActivityCompat.requestPermissions(
+                    this,
+                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                    Constants.READ_WRITE_PERMISSION);
+        }
+        else
+        {
+            Startup();
+        }
     }
 
-    DocumentFile[] files = folderDoc.listFiles();
-
-    if(files == null)
+    @Override
+    public void onDestroy()
     {
-        return;
+        SharedPreferences prefs =
+                PreferenceManager.getDefaultSharedPreferences(this);
+
+        prefs.unregisterOnSharedPreferenceChangeListener(this);
+
+        super.onDestroy();
     }
 
-    for(DocumentFile fileDoc : files)
+    /*
+     * DIAGNOSTIC STARTUP
+     *
+     * Deliberately avoids:
+     * - EmulatorActivity.RegisterPreferences()
+     * - NativeInterop
+     * - BootablesInterop game scanning
+     *
+     * This allows us to test whether the Android main screen
+     * can open without loading libPlay.so.
+     */
+    private void Startup()
+    {
+        gameInfo = new GameInfo(MainActivity.this);
+
+        SharedPreferences sp =
+                PreferenceManager.getDefaultSharedPreferences(this);
+
+        sortMethod = sp.getInt("sortMethod.v2", SORT_NONE);
+
+        switch(sortMethod)
+        {
+            case SORT_RECENT:
+                navSubtitle = getString(R.string.file_list_recent);
+                break;
+
+            case SORT_HOMEBREW:
+                navSubtitle = getString(R.string.file_list_homebrew);
+                break;
+
+            case SORT_NONE:
+            default:
+                navSubtitle = getString(R.string.file_list_default);
+                break;
+        }
+
+        ActionBar actionbar = getSupportActionBar();
+
+        if(actionbar != null)
+        {
+            actionbar.setSubtitle(
+                    getString(R.string.menu_title_shut) +
+                    " - " + navSubtitle
+            );
+        }
+
+        // Display an empty list without native game scanning.
+        currentGames = new ArrayList<>();
+        populateImages(currentGames);
+
+        sp.registerOnSharedPreferenceChangeListener(this);
+
+        // Keep external game-intent handling.
+        Intent intent = getIntent();
+
+        if(intent.getAction() != null &&
+           intent.getAction().equals(Intent.ACTION_VIEW))
+        {
+            Uri uri = intent.getData();
+
+            if(uri != null)
+            {
+                VirtualMachineManager.launchGame(
+                        this,
+                        uri.toString(),
+                        this::finish
+                );
+            }
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(
+            int requestCode,
+            @NonNull String[] permissions,
+            @NonNull int[] grantResults)
+    {
+        super.onRequestPermissionsResult(
+                requestCode,
+                permissions,
+                grantResults);
+
+        if(requestCode == Constants.READ_WRITE_PERMISSION)
+        {
+            if(grantResults.length > 0 &&
+               grantResults[0] == PackageManager.PERMISSION_GRANTED)
+            {
+                Startup();
+            }
+            else
+            {
+                new AlertDialog.Builder(this)
+                        .setTitle(R.string.permission_dialog_title)
+                        .setMessage(R.string.permission_dialog_summary)
+                        .setPositiveButton(android.R.string.ok, (dialog, id) ->
+                                finish())
+                        .create()
+                        .show();
+            }
+        }
+    }
+
+    private void setUIcolor()
+    {
+        View content = findViewById(R.id.content_frame);
+
+        if(content != null)
+        {
+            int[] colors = new int[2];
+
+            int topgradientcolor =
+                    getThemeColor(this, R.attr.colorPrimary);
+
+            float[] hsv = new float[3];
+
+            Color.colorToHSV(topgradientcolor, hsv);
+            hsv[2] *= 0.8f;
+
+            colors[0] = Color.HSVToColor(hsv);
+            colors[1] = Color.rgb(20, 20, 20);
+
+            GradientDrawable gradientbg =
+                    new GradientDrawable(
+                            GradientDrawable.Orientation.TOP_BOTTOM,
+                            colors);
+
+            content.setBackground(gradientbg);
+        }
+
+        int attributeResourceId =
+                getThemeColor(this, R.attr.colorPrimaryDark);
+
+        View drawer = findViewById(R.id.navigation_drawer);
+
+        if(drawer != null)
+        {
+            drawer.setBackgroundColor(Color.parseColor(
+                    ("#" + Integer.toHexString(attributeResourceId))
+                            .replace("#ff", "#8e")
+            ));
+        }
+    }
+
+    private void displaySimpleMessage(String title, String message)
+    {
+        new AlertDialog.Builder(this)
+                .setTitle(title)
+                .setMessage(message)
+                .setPositiveButton(android.R.string.ok, null)
+                .create()
+                .show();
+    }
+
+    private void displayGameNotFound(final Bootable game)
+    {
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.not_found)
+                .setMessage(R.string.game_unavailable)
+                .setPositiveButton(android.R.string.ok, (dialog, id) -> {
+                    UnregisterBootable(game.path);
+                    prepareFileListView(false);
+                })
+                .setNegativeButton(android.R.string.cancel, null)
+                .create()
+                .show();
+    }
+
+    private void displaySettingsActivity()
+    {
+        Intent intent = new Intent(
+                getApplicationContext(),
+                SettingsActivity.class);
+
+        startActivityForResult(intent, g_settingsRequestCode);
+    }
+
+    private void displayFolderPicker()
     {
         try
         {
-            if(fileDoc == null)
-            {
-                continue;
-            }
+            Intent intent =
+                    new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
 
-            if(fileDoc.isDirectory())
-            {
-                scanContentFolder(fileDoc);
-                continue;
-            }
+            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            intent.addFlags(Intent.FLAG_GRANT_PREFIX_URI_PERMISSION);
+            intent.addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION);
 
-            String fileName = fileDoc.getName();
+            intent.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
 
-            if(fileName == null)
-            {
-                continue;
-            }
-
-            String lowerName = fileName.toLowerCase(Locale.ROOT);
-
-            boolean supported =
-                    lowerName.endsWith(".iso") ||
-                    lowerName.endsWith(".chd") ||
-                    lowerName.endsWith(".cso") ||
-                    lowerName.endsWith(".isz") ||
-                    lowerName.endsWith(".mds") ||
-                    lowerName.endsWith(".cue") ||
-                    lowerName.endsWith(".elf");
-
-            if(!supported)
-            {
-                continue;
-            }
-
-            String uri = fileDoc.getUri().toString();
-
-            boolean registered =
-                    BootablesInterop.tryRegisterBootable(uri);
-
-            Log.i(
-                    Constants.TAG,
-                    "JPOG_SCAN: " + fileName +
-                    " registered=" + registered
-            );
+            startActivityForResult(intent, g_folderPickerRequestCode);
         }
         catch(Exception ex)
         {
-            Log.e(
-                    Constants.TAG,
-                    "JPOG_SCAN: Error scanning entry",
-                    ex
-            );
+            displaySimpleMessage(
+                    "Error",
+                    String.format(
+                            "Error occurred while trying to use ACTION_OPEN_DOCUMENT_TREE intent:\n%s",
+                            ex.toString()));
         }
     }
-}
 
-	private final class ImageFinder
-			extends AsyncTask<String, Integer, List<Bootable>>
-	{
-		private final boolean fullscan;
-		private ProgressDialog progDialog;
+    @Override
+    protected void onActivityResult(
+            int requestCode,
+            int resultCode,
+            Intent data)
+    {
+        super.onActivityResult(requestCode, resultCode, data);
 
-		public ImageFinder(boolean fullscan)
-		{
-			this.fullscan = fullscan;
-		}
+        if(requestCode == g_settingsRequestCode)
+        {
+            ThemeManager.applyTheme(this, toolbar);
+            setUIcolor();
+        }
 
-		@Override
-		protected void onPreExecute()
-		{
-			progDialog = ProgressDialog.show(
-					MainActivity.this,
-					getString(R.string.search_games),
-					getString(R.string.search_games_msg),
-					true);
-		}
+        if(requestCode == 1 && resultCode == RESULT_OK)
+        {
+            if(data != null)
+            {
+                gameInfo.removeBitmapFromMemCache(
+                        data.getStringExtra("indexid"));
+            }
 
-		void updateProgressText(String progressText)
-		{
-			runOnUiThread(() -> progDialog.setMessage(progressText));
-		}
+            prepareFileListView(false);
+        }
 
-		@Override
-		protected List<Bootable> doInBackground(String... paths)
-		{
-			if(Build.VERSION.SDK_INT < Build.VERSION_CODES.R)
-			{
-				updateProgressText(
-						getString(R.string.search_games_scanning));
+        // JPOG DIAGNOSTIC: accept folder permission only.
+        // Do not start native game scanning at this stage.
+        if(requestCode == g_folderPickerRequestCode &&
+           resultCode == RESULT_OK)
+        {
+            if(data == null || data.getData() == null)
+            {
+                displaySimpleMessage(
+                        "Folder Error",
+                        "Android tidak mengembalikan URI folder.");
+                return;
+            }
 
-				if(fullscan)
-				{
-					GameIndexer.fullScan();
-				}
-				else
-				{
-					GameIndexer.startupScan();
-				}
-			}
+            Uri folderUri = data.getData();
 
-			List<UriPermission> uriPermissions =
-					getContentResolver().getPersistedUriPermissions();
+            try
+            {
+                getContentResolver().takePersistableUriPermission(
+                        folderUri,
+                        Intent.FLAG_GRANT_READ_URI_PERMISSION);
 
-			if(!uriPermissions.isEmpty())
-			{
-				updateProgressText(
-						getString(R.string.search_games_scan_folders));
+                Log.i(
+                        Constants.TAG,
+                        "JPOG_SCAN: Folder permission granted: " +
+                        folderUri
+                );
 
-				for(UriPermission uriPermission : uriPermissions)
-				{
-					DocumentFile folderDoc =
-							DocumentFile.fromTreeUri(
-									MainActivity.this,
-									uriPermission.getUri());
+                Toast.makeText(
+                        this,
+                        "Folder berhasil dipilih. Pemindaian sementara dinonaktifkan.",
+                        Toast.LENGTH_LONG
+                ).show();
+            }
+            catch(Exception ex)
+            {
+                Log.e(
+                        Constants.TAG,
+                        "JPOG_SCAN: Failed to persist folder permission",
+                        ex
+                );
 
-					scanContentFolder(folderDoc);
-				}
+                displaySimpleMessage(
+                        "Folder Error",
+                        ex.toString());
+            }
+        }
 
-				updateProgressText(
-						getString(R.string.search_games_fetching_titles));
+        if(requestCode == g_dataFilesExportFolderPickerRequestCode &&
+           resultCode == RESULT_OK)
+        {
+            if(data == null || data.getData() == null)
+            {
+                return;
+            }
 
-				BootablesInterop.fetchGameTitles();
-			}
+            Uri folderUri = data.getData();
 
-			updateProgressText(
-					getString(R.string.search_games_fetching));
+            DataFilesImpExpProcessTask task =
+                    new DataFilesImpExpProcessTask(
+                            this,
+                            DataFilesImpExpProcess.ImpExpAction.Export,
+                            folderUri);
 
-			Bootable[] bootables = getBootables(sortMethod);
+            task.execute();
+        }
 
-			return new ArrayList<>(Arrays.asList(bootables));
-		}
+        if(requestCode == g_dataFilesImportFolderPickerRequestCode &&
+           resultCode == RESULT_OK)
+        {
+            if(data == null || data.getData() == null)
+            {
+                return;
+            }
 
-		@Override
-		protected void onPostExecute(List<Bootable> images)
-		{
-			updateProgressText(
-					getString(R.string.search_games_populating));
+            Uri folderUri = data.getData();
 
-			currentGames = images;
+            DataFilesImpExpProcessTask task =
+                    new DataFilesImpExpProcessTask(
+                            this,
+                            DataFilesImpExpProcess.ImpExpAction.Import,
+                            folderUri);
 
-			populateImages(images);
+            task.execute();
+        }
+    }
 
-			if(progDialog != null && progDialog.isShowing())
-			{
-				try
-				{
-					progDialog.dismiss();
-				}
-				catch(final Exception e)
-				{
-					// Ignore dialog dismissal errors.
-				}
-			}
-		}
-	}
+    private void displayAboutDialog()
+    {
+        Date buildDate = BuildConfig.buildTime;
 
-	private void populateImages(List<Bootable> images)
-	{
-		GridView gameGrid = findViewById(R.id.game_grid);
+        String buildDateString =
+                new SimpleDateFormat(
+                        "yyyy/MM/dd K:mm a",
+                        Locale.getDefault()).format(buildDate);
 
-		if(gameGrid != null)
-		{
-			gameGrid.setAdapter(null);
+        String timestamp =
+                buildDateString.substring(11).startsWith("0:")
+                        ? buildDateString.replace("0:", "12:")
+                        : buildDateString;
 
-			if(isAndroidTV(this))
-			{
-				gameGrid.setOnItemClickListener(
-						(parent, v, position, id) -> v.performClick());
-			}
+        String aboutMessage = String.format(
+                getString(R.string.about_play_emu) + "\n\n" +
+                getString(R.string.about_play_version) + " %s\n" +
+                getString(R.string.about_play_date) + " %s\n\n" +
+                getString(R.string.about_play_founder) +
+                "\nJean-Philip Desjardins",
+                BuildConfig.VERSION_NAME,
+                timestamp);
 
-			if(images == null || images.isEmpty())
-			{
-				ArrayAdapter<String> adapter =
-						new ArrayAdapter<>(
-								this,
-								android.R.layout.simple_list_item_1,
-								(sortMethod == SORT_RECENT)
-										? new String[]{getString(R.string.no_recent_adapter)}
-										: new String[]{getString(R.string.no_game_found_adapter)});
+        displaySimpleMessage(
+                getString(R.string.about_play),
+                aboutMessage);
+    }
 
-				gameGrid.setNumColumns(1);
-				gameGrid.setAdapter(adapter);
-			}
-			else
-			{
-				GamesAdapter adapter =
-						new GamesAdapter(
-								this,
-								R.layout.game_list_item,
-								images,
-								gameInfo);
+    @Override
+    public void onConfigurationChanged(
+            @NonNull Configuration newConfig)
+    {
+        super.onConfigurationChanged(newConfig);
 
-				gameGrid.setNumColumns(-1);
+        mNavigationDrawerFragment.onConfigurationChanged(newConfig);
 
-				gameGrid.setColumnWidth(
-						(int)getResources().getDimension(R.dimen.cover_width));
+        if(newConfig.orientation != currentOrientation)
+        {
+            currentOrientation = newConfig.orientation;
+            setUIcolor();
 
-				gameGrid.setAdapter(adapter);
-				gameGrid.invalidate();
-			}
-		}
-	}
+            prepareFileListView(
+                    currentGames != null && !currentGames.isEmpty());
+        }
+    }
 
-	public void launchGame(Bootable game)
-	{
-		if(BootablesInterop.DoesBootableExist(game.path))
-		{
-			setLastBootedTime(
-					game.path,
-					System.currentTimeMillis());
+    @Override
+    public void onNavigationDrawerItemSelected(int position)
+    {
+        switch(position)
+        {
+            case SORT_RECENT:
+                sortMethod = SORT_RECENT;
+                navSubtitle = getString(R.string.file_list_recent);
+                break;
 
-			try
-			{
-				VirtualMachineManager.launchGame(
-						this,
-						game.path,
-						null);
-			}
-			catch(Exception e)
-			{
-				displaySimpleMessage("Error", e.getMessage());
-			}
-		}
-		else
-		{
-			displayGameNotFound(game);
-		}
-	}
+            case SORT_HOMEBREW:
+                sortMethod = SORT_HOMEBREW;
+                navSubtitle = getString(R.string.file_list_homebrew);
+                break;
 
-	private boolean isAndroidTV(Context context)
-	{
-		UiModeManager uiModeManager =
-				(UiModeManager)context.getSystemService(
-						Context.UI_MODE_SERVICE);
+            case SORT_NONE:
+            default:
+                sortMethod = SORT_NONE;
+                navSubtitle = getString(R.string.file_list_default);
+                break;
+        }
 
-		return uiModeManager.getCurrentModeType() ==
-				Configuration.UI_MODE_TYPE_TELEVISION;
-	}
+        ActionBar actionbar = getSupportActionBar();
 
-	public void prepareFileListView(boolean retainList)
-	{
-		prepareFileListView(retainList, false);
-	}
+        if(actionbar != null)
+        {
+            actionbar.setSubtitle(
+                    getString(R.string.menu_title_shut) +
+                    " - " + navSubtitle);
+        }
 
-	private void prepareFileListView(
-			boolean retainList,
-			boolean fullscan)
-	{
-		if(gameInfo == null)
-		{
-			gameInfo = new GameInfo(MainActivity.this);
-		}
+        prepareFileListView(false);
 
-		if(retainList)
-		{
-			populateImages(currentGames);
-		}
-		else
-		{
-			new ImageFinder(fullscan).execute();
-		}
-	}
+        SharedPreferences sp =
+                PreferenceManager.getDefaultSharedPreferences(this);
 
-	private void selectDataFilesFolder(
-			String title,
-			String message,
-			int activityRequestCode)
-	{
-		new AlertDialog.Builder(this)
-				.setTitle(title)
-				.setMessage(message)
-				.setPositiveButton(android.R.string.ok, (dialog, id) -> {
-					Intent intent =
-							new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
+        sp.edit().putInt("sortMethod.v2", sortMethod).apply();
+    }
 
-					intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-					intent.addFlags(Intent.FLAG_GRANT_PREFIX_URI_PERMISSION);
-					intent.addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION);
+    @Override
+    public void onNavigationDrawerBottomItemSelected(int position)
+    {
+        switch(position)
+        {
+            case 0:
+                displaySettingsActivity();
+                break;
 
-					intent.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
+            case 1:
+                displayFolderPicker();
+                break;
 
-					startActivityForResult(
-							intent,
-							activityRequestCode);
-				})
-				.create()
-				.show();
-	}
+            case 2:
+                displayAboutDialog();
+                break;
+
+            case 3:
+                Intent diagnosticsIntent =
+                        new Intent(this, DiagnosticsActivity.class);
+
+                startActivity(diagnosticsIntent);
+                break;
+        }
+    }
+
+    public void restoreActionBar()
+    {
+        ActionBar actionBar = getSupportActionBar();
+
+        actionBar.setDisplayShowTitleEnabled(true);
+        actionBar.setTitle(R.string.app_name);
+        actionBar.setSubtitle(
+                getString(R.string.menu_title_shut) +
+                " - " + navSubtitle);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu)
+    {
+        if(!mNavigationDrawerFragment.isDrawerOpen())
+        {
+            restoreActionBar();
+            return true;
+        }
+
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public void onBackPressed()
+    {
+        if(NavigationDrawerFragment.mDrawerLayout != null &&
+           mNavigationDrawerFragment.isDrawerOpen())
+        {
+            NavigationDrawerFragment.mDrawerLayout.closeDrawer(
+                    NavigationDrawerFragment.mFragmentContainerView);
+
+            return;
+        }
+
+        super.onBackPressed();
+        finish();
+    }
+
+    @Override
+    public void onSharedPreferenceChanged(
+            SharedPreferences sharedPreferences,
+            String key)
+    {
+        if(key.equals(PREF_UI_RESCAN))
+        {
+            if(sharedPreferences.getBoolean(PREF_UI_RESCAN, false))
+            {
+                sharedPreferences.edit()
+                        .putBoolean(PREF_UI_RESCAN, false)
+                        .apply();
+
+                prepareFileListView(false, true);
+            }
+        }
+        else if(key.equals(PREF_UI_CLEAR_UNAVAILABLE))
+        {
+            if(sharedPreferences.getBoolean(
+                    PREF_UI_CLEAR_UNAVAILABLE, false))
+            {
+                sharedPreferences.edit()
+                        .putBoolean(PREF_UI_CLEAR_UNAVAILABLE, false)
+                        .apply();
+
+                PurgeInexistingFiles();
+                prepareFileListView(false);
+            }
+        }
+        else if(key.equals(PREF_UI_EXPORT_DATA_FILES))
+        {
+            if(sharedPreferences.getBoolean(
+                    PREF_UI_EXPORT_DATA_FILES, false))
+            {
+                sharedPreferences.edit()
+                        .putBoolean(PREF_UI_EXPORT_DATA_FILES, false)
+                        .apply();
+
+                selectDataFilesFolder(
+                        getString(R.string.datafiles_export_title),
+                        getString(R.string.datafiles_export_selectfolder),
+                        g_dataFilesExportFolderPickerRequestCode);
+            }
+        }
+        else if(key.equals(PREF_UI_IMPORT_DATA_FILES))
+        {
+            if(sharedPreferences.getBoolean(
+                    PREF_UI_IMPORT_DATA_FILES, false))
+            {
+                sharedPreferences.edit()
+                        .putBoolean(PREF_UI_IMPORT_DATA_FILES, false)
+                        .apply();
+
+                selectDataFilesFolder(
+                        getString(R.string.datafiles_import_title),
+                        getString(R.string.datafiles_import_selectfolder),
+                        g_dataFilesImportFolderPickerRequestCode);
+            }
+        }
+    }
+
+    private void scanContentFolder(DocumentFile folderDoc)
+    {
+        if(folderDoc == null || !folderDoc.isDirectory())
+        {
+            return;
+        }
+
+        DocumentFile[] files = folderDoc.listFiles();
+
+        if(files == null)
+        {
+            return;
+        }
+
+        for(DocumentFile fileDoc : files)
+        {
+            try
+            {
+                if(fileDoc == null)
+                {
+                    continue;
+                }
+
+                if(fileDoc.isDirectory())
+                {
+                    scanContentFolder(fileDoc);
+                    continue;
+                }
+
+                String fileName = fileDoc.getName();
+
+                if(fileName == null)
+                {
+                    continue;
+                }
+
+                String lowerName = fileName.toLowerCase(Locale.ROOT);
+
+                boolean supported =
+                        lowerName.endsWith(".iso") ||
+                        lowerName.endsWith(".chd") ||
+                        lowerName.endsWith(".cso") ||
+                        lowerName.endsWith(".isz") ||
+                        lowerName.endsWith(".mds") ||
+                        lowerName.endsWith(".cue") ||
+                        lowerName.endsWith(".elf");
+
+                if(!supported)
+                {
+                    continue;
+                }
+
+                String uri = fileDoc.getUri().toString();
+
+                boolean registered =
+                        BootablesInterop.tryRegisterBootable(uri);
+
+                Log.i(
+                        Constants.TAG,
+                        "JPOG_SCAN: " + fileName +
+                        " registered=" + registered
+                );
+            }
+            catch(Exception ex)
+            {
+                Log.e(
+                        Constants.TAG,
+                        "JPOG_SCAN: Error scanning entry",
+                        ex
+                );
+            }
+        }
+    }
+
+    private final class ImageFinder
+            extends AsyncTask<String, Integer, List<Bootable>>
+    {
+        private final boolean fullscan;
+        private ProgressDialog progDialog;
+
+        public ImageFinder(boolean fullscan)
+        {
+            this.fullscan = fullscan;
+        }
+
+        @Override
+        protected void onPreExecute()
+        {
+            progDialog = ProgressDialog.show(
+                    MainActivity.this,
+                    getString(R.string.search_games),
+                    getString(R.string.search_games_msg),
+                    true);
+        }
+
+        void updateProgressText(String progressText)
+        {
+            runOnUiThread(() -> progDialog.setMessage(progressText));
+        }
+
+        @Override
+        protected List<Bootable> doInBackground(String... paths)
+        {
+            if(Build.VERSION.SDK_INT < Build.VERSION_CODES.R)
+            {
+                updateProgressText(
+                        getString(R.string.search_games_scanning));
+
+                if(fullscan)
+                {
+                    GameIndexer.fullScan();
+                }
+                else
+                {
+                    GameIndexer.startupScan();
+                }
+            }
+
+            List<UriPermission> uriPermissions =
+                    getContentResolver().getPersistedUriPermissions();
+
+            if(!uriPermissions.isEmpty())
+            {
+                updateProgressText(
+                        getString(R.string.search_games_scan_folders));
+
+                for(UriPermission uriPermission : uriPermissions)
+                {
+                    DocumentFile folderDoc =
+                            DocumentFile.fromTreeUri(
+                                    MainActivity.this,
+                                    uriPermission.getUri());
+
+                    scanContentFolder(folderDoc);
+                }
+
+                updateProgressText(
+                        getString(R.string.search_games_fetching_titles));
+
+                BootablesInterop.fetchGameTitles();
+            }
+
+            updateProgressText(
+                    getString(R.string.search_games_fetching));
+
+            Bootable[] bootables = getBootables(sortMethod);
+
+            return new ArrayList<>(Arrays.asList(bootables));
+        }
+
+        @Override
+        protected void onPostExecute(List<Bootable> images)
+        {
+            updateProgressText(
+                    getString(R.string.search_games_populating));
+
+            currentGames = images;
+
+            populateImages(images);
+
+            if(progDialog != null && progDialog.isShowing())
+            {
+                try
+                {
+                    progDialog.dismiss();
+                }
+                catch(final Exception e)
+                {
+                    // Ignore dialog dismissal errors.
+                }
+            }
+        }
+    }
+
+    private void populateImages(List<Bootable> images)
+    {
+        GridView gameGrid = findViewById(R.id.game_grid);
+
+        if(gameGrid != null)
+        {
+            gameGrid.setAdapter(null);
+
+            if(isAndroidTV(this))
+            {
+                gameGrid.setOnItemClickListener(
+                        (parent, v, position, id) -> v.performClick());
+            }
+
+            if(images == null || images.isEmpty())
+            {
+                ArrayAdapter<String> adapter =
+                        new ArrayAdapter<>(
+                                this,
+                                android.R.layout.simple_list_item_1,
+                                (sortMethod == SORT_RECENT)
+                                        ? new String[]{getString(R.string.no_recent_adapter)}
+                                        : new String[]{getString(R.string.no_game_found_adapter)});
+
+                gameGrid.setNumColumns(1);
+                gameGrid.setAdapter(adapter);
+            }
+            else
+            {
+                GamesAdapter adapter =
+                        new GamesAdapter(
+                                this,
+                                R.layout.game_list_item,
+                                images,
+                                gameInfo);
+
+                gameGrid.setNumColumns(-1);
+
+                gameGrid.setColumnWidth(
+                        (int)getResources().getDimension(R.dimen.cover_width));
+
+                gameGrid.setAdapter(adapter);
+                gameGrid.invalidate();
+            }
+        }
+    }
+
+    public void launchGame(Bootable game)
+    {
+        if(BootablesInterop.DoesBootableExist(game.path))
+        {
+            setLastBootedTime(
+                    game.path,
+                    System.currentTimeMillis());
+
+            try
+            {
+                VirtualMachineManager.launchGame(
+                        this,
+                        game.path,
+                        null);
+            }
+            catch(Exception e)
+            {
+                displaySimpleMessage("Error", e.getMessage());
+            }
+        }
+        else
+        {
+            displayGameNotFound(game);
+        }
+    }
+
+    private boolean isAndroidTV(Context context)
+    {
+        UiModeManager uiModeManager =
+                (UiModeManager)context.getSystemService(
+                        Context.UI_MODE_SERVICE);
+
+        return uiModeManager.getCurrentModeType() ==
+                Configuration.UI_MODE_TYPE_TELEVISION;
+    }
+
+    public void prepareFileListView(boolean retainList)
+    {
+        prepareFileListView(retainList, false);
+    }
+
+    private void prepareFileListView(
+            boolean retainList,
+            boolean fullscan)
+    {
+        if(gameInfo == null)
+        {
+            gameInfo = new GameInfo(MainActivity.this);
+        }
+
+        if(retainList)
+        {
+            populateImages(currentGames);
+        }
+        else
+        {
+            new ImageFinder(fullscan).execute();
+        }
+    }
+
+    private void selectDataFilesFolder(
+            String title,
+            String message,
+            int activityRequestCode)
+    {
+        new AlertDialog.Builder(this)
+                .setTitle(title)
+                .setMessage(message)
+                .setPositiveButton(android.R.string.ok, (dialog, id) -> {
+                    Intent intent =
+                            new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
+
+                    intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                    intent.addFlags(Intent.FLAG_GRANT_PREFIX_URI_PERMISSION);
+                    intent.addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION);
+
+                    intent.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
+
+                    startActivityForResult(
+                            intent,
+                            activityRequestCode);
+                })
+                .create()
+                .show();
+    }
 }
