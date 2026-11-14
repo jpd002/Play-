@@ -67,11 +67,11 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 	protected void onCreate(Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
-		//Log.w(Constants.TAG, "MainActivity - onCreate");
 
 		currentOrientation = getResources().getConfiguration().orientation;
 
 		ThemeManager.applyTheme(this, toolbar);
+
 		if(isAndroidTV(this))
 		{
 			setContentView(R.layout.tele);
@@ -81,9 +81,6 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 			setContentView(R.layout.main);
 		}
 
-//		if (isAndroidTV(this)) {
-//			// Load the menus for Android TV
-//		} else {
 		toolbar = findViewById(R.id.main_toolbar);
 		setSupportActionBar(toolbar);
 		toolbar.bringToFront();
@@ -92,21 +89,23 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 		mNavigationDrawerFragment = (NavigationDrawerFragment)
 				getFragmentManager().findFragmentById(R.id.navigation_drawer);
 
-		// Set up the drawer.
 		mNavigationDrawerFragment.setUp(
 				R.id.navigation_drawer,
 				findViewById(R.id.drawer_layout));
 
 		int attributeResourceId = getThemeColor(this, R.attr.colorPrimaryDark);
+
 		findViewById(R.id.navigation_drawer).setBackgroundColor(Color.parseColor(
 				("#" + Integer.toHexString(attributeResourceId)).replace("#ff", "#8e")
 		));
-//		}
 
-		//We can't request WRITE_EXTERNAL_STORAGE permission on SDK < 33 (we don't necessarily need it anyways)
-		if((Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) && (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED))
+		if((Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) &&
+		   (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED))
 		{
-			ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, Constants.READ_WRITE_PERMISSION);
+			ActivityCompat.requestPermissions(
+					this,
+					new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+					Constants.READ_WRITE_PERMISSION);
 		}
 		else
 		{
@@ -117,65 +116,100 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 	@Override
 	public void onDestroy()
 	{
-		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+		SharedPreferences prefs =
+				PreferenceManager.getDefaultSharedPreferences(this);
+
 		prefs.unregisterOnSharedPreferenceChangeListener(this);
+
 		super.onDestroy();
 	}
-	
-    private void Startup()
-    {
-    EmulatorActivity.RegisterPreferences();
 
-        gameInfo = new GameInfo(MainActivity.this);
+	/*
+	 * DIAGNOSTIC STARTUP
+	 *
+	 * Deliberately avoids:
+	 * - EmulatorActivity.RegisterPreferences()
+	 * - NativeInterop
+	 * - BootablesInterop game scanning
+	 *
+	 * This allows us to test whether the Android main screen
+	 * can open without loading libPlay.so.
+	 */
+	private void Startup()
+	{
+		gameInfo = new GameInfo(MainActivity.this);
 
-        SharedPreferences sp =
-    PreferenceManager.getDefaultSharedPreferences(this);
+		SharedPreferences sp =
+				PreferenceManager.getDefaultSharedPreferences(this);
 
-        sortMethod = sp.getInt("sortMethod.v2", SORT_NONE);
+		sortMethod = sp.getInt("sortMethod.v2", SORT_NONE);
 
-    onNavigationDrawerItemSelected(sortMethod);
+		switch(sortMethod)
+		{
+			case SORT_RECENT:
+				navSubtitle = getString(R.string.file_list_recent);
+				break;
 
-    sp.registerOnSharedPreferenceChangeListener(this);
+			case SORT_HOMEBREW:
+				navSubtitle = getString(R.string.file_list_homebrew);
+				break;
 
-        Intent intent = getIntent();
+			case SORT_NONE:
+			default:
+				navSubtitle = getString(R.string.file_list_default);
+				break;
+		}
 
-        if(intent.getAction() != null &&
-       intent.getAction().equals(Intent.ACTION_VIEW))
-        {
-               try
-               {
-                  Uri uri = intent.getData();
+		ActionBar actionbar = getSupportActionBar();
 
-                  if(uri == null)
-                  {
-                      throw new IllegalArgumentException(
-                          "Game URI is empty.");
-                  }
+		if(actionbar != null)
+		{
+			actionbar.setSubtitle(
+					getString(R.string.menu_title_shut) +
+					" - " + navSubtitle
+			);
+		}
 
-      VirtualMachineManager.launchGame(
-                      this,
-                      uri.toString(),
-                      this::finish);
-               }
-               catch(Exception e)
-               {
-                   displaySimpleMessage(
-                       "Error",
-                       e.getMessage() != null
-                           ? e.getMessage()
-                           : "Unable to launch game.");
+		// Display an empty list without native game scanning.
+		currentGames = new ArrayList<>();
+		populateImages(currentGames);
 
-                  finish();
-            }
-        }
-    }
+		sp.registerOnSharedPreferenceChangeListener(this);
+
+		// Keep external game-intent handling.
+		Intent intent = getIntent();
+
+		if(intent.getAction() != null &&
+		   intent.getAction().equals(Intent.ACTION_VIEW))
+		{
+			Uri uri = intent.getData();
+
+			if(uri != null)
+			{
+				VirtualMachineManager.launchGame(
+						this,
+						uri.toString(),
+						this::finish
+				);
+			}
+		}
+	}
 
 	@Override
-	public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults)
+	public void onRequestPermissionsResult(
+			int requestCode,
+			@NonNull String[] permissions,
+			@NonNull int[] grantResults)
 	{
+		super.onRequestPermissionsResult(
+				requestCode,
+				permissions,
+				grantResults);
+
 		if(requestCode == Constants.READ_WRITE_PERMISSION)
-		{// If request is cancelled, the result arrays are empty.
-			if(grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)
+		{
+			if(grantResults.length > 0 &&
+			   grantResults[0] == PackageManager.PERMISSION_GRANTED)
 			{
 				Startup();
 			}
@@ -185,8 +219,7 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 						.setTitle(R.string.permission_dialog_title)
 						.setMessage(R.string.permission_dialog_summary)
 						.setPositiveButton(android.R.string.ok, (dialog, id) ->
-								finish()
-						)
+								finish())
 						.create()
 						.show();
 			}
@@ -196,27 +229,42 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 	private void setUIcolor()
 	{
 		View content = findViewById(R.id.content_frame);
+
 		if(content != null)
 		{
-			int[] colors = new int[2];// you can increase array size to add more colors to gradient.
-			int topgradientcolor = getThemeColor(this, R.attr.colorPrimary);
+			int[] colors = new int[2];
+
+			int topgradientcolor =
+					getThemeColor(this, R.attr.colorPrimary);
 
 			float[] hsv = new float[3];
+
 			Color.colorToHSV(topgradientcolor, hsv);
-			hsv[2] *= 0.8f;// make it darker
+			hsv[2] *= 0.8f;
+
 			colors[0] = Color.HSVToColor(hsv);
-			/*
-			using this will blend the top of the gradient with actionbar (aka using the same color)
-			colors[0] = topgradientcolor
-			 */
 			colors[1] = Color.rgb(20, 20, 20);
-			GradientDrawable gradientbg = new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM, colors);
+
+			GradientDrawable gradientbg =
+					new GradientDrawable(
+							GradientDrawable.Orientation.TOP_BOTTOM,
+							colors);
+
 			content.setBackground(gradientbg);
 		}
-		int attributeResourceId = getThemeColor(this, R.attr.colorPrimaryDark);
-		findViewById(R.id.navigation_drawer).setBackgroundColor(Color.parseColor(
-				("#" + Integer.toHexString(attributeResourceId)).replace("#ff", "#8e")
-		));
+
+		int attributeResourceId =
+				getThemeColor(this, R.attr.colorPrimaryDark);
+
+		View drawer = findViewById(R.id.navigation_drawer);
+
+		if(drawer != null)
+		{
+			drawer.setBackgroundColor(Color.parseColor(
+					("#" + Integer.toHexString(attributeResourceId))
+							.replace("#ff", "#8e")
+			));
+		}
 	}
 
 	private void displaySimpleMessage(String title, String message)
@@ -238,14 +286,17 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 					UnregisterBootable(game.path);
 					prepareFileListView(false);
 				})
-				.setNegativeButton(android.R.string.cancel, null)
+				.setNegativeButton(R.string.cancel, null)
 				.create()
 				.show();
 	}
 
 	private void displaySettingsActivity()
 	{
-		Intent intent = new Intent(getApplicationContext(), SettingsActivity.class);
+		Intent intent = new Intent(
+				getApplicationContext(),
+				SettingsActivity.class);
+
 		startActivityForResult(intent, g_settingsRequestCode);
 	}
 
@@ -253,22 +304,35 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 	{
 		try
 		{
-			Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
+			Intent intent =
+					new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
+
 			intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
 			intent.addFlags(Intent.FLAG_GRANT_PREFIX_URI_PERMISSION);
 			intent.addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION);
+
 			intent.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
+
 			startActivityForResult(intent, g_folderPickerRequestCode);
 		}
 		catch(Exception ex)
 		{
-			displaySimpleMessage("Error", String.format("Error occurred while trying to use ACTION_OPEN_DOCUMENT_TREE intent:\n%s", ex.toString()));
+			displaySimpleMessage(
+					"Error",
+					String.format(
+							"Error occurred while trying to use ACTION_OPEN_DOCUMENT_TREE intent:\n%s",
+							ex.toString()));
 		}
 	}
 
-	protected void onActivityResult(int requestCode, int resultCode, Intent data)
+	@Override
+	protected void onActivityResult(
+			int requestCode,
+			int resultCode,
+			Intent data)
 	{
 		super.onActivityResult(requestCode, resultCode, data);
+
 		if(requestCode == g_settingsRequestCode)
 		{
 			ThemeManager.applyTheme(this, toolbar);
@@ -279,31 +343,50 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 		{
 			if(data != null)
 			{
-				gameInfo.removeBitmapFromMemCache(data.getStringExtra("indexid"));
+				gameInfo.removeBitmapFromMemCache(
+						data.getStringExtra("indexid"));
 			}
+
 			prepareFileListView(false);
 		}
 
-		if(requestCode == g_folderPickerRequestCode && resultCode == RESULT_OK)
+		if(requestCode == g_folderPickerRequestCode &&
+		   resultCode == RESULT_OK)
 		{
 			Uri folderUri = data.getData();
-			getContentResolver().takePersistableUriPermission(folderUri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
+
+			getContentResolver().takePersistableUriPermission(
+					folderUri,
+					Intent.FLAG_GRANT_READ_URI_PERMISSION);
+
 			prepareFileListView(false);
 		}
 
-		if(requestCode == g_dataFilesExportFolderPickerRequestCode && resultCode == RESULT_OK)
+		if(requestCode == g_dataFilesExportFolderPickerRequestCode &&
+		   resultCode == RESULT_OK)
 		{
 			Uri folderUri = data.getData();
-			DataFilesImpExpProcessTask task = new DataFilesImpExpProcessTask(this,
-					DataFilesImpExpProcess.ImpExpAction.Export, folderUri);
+
+			DataFilesImpExpProcessTask task =
+					new DataFilesImpExpProcessTask(
+							this,
+							DataFilesImpExpProcess.ImpExpAction.Export,
+							folderUri);
+
 			task.execute();
 		}
 
-		if(requestCode == g_dataFilesImportFolderPickerRequestCode && resultCode == RESULT_OK)
+		if(requestCode == g_dataFilesImportFolderPickerRequestCode &&
+		   resultCode == RESULT_OK)
 		{
 			Uri folderUri = data.getData();
-			DataFilesImpExpProcessTask task = new DataFilesImpExpProcessTask(this,
-					DataFilesImpExpProcess.ImpExpAction.Import, folderUri);
+
+			DataFilesImpExpProcessTask task =
+					new DataFilesImpExpProcessTask(
+							this,
+							DataFilesImpExpProcess.ImpExpAction.Import,
+							folderUri);
+
 			task.execute();
 		}
 	}
@@ -311,23 +394,46 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 	private void displayAboutDialog()
 	{
 		Date buildDate = BuildConfig.buildTime;
-		String buildDateString = new SimpleDateFormat("yyyy/MM/dd K:mm a", Locale.getDefault()).format(buildDate);
-		String timestamp = buildDateString.substring(11).startsWith("0:")
-				? buildDateString.replace("0:", "12:") : buildDateString;
-		String aboutMessage = String.format(getString(R.string.about_play_emu) + "\n\n" + getString(R.string.about_play_version) + " %s\n" + getString(R.string.about_play_date) + " %s\n\n" + getString(R.string.about_play_founder) + "\nJean-Philip Desjardins", BuildConfig.VERSION_NAME, timestamp);
-		displaySimpleMessage(getString(R.string.about_play), aboutMessage);
+
+		String buildDateString =
+				new SimpleDateFormat(
+						"yyyy/MM/dd K:mm a",
+						Locale.getDefault()).format(buildDate);
+
+		String timestamp =
+				buildDateString.substring(11).startsWith("0:")
+						? buildDateString.replace("0:", "12:")
+						: buildDateString;
+
+		String aboutMessage = String.format(
+				getString(R.string.about_play_emu) + "\n\n" +
+				getString(R.string.about_play_version) + " %s\n" +
+				getString(R.string.about_play_date) + " %s\n\n" +
+				getString(R.string.about_play_founder) +
+				"\nJean-Philip Desjardins",
+				BuildConfig.VERSION_NAME,
+				timestamp);
+
+		displaySimpleMessage(
+				getString(R.string.about_play),
+				aboutMessage);
 	}
 
 	@Override
-	public void onConfigurationChanged(@NonNull Configuration newConfig)
+	public void onConfigurationChanged(
+			@NonNull Configuration newConfig)
 	{
 		super.onConfigurationChanged(newConfig);
+
 		mNavigationDrawerFragment.onConfigurationChanged(newConfig);
+
 		if(newConfig.orientation != currentOrientation)
 		{
 			currentOrientation = newConfig.orientation;
 			setUIcolor();
-			prepareFileListView(currentGames != null && !currentGames.isEmpty());
+
+			prepareFileListView(
+					currentGames != null && !currentGames.isEmpty());
 		}
 	}
 
@@ -336,30 +442,37 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 	{
 		switch(position)
 		{
-		case SORT_RECENT:
-			sortMethod = SORT_RECENT;
-			navSubtitle = getString(R.string.file_list_recent);
-			break;
-		case SORT_HOMEBREW:
-			sortMethod = SORT_HOMEBREW;
-			navSubtitle = getString(R.string.file_list_homebrew);
-			break;
-		case SORT_NONE:
-		default:
-			sortMethod = SORT_NONE;
-			navSubtitle = getString(R.string.file_list_default);
-			break;
+			case SORT_RECENT:
+				sortMethod = SORT_RECENT;
+				navSubtitle = getString(R.string.file_list_recent);
+				break;
+
+			case SORT_HOMEBREW:
+				sortMethod = SORT_HOMEBREW;
+				navSubtitle = getString(R.string.file_list_homebrew);
+				break;
+
+			case SORT_NONE:
+			default:
+				sortMethod = SORT_NONE;
+				navSubtitle = getString(R.string.file_list_default);
+				break;
 		}
 
 		ActionBar actionbar = getSupportActionBar();
+
 		if(actionbar != null)
 		{
-			actionbar.setSubtitle(getString(R.string.menu_title_shut) + " - " + navSubtitle);
+			actionbar.setSubtitle(
+					getString(R.string.menu_title_shut) +
+					" - " + navSubtitle);
 		}
 
 		prepareFileListView(false);
 
-		SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
+		SharedPreferences sp =
+				PreferenceManager.getDefaultSharedPreferences(this);
+
 		sp.edit().putInt("sortMethod.v2", sortMethod).apply();
 	}
 
@@ -368,82 +481,104 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 	{
 		switch(position)
 		{
-		case 0:
-			displaySettingsActivity();
-			break;
-		case 1:
-			displayFolderPicker();
-			break;
-		case 2:
-			displayAboutDialog();
-			break;
-        case 3:
-            Intent diagnosticsIntent =
-                new Intent(this, DiagnosticsActivity.class);
-            startActivity(diagnosticsIntent);
-            break;	
+			case 0:
+				displaySettingsActivity();
+				break;
+
+			case 1:
+				displayFolderPicker();
+				break;
+
+			case 2:
+				displayAboutDialog();
+				break;
+
+			case 3:
+				Intent diagnosticsIntent =
+						new Intent(this, DiagnosticsActivity.class);
+
+				startActivity(diagnosticsIntent);
+				break;
 		}
 	}
 
 	public void restoreActionBar()
 	{
 		ActionBar actionBar = getSupportActionBar();
+
 		actionBar.setDisplayShowTitleEnabled(true);
 		actionBar.setTitle(R.string.app_name);
-		actionBar.setSubtitle(getString(R.string.menu_title_shut) + " - " + navSubtitle);
+		actionBar.setSubtitle(
+				getString(R.string.menu_title_shut) +
+				" - " + navSubtitle);
 	}
 
+	@Override
 	public boolean onCreateOptionsMenu(Menu menu)
 	{
 		if(!mNavigationDrawerFragment.isDrawerOpen())
 		{
-			// Only show items in the action bar relevant to this screen
-			// if the drawer is not showing. Otherwise, let the drawer
-			// decide what to show in the action bar.
-			//getMenuInflater().inflate(R.menu.main, menu);
 			restoreActionBar();
 			return true;
 		}
+
 		return super.onCreateOptionsMenu(menu);
 	}
 
 	@Override
 	public void onBackPressed()
 	{
-		if(NavigationDrawerFragment.mDrawerLayout != null && mNavigationDrawerFragment.isDrawerOpen())
+		if(NavigationDrawerFragment.mDrawerLayout != null &&
+		   mNavigationDrawerFragment.isDrawerOpen())
 		{
-			NavigationDrawerFragment.mDrawerLayout.closeDrawer(NavigationDrawerFragment.mFragmentContainerView);
+			NavigationDrawerFragment.mDrawerLayout.closeDrawer(
+					NavigationDrawerFragment.mFragmentContainerView);
+
 			return;
 		}
+
 		super.onBackPressed();
 		finish();
 	}
 
 	@Override
-	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key)
+	public void onSharedPreferenceChanged(
+			SharedPreferences sharedPreferences,
+			String key)
 	{
 		if(key.equals(PREF_UI_RESCAN))
 		{
 			if(sharedPreferences.getBoolean(PREF_UI_RESCAN, false))
 			{
-				sharedPreferences.edit().putBoolean(PREF_UI_RESCAN, false).apply();
+				sharedPreferences.edit()
+						.putBoolean(PREF_UI_RESCAN, false)
+						.apply();
+
 				prepareFileListView(false, true);
 			}
 		}
 		else if(key.equals(PREF_UI_CLEAR_UNAVAILABLE))
 		{
-			if(sharedPreferences.getBoolean(PREF_UI_CLEAR_UNAVAILABLE, false))
+			if(sharedPreferences.getBoolean(
+					PREF_UI_CLEAR_UNAVAILABLE, false))
 			{
-				sharedPreferences.edit().putBoolean(PREF_UI_CLEAR_UNAVAILABLE, false).apply();
+				sharedPreferences.edit()
+						.putBoolean(PREF_UI_CLEAR_UNAVAILABLE, false)
+						.apply();
+
 				PurgeInexistingFiles();
 				prepareFileListView(false);
 			}
 		}
 		else if(key.equals(PREF_UI_EXPORT_DATA_FILES))
 		{
-			if(sharedPreferences.getBoolean(PREF_UI_EXPORT_DATA_FILES, false))
+			if(sharedPreferences.getBoolean(
+					PREF_UI_EXPORT_DATA_FILES, false))
 			{
-				sharedPreferences.edit().putBoolean(PREF_UI_EXPORT_DATA_FILES, false).apply();
+				sharedPreferences.edit()
+						.putBoolean(PREF_UI_EXPORT_DATA_FILES, false)
+						.apply();
+
 				selectDataFilesFolder(
 						getString(R.string.datafiles_export_title),
 						getString(R.string.datafiles_export_selectfolder),
@@ -452,9 +587,13 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 		}
 		else if(key.equals(PREF_UI_IMPORT_DATA_FILES))
 		{
-			if(sharedPreferences.getBoolean(PREF_UI_IMPORT_DATA_FILES, false))
+			if(sharedPreferences.getBoolean(
+					PREF_UI_IMPORT_DATA_FILES, false))
 			{
-				sharedPreferences.edit().putBoolean(PREF_UI_IMPORT_DATA_FILES, false).apply();
+				sharedPreferences.edit()
+						.putBoolean(PREF_UI_IMPORT_DATA_FILES, false)
+						.apply();
+
 				selectDataFilesFolder(
 						getString(R.string.datafiles_import_title),
 						getString(R.string.datafiles_import_selectfolder),
@@ -475,25 +614,41 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 				}
 				else
 				{
-					String docUriString = fileDoc.getUri().toString();
+					String docUriString =
+							fileDoc.getUri().toString();
+
 					if(!BootablesInterop.tryRegisterBootable(docUriString))
 					{
-						Log.w(Constants.TAG, String.format("scanContentFolder: Failed to register '%s'.", docUriString));
+						Log.w(
+								Constants.TAG,
+								String.format(
+										"scanContentFolder: Failed to register '%s'.",
+										docUriString));
 					}
 					else
 					{
-						Log.w(Constants.TAG, String.format("scanContentFolder: Registered '%s'.", docUriString));
+						Log.w(
+								Constants.TAG,
+								String.format(
+										"scanContentFolder: Registered '%s'.",
+										docUriString));
 					}
 				}
 			}
 			catch(Exception ex)
 			{
-				Log.w(Constants.TAG, String.format("scanContentFolder: Error while processing '%s': %s", fileDoc.getUri().toString(), ex.toString()));
+				Log.w(
+						Constants.TAG,
+						String.format(
+								"scanContentFolder: Error while processing '%s': %s",
+								fileDoc.getUri().toString(),
+								ex.toString()));
 			}
 		}
 	}
 
-	private final class ImageFinder extends AsyncTask<String, Integer, List<Bootable>>
+	private final class ImageFinder
+			extends AsyncTask<String, Integer, List<Bootable>>
 	{
 		private final boolean fullscan;
 		private ProgressDialog progDialog;
@@ -506,30 +661,26 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 		@Override
 		protected void onPreExecute()
 		{
-			progDialog = ProgressDialog.show(MainActivity.this,
+			progDialog = ProgressDialog.show(
+					MainActivity.this,
 					getString(R.string.search_games),
-					getString(R.string.search_games_msg), true);
+					getString(R.string.search_games_msg),
+					true);
 		}
 
 		void updateProgressText(String progressText)
 		{
-			runOnUiThread(new Runnable()
-			{
-				@Override
-				public void run()
-				{
-					progDialog.setMessage(progressText);
-				}
-			});
+			runOnUiThread(() -> progDialog.setMessage(progressText));
 		}
 
 		@Override
 		protected List<Bootable> doInBackground(String... paths)
 		{
-			//With scoped storage on Android 30, it's not possible to scan the device's filesystem
 			if(Build.VERSION.SDK_INT < Build.VERSION_CODES.R)
 			{
-				updateProgressText(getString(R.string.search_games_scanning));
+				updateProgressText(
+						getString(R.string.search_games_scanning));
+
 				if(fullscan)
 				{
 					GameIndexer.fullScan();
@@ -540,22 +691,33 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 				}
 			}
 
-			List<UriPermission> uriPermissions = getContentResolver().getPersistedUriPermissions();
+			List<UriPermission> uriPermissions =
+					getContentResolver().getPersistedUriPermissions();
+
 			if(!uriPermissions.isEmpty())
 			{
-				updateProgressText(getString(R.string.search_games_scan_folders));
+				updateProgressText(
+						getString(R.string.search_games_scan_folders));
 
 				for(UriPermission uriPermission : uriPermissions)
 				{
-					DocumentFile folderDoc = DocumentFile.fromTreeUri(MainActivity.this, uriPermission.getUri());
+					DocumentFile folderDoc =
+							DocumentFile.fromTreeUri(
+									MainActivity.this,
+									uriPermission.getUri());
+
 					scanContentFolder(folderDoc);
 				}
 
-				updateProgressText(getString(R.string.search_games_fetching_titles));
+				updateProgressText(
+						getString(R.string.search_games_fetching_titles));
+
 				BootablesInterop.fetchGameTitles();
 			}
 
-			updateProgressText(getString(R.string.search_games_fetching));
+			updateProgressText(
+					getString(R.string.search_games_fetching));
+
 			Bootable[] bootables = getBootables(sortMethod);
 
 			return new ArrayList<>(Arrays.asList(bootables));
@@ -564,10 +726,11 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 		@Override
 		protected void onPostExecute(List<Bootable> images)
 		{
-			updateProgressText(getString(R.string.search_games_populating));
+			updateProgressText(
+					getString(R.string.search_games_populating));
 
 			currentGames = images;
-			// Create the list of acceptable images
+
 			populateImages(images);
 
 			if(progDialog != null && progDialog.isShowing())
@@ -578,7 +741,7 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 				}
 				catch(final Exception e)
 				{
-					//We don't really care if we get an exception while dismissing
+					// Ignore dialog dismissal errors.
 				}
 			}
 		}
@@ -587,28 +750,43 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 	private void populateImages(List<Bootable> images)
 	{
 		GridView gameGrid = findViewById(R.id.game_grid);
+
 		if(gameGrid != null)
 		{
 			gameGrid.setAdapter(null);
+
 			if(isAndroidTV(this))
 			{
-				gameGrid.setOnItemClickListener((parent, v, position, id) -> v.performClick());
+				gameGrid.setOnItemClickListener(
+						(parent, v, position, id) -> v.performClick());
 			}
+
 			if(images == null || images.isEmpty())
 			{
-				// Display warning that no disks exist
-				ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, (sortMethod == SORT_RECENT) ? new String[]{getString(R.string.no_recent_adapter)} : new String[]{getString(R.string.no_game_found_adapter)});
+				ArrayAdapter<String> adapter =
+						new ArrayAdapter<>(
+								this,
+								android.R.layout.simple_list_item_1,
+								(sortMethod == SORT_RECENT)
+										? new String[]{getString(R.string.no_recent_adapter)}
+										: new String[]{getString(R.string.no_game_found_adapter)});
+
 				gameGrid.setNumColumns(1);
 				gameGrid.setAdapter(adapter);
 			}
 			else
 			{
-				GamesAdapter adapter = new GamesAdapter(this, R.layout.game_list_item, images, gameInfo);
-				/*
-				-1 = autofit
-				 */
+				GamesAdapter adapter =
+						new GamesAdapter(
+								this,
+								R.layout.game_list_item,
+								images,
+								gameInfo);
+
 				gameGrid.setNumColumns(-1);
-				gameGrid.setColumnWidth((int)getResources().getDimension(R.dimen.cover_width));
+
+				gameGrid.setColumnWidth(
+						(int)getResources().getDimension(R.dimen.cover_width));
 
 				gameGrid.setAdapter(adapter);
 				gameGrid.invalidate();
@@ -620,10 +798,16 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 	{
 		if(BootablesInterop.DoesBootableExist(game.path))
 		{
-			setLastBootedTime(game.path, System.currentTimeMillis());
+			setLastBootedTime(
+					game.path,
+					System.currentTimeMillis());
+
 			try
 			{
-				VirtualMachineManager.launchGame(this, game.path, null);
+				VirtualMachineManager.launchGame(
+						this,
+						game.path,
+						null);
 			}
 			catch(Exception e)
 			{
@@ -638,9 +822,12 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 
 	private boolean isAndroidTV(Context context)
 	{
-		UiModeManager uiModeManager = (UiModeManager)
-				context.getSystemService(Context.UI_MODE_SERVICE);
-		return uiModeManager.getCurrentModeType() == Configuration.UI_MODE_TYPE_TELEVISION;
+		UiModeManager uiModeManager =
+				(UiModeManager)context.getSystemService(
+						Context.UI_MODE_SERVICE);
+
+		return uiModeManager.getCurrentModeType() ==
+				Configuration.UI_MODE_TYPE_TELEVISION;
 	}
 
 	public void prepareFileListView(boolean retainList)
@@ -648,7 +835,9 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 		prepareFileListView(retainList, false);
 	}
 
-	private void prepareFileListView(boolean retainList, boolean fullscan)
+	private void prepareFileListView(
+			boolean retainList,
+			boolean fullscan)
 	{
 		if(gameInfo == null)
 		{
@@ -665,18 +854,27 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 		}
 	}
 
-	private void selectDataFilesFolder(String title, String message, int activityRequestCode)
+	private void selectDataFilesFolder(
+			String title,
+			String message,
+			int activityRequestCode)
 	{
 		new AlertDialog.Builder(this)
 				.setTitle(title)
 				.setMessage(message)
 				.setPositiveButton(android.R.string.ok, (dialog, id) -> {
-					Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
+					Intent intent =
+							new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
+
 					intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
 					intent.addFlags(Intent.FLAG_GRANT_PREFIX_URI_PERMISSION);
 					intent.addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION);
+
 					intent.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
-					startActivityForResult(intent, activityRequestCode);
+
+					startActivityForResult(
+							intent,
+							activityRequestCode);
 				})
 				.create()
 				.show();
