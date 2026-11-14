@@ -601,51 +601,80 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 			}
 		}
 	}
+	
+private void scanContentFolder(DocumentFile folderDoc)
+{
+    if(folderDoc == null || !folderDoc.isDirectory())
+    {
+        return;
+    }
 
-	private void scanContentFolder(DocumentFile folderDoc)
-	{
-		for(DocumentFile fileDoc : folderDoc.listFiles())
-		{
-			try
-			{
-				if(fileDoc.isDirectory())
-				{
-					scanContentFolder(fileDoc);
-				}
-				else
-				{
-					String docUriString =
-							fileDoc.getUri().toString();
+    DocumentFile[] files = folderDoc.listFiles();
 
-					if(!BootablesInterop.tryRegisterBootable(docUriString))
-					{
-						Log.w(
-								Constants.TAG,
-								String.format(
-										"scanContentFolder: Failed to register '%s'.",
-										docUriString));
-					}
-					else
-					{
-						Log.w(
-								Constants.TAG,
-								String.format(
-										"scanContentFolder: Registered '%s'.",
-										docUriString));
-					}
-				}
-			}
-			catch(Exception ex)
-			{
-				Log.w(
-						Constants.TAG,
-						String.format(
-								"scanContentFolder: Error while processing '%s': %s",
-								fileDoc.getUri().toString(),
-								ex.toString()));
-			}
-		}
-	}
+    if(files == null)
+    {
+        return;
+    }
+
+    for(DocumentFile fileDoc : files)
+    {
+        try
+        {
+            if(fileDoc == null)
+            {
+                continue;
+            }
+
+            if(fileDoc.isDirectory())
+            {
+                scanContentFolder(fileDoc);
+                continue;
+            }
+
+            String fileName = fileDoc.getName();
+
+            if(fileName == null)
+            {
+                continue;
+            }
+
+            String lowerName = fileName.toLowerCase(Locale.ROOT);
+
+            boolean supported =
+                    lowerName.endsWith(".iso") ||
+                    lowerName.endsWith(".chd") ||
+                    lowerName.endsWith(".cso") ||
+                    lowerName.endsWith(".isz") ||
+                    lowerName.endsWith(".mds") ||
+                    lowerName.endsWith(".cue") ||
+                    lowerName.endsWith(".elf");
+
+            if(!supported)
+            {
+                continue;
+            }
+
+            String uri = fileDoc.getUri().toString();
+
+            boolean registered =
+                    BootablesInterop.tryRegisterBootable(uri);
+
+            Log.i(
+                    Constants.TAG,
+                    "JPOG_SCAN: " + fileName +
+                    " registered=" + registered
+            );
+        }
+        catch(Exception ex)
+        {
+            Log.e(
+                    Constants.TAG,
+                    "JPOG_SCAN: Error scanning entry",
+                    ex
+            );
+        }
+    }
+}
 
 	private final class ImageFinder
 			extends AsyncTask<String, Integer, List<Bootable>>
