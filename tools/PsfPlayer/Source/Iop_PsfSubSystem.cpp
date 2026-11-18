@@ -6,7 +6,8 @@
 using namespace Iop;
 
 #define FRAMES_PER_SEC (60)
-#define SAMPLING_RATE (44100)
+#define PS1_SAMPLING_RATE (44100)
+#define PS2_SAMPLING_RATE (48000)
 
 CPsfSubSystem::CPsfSubSystem(bool ps2Mode)
     : m_iop(ps2Mode)
@@ -19,6 +20,10 @@ CPsfSubSystem::CPsfSubSystem(bool ps2Mode)
 	uint32 cpuFreq = ps2Mode ? PS2::IOP_CLOCK_OVER_FREQ : PS2::IOP_CLOCK_BASE_FREQ;
 	m_frameTicks = (cpuFreq / FRAMES_PER_SEC);
 	m_spuUpdateTicks = (cpuFreq / 1000);
+
+	SAMPLING_RATE = ps2Mode ? PS2_SAMPLING_RATE : PS1_SAMPLING_RATE;
+	SAMPLE_COUNT = ps2Mode ? PS2_SAMPLE_COUNT : PS1_SAMPLE_COUNT;
+	BLOCK_SIZE = ps2Mode ? PS2_BLOCK_SIZE : PS1_BLOCK_SIZE;
 
 	Reset();
 }
