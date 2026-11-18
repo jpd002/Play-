@@ -731,6 +731,10 @@ void CSpuBase::Render(int16* samples, unsigned int sampleCount)
 		for(unsigned int i = 0; i < 24; i++)
 		{
 			auto& channel(m_channel[i]);
+			if(channel.status == STOPPED && channel.adsrVolume == 0)
+			{
+				continue;
+			}
 			auto& reader(m_reader[i]);
 			if(channel.status == KEY_ON)
 			{
