@@ -58,7 +58,7 @@ static const std::array<uint16, PS2::CControllerInfo::MAX_BUTTONS> g_defaultJvsB
 	0x0040, //SELECT,
 	0x0080, //START,
 	0x4000, //SQUARE,
-	0x8000, //TRIANGLE,
+	0x2000, //TRIANGLE,
 	0x0001, //CIRCLE (Motor Sensor),
 	0x0002, //CROSS,
 	0x0100, //L1,
@@ -66,7 +66,7 @@ static const std::array<uint16, PS2::CControllerInfo::MAX_BUTTONS> g_defaultJvsB
 	0x0400, //L3,
 	0x0800, //R1,
 	0x1000, //R2,
-	0x2000, //R3,
+	0x8000, //R3,
 };
 
 static const std::array<uint16, PS2::CControllerInfo::MAX_BUTTONS> g_defaultJvsSystemButtonBits =
@@ -331,14 +331,16 @@ void CSys246::ProcessJvsPacket(const uint8* input, uint8* output)
 			(*output++) = m_testButtonState;
 
 			//(*output++) = (m_jvsSystemButtonState == 0x03) ? 0x80 : 0;  //Test
-			(*output++) = static_cast<uint8>(m_jvsButtonState[0]);      //Player 1
-			(*output++) = static_cast<uint8>(m_jvsButtonState[0] >> 8); //Player 1
+			auto player1ButtonState = m_jvsButtonState[0] | m_jvsAxisButtonState[0];
+			(*output++) = static_cast<uint8>(player1ButtonState);      //Player 1
+			(*output++) = static_cast<uint8>(player1ButtonState >> 8); //Player 1
 			(*dstSize) += 4;
 
 			if(playerCount == 2)
 			{
-				(*output++) = static_cast<uint8>(m_jvsButtonState[1]);      //Player 2
-				(*output++) = static_cast<uint8>(m_jvsButtonState[1] >> 8); //Player 2
+				auto player2ButtonState = m_jvsButtonState[1] | m_jvsAxisButtonState[1];
+				(*output++) = static_cast<uint8>(player2ButtonState);      //Player 2
+				(*output++) = static_cast<uint8>(player2ButtonState >> 8); //Player 2
 				(*dstSize) += 2;
 			}
 		}
@@ -438,6 +440,11 @@ void CSys246::ProcessJvsPacket(const uint8* input, uint8* output)
 				{
 					(*output++) = static_cast<uint8>(m_jvsDrumChannels[i] >> 8);
 					(*output++) = static_cast<uint8>(m_jvsDrumChannels[i]);
+				}
+				// Reset drum channels after sending — drum inputs are pulses, not held states
+				for(int i = 0; i < JVS_DRUM_CHANNEL_MAX; i++)
+				{
+					m_jvsDrumChannels[i] = 0;
 				}
 			}
 			else if(m_jvsMode == JVS_MODE::DRIVE)
@@ -563,8 +570,24 @@ void CSys246::SetButtonState(unsigned int padNumber, PS2::CControllerInfo::BUTTO
 	{
 		static const uint16 drumPressValue = 0x200;
 
-		m_jvsButtonState[padNumber] &= ~m_jvsButtonBits[button];
-		m_jvsButtonState[padNumber] |= (pressed ? m_jvsButtonBits[button] : 0);
+		// In DRIVE mode, remap R1 -> Shift Up (0x0004) and L1 -> Shift Down (0x0002)
+		// Disable original DPAD_RIGHT and CROSS for shift
+		uint16 buttonBit = m_jvsButtonBits[button];
+		if(m_jvsMode == JVS_MODE::DRIVE)
+		{
+			if(button == PS2::CControllerInfo::R1)
+				buttonBit = 0x0004;
+			else if(button == PS2::CControllerInfo::L1)
+				buttonBit = 0x0002;
+			else if(button == PS2::CControllerInfo::DPAD_RIGHT)
+				buttonBit = 0x0000;
+			else if(button == PS2::CControllerInfo::CROSS)
+				buttonBit = 0x0000;
+		}
+
+		m_jvsButtonState[padNumber] &= ~m_jvsButtonBits[button]; // clear original bit
+		m_jvsButtonState[padNumber] &= ~buttonBit;               // clear remapped bit
+		m_jvsButtonState[padNumber] |= (pressed ? buttonBit : 0);
 
 		if(padNumber == 0)
 		{
@@ -579,9 +602,10 @@ void CSys246::SetButtonState(unsigned int padNumber, PS2::CControllerInfo::BUTTO
 			}
 			else if(m_jvsMode == JVS_MODE::DRUM)
 			{
-				if(button == PS2::CControllerInfo::L1) m_jvsDrumChannels[JVS_DRUM_CHANNEL_1P_DL] = pressed ? drumPressValue << 6 : 0;
+				// Taiko no Tatsujin: DPAD_LEFT=Left Men, L2=Left Fuchi, CROSS=Right Men, R2=Right Fuchi
+				if(button == PS2::CControllerInfo::DPAD_LEFT) m_jvsDrumChannels[JVS_DRUM_CHANNEL_1P_DL] = pressed ? drumPressValue << 6 : 0;
 				if(button == PS2::CControllerInfo::L2) m_jvsDrumChannels[JVS_DRUM_CHANNEL_1P_KL] = pressed ? drumPressValue << 6 : 0;
-				if(button == PS2::CControllerInfo::R1) m_jvsDrumChannels[JVS_DRUM_CHANNEL_1P_DR] = pressed ? drumPressValue << 6 : 0;
+				if(button == PS2::CControllerInfo::CROSS) m_jvsDrumChannels[JVS_DRUM_CHANNEL_1P_DR] = pressed ? drumPressValue << 6 : 0;
 				if(button == PS2::CControllerInfo::R2) m_jvsDrumChannels[JVS_DRUM_CHANNEL_1P_KR] = pressed ? drumPressValue << 6 : 0;
 			}
 		}
@@ -589,9 +613,10 @@ void CSys246::SetButtonState(unsigned int padNumber, PS2::CControllerInfo::BUTTO
 		{
 			if(m_jvsMode == JVS_MODE::DRUM)
 			{
-				if(button == PS2::CControllerInfo::L1) m_jvsDrumChannels[JVS_DRUM_CHANNEL_2P_DL] = pressed ? drumPressValue << 6 : 0;
+				// Taiko no Tatsujin: DPAD_LEFT=Left Men, L2=Left Fuchi, CROSS=Right Men, R2=Right Fuchi
+				if(button == PS2::CControllerInfo::DPAD_LEFT) m_jvsDrumChannels[JVS_DRUM_CHANNEL_2P_DL] = pressed ? drumPressValue << 6 : 0;
 				if(button == PS2::CControllerInfo::L2) m_jvsDrumChannels[JVS_DRUM_CHANNEL_2P_KL] = pressed ? drumPressValue << 6 : 0;
-				if(button == PS2::CControllerInfo::R1) m_jvsDrumChannels[JVS_DRUM_CHANNEL_2P_DR] = pressed ? drumPressValue << 6 : 0;
+				if(button == PS2::CControllerInfo::CROSS) m_jvsDrumChannels[JVS_DRUM_CHANNEL_2P_DR] = pressed ? drumPressValue << 6 : 0;
 				if(button == PS2::CControllerInfo::R2) m_jvsDrumChannels[JVS_DRUM_CHANNEL_2P_KR] = pressed ? drumPressValue << 6 : 0;
 			}
 		}
@@ -645,25 +670,76 @@ void CSys246::SetButtonState(unsigned int padNumber, PS2::CControllerInfo::BUTTO
 
 void CSys246::SetAxisState(unsigned int padNumber, PS2::CControllerInfo::BUTTON button, uint8 axisValue, uint8* ram)
 {
-	switch(button)
+	if((m_jvsMode == JVS_MODE::DEFAULT) && (padNumber < JVS_PLAYER_COUNT))
 	{
-	case PS2::CControllerInfo::BUTTON::ANALOG_LEFT_X:
-		if(axisValue >= 0 || axisValue < 128) m_jvsWheel = axisValue + 128;
-		if(axisValue > 128 || axisValue < 256) m_jvsWheel = axisValue - 128;
-		m_jvsWheel = axisValue;
-		break;
-	case PS2::CControllerInfo::BUTTON::ANALOG_LEFT_Y:
-		if(axisValue >= 128) axisValue = 127; // limit Left stick Y axis to Y+
-		m_jvsGaz = -axisValue + 127;
-		break;
-	case PS2::CControllerInfo::BUTTON::ANALOG_RIGHT_X:
-		if(axisValue < 128) axisValue = 128; // limit Right stick X axis to X+
-		m_jvsBrake = axisValue - 128;
-		break;
-	case PS2::CControllerInfo::BUTTON::ANALOG_RIGHT_Y:
-		break;
-	default:
-		break;
+		constexpr uint8 ANALOG_DPAD_LOW_THRESHOLD = 0x60;
+		constexpr uint8 ANALOG_DPAD_HIGH_THRESHOLD = 0xA0;
+		auto& axisButtonState = m_jvsAxisButtonState[padNumber];
+
+		switch(button)
+		{
+		case PS2::CControllerInfo::BUTTON::ANALOG_LEFT_X:
+		{
+			auto axisMask = m_jvsButtonBits[PS2::CControllerInfo::DPAD_LEFT] |
+			                m_jvsButtonBits[PS2::CControllerInfo::DPAD_RIGHT];
+			axisButtonState &= ~axisMask;
+			if(axisValue < ANALOG_DPAD_LOW_THRESHOLD)
+			{
+				axisButtonState |= m_jvsButtonBits[PS2::CControllerInfo::DPAD_LEFT];
+			}
+			else if(axisValue > ANALOG_DPAD_HIGH_THRESHOLD)
+			{
+				axisButtonState |= m_jvsButtonBits[PS2::CControllerInfo::DPAD_RIGHT];
+			}
+			break;
+		}
+		case PS2::CControllerInfo::BUTTON::ANALOG_LEFT_Y:
+		{
+			auto axisMask = m_jvsButtonBits[PS2::CControllerInfo::DPAD_UP] |
+			                m_jvsButtonBits[PS2::CControllerInfo::DPAD_DOWN];
+			axisButtonState &= ~axisMask;
+			if(axisValue < ANALOG_DPAD_LOW_THRESHOLD)
+			{
+				axisButtonState |= m_jvsButtonBits[PS2::CControllerInfo::DPAD_UP];
+			}
+			else if(axisValue > ANALOG_DPAD_HIGH_THRESHOLD)
+			{
+				axisButtonState |= m_jvsButtonBits[PS2::CControllerInfo::DPAD_DOWN];
+			}
+			break;
+		}
+		default:
+			break;
+		}
+	}
+	else if(m_jvsMode == JVS_MODE::DRIVE)
+	{
+		switch(button)
+		{
+		case PS2::CControllerInfo::BUTTON::ANALOG_LEFT_X:
+			if(axisValue >= 0 || axisValue < 128) m_jvsWheel = axisValue + 128;
+			if(axisValue > 128 || axisValue < 256) m_jvsWheel = axisValue - 128;
+			m_jvsWheel = axisValue;
+			break;
+		case PS2::CControllerInfo::BUTTON::ANALOG_LEFT_Y:
+			break;
+		case PS2::CControllerInfo::BUTTON::ANALOG_RIGHT_X:
+			break;
+		case PS2::CControllerInfo::BUTTON::ANALOG_RIGHT_Y:
+			// Right stick Y upper -> Gaz (Accelerator)
+			if(axisValue < 128)
+			{
+				m_jvsGaz = -axisValue + 127;
+			}
+			// Right stick Y lower -> Brake
+			else
+			{
+				m_jvsBrake = axisValue - 128;
+			}
+			break;
+		default:
+			break;
+		}
 	}
 }
 
