@@ -40,6 +40,10 @@ EM_BOOL keyboardCallback(int eventType, const EmscriptenKeyboardEvent* keyEvent,
 
 extern "C" void initVm()
 {
+	if(g_virtualMachine)
+	{
+		return;
+	}
 	EmscriptenWebGLContextAttributes attr;
 	emscripten_webgl_init_context_attributes(&attr);
 	attr.majorVersion = 2;
@@ -121,12 +125,26 @@ extern "C" void initVm()
 
 void bootElf(std::string path)
 {
-	g_virtualMachine->BootElf(path);
+	if(!g_virtualMachine)
+	{
+		initVm();
+	}
+	if(g_virtualMachine)
+	{
+		g_virtualMachine->BootElf(path);
+	}
 }
 
 void bootDiscImage(std::string path)
 {
-	g_virtualMachine->BootDiscImage(path);
+	if(!g_virtualMachine)
+	{
+		initVm();
+	}
+	if(g_virtualMachine)
+	{
+		g_virtualMachine->BootDiscImage(path);
+	}
 }
 
 int getFrames()
