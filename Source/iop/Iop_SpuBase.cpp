@@ -163,21 +163,23 @@ CSpuBase::CSpuBase(uint8* ram, uint32 ramSize, CSpuSampleCache* sampleCache, CSp
 
 	//Init log table for ADSR
 	memset(m_adsrLogTable, 0, sizeof(m_adsrLogTable));
-
-	uint32 value = 3;
-	uint32 columnIncrement = 1;
-	uint32 column = 0;
-
-	for(unsigned int i = 32; i < 160; i++)
+	for(unsigned int i = 0; i < 160; i++)
 	{
-		if(value < 0x3FFFFFFF)
+		uint32 value = 4 + (i & 3);
+		int shift = (int)(i >> 2) - 8;
+		if(!shift)
 		{
-			value += columnIncrement;
-			column++;
-			if(column == 5)
+		}
+		else if(shift < 0)
+		{
+			value >>= -shift;
+		}
+		else if(shift > 0 && shift <= 28)
+		{
+			value <<= shift;
+			if(value > 0x3FFFFFFF)
 			{
-				column = 1;
-				columnIncrement *= 2;
+				value = 0x3FFFFFFF;
 			}
 		}
 		else
