@@ -38,8 +38,13 @@ bool CISO9660::GetFileRecord(CDirectoryRecord* record, const char* filename)
 
 	while(1)
 	{
-		//Find the next '/'
-		const char* next = strchr(filename, '/');
+		//Find the next '/' or '\\'
+		const char* nextSlash = strchr(filename, '/');
+		const char* nextBackslash = strchr(filename, '\\');
+		const char* next = nullptr;
+		if(nextSlash && nextBackslash) next = std::min(nextSlash, nextBackslash);
+		else if(nextSlash) next = nextSlash;
+		else next = nextBackslash;
 		if(next == nullptr) break;
 
 		std::string dir(filename, next);
