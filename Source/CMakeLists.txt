@@ -282,6 +282,8 @@ set(COMMON_SRC_FILES
 	input/InputBindingManager.cpp
 	input/InputBindingManager.h
 	input/InputProvider.h
+	input/GunCon2Utils.cpp
+	input/GunCon2Utils.h
 	input/PH_GenericInput.cpp
 	input/PH_GenericInput.h
 	iop/ArgumentIterator.cpp
@@ -435,6 +437,8 @@ set(COMMON_SRC_FILES
 	iop/UsbDevice.h
 	iop/UsbBuzzerDevice.cpp
 	iop/UsbBuzzerDevice.h
+	iop/UsbGunCon2Device.cpp
+	iop/UsbGunCon2Device.h
 	ISO9660/BlockProvider.h
 	ISO9660/DirectoryRecord.cpp
 	ISO9660/DirectoryRecord.h

@@ -5,6 +5,7 @@
 #include "string_format.h"
 #include "lexical_cast_ex.h"
 #include "UsbBuzzerDevice.h"
+#include "UsbGunCon2Device.h"
 #include "states/RegisterStateCollectionFile.h"
 
 using namespace Iop;

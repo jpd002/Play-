@@ -23,9 +23,9 @@ namespace Iop
 		void CountTicks(uint32);
 
 		template <typename DeviceType>
-		DeviceType* GetDevice()
+		DeviceType* GetDevice(int instance=0)
 		{
-			auto devicePairIterator = m_devices.find(DeviceType::DEVICE_ID);
+			auto devicePairIterator = m_devices.find(DeviceType::DEVICE_ID + instance);
 			if(devicePairIterator == std::end(m_devices))
 			{
 				return nullptr;
@@ -35,6 +35,7 @@ namespace Iop
 				return static_cast<DeviceType*>(devicePairIterator->second.get());
 			}
 		}
+		void RegisterDevice(UsbDevicePtr);
 
 	private:
 		struct LLDOPS
@@ -48,8 +49,6 @@ namespace Iop
 			uint32 reserved[5];
 			uint32 gp;
 		};
-
-		void RegisterDevice(UsbDevicePtr);
 
 		int32 RegisterLld(uint32);
 		int32 ScanStaticDescriptor(uint32, uint32, uint32);

@@ -2,6 +2,9 @@
 #include "MipsJitter.h"
 
 #ifdef _WIN32
+#ifndef _MSC_VER
+#include <float.h>
+#endif
 #define DENORM_X86
 #elif defined(__APPLE__)
 #include <TargetConditionals.h>
@@ -47,7 +50,11 @@ void FpUtils::EnableFpExceptions()
 {
 #ifdef _WIN32
 	unsigned int currentState = 0;
+#ifdef _MSC_VER
 	_controlfp_s(&currentState, _MCW_EM & ~(_EM_ZERODIVIDE | _EM_INVALID), _MCW_EM);
+#else    
+	_control87(_MCW_EM & ~(_EM_ZERODIVIDE | _EM_INVALID), _MCW_EM);
+#endif
 #endif
 }
 
