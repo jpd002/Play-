@@ -45,9 +45,15 @@ uint64 CJsDiscImageDeviceStream::Read(void* buffer, uint64 size)
 		Module.discImageDevice.read($0, position, $3);
 	},
 	                   buffer, positionLow, positionHigh, static_cast<uint32>(size));
-	while(!MAIN_THREAD_EM_ASM_INT({return Module.discImageDevice.isDone()}))
+	int waitCount = 0;
+	while(!MAIN_THREAD_EM_ASM_INT({return Module.discImageDevice.isDone()}) && waitCount < 50000)
 	{
-		usleep(100);
+		usleep(500);
+		waitCount++;
+	}
+	if(waitCount >= 50000)
+	{
+		emscripten_log(EM_LOG_WARN, "[CJsDiscImageDeviceStream] Read timed out at position %llu", m_position);
 	}
 	m_position += size;
 	return size;
